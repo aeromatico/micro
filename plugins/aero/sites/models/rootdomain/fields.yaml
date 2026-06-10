@@ -1,0 +1,21 @@
+fields:
+    domain:
+        label: Dominio
+        type: text
+        span: left
+        required: true
+        placeholder: micro.clouds.com.bo
+        comment: Sin protocolo (http/https), sin barra final.
+
+    label:
+        label: Nombre amigable
+        type: text
+        span: right
+        required: true
+        placeholder: Micro Clouds
+
+    is_active:
+        label: Activo
+        type: checkbox
+        default: true
+        span: auto

@@ -1,0 +1,55 @@
+tabs:
+    fields:
+        contact_email:
+            label: Email de contacto
+            type: text
+            span: left
+            tab: Información
+
+        phone:
+            label: Teléfono
+            type: text
+            span: right
+            placeholder: "+591 70000000"
+            tab: Información
+
+        whatsapp:
+            label: WhatsApp
+            type: text
+            span: left
+            placeholder: "+591 70000000"
+            comment: Incluye el código de país.
+            tab: Información
+
+        address:
+            label: Dirección
+            type: text
+            span: right
+            tab: Información
+
+        lat:
+            label: Latitud
+            type: number
+            span: left
+            placeholder: "-17.783333"
+            tab: Ubicación
+
+        lng:
+            label: Longitud
+            type: number
+            span: right
+            placeholder: "-63.182222"
+            tab: Ubicación
+
+        form_enabled:
+            label: Habilitar formulario de contacto
+            type: checkbox
+            default: true
+            tab: Formulario
+
+        success_message:
+            label: Mensaje de éxito
+            type: text
+            span: full
+            placeholder: "¡Gracias! Nos comunicaremos contigo pronto."
+            tab: Formulario

@@ -1,0 +1,88 @@
+# Spec de canales de notificación disponibles
+# Cada driver implementa NotificationDriverInterface
+
+channels:
+
+  email:
+    label: "Correo Electrónico"
+    driver: Aero\Sites\Classes\Notifications\EmailNotificationDriver
+    icon: icon-envelope
+    config_fields:
+      to:
+        label: "Email destino"
+        type: string
+        required: true
+        placeholder: "admin@ejemplo.com"
+      template:
+        label: "Template"
+        type: string
+        default: "aero.sites::mail.contact"
+        readonly: true
+
+  whatsapp:
+    label: "WhatsApp (Meta Cloud API)"
+    driver: Aero\Sites\Classes\Notifications\WhatsappNotificationDriver
+    icon: icon-whatsapp
+    config_fields:
+      phone_number_id:
+        label: "Phone Number ID"
+        type: string
+        required: true
+        placeholder: "123456789012345"
+      to:
+        label: "Número destino (con código de país)"
+        type: string
+        required: true
+        placeholder: "+59170000000"
+      access_token:
+        label: "Access Token"
+        type: string
+        required: true
+        secret: true
+      template_name:
+        label: "Nombre del template"
+        type: string
+        default: "contact_notification"
+
+  telegram:
+    label: "Telegram Bot"
+    driver: Aero\Sites\Classes\Notifications\TelegramNotificationDriver
+    icon: icon-send
+    config_fields:
+      bot_token:
+        label: "Bot Token"
+        type: string
+        required: true
+        secret: true
+        placeholder: "123456:ABC-DEF..."
+      chat_id:
+        label: "Chat ID"
+        type: string
+        required: true
+        placeholder: "-100123456789"
+
+  sms:
+    label: "SMS (Twilio)"
+    driver: Aero\Sites\Classes\Notifications\SmsNotificationDriver
+    icon: icon-mobile
+    config_fields:
+      account_sid:
+        label: "Account SID"
+        type: string
+        required: true
+        secret: true
+      auth_token:
+        label: "Auth Token"
+        type: string
+        required: true
+        secret: true
+      from:
+        label: "Número origen"
+        type: string
+        required: true
+        placeholder: "+15005550006"
+      to:
+        label: "Número destino"
+        type: string
+        required: true
+        placeholder: "+59170000000"

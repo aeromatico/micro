@@ -1,0 +1,192 @@
+openapi: 3.0.3
+
+info:
+  title: Aero Sites API
+  description: API REST para micrositios — acceso público por tenant vía API Token
+  version: 1.0.0
+  contact:
+    email: aeromatico@gmail.com
+
+servers:
+  - url: https://{tenant}.micro.clouds.com.bo/api/v1
+    description: Tenant subdomain
+    variables:
+      tenant:
+        default: demo
+
+security:
+  - BearerToken: []
+
+components:
+  securitySchemes:
+    BearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+
+  schemas:
+
+    Site:
+      type: object
+      properties:
+        name:        { type: string }
+        handle:      { type: string }
+        niche:       { type: string }
+        status:      { type: string, enum: [active, inactive, suspended] }
+        primary_color: { type: string }
+        logo_url:    { type: string, nullable: true }
+        favicon_url: { type: string, nullable: true }
+        seo:         { $ref: '#/components/schemas/SeoConfig' }
+        contact:     { $ref: '#/components/schemas/ContactInfo' }
+
+    SeoConfig:
+      type: object
+      properties:
+        title_format:        { type: string }
+        default_description: { type: string }
+        og_image_url:        { type: string, nullable: true }
+        google_analytics_id: { type: string, nullable: true }
+        sitemap_enabled:     { type: boolean }
+
+    ContactInfo:
+      type: object
+      properties:
+        email:     { type: string, nullable: true }
+        phone:     { type: string, nullable: true }
+        whatsapp:  { type: string, nullable: true }
+        address:   { type: string, nullable: true }
+        lat:       { type: number, nullable: true }
+        lng:       { type: number, nullable: true }
+        form_enabled: { type: boolean }
+
+    Page:
+      type: object
+      properties:
+        id:               { type: integer }
+        title:            { type: string }
+        slug:             { type: string }
+        content:          { type: string }
+        meta_title:       { type: string, nullable: true }
+        meta_description: { type: string, nullable: true }
+        og_image_url:     { type: string, nullable: true }
+        layout:           { type: string }
+        sort_order:       { type: integer }
+        updated_at:       { type: string, format: date-time }
+
+    ContactRequest:
+      type: object
+      required: [name, email, message]
+      properties:
+        name:    { type: string, minLength: 2, maxLength: 100 }
+        email:   { type: string, format: email }
+        phone:   { type: string, nullable: true, maxLength: 30 }
+        message: { type: string, minLength: 5, maxLength: 2000 }
+
+    ContactResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+
+    Error:
+      type: object
+      properties:
+        error:   { type: string }
+        message: { type: string }
+
+paths:
+
+  /site:
+    get:
+      summary: Info del tenant activo
+      operationId: getSite
+      tags: [Site]
+      responses:
+        '200':
+          description: Datos del tenant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Site' }
+        '401': { description: Token inválido }
+        '404': { description: Tenant no encontrado }
+
+  /pages:
+    get:
+      summary: Lista páginas publicadas
+      operationId: listPages
+      tags: [Pages]
+      parameters:
+        - name: layout
+          in: query
+          schema: { type: string }
+          description: Filtrar por layout (home, default, full, etc.)
+      responses:
+        '200':
+          description: Lista de páginas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Page' }
+        '401': { description: Token inválido }
+
+  /pages/{slug}:
+    get:
+      summary: Página por slug
+      operationId: getPage
+      tags: [Pages]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Datos de la página
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Page' }
+        '401': { description: Token inválido }
+        '404': { description: Página no encontrada }
+
+  /seo:
+    get:
+      summary: Config SEO del tenant
+      operationId: getSeo
+      tags: [SEO]
+      responses:
+        '200':
+          description: Configuración SEO
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SeoConfig' }
+        '401': { description: Token inválido }
+
+  /contact:
+    post:
+      summary: Enviar formulario de contacto
+      operationId: submitContact
+      tags: [Contact]
+      security:
+        - BearerToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactRequest' }
+      responses:
+        '200':
+          description: Enviado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactResponse' }
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '429': { description: Rate limit excedido }
+        '401': { description: Token inválido }

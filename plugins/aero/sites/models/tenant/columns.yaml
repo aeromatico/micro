@@ -1,0 +1,35 @@
+columns:
+    id:
+        label: '#'
+        type: number
+        width: 60px
+
+    name:
+        label: Nombre
+        type: text
+        searchable: true
+
+    handle:
+        label: Handle
+        type: text
+        searchable: true
+
+    niche_type:
+        label: Niche
+        type: text
+
+    status:
+        label: Estado
+        type: text
+        width: 100px
+
+    rootDomain[domain]:
+        label: Dominio raíz
+        relation: rootDomain
+        select: domain
+        type: text
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

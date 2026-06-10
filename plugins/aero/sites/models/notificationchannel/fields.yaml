@@ -1,0 +1,156 @@
+fields:
+    label:
+        label: Nombre del canal
+        type: text
+        span: left
+        required: true
+        placeholder: "Email principal"
+
+    type:
+        label: Tipo
+        type: dropdown
+        span: right
+        required: true
+        comment: Selecciona el tipo para ver los campos de configuración.
+
+    is_enabled:
+        label: Habilitado
+        type: checkbox
+        default: true
+        span: auto
+
+    _section_email:
+        label: Configuración Email
+        type: section
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[to]:
+        label: Email destino
+        type: text
+        span: full
+        placeholder: admin@ejemplo.com
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    _section_whatsapp:
+        label: Configuración WhatsApp
+        type: section
+        trigger:
+            action: show
+            field: type
+            condition: value[whatsapp]
+
+    config[phone_number_id]:
+        label: Phone Number ID
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: type
+            condition: value[whatsapp]
+
+    config[whatsapp_to]:
+        label: Número destino
+        type: text
+        span: right
+        placeholder: "+59170000000"
+        trigger:
+            action: show
+            field: type
+            condition: value[whatsapp]
+
+    config[access_token]:
+        label: Access Token (Meta)
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: type
+            condition: value[whatsapp]
+
+    config[template_name]:
+        label: Nombre del template
+        type: text
+        span: left
+        default: contact_notification
+        trigger:
+            action: show
+            field: type
+            condition: value[whatsapp]
+
+    _section_telegram:
+        label: Configuración Telegram
+        type: section
+        trigger:
+            action: show
+            field: type
+            condition: value[telegram]
+
+    config[bot_token]:
+        label: Bot Token
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: type
+            condition: value[telegram]
+
+    config[chat_id]:
+        label: Chat ID
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: type
+            condition: value[telegram]
+
+    _section_sms:
+        label: Configuración SMS (Twilio)
+        type: section
+        trigger:
+            action: show
+            field: type
+            condition: value[sms]
+
+    config[account_sid]:
+        label: Account SID
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: type
+            condition: value[sms]
+
+    config[auth_token]:
+        label: Auth Token
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: type
+            condition: value[sms]
+
+    config[from]:
+        label: Número origen
+        type: text
+        span: left
+        placeholder: "+15005550006"
+        trigger:
+            action: show
+            field: type
+            condition: value[sms]
+
+    config[sms_to]:
+        label: Número destino
+        type: text
+        span: right
+        placeholder: "+59170000000"
+        trigger:
+            action: show
+            field: type
+            condition: value[sms]

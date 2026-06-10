@@ -1,0 +1,72 @@
+subject = "Nuevo mensaje de {{ submission.name }}"
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; }
+  .wrapper { max-width: 600px; margin: 0 auto; padding: 32px 16px; }
+  .card { background: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; }
+  .header { background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 32px; text-align: center; }
+  .header h1 { color: #fff; font-size: 22px; font-weight: 700; margin: 0; }
+  .header p { color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 6px; }
+  .body { padding: 32px; }
+  .field { margin-bottom: 20px; }
+  .field-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .field-value { font-size: 15px; color: #f1f5f9; background: #0f172a; border-radius: 8px; padding: 12px 16px; border: 1px solid #334155; line-height: 1.6; }
+  .message-value { white-space: pre-wrap; }
+  .footer { padding: 20px 32px; border-top: 1px solid #334155; text-align: center; }
+  .footer p { font-size: 12px; color: #64748b; }
+  .badge { display: inline-block; background: #1e40af; color: #93c5fd; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="card">
+    <div class="header">
+      <span class="badge">{{ tenant.name }}</span>
+      <h1>Nuevo mensaje de contacto</h1>
+      <p>Recibido el {{ submission.created_at | date('d/m/Y') }} a las {{ submission.created_at | date('H:i') }}</p>
+    </div>
+    <div class="body">
+      <div class="field">
+        <div class="field-label">Nombre</div>
+        <div class="field-value">{{ submission.name }}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Email</div>
+        <div class="field-value"><a href="mailto:{{ submission.email }}" style="color: #818cf8;">{{ submission.email }}</a></div>
+      </div>
+      {% if submission.phone %}
+      <div class="field">
+        <div class="field-label">Teléfono</div>
+        <div class="field-value"><a href="tel:{{ submission.phone }}" style="color: #818cf8;">{{ submission.phone }}</a></div>
+      </div>
+      {% endif %}
+      <div class="field">
+        <div class="field-label">Mensaje</div>
+        <div class="field-value message-value">{{ submission.message }}</div>
+      </div>
+    </div>
+    <div class="footer">
+      <p>Este mensaje fue enviado desde el formulario de contacto de <strong>{{ tenant.name }}</strong>.<br>Powered by Micro Clouds.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+==
+**Nuevo mensaje de {{ submission.name }}**
+
+Sitio: {{ tenant.name }}
+Fecha: {{ submission.created_at | date('d/m/Y H:i') }}
+
+**Nombre:** {{ submission.name }}
+**Email:** {{ submission.email }}
+{% if submission.phone %}**Teléfono:** {{ submission.phone }}{% endif %}
+
+**Mensaje:**
+{{ submission.message }}

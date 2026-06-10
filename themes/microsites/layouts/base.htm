@@ -1,0 +1,29 @@
+description = "Layout base — dark mode, SEO, Alpine.js"
+==
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {% component 'sitesSeo' %}
+
+    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}">
+
+    <!-- Alpine.js via CDN (jsDelivr) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="{{ 'assets/js/app.js' | theme }}" defer></script>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col">
+
+    {% partial 'site/header' %}
+
+    <main class="flex-1">
+        {% page %}
+    </main>
+
+    {% partial 'site/footer' %}
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+tabs:
+    fields:
+        name:
+            label: Nombre del sitio
+            type: text
+            span: left
+            required: true
+            tab: General
+
+        handle:
+            label: Handle (slug)
+            type: text
+            span: right
+            required: true
+            comment: "Identificador único: solo letras, números y guiones."
+            tab: General
+
+        root_domain_id:
+            label: Dominio raíz
+            type: dropdown
+            span: left
+            required: true
+            comment: "El tenant vivirá en {handle}.{dominio}"
+            tab: General
+
+        niche_type:
+            label: Tipo de niche
+            type: dropdown
+            span: right
+            required: true
+            tab: General
+
+        status:
+            label: Estado
+            type: dropdown
+            span: left
+            options:
+                active: Activo
+                inactive: Inactivo
+                suspended: Suspendido
+            tab: General
+
+        primary_color:
+            label: Color primario
+            type: colorpicker
+            span: right
+            default: '#6366f1'
+            tab: General
+
+        logo:
+            label: Logo
+            type: fileupload
+            mode: image
+            imageWidth: 400
+            imageHeight: 200
+            tab: Branding
+
+        favicon:
+            label: Favicon
+            type: fileupload
+            mode: image
+            imageWidth: 64
+            imageHeight: 64
+            tab: Branding

@@ -1,0 +1,17 @@
+name: Página
+form: $/aero/sites/models/page/fields.yaml
+modelClass: Aero\Sites\Models\Page
+defaultRedirect: aero/sites/pages
+
+create:
+    title: Nueva Página
+    redirect: aero/sites/pages/update/:id
+    redirectClose: aero/sites/pages
+
+update:
+    title: Editar Página
+    redirect: aero/sites/pages
+    redirectClose: aero/sites/pages
+
+preview:
+    title: Ver Página

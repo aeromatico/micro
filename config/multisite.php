@@ -36,10 +36,10 @@ return [
     */
 
     'features' => [
-        'system_plugin_sites' => false,
+        'system_plugin_sites' => true,
         'system_plugin_site_groups' => false,
-        'system_asset_combiner' => false,
-        'cms_maintenance_setting' => false,
+        'system_asset_combiner' => true,
+        'cms_maintenance_setting' => true,
         'backend_mail_setting' => false,
         'dashboard_traffic_statistics' => false,
 

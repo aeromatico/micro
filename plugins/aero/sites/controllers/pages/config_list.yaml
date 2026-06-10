@@ -1,0 +1,16 @@
+title: Páginas
+list: $/aero/sites/models/page/columns.yaml
+modelClass: Aero\Sites\Models\Page
+recordUrl: aero/sites/pages/update/:id
+noRecordsMessage: No hay páginas. Crea la primera.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar página...
+
+defaultSort:
+    column: sort_order
+    direction: asc

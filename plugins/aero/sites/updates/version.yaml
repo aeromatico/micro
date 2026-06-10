@@ -1,0 +1,20 @@
+1.0.0:
+    - Primera versión del plugin Sites.
+    - create_root_domains_table.php
+    - create_tenants_table.php
+    - create_domains_table.php
+    - create_seo_configs_table.php
+    - create_pages_table.php
+    - create_contact_configs_table.php
+    - create_notification_channels_table.php
+    - create_contact_submissions_table.php
+    - create_api_tokens_table.php
+
+1.1.0:
+    - Integración nativa con system/sites — columna backend_user_id en tenants.
+    - add_backend_user_to_tenants.php
+
+1.2.0:
+    - Integración RainLab.User — roles, grupos y asignación de usuarios a tenants.
+    - create_tenant_users_table.php
+    - seed_roles_and_groups.php

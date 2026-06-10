@@ -1,0 +1,49 @@
+# Spec base — todos los nichos heredan estos defaults
+# Los nichos concretos sobreescriben sólo lo que necesiten
+
+name: Generic
+handle: generic
+icon: icon-globe
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  # Futuras features (deshabilitadas por defecto)
+  agenda: false
+  portfolio: false
+  store: false
+  listings: false
+  podcast: false
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — sitio web profesional."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Mensaje recibido! Nos pondremos en contacto contigo pronto."
+
+recommended_notification: email
+
+# Layouts disponibles en el tema microsites
+available_layouts:
+  - home
+  - default
+  - full
+  - landing
+  - contact

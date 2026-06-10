@@ -1,0 +1,5 @@
+{% if __SELF__.page %}
+<article class="prose prose-invert prose-lg max-w-none">
+    {{ __SELF__.page.content | raw }}
+</article>
+{% endif %}

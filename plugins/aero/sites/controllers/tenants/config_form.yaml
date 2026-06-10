@@ -1,0 +1,17 @@
+name: Tenant
+form: $/aero/sites/models/tenant/fields.yaml
+modelClass: Aero\Sites\Models\Tenant
+defaultRedirect: aero/sites/tenants
+
+create:
+    title: Nuevo Tenant
+    redirect: aero/sites/tenants/update/:id
+    redirectClose: aero/sites/tenants
+
+update:
+    title: Editar Tenant
+    redirect: aero/sites/tenants
+    redirectClose: aero/sites/tenants
+
+preview:
+    title: Ver Tenant

@@ -1,0 +1,14 @@
+name: Token API
+form: $/aero/sites/models/apitoken/fields.yaml
+modelClass: Aero\Sites\Models\ApiToken
+defaultRedirect: aero/sites/apitokens
+
+create:
+    title: Nuevo Token API
+    redirect: aero/sites/apitokens/update/:id
+    redirectClose: aero/sites/apitokens
+
+update:
+    title: Editar Token API
+    redirect: aero/sites/apitokens
+    redirectClose: aero/sites/apitokens

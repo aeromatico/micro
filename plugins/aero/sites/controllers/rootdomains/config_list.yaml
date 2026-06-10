@@ -1,0 +1,16 @@
+title: Dominios Raíz
+list: $/aero/sites/models/rootdomain/columns.yaml
+modelClass: Aero\Sites\Models\RootDomain
+recordUrl: aero/sites/rootdomains/update/:id
+noRecordsMessage: No hay dominios raíz configurados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar dominio...
+
+defaultSort:
+    column: sort_order
+    direction: asc

@@ -1,0 +1,6 @@
+users:
+    label: Usuarios
+    manage:
+        form: $/aero/sites/models/tenantuser/fields.yaml
+    view:
+        list: $/aero/sites/models/tenantuser/columns.yaml

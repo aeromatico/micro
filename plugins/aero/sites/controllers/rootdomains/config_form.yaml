@@ -1,0 +1,17 @@
+name: Dominio Raíz
+form: $/aero/sites/models/rootdomain/fields.yaml
+modelClass: Aero\Sites\Models\RootDomain
+defaultRedirect: aero/sites/rootdomains
+
+create:
+    title: Nuevo Dominio Raíz
+    redirect: aero/sites/rootdomains/update/:id
+    redirectClose: aero/sites/rootdomains
+
+update:
+    title: Editar Dominio Raíz
+    redirect: aero/sites/rootdomains
+    redirectClose: aero/sites/rootdomains
+
+preview:
+    title: Ver Dominio Raíz

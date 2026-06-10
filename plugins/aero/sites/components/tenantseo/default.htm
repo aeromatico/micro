@@ -1,0 +1,30 @@
+{% if __SELF__.tenant %}
+<title>{{ __SELF__.pageTitle }}</title>
+<meta name="description" content="{{ __SELF__.metaDescription }}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ __SELF__.canonicalUrl }}">
+
+{% if __SELF__.ogImageUrl %}
+<meta property="og:image" content="{{ __SELF__.ogImageUrl }}">
+{% endif %}
+<meta property="og:title" content="{{ __SELF__.pageTitle }}">
+<meta property="og:description" content="{{ __SELF__.metaDescription }}">
+<meta property="og:url" content="{{ __SELF__.canonicalUrl }}">
+<meta property="og:type" content="website">
+
+{% if __SELF__.tenant.favicon %}
+<link rel="icon" href="{{ __SELF__.tenant.favicon.getPath() }}" type="image/x-icon">
+{% endif %}
+
+<style>:root { --color-primary: {{ __SELF__.primaryColor }}; }</style>
+
+{% if __SELF__.analyticsId %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ __SELF__.analyticsId }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ __SELF__.analyticsId }}');
+</script>
+{% endif %}
+{% endif %}

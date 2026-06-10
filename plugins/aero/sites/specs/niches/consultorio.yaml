@@ -1,0 +1,43 @@
+name: Consultorio / Clínica
+handle: consultorio
+icon: icon-medkit
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  agenda: false   # fase futura: gestión de citas
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+  - title: "Servicios"
+    slug: "servicios"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "El Especialista"
+    slug: "el-especialista"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto y Citas"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Atención médica especializada. Agenda tu consulta hoy."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Nos comunicaremos contigo para confirmar tu cita."
+
+recommended_notification: whatsapp

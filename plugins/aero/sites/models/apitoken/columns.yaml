@@ -1,0 +1,19 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    last_used_at:
+        label: Último uso
+        type: datetime
+        width: 160px
+
+    expires_at:
+        label: Expira
+        type: datetime
+        width: 160px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

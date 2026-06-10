@@ -1,0 +1,16 @@
+title: Usuarios de Tenants
+list: $/aero/sites/models/tenantuser/columns.yaml
+modelClass: Aero\Sites\Models\TenantUser
+recordUrl: aero/sites/tenantusers/update/:id
+noRecordsMessage: No hay usuarios asignados.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar usuario...
+
+defaultSort:
+    column: created_at
+    direction: desc

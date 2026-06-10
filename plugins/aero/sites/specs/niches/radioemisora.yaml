@@ -1,0 +1,48 @@
+name: Radio Emisora
+handle: radioemisora
+icon: icon-music
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  podcast: false   # fase futura: episodios / podcasts
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+  - title: "En Vivo"
+    slug: "en-vivo"
+    layout: full
+    is_published: true
+    sort_order: 2
+  - title: "Programación"
+    slug: "programacion"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "El Equipo"
+    slug: "el-equipo"
+    layout: default
+    is_published: true
+    sort_order: 4
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name} Radio"
+  default_description: "{name} — Tu radio en línea. Escúchanos en vivo las 24 horas."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias por escribirnos! Te responderemos a la brevedad."
+
+recommended_notification: telegram

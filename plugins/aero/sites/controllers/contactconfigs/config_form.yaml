@@ -1,0 +1,12 @@
+name: Configuración de Contacto
+form: $/aero/sites/models/contactconfig/fields.yaml
+modelClass: Aero\Sites\Models\ContactConfig
+defaultRedirect: aero/sites/contactconfigs
+
+create:
+    title: Configuración de Contacto
+    redirect: aero/sites/contactconfigs/update/:id
+
+update:
+    title: Configuración de Contacto
+    redirect: aero/sites/contactconfigs

@@ -1,0 +1,14 @@
+name: Canal de Notificación
+form: $/aero/sites/models/notificationchannel/fields.yaml
+modelClass: Aero\Sites\Models\NotificationChannel
+defaultRedirect: aero/sites/notificationchannels
+
+create:
+    title: Nuevo Canal
+    redirect: aero/sites/notificationchannels/update/:id
+    redirectClose: aero/sites/notificationchannels
+
+update:
+    title: Editar Canal
+    redirect: aero/sites/notificationchannels
+    redirectClose: aero/sites/notificationchannels

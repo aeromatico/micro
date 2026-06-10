@@ -31,3 +31,5 @@ nbproject
 /bootstrap/compiled.php
 /vendor
 /vendor_drm
+themes/*/node_modules
+plugins/rainlab/user/node_modules

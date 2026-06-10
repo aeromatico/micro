@@ -1,0 +1,23 @@
+fields:
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        required: true
+
+    user_id:
+        label: Usuario
+        type: dropdown
+        span: right
+        required: true
+        comment: Usuario de RainLab.User
+
+    role:
+        label: Rol en el tenant
+        type: dropdown
+        span: left
+        required: true
+        options:
+            admin: Admin
+            moderator: Moderador
+            user: Usuario

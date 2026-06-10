@@ -1,0 +1,41 @@
+fields:
+    title_format:
+        label: Formato del título de página
+        type: text
+        span: full
+        required: true
+        comment: "Usa %s para el título de la página y {name} para el nombre del sitio. Ej: %s | {name}"
+
+    default_description:
+        label: Descripción por defecto
+        type: textarea
+        size: small
+        span: full
+        comment: Se usa cuando la página no tiene descripción propia.
+
+    og_image:
+        label: Imagen OG por defecto
+        type: fileupload
+        mode: image
+        imageWidth: 1200
+        imageHeight: 630
+        comment: "Recomendado: 1200x630px. Se usa en redes sociales cuando no hay imagen de página."
+
+    google_analytics_id:
+        label: Google Analytics ID
+        type: text
+        span: left
+        placeholder: G-XXXXXXXXXX
+
+    sitemap_enabled:
+        label: Habilitar sitemap.xml
+        type: checkbox
+        default: true
+        span: right
+
+    robots_txt:
+        label: Contenido de robots.txt
+        type: codeeditor
+        language: text
+        size: small
+        span: full

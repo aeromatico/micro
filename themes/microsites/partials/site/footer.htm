@@ -1,0 +1,64 @@
+{% set cc = sitesContact.contactConfig %}
+{% set pages = sitesPageList.pages %}
+
+<footer class="border-t border-slate-800 bg-slate-950 mt-auto">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            {{-- Branding --}}
+            <div class="space-y-3">
+                <a href="/" class="block">
+                    {% if tenant and tenant.logo %}
+                        <img src="{{ tenant.logo.getPath() }}" alt="{{ tenant.name }}" class="h-7 w-auto">
+                    {% else %}
+                        <span class="text-lg font-bold text-white">{{ tenant.name ?? 'Micrositio' }}</span>
+                    {% endif %}
+                </a>
+                {% if cc and cc.address %}
+                <p class="text-sm text-slate-500">{{ cc.address }}</p>
+                {% endif %}
+            </div>
+
+            {{-- Páginas --}}
+            {% if pages %}
+            <div>
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Navegación</h4>
+                <ul class="space-y-2">
+                    {% for page in pages %}
+                    <li>
+                        <a href="{{ page.slug ? '/' ~ page.slug : '/' }}"
+                           class="text-sm text-slate-400 hover:text-white transition-colors">
+                            {{ page.title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {{-- Contacto --}}
+            {% if cc %}
+            <div>
+                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Contacto</h4>
+                <ul class="space-y-2">
+                    {% if cc.contact_email %}
+                    <li><a href="mailto:{{ cc.contact_email }}" class="text-sm text-slate-400 hover:text-white transition-colors">{{ cc.contact_email }}</a></li>
+                    {% endif %}
+                    {% if cc.phone %}
+                    <li><a href="tel:{{ cc.phone }}" class="text-sm text-slate-400 hover:text-white transition-colors">{{ cc.phone }}</a></li>
+                    {% endif %}
+                    {% if cc.whatsapp %}
+                    <li><a href="{{ cc.whatsapp_link }}" target="_blank" rel="noopener" class="text-sm text-green-500 hover:text-green-400 transition-colors">WhatsApp</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <p class="text-xs text-slate-600">© {{ 'now' | date('Y') }} {{ tenant.name ?? '' }}. Todos los derechos reservados.</p>
+            <p class="text-xs text-slate-700">Powered by <a href="https://micro.clouds.com.bo" class="hover:text-slate-500 transition-colors">Micro Clouds</a></p>
+        </div>
+    </div>
+</footer>

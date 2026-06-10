@@ -1,0 +1,15 @@
+title: Envíos de Contacto
+list: $/aero/sites/models/contactsubmission/columns.yaml
+modelClass: Aero\Sites\Models\ContactSubmission
+noRecordsMessage: No hay envíos recibidos aún.
+recordsPerPage: 30
+
+toolbar:
+    search:
+        prompt: Buscar...
+
+filter: $/aero/sites/models/contactsubmission/scopes.yaml
+
+defaultSort:
+    column: created_at
+    direction: desc

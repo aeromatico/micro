@@ -1,0 +1,42 @@
+url = "/:slug"
+layout = "base"
+description = "Página estática dinámica"
+
+[sitesSeo]
+pageTitle = ""
+
+[sitesPageDetail]
+slug = ":slug"
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+==
+{% set page = sitesPageDetail.page %}
+
+{% if page %}
+<article class="py-16 sm:py-20">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+
+        <header class="mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                {{ page.title }}
+            </h1>
+        </header>
+
+        <div class="prose prose-invert prose-lg max-w-none
+                    prose-headings:text-white prose-headings:font-bold
+                    prose-p:text-slate-300 prose-p:leading-relaxed
+                    prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:text-indigo-300
+                    prose-strong:text-white
+                    prose-ul:text-slate-300 prose-ol:text-slate-300
+                    prose-blockquote:border-indigo-500 prose-blockquote:text-slate-400
+                    prose-hr:border-slate-700
+                    prose-img:rounded-2xl">
+            {{ page.content | raw }}
+        </div>
+
+    </div>
+</article>
+{% endif %}

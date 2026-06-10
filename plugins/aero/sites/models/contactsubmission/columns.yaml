@@ -1,0 +1,34 @@
+columns:
+    id:
+        label: '#'
+        type: number
+        width: 60px
+
+    name:
+        label: Nombre
+        type: text
+        searchable: true
+
+    email:
+        label: Email
+        type: text
+        searchable: true
+
+    phone:
+        label: Teléfono
+        type: text
+
+    message:
+        label: Mensaje
+        type: text
+        width: 300px
+
+    status:
+        label: Estado
+        type: text
+        width: 90px
+
+    created_at:
+        label: Recibido
+        type: datetime
+        width: 160px

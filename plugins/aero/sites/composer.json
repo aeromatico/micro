@@ -1,0 +1,11 @@
+{
+    "name": "aero/sites",
+    "description": "SaaS multitenant para micrositios web por nichos",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Sites\\": ""
+        }
+    }
+}

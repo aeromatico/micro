@@ -1,0 +1,27 @@
+columns:
+    tenant[name]:
+        label: Tenant
+        relation: tenant
+        select: name
+        searchable: true
+
+    user[email]:
+        label: Email
+        relation: user
+        select: email
+        searchable: true
+
+    user[name]:
+        label: Nombre
+        relation: user
+        select: name
+
+    role:
+        label: Rol
+        type: text
+        width: 120px
+
+    created_at:
+        label: Asignado
+        type: datetime
+        width: 160px

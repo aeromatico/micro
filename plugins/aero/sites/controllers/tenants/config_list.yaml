@@ -1,0 +1,18 @@
+title: Tenants
+list: $/aero/sites/models/tenant/columns.yaml
+modelClass: Aero\Sites\Models\Tenant
+recordUrl: aero/sites/tenants/update/:id
+noRecordsMessage: No hay tenants creados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar tenant...
+
+filter: $/aero/sites/models/tenant/scopes.yaml
+
+defaultSort:
+    column: created_at
+    direction: desc

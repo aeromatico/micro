@@ -1,0 +1,65 @@
+tabs:
+    fields:
+        title:
+            label: Título
+            type: text
+            span: full
+            required: true
+            tab: Contenido
+
+        slug:
+            label: Slug (URL)
+            type: text
+            span: left
+            comment: "Vacío = homepage. Ejemplo: sobre-nosotros"
+            tab: Contenido
+            preset:
+                field: title
+                type: slug
+
+        layout:
+            label: Layout
+            type: dropdown
+            span: right
+            options:
+                default: Estándar
+                home: Homepage
+                full: Pantalla completa
+                landing: Landing page
+                contact: Contacto
+            tab: Contenido
+
+        content:
+            label: Contenido
+            type: richeditor
+            size: huge
+            span: full
+            tab: Contenido
+
+        is_published:
+            label: Publicado
+            type: checkbox
+            default: true
+            tab: Contenido
+
+        og_image:
+            label: Imagen destacada (OG Image)
+            type: fileupload
+            mode: image
+            imageWidth: 1200
+            imageHeight: 630
+            tab: SEO
+
+        meta_title:
+            label: Meta título
+            type: text
+            span: full
+            placeholder: "Deja vacío para usar el título de la página"
+            tab: SEO
+
+        meta_description:
+            label: Meta descripción
+            type: textarea
+            size: small
+            span: full
+            tab: SEO

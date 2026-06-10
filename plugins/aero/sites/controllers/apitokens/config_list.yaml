@@ -1,0 +1,14 @@
+title: Tokens API
+list: $/aero/sites/models/apitoken/columns.yaml
+modelClass: Aero\Sites\Models\ApiToken
+recordUrl: aero/sites/apitokens/update/:id
+noRecordsMessage: No hay tokens API creados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: created_at
+    direction: desc

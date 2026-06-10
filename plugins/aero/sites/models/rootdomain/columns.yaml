@@ -1,0 +1,24 @@
+columns:
+    sort_order:
+        label: '#'
+        type: number
+        width: 50px
+
+    domain:
+        label: Dominio
+        type: text
+        searchable: true
+
+    label:
+        label: Nombre
+        type: text
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 80px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

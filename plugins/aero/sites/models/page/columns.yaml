@@ -1,0 +1,29 @@
+columns:
+    sort_order:
+        label: '#'
+        type: number
+        width: 50px
+
+    title:
+        label: Título
+        type: text
+        searchable: true
+
+    slug:
+        label: Slug
+        type: text
+
+    layout:
+        label: Layout
+        type: text
+        width: 120px
+
+    is_published:
+        label: Publicado
+        type: switch
+        width: 90px
+
+    updated_at:
+        label: Actualizado
+        type: datetime
+        width: 160px

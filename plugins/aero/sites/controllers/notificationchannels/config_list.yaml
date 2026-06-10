@@ -1,0 +1,14 @@
+title: Canales de Notificación
+list: $/aero/sites/models/notificationchannel/columns.yaml
+modelClass: Aero\Sites\Models\NotificationChannel
+recordUrl: aero/sites/notificationchannels/update/:id
+noRecordsMessage: No hay canales configurados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: sort_order
+    direction: asc

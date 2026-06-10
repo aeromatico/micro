@@ -1,0 +1,20 @@
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            active: Activo
+            inactive: Inactivo
+            suspended: Suspendido
+
+    niche_type:
+        label: Niche
+        type: group
+        conditions: "niche_type in (:filtered)"
+        options:
+            generic: Genérico
+            inmuebles: Inmuebles
+            consultorio: Consultorio
+            tienda_whatsapp: Tienda WhatsApp
+            radioemisora: Radioemisora

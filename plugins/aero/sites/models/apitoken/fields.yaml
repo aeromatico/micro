@@ -1,0 +1,25 @@
+fields:
+    name:
+        label: Nombre del token
+        type: text
+        span: left
+        required: true
+        placeholder: "App móvil, sitio web externo..."
+
+    expires_at:
+        label: Expira el
+        type: datepicker
+        span: right
+        mode: date
+        comment: "Vacío = nunca expira"
+
+    abilities:
+        label: Permisos
+        type: checkboxlist
+        span: full
+        options:
+            pages:read: Leer páginas
+            seo:read: Leer configuración SEO
+            contact:read: Leer configuración de contacto
+            contact:submit: Enviar formulario de contacto
+            '*': Acceso completo

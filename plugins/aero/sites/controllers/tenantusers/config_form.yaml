@@ -1,0 +1,14 @@
+name: Asignación de Usuario
+form: $/aero/sites/models/tenantuser/fields.yaml
+modelClass: Aero\Sites\Models\TenantUser
+defaultRedirect: aero/sites/tenantusers
+
+create:
+    title: Asignar Usuario a Tenant
+    redirect: aero/sites/tenantusers
+    redirectClose: aero/sites/tenantusers
+
+update:
+    title: Editar Asignación
+    redirect: aero/sites/tenantusers
+    redirectClose: aero/sites/tenantusers

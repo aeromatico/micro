@@ -1,0 +1,12 @@
+name: Configuración SEO
+form: $/aero/sites/models/seoconfig/fields.yaml
+modelClass: Aero\Sites\Models\SeoConfig
+defaultRedirect: aero/sites/seoconfigs
+
+create:
+    title: Configuración SEO
+    redirect: aero/sites/seoconfigs/update/:id
+
+update:
+    title: Configuración SEO
+    redirect: aero/sites/seoconfigs

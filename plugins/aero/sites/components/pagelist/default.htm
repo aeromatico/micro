@@ -1,0 +1,10 @@
+{% if __SELF__.pages %}
+<nav class="flex flex-wrap gap-2">
+    {% for page in __SELF__.pages %}
+    <a href="{{ page.slug ? '/' ~ page.slug : '/' }}"
+       class="text-sm font-medium text-slate-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-800">
+        {{ page.title }}
+    </a>
+    {% endfor %}
+</nav>
+{% endif %}

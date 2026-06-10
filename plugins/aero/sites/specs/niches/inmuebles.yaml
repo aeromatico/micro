@@ -1,0 +1,43 @@
+name: Inmuebles / Bienes Raíces
+handle: inmuebles
+icon: icon-home
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  listings: false   # fase futura: gestión de propiedades
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+  - title: "Propiedades"
+    slug: "propiedades"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name} Inmuebles"
+  default_description: "{name} — Compra, venta y alquiler de propiedades. Encuentra tu próximo hogar."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias por contactarnos! Un asesor se comunicará contigo en breve."
+
+recommended_notification: whatsapp
