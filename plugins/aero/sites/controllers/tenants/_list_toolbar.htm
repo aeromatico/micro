@@ -1,3 +1,12 @@
 <a href="<?= Backend::url('aero/sites/tenants/create') ?>" class="btn btn-primary oc-icon-plus">
     Nuevo Tenant
 </a>
+<button
+    class="btn btn-danger oc-icon-trash-o"
+    data-request="onDelete"
+    data-request-confirm="¿Eliminar los tenants seleccionados? Se borrarán TODOS sus datos (páginas, usuarios, configuración, mensajes). Esta acción es irreversible."
+    data-list-checked-trigger
+    data-list-checked-request
+    disabled>
+    Eliminar seleccionados
+</button>

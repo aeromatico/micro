@@ -10,6 +10,7 @@ use BackendMenu;
 use Backend\Classes\Controller;
 use BackendAuth;
 use Flash;
+use Redirect;
 use Str;
 use System\Models\SiteDefinition;
 
@@ -31,6 +32,42 @@ class Tenants extends Controller
     {
         parent::__construct();
         BackendMenu::setContext('Aero.Sites', 'sites', 'tenants');
+    }
+
+    // -------------------------------------------------------------------------
+    // Delete — bulk (list checkboxes) and single (edit page)
+    // -------------------------------------------------------------------------
+
+    public function onDelete(): mixed
+    {
+        $checkedIds = post('checked');
+
+        if (!is_array($checkedIds) || empty($checkedIds)) {
+            Flash::error('No se seleccionaron tenants.');
+            return $this->listRefresh();
+        }
+
+        $count = 0;
+        foreach ($checkedIds as $id) {
+            $tenant = Tenant::find((int) $id);
+            if ($tenant) {
+                $tenant->purge();
+                $count++;
+            }
+        }
+
+        Flash::success("{$count} tenant(s) eliminado(s) permanentemente.");
+        return $this->listRefresh();
+    }
+
+    public function update_onDelete(mixed $recordId = null): mixed
+    {
+        $tenant = Tenant::findOrFail((int) $recordId);
+        $name   = $tenant->name;
+        $tenant->purge();
+
+        Flash::success("Tenant «{$name}» eliminado permanentemente.");
+        return Redirect::to(Backend::url('aero/sites/tenants'));
     }
 
     // -------------------------------------------------------------------------

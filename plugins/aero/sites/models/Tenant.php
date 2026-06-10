@@ -139,6 +139,72 @@ class Tenant extends Model
         return $query->where('status', 'active');
     }
 
+    /**
+     * Permanently removes the tenant and ALL associated data:
+     * files, pages, SEO, contact, channels, submissions, tokens,
+     * domains, site definition, backend user, and frontend users.
+     */
+    public function purge(): void
+    {
+        \DB::transaction(function () {
+            // Attached files (logo, favicon)
+            $this->logo()->delete();
+            $this->favicon()->delete();
+
+            // Pages — force delete to trigger file cleanup on each og_image
+            $this->pages()->withTrashed()->get()->each(function ($page) {
+                $page->og_image()->delete();
+                $page->forceDelete();
+            });
+
+            // SEO config (with og_image)
+            if ($seo = $this->seoConfig) {
+                $seo->og_image()->delete();
+                $seo->delete();
+            }
+
+            // Contact config
+            $this->contactConfig?->delete();
+
+            // Notification channels
+            $this->notificationChannels()->delete();
+
+            // Contact submissions
+            $this->contactSubmissions()->delete();
+
+            // API tokens
+            $this->apiTokens()->delete();
+
+            // Domains
+            $this->domains()->delete();
+
+            // Frontend (RainLab) users: remove assignment, delete user if no other tenants
+            if (class_exists(\RainLab\User\Models\User::class)) {
+                foreach ($this->tenantUsers()->get() as $tenantUser) {
+                    $userId = $tenantUser->user_id;
+                    $tenantUser->delete();
+                    $remaining = \Aero\Sites\Models\TenantUser::where('user_id', $userId)->count();
+                    if ($remaining === 0) {
+                        \RainLab\User\Models\User::find($userId)?->delete();
+                    }
+                }
+            } else {
+                $this->tenantUsers()->delete();
+            }
+
+            // OctoberCMS SiteDefinition
+            \System\Models\SiteDefinition::find($this->site_id)?->delete();
+
+            // Backend user created exclusively for this tenant
+            if ($this->backend_user_id) {
+                \Backend\Models\User::find($this->backend_user_id)?->delete();
+            }
+
+            // Permanently delete the tenant record
+            $this->forceDelete();
+        });
+    }
+
     public static function resolveFromDomain(string $host): ?self
     {
         // Buscar primero en dominios custom
