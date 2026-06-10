@@ -14,6 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Compra fácil y rápido por WhatsApp. ¡Pide lo que necesitas ahora!</p>"
   - title: "Catálogo"
     slug: "catalogo"
     layout: default

@@ -106,11 +106,34 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         return [
+            // Panel del tenant admin — acceso simplificado al propio sitio
+            'mi-sitio' => [
+                'label'       => 'aero.sites::lang.menu.my_site',
+                'url'         => Backend::url('aero/sites/contenteditor'),
+                'icon'        => 'icon-desktop',
+                'permissions' => ['aero.sites.manage_pages'],
+                'order'       => 100,
+                'sideMenu'    => [
+                    'contenidos' => [
+                        'label'       => 'aero.sites::lang.menu.contents',
+                        'icon'        => 'icon-file-text-o',
+                        'url'         => Backend::url('aero/sites/contenteditor'),
+                        'permissions' => ['aero.sites.manage_pages'],
+                    ],
+                    'configuracion' => [
+                        'label'       => 'aero.sites::lang.menu.settings',
+                        'icon'        => 'icon-cog',
+                        'url'         => Backend::url('aero/sites/sitesettings'),
+                        'permissions' => ['aero.sites.manage_seo'],
+                    ],
+                ],
+            ],
+            // Panel del superadmin — gestión de la plataforma
             'sites' => [
                 'label'       => 'aero.sites::lang.menu.sites',
                 'url'         => Backend::url('aero/sites/tenants'),
                 'icon'        => 'icon-globe',
-                'permissions' => ['aero.sites.*'],
+                'permissions' => ['aero.sites.superadmin'],
                 'order'       => 200,
                 'sideMenu'    => [
                     'tenants' => [
@@ -129,37 +152,37 @@ class Plugin extends PluginBase
                         'label'       => 'aero.sites::lang.menu.pages',
                         'icon'        => 'icon-copy',
                         'url'         => Backend::url('aero/sites/pages'),
-                        'permissions' => ['aero.sites.manage_pages'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'seoconfigs' => [
                         'label'       => 'aero.sites::lang.menu.seo',
                         'icon'        => 'icon-search',
                         'url'         => Backend::url('aero/sites/seoconfigs'),
-                        'permissions' => ['aero.sites.manage_seo'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'contactconfigs' => [
                         'label'       => 'aero.sites::lang.menu.contact',
                         'icon'        => 'icon-phone',
                         'url'         => Backend::url('aero/sites/contactconfigs'),
-                        'permissions' => ['aero.sites.manage_contact'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'notificationchannels' => [
                         'label'       => 'aero.sites::lang.menu.channels',
                         'icon'        => 'icon-bell',
                         'url'         => Backend::url('aero/sites/notificationchannels'),
-                        'permissions' => ['aero.sites.manage_contact'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'contactsubmissions' => [
                         'label'       => 'aero.sites::lang.menu.submissions',
                         'icon'        => 'icon-envelope',
                         'url'         => Backend::url('aero/sites/contactsubmissions'),
-                        'permissions' => ['aero.sites.view_submissions'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'apitokens' => [
                         'label'       => 'aero.sites::lang.menu.api_tokens',
                         'icon'        => 'icon-key',
                         'url'         => Backend::url('aero/sites/apitokens'),
-                        'permissions' => ['aero.sites.manage_api_tokens'],
+                        'permissions' => ['aero.sites.superadmin'],
                     ],
                     'tenantusers' => [
                         'label'       => 'aero.sites::lang.menu.tenant_users',

@@ -22,11 +22,13 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Edita esta página para personalizar el contenido de tu sitio web.</p>"
   - title: "Contacto"
     slug: "contacto"
     layout: contact
     is_published: true
     sort_order: 99
+    content: "<h2>Contáctanos</h2><p>Completa el formulario y nos comunicaremos contigo a la brevedad.</p>"
 
 seo_defaults:
   title_format: "%s | {name}"

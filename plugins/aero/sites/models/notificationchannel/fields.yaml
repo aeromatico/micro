@@ -28,10 +28,83 @@ fields:
             condition: value[email]
 
     config[to]:
-        label: Email destino
+        label: Email destino (para recibir mensajes)
         type: text
         span: full
         placeholder: admin@ejemplo.com
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    _section_smtp:
+        label: Servidor SMTP (opcional — deja vacío para usar el servidor del sistema)
+        type: section
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[smtp_host]:
+        label: Host SMTP
+        type: text
+        span: left
+        placeholder: smtp.gmail.com
+        comment: Para Gmail usa smtp.gmail.com
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[smtp_port]:
+        label: Puerto
+        type: number
+        span: right
+        placeholder: 587
+        comment: Gmail usa 587 (TLS) o 465 (SSL)
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[smtp_encryption]:
+        label: Cifrado
+        type: dropdown
+        span: left
+        options:
+            "": Sin cifrado
+            tls: TLS (recomendado)
+            ssl: SSL
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[smtp_username]:
+        label: Usuario SMTP
+        type: text
+        span: right
+        placeholder: tucuenta@gmail.com
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[smtp_password]:
+        label: Contraseña de aplicación
+        type: password
+        span: left
+        comment: "Gmail: genera una en myaccount.google.com/apppasswords (no uses tu contraseña habitual)"
+        trigger:
+            action: show
+            field: type
+            condition: value[email]
+
+    config[from_name]:
+        label: Nombre del remitente
+        type: text
+        span: right
+        placeholder: Mi Sitio Web
         trigger:
             action: show
             field: type

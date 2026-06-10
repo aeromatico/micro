@@ -14,6 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Compra, venta y alquiler de propiedades. Encuentra tu próximo hogar.</p>"
   - title: "Propiedades"
     slug: "propiedades"
     layout: default

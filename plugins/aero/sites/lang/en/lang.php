@@ -6,6 +6,9 @@
     ],
 
     'menu' => [
+        'my_site'      => 'My Site',
+        'contents'     => 'Contents',
+        'settings'     => 'Settings',
         'sites'        => 'Sites',
         'superadmin'   => 'Superadmin',
         'root_domains' => 'Root Domains',

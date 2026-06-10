@@ -98,14 +98,15 @@ abstract class BaseNiche implements NicheManagerInterface
     protected function provisionPages(Tenant $tenant): void
     {
         foreach ($this->getDefaultPages() as $pageSpec) {
+            $rawContent = $pageSpec['content'] ?? '';
             Page::create([
                 'tenant_id'    => $tenant->id,
-                'title'        => $pageSpec['title'],
+                'title'        => str_replace('{name}', $tenant->name, $pageSpec['title']),
                 'slug'         => $pageSpec['slug'],
                 'layout'       => $pageSpec['layout'] ?? 'default',
                 'is_published' => $pageSpec['is_published'] ?? true,
                 'sort_order'   => $pageSpec['sort_order'] ?? 0,
-                'content'      => '',
+                'content'      => str_replace('{name}', $tenant->name, $rawContent),
             ]);
         }
     }

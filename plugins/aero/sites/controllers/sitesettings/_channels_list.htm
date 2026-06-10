@@ -1,0 +1,70 @@
+<?php
+/** @var \October\Rain\Database\Collection $channels */
+$typeLabels = [
+    'email'    => 'Email',
+    'whatsapp' => 'WhatsApp',
+    'telegram' => 'Telegram',
+    'sms'      => 'SMS',
+];
+?>
+<?php if ($channels->isEmpty()): ?>
+    <div class="alert alert-info" style="margin-bottom: 0">
+        <i class="icon-info-circle"></i>
+        No hay canales configurados. Agrega uno para recibir notificaciones de contacto.
+    </div>
+<?php else: ?>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Canal</th>
+                <th>Tipo</th>
+                <th style="width:80px">Activo</th>
+                <th style="width:120px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($channels as $channel): ?>
+            <tr>
+                <td><?= e($channel->label) ?></td>
+                <td>
+                    <span class="badge"><?= e($typeLabels[$channel->type] ?? $channel->type) ?></span>
+                </td>
+                <td>
+                    <a
+                        href="javascript:void(0)"
+                        data-request="index_onToggleChannel"
+                        data-request-data="id: <?= $channel->id ?>"
+                        data-request-flash
+                        title="<?= $channel->is_enabled ? 'Deshabilitar' : 'Habilitar' ?>"
+                    >
+                        <i class="icon-<?= $channel->is_enabled ? 'toggle-on text-success' : 'toggle-off text-muted' ?>"
+                           style="font-size:1.4em"></i>
+                    </a>
+                </td>
+                <td class="text-right" style="white-space:nowrap">
+                    <a
+                        href="javascript:void(0)"
+                        data-request="index_onEditChannel"
+                        data-request-data="id: <?= $channel->id ?>"
+                        class="btn btn-xs btn-default"
+                        title="Editar"
+                    >
+                        <i class="icon-pencil"></i>
+                    </a>
+                    <a
+                        href="javascript:void(0)"
+                        data-request="index_onDeleteChannel"
+                        data-request-data="id: <?= $channel->id ?>"
+                        data-request-confirm="¿Eliminar el canal «<?= e($channel->label) ?>»?"
+                        data-request-flash
+                        class="btn btn-xs btn-danger"
+                        title="Eliminar"
+                    >
+                        <i class="icon-trash-o"></i>
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>
