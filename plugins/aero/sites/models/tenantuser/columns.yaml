@@ -11,10 +11,10 @@ columns:
         select: email
         searchable: true
 
-    user[name]:
+    user[first_name]:
         label: Nombre
         relation: user
-        select: name
+        select: first_name
 
     role:
         label: Rol

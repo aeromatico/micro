@@ -1,0 +1,8 @@
+tenantUsers:
+    label: Usuarios con acceso
+    view:
+        list: $/aero/sites/controllers/tenants/tenant_users_columns.yaml
+        toolbarButtons: create|delete
+    manage:
+        form: $/aero/sites/controllers/tenants/tenant_user_form.yaml
+        title: Asignar usuario al tenant

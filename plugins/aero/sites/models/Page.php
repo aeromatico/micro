@@ -11,10 +11,12 @@ class Page extends Model
     public $table = 'aero_sites_pages';
 
     public $fillable = [
-        'tenant_id', 'title', 'slug', 'content',
+        'tenant_id', 'title', 'slug', 'content', 'puck_data',
         'meta_title', 'meta_description', 'layout',
         'is_published', 'sort_order',
     ];
+
+    protected $jsonable = ['puck_data'];
 
     protected $dates = ['deleted_at'];
 

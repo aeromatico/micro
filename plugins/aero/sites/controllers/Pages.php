@@ -37,4 +37,14 @@ class Pages extends Controller
             $model->tenant_id = $this->getCurrentTenantId();
         }
     }
+
+    public function formBeforeSave($model): void
+    {
+        // content HTML is emitted by PuckEditor widget as a hidden textarea
+        // outside of getSaveData(), so we capture it directly from POST.
+        $data = post('Page', []);
+        if (array_key_exists('content', $data)) {
+            $model->content = $data['content'];
+        }
+    }
 }

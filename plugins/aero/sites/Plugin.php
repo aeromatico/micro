@@ -93,6 +93,16 @@ class Plugin extends PluginBase
         });
     }
 
+    public function registerFormWidgets(): array
+    {
+        return [
+            \Aero\Sites\FormWidgets\PuckEditor::class => [
+                'label' => 'Puck Visual Editor',
+                'code'  => 'puckEditor',
+            ],
+        ];
+    }
+
     public function registerComponents(): array
     {
         return [

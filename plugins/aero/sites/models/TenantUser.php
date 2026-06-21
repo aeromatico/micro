@@ -12,7 +12,7 @@ class TenantUser extends Model
 
     public $belongsTo = [
         'tenant' => [Tenant::class],
-        'user'   => [\RainLab\User\Models\User::class, 'key' => 'user_id'],
+        'user'   => [\Backend\Models\User::class, 'key' => 'user_id'],
     ];
 
     public function getTenantIdOptions(): array
@@ -22,14 +22,37 @@ class TenantUser extends Model
 
     public function getUserIdOptions(): array
     {
-        if (!class_exists(\RainLab\User\Models\User::class)) {
-            return [];
-        }
-
-        return \RainLab\User\Models\User::orderBy('email')
+        return \Backend\Models\User::orderBy('email')
             ->get()
-            ->mapWithKeys(fn($u) => [$u->id => "{$u->email} ({$u->name})"])
+            ->mapWithKeys(fn($u) => [$u->id => static::userLabel($u)])
             ->toArray();
+    }
+
+    // Usado en tenant_user_form.yaml
+    public function getAdminCandidateOptions(): array
+    {
+        return \Backend\Models\User::orderBy('email')
+            ->get()
+            ->mapWithKeys(fn($u) => [$u->id => static::userLabel($u)])
+            ->toArray();
+    }
+
+    protected static function userLabel(\Backend\Models\User $u): string
+    {
+        $name = trim("{$u->first_name} {$u->last_name}") ?: $u->login ?: '';
+        return $name ? "{$u->email} — {$name}" : $u->email;
+    }
+
+    public function getUserEmailAttribute(): string
+    {
+        return $this->user?->email ?? '—';
+    }
+
+    public function getUserNameAttribute(): string
+    {
+        $u = $this->user;
+        if (!$u) return '—';
+        return trim("{$u->first_name} {$u->last_name}") ?: $u->login ?: $u->email;
     }
 
     public function getRoleOptions(): array
@@ -39,5 +62,25 @@ class TenantUser extends Model
             'moderator' => 'Moderador',
             'user'      => 'Usuario',
         ];
+    }
+
+    // Converts duplicate inserts into updates (RelationController always does INSERT)
+    public function beforeCreate(): bool
+    {
+        if (!$this->tenant_id || !$this->user_id) {
+            return true;
+        }
+
+        $existing = static::where('tenant_id', $this->tenant_id)
+            ->where('user_id', $this->user_id)
+            ->first();
+
+        if ($existing) {
+            $existing->role = $this->role;
+            $existing->save();
+            return false; // cancel the duplicate INSERT; RelationController refreshes list anyway
+        }
+
+        return true;
     }
 }

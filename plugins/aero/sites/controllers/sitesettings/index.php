@@ -1,5 +1,14 @@
 <?php
 /** @var Aero\Sites\Controllers\SiteSettings $this */
+if (!empty($this->vars['noTenant'])): ?>
+<div class="padded-container">
+    <div class="alert alert-warning">
+        <i class="icon-warning"></i>
+        No hay ningún tenant asociado al sitio activo. Selecciona un sitio con tenant en el selector de sitios del backend.
+    </div>
+</div>
+<?php return; endif;
+
 $brandingWidget    = $this->brandingWidget;
 $contactInfoWidget = $this->contactInfoWidget;
 $seoWidget         = $this->seoWidget;
@@ -81,7 +90,7 @@ $channels          = $this->vars['channels'];
 
                         <!-- Lista de canales (se refresca por AJAX) -->
                         <div id="channel-list" style="margin-bottom:20px">
-                            <?= $this->makePartial('_channels_list', ['channels' => $channels]) ?>
+                            <?= $this->makePartial('channels_list', ['channels' => $channels]) ?>
                         </div>
 
                         <!-- Formulario agregar / editar canal -->

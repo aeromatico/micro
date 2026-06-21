@@ -32,6 +32,11 @@ class SiteSettings extends Controller
         $this->pageTitle = 'Configuración del sitio';
         $tenant = $this->getCurrentTenant();
 
+        if (!$tenant) {
+            $this->vars['noTenant'] = true;
+            return;
+        }
+
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->first();
         $seoConfig     = SeoConfig::where('tenant_id', $tenant->id)->first();
 
@@ -141,7 +146,7 @@ class SiteSettings extends Controller
         Flash::success($id ? 'Canal actualizado.' : 'Canal creado.');
 
         return [
-            '#channel-list' => $this->makePartial('_channels_list', [
+            '#channel-list' => $this->makePartial('channels_list', [
                 'channels' => $this->getChannels($tenant->id),
             ]),
             '#channel-form-inner' => $this->makeChannelFormWidget(new NotificationChannel)->render(),
@@ -170,7 +175,7 @@ class SiteSettings extends Controller
         Flash::success('Canal eliminado.');
 
         return [
-            '#channel-list' => $this->makePartial('_channels_list', [
+            '#channel-list' => $this->makePartial('channels_list', [
                 'channels' => $this->getChannels($tenant->id),
             ]),
         ];
@@ -185,7 +190,7 @@ class SiteSettings extends Controller
         $channel->save();
 
         return [
-            '#channel-list' => $this->makePartial('_channels_list', [
+            '#channel-list' => $this->makePartial('channels_list', [
                 'channels' => $this->getChannels($tenant->id),
             ]),
         ];

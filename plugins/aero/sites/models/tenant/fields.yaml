@@ -62,3 +62,10 @@ tabs:
             imageWidth: 64
             imageHeight: 64
             tab: Branding
+
+        tenantUsers:
+            label: Usuarios con acceso
+            type: relation
+            span: full
+            tab: Accesos
+            context: update

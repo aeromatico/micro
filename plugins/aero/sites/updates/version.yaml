@@ -18,3 +18,11 @@
     - Integración RainLab.User — roles, grupos y asignación de usuarios a tenants.
     - create_tenant_users_table.php
     - seed_roles_and_groups.php
+
+1.3.0:
+    - Puck visual editor — columna puck_data en páginas.
+    - add_puck_data_to_pages.php
+
+1.4.0:
+    - Agrega permiso general.backend al rol tenant_admin.
+    - update_tenant_admin_role_permissions.php

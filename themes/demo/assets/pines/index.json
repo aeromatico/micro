@@ -1,0 +1,509 @@
+{
+  "elements": [
+    {
+      "slug": "accordion",
+      "name": "Accordion",
+      "category": "accordion",
+      "explanation": "The accordion UI element on a website is like a digital filing cabinet, revealing and concealing sections of information with a click, granting users the power to navigate the web's vastness while maintaining order and harmony.",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "alert",
+      "name": "Alert",
+      "category": "alert",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "badge",
+      "name": "Badge",
+      "category": "badge",
+      "explanation": "",
+      "examples_count": 4,
+      "examples": [
+        "example-01.html",
+        "example-02.html",
+        "example-03.html",
+        "example-04.html"
+      ]
+    },
+    {
+      "slug": "banner",
+      "name": "Banner",
+      "category": "banner",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "breadcrumbs",
+      "name": "Breadcrumbs",
+      "category": "breadcrumbs",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "button",
+      "name": "Button",
+      "category": "button",
+      "explanation": "",
+      "examples_count": 3,
+      "examples": [
+        "example-01.html",
+        "example-02.html",
+        "example-03.html"
+      ]
+    },
+    {
+      "slug": "card",
+      "name": "Card",
+      "category": "card",
+      "explanation": "",
+      "examples_count": 3,
+      "examples": [
+        "example-01.html",
+        "example-02.html",
+        "example-03.html"
+      ]
+    },
+    {
+      "slug": "checkbox",
+      "name": "Checkbox",
+      "category": "checkbox",
+      "explanation": "",
+      "examples_count": 3,
+      "examples": [
+        "example-01.html",
+        "example-02.html",
+        "example-03.html"
+      ]
+    },
+    {
+      "slug": "combobox",
+      "name": "Combobox",
+      "category": "combobox",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "command",
+      "name": "Command",
+      "category": "command",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "context-menu",
+      "name": "Context Menu",
+      "category": "context",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "copy-to-clipboard",
+      "name": "Copy To Clipboard",
+      "category": "copy",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "date-picker",
+      "name": "Date Picker",
+      "category": "date",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "dropdown-menu",
+      "name": "Dropdown Menu",
+      "category": "dropdown",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "full-screen-menu",
+      "name": "Full Screen Menu",
+      "category": "full",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "full-screen-modal",
+      "name": "Full Screen Modal",
+      "category": "full",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "hover-card",
+      "name": "Hover Card",
+      "category": "hover",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "image-gallery",
+      "name": "Image Gallery",
+      "category": "image",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "marquee-additional",
+      "name": "Marquee Additional",
+      "category": "marquee",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "marquee",
+      "name": "Marquee",
+      "category": "marquee",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "menubar",
+      "name": "Menubar",
+      "category": "menubar",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "modal",
+      "name": "Modal",
+      "category": "modal",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "monaco-editor",
+      "name": "Monaco Editor",
+      "category": "monaco",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "navigation-menu",
+      "name": "Navigation Menu",
+      "category": "navigation",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "pagination",
+      "name": "Pagination",
+      "category": "pagination",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "popover",
+      "name": "Popover",
+      "category": "popover",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "progress",
+      "name": "Progress",
+      "category": "progress",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "quotes",
+      "name": "Quotes",
+      "category": "quotes",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "radio-group",
+      "name": "Radio Group",
+      "category": "radio",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "range-slider",
+      "name": "Range Slider",
+      "category": "range",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "rating",
+      "name": "Rating",
+      "category": "rating",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "retro-grid",
+      "name": "Retro Grid",
+      "category": "retro",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "select",
+      "name": "Select",
+      "category": "select",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "slide-over",
+      "name": "Slide Over",
+      "category": "slide",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "sticky-header",
+      "name": "Sticky Header",
+      "category": "sticky",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "switch",
+      "name": "Switch",
+      "category": "switch",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "table-of-contents",
+      "name": "Table Of Contents",
+      "category": "table",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "table",
+      "name": "Table",
+      "category": "table",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "tabs",
+      "name": "Tabs",
+      "category": "tabs",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "text-animation",
+      "name": "Text Animation",
+      "category": "text",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "text-input",
+      "name": "Text Input",
+      "category": "text",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "textarea-auto-resize",
+      "name": "Textarea Auto Resize",
+      "category": "textarea",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "textarea",
+      "name": "Textarea",
+      "category": "textarea",
+      "explanation": "",
+      "examples_count": 1,
+      "examples": [
+        "example-01.html"
+      ]
+    },
+    {
+      "slug": "toast",
+      "name": "Toast",
+      "category": "toast",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "tooltip",
+      "name": "Tooltip",
+      "category": "tooltip",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    },
+    {
+      "slug": "typing-effect",
+      "name": "Typing Effect",
+      "category": "typing",
+      "explanation": "",
+      "examples_count": 0,
+      "examples": []
+    },
+    {
+      "slug": "video",
+      "name": "Video",
+      "category": "video",
+      "explanation": "",
+      "examples_count": 2,
+      "examples": [
+        "example-01.html",
+        "example-02.html"
+      ]
+    }
+  ],
+  "total": 47,
+  "categories": {
+    "accordion": 1,
+    "alert": 1,
+    "badge": 1,
+    "banner": 1,
+    "breadcrumbs": 1,
+    "button": 1,
+    "card": 1,
+    "checkbox": 1,
+    "combobox": 1,
+    "command": 1,
+    "context": 1,
+    "copy": 1,
+    "date": 1,
+    "dropdown": 1,
+    "full": 2,
+    "hover": 1,
+    "image": 1,
+    "marquee": 2,
+    "menubar": 1,
+    "modal": 1,
+    "monaco": 1,
+    "navigation": 1,
+    "pagination": 1,
+    "popover": 1,
+    "progress": 1,
+    "quotes": 1,
+    "radio": 1,
+    "range": 1,
+    "rating": 1,
+    "retro": 1,
+    "select": 1,
+    "slide": 1,
+    "sticky": 1,
+    "switch": 1,
+    "table": 2,
+    "tabs": 1,
+    "text": 2,
+    "textarea": 2,
+    "toast": 1,
+    "tooltip": 1,
+    "typing": 1,
+    "video": 1
+  },
+  "synced_at": "2026-06-10T18:46:53Z",
+  "source": "https://github.com/thedevdojo/pines/tree/main/elements"
+}

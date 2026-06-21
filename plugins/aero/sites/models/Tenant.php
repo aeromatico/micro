@@ -72,24 +72,12 @@ class Tenant extends Model
         return $this->handle . '.' . ($this->rootDomain?->domain ?? 'localhost');
     }
 
-    public function addUser(\RainLab\User\Models\User $user, string $role = 'admin'): void
+    public function addUser(\Backend\Models\User $user, string $role = 'admin'): void
     {
         TenantUser::updateOrCreate(
             ['tenant_id' => $this->id, 'user_id' => $user->id],
             ['role' => $role]
         );
-
-        // Sync RainLab group to match role
-        $groupCode = match ($role) {
-            'admin'     => 'admin',
-            'moderator' => 'moderator',
-            default     => 'registered',
-        };
-
-        $group = \RainLab\User\Models\UserGroup::where('code', $groupCode)->first();
-        if ($group) {
-            $user->addGroup($group);
-        }
     }
 
     public function afterSave(): void
@@ -178,19 +166,8 @@ class Tenant extends Model
             // Domains
             $this->domains()->delete();
 
-            // Frontend (RainLab) users: remove assignment, delete user if no other tenants
-            if (class_exists(\RainLab\User\Models\User::class)) {
-                foreach ($this->tenantUsers()->get() as $tenantUser) {
-                    $userId = $tenantUser->user_id;
-                    $tenantUser->delete();
-                    $remaining = \Aero\Sites\Models\TenantUser::where('user_id', $userId)->count();
-                    if ($remaining === 0) {
-                        \RainLab\User\Models\User::find($userId)?->delete();
-                    }
-                }
-            } else {
-                $this->tenantUsers()->delete();
-            }
+            // Backend user assignments — delete pivot records only (users are shared)
+            $this->tenantUsers()->delete();
 
             // OctoberCMS SiteDefinition
             \System\Models\SiteDefinition::find($this->site_id)?->delete();

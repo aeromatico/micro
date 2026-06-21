@@ -1,0 +1,17 @@
+fields:
+    user_id:
+        label: Usuario
+        type: dropdown
+        options: getAdminCandidateOptions
+        span: full
+        required: true
+        comment: "Usuarios con acceso al backend de OctoberCMS"
+
+    role:
+        label: Rol en el tenant
+        type: dropdown
+        span: full
+        default: admin
+        options:
+            admin: Admin
+            moderator: Moderador

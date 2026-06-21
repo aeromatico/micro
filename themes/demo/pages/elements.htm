@@ -1,0 +1,415 @@
+##
+url = "/elements"
+layout = "elements"
+title = "Pines UI Elements"
+description = "Biblioteca de componentes Tailwind CSS + Alpine.js de Pines UI"
+==
+<?php
+
+function onStart()
+{
+    $dest     = themes_path('demo/assets/pines');
+    $indexFile = $dest . '/index.json';
+
+    if (!file_exists($indexFile)) {
+        $this['notSynced'] = true;
+        $this['elements']   = '[]';
+        $this['categories'] = '[]';
+        $this['syncedAt']   = null;
+        $this['total']      = 0;
+        return;
+    }
+
+    $this['notSynced'] = false;
+    $index = json_decode(file_get_contents($indexFile), true);
+
+    // Canonical category map
+    $catMap = [
+        'accordion'           => 'Display',
+        'alert'               => 'Feedback',
+        'badge'               => 'Display',
+        'banner'              => 'Display',
+        'breadcrumbs'         => 'Navigation',
+        'button'              => 'Display',
+        'card'                => 'Display',
+        'checkbox'            => 'Forms',
+        'combobox'            => 'Forms',
+        'command'             => 'Utilities',
+        'context-menu'        => 'Overlay',
+        'copy-to-clipboard'   => 'Utilities',
+        'date-picker'         => 'Forms',
+        'dropdown-menu'       => 'Overlay',
+        'full-screen-menu'    => 'Navigation',
+        'full-screen-modal'   => 'Overlay',
+        'hover-card'          => 'Overlay',
+        'image-gallery'       => 'Display',
+        'marquee'             => 'Animation',
+        'marquee-additional'  => 'Animation',
+        'menubar'             => 'Navigation',
+        'modal'               => 'Overlay',
+        'monaco-editor'       => 'Special',
+        'navigation-menu'     => 'Navigation',
+        'pagination'          => 'Navigation',
+        'popover'             => 'Overlay',
+        'progress'            => 'Feedback',
+        'quotes'              => 'Display',
+        'radio-group'         => 'Forms',
+        'range-slider'        => 'Forms',
+        'rating'              => 'Forms',
+        'retro-grid'          => 'Animation',
+        'select'              => 'Forms',
+        'slide-over'          => 'Overlay',
+        'sticky-header'       => 'Navigation',
+        'switch'              => 'Forms',
+        'table'               => 'Display',
+        'table-of-contents'   => 'Navigation',
+        'tabs'                => 'Navigation',
+        'text-animation'      => 'Animation',
+        'text-input'          => 'Forms',
+        'textarea'            => 'Forms',
+        'textarea-auto-resize'=> 'Forms',
+        'toast'               => 'Feedback',
+        'tooltip'             => 'Overlay',
+        'typing-effect'       => 'Animation',
+        'video'               => 'Special',
+    ];
+
+    $elements = [];
+    foreach ($index['elements'] as $item) {
+        $slug     = $item['slug'];
+        $htmlFile = $dest . '/elements/' . $slug . '.html';
+        if (!file_exists($htmlFile)) continue;
+
+        $category = $catMap[$slug] ?? 'Other';
+
+        // Variants: default + examples
+        $variants = [[
+            'label' => 'Default',
+            'code'  => file_get_contents($htmlFile),
+        ]];
+        foreach ($item['examples'] as $i => $exFile) {
+            $exPath = $dest . '/elements/' . $slug . '-examples/' . $exFile;
+            if (file_exists($exPath)) {
+                $variants[] = [
+                    'label' => 'Variant ' . ($i + 1),
+                    'code'  => file_get_contents($exPath),
+                ];
+            }
+        }
+
+        $elements[] = [
+            'slug'        => $slug,
+            'name'        => $item['name'],
+            'category'    => $category,
+            'explanation' => $item['explanation'],
+            'variants'    => $variants,
+        ];
+    }
+
+    // Sort: category → name
+    usort($elements, fn($a, $b) => ($a['category'] <=> $b['category']) ?: ($a['name'] <=> $b['name']));
+
+    $categories = array_values(array_unique(array_column($elements, 'category')));
+    sort($categories);
+
+    $this['elements']   = json_encode($elements, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT);
+    $this['categories'] = json_encode($categories, JSON_UNESCAPED_UNICODE);
+    $this['syncedAt']   = $index['synced_at'] ?? null;
+    $this['total']      = count($elements);
+}
+
+==
+{# ────────────────────────────────────────────────────────── #}
+{# Not-synced state                                           #}
+{# ────────────────────────────────────────────────────────── #}
+{% if notSynced %}
+<div class="min-h-screen flex items-center justify-center p-8">
+    <div class="max-w-md text-center">
+        <div class="text-6xl mb-4">🌲</div>
+        <h1 class="text-2xl font-bold text-slate-900 mb-2">Pines no está sincronizado</h1>
+        <p class="text-slate-500 mb-6">Los elementos aún no han sido descargados. Ejecuta el script de sincronización una vez:</p>
+        <pre class="bg-slate-900 text-emerald-400 rounded-xl px-6 py-4 text-sm text-left font-mono mb-6">bash bin/pines-sync.sh</pre>
+        <p class="text-sm text-slate-400">Después recarga esta página.</p>
+    </div>
+</div>
+{% else %}
+
+{# ────────────────────────────────────────────────────────── #}
+{# Data injection                                             #}
+{# ────────────────────────────────────────────────────────── #}
+<script>
+window.__PINES_ELEMENTS    = {{ elements|raw }};
+window.__PINES_CATEGORIES  = {{ categories|raw }};
+</script>
+
+{# ────────────────────────────────────────────────────────── #}
+{# Helper functions (global, available before Alpine init)    #}
+{# ────────────────────────────────────────────────────────── #}
+<script>
+function pinesWrap(code) {
+    return '<!DOCTYPE html><html><head>'
+        + '<meta charset="UTF-8">'
+        + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        + '<script src="https://cdn.tailwindcss.com"><\/script>'
+        + '<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"><\/script>'
+        + '<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><\/script>'
+        + '<style>[x-cloak]{display:none!important}body{margin:0;padding:1.25rem;background:#ffffff}</style>'
+        + '</head><body>'
+        + code
+        + '</body></html>';
+}
+
+function pinesApp() {
+    return {
+        allElements:    window.__PINES_ELEMENTS,
+        allCategories:  window.__PINES_CATEGORIES,
+        search:         '',
+        activeCategory: 'all',
+
+        get categoryCounts() {
+            const counts = { all: this.allElements.length };
+            this.allCategories.forEach(c => {
+                counts[c] = this.allElements.filter(e => e.category === c).length;
+            });
+            return counts;
+        },
+
+        get filtered() {
+            const q   = this.search.trim().toLowerCase();
+            const cat = this.activeCategory;
+            return this.allElements.filter(e => {
+                if (cat !== 'all' && e.category !== cat) return false;
+                if (!q) return true;
+                return e.name.toLowerCase().includes(q)
+                    || e.slug.includes(q)
+                    || (e.explanation || '').toLowerCase().includes(q);
+            });
+        },
+
+        scrollToElement(slug) {
+            const el = document.getElementById('el-' + slug);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        },
+    };
+}
+
+function elementCard(data) {
+    return {
+        slug:          data.slug,
+        name:          data.name,
+        category:      data.category,
+        explanation:   data.explanation,
+        variants:      data.variants,
+        activeVariant: 0,
+        showCode:      false,
+        copied:        false,
+        previewKey:    0,
+
+        get currentCode()  { return this.variants[this.activeVariant].code; },
+        get srcdoc()       { return pinesWrap(this.currentCode); },
+
+        switchVariant(i) {
+            this.activeVariant = i;
+            this.previewKey++;   // force iframe re-render
+        },
+
+        async copyCode() {
+            try {
+                await navigator.clipboard.writeText(this.currentCode);
+                this.copied = true;
+                setTimeout(() => this.copied = false, 2000);
+            } catch {
+                // fallback: select text
+                const pre = this.$el.querySelector('pre');
+                if (pre) {
+                    const range = document.createRange();
+                    range.selectNodeContents(pre);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                }
+            }
+        },
+    };
+}
+</script>
+
+{# ────────────────────────────────────────────────────────── #}
+{# Main app                                                   #}
+{# ────────────────────────────────────────────────────────── #}
+<div x-data="pinesApp()" x-cloak class="flex flex-col h-screen overflow-hidden">
+
+    {# ── Top bar ────────────────────────────────────────── #}
+    <header class="flex-none bg-white border-b border-slate-200 px-4 py-3 flex items-center gap-3 z-10">
+        <div class="flex items-center gap-2 mr-2">
+            <svg class="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <span class="font-bold text-slate-900 text-sm tracking-tight">Pines UI</span>
+            <span class="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full font-mono">{{ total }} elements</span>
+        </div>
+
+        {# Search #}
+        <div class="relative flex-1 max-w-xs">
+            <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+            </svg>
+            <input x-model="search" type="text" placeholder="Buscar elementos…"
+                class="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50
+                       focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+        </div>
+
+        {# Results count #}
+        <span class="text-xs text-slate-400 hidden sm:block" x-text="filtered.length + ' resultados'"></span>
+
+        {# Sync info #}
+        <span class="text-xs text-slate-400 hidden lg:block ml-auto">
+            Sincronizado: <span class="font-mono">{{ syncedAt ? syncedAt|slice(0,10) : '—' }}</span>
+            <span class="mx-1">·</span>
+            <code class="text-xs text-slate-500">bash bin/pines-sync.sh</code>
+        </span>
+    </header>
+
+    {# ── Body: sidebar + grid ───────────────────────────── #}
+    <div class="flex flex-1 overflow-hidden">
+
+        {# Sidebar #}
+        <aside class="hidden md:flex flex-col w-48 flex-none bg-white border-r border-slate-200 overflow-y-auto sidebar-scroll py-4">
+            <p class="px-4 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-widest">Categorías</p>
+
+            {# All #}
+            <button @click="activeCategory = 'all'"
+                :class="activeCategory === 'all' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-50'"
+                class="flex items-center justify-between px-4 py-1.5 text-sm rounded-lg mx-2 transition">
+                <span>Todos</span>
+                <span class="text-xs text-slate-400" x-text="categoryCounts.all"></span>
+            </button>
+
+            {# Each category #}
+            <template x-for="cat in allCategories" :key="cat">
+                <button @click="activeCategory = cat"
+                    :class="activeCategory === cat ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600 hover:bg-slate-50'"
+                    class="flex items-center justify-between px-4 py-1.5 text-sm rounded-lg mx-2 transition">
+                    <span x-text="cat"></span>
+                    <span class="text-xs text-slate-400" x-text="categoryCounts[cat]"></span>
+                </button>
+            </template>
+
+            {# Element index — alphabetical list #}
+            <div class="mt-4 border-t border-slate-100 pt-4">
+                <p class="px-4 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-widest">Índice</p>
+                <template x-for="el in filtered" :key="el.slug">
+                    <button @click="scrollToElement(el.slug)"
+                        class="block w-full text-left px-4 py-1 text-xs text-slate-500 hover:text-emerald-600 hover:bg-slate-50 transition truncate"
+                        x-text="el.name">
+                    </button>
+                </template>
+            </div>
+        </aside>
+
+        {# Main content #}
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+
+            {# Empty state #}
+            <div x-show="filtered.length === 0" class="flex flex-col items-center justify-center py-24 text-slate-400">
+                <svg class="w-12 h-12 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm">No se encontraron elementos</p>
+            </div>
+
+            {# Element grid #}
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+                <template x-for="el in filtered" :key="el.slug">
+                    <div :id="'el-' + el.slug"
+                         x-data="elementCard(el)"
+                         class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+
+                        {# Card header #}
+                        <div class="flex items-start justify-between px-4 py-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="text-sm font-semibold text-slate-800" x-text="name"></h3>
+                                <p x-show="explanation" x-text="explanation"
+                                   class="text-xs text-slate-400 mt-0.5 line-clamp-2" style="max-width:260px"></p>
+                            </div>
+                            <span class="ml-2 mt-0.5 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium whitespace-nowrap flex-none"
+                                  x-text="category"></span>
+                        </div>
+
+                        {# Preview iframe #}
+                        <div class="relative bg-slate-50 border-b border-slate-100" style="height:240px">
+                            <iframe
+                                :key="previewKey"
+                                :srcdoc="srcdoc"
+                                loading="lazy"
+                                sandbox="allow-scripts allow-same-origin"
+                                class="w-full h-full border-0"
+                                title="Preview"></iframe>
+                        </div>
+
+                        {# Variant tabs (only if >1 variant) #}
+                        <div x-show="variants.length > 1" class="flex gap-1 px-3 pt-2.5 overflow-x-auto">
+                            <template x-for="(v, i) in variants" :key="i">
+                                <button @click="switchVariant(i)"
+                                    :class="activeVariant === i
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                                    class="text-xs px-2.5 py-1 rounded-full font-medium transition whitespace-nowrap flex-none"
+                                    x-text="v.label">
+                                </button>
+                            </template>
+                        </div>
+
+                        {# Card footer: copy + toggle code #}
+                        <div class="flex items-center gap-2 px-3 py-2.5 mt-auto">
+                            {# Copy button #}
+                            <button @click="copyCode()"
+                                :class="copied ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                                class="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                <svg x-show="copied" x-cloak class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span x-text="copied ? 'Copiado!' : 'Copiar'"></span>
+                            </button>
+
+                            {# Toggle code #}
+                            <button @click="showCode = !showCode"
+                                :class="showCode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                                class="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                                </svg>
+                                <span x-text="showCode ? 'Ocultar' : 'Código'"></span>
+                            </button>
+
+                            {# Slug #}
+                            <span class="ml-auto text-xs text-slate-300 font-mono" x-text="slug"></span>
+                        </div>
+
+                        {# Code block #}
+                        <div x-show="showCode" x-collapse x-cloak>
+                            <div class="border-t border-slate-200 bg-slate-900 relative">
+                                <button @click="copyCode()"
+                                    class="absolute top-2 right-2 text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition z-10">
+                                    <span x-text="copied ? '✓ Copiado' : 'Copiar'"></span>
+                                </button>
+                                <div class="overflow-auto max-h-96 p-4 pt-8">
+                                    <pre class="code-block text-xs text-slate-300 whitespace-pre leading-relaxed" x-text="currentCode"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+            </div>
+
+            {# Bottom spacer #}
+            <div class="h-16"></div>
+        </main>
+    </div>
+</div>
+
+{% endif %}

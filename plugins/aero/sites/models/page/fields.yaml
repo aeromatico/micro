@@ -29,10 +29,9 @@ tabs:
                 contact: Contacto
             tab: Contenido
 
-        content:
-            label: Contenido
-            type: richeditor
-            size: huge
+        puck_data:
+            label: Editor Visual
+            type: puckEditor
             span: full
             tab: Contenido
 

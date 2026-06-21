@@ -1,5 +1,14 @@
 <?php
 /** @var Aero\Sites\Controllers\ContentEditor $this */
+if (!empty($this->vars['noTenant'])): ?>
+<div class="padded-container">
+    <div class="alert alert-warning">
+        <i class="icon-warning"></i>
+        No hay ningún tenant asociado al sitio activo. Selecciona un sitio con tenant en el selector de sitios del backend.
+    </div>
+</div>
+<?php return; endif;
+
 $indexPageWidget     = $this->indexPageWidget;
 $contactPageWidget   = $this->contactPageWidget;
 $contactConfigWidget = $this->contactConfigWidget;

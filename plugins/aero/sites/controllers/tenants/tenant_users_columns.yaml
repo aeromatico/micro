@@ -1,0 +1,19 @@
+columns:
+    user_email:
+        label: Email
+        type: text
+        searchable: true
+
+    user_name:
+        label: Nombre
+        type: text
+
+    role:
+        label: Rol
+        type: text
+        width: 120px
+
+    created_at:
+        label: Asignado
+        type: datetime
+        width: 160px

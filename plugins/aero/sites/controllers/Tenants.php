@@ -19,10 +19,12 @@ class Tenants extends Controller
     public $implement = [
         \Backend\Behaviors\FormController::class,
         \Backend\Behaviors\ListController::class,
+        \Backend\Behaviors\RelationController::class,
     ];
 
-    public $formConfig = 'config_form.yaml';
-    public $listConfig = 'config_list.yaml';
+    public $formConfig     = 'config_form.yaml';
+    public $listConfig     = 'config_list.yaml';
+    public $relationConfig = 'config_relation.yaml';
 
     public $requiredPermissions = ['aero.sites.superadmin'];
 
@@ -120,12 +122,13 @@ class Tenants extends Controller
         $email    = $tenant->handle . '@' . $rootDomain->domain;
         $user     = $this->createBackendUser($tenant, $email, $password, $site);
 
-        // 6. Link backend user to tenant for native site context resolution
+        // 6. Link backend user to tenant for site context + assign as admin
         if ($user) {
             $tenant->update(['backend_user_id' => $user->id]);
+            $tenant->addUser($user, 'admin');
         }
 
-        // 7. Create frontend (RainLab) user with admin group + tenant assignment
+        // 7. Create frontend (RainLab) user for portal access (no backend assignment)
         $this->createFrontendUser($tenant, $email, $password);
 
         // 8. Store credentials to show once
@@ -199,7 +202,6 @@ class Tenants extends Controller
             $user->activated_at          = now();
             $user->save();
 
-            $tenant->addUser($user, 'admin');
             return $user;
         } catch (\Exception $e) {
             \Log::error("Aero\\Sites: Failed to create frontend user for tenant {$tenant->id}: " . $e->getMessage());

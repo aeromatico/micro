@@ -30,12 +30,20 @@ class ContentEditor extends Controller
         $this->pageTitle = 'Contenidos';
         $tenant = $this->getCurrentTenant();
 
+        if (!$tenant) {
+            $this->vars['noTenant'] = true;
+            $this->vars['indexPage'] = null;
+            $this->vars['contactPage'] = null;
+            $this->vars['submissions'] = collect();
+            return;
+        }
+
         $indexPage     = Page::forTenant($tenant->id)->where('slug', '')->first();
         $contactPage   = Page::forTenant($tenant->id)->where('slug', 'contacto')->first();
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->first();
 
-        $this->indexPageWidget    = $this->makePageFormWidget($indexPage,     'IndexPage',    'indexPageForm');
-        $this->contactPageWidget  = $this->makePageFormWidget($contactPage,   'ContactPage',  'contactPageForm');
+        $this->indexPageWidget     = $this->makePageFormWidget($indexPage,   'IndexPage',   'indexPageForm');
+        $this->contactPageWidget   = $this->makePageFormWidget($contactPage, 'ContactPage', 'contactPageForm');
         $this->contactConfigWidget = $this->makeContactConfigWidget($contactConfig);
 
         $this->vars['indexPage']    = $indexPage;
@@ -56,8 +64,9 @@ class ContentEditor extends Controller
         $indexPage = Page::forTenant($tenant->id)->where('slug', '')->firstOrFail();
         $data      = post('IndexPage', []);
 
-        $indexPage->title   = $data['title']   ?? $indexPage->title;
-        $indexPage->content = $data['content'] ?? '';
+        $indexPage->title     = $data['title']   ?? $indexPage->title;
+        $indexPage->puck_data = isset($data['puck_data']) ? json_decode($data['puck_data'], true) : $indexPage->puck_data;
+        $indexPage->content   = $data['content'] ?? $indexPage->content;
         $indexPage->save();
 
         Flash::success('Página de inicio guardada.');
@@ -70,8 +79,9 @@ class ContentEditor extends Controller
         $contactPage = Page::forTenant($tenant->id)->where('slug', 'contacto')->firstOrFail();
         $data        = post('ContactPage', []);
 
-        $contactPage->title   = $data['title']   ?? $contactPage->title;
-        $contactPage->content = $data['content'] ?? '';
+        $contactPage->title     = $data['title']   ?? $contactPage->title;
+        $contactPage->puck_data = isset($data['puck_data']) ? json_decode($data['puck_data'], true) : $contactPage->puck_data;
+        $contactPage->content   = $data['content'] ?? $contactPage->content;
         $contactPage->save();
 
         Flash::success('Página de contacto guardada.');
@@ -109,10 +119,9 @@ class ContentEditor extends Controller
                 'required' => true,
                 'span'     => 'full',
             ],
-            'content' => [
-                'label' => 'Contenido',
-                'type'  => 'richeditor',
-                'size'  => 'huge',
+            'puck_data' => [
+                'label' => 'Editor Visual',
+                'type'  => 'puckEditor',
                 'span'  => 'full',
             ],
         ];

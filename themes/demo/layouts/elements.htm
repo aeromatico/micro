@@ -1,0 +1,26 @@
+##
+description = "Standalone layout for Pines Elements page — Tailwind CDN + Alpine.js, no Bootstrap"
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ this.page.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        pre { tab-size: 2; }
+        .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .code-block { font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace; }
+    </style>
+    {% styles %}
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+    {% page %}
+    {% scripts %}
+</body>
+</html>

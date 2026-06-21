@@ -3,10 +3,30 @@
 </a>
 <button
     class="btn btn-danger oc-icon-trash-o"
+    id="tenants-bulk-delete-btn"
     data-request="onDelete"
     data-request-confirm="¿Eliminar los tenants seleccionados? Se borrarán TODOS sus datos (páginas, usuarios, configuración, mensajes). Esta acción es irreversible."
-    data-list-checked-trigger
-    data-list-checked-request
     disabled>
     Eliminar seleccionados
 </button>
+
+<script>
+$(document).render(function() {
+    var $btn = $('#tenants-bulk-delete-btn');
+    if ($btn.data('_bulkBound')) return;
+    $btn.data('_bulkBound', true);
+
+    function syncBtn() {
+        $btn.prop('disabled', $('input[name="checked[]"]:checked').length === 0);
+    }
+
+    $(document).on('change', 'input[name="checked[]"]', syncBtn);
+
+    $btn.on('ajaxSetup', function(ev, context) {
+        var ids = $('input[name="checked[]"]:checked').map(function() { return this.value; }).get();
+        if (ids.length) {
+            context.options.data.checked = ids;
+        }
+    });
+});
+</script>
