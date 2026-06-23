@@ -1,0 +1,19 @@
+# ===========================================================================
+# AdSets — FormController configuration
+#
+# Wires the AdSet form behavior to the field set declared in
+# `models/adset/fields.yaml`. Ad sets are ingested from Meta and are not
+# normally created from this UI — only `update` and `preview` screens are
+# exposed here.
+#
+# Validates: Requirements 6.1, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.ad_sets
+form: $/aero/masterads/models/adset/fields.yaml
+modelClass: Aero\MasterAds\Models\AdSet
+defaultRedirect: aero/masterads/adsets
+update:
+    title: Ad Set
+    redirect: aero/masterads/adsets
+preview:
+    title: Ad Set

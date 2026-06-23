@@ -1,0 +1,36 @@
+# ===================================
+#  Field Definitions — UsageRecord
+# ===================================
+
+fields:
+
+    subscription:
+        label: aero.masterads::lang.fields.usagerecord.subscription
+        type: relation
+        nameFrom: id
+        span: left
+        required: true
+
+    metric:
+        label: aero.masterads::lang.fields.usagerecord.metric
+        type: dropdown
+        span: right
+        required: true
+        options:
+            analysis: aero.masterads::lang.fields.usagerecord.metric_analysis
+            sync: aero.masterads::lang.fields.usagerecord.metric_sync
+            applied_action: aero.masterads::lang.fields.usagerecord.metric_applied_action
+
+    qty:
+        label: aero.masterads::lang.fields.usagerecord.qty
+        type: number
+        span: left
+        default: 1
+        required: true
+
+    recorded_at:
+        label: aero.masterads::lang.fields.usagerecord.recorded_at
+        type: datepicker
+        mode: datetime
+        span: right
+        required: true

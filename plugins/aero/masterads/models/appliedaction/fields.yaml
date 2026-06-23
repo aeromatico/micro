@@ -1,0 +1,56 @@
+# ===================================
+#  AppliedAction — Form Field Definitions
+#  Validates: Requirements 8.1, 8.2, 8.3, 17.1, 17.6
+#
+#  Note: AppliedAction is an APPEND-ONLY audit row. The model overrides
+#        beforeUpdate() / beforeDelete() to throw ApplicationException, so
+#        this form is effectively view-only after creation.
+# ===================================
+
+fields:
+
+    recommendation:
+        label: aero.masterads::lang.fields.appliedaction.recommendation
+        type: relation
+        nameFrom: id
+        emptyOption: ---
+        span: left
+        required: true
+
+    applied_by:
+        label: aero.masterads::lang.fields.appliedaction.applied_by
+        type: dropdown
+        span: right
+        required: true
+
+    success:
+        label: aero.masterads::lang.fields.appliedaction.success
+        type: checkbox
+        span: left
+
+tabs:
+    fields:
+
+        before_state:
+            tab: aero.masterads::lang.fields.appliedaction.tab_before
+            label: aero.masterads::lang.fields.appliedaction.before_state
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.appliedaction.before_state_comment
+
+        after_state:
+            tab: aero.masterads::lang.fields.appliedaction.tab_after
+            label: aero.masterads::lang.fields.appliedaction.after_state
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.appliedaction.after_state_comment
+
+        meta_response:
+            tab: aero.masterads::lang.fields.appliedaction.tab_response
+            label: aero.masterads::lang.fields.appliedaction.meta_response
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.appliedaction.meta_response_comment

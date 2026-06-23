@@ -1,0 +1,16 @@
+# ==================================================================
+# List config for MetaAccounts controller.
+# Reuses the column definitions co-located with the MetaAccount model.
+# ==================================================================
+title: aero.masterads::lang.nav.meta_accounts
+list: $/aero/masterads/models/metaaccount/columns.yaml
+modelClass: Aero\MasterAds\Models\MetaAccount
+recordUrl: aero/masterads/metaaccounts/preview/:id
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar cuenta Meta...
+
+showSetup: true
+recordsPerPage: 20

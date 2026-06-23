@@ -1,0 +1,18 @@
+#
+# Form behavior config for Aero\MasterAds\Controllers\Recommendations.
+#
+# Drives the preview/update screens for the moderation queue. The fields
+# definition is shared with anywhere else the Recommendation model is
+# rendered, so it lives next to the model rather than under the controller.
+#
+# Validates: Requirements 7.1, 8.4, 12.2, 12.6, 20.1
+#
+name: aero.masterads::lang.nav.recommendations
+form: $/aero/masterads/models/recommendation/fields.yaml
+modelClass: Aero\MasterAds\Models\Recommendation
+defaultRedirect: aero/masterads/recommendations
+update:
+    title: Recomendación
+    redirect: aero/masterads/recommendations
+preview:
+    title: Recomendación

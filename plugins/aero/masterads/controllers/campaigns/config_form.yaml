@@ -1,0 +1,19 @@
+# ===========================================================================
+# Campaigns — FormController configuration
+#
+# Wires the Campaign form behavior to the field set declared in
+# `models/campaign/fields.yaml`. Campaigns are ingested from Meta and are
+# not normally created from this UI — only `update` and `preview` screens
+# are exposed here.
+#
+# Validates: Requirements 6.1, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.campaigns
+form: $/aero/masterads/models/campaign/fields.yaml
+modelClass: Aero\MasterAds\Models\Campaign
+defaultRedirect: aero/masterads/campaigns
+update:
+    title: Campaña
+    redirect: aero/masterads/campaigns
+preview:
+    title: Campaña

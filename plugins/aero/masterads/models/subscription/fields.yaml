@@ -1,0 +1,44 @@
+# ===================================
+#  Field Definitions — Subscription
+# ===================================
+
+fields:
+
+    workspace:
+        label: aero.masterads::lang.fields.subscription.workspace
+        type: relation
+        nameFrom: name
+        span: left
+        required: true
+
+    plan:
+        label: aero.masterads::lang.fields.subscription.plan
+        type: relation
+        nameFrom: name
+        span: right
+        required: true
+
+    status:
+        label: aero.masterads::lang.fields.subscription.status
+        type: dropdown
+        span: left
+        default: trialing
+        options:
+            active: aero.masterads::lang.fields.subscription.status_active
+            trialing: aero.masterads::lang.fields.subscription.status_trialing
+            past_due: aero.masterads::lang.fields.subscription.status_past_due
+            canceled: aero.masterads::lang.fields.subscription.status_canceled
+
+    period_start:
+        label: aero.masterads::lang.fields.subscription.period_start
+        type: datepicker
+        mode: date
+        span: left
+        required: true
+
+    period_end:
+        label: aero.masterads::lang.fields.subscription.period_end
+        type: datepicker
+        mode: date
+        span: right
+        required: true

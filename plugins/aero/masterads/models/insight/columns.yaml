@@ -1,0 +1,52 @@
+columns:
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        width: 60px
+
+    entity_type:
+        label: aero.masterads::lang.fields.insight.entity_type
+        type: text
+        width: 100px
+        searchable: true
+
+    entity_id:
+        label: aero.masterads::lang.fields.insight.entity_id
+        type: number
+        width: 100px
+        searchable: true
+
+    date:
+        label: aero.masterads::lang.fields.insight.date
+        type: date
+        width: 110px
+
+    impressions:
+        label: aero.masterads::lang.fields.insight.impressions
+        type: number
+        width: 110px
+
+    clicks:
+        label: aero.masterads::lang.fields.insight.clicks
+        type: number
+        width: 90px
+
+    spend:
+        label: aero.masterads::lang.fields.insight.spend
+        type: number
+        width: 110px
+
+    conversions:
+        label: aero.masterads::lang.fields.insight.conversions
+        type: number
+        width: 110px
+
+    video_views:
+        label: aero.masterads::lang.fields.insight.video_views
+        type: number
+        width: 110px
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        width: 160px

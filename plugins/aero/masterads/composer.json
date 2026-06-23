@@ -1,0 +1,26 @@
+{
+    "name": "aero/masterads",
+    "description": "Master Ads — AI-driven Meta Ads optimizer for OctoberCMS 4",
+    "type": "october-plugin",
+    "require": {
+        "php": "^8.2",
+        "october/rain": "^4.2",
+        "guzzlehttp/guzzle": "^7.8",
+        "illuminate/encryption": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aero\\MasterAds\\": "",
+            "Aero\\MasterAds\\Classes\\": "classes/",
+            "Aero\\MasterAds\\Models\\": "models/",
+            "Aero\\MasterAds\\Controllers\\": "controllers/",
+            "Aero\\MasterAds\\Jobs\\": "jobs/",
+            "Aero\\MasterAds\\Console\\": "console/",
+            "Aero\\MasterAds\\Events\\": "events/",
+            "Aero\\MasterAds\\Listeners\\": "listeners/",
+            "Aero\\MasterAds\\Observers\\": "observers/",
+            "Aero\\MasterAds\\Updates\\": "updates/",
+            "Aero\\MasterAds\\Tests\\": "tests/"
+        }
+    }
+}

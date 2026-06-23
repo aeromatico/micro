@@ -1,0 +1,56 @@
+# ===================================
+#  AiProvider — Form Field Definitions
+#  Validates: Requirements 5.1, 5.2, 5.3, 5.5, 17.1, 17.6
+# ===================================
+
+fields:
+
+    name:
+        label: aero.masterads::lang.fields.aiprovider.name
+        type: text
+        span: left
+        required: true
+
+    workspace:
+        label: aero.masterads::lang.fields.aiprovider.workspace
+        type: relation
+        nameFrom: name
+        emptyOption: ---
+        span: right
+
+    driver:
+        label: aero.masterads::lang.fields.aiprovider.driver
+        type: dropdown
+        default: openrouter
+        span: left
+        options:
+            openrouter: aero.masterads::lang.driver.openrouter
+            openai: aero.masterads::lang.driver.openai
+            anthropic: aero.masterads::lang.driver.anthropic
+            custom: aero.masterads::lang.driver.custom
+
+    model:
+        label: aero.masterads::lang.fields.aiprovider.model
+        type: text
+        span: right
+        required: true
+
+    api_key:
+        label: aero.masterads::lang.fields.aiprovider.api_key
+        type: password
+        span: full
+        required: true
+        comment: aero.masterads::lang.fields.aiprovider.api_key_comment
+
+    is_default:
+        label: aero.masterads::lang.fields.aiprovider.is_default
+        type: checkbox
+        span: left
+
+    settings:
+        label: aero.masterads::lang.fields.aiprovider.settings
+        type: codeeditor
+        language: json
+        span: full
+        size: tiny
+        comment: aero.masterads::lang.fields.aiprovider.settings_comment

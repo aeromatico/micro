@@ -1,0 +1,36 @@
+# ===========================================================================
+# AiAnalyses — Filter widget scopes
+#
+# Three scopes surfaced in the list filter:
+#  - `status`      — quick filter on the analysis lifecycle
+#                    (queued|running|success|failed).
+#  - `target_type` — filter by the kind of Meta entity analyzed
+#                    (campaign|adset|ad).
+#  - `provider`    — relation scope against AiProvider, lets the user
+#                    narrow analyses produced by a given LLM provider/model.
+#
+# Validates: Requirements 16.2, 16.3, 17.2, 20.1
+# ===========================================================================
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            queued: En cola
+            running: En ejecución
+            success: Exitoso
+            failed: Fallido
+    target_type:
+        label: Tipo de target
+        type: group
+        conditions: "target_type in (:filtered)"
+        options:
+            campaign: Campaña
+            adset: Ad Set
+            ad: Ad
+    provider:
+        label: Proveedor IA
+        type: relation
+        nameFrom: name
+        modelClass: Aero\MasterAds\Models\AiProvider
