@@ -1,0 +1,36 @@
+columns:
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        width: 60px
+
+    name:
+        label: aero.masterads::lang.fields.campaign.name
+        type: text
+        searchable: true
+
+    meta_account:
+        label: aero.masterads::lang.fields.campaign.meta_account
+        relation: meta_account
+        select: meta_act_id
+        type: text
+
+    status:
+        label: aero.masterads::lang.fields.campaign.status
+        type: text
+        width: 110px
+
+    meta_id:
+        label: aero.masterads::lang.fields.campaign.meta_id
+        type: text
+        width: 140px
+        searchable: true
+
+    objective:
+        label: aero.masterads::lang.fields.campaign.objective
+        type: text
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        width: 160px

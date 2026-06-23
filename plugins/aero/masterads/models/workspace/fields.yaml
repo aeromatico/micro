@@ -1,0 +1,29 @@
+# ===========================================================================
+# Workspace — Backend form definition (RainLab Builder compatible)
+#
+# Auto-loaded by FormController via `models/workspace/fields.yaml`.
+# Visible labels are resolved through the `aero.masterads::lang.*` namespace
+# declared in `lang/es/lang.php`.
+#
+# Validates: Requirements 1.1, 17.1
+# ===========================================================================
+fields:
+    name:
+        label: aero.masterads::lang.fields.workspace.name
+        type: text
+        span: left
+        required: true
+    slug:
+        label: aero.masterads::lang.fields.workspace.slug
+        type: text
+        span: right
+    owner:
+        label: aero.masterads::lang.fields.workspace.owner
+        type: relation
+        nameFrom: login
+        span: full
+    settings:
+        label: aero.masterads::lang.fields.workspace.settings
+        type: codeeditor
+        language: json
+        span: full

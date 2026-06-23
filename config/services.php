@@ -42,4 +42,17 @@ return [
         ],
     ],
 
+    'master_ads_meta' => [
+        'app_id' => env('META_APP_ID'),
+        'app_secret' => env('META_APP_SECRET'),
+        'redirect' => env('META_OAUTH_REDIRECT'),
+        'api_version' => env('META_GRAPH_API_VERSION', 'v19.0'),
+    ],
+
+    'master_ads_openrouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
+        'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'anthropic/claude-3.5-sonnet'),
+    ],
+
 ];

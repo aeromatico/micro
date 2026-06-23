@@ -1,0 +1,21 @@
+# ===========================================================================
+# Subscriptions — FormController configuration
+#
+# Wires the Subscription form behavior to the field set declared in
+# `models/subscription/fields.yaml` and routes the post-save redirects back
+# to the controller's index / update screens.
+#
+# Validates: Requirements 9.1, 9.2, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.subscriptions
+form: $/aero/masterads/models/subscription/fields.yaml
+modelClass: Aero\MasterAds\Models\Subscription
+defaultRedirect: aero/masterads/subscriptions
+create:
+    title: Crear Suscripción
+    redirect: aero/masterads/subscriptions/update/:id
+update:
+    title: Suscripción
+    redirect: aero/masterads/subscriptions
+preview:
+    title: Suscripción

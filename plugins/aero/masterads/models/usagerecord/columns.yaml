@@ -1,0 +1,35 @@
+# ===================================
+#  Column Definitions — UsageRecord
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: true
+        invisible: true
+
+    subscription:
+        label: aero.masterads::lang.fields.usagerecord.subscription
+        relation: subscription
+        select: id
+
+    metric:
+        label: aero.masterads::lang.fields.usagerecord.metric
+        type: text
+        searchable: true
+
+    qty:
+        label: aero.masterads::lang.fields.usagerecord.qty
+        type: number
+        align: right
+
+    recorded_at:
+        label: aero.masterads::lang.fields.usagerecord.recorded_at
+        type: datetime
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        invisible: true

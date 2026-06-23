@@ -1,0 +1,45 @@
+# ===========================================================================
+# Workspaces — RelationController configuration
+#
+# Exposes the `members` belongsToMany relation (Workspace ↔ Backend\User
+# through `aero_masterads_workspace_user`) with the per-workspace `role`
+# pivot column (owner | admin | viewer).
+#
+# - `view` block:   read-only list shown on the Workspace update form.
+# - `manage` block: add/remove members + edit the `role` pivot.
+#
+# Validates: Requirements 1.5, 1.6, 12.2, 17.2
+# ===========================================================================
+members:
+    label: Miembros
+    view:
+        list:
+            columns:
+                login:
+                    label: Usuario
+                first_name:
+                    label: Nombre
+                email:
+                    label: Email
+                pivot[role]:
+                    label: Rol
+        showSearch: true
+        recordsPerPage: 20
+    manage:
+        list:
+            columns:
+                login:
+                    label: Usuario
+                email:
+                    label: Email
+        showSearch: true
+        pivot:
+            form:
+                fields:
+                    pivot[role]:
+                        label: Rol en este workspace
+                        type: dropdown
+                        options:
+                            owner: Propietario
+                            admin: Administrador
+                            viewer: Visualizador

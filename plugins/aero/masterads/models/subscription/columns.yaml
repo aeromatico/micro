@@ -1,0 +1,40 @@
+# ===================================
+#  Column Definitions — Subscription
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: true
+        invisible: true
+
+    workspace:
+        label: aero.masterads::lang.fields.subscription.workspace
+        relation: workspace
+        select: name
+        searchable: true
+
+    plan:
+        label: aero.masterads::lang.fields.subscription.plan
+        relation: plan
+        select: name
+        searchable: true
+
+    status:
+        label: aero.masterads::lang.fields.subscription.status
+        type: text
+
+    period_start:
+        label: aero.masterads::lang.fields.subscription.period_start
+        type: date
+
+    period_end:
+        label: aero.masterads::lang.fields.subscription.period_end
+        type: date
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        invisible: true

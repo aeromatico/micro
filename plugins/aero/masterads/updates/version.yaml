@@ -1,0 +1,37 @@
+1.0.1:
+    - Initial release of Master Ads plugin scaffold.
+
+1.0.2:
+    - Workspaces and workspace_user pivot tables.
+    - create_workspaces_table.php
+    - create_workspace_user_table.php
+
+1.0.6:
+    - Meta hierarchy tables: campaigns, ad_sets, ads.
+    - create_campaigns_table.php
+    - create_ad_sets_table.php
+    - create_ads_table.php
+
+1.0.4:
+    - AI providers table.
+    - create_ai_providers_table.php
+
+1.0.5:
+    - Meta accounts table.
+    - create_meta_accounts_table.php
+
+1.0.3:
+    - Billing tables: plans, subscriptions, usage_records.
+    - create_plans_table.php
+    - create_subscriptions_table.php
+    - create_usage_records_table.php
+
+1.0.8:
+    - AI analyses, recommendations and applied actions tables.
+    - create_ai_analyses_table.php
+    - create_recommendations_table.php
+    - create_applied_actions_table.php
+
+1.0.7:
+    - Insights table with idempotent unique index.
+    - create_insights_table.php

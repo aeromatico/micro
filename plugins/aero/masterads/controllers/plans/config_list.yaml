@@ -1,0 +1,20 @@
+# ===========================================================================
+# Plans — ListController configuration
+#
+# Wires the Plan list behavior to the column set declared in
+# `models/plan/columns.yaml`. Each row links to the update form via
+# `recordUrl`.
+#
+# Validates: Requirements 9.1, 9.2, 17.2, 20.1
+# ===========================================================================
+title: aero.masterads::lang.nav.plans
+list: $/aero/masterads/models/plan/columns.yaml
+modelClass: Aero\MasterAds\Models\Plan
+recordUrl: aero/masterads/plans/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar plan...
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
