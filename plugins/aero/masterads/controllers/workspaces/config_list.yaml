@@ -1,0 +1,21 @@
+# ===========================================================================
+# Workspaces — ListController configuration
+#
+# Wires the Workspace list behavior to the column set declared in
+# `models/workspace/columns.yaml`. Each row links to the update form via
+# `recordUrl`; the optional toolbar buttons partial is defined in
+# `_list_toolbar.htm` (added later if custom buttons are needed).
+#
+# Validates: Requirements 1.1, 17.2, 20.1
+# ===========================================================================
+title: aero.masterads::lang.nav.workspaces
+list: $/aero/masterads/models/workspace/columns.yaml
+modelClass: Aero\MasterAds\Models\Workspace
+recordUrl: aero/masterads/workspaces/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar workspace...
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20

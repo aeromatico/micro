@@ -1,0 +1,21 @@
+# ===========================================================================
+# AdSets — ListController configuration
+#
+# Wires the AdSet list behavior to the column set declared in
+# `models/adset/columns.yaml`. Each row links to the ad-set preview
+# (read-only by default; the analyze action lives there). Filtering by
+# status and parent campaign is driven by `config_filter.yaml`.
+#
+# Validates: Requirements 6.1, 17.2, 20.1
+# ===========================================================================
+title: aero.masterads::lang.nav.ad_sets
+list: $/aero/masterads/models/adset/columns.yaml
+modelClass: Aero\MasterAds\Models\AdSet
+recordUrl: aero/masterads/adsets/preview/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar ad set...
+showSetup: true
+recordsPerPage: 25
+filter: config_filter.yaml

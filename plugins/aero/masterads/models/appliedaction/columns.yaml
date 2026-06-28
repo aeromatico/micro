@@ -1,0 +1,38 @@
+# ===================================
+#  AppliedAction — List Column Definitions
+#  Validates: Requirements 8.1, 8.4, 17.1, 17.6
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+        sortable: true
+        width: 80px
+
+    recommendation[id]:
+        label: aero.masterads::lang.fields.appliedaction.recommendation
+        relation: recommendation
+        select: id
+        searchable: true
+        width: 130px
+
+    user[login]:
+        label: aero.masterads::lang.fields.appliedaction.applied_by
+        relation: user
+        select: login
+        searchable: true
+
+    success:
+        label: aero.masterads::lang.fields.appliedaction.success
+        type: switch
+        sortable: true
+        width: 100px
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        sortable: true
+        width: 160px

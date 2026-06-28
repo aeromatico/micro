@@ -1,0 +1,42 @@
+# ===================================
+#  Field Definitions — Plan
+# ===================================
+
+fields:
+
+    code:
+        label: aero.masterads::lang.fields.plan.code
+        type: text
+        span: left
+        required: true
+
+    name:
+        label: aero.masterads::lang.fields.plan.name
+        type: text
+        span: right
+        required: true
+
+    monthly_price:
+        label: aero.masterads::lang.fields.plan.monthly_price
+        type: number
+        step: 0.01
+        span: left
+        default: 0
+
+    max_meta_accounts:
+        label: aero.masterads::lang.fields.plan.max_meta_accounts
+        type: number
+        span: right
+        default: 1
+
+    max_analyses_month:
+        label: aero.masterads::lang.fields.plan.max_analyses_month
+        type: number
+        span: left
+        default: 10
+
+    auto_apply_allowed:
+        label: aero.masterads::lang.fields.plan.auto_apply_allowed
+        type: checkbox
+        span: right
+        default: false

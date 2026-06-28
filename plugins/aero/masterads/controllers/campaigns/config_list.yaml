@@ -1,0 +1,21 @@
+# ===========================================================================
+# Campaigns — ListController configuration
+#
+# Wires the Campaign list behavior to the column set declared in
+# `models/campaign/columns.yaml`. Each row links to the campaign preview
+# (read-only by default; the analyze action lives there). Filtering by
+# status and Meta account is driven by `config_filter.yaml`.
+#
+# Validates: Requirements 6.1, 17.2, 20.1
+# ===========================================================================
+title: aero.masterads::lang.nav.campaigns
+list: $/aero/masterads/models/campaign/columns.yaml
+modelClass: Aero\MasterAds\Models\Campaign
+recordUrl: aero/masterads/campaigns/preview/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar campaña...
+showSetup: true
+recordsPerPage: 25
+filter: config_filter.yaml
