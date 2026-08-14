@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "vite build && node scripts/export-catalog.mjs",
+    "build": "vite build && node scripts/export-catalog.mjs && npm run build:editor-css",
+    "build:editor-css": "../../../../../themes/microsites/node_modules/.bin/tailwindcss -i src/editor.css -o ../../formwidgets/puckeditor/assets/puck-editor-theme.css -c tailwind.editor.config.js --minify",
     "dev": "vite build --watch",
     "export-catalog": "node scripts/export-catalog.mjs"
   },

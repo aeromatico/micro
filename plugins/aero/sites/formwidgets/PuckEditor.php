@@ -45,6 +45,7 @@ class PuckEditor extends FormWidgetBase
         $version = '?v=' . hash('crc32', (string) filemtime(__DIR__ . '/puckeditor/assets/puck-editor.js'));
 
         $this->addCss('puck-editor.css' . $version);
+        $this->addCss('puck-editor-theme.css' . $version);
         $this->addJs('puck-editor.js' . $version);
     }
 }

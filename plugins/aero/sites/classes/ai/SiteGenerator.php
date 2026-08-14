@@ -283,6 +283,23 @@ PROMPT;
         return $errors;
     }
 
+    /**
+     * Puck requiere un `props.id` único por bloque (lo asigna solo cuando se
+     * arma a mano en el editor). Sin esto el editor visual React solo
+     * conserva el último bloque y duplica entradas al guardar.
+     */
+    protected function injectBlockIds(array $data): array
+    {
+        foreach ($data['content'] as $i => &$block) {
+            $props = is_array($block['props'] ?? null) ? $block['props'] : [];
+            $props['id'] = ($block['type'] ?? 'block') . '-' . uniqid() . '-' . $i;
+            $block['props'] = $props;
+        }
+        unset($block);
+
+        return $data;
+    }
+
     // -----------------------------------------------------------------------
     // Imágenes
     // -----------------------------------------------------------------------
@@ -381,7 +398,11 @@ PROMPT;
                     continue;
                 }
 
-                // Éxito — resolver imágenes reales antes de renderizar
+                // Éxito — asignar ids únicos por bloque (Puck los requiere en
+                // props.id; sin esto el editor visual solo conserva el último
+                // bloque y duplica entradas al guardar) y resolver imágenes
+                // reales antes de renderizar.
+                $data = $this->injectBlockIds($data);
                 $data = $this->resolveImages($data);
                 $html = $this->renderer->render($data);
 

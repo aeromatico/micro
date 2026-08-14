@@ -1,0 +1,3 @@
+/* Solo utilidades — nunca @tailwind base/components, para no filtrar resets
+   globales (body, html, tipografía) al panel de administración. */
+@tailwind utilities;
