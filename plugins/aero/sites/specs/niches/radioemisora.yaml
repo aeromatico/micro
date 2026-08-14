@@ -47,3 +47,8 @@ contact_defaults:
   success_message: "¡Gracias por escribirnos! Te responderemos a la brevedad."
 
 recommended_notification: telegram
+
+ai_archetypes:
+  - handle: default
+    blocks: [Hero, Video, FeatureGrid, Testimonials, LogoCloud, CTASection]
+    recommended_tones: [playful, bold]

@@ -1,0 +1,514 @@
+{
+  "Hero": {
+    "label": "Hero",
+    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque).",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título principal"
+      },
+      "subtitle": {
+        "type": "textarea",
+        "label": "Subtítulo"
+      },
+      "ctaLabel": {
+        "type": "text",
+        "label": "Botón: texto"
+      },
+      "ctaUrl": {
+        "type": "text",
+        "label": "Botón: URL"
+      }
+    }
+  },
+  "TextBlock": {
+    "label": "Texto",
+    "desc": "Bloque de texto con formato HTML (puede incluir negritas, cursivas, enlaces, listas). Encabezado opcional. Fondo blanco o gris claro (tono del tema).",
+    "fields": {
+      "heading": {
+        "type": "text",
+        "label": "Encabezado (opcional)"
+      },
+      "content": {
+        "type": "textarea",
+        "label": "Contenido (HTML permitido)"
+      },
+      "alignment": {
+        "type": "radio",
+        "label": "Alineación",
+        "options": [
+          {
+            "label": "Izquierda",
+            "value": "text-left"
+          },
+          {
+            "label": "Centro",
+            "value": "text-center"
+          }
+        ]
+      },
+      "bgWhite": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Blanco",
+            "value": "white"
+          },
+          {
+            "label": "Gris claro",
+            "value": "gray"
+          }
+        ]
+      }
+    }
+  },
+  "FeatureGrid": {
+    "label": "Características",
+    "desc": "Grid de características (2, 3 o 4 columnas). Cada una tiene ícono (emoji), título y descripción.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "features": {
+        "type": "array",
+        "label": "Características",
+        "arrayFields": {
+          "icon": {
+            "type": "text",
+            "label": "Ícono (emoji)"
+          },
+          "title": {
+            "type": "text",
+            "label": "Título"
+          },
+          "description": {
+            "type": "textarea",
+            "label": "Descripción"
+          }
+        },
+        "defaultItemProps": {
+          "icon": "⭐",
+          "title": "Nueva característica",
+          "description": "Descripción del beneficio."
+        }
+      },
+      "columns": {
+        "type": "select",
+        "label": "Columnas",
+        "options": [
+          {
+            "label": "2 columnas",
+            "value": "2"
+          },
+          {
+            "label": "3 columnas",
+            "value": "3"
+          },
+          {
+            "label": "4 columnas",
+            "value": "4"
+          }
+        ]
+      }
+    }
+  },
+  "ImageBlock": {
+    "label": "Imagen",
+    "desc": "Imagen individual con texto alternativo y pie de foto opcional. Puede ser ancho completo o centrada.",
+    "fields": {
+      "imageUrl": {
+        "type": "text",
+        "label": "URL de la imagen"
+      },
+      "alt": {
+        "type": "text",
+        "label": "Texto alternativo (SEO)"
+      },
+      "caption": {
+        "type": "text",
+        "label": "Pie de foto (opcional)"
+      },
+      "size": {
+        "type": "radio",
+        "label": "Ancho",
+        "options": [
+          {
+            "label": "Completo",
+            "value": "full"
+          },
+          {
+            "label": "Centrado",
+            "value": "centered"
+          }
+        ]
+      }
+    }
+  },
+  "CTASection": {
+    "label": "Llamado a la acción",
+    "desc": "Sección de llamado a la acción con título, descripción y botón. El color lo define el tema visual; \"style\" solo controla si es sólido o de contorno.",
+    "fields": {
+      "heading": {
+        "type": "text",
+        "label": "Título"
+      },
+      "body": {
+        "type": "textarea",
+        "label": "Descripción"
+      },
+      "buttonLabel": {
+        "type": "text",
+        "label": "Texto del botón"
+      },
+      "buttonUrl": {
+        "type": "text",
+        "label": "URL del botón"
+      },
+      "style": {
+        "type": "radio",
+        "label": "Estilo",
+        "options": [
+          {
+            "label": "Sólido",
+            "value": "solid"
+          },
+          {
+            "label": "Contorno",
+            "value": "outline"
+          }
+        ]
+      }
+    }
+  },
+  "Divider": {
+    "label": "Separador",
+    "desc": "Separador visual (espacio vacío) con altura configurable y línea horizontal opcional.",
+    "fields": {
+      "height": {
+        "type": "select",
+        "label": "Altura",
+        "options": [
+          {
+            "label": "Pequeño (16px)",
+            "value": "h-4"
+          },
+          {
+            "label": "Mediano (32px)",
+            "value": "h-8"
+          },
+          {
+            "label": "Grande (64px)",
+            "value": "h-16"
+          },
+          {
+            "label": "Extra grande (128px)",
+            "value": "h-32"
+          }
+        ]
+      },
+      "showLine": {
+        "type": "radio",
+        "label": "Línea divisoria",
+        "options": [
+          {
+            "label": "Sí",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      }
+    }
+  },
+  "Banner": {
+    "label": "Banner (CTA)",
+    "desc": "Banner de anuncio/promoción con fondo oscuro, título, texto y botón. Usar para mensajes destacados.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título"
+      },
+      "body": {
+        "type": "textarea",
+        "label": "Texto"
+      },
+      "buttonLabel": {
+        "type": "text",
+        "label": "Texto del botón (opcional)"
+      },
+      "buttonUrl": {
+        "type": "text",
+        "label": "URL del botón (opcional)"
+      },
+      "align": {
+        "type": "radio",
+        "label": "Alineación",
+        "options": [
+          {
+            "label": "Izquierda",
+            "value": "text-left"
+          },
+          {
+            "label": "Centro",
+            "value": "text-center"
+          }
+        ]
+      }
+    }
+  },
+  "Badge": {
+    "label": "Badge",
+    "desc": "Etiqueta pequeña. \"brand\" usa el color del tema; verde/rojo/gris son colores semánticos fijos (éxito/alerta/neutro). Útil para destacar \"Nuevo\", \"Oferta\", etc.",
+    "fields": {
+      "text": {
+        "type": "text",
+        "label": "Texto"
+      },
+      "variant": {
+        "type": "select",
+        "label": "Color",
+        "options": [
+          {
+            "label": "Marca",
+            "value": "brand"
+          },
+          {
+            "label": "Verde (éxito)",
+            "value": "green"
+          },
+          {
+            "label": "Rojo (alerta)",
+            "value": "red"
+          },
+          {
+            "label": "Gris (neutro)",
+            "value": "gray"
+          }
+        ]
+      }
+    }
+  },
+  "FAQ": {
+    "label": "FAQ (Acordeón)",
+    "desc": "Acordeón de preguntas frecuentes con título de sección. Cada ítem tiene pregunta y respuesta en HTML.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "items": {
+        "type": "array",
+        "label": "Preguntas",
+        "arrayFields": {
+          "question": {
+            "type": "text",
+            "label": "Pregunta"
+          },
+          "answer": {
+            "type": "textarea",
+            "label": "Respuesta (HTML permitido)"
+          }
+        },
+        "defaultItemProps": {
+          "question": "¿Nueva pregunta?",
+          "answer": "<p>Escribe la respuesta aquí.</p>"
+        }
+      }
+    }
+  },
+  "Tabs": {
+    "label": "Pestañas",
+    "desc": "Pestañas con contenido HTML. Cada pestaña tiene etiqueta y contenido. Muy útil para describir servicios o productos con múltiples facetas.",
+    "fields": {
+      "tabs": {
+        "type": "array",
+        "label": "Pestañas",
+        "arrayFields": {
+          "label": {
+            "type": "text",
+            "label": "Etiqueta"
+          },
+          "content": {
+            "type": "textarea",
+            "label": "Contenido (HTML permitido)"
+          }
+        },
+        "defaultItemProps": {
+          "label": "Pestaña",
+          "content": "<p>Contenido…</p>"
+        }
+      }
+    }
+  },
+  "Testimonials": {
+    "label": "Testimonios",
+    "desc": "Sección de testimonios con citas de clientes. Cada uno tiene cita entrecomillada, autor y rol/empresa.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "testimonials": {
+        "type": "array",
+        "label": "Testimonios",
+        "arrayFields": {
+          "quote": {
+            "type": "textarea",
+            "label": "Cita"
+          },
+          "author": {
+            "type": "text",
+            "label": "Autor"
+          },
+          "role": {
+            "type": "text",
+            "label": "Cargo / Empresa"
+          }
+        },
+        "defaultItemProps": {
+          "quote": "Excelente servicio, totalmente recomendado.",
+          "author": "Nombre",
+          "role": "Cliente"
+        }
+      }
+    }
+  },
+  "Gallery": {
+    "label": "Galería",
+    "desc": "Galería de imágenes en grid (1-3 columnas) con texto alternativo.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "images": {
+        "type": "array",
+        "label": "Imágenes",
+        "arrayFields": {
+          "url": {
+            "type": "text",
+            "label": "URL de la imagen"
+          },
+          "alt": {
+            "type": "text",
+            "label": "Texto alternativo"
+          }
+        },
+        "defaultItemProps": {
+          "url": "https://placehold.co/600x400/e2e8f0/94a3b8?text=Imagen",
+          "alt": "Imagen"
+        }
+      }
+    }
+  },
+  "Video": {
+    "label": "Video",
+    "desc": "Video embebido desde YouTube o Vimeo con pie de texto opcional.",
+    "fields": {
+      "url": {
+        "type": "text",
+        "label": "URL de YouTube o Vimeo"
+      },
+      "caption": {
+        "type": "text",
+        "label": "Pie (opcional)"
+      }
+    }
+  },
+  "LogoCloud": {
+    "label": "Logos (Marquee)",
+    "desc": "Fila horizontal de logos de marcas/partners. Título de sección opcional.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "logos": {
+        "type": "array",
+        "label": "Logos",
+        "arrayFields": {
+          "url": {
+            "type": "text",
+            "label": "URL del logo"
+          },
+          "alt": {
+            "type": "text",
+            "label": "Nombre"
+          }
+        },
+        "defaultItemProps": {
+          "url": "https://placehold.co/160x60/e2e8f0/94a3b8?text=Logo",
+          "alt": "Logo"
+        }
+      }
+    }
+  },
+  "Stats": {
+    "label": "Estadísticas",
+    "desc": "Sección con números/estadísticas en 3 columnas (fondo oscuro). Cada una tiene valor grande y etiqueta.",
+    "fields": {
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "stats": {
+        "type": "array",
+        "label": "Estadísticas",
+        "arrayFields": {
+          "value": {
+            "type": "text",
+            "label": "Valor (ej. +500)"
+          },
+          "label": {
+            "type": "text",
+            "label": "Etiqueta"
+          }
+        },
+        "defaultItemProps": {
+          "value": "100+",
+          "label": "Clientes"
+        }
+      }
+    }
+  },
+  "Rating": {
+    "label": "Valoración",
+    "desc": "Estrellas de valoración (1-5) con texto opcional. Centrado.",
+    "fields": {
+      "score": {
+        "type": "select",
+        "label": "Estrellas",
+        "options": [
+          {
+            "label": "1",
+            "value": "1"
+          },
+          {
+            "label": "2",
+            "value": "2"
+          },
+          {
+            "label": "3",
+            "value": "3"
+          },
+          {
+            "label": "4",
+            "value": "4"
+          },
+          {
+            "label": "5",
+            "value": "5"
+          }
+        ]
+      },
+      "text": {
+        "type": "text",
+        "label": "Texto (opcional)"
+      }
+    }
+  }
+}

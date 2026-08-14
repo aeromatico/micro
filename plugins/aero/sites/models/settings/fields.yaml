@@ -1,0 +1,24 @@
+# ===================================
+# Aero.Sites Settings — Banco de imágenes
+# ===================================
+
+fields:
+
+    section_images:
+        label: Banco de imágenes (generación con IA)
+        type: section
+        comment: Usado por el generador de sitios con IA para resolver fotos reales por palabra clave en vez de URLs inventadas.
+
+    unsplash_access_key:
+        label: Unsplash Access Key
+        type: text
+        comment: 'Access Key de una app "Demo" de Unsplash (gratis, 50 req/hora). Sin key configurada, se usan placeholders.'
+        placeholder: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        span: full
+
+    image_cache_ttl_days:
+        label: Días de cache por keyword
+        type: number
+        default: 30
+        comment: Cuántos días se reutiliza la misma imagen resuelta para las mismas palabras clave antes de volver a consultar la API.
+        span: left

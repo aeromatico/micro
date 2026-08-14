@@ -42,3 +42,8 @@ contact_defaults:
   success_message: "¡Gracias! Nos comunicaremos contigo para confirmar tu cita."
 
 recommended_notification: whatsapp
+
+ai_archetypes:
+  - handle: default
+    blocks: [Hero, FeatureGrid, Stats, Testimonials, FAQ, CTASection]
+    recommended_tones: [elegant, warm, corporate]

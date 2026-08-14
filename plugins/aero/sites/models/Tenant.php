@@ -13,8 +13,10 @@ class Tenant extends Model
 
     public $fillable = [
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
-        'niche_type', 'status', 'primary_color',
+        'niche_type', 'status', 'primary_color', 'design_theme_id', 'theme_overrides',
     ];
+
+    protected $jsonable = ['theme_overrides'];
 
     protected $dates = ['deleted_at'];
 
@@ -31,6 +33,7 @@ class Tenant extends Model
         'rootDomain'   => [RootDomain::class, 'key' => 'root_domain_id'],
         'backendUser'  => [\Backend\Models\User::class, 'key' => 'backend_user_id'],
         'siteDefinition' => [SiteDefinition::class, 'key' => 'site_id'],
+        'designTheme'  => [DesignTheme::class, 'key' => 'design_theme_id'],
     ];
 
     public $hasOne = [
@@ -120,6 +123,53 @@ class Tenant extends Model
             'inactive'  => 'Inactivo',
             'suspended' => 'Suspendido',
         ];
+    }
+
+    public function getDesignThemeIdOptions(): array
+    {
+        return DesignTheme::active()->orderBy('name')->pluck('name', 'id')->toArray();
+    }
+
+    /**
+     * Variables CSS del tema efectivo del tenant. Si no hay design_theme_id
+     * asignado, arma un set mínimo desde el primary_color legacy para no
+     * dejar la página sin estilos mientras se migra el tenant a un theme.
+     */
+    public function getEffectiveCssVars(): array
+    {
+        if ($this->designTheme) {
+            return $this->designTheme->toCssVars($this->theme_overrides ?? []);
+        }
+
+        return [
+            '--color-primary'      => $this->primary_color ?: '#4f46e5',
+            '--color-primary-dark' => $this->primary_color ?: '#3730a3',
+            '--color-secondary'    => '#0ea5e9',
+            '--color-accent'       => '#f59e0b',
+            '--color-neutral-bg'   => '#f8fafc',
+            '--color-neutral-text' => '#0f172a',
+            '--font-heading'       => 'Inter',
+            '--font-body'          => 'Inter',
+            '--radius'             => '0.75rem',
+        ];
+    }
+
+    /**
+     * URL de Google Fonts CSS2 para las fuentes heading/body del tema
+     * efectivo. Si ambas fuentes son iguales, pide un solo family.
+     */
+    public function getGoogleFontsUrl(): string
+    {
+        $vars = $this->getEffectiveCssVars();
+        $heading = $vars['--font-heading'] ?? 'Inter';
+        $body    = $vars['--font-body'] ?? 'Inter';
+
+        $families = array_unique([$heading, $body]);
+        $params = array_map(function ($font) {
+            return 'family=' . str_replace(' ', '+', $font) . ':wght@400;500;600;700;800';
+        }, $families);
+
+        return 'https://fonts.googleapis.com/css2?' . implode('&', $params) . '&display=swap';
     }
 
     public function scopeActive($query)

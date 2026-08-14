@@ -9,7 +9,26 @@ description = "Layout base — dark mode, SEO, Alpine.js"
 
     {% component 'sitesSeo' %}
 
+    {% if sitesSeo.tenant %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ sitesSeo.tenant.getGoogleFontsUrl() }}" rel="stylesheet">
+    {% endif %}
+
     <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}">
+
+    {% if sitesSeo.tenant %}
+    {# Después de app.min.css a propósito: sobreescribe el fallback estático
+       de --color-primary definido en assets/css/app.css con los valores del
+       tema del tenant (misma especificidad ':root', gana el orden). #}
+    <style>
+        :root {
+            {% for varName, value in sitesSeo.tenant.getEffectiveCssVars() %}
+            {{ varName }}: {{ value }};
+            {% endfor %}
+        }
+    </style>
+    {% endif %}
 
     <!-- Alpine.js via CDN (jsDelivr) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

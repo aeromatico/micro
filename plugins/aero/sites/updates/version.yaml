@@ -26,3 +26,20 @@
 1.4.0:
     - Agrega permiso general.backend al rol tenant_admin.
     - update_tenant_admin_role_permissions.php
+
+1.5.0:
+    - Migración Puck 0.22 + componentes Pines + generación IA.
+    - create_ai_generations_table.php
+
+1.6.0:
+    - Sistema de temas de diseño (DesignTheme) para generación IA coherente.
+    - create_design_themes_table.php
+    - add_design_theme_to_tenants.php
+
+1.7.0:
+    - Banco de imágenes reales (Unsplash) para el generador con IA.
+    - create_image_cache_table.php
+
+1.8.0:
+    - Generación con IA en background job (GenerateAiSiteJob) + polling de estado.
+    - add_status_fields_to_ai_generations.php

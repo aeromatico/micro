@@ -1,5 +1,7 @@
 <?php namespace Aero\Sites\Controllers;
 
+use Aero\Sites\Jobs\GenerateAiSiteJob;
+use Aero\Sites\Models\AiGeneration;
 use Aero\Sites\Models\ContactConfig;
 use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\Page;
@@ -58,7 +60,7 @@ class ContentEditor extends Controller
     // AJAX handlers
     // -------------------------------------------------------------------------
 
-    public function index_onSaveIndex()
+    public function onSaveIndex()
     {
         $tenant    = $this->getCurrentTenant();
         $indexPage = Page::forTenant($tenant->id)->where('slug', '')->firstOrFail();
@@ -73,7 +75,7 @@ class ContentEditor extends Controller
         return [];
     }
 
-    public function index_onSaveContactPage()
+    public function onSaveContactPage()
     {
         $tenant      = $this->getCurrentTenant();
         $contactPage = Page::forTenant($tenant->id)->where('slug', 'contacto')->firstOrFail();
@@ -88,7 +90,7 @@ class ContentEditor extends Controller
         return [];
     }
 
-    public function index_onSaveContactConfig()
+    public function onSaveContactConfig()
     {
         $tenant        = $this->getCurrentTenant();
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
@@ -100,6 +102,78 @@ class ContentEditor extends Controller
 
         Flash::success('Configuración del formulario guardada.');
         return [];
+    }
+
+    // -------------------------------------------------------------------------
+    // AI Generation
+    // -------------------------------------------------------------------------
+
+    public function onGenerateAi()
+    {
+        $tenant = $this->getCurrentTenant();
+        $prompt = post('ai_prompt', '');
+
+        if (!$prompt || mb_strlen(trim($prompt)) < 10) {
+            throw new \ApplicationException('Describe tu negocio con al menos 10 caracteres.');
+        }
+
+        // Restricted access: only demo tenant handle or superuser
+        $user = \BackendAuth::getUser();
+        if ($tenant->handle !== 'demo' && (!$user || !$user->is_superuser)) {
+            throw new \ApplicationException('La generación con IA está habilitada solo para el tenant demo y superadministradores.');
+        }
+
+        // Check AiFields is configured
+        try {
+            if (!\Aero\AiFields\Models\Settings::isConfigured()) {
+                throw new \ApplicationException('No hay un proveedor de IA configurado. Ve a Sistema → AI Fields y configura el endpoint, API key y modelo.');
+            }
+        } catch (\Exception $e) {
+            if ($e instanceof \ApplicationException) throw $e;
+        }
+
+        $log = AiGeneration::create([
+            'tenant_id' => $tenant->id,
+            'user_id'   => $user?->id,
+            'prompt'    => mb_substr($prompt, 0, 2000),
+            'status'    => 'pending',
+        ]);
+
+        GenerateAiSiteJob::dispatch($tenant->id, $prompt, $log->id);
+
+        return [
+            '#ai-result' => $this->makePartial('ai_pending', ['log_id' => $log->id]),
+            'aiLogId'    => $log->id,
+        ];
+    }
+
+    public function onCheckAiStatus()
+    {
+        $tenant = $this->getCurrentTenant();
+        $logId  = post('log_id');
+
+        $log = AiGeneration::where('id', $logId)
+            ->where('tenant_id', $tenant->id)
+            ->first();
+
+        if (!$log) {
+            throw new \ApplicationException('Generación no encontrada.');
+        }
+
+        $response = ['status' => $log->status];
+
+        if ($log->status === 'done') {
+            Flash::success('¡Sitio generado con IA! Revisá la página de inicio.');
+            $response['#ai-result'] = $this->makePartial('ai_preview', [
+                'html' => $log->resultPage?->content ?? '',
+            ]);
+        } elseif ($log->status === 'failed') {
+            $response['#ai-result'] = $this->makePartial('ai_error', [
+                'message' => $log->error_message ?: 'La IA no pudo generar contenido válido después de varios intentos.',
+            ]);
+        }
+
+        return $response;
     }
 
     // -------------------------------------------------------------------------

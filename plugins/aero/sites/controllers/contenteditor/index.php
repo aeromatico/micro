@@ -48,8 +48,78 @@ $statusLabels = [
                      ============================================================ -->
                 <div id="tab-inicio" class="tab-pane active">
                     <div class="layout padded-container">
+
+                        <!-- ====================================================
+                             AI GENERATION PANEL
+                             ==================================================== -->
+                        <div id="ai-panel" class="callout fade in callout-warning no-subheader" style="margin-bottom:20px">
+                            <div class="header">
+                                <i class="icon-magic"></i>
+                                <h4>Generar página con Inteligencia Artificial</h4>
+                            </div>
+                            <div class="content">
+                                <p>Describe tu negocio en detalle y la IA generará automáticamente la página de inicio usando los bloques disponibles. Cuanta más información des, mejor será el resultado.</p>
+                                <form
+                                    data-request="onGenerateAi"
+                                    data-request-flash
+                                    data-request-loading="#ai-loading"
+                                    data-request-success="aeroAiOnGenerateStarted(data)"
+                                >
+                                    <textarea
+                                        name="ai_prompt"
+                                        class="form-control"
+                                        rows="4"
+                                        placeholder="Ej: Somos una clínica dental con 15 años de experiencia, ofrecemos ortodoncia, implantes, blanqueamiento y urgencias 24h. Tenemos precios accesibles y financiación."
+                                        style="width:100%; margin-bottom:10px"
+                                    ></textarea>
+                                    <div class="form-buttons">
+                                        <button type="submit" id="ai-generate-btn" class="btn btn-warning">
+                                            <i class="icon-magic"></i> ✨ Generar página con IA
+                                        </button>
+                                        <span id="ai-loading" style="display:none; margin-left:10px">
+                                            <i class="icon-spinner icon-spin"></i> Enviando…
+                                        </span>
+                                    </div>
+                                </form>
+                                <div id="ai-result" style="margin-top:15px"></div>
+                            </div>
+                        </div>
+
+                        <script>
+                        (function () {
+                            var POLL_INTERVAL_MS = 2500;
+
+                            function setGenerating(isGenerating) {
+                                var btn = document.getElementById('ai-generate-btn');
+                                if (btn) btn.disabled = isGenerating;
+                            }
+
+                            function poll(logId) {
+                                oc.request('#ai-panel', 'onCheckAiStatus', {
+                                    data: { log_id: logId },
+                                    success: function (data) {
+                                        if (data.status === 'pending' || data.status === 'processing') {
+                                            setTimeout(function () { poll(logId); }, POLL_INTERVAL_MS);
+                                        } else {
+                                            setGenerating(false);
+                                        }
+                                    },
+                                    error: function () {
+                                        setGenerating(false);
+                                    },
+                                });
+                            }
+
+                            window.aeroAiOnGenerateStarted = function (data) {
+                                if (!data || !data.aiLogId) return;
+                                setGenerating(true);
+                                poll(data.aiLogId);
+                            };
+                        })();
+                        </script>
+
                         <?php if ($indexPage): ?>
-                        <form data-request="index_onSaveIndex" data-request-flash>
+                        <form data-request="onSaveIndex" data-request-flash>
                             <?= $indexPageWidget->render() ?>
                             <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
@@ -98,7 +168,7 @@ $statusLabels = [
                             <div id="subtab-pagina" class="tab-pane active">
                                 <div class="layout padded-container">
                                     <?php if ($contactPage): ?>
-                                    <form data-request="index_onSaveContactPage" data-request-flash>
+                                    <form data-request="onSaveContactPage" data-request-flash>
                                         <?= $contactPageWidget->render() ?>
                                         <div class="form-buttons">
                                             <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
@@ -117,7 +187,7 @@ $statusLabels = [
                             <!-- Sub-tab: Configuración del formulario -->
                             <div id="subtab-formulario" class="tab-pane">
                                 <div class="layout padded-container">
-                                    <form data-request="index_onSaveContactConfig" data-request-flash>
+                                    <form data-request="onSaveContactConfig" data-request-flash>
                                         <?= $contactConfigWidget->render() ?>
                                         <div class="form-buttons">
                                             <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">

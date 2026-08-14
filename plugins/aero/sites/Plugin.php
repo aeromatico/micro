@@ -10,6 +10,11 @@ use System\Models\SiteDefinition;
 
 class Plugin extends PluginBase
 {
+    /**
+     * Dependencia requerida: el motor multi-proveedor de IA (API keys, cache, rate-limit).
+     */
+    public $require = ['Aero.AiFields'];
+
     public function pluginDetails(): array
     {
         return [
@@ -25,6 +30,7 @@ class Plugin extends PluginBase
     {
         $this->registerNotificationDrivers();
         $this->registerNiches();
+        $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
     }
 
     public function boot(): void
@@ -201,6 +207,22 @@ class Plugin extends PluginBase
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                 ],
+            ],
+        ];
+    }
+
+    public function registerSettings(): array
+    {
+        return [
+            'settings' => [
+                'label'       => 'Sites — Banco de imágenes',
+                'description' => 'API key del banco de imágenes usado por el generador de sitios con IA.',
+                'category'    => 'Sistema',
+                'icon'        => 'icon-image',
+                'class'       => \Aero\Sites\Models\Settings::class,
+                'order'       => 510,
+                'permissions' => ['aero.sites.superadmin'],
+                'keywords'    => 'imagenes fotos unsplash ia generador',
             ],
         ];
     }

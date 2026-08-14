@@ -42,6 +42,14 @@ contact_defaults:
 
 recommended_notification: email
 
+# Arquetipos de página para el generador con IA (Fase 3): secuencia de
+# bloques Puck recomendada por nicho + tonos de DesignTheme afines. Un nicho
+# concreto sobreescribe esta lista completa si define la suya propia.
+ai_archetypes:
+  - handle: default
+    blocks: [Hero, FeatureGrid, Testimonials, CTASection]
+    recommended_tones: [corporate, minimal]
+
 # Layouts disponibles en el tema microsites
 available_layouts:
   - home
