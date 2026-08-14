@@ -2,8 +2,8 @@
 
 use Aero\AiFields\Models\Settings as AiSettings;
 use Aero\AiFields\Services\AiService;
-use Aero\Sites\Classes\Niches\NicheManager;
 use Aero\Sites\Models\AiGeneration;
+use Aero\Sites\Models\Archetype;
 use Aero\Sites\Models\DesignTheme;
 use Aero\Sites\Models\Tenant;
 use Log;
@@ -201,22 +201,38 @@ PROMPT;
     // Arquetipo y tema
     // -----------------------------------------------------------------------
 
-    protected function resolveArchetype(Tenant $tenant): array
+    /**
+     * @param string|null $archetypeHandle  Elegido explícitamente por el usuario en el panel
+     *                                       de generación. Si es null (o no existe/inactivo),
+     *                                       se elige uno al azar entre los afines al nicho.
+     */
+    protected function resolveArchetype(Tenant $tenant, ?string $archetypeHandle = null): array
     {
         $default = ['handle' => 'default', 'blocks' => ['Hero', 'FeatureGrid', 'Testimonials', 'CTASection'], 'recommended_tones' => []];
 
-        try {
-            $niche = app(NicheManager::class)->make($tenant->niche_type);
-            $archetypes = $niche->getAiArchetypes();
-        } catch (Exception $e) {
-            $archetypes = [];
+        if ($archetypeHandle) {
+            $chosen = Archetype::active()->where('handle', $archetypeHandle)->first();
+            if ($chosen) {
+                return $this->archetypeToArray($chosen);
+            }
         }
 
-        if (!$archetypes) {
+        $candidates = Archetype::active()->forNiche($tenant->niche_type)->get();
+
+        if ($candidates->isEmpty()) {
             return $default;
         }
 
-        return $archetypes[array_rand($archetypes)];
+        return $this->archetypeToArray($candidates->random());
+    }
+
+    protected function archetypeToArray(Archetype $archetype): array
+    {
+        return [
+            'handle'            => $archetype->handle,
+            'blocks'            => $archetype->blocks_list,
+            'recommended_tones' => $archetype->recommended_tones ?? [],
+        ];
     }
 
     /**
@@ -351,11 +367,13 @@ PROMPT;
      * @param AiGeneration|null $log  Registro ya creado (ej. por el controller antes de encolar
      *                                el job) a actualizar en vez de crear uno nuevo. Preserva
      *                                tenant_id/user_id ya seteados en ese registro.
+     * @param string|null $archetypeHandle  Arquetipo elegido explícitamente por el usuario
+     *                                      (ver Archetype); null = elegir uno al azar por nicho.
      * @return array{html: string, puck_data: array, log_id: int}|null
      */
-    public function generate(Tenant $tenant, string $userPrompt, int $retries = 2, ?AiGeneration $log = null): ?array
+    public function generate(Tenant $tenant, string $userPrompt, int $retries = 2, ?AiGeneration $log = null, ?string $archetypeHandle = null): ?array
     {
-        $archetype = $this->resolveArchetype($tenant);
+        $archetype = $this->resolveArchetype($tenant, $archetypeHandle);
         $this->resolveTheme($tenant, $archetype);
 
         $systemPrompt = $this->buildSystemPrompt($tenant, $archetype);

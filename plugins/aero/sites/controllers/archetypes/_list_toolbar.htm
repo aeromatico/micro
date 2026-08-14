@@ -1,0 +1,35 @@
+<a href="<?= Backend::url('aero/sites/archetypes/create') ?>" class="btn btn-primary oc-icon-plus">
+    Nuevo Arquetipo
+</a>
+<button
+    class="btn btn-default oc-icon-trash-o"
+    id="archetypes-bulk-delete-btn"
+    data-request="onDelete"
+    data-request-confirm="¿Eliminar los arquetipos seleccionados?"
+    data-list-checked-trigger
+    data-list-checked-request
+    disabled>
+    Eliminar
+</button>
+
+<script>
+$(document).render(function() {
+    var $btn = $('#archetypes-bulk-delete-btn');
+    if ($btn.data('_bulkBound')) return;
+    $btn.data('_bulkBound', true);
+
+    function syncBtn() {
+        var disabled = $('input[name="checked[]"]:checked').length === 0;
+        $btn.prop('disabled', disabled);
+    }
+
+    $(document).on('change', 'input[name="checked[]"]', syncBtn);
+
+    $btn.on('ajaxSetup', function(ev, context) {
+        var ids = $('input[name="checked[]"]:checked').map(function() { return this.value; }).get();
+        if (ids.length) {
+            context.options.data.checked = ids;
+        }
+    });
+});
+</script>

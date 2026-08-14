@@ -10,7 +10,7 @@ class AiGeneration extends Model
         'tenant_id', 'user_id', 'provider', 'model',
         'prompt', 'input_tokens', 'output_tokens',
         'success', 'error_message', 'retry_count',
-        'status', 'step', 'result_page_id',
+        'status', 'step', 'result_page_id', 'archetype_handle',
     ];
 
     public $belongsTo = [

@@ -60,15 +60,6 @@ abstract class BaseNiche implements NicheManagerInterface
         return $this->spec['contact_defaults'] ?? [];
     }
 
-    /**
-     * Arquetipos de página para el generador con IA: secuencia de bloques
-     * Puck recomendada + tonos de DesignTheme afines a este nicho.
-     */
-    public function getAiArchetypes(): array
-    {
-        return $this->spec['ai_archetypes'] ?? [];
-    }
-
     public function getRecommendedNotification(): string
     {
         return $this->spec['recommended_notification'] ?? 'email';

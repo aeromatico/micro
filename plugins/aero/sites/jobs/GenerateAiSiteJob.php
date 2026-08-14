@@ -28,7 +28,8 @@ class GenerateAiSiteJob implements ShouldQueue
     public function __construct(
         protected int $tenantId,
         protected string $prompt,
-        protected int $generationId
+        protected int $generationId,
+        protected ?string $archetypeHandle = null
     ) {
     }
 
@@ -45,10 +46,10 @@ class GenerateAiSiteJob implements ShouldQueue
             return;
         }
 
-        $log->update(['status' => 'processing', 'step' => 'generating_content']);
+        $log->update(['status' => 'processing', 'step' => 'generating_content', 'archetype_handle' => $this->archetypeHandle]);
 
         try {
-            $result = (new SiteGenerator())->generate($tenant, $this->prompt, 2, $log);
+            $result = (new SiteGenerator())->generate($tenant, $this->prompt, 2, $log, $this->archetypeHandle);
 
             if (!$result) {
                 // SiteGenerator ya marcó status=failed en $log si todos los intentos fallaron.

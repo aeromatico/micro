@@ -1,0 +1,16 @@
+title: Arquetipos
+list: $/aero/sites/models/archetype/columns.yaml
+modelClass: Aero\Sites\Models\Archetype
+recordUrl: aero/sites/archetypes/update/:id
+noRecordsMessage: No hay arquetipos configurados.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar arquetipo...
+
+defaultSort:
+    column: sort_order
+    direction: asc

@@ -42,8 +42,3 @@ contact_defaults:
   success_message: "¡Pedido recibido! Te contactaremos por WhatsApp para confirmar."
 
 recommended_notification: whatsapp
-
-ai_archetypes:
-  - handle: default
-    blocks: [Hero, Gallery, FeatureGrid, Rating, Testimonials, CTASection]
-    recommended_tones: [warm, bold, playful]

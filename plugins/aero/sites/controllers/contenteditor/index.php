@@ -15,6 +15,7 @@ $contactConfigWidget = $this->contactConfigWidget;
 $indexPage           = $this->vars['indexPage'];
 $contactPage         = $this->vars['contactPage'];
 $submissions         = $this->vars['submissions'];
+$archetypes          = $this->vars['archetypes'];
 
 $statusLabels = [
     'pending' => ['label' => 'Pendiente', 'class' => 'warning'],
@@ -65,6 +66,22 @@ $statusLabels = [
                                     data-request-loading="#ai-loading"
                                     data-request-success="aeroAiOnGenerateStarted(data)"
                                 >
+                                    <?php if ($archetypes->isNotEmpty()): ?>
+                                    <div style="margin-bottom:10px">
+                                        <label for="ai-archetype-select"><strong>Arquetipo (secuencia de bloques)</strong></label>
+                                        <select name="archetype_handle" id="ai-archetype-select" class="form-control custom-select">
+                                            <option value="" data-description="La IA elige uno al azar entre los disponibles para tu nicho.">Automático</option>
+                                            <?php foreach ($archetypes as $archetype): ?>
+                                            <option value="<?= e($archetype->handle) ?>" data-description="<?= e($archetype->description ?? '') ?>">
+                                                <?= e($archetype->name) ?>
+                                            </option>
+                                            <?php endforeach ?>
+                                        </select>
+                                        <small id="ai-archetype-description" class="text-muted" style="display:block; margin-top:4px">
+                                            La IA elige uno al azar entre los disponibles para tu nicho.
+                                        </small>
+                                    </div>
+                                    <?php endif ?>
                                     <textarea
                                         name="ai_prompt"
                                         class="form-control"
@@ -115,6 +132,15 @@ $statusLabels = [
                                 setGenerating(true);
                                 poll(data.aiLogId);
                             };
+
+                            var archetypeSelect = document.getElementById('ai-archetype-select');
+                            var archetypeDescription = document.getElementById('ai-archetype-description');
+                            if (archetypeSelect && archetypeDescription) {
+                                archetypeSelect.addEventListener('change', function () {
+                                    var opt = archetypeSelect.options[archetypeSelect.selectedIndex];
+                                    archetypeDescription.textContent = (opt && opt.dataset.description) || '';
+                                });
+                            }
                         })();
                         </script>
 

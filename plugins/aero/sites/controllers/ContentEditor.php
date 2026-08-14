@@ -2,6 +2,7 @@
 
 use Aero\Sites\Jobs\GenerateAiSiteJob;
 use Aero\Sites\Models\AiGeneration;
+use Aero\Sites\Models\Archetype;
 use Aero\Sites\Models\ContactConfig;
 use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\Page;
@@ -37,6 +38,7 @@ class ContentEditor extends Controller
             $this->vars['indexPage'] = null;
             $this->vars['contactPage'] = null;
             $this->vars['submissions'] = collect();
+            $this->vars['archetypes'] = collect();
             return;
         }
 
@@ -53,6 +55,10 @@ class ContentEditor extends Controller
         $this->vars['submissions']  = ContactSubmission::where('tenant_id', $tenant->id)
             ->orderByDesc('created_at')
             ->limit(50)
+            ->get();
+        $this->vars['archetypes']   = Archetype::active()
+            ->forNiche($tenant->niche_type)
+            ->orderBy('sort_order')
             ->get();
     }
 
@@ -132,14 +138,17 @@ class ContentEditor extends Controller
             if ($e instanceof \ApplicationException) throw $e;
         }
 
+        $archetypeHandle = post('archetype_handle') ?: null;
+
         $log = AiGeneration::create([
-            'tenant_id' => $tenant->id,
-            'user_id'   => $user?->id,
-            'prompt'    => mb_substr($prompt, 0, 2000),
-            'status'    => 'pending',
+            'tenant_id'        => $tenant->id,
+            'user_id'          => $user?->id,
+            'prompt'           => mb_substr($prompt, 0, 2000),
+            'status'           => 'pending',
+            'archetype_handle' => $archetypeHandle,
         ]);
 
-        GenerateAiSiteJob::dispatch($tenant->id, $prompt, $log->id);
+        GenerateAiSiteJob::dispatch($tenant->id, $prompt, $log->id, $archetypeHandle);
 
         return [
             '#ai-result' => $this->makePartial('ai_pending', ['log_id' => $log->id]),

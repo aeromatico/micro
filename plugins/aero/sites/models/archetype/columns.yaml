@@ -1,0 +1,31 @@
+columns:
+    sort_order:
+        label: '#'
+        type: number
+        width: 50px
+
+    name:
+        label: Nombre
+        type: text
+        searchable: true
+
+    niche_type:
+        label: Nicho
+        type: text
+        searchable: true
+
+    handle:
+        label: Handle
+        type: text
+        searchable: true
+        invisible: true
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 80px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

@@ -1,0 +1,75 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+        placeholder: 'Ej: Confianza y credenciales'
+
+    handle:
+        label: Handle
+        type: text
+        span: right
+        required: true
+        placeholder: consultorio-confianza
+        comment: Identificador único (solo letras, números y guiones).
+
+    niche_type:
+        label: Nicho / área
+        type: dropdown
+        span: left
+        required: false
+
+    is_active:
+        label: Activo
+        type: checkbox
+        default: true
+        span: right
+
+    description:
+        label: Descripción
+        type: textarea
+        size: small
+        span: full
+        placeholder: Notas sobre cuándo conviene usar este arquetipo (se muestra en el panel de generación).
+
+    recommended_tones:
+        label: Tonos de tema afines
+        type: checkboxlist
+        span: full
+        options:
+            corporate: Corporativo
+            elegant: Elegante
+            minimal: Minimalista
+            warm: Cálido
+            bold: Audaz
+            playful: Divertido
+        comment: Se usan para elegir automáticamente un DesignTheme coherente al generar.
+
+    blocks:
+        label: Secuencia de bloques
+        type: repeater
+        span: full
+        prompt: Agregar bloque
+        titleFrom: block
+        form:
+            fields:
+                block:
+                    type: dropdown
+                    options:
+                        Hero: Hero
+                        TextBlock: Texto
+                        FeatureGrid: Características
+                        ImageBlock: Imagen
+                        CTASection: Llamado a la acción
+                        Divider: Separador
+                        Banner: Banner
+                        Badge: Badge
+                        FAQ: FAQ (Acordeón)
+                        Tabs: Pestañas
+                        Testimonials: Testimonios
+                        Gallery: Galería
+                        Video: Video
+                        LogoCloud: Logos
+                        Stats: Estadísticas
+                        Rating: Valoración

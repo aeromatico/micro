@@ -1,0 +1,17 @@
+name: Arquetipo
+form: $/aero/sites/models/archetype/fields.yaml
+modelClass: Aero\Sites\Models\Archetype
+defaultRedirect: aero/sites/archetypes
+
+create:
+    title: Nuevo Arquetipo
+    redirect: aero/sites/archetypes/update/:id
+    redirectClose: aero/sites/archetypes
+
+update:
+    title: Editar Arquetipo
+    redirect: aero/sites/archetypes
+    redirectClose: aero/sites/archetypes
+
+preview:
+    title: Ver Arquetipo

@@ -206,6 +206,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/sites/tenantusers'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
+                    'archetypes' => [
+                        'label'       => 'aero.sites::lang.menu.archetypes',
+                        'icon'        => 'icon-sitemap',
+                        'url'         => Backend::url('aero/sites/archetypes'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
                 ],
             ],
         ];

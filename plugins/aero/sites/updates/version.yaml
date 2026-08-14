@@ -43,3 +43,9 @@
 1.8.0:
     - Generación con IA en background job (GenerateAiSiteJob) + polling de estado.
     - add_status_fields_to_ai_generations.php
+
+1.9.0:
+    - Arquetipos de página gestionables desde el admin (reemplaza YAML por nicho)
+      + selector de arquetipo en el panel de generación con IA.
+    - create_archetypes_table.php
+    - add_archetype_handle_to_ai_generations.php

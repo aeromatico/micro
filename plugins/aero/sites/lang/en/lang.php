@@ -21,6 +21,7 @@
         'submissions'  => 'Submissions',
         'api_tokens'   => 'API Tokens',
         'tenant_users' => 'Users & Roles',
+        'archetypes'   => 'Archetypes',
     ],
 
     'permissions' => [
