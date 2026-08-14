@@ -6,6 +6,7 @@ use Aero\Sites\Models\Page;
 use Aero\Sites\Models\Tenant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Log;
@@ -19,7 +20,7 @@ use Throwable;
  */
 class GenerateAiSiteJob implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue, SerializesModels;
+    use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     public int $tries = 1; // SiteGenerator ya reintenta internamente la corrección del JSON
     public int $timeout = 180;
