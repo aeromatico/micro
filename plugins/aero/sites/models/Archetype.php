@@ -18,6 +18,7 @@ class Archetype extends Model
 
     public $fillable = [
         'handle', 'name', 'niche_type', 'description',
+        'tone_instructions', 'target_audience',
         'blocks', 'recommended_tones', 'is_active', 'sort_order',
     ];
 
@@ -50,12 +51,30 @@ class Archetype extends Model
     }
 
     /**
-     * `blocks` se guarda como [{"block":"Hero"}, ...] (formato del campo
-     * repeater del admin) — esto lo aplana a ['Hero', 'FeatureGrid', ...]
-     * para quien lo consuma (SiteGenerator).
+     * `blocks` se guarda como [{"block":"Hero","instruction":"..."}, ...]
+     * (formato del campo repeater del admin) — esto lo aplana a
+     * ['Hero', 'FeatureGrid', ...] para quien solo necesite el orden.
      */
     public function getBlocksListAttribute(): array
     {
         return array_values(array_filter(array_column($this->blocks ?? [], 'block')));
+    }
+
+    /**
+     * Igual que blocks_list pero conservando la instrucción de construcción
+     * por bloque, para inyectarla en el prompt de la IA.
+     * @return array<array{type: string, instruction: string}>
+     */
+    public function getBlocksWithInstructionsAttribute(): array
+    {
+        $result = [];
+        foreach ($this->blocks ?? [] as $item) {
+            if (empty($item['block'])) continue;
+            $result[] = [
+                'type'        => $item['block'],
+                'instruction' => trim($item['instruction'] ?? ''),
+            ];
+        }
+        return $result;
     }
 }

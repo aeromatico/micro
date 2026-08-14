@@ -158,11 +158,30 @@ class SiteGenerator
         }
 
         $blocks = $archetype['blocks'] ?? [];
-        $archetypeInstruction = $blocks
-            ? 'Como punto de partida recomendado para este tipo de negocio, usa esta secuencia de bloques: '
-                . implode(' → ', $blocks) . '. Podés ajustar cantidad/orden si la descripción del usuario lo amerita, '
-                . 'pero mantené un hero al inicio y un CTA al final.'
-            : 'Elegí una secuencia de 4 a 8 bloques con un hero al inicio y un CTA al final.';
+        if ($blocks) {
+            $lines = [];
+            foreach ($blocks as $i => $block) {
+                $line = ($i + 1) . '. ' . $block['type'];
+                if (!empty($block['instruction'])) {
+                    $line .= ' — ' . $block['instruction'];
+                }
+                $lines[] = $line;
+            }
+            $archetypeInstruction = "Como punto de partida recomendado para este tipo de negocio, usa esta secuencia de "
+                . "bloques (podés ajustar cantidad/orden si la descripción del usuario lo amerita, pero mantené un hero "
+                . "al inicio y un CTA al final). Cuando un bloque trae una instrucción específica, seguila al pie de la "
+                . "letra para ese bloque:\n" . implode("\n", $lines);
+        } else {
+            $archetypeInstruction = 'Elegí una secuencia de 4 a 8 bloques con un hero al inicio y un CTA al final.';
+        }
+
+        $writingGuidance = '';
+        if (!empty($archetype['tone_instructions'])) {
+            $writingGuidance .= "\nTono y estilo de escritura: {$archetype['tone_instructions']}";
+        }
+        if (!empty($archetype['target_audience'])) {
+            $writingGuidance .= "\nPúblico objetivo: {$archetype['target_audience']}";
+        }
 
         return <<<PROMPT
 Eres un diseñador de sitios web. Debes generar una página de inicio (landing page) profesional
@@ -194,6 +213,7 @@ Negocio: {$businessName}
 Rubro / nicho: {$nicheLabel}
 {$contactInfo}
 Descripción del negocio (SEO): {$defaultDesc}
+{$writingGuidance}
 PROMPT;
     }
 
@@ -208,7 +228,13 @@ PROMPT;
      */
     protected function resolveArchetype(Tenant $tenant, ?string $archetypeHandle = null): array
     {
-        $default = ['handle' => 'default', 'blocks' => ['Hero', 'FeatureGrid', 'Testimonials', 'CTASection'], 'recommended_tones' => []];
+        $default = [
+            'handle' => 'default',
+            'blocks' => array_map(fn ($type) => ['type' => $type, 'instruction' => ''], ['Hero', 'FeatureGrid', 'Testimonials', 'CTASection']),
+            'recommended_tones'  => [],
+            'tone_instructions'  => '',
+            'target_audience'    => '',
+        ];
 
         if ($archetypeHandle) {
             $chosen = Archetype::active()->where('handle', $archetypeHandle)->first();
@@ -229,9 +255,11 @@ PROMPT;
     protected function archetypeToArray(Archetype $archetype): array
     {
         return [
-            'handle'            => $archetype->handle,
-            'blocks'            => $archetype->blocks_list,
-            'recommended_tones' => $archetype->recommended_tones ?? [],
+            'handle'             => $archetype->handle,
+            'blocks'             => $archetype->blocks_with_instructions,
+            'recommended_tones'  => $archetype->recommended_tones ?? [],
+            'tone_instructions'  => $archetype->tone_instructions ?? '',
+            'target_audience'    => $archetype->target_audience ?? '',
         ];
     }
 

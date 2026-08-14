@@ -49,3 +49,8 @@
       + selector de arquetipo en el panel de generación con IA.
     - create_archetypes_table.php
     - add_archetype_handle_to_ai_generations.php
+
+1.10.0:
+    - Instrucciones de construcción por bloque + tono/público objetivo por arquetipo,
+      inyectadas en el prompt de la IA para resultados iniciales más homogéneos.
+    - add_ai_guidance_to_archetypes.php

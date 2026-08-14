@@ -33,6 +33,22 @@ fields:
         span: full
         placeholder: Notas sobre cuándo conviene usar este arquetipo (se muestra en el panel de generación).
 
+    tone_instructions:
+        label: Tono y estilo de escritura
+        type: textarea
+        size: small
+        span: full
+        placeholder: 'Ej: Cálido y profesional, evitar promesas exageradas.'
+        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque).
+
+    target_audience:
+        label: Público objetivo
+        type: textarea
+        size: small
+        span: full
+        placeholder: 'Ej: Pacientes evaluando dónde atenderse, sensibles al trato y la confianza.'
+        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque).
+
     recommended_tones:
         label: Tonos de tema afines
         type: checkboxlist
@@ -73,3 +89,8 @@ fields:
                         LogoCloud: Logos
                         Stats: Estadísticas
                         Rating: Valoración
+                instruction:
+                    label: Instrucción de construcción para la IA
+                    type: textarea
+                    size: tiny
+                    placeholder: 'Ej: Enfatiza años de experiencia en el subtítulo, sin frases genéricas.'
