@@ -1,0 +1,62 @@
+# ==================================================================
+# Form definition for the MetaAccount model.
+# Edited by RainLab Builder. Lang keys live in:
+#   plugins/aero/masterads/lang/es/lang.php  →  fields.metaaccount.*
+# ==================================================================
+fields:
+    workspace:
+        label: aero.masterads::lang.fields.metaaccount.workspace
+        nameFrom: name
+        descriptionFrom: slug
+        span: left
+        type: relation
+        required: true
+
+    name:
+        label: aero.masterads::lang.fields.metaaccount.name
+        span: right
+        type: text
+
+    meta_act_id:
+        label: aero.masterads::lang.fields.metaaccount.meta_act_id
+        span: left
+        type: text
+        required: true
+        placeholder: act_1234567890
+        comment: aero.masterads::lang.fields.metaaccount.meta_act_id_comment
+
+    currency:
+        label: aero.masterads::lang.fields.metaaccount.currency
+        span: right
+        type: text
+        required: true
+        cssClass: text-uppercase
+        comment: aero.masterads::lang.fields.metaaccount.currency_comment
+
+    access_token:
+        label: aero.masterads::lang.fields.metaaccount.access_token
+        span: left
+        type: password
+        placeholder: aero.masterads::lang.fields.metaaccount.token_placeholder
+        comment: aero.masterads::lang.fields.metaaccount.access_token_comment
+
+    refresh_token:
+        label: aero.masterads::lang.fields.metaaccount.refresh_token
+        span: right
+        type: password
+        placeholder: aero.masterads::lang.fields.metaaccount.token_placeholder
+        comment: aero.masterads::lang.fields.metaaccount.refresh_token_comment
+
+    expires_at:
+        label: aero.masterads::lang.fields.metaaccount.expires_at
+        span: left
+        type: datepicker
+        mode: datetime
+
+    last_synced_at:
+        label: aero.masterads::lang.fields.metaaccount.last_synced_at
+        span: right
+        type: datepicker
+        mode: datetime
+        readOnly: true
+        comment: aero.masterads::lang.fields.metaaccount.last_synced_at_comment

@@ -1,0 +1,52 @@
+# ===================================
+#  Recommendation — List Column Definitions
+#  Validates: Requirements 6.7, 17.1, 17.6
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+        sortable: true
+        width: 80px
+
+    ai_analysis[id]:
+        label: aero.masterads::lang.fields.recommendation.ai_analysis
+        relation: ai_analysis
+        select: id
+        searchable: true
+        width: 110px
+
+    action_type:
+        label: aero.masterads::lang.fields.recommendation.action_type
+        type: text
+        searchable: false
+        sortable: true
+        width: 150px
+
+    severity:
+        label: aero.masterads::lang.fields.recommendation.severity
+        type: text
+        searchable: false
+        sortable: true
+        width: 110px
+
+    status:
+        label: aero.masterads::lang.fields.recommendation.status
+        type: text
+        searchable: false
+        sortable: true
+        width: 110px
+
+    rationale:
+        label: aero.masterads::lang.fields.recommendation.rationale
+        type: text
+        searchable: true
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        sortable: true
+        width: 160px

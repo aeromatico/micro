@@ -1,0 +1,57 @@
+# ==================================================================
+# List columns for the MetaAccount model.
+# Edited by RainLab Builder. Lang keys live in:
+#   plugins/aero/masterads/lang/es/lang.php  →  fields.metaaccount.*
+# ==================================================================
+columns:
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+        sortable: true
+        width: 60px
+
+    name:
+        label: aero.masterads::lang.fields.metaaccount.name
+        type: text
+        searchable: true
+        sortable: true
+
+    workspace:
+        label: aero.masterads::lang.fields.metaaccount.workspace
+        relation: workspace
+        select: name
+        searchable: true
+        sortable: true
+
+    meta_act_id:
+        label: aero.masterads::lang.fields.metaaccount.meta_act_id
+        type: text
+        searchable: true
+        sortable: true
+        width: 160px
+
+    currency:
+        label: aero.masterads::lang.fields.metaaccount.currency
+        type: text
+        sortable: true
+        width: 80px
+
+    expires_at:
+        label: aero.masterads::lang.fields.metaaccount.expires_at
+        type: datetime
+        sortable: true
+        width: 160px
+
+    last_synced_at:
+        label: aero.masterads::lang.fields.metaaccount.last_synced_at
+        type: datetime
+        sortable: true
+        width: 160px
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        sortable: true
+        invisible: true
+        width: 160px

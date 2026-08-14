@@ -1,0 +1,54 @@
+fields:
+    campaign_id:
+        label: aero.masterads::lang.fields.adset.campaign
+        type: dropdown
+        span: left
+        required: true
+
+    meta_id:
+        label: aero.masterads::lang.fields.adset.meta_id
+        type: text
+        span: right
+        readOnly: true
+        comment: "Identificador de Meta. No editable."
+
+    name:
+        label: aero.masterads::lang.fields.adset.name
+        type: text
+        span: left
+        required: true
+
+    status:
+        label: aero.masterads::lang.fields.adset.status
+        type: dropdown
+        span: right
+        required: true
+        options:
+            ACTIVE: ACTIVE
+            PAUSED: PAUSED
+            ARCHIVED: ARCHIVED
+            DELETED: DELETED
+
+    optimization_goal:
+        label: aero.masterads::lang.fields.adset.optimization_goal
+        type: text
+        span: left
+
+    bid_strategy:
+        label: aero.masterads::lang.fields.adset.bid_strategy
+        type: text
+        span: right
+
+    daily_budget:
+        label: aero.masterads::lang.fields.adset.daily_budget
+        type: number
+        span: left
+        step: '0.01'
+
+    targeting:
+        label: aero.masterads::lang.fields.adset.targeting
+        type: codeeditor
+        language: json
+        span: full
+        size: large
+        comment: "Definición de segmentación (JSON)."

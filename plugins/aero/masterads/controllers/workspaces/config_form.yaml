@@ -1,0 +1,21 @@
+# ===========================================================================
+# Workspaces — FormController configuration
+#
+# Wires the Workspace form behavior to the field set declared in
+# `models/workspace/fields.yaml` and routes the post-save redirects back
+# to the controller's index / update screens.
+#
+# Validates: Requirements 1.1, 1.5, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.workspaces
+form: $/aero/masterads/models/workspace/fields.yaml
+modelClass: Aero\MasterAds\Models\Workspace
+defaultRedirect: aero/masterads/workspaces
+create:
+    title: Crear Workspace
+    redirect: aero/masterads/workspaces/update/:id
+update:
+    title: Workspace
+    redirect: aero/masterads/workspaces
+preview:
+    title: Workspace

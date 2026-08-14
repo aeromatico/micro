@@ -1,0 +1,20 @@
+# ===========================================================================
+# AiAnalyses — FormController configuration
+#
+# Wires the AiAnalysis form behavior to the field set declared in
+# `models/aianalysis/fields.yaml`. The form is intended to be read-only in
+# practice (analyses are produced by the RunAiAnalysisJob, never edited
+# manually) so only `update` and `preview` redirects are defined — there
+# is no `create` block.
+#
+# Validates: Requirements 6.10, 8.5, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.ai_analyses
+form: $/aero/masterads/models/aianalysis/fields.yaml
+modelClass: Aero\MasterAds\Models\AiAnalysis
+defaultRedirect: aero/masterads/aianalyses
+update:
+    title: Análisis IA
+    redirect: aero/masterads/aianalyses
+preview:
+    title: Análisis IA

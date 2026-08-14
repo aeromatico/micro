@@ -1,0 +1,23 @@
+# ===========================================================================
+# AiProviders — FormController configuration
+#
+# Wires the AiProvider form behavior to the field set declared in
+# `models/aiprovider/fields.yaml`. The form exposes `driver` (dropdown),
+# `model`, `api_key` (password type — encrypted on write by the model
+# mutator, never re-rendered in clear), `is_default` and `settings`
+# (JSON code editor for driver-specific options).
+#
+# Validates: Requirements 5.1, 5.2, 5.3, 5.5, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.ai_providers
+form: $/aero/masterads/models/aiprovider/fields.yaml
+modelClass: Aero\MasterAds\Models\AiProvider
+defaultRedirect: aero/masterads/aiproviders
+create:
+    title: Configurar proveedor IA
+    redirect: aero/masterads/aiproviders/update/:id
+update:
+    title: Proveedor IA
+    redirect: aero/masterads/aiproviders
+preview:
+    title: Proveedor IA

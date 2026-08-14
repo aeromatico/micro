@@ -1,0 +1,25 @@
+# ===========================================================================
+# Campaigns — Filter scopes for ListController
+#
+# - `status`        : multi-select over the four lifecycle states emitted by
+#                     Meta's `effective_status` field.
+# - `meta_account`  : narrows to a single connected Meta ad account,
+#                     displaying the human-readable `meta_act_id`.
+#
+# Validates: Requirements 6.1, 17.2
+# ===========================================================================
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            ACTIVE: Activa
+            PAUSED: Pausada
+            ARCHIVED: Archivada
+            DELETED: Eliminada
+    meta_account:
+        label: Cuenta Meta
+        type: relation
+        nameFrom: meta_act_id
+        modelClass: Aero\MasterAds\Models\MetaAccount

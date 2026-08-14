@@ -1,0 +1,27 @@
+# ===========================================================================
+# Workspace — Backend list definition (RainLab Builder compatible)
+#
+# Auto-loaded by ListController via `models/workspace/columns.yaml`.
+# The `owner` column joins on the `owner` belongsTo relation and surfaces the
+# `login` attribute of `Backend\Models\User`.
+#
+# Validates: Requirements 1.1, 17.1
+# ===========================================================================
+columns:
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+    name:
+        label: aero.masterads::lang.fields.workspace.name
+        searchable: true
+    slug:
+        label: aero.masterads::lang.fields.workspace.slug
+        searchable: true
+    owner:
+        label: aero.masterads::lang.fields.workspace.owner
+        relation: owner
+        select: login
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime

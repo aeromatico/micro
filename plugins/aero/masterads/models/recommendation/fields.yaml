@@ -1,0 +1,78 @@
+# ===================================
+#  Recommendation — Form Field Definitions
+#  Validates: Requirements 6.7, 7.12, 17.1, 17.6
+# ===================================
+
+fields:
+
+    ai_analysis:
+        label: aero.masterads::lang.fields.recommendation.ai_analysis
+        type: relation
+        nameFrom: id
+        emptyOption: ---
+        span: left
+        required: true
+
+    action_type:
+        label: aero.masterads::lang.fields.recommendation.action_type
+        type: dropdown
+        span: right
+        required: true
+        options:
+            adjust_budget: aero.masterads::lang.action_type.adjust_budget
+            pause: aero.masterads::lang.action_type.pause
+            resume: aero.masterads::lang.action_type.resume
+            scale: aero.masterads::lang.action_type.scale
+            change_audience: aero.masterads::lang.action_type.change_audience
+            change_creative: aero.masterads::lang.action_type.change_creative
+
+    severity:
+        label: aero.masterads::lang.fields.recommendation.severity
+        type: dropdown
+        span: left
+        required: true
+        default: medium
+        options:
+            low: aero.masterads::lang.severity.low
+            medium: aero.masterads::lang.severity.medium
+            high: aero.masterads::lang.severity.high
+            critical: aero.masterads::lang.severity.critical
+
+    status:
+        label: aero.masterads::lang.fields.recommendation.status
+        type: dropdown
+        span: right
+        required: true
+        default: pending
+        options:
+            pending: aero.masterads::lang.rec_status.pending
+            approved: aero.masterads::lang.rec_status.approved
+            rejected: aero.masterads::lang.rec_status.rejected
+            applied: aero.masterads::lang.rec_status.applied
+            failed: aero.masterads::lang.rec_status.failed
+
+    rationale:
+        label: aero.masterads::lang.fields.recommendation.rationale
+        type: textarea
+        span: full
+        required: true
+        size: small
+
+tabs:
+    fields:
+
+        payload:
+            tab: aero.masterads::lang.fields.recommendation.tab_payload
+            label: aero.masterads::lang.fields.recommendation.payload
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.recommendation.payload_comment
+
+        expected_impact:
+            tab: aero.masterads::lang.fields.recommendation.tab_impact
+            label: aero.masterads::lang.fields.recommendation.expected_impact
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.recommendation.expected_impact_comment

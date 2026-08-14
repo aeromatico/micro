@@ -59,7 +59,18 @@
     },
     "autoload": {
         "psr-4": {
-            "System\\Console\\": "modules/system/console"
+            "System\\Console\\": "modules/system/console",
+            "Aero\\MasterAds\\": "plugins/aero/masterads/",
+            "Aero\\MasterAds\\Classes\\": "plugins/aero/masterads/classes/",
+            "Aero\\MasterAds\\Models\\": "plugins/aero/masterads/models/",
+            "Aero\\MasterAds\\Controllers\\": "plugins/aero/masterads/controllers/",
+            "Aero\\MasterAds\\Jobs\\": "plugins/aero/masterads/jobs/",
+            "Aero\\MasterAds\\Console\\": "plugins/aero/masterads/console/",
+            "Aero\\MasterAds\\Events\\": "plugins/aero/masterads/events/",
+            "Aero\\MasterAds\\Listeners\\": "plugins/aero/masterads/listeners/",
+            "Aero\\MasterAds\\Observers\\": "plugins/aero/masterads/observers/",
+            "Aero\\MasterAds\\Updates\\": "plugins/aero/masterads/updates/",
+            "Aero\\MasterAds\\Tests\\": "plugins/aero/masterads/tests/"
         }
     },
     "minimum-stability": "stable",

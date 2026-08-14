@@ -1,0 +1,96 @@
+# ===================================
+#  AiAnalysis — Form Field Definitions
+#  Validates: Requirements 6.7, 6.10, 8.5, 8.6, 17.1, 17.6
+# ===================================
+
+fields:
+
+    workspace:
+        label: aero.masterads::lang.fields.aianalysis.workspace
+        type: relation
+        nameFrom: name
+        emptyOption: ---
+        span: left
+        required: true
+
+    provider:
+        label: aero.masterads::lang.fields.aianalysis.provider
+        type: relation
+        nameFrom: name
+        emptyOption: ---
+        span: right
+        required: true
+
+    target_type:
+        label: aero.masterads::lang.fields.aianalysis.target_type
+        type: dropdown
+        span: left
+        required: true
+        options:
+            campaign: aero.masterads::lang.target_type.campaign
+            adset: aero.masterads::lang.target_type.adset
+            ad: aero.masterads::lang.target_type.ad
+
+    target_id:
+        label: aero.masterads::lang.fields.aianalysis.target_id
+        type: number
+        span: right
+        required: true
+
+    status:
+        label: aero.masterads::lang.fields.aianalysis.status
+        type: dropdown
+        span: left
+        required: true
+        default: queued
+        options:
+            queued: aero.masterads::lang.status.queued
+            running: aero.masterads::lang.status.running
+            success: aero.masterads::lang.status.success
+            failed: aero.masterads::lang.status.failed
+
+    tokens_used:
+        label: aero.masterads::lang.fields.aianalysis.tokens_used
+        type: number
+        span: right
+        default: 0
+
+    cost_usd:
+        label: aero.masterads::lang.fields.aianalysis.cost_usd
+        type: number
+        step: '0.000001'
+        span: left
+        default: 0
+
+    error_message:
+        label: aero.masterads::lang.fields.aianalysis.error_message
+        type: textarea
+        span: full
+        size: tiny
+
+tabs:
+    fields:
+
+        prompt_payload:
+            tab: aero.masterads::lang.fields.aianalysis.tab_payload
+            label: aero.masterads::lang.fields.aianalysis.prompt_payload
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.aianalysis.prompt_payload_comment
+
+        raw_response:
+            tab: aero.masterads::lang.fields.aianalysis.tab_response
+            label: aero.masterads::lang.fields.aianalysis.raw_response
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.aianalysis.raw_response_comment
+
+        metrics_snapshot:
+            tab: aero.masterads::lang.fields.aianalysis.tab_metrics
+            label: aero.masterads::lang.fields.aianalysis.metrics_snapshot
+            type: codeeditor
+            language: json
+            size: large
+            comment: aero.masterads::lang.fields.aianalysis.metrics_snapshot_comment

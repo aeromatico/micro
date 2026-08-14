@@ -1,0 +1,21 @@
+#
+# List behavior config for Aero\MasterAds\Controllers\Recommendations.
+#
+# Backs the moderation queue: rows link straight to the preview screen so
+# reviewers can approve/reject/apply without an intermediate update step.
+# Column definitions live next to the model and are shared by any other
+# listing that exposes the Recommendation entity.
+#
+# Validates: Requirements 7.1, 8.4, 10.2, 12.2, 17.2, 20.1
+#
+title: aero.masterads::lang.nav.recommendations
+list: $/aero/masterads/models/recommendation/columns.yaml
+modelClass: Aero\MasterAds\Models\Recommendation
+recordUrl: aero/masterads/recommendations/preview/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar recomendación...
+showSetup: true
+recordsPerPage: 25
+filter: config_filter.yaml

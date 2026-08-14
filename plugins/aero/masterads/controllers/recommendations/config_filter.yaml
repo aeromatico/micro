@@ -1,0 +1,41 @@
+#
+# Filter scopes for the Recommendations list view.
+#
+# All three scopes use the `group` filter type so reviewers can multi-select
+# values for high-volume triage (e.g. "show me pending + high severity").
+# The `conditions` strings use `:filtered` to inline the selected options
+# safely through the FilterWidget — see Backend\Classes\FilterScope.
+#
+# Validates: Requirements 7.1, 8.4, 10.2, 12.6
+#
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            pending: Pendiente
+            approved: Aprobada
+            rejected: Rechazada
+            applied: Aplicada
+            failed: Fallida
+    severity:
+        label: Severidad
+        type: group
+        conditions: "severity in (:filtered)"
+        options:
+            low: Baja
+            medium: Media
+            high: Alta
+            critical: Crítica
+    action_type:
+        label: Acción
+        type: group
+        conditions: "action_type in (:filtered)"
+        options:
+            adjust_budget: Ajustar presupuesto
+            pause: Pausar
+            resume: Reanudar
+            scale: Escalar
+            change_audience: Cambiar audiencia
+            change_creative: Cambiar creativo

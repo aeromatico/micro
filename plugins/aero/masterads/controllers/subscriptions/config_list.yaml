@@ -1,0 +1,22 @@
+# ===========================================================================
+# Subscriptions — ListController configuration
+#
+# Wires the Subscription list behavior to the column set declared in
+# `models/subscription/columns.yaml`. Filtering by status and workspace is
+# driven by `config_filter.yaml`. Each row links to the update form via
+# `recordUrl`.
+#
+# Validates: Requirements 9.1, 9.2, 17.2, 20.1
+# ===========================================================================
+title: aero.masterads::lang.nav.subscriptions
+list: $/aero/masterads/models/subscription/columns.yaml
+modelClass: Aero\MasterAds\Models\Subscription
+recordUrl: aero/masterads/subscriptions/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar suscripción...
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+filter: config_filter.yaml

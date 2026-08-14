@@ -1,0 +1,64 @@
+# ===================================
+#  AiAnalysis — List Column Definitions
+#  Validates: Requirements 16.3, 17.1, 17.6
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+        sortable: true
+        width: 80px
+
+    workspace[name]:
+        label: aero.masterads::lang.fields.aianalysis.workspace
+        relation: workspace
+        select: name
+        searchable: true
+
+    target_type:
+        label: aero.masterads::lang.fields.aianalysis.target_type
+        type: text
+        searchable: false
+        sortable: true
+        width: 110px
+
+    target_id:
+        label: aero.masterads::lang.fields.aianalysis.target_id
+        type: number
+        searchable: true
+        sortable: true
+        width: 100px
+
+    status:
+        label: aero.masterads::lang.fields.aianalysis.status
+        type: text
+        searchable: false
+        sortable: true
+        width: 110px
+
+    provider[model]:
+        label: aero.masterads::lang.fields.aianalysis.provider_model
+        relation: provider
+        select: model
+        searchable: true
+
+    tokens_used:
+        label: aero.masterads::lang.fields.aianalysis.tokens_used
+        type: number
+        sortable: true
+        width: 110px
+
+    cost_usd:
+        label: aero.masterads::lang.fields.aianalysis.cost_usd
+        type: number
+        sortable: true
+        width: 110px
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        sortable: true
+        width: 160px

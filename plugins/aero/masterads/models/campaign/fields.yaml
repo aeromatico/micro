@@ -1,0 +1,59 @@
+fields:
+    meta_account_id:
+        label: aero.masterads::lang.fields.campaign.meta_account
+        type: dropdown
+        span: left
+        required: true
+
+    meta_id:
+        label: aero.masterads::lang.fields.campaign.meta_id
+        type: text
+        span: right
+        readOnly: true
+        comment: "Identificador de Meta. No editable."
+
+    name:
+        label: aero.masterads::lang.fields.campaign.name
+        type: text
+        span: left
+        required: true
+
+    objective:
+        label: aero.masterads::lang.fields.campaign.objective
+        type: text
+        span: right
+
+    status:
+        label: aero.masterads::lang.fields.campaign.status
+        type: dropdown
+        span: left
+        required: true
+        options:
+            ACTIVE: ACTIVE
+            PAUSED: PAUSED
+            ARCHIVED: ARCHIVED
+            DELETED: DELETED
+
+    daily_budget:
+        label: aero.masterads::lang.fields.campaign.daily_budget
+        type: number
+        span: left
+        step: '0.01'
+
+    lifetime_budget:
+        label: aero.masterads::lang.fields.campaign.lifetime_budget
+        type: number
+        span: right
+        step: '0.01'
+
+    start_time:
+        label: aero.masterads::lang.fields.campaign.start_time
+        type: datepicker
+        mode: datetime
+        span: left
+
+    stop_time:
+        label: aero.masterads::lang.fields.campaign.stop_time
+        type: datepicker
+        mode: datetime
+        span: right

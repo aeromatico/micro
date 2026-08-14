@@ -1,0 +1,26 @@
+# ===========================================================================
+# Subscriptions — Filter scopes for ListController
+#
+# - `status`     : multi-select over the four lifecycle states emitted by
+#                  the Subscription model (`active`, `trialing`,
+#                  `past_due`, `canceled`).
+# - `workspace`  : narrows the list to a single workspace, displayed by
+#                  its `name` column.
+#
+# Validates: Requirements 9.1, 9.2, 17.2
+# ===========================================================================
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            active: Activa
+            trialing: Trial
+            past_due: Vencida
+            canceled: Cancelada
+    workspace:
+        label: Workspace
+        type: relation
+        nameFrom: name
+        modelClass: Aero\MasterAds\Models\Workspace

@@ -1,0 +1,21 @@
+# ===========================================================================
+# Plans — FormController configuration
+#
+# Wires the Plan form behavior to the field set declared in
+# `models/plan/fields.yaml` and routes the post-save redirects back to the
+# controller's index / update screens.
+#
+# Validates: Requirements 9.1, 9.2, 17.2, 20.1
+# ===========================================================================
+name: aero.masterads::lang.nav.plans
+form: $/aero/masterads/models/plan/fields.yaml
+modelClass: Aero\MasterAds\Models\Plan
+defaultRedirect: aero/masterads/plans
+create:
+    title: Crear Plan
+    redirect: aero/masterads/plans/update/:id
+update:
+    title: Plan
+    redirect: aero/masterads/plans
+preview:
+    title: Plan

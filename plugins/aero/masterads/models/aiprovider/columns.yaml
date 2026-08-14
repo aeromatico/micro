@@ -1,0 +1,50 @@
+# ===================================
+#  AiProvider — List Column Definitions
+#  Validates: Requirements 5.1, 17.1, 17.6
+# ===================================
+
+columns:
+
+    id:
+        label: aero.masterads::lang.common.id
+        type: number
+        searchable: false
+        sortable: true
+        width: 80px
+
+    name:
+        label: aero.masterads::lang.fields.aiprovider.name
+        type: text
+        searchable: true
+        sortable: true
+
+    workspace[name]:
+        label: aero.masterads::lang.fields.aiprovider.workspace
+        relation: workspace
+        select: name
+        searchable: true
+
+    driver:
+        label: aero.masterads::lang.fields.aiprovider.driver
+        type: text
+        searchable: true
+        sortable: true
+        width: 120px
+
+    model:
+        label: aero.masterads::lang.fields.aiprovider.model
+        type: text
+        searchable: true
+        sortable: true
+
+    is_default:
+        label: aero.masterads::lang.fields.aiprovider.is_default
+        type: switch
+        sortable: true
+        width: 110px
+
+    created_at:
+        label: aero.masterads::lang.common.created_at
+        type: datetime
+        sortable: true
+        width: 160px

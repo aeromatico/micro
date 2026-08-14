@@ -1,0 +1,57 @@
+fields:
+    entity_type:
+        label: aero.masterads::lang.fields.insight.entity_type
+        type: dropdown
+        span: left
+        required: true
+        options:
+            campaign: campaign
+            adset: adset
+            ad: ad
+
+    entity_id:
+        label: aero.masterads::lang.fields.insight.entity_id
+        type: number
+        span: right
+        required: true
+
+    date:
+        label: aero.masterads::lang.fields.insight.date
+        type: datepicker
+        mode: date
+        span: left
+        required: true
+
+    impressions:
+        label: aero.masterads::lang.fields.insight.impressions
+        type: number
+        span: left
+        required: true
+        default: 0
+
+    clicks:
+        label: aero.masterads::lang.fields.insight.clicks
+        type: number
+        span: right
+        required: true
+        default: 0
+
+    spend:
+        label: aero.masterads::lang.fields.insight.spend
+        type: number
+        span: left
+        required: true
+        step: '0.0001'
+        default: 0
+
+    conversions:
+        label: aero.masterads::lang.fields.insight.conversions
+        type: number
+        span: right
+        required: true
+        default: 0
+
+    video_views:
+        label: aero.masterads::lang.fields.insight.video_views
+        type: number
+        span: left

@@ -1,0 +1,36 @@
+# ===========================================================================
+# Ads — Filter scopes for ListController
+#
+# - `status`  : multi-select over the four lifecycle states emitted by
+#               Meta's `effective_status` field.
+# - `format`  : creative format reported by Meta (`image`, `video`,
+#               `carousel`, `collection`).
+# - `ad_set`  : narrows to a single parent ad set, displaying the ad set's
+#               `name` column.
+#
+# Validates: Requirements 6.1, 17.2
+# ===========================================================================
+scopes:
+    status:
+        label: Estado
+        type: group
+        conditions: "status in (:filtered)"
+        options:
+            ACTIVE: Activo
+            PAUSED: Pausado
+            ARCHIVED: Archivado
+            DELETED: Eliminado
+    format:
+        label: Formato
+        type: group
+        conditions: "format in (:filtered)"
+        options:
+            image: Imagen
+            video: Video
+            carousel: Carrusel
+            collection: Colección
+    ad_set:
+        label: Ad Set
+        type: relation
+        nameFrom: name
+        modelClass: Aero\MasterAds\Models\AdSet
