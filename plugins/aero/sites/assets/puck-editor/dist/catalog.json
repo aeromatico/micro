@@ -192,8 +192,7 @@
         "label": "Botón: URL"
       },
       "bgImage": {
-        "type": "text",
-        "label": "Imagen de fondo (URL, opcional)"
+        "type": "custom"
       },
       "background": {
         "type": "radio",
@@ -210,16 +209,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -236,16 +230,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -286,16 +275,11 @@
           {
             "label": "Superficie (panel)",
             "value": "surface"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -312,16 +296,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -393,16 +372,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -419,16 +393,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -437,8 +406,7 @@
     "desc": "Imagen individual con texto alternativo y pie de foto opcional. Puede ser ancho completo o centrada.",
     "fields": {
       "imageUrl": {
-        "type": "text",
-        "label": "URL de la imagen"
+        "type": "custom"
       },
       "alt": {
         "type": "text",
@@ -517,16 +485,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -543,16 +506,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -647,16 +605,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -673,16 +626,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -763,16 +711,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -789,16 +732,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -843,16 +781,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -869,16 +802,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -932,16 +860,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -958,16 +881,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },
@@ -984,8 +902,7 @@
         "label": "Imágenes",
         "arrayFields": {
           "url": {
-            "type": "text",
-            "label": "URL de la imagen"
+            "type": "custom"
           },
           "alt": {
             "type": "text",
@@ -1026,8 +943,7 @@
         "label": "Logos",
         "arrayFields": {
           "url": {
-            "type": "text",
-            "label": "URL del logo"
+            "type": "custom"
           },
           "alt": {
             "type": "text",
@@ -1082,16 +998,11 @@
           {
             "label": "Color de marca (sólido)",
             "value": "brand"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customBgColor": {
-        "type": "text",
-        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+        "type": "custom"
       },
       "textColor": {
         "type": "radio",
@@ -1108,16 +1019,11 @@
           {
             "label": "Oscuro",
             "value": "dark"
-          },
-          {
-            "label": "Personalizado",
-            "value": "custom"
           }
         ]
       },
       "customTextColor": {
-        "type": "text",
-        "label": "Texto personalizado (hex, ej: #ffffff)"
+        "type": "custom"
       }
     }
   },

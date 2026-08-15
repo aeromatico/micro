@@ -8,10 +8,16 @@ use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\Page;
 use Aero\Sites\Models\Tenant;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
+use ApplicationException;
 use Backend\Classes\Controller;
 use Backend\Widgets\Form;
 use BackendMenu;
 use Flash;
+use Input;
+use Response;
+use System\Models\File as FileModel;
+use Validator;
+use ValidationException;
 
 class ContentEditor extends Controller
 {
@@ -109,6 +115,53 @@ class ContentEditor extends Controller
 
         Flash::success('Configuración del formulario guardada.');
         return [];
+    }
+
+    /**
+     * Sube una imagen desde el editor Puck (Hero/ImageBlock/Gallery/LogoCloud).
+     * No usa la Media Library de October (storage/app/media) porque es una
+     * biblioteca única y global — cualquier backend user con permiso
+     * media.library navega los archivos de TODOS los tenants. Cada archivo
+     * se crea como su propio System\Models\File adjunto solo a este tenant
+     * (Tenant::$attachMany.puck_uploads), igual que logo/favicon.
+     */
+    public function onPuckUploadImage()
+    {
+        try {
+            $tenant = $this->getCurrentTenant();
+            if (!$tenant) {
+                throw new ApplicationException('No se encontró el tenant actual.');
+            }
+
+            if (!Input::hasFile('file_data')) {
+                throw new ApplicationException('No se recibió ningún archivo.');
+            }
+
+            $uploadedFile = files('file_data');
+
+            $validation = Validator::make(
+                ['file_data' => $uploadedFile],
+                ['file_data' => ['max:10240', 'mimes:jpg,jpeg,png,gif,webp,svg']]
+            );
+            if ($validation->fails()) {
+                throw new ValidationException($validation);
+            }
+
+            if (!$uploadedFile->isValid()) {
+                throw new ApplicationException('El archivo no es válido.');
+            }
+
+            $file = new FileModel();
+            $file->data = $uploadedFile;
+            $file->is_public = true;
+            $file->save();
+
+            $tenant->puck_uploads()->add($file);
+
+            return Response::make(['id' => $file->id, 'url' => $file->getPath()], 200);
+        } catch (\Exception $ex) {
+            return Response::make(['error' => $ex->getMessage()], 400);
+        }
     }
 
     // -------------------------------------------------------------------------

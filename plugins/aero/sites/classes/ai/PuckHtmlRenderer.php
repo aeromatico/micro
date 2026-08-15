@@ -84,10 +84,12 @@ class PuckHtmlRenderer
     }
 
     /**
-     * Espejo exacto de resolveSectionStyle() en components.jsx: personalización
-     * opt-in de fondo/texto por bloque. Devuelve clases Tailwind fijas
-     * (comportamiento idéntico al actual) salvo que el preset sea 'custom' con
-     * un hex válido, en cuyo caso va en `styleAttr` (para el atributo style).
+     * Espejo exacto de resolveSectionStyle() en components.jsx: el color
+     * picker (customBgColor/customTextColor) es el toggle de "personalizado"
+     * — en cuanto tiene un hex válido gana sobre el preset, sin necesidad de
+     * un radio "Personalizado" aparte. Devuelve clases Tailwind fijas
+     * (comportamiento idéntico al actual) salvo que haya un hex válido, en
+     * cuyo caso va en `styleAttr` (para el atributo style).
      */
     protected function resolveSectionStyle(string $background, string $autoTextClass, array $opts = []): array
     {
@@ -98,15 +100,15 @@ class PuckHtmlRenderer
         $classes = [];
         $styleParts = [];
 
-        if ($background === 'custom') {
-            if ($this->isValidHex($customBgColor)) $styleParts[] = 'background-color:' . $customBgColor;
+        if ($this->isValidHex($customBgColor)) {
+            $styleParts[] = 'background-color:' . $customBgColor;
         } elseif ($background === 'brand') {
             $classes[] = 'bg-brand-primary-dark';
         } elseif ($background === 'surface') {
             $classes[] = 'bg-surface-alt';
         }
 
-        if ($textColor === 'custom' && $this->isValidHex($customTextColor)) {
+        if ($this->isValidHex($customTextColor)) {
             $styleParts[] = 'color:' . $customTextColor;
         } elseif ($textColor === 'light') {
             $classes[] = 'text-white';
@@ -227,7 +229,7 @@ class PuckHtmlRenderer
             'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
         ]);
         $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
-        $textOverride = $textColor && $textColor !== 'auto';
+        $textOverride = $this->isValidHex($customTextColor);
 
         $head = $heading
             ? '<h2 class="font-heading2 text-3xl font-bold mb-6' . ($textOverride ? '' : ' text-brand-text') . '">' . $this->e($heading) . '</h2>'
@@ -256,7 +258,7 @@ class PuckHtmlRenderer
             'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
         ]);
         $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
-        $textOverride = $textColor && $textColor !== 'auto';
+        $textOverride = $this->isValidHex($customTextColor);
 
         $head = $title
             ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>'
@@ -313,17 +315,14 @@ class PuckHtmlRenderer
         $customTextColor = $this->attr($p, 'customTextColor', '');
 
         $autoText = $solid ? 'text-white' : 'text-brand-text';
+        $hasOverride = $background || $this->isValidHex($customBgColor) || ($textColor && $textColor !== 'auto');
         $styleAttrValue = '';
 
-        if ($background) {
+        if ($hasOverride) {
             $resolved = $this->resolveSectionStyle($background, $autoText, [
                 'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
             ]);
             $section = trim($resolved['class'] . (!$solid ? ' border-2 border-brand-primary' : ''));
-            $styleAttrValue = $resolved['styleAttr'];
-        } elseif ($textColor && $textColor !== 'auto') {
-            $resolved = $this->resolveSectionStyle('', $autoText, ['textColor' => $textColor, 'customTextColor' => $customTextColor]);
-            $section = ($solid ? 'bg-brand-primary' : 'bg-brand-bg border-2 border-brand-primary') . ' ' . $resolved['class'];
             $styleAttrValue = $resolved['styleAttr'];
         } else {
             $section = $solid ? 'bg-brand-primary text-white' : 'bg-brand-bg text-brand-text border-2 border-brand-primary';
@@ -416,7 +415,7 @@ class PuckHtmlRenderer
             'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
         ]);
         $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
-        $textOverride = $textColor && $textColor !== 'auto';
+        $textOverride = $this->isValidHex($customTextColor);
 
         $head = $title
             ? '<h2 class="font-heading2 text-3xl font-bold mb-10' . ($textOverride ? '' : ' text-ink') . ' text-center">' . $this->e($title) . '</h2>'
@@ -484,7 +483,7 @@ class PuckHtmlRenderer
             'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
         ]);
         $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
-        $textOverride = $textColor && $textColor !== 'auto';
+        $textOverride = $this->isValidHex($customTextColor);
 
         $head = $title
             ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>'

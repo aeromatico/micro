@@ -1,4 +1,5 @@
 import React from 'react';
+import { FieldLabel } from '@puckeditor/core';
 
 /**
  * Librería de componentes Puck — estandar "Aero Sites" (Tailwind dark + Alpine.js).
@@ -170,14 +171,16 @@ export const Space = {
 
 // Opciones de fondo compartidas por los bloques de alto impacto (Hero, Banner,
 // Stats): "transparent"/"surface" heredan el fondo neutro del tema (se adaptan
-// solos a claro/oscuro), "brand" rellena con el color de marca sólido para
-// cuando se quiere un bloque de alto contraste puntual, "custom" abre un color
-// arbitrario (hex) — opt-in, ver resolveSectionStyle.
+// solos a claro/oscuro), "brand" rellena con el color de marca sólido. El
+// color personalizado (customBgColor, ver colorField) NO es una opción más
+// de esta lista — es el propio color picker el que actúa como toggle: en
+// cuanto tiene un hex válido, gana sobre cualquiera de estas opciones (ver
+// resolveSectionStyle). Así el usuario no tiene que elegir "Personalizado" Y
+// ADEMÁS el color en dos controles separados.
 const BACKGROUND_OPTIONS = [
   { label: 'Transparente', value: 'transparent' },
   { label: 'Superficie (neutro)', value: 'surface' },
   { label: 'Color de marca (sólido)', value: 'brand' },
-  { label: 'Personalizado', value: 'custom' },
 ];
 
 // Igual que BACKGROUND_OPTIONS pero con una opción inicial "sin cambios" para
@@ -188,19 +191,150 @@ const BACKGROUND_OPTIONS_OPTIONAL = [
   ...BACKGROUND_OPTIONS,
 ];
 
+// Igual que con el fondo: el color de texto personalizado (customTextColor)
+// no es una opción de este radio — gana automáticamente sobre estas 3 en
+// cuanto tiene un hex válido (ver resolveSectionStyle).
 const TEXT_COLOR_OPTIONS = [
   { label: 'Automático', value: 'auto' },
   { label: 'Claro', value: 'light' },
   { label: 'Oscuro', value: 'dark' },
-  { label: 'Personalizado', value: 'custom' },
 ];
+
+function isValidHex(hex) {
+  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
+}
+
+// Campo `custom` con <input type="color"> nativo (sin dependencias) + un
+// input de texto para el hex exacto — Puck no trae color picker nativo
+// (solo text/textarea/select/radio/number/array/object/slot/custom).
+function colorField(label) {
+  return {
+    type: 'custom',
+    render: ({ name, value, onChange }) => (
+      <FieldLabel label={label}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="color"
+            value={isValidHex(value) ? value : '#000000'}
+            onChange={(e) => onChange(e.currentTarget.value)}
+            style={{ width: '40px', height: '32px', padding: 0, border: '1px solid var(--puck-color-grey-05, #ccc)', borderRadius: '4px', cursor: 'pointer' }}
+          />
+          <input
+            type="text"
+            name={name}
+            value={value || ''}
+            placeholder="#rrggbb"
+            onChange={(e) => onChange(e.currentTarget.value)}
+            style={{ flex: 1, minWidth: 0 }}
+          />
+        </div>
+      </FieldLabel>
+    ),
+  };
+}
+
+// Campo `custom` que sube el archivo al filesystem propio del tenant (no a
+// la Media Library de October — esa es una biblioteca única y global,
+// cualquier backend user con permiso media.library navegaría los archivos
+// de TODOS los tenants). Pega directo al handler AJAX
+// ContentEditor::onPuckUploadImage(), que crea un System\Models\File
+// adjunto solo a Tenant::puck_uploads. Incluye un input de texto como
+// fallback para pegar una URL externa directamente.
+function imageField(label) {
+  return {
+    type: 'custom',
+    render: ({ name, value, onChange }) => {
+      const [uploading, setUploading] = React.useState(false);
+      const [error, setError] = React.useState('');
+      const inputRef = React.useRef(null);
+
+      const handleFile = async (file) => {
+        if (!file) return;
+        setUploading(true);
+        setError('');
+        try {
+          const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+          const formData = new FormData();
+          formData.append('file_data', file);
+
+          // Header X-AJAX-HANDLER (no X-OCTOBER-REQUEST-HANDLER): este October
+          // usa el framework AJAX de Larajax, ver vendor/larajax/larajax/src/Classes/AjaxRequest.php.
+          const res = await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-AJAX-HANDLER': 'onPuckUploadImage',
+              'X-CSRF-TOKEN': csrfToken,
+              Accept: 'application/json',
+            },
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            throw new Error(data.error || 'Error al subir la imagen.');
+          }
+          onChange(data.url);
+        } catch (err) {
+          setError(err.message || 'Error al subir la imagen.');
+        } finally {
+          setUploading(false);
+          if (inputRef.current) inputRef.current.value = '';
+        }
+      };
+
+      return (
+        <FieldLabel label={label}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {value && (
+              <img
+                src={value}
+                alt=""
+                style={{ width: '100%', maxHeight: '120px', objectFit: 'cover', borderRadius: '4px' }}
+              />
+            )}
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => handleFile(e.currentTarget.files?.[0])}
+            />
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => inputRef.current?.click()}
+                style={{ flex: 1, padding: '6px 10px', cursor: uploading ? 'wait' : 'pointer' }}
+              >
+                {uploading ? 'Subiendo…' : value ? 'Cambiar imagen…' : 'Subir imagen…'}
+              </button>
+              {value && !uploading && (
+                <button type="button" onClick={() => onChange('')} style={{ padding: '6px 10px', cursor: 'pointer' }}>
+                  Quitar
+                </button>
+              )}
+            </div>
+            {error && <div style={{ color: '#dc2626', fontSize: '12px' }}>{error}</div>}
+            <input
+              type="text"
+              name={name}
+              value={value || ''}
+              placeholder="o pegar una URL"
+              onChange={(e) => onChange(e.currentTarget.value)}
+            />
+          </div>
+        </FieldLabel>
+      );
+    },
+  };
+}
 
 // Campos reutilizables de personalización opt-in (fondo custom + color de
 // texto). Se agregan junto al campo `background` propio de cada bloque.
 const CUSTOM_COLOR_FIELDS = {
-  customBgColor: { type: 'text', label: 'Fondo personalizado (hex, ej: #1a2b3c)' },
+  customBgColor: colorField('Fondo personalizado'),
   textColor: { type: 'radio', label: 'Color de texto', options: TEXT_COLOR_OPTIONS },
-  customTextColor: { type: 'text', label: 'Texto personalizado (hex, ej: #ffffff)' },
+  customTextColor: colorField('Texto personalizado'),
 };
 
 const CUSTOM_COLOR_DEFAULTS = {
@@ -209,28 +343,26 @@ const CUSTOM_COLOR_DEFAULTS = {
   customTextColor: '',
 };
 
-function isValidHex(hex) {
-  return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test(hex);
-}
-
 // Resuelve fondo/texto de una sección: clases Tailwind fijas (comportamiento
-// idéntico al actual) salvo que el preset sea "custom" con un hex válido, en
-// cuyo caso se devuelve `style` inline. `autoTextClass` es la clase de texto
-// que ya se usaba por defecto para ese fondo — se mantiene si `textColor`
-// sigue en 'auto' (o vacío), para no alterar nada cuando no hay opt-in.
+// idéntico al actual) salvo que el color picker tenga un hex válido, en cuyo
+// caso ese hex GANA siempre sobre el preset y se devuelve como `style`
+// inline — el color picker mismo es el toggle de "personalizado", no hace
+// falta un radio separado. `autoTextClass` es la clase de texto que ya se
+// usaba por defecto para ese fondo — se mantiene si `textColor` sigue en
+// 'auto' y no hay customTextColor, para no alterar nada cuando no hay opt-in.
 function resolveSectionStyle(background, autoTextClass, { customBgColor, textColor, customTextColor } = {}) {
   const classes = [];
   const style = {};
 
-  if (background === 'custom') {
-    if (isValidHex(customBgColor)) style.backgroundColor = customBgColor;
+  if (isValidHex(customBgColor)) {
+    style.backgroundColor = customBgColor;
   } else if (background === 'brand') {
     classes.push('bg-brand-primary-dark');
   } else if (background === 'surface') {
     classes.push('bg-surface-alt');
   }
 
-  if (textColor === 'custom' && isValidHex(customTextColor)) {
+  if (isValidHex(customTextColor)) {
     style.color = customTextColor;
   } else if (textColor === 'light') {
     classes.push('text-white');
@@ -257,7 +389,7 @@ export const Hero = {
     subtitle: { type: 'textarea', label: 'Subtítulo' },
     ctaLabel: { type: 'text', label: 'Botón: texto' },
     ctaUrl: { type: 'text', label: 'Botón: URL' },
-    bgImage: { type: 'text', label: 'Imagen de fondo (URL, opcional)' },
+    bgImage: imageField('Imagen de fondo (opcional)'),
     background: { type: 'radio', label: 'Fondo', options: BACKGROUND_OPTIONS },
     ...CUSTOM_COLOR_FIELDS,
   },
@@ -320,7 +452,6 @@ export const TextBlock = {
       options: [
         { label: 'Transparente', value: 'transparent' },
         { label: 'Superficie (panel)', value: 'surface' },
-        { label: 'Personalizado', value: 'custom' },
       ],
     },
     ...CUSTOM_COLOR_FIELDS,
@@ -339,7 +470,7 @@ export const TextBlock = {
       textColor,
       customTextColor,
     });
-    const textOverride = textColor && textColor !== 'auto';
+    const textOverride = isValidHex(customTextColor);
     return (
       <section className={`reveal py-14 px-4 ${styleClass}`} style={colorStyle}>
         <div className={`max-w-4xl mx-auto ${alignment}`}>
@@ -410,7 +541,7 @@ export const FeatureGrid = {
       textColor,
       customTextColor,
     });
-    const textOverride = textColor && textColor !== 'auto';
+    const textOverride = isValidHex(customTextColor);
     return (
       <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
         <div className="max-w-6xl mx-auto">
@@ -438,7 +569,7 @@ export const ImageBlock = {
   label: 'Imagen',
   desc: 'Imagen individual con texto alternativo y pie de foto opcional. Puede ser ancho completo o centrada.',
   fields: {
-    imageUrl: { type: 'text', label: 'URL de la imagen' },
+    imageUrl: imageField('Imagen'),
     alt: { type: 'text', label: 'Texto alternativo (SEO)' },
     caption: { type: 'text', label: 'Pie de foto (opcional)' },
     size: {
@@ -502,17 +633,13 @@ export const CTASection = {
       ? 'bg-white text-brand-primary'
       : 'bg-brand-primary text-white';
 
+    const hasOverride = !!background || isValidHex(customBgColor) || (textColor && textColor !== 'auto');
     let section;
     let colorStyle = {};
-    if (background) {
+    if (hasOverride) {
       const autoText = solid ? 'text-white' : 'text-brand-text';
       const resolved = resolveSectionStyle(background, autoText, { customBgColor, textColor, customTextColor });
       section = resolved.className + (!solid ? ' border-2 border-brand-primary' : '');
-      colorStyle = resolved.style;
-    } else if (textColor && textColor !== 'auto') {
-      const autoText = solid ? 'text-white' : 'text-brand-text';
-      const resolved = resolveSectionStyle('', autoText, { textColor, customTextColor });
-      section = (solid ? 'bg-brand-primary' : 'bg-brand-bg border-2 border-brand-primary') + ' ' + resolved.className;
       colorStyle = resolved.style;
     } else {
       section = solid
@@ -703,7 +830,7 @@ export const FAQ = {
       textColor,
       customTextColor,
     });
-    const textOverride = textColor && textColor !== 'auto';
+    const textOverride = isValidHex(customTextColor);
     return (
     <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
       <div className="max-w-3xl mx-auto">
@@ -834,7 +961,7 @@ export const Testimonials = {
       textColor,
       customTextColor,
     });
-    const textOverride = textColor && textColor !== 'auto';
+    const textOverride = isValidHex(customTextColor);
     return (
     <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
       <div className="max-w-6xl mx-auto">
@@ -869,7 +996,7 @@ export const Gallery = {
       type: 'array',
       label: 'Imágenes',
       arrayFields: {
-        url: { type: 'text', label: 'URL de la imagen' },
+        url: imageField('Imagen'),
         alt: { type: 'text', label: 'Texto alternativo' },
       },
       getItemSummary: (item) => item.alt || 'Imagen',
@@ -955,7 +1082,7 @@ export const LogoCloud = {
       type: 'array',
       label: 'Logos',
       arrayFields: {
-        url: { type: 'text', label: 'URL del logo' },
+        url: imageField('Logo'),
         alt: { type: 'text', label: 'Nombre' },
       },
       getItemSummary: (item) => item.alt || 'Logo',

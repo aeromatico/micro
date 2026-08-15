@@ -66,6 +66,16 @@ class Tenant extends Model
         'favicon' => \System\Models\File::class,
     ];
 
+    // Imágenes subidas desde el editor Puck (Hero/ImageBlock/Gallery/LogoCloud).
+    // No usamos la Media Library de October (System.MediaManager / storage/app/media)
+    // porque es una biblioteca única y global — cualquier backend user con
+    // permiso media.library ve/navega los archivos de TODOS los tenants. Cada
+    // archivo queda aislado como su propio System\Models\File, adjunto solo a
+    // este tenant, igual que logo/favicon.
+    public $attachMany = [
+        'puck_uploads' => \System\Models\File::class,
+    ];
+
     public function getPrimaryDomainAttribute(): string
     {
         $primary = $this->domains()->where('is_primary', true)->first();
