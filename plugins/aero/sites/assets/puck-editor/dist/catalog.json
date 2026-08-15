@@ -1,7 +1,7 @@
 {
   "Hero": {
     "label": "Hero",
-    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque).",
+    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque). Opcionalmente puede llevar una foto de fondo.",
     "fields": {
       "title": {
         "type": "text",
@@ -18,6 +18,10 @@
       "ctaUrl": {
         "type": "text",
         "label": "Botón: URL"
+      },
+      "bgImage": {
+        "type": "text",
+        "label": "Imagen de fondo (URL, opcional)"
       }
     }
   },

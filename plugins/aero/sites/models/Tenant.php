@@ -172,6 +172,15 @@ class Tenant extends Model
         return 'https://fonts.googleapis.com/css2?' . implode('&', $params) . '&display=swap';
     }
 
+    /**
+     * Toggle simple de efectos suaves (scroll-reveal), a nivel de DesignTheme.
+     * true por defecto (incluso sin theme asignado).
+     */
+    public function getEffectiveAnimationsEnabled(): bool
+    {
+        return $this->designTheme ? (bool) $this->designTheme->enable_animations : true;
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');

@@ -23,22 +23,28 @@ import React from 'react';
 
 export const Hero = {
   label: 'Hero',
-  desc: 'Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque).',
+  desc: 'Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque). Opcionalmente puede llevar una foto de fondo.',
   fields: {
     title: { type: 'text', label: 'Título principal' },
     subtitle: { type: 'textarea', label: 'Subtítulo' },
     ctaLabel: { type: 'text', label: 'Botón: texto' },
     ctaUrl: { type: 'text', label: 'Botón: URL' },
+    bgImage: { type: 'text', label: 'Imagen de fondo (URL, opcional)' },
   },
   defaultProps: {
     title: 'Bienvenido a nuestro sitio',
     subtitle: 'Descubre todo lo que tenemos para ofrecerte.',
     ctaLabel: 'Contáctanos',
     ctaUrl: '/contacto',
+    bgImage: '',
   },
-  render: ({ title, subtitle, ctaLabel, ctaUrl }) => (
-    <section className="bg-brand-primary-dark text-white py-24 px-4 text-center">
-      <div className="max-w-4xl mx-auto">
+  render: ({ title, subtitle, ctaLabel, ctaUrl, bgImage }) => (
+    <section
+      className="reveal relative bg-brand-primary-dark text-white py-24 px-4 text-center bg-cover bg-center"
+      style={bgImage ? { backgroundImage: `url(${bgImage})` } : undefined}
+    >
+      {bgImage && <div className="absolute inset-0 bg-black/50" />}
+      <div className="relative max-w-4xl mx-auto">
         <h1 className="font-heading text-4xl md:text-6xl font-bold mb-6 leading-tight">{title}</h1>
         <p className="text-xl md:text-2xl mb-10 opacity-90 leading-relaxed">{subtitle}</p>
         {ctaLabel && ctaUrl && (
@@ -85,7 +91,7 @@ export const TextBlock = {
     bgWhite: 'white',
   },
   render: ({ heading, content, alignment, bgWhite }) => (
-    <section className={`py-14 px-4 ${bgWhite === 'gray' ? 'bg-brand-bg' : 'bg-white'}`}>
+    <section className={`reveal py-14 px-4 ${bgWhite === 'gray' ? 'bg-brand-bg' : 'bg-white'}`}>
       <div className={`max-w-4xl mx-auto ${alignment}`}>
         {heading && <h2 className="font-heading text-3xl font-bold mb-6 text-brand-text">{heading}</h2>}
         <div
@@ -141,12 +147,12 @@ export const FeatureGrid = {
       { '2': 'md:grid-cols-2', '3': 'md:grid-cols-3', '4': 'md:grid-cols-4' }[columns] ||
       'md:grid-cols-3';
     return (
-      <section className="py-16 px-4 bg-brand-bg">
+      <section className="reveal py-16 px-4 bg-brand-bg">
         <div className="max-w-6xl mx-auto">
           {title && <h2 className="font-heading text-3xl font-bold text-center mb-12 text-brand-text">{title}</h2>}
           <div className={`grid grid-cols-1 ${colClass} gap-8`}>
             {features.map((feature, i) => (
-              <div key={i} className="bg-white p-8 rounded-2xl shadow-sm text-center">
+              <div key={i} className="bg-white p-8 rounded-2xl shadow-sm text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <div className="text-5xl mb-4">{feature.icon}</div>
                 <h3 className="font-heading text-xl font-bold mb-3 text-brand-text">{feature.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{feature.description}</p>
@@ -182,7 +188,7 @@ export const ImageBlock = {
     size: 'full',
   },
   render: ({ imageUrl, alt, caption, size }) => (
-    <div className="py-8 px-4">
+    <div className="reveal py-8 px-4">
       <figure className={size === 'centered' ? 'max-w-3xl mx-auto' : 'w-full'}>
         <img src={imageUrl} alt={alt} className="w-full rounded-xl object-cover" />
         {caption && (
@@ -227,7 +233,7 @@ export const CTASection = {
       : 'bg-brand-primary text-white';
 
     return (
-      <section className={`${section} py-20 px-4 text-center`}>
+      <section className={`reveal ${section} py-20 px-4 text-center`}>
         <div className="max-w-2xl mx-auto">
           <h2 className="font-heading text-3xl font-bold mb-4">{heading}</h2>
           <p className="text-lg mb-10 opacity-90 leading-relaxed">{body}</p>
@@ -308,7 +314,7 @@ export const Banner = {
     align: 'text-center',
   },
   render: ({ title, body, buttonLabel, buttonUrl, align }) => (
-    <section className="py-16 px-4 bg-brand-primary-dark text-white">
+    <section className="reveal py-16 px-4 bg-brand-primary-dark text-white">
       <div className={`max-w-4xl mx-auto ${align}`}>
         <h2 className="font-heading text-3xl font-bold mb-4">{title}</h2>
         <p className="text-lg mb-8 opacity-90 leading-relaxed">{body}</p>
@@ -388,7 +394,7 @@ export const FAQ = {
     ],
   },
   render: ({ title, items }) => (
-    <section className="py-16 px-4 bg-white">
+    <section className="reveal py-16 px-4 bg-white">
       <div className="max-w-3xl mx-auto">
         {title && <h2 className="font-heading text-3xl font-bold mb-10 text-brand-text text-center">{title}</h2>}
         <div className="space-y-3">
@@ -435,7 +441,7 @@ export const Tabs = {
     ],
   },
   render: ({ tabs }) => (
-    <section className="py-16 px-4 bg-white">
+    <section className="reveal py-16 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         <div className="border-b border-gray-200 mb-6">
           <div className="flex flex-wrap gap-2">
@@ -492,12 +498,12 @@ export const Testimonials = {
     ],
   },
   render: ({ title, testimonials }) => (
-    <section className="py-16 px-4 bg-brand-bg">
+    <section className="reveal py-16 px-4 bg-brand-bg">
       <div className="max-w-6xl mx-auto">
         {title && <h2 className="font-heading text-3xl font-bold text-center mb-12 text-brand-text">{title}</h2>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {testimonials.map((t, i) => (
-            <blockquote key={i} className="bg-white p-8 rounded-2xl shadow-sm">
+            <blockquote key={i} className="bg-white p-8 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
               <p className="text-gray-700 text-lg leading-relaxed mb-6">“{t.quote}”</p>
               <footer>
                 <div className="font-bold text-brand-text">{t.author}</div>
@@ -539,7 +545,7 @@ export const Gallery = {
     ],
   },
   render: ({ title, images }) => (
-    <section className="py-16 px-4 bg-white">
+    <section className="reveal py-16 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
         {title && <h2 className="font-heading text-3xl font-bold text-center mb-12 text-brand-text">{title}</h2>}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -570,7 +576,7 @@ export const Video = {
       return url;
     })();
     return (
-      <section className="py-16 px-4 bg-white">
+      <section className="reveal py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           {embed ? (
             <div className="rounded-2xl overflow-hidden">
@@ -626,7 +632,7 @@ export const LogoCloud = {
     ],
   },
   render: ({ title, logos }) => (
-    <section className="py-16 px-4 bg-brand-bg">
+    <section className="reveal py-16 px-4 bg-brand-bg">
       <div className="max-w-6xl mx-auto">
         {title && <h2 className="font-heading text-2xl font-bold text-center mb-10 text-brand-text">{title}</h2>}
         <div className="flex flex-wrap items-center justify-center gap-8">
@@ -664,7 +670,7 @@ export const Stats = {
     ],
   },
   render: ({ title, stats }) => (
-    <section className="py-16 px-4 bg-brand-primary-dark text-white">
+    <section className="reveal py-16 px-4 bg-brand-primary-dark text-white">
       <div className="max-w-6xl mx-auto">
         {title && <h2 className="font-heading text-3xl font-bold text-center mb-12">{title}</h2>}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">

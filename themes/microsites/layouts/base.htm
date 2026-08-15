@@ -15,7 +15,7 @@ description = "Layout base — dark mode, SEO, Alpine.js"
     <link href="{{ sitesSeo.tenant.getGoogleFontsUrl() }}" rel="stylesheet">
     {% endif %}
 
-    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}">
+    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v={{ sitesSeo.cssVersion }}">
 
     {% if sitesSeo.tenant %}
     {# Después de app.min.css a propósito: sobreescribe el fallback estático
@@ -32,9 +32,9 @@ description = "Layout base — dark mode, SEO, Alpine.js"
 
     <!-- Alpine.js via CDN (jsDelivr) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="{{ 'assets/js/app.js' | theme }}" defer></script>
+    <script src="{{ 'assets/js/app.js' | theme }}?v={{ sitesSeo.jsVersion }}" defer></script>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col{{ (sitesSeo.tenant and not sitesSeo.tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
 
     {% partial 'site/header' %}
 

@@ -54,3 +54,10 @@
     - Instrucciones de construcción por bloque + tono/público objetivo por arquetipo,
       inyectadas en el prompt de la IA para resultados iniciales más homogéneos.
     - add_ai_guidance_to_archetypes.php
+
+1.11.0:
+    - Selección de arquetipo por afinidad de keywords (en vez de al azar), validación
+      del JSON generado contra campos requeridos del catálogo + límites de longitud,
+      imagen de fondo opcional en el Hero, y efectos de scroll-reveal/hover con
+      toggle simple (DesignTheme.enable_animations).
+    - add_enable_animations_to_design_themes.php

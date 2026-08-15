@@ -106,6 +106,13 @@ class SiteGenerator
      */
     protected function applyAiOverrides(array $catalog): array
     {
+        if (isset($catalog['Hero']['fields']['bgImage'])) {
+            unset($catalog['Hero']['fields']['bgImage']);
+            $catalog['Hero']['fields']['bgImageKeywords'] = 'string|null (2-4 palabras en inglés para una foto de fondo, '
+                . 'ej. "modern gym interior" — opcional: dejar vacío/omitir para usar el color sólido del tema, que suele '
+                . 'ser la opción más segura salvo que una foto realmente sume)';
+        }
+
         if (isset($catalog['ImageBlock'])) {
             unset($catalog['ImageBlock']['fields']['imageUrl']);
             $catalog['ImageBlock']['fields'] = [
@@ -224,9 +231,10 @@ PROMPT;
     /**
      * @param string|null $archetypeHandle  Elegido explícitamente por el usuario en el panel
      *                                       de generación. Si es null (o no existe/inactivo),
-     *                                       se elige uno al azar entre los afines al nicho.
+     *                                       se elige el más afín al userPrompt (o al azar si
+     *                                       no hay ninguna señal de coincidencia).
      */
-    protected function resolveArchetype(Tenant $tenant, ?string $archetypeHandle = null): array
+    protected function resolveArchetype(Tenant $tenant, ?string $archetypeHandle = null, string $userPrompt = ''): array
     {
         $default = [
             'handle' => 'default',
@@ -249,7 +257,63 @@ PROMPT;
             return $default;
         }
 
-        return $this->archetypeToArray($candidates->random());
+        return $this->archetypeToArray($this->pickBestArchetype($candidates, $userPrompt));
+    }
+
+    /**
+     * Elige el arquetipo cuyo name/description/target_audience comparte más
+     * palabras clave con el prompt del usuario, en vez de uno al azar — así
+     * dos negocios con descripciones similares tienden a caer en el mismo
+     * arquetipo. Si ningún candidato tiene solapamiento, cae a azar.
+     */
+    protected function pickBestArchetype($candidates, string $userPrompt): Archetype
+    {
+        $promptKeywords = $this->extractKeywords($userPrompt);
+
+        if (empty($promptKeywords)) {
+            return $candidates->random();
+        }
+
+        $scored = $candidates->map(function (Archetype $archetype) use ($promptKeywords) {
+            $archetypeText = implode(' ', [
+                $archetype->name,
+                $archetype->description ?? '',
+                $archetype->target_audience ?? '',
+            ]);
+            $archetypeKeywords = $this->extractKeywords($archetypeText);
+            $score = count(array_intersect($promptKeywords, $archetypeKeywords));
+
+            return ['archetype' => $archetype, 'score' => $score];
+        });
+
+        $maxScore = $scored->max('score');
+
+        if (!$maxScore) {
+            return $candidates->random();
+        }
+
+        return $scored->where('score', $maxScore)->pluck('archetype')->random();
+    }
+
+    /**
+     * Palabras significativas de un texto en español (minúsculas, sin
+     * puntuación, sin stopwords ni palabras de 2 letras o menos).
+     */
+    protected function extractKeywords(string $text): array
+    {
+        static $stopwords = [
+            'de', 'la', 'el', 'en', 'un', 'una', 'unos', 'unas', 'y', 'a', 'que', 'los', 'las',
+            'con', 'para', 'del', 'al', 'es', 'somos', 'ofrecemos', 'nuestro', 'nuestra',
+            'tenemos', 'por', 'se', 'su', 'sus', 'muy', 'más', 'como', 'sobre', 'este', 'esta',
+            'todo', 'toda', 'todos', 'todas', 'ser', 'está', 'están', 'sin', 'también',
+        ];
+
+        $text = mb_strtolower($text);
+        $text = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $text) ?? '';
+        $words = preg_split('/\s+/', trim($text)) ?: [];
+        $words = array_filter($words, fn ($w) => mb_strlen($w) > 2 && !in_array($w, $stopwords, true));
+
+        return array_values(array_unique($words));
     }
 
     protected function archetypeToArray(Archetype $archetype): array
@@ -305,7 +369,8 @@ PROMPT;
             return $errors;
         }
 
-        $validTypes = array_keys($this->componentCatalog());
+        $catalog = $this->componentCatalog();
+        $validTypes = array_keys($catalog);
 
         foreach ($data['content'] as $i => $block) {
             if (!isset($block['type'])) {
@@ -314,9 +379,20 @@ PROMPT;
             }
             if (!in_array($block['type'], $validTypes, true)) {
                 $errors[] = "Bloque {$i}: tipo '{$block['type']}' no válido. Tipos permitidos: " . implode(', ', $validTypes) . '.';
+                continue;
             }
             if (!isset($block['props']) || !is_array($block['props'])) {
                 $errors[] = "Bloque {$i}: 'props' debe ser un objeto.";
+                continue;
+            }
+
+            // Campos requeridos según el catálogo (los marcados "|null" son opcionales).
+            $expectedFields = $catalog[$block['type']]['fields'] ?? [];
+            foreach ($expectedFields as $field => $hint) {
+                $optional = str_ends_with($hint, '|null');
+                if (!$optional && !array_key_exists($field, $block['props'])) {
+                    $errors[] = "Bloque {$i} ({$block['type']}): falta el campo requerido '{$field}'.";
+                }
             }
         }
 
@@ -344,6 +420,35 @@ PROMPT;
         return $data;
     }
 
+    /**
+     * Trunca (con "…") campos de texto que excedan un largo razonable para
+     * su rol visual, para que un título/subtítulo demasiado largo no rompa
+     * el layout en vez de dispararse silenciosamente roto en producción.
+     * No toca campos de contenido HTML (content/answer) — ahí confiamos en
+     * max_tokens y no queremos cortar HTML a la mitad de una etiqueta.
+     */
+    protected function enforceFieldLimits(array $data): array
+    {
+        static $limits = [
+            'title' => 80, 'heading' => 80, 'subtitle' => 220, 'body' => 300,
+            'ctaLabel' => 30, 'buttonLabel' => 30, 'text' => 200, 'caption' => 150,
+            'alt' => 150, 'description' => 200, 'quote' => 280, 'author' => 60,
+            'role' => 60, 'question' => 150, 'label' => 40, 'value' => 20,
+        ];
+
+        array_walk_recursive($data['content'], function (&$value, $key) use ($limits) {
+            if (!is_string($value) || !isset($limits[$key])) {
+                return;
+            }
+            $max = $limits[$key];
+            if (mb_strlen($value) > $max) {
+                $value = mb_substr($value, 0, $max - 1) . '…';
+            }
+        });
+
+        return $data;
+    }
+
     // -----------------------------------------------------------------------
     // Imágenes
     // -----------------------------------------------------------------------
@@ -358,6 +463,15 @@ PROMPT;
         foreach ($data['content'] as &$block) {
             $type  = $block['type'] ?? '';
             $props = is_array($block['props'] ?? null) ? $block['props'] : [];
+
+            if ($type === 'Hero') {
+                $bgKeywords = $props['bgImageKeywords'] ?? '';
+                unset($props['bgImageKeywords']);
+                if ($bgKeywords) {
+                    $resolved = $this->images->resolve((string) $bgKeywords);
+                    $props['bgImage'] = $resolved['url'];
+                }
+            }
 
             if ($type === 'ImageBlock' && isset($props['imageKeywords'])) {
                 $resolved = $this->images->resolve((string) $props['imageKeywords']);
@@ -401,7 +515,7 @@ PROMPT;
      */
     public function generate(Tenant $tenant, string $userPrompt, int $retries = 2, ?AiGeneration $log = null, ?string $archetypeHandle = null): ?array
     {
-        $archetype = $this->resolveArchetype($tenant, $archetypeHandle);
+        $archetype = $this->resolveArchetype($tenant, $archetypeHandle, $userPrompt);
         $this->resolveTheme($tenant, $archetype);
 
         $systemPrompt = $this->buildSystemPrompt($tenant, $archetype);
@@ -446,9 +560,10 @@ PROMPT;
 
                 // Éxito — asignar ids únicos por bloque (Puck los requiere en
                 // props.id; sin esto el editor visual solo conserva el último
-                // bloque y duplica entradas al guardar) y resolver imágenes
-                // reales antes de renderizar.
+                // bloque y duplica entradas al guardar), truncar campos
+                // demasiado largos y resolver imágenes reales antes de renderizar.
                 $data = $this->injectBlockIds($data);
+                $data = $this->enforceFieldLimits($data);
                 $data = $this->resolveImages($data);
                 $html = $this->renderer->render($data);
 

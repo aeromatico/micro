@@ -67,14 +67,19 @@ class PuckHtmlRenderer
         $subtitle = $this->e($this->attr($p, 'subtitle', 'Descubre todo lo que tenemos para ofrecerte.'));
         $cta      = $this->attr($p, 'ctaLabel', '');
         $ctaUrl   = $this->attr($p, 'ctaUrl', '');
+        $bgImage  = $this->attr($p, 'bgImage', '');
 
         $btn = '';
         if ($cta && $ctaUrl) {
             $btn = '<a href="' . $this->e($ctaUrl) . '" class="inline-block bg-white text-brand-primary-dark font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity">' . $this->e($cta) . '</a>';
         }
 
-        return '<section class="bg-brand-primary-dark text-white py-24 px-4 text-center">'
-            . '<div class="max-w-4xl mx-auto">'
+        $style = $bgImage ? ' style="background-image:url(\'' . $this->e($bgImage) . '\')"' : '';
+        $overlay = $bgImage ? '<div class="absolute inset-0 bg-black/50"></div>' : '';
+
+        return '<section class="reveal relative bg-brand-primary-dark text-white py-24 px-4 text-center bg-cover bg-center"' . $style . '>'
+            . $overlay
+            . '<div class="relative max-w-4xl mx-auto">'
             . '<h1 class="font-heading text-4xl md:text-6xl font-bold mb-6 leading-tight">' . $title . '</h1>'
             . '<p class="text-xl md:text-2xl mb-10 opacity-90 leading-relaxed">' . $subtitle . '</p>'
             . $btn
@@ -92,7 +97,7 @@ class PuckHtmlRenderer
             ? '<h2 class="font-heading text-3xl font-bold mb-6 text-brand-text">' . $this->e($heading) . '</h2>'
             : '';
 
-        return '<section class="py-14 px-4 ' . $bg . '">'
+        return '<section class="reveal py-14 px-4 ' . $bg . '">'
             . '<div class="max-w-4xl mx-auto ' . $this->e($alignment) . '">'
             . $head
             . '<div class="prose prose-lg max-w-none text-gray-700">' . $content . '</div>'
@@ -114,14 +119,14 @@ class PuckHtmlRenderer
         $cards = '';
         foreach ($features as $f) {
             $f = is_array($f) ? $f : [];
-            $cards .= '<div class="bg-white p-8 rounded-2xl shadow-sm text-center">'
+            $cards .= '<div class="bg-white p-8 rounded-2xl shadow-sm text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
                 . '<div class="text-5xl mb-4">' . $this->e($this->attr($f, 'icon', '')) . '</div>'
                 . '<h3 class="font-heading text-xl font-bold mb-3 text-brand-text">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
                 . '<p class="text-gray-600 leading-relaxed">' . $this->e($this->attr($f, 'description', '')) . '</p>'
                 . '</div>';
         }
 
-        return '<section class="py-16 px-4 bg-brand-bg">'
+        return '<section class="reveal py-16 px-4 bg-brand-bg">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 ' . $colClass . ' gap-8">' . $cards . '</div>'
@@ -140,7 +145,7 @@ class PuckHtmlRenderer
             ? '<figcaption class="text-center text-gray-500 text-sm mt-3 italic">' . $this->e($caption) . '</figcaption>'
             : '';
 
-        return '<div class="py-8 px-4">'
+        return '<div class="reveal py-8 px-4">'
             . '<figure class="' . $figure . '">'
             . '<img src="' . $this->e($url) . '" alt="' . $alt . '" class="w-full rounded-xl object-cover">'
             . $fig
@@ -163,7 +168,7 @@ class PuckHtmlRenderer
             $btnHtml = '<a href="' . $this->e($btnUrl) . '" class="inline-block font-semibold px-8 py-4 rounded-brand transition-opacity hover:opacity-90 ' . $button . '">' . $this->e($btn) . '</a>';
         }
 
-        return '<section class="' . $section . ' py-20 px-4 text-center">'
+        return '<section class="reveal ' . $section . ' py-20 px-4 text-center">'
             . '<div class="max-w-2xl mx-auto">'
             . '<h2 class="font-heading text-3xl font-bold mb-4">' . $heading . '</h2>'
             . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
@@ -197,7 +202,7 @@ class PuckHtmlRenderer
             $btnHtml = '<a href="' . $this->e($btnUrl) . '" class="inline-block bg-white text-brand-primary-dark font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity">' . $this->e($btn) . '</a>';
         }
 
-        return '<section class="py-16 px-4 bg-brand-primary-dark text-white">'
+        return '<section class="reveal py-16 px-4 bg-brand-primary-dark text-white">'
             . '<div class="max-w-4xl mx-auto ' . $this->e($align) . '">'
             . '<h2 class="font-heading text-3xl font-bold mb-4">' . $title . '</h2>'
             . '<p class="text-lg mb-8 opacity-90 leading-relaxed">' . $body . '</p>'
@@ -242,7 +247,7 @@ class PuckHtmlRenderer
                 . '</details>';
         }
 
-        return '<section class="py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4 bg-white">'
             . '<div class="max-w-3xl mx-auto">'
             . $head
             . '<div class="space-y-3">' . $list . '</div>'
@@ -263,7 +268,7 @@ class PuckHtmlRenderer
                 . $this->raw($tab, 'content', '') . '</div>';
         }
 
-        return '<section class="py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4 bg-white">'
             . '<div class="max-w-4xl mx-auto">'
             . '<div class="border-b border-gray-200 mb-6"><div class="flex flex-wrap gap-2">' . $nav . '</div></div>'
             . $bodies
@@ -282,7 +287,7 @@ class PuckHtmlRenderer
         $cards = '';
         foreach ($testimonials as $t) {
             $t = is_array($t) ? $t : [];
-            $cards .= '<blockquote class="bg-white p-8 rounded-2xl shadow-sm">'
+            $cards .= '<blockquote class="bg-white p-8 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
                 . '<p class="text-gray-700 text-lg leading-relaxed mb-6">“' . $this->e($this->attr($t, 'quote', '')) . '”</p>'
                 . '<footer>'
                 . '<div class="font-bold text-brand-text">' . $this->e($this->attr($t, 'author', '')) . '</div>'
@@ -290,7 +295,7 @@ class PuckHtmlRenderer
                 . '</footer></blockquote>';
         }
 
-        return '<section class="py-16 px-4 bg-brand-bg">'
+        return '<section class="reveal py-16 px-4 bg-brand-bg">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 md:grid-cols-2 gap-8">' . $cards . '</div>'
@@ -312,7 +317,7 @@ class PuckHtmlRenderer
             $imgs .= '<img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full rounded-xl object-cover">';
         }
 
-        return '<section class="py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4 bg-white">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">' . $imgs . '</div>'
@@ -343,7 +348,7 @@ class PuckHtmlRenderer
             ? '<p class="text-center text-gray-500 text-sm mt-3 italic">' . $this->e($caption) . '</p>'
             : '';
 
-        return '<section class="py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4 bg-white">'
             . '<div class="max-w-4xl mx-auto">' . $media . $cap . '</div>'
             . '</section>';
     }
@@ -363,7 +368,7 @@ class PuckHtmlRenderer
             $imgs .= '<img src="' . $this->e($this->attr($logo, 'url', '')) . '" alt="' . $this->e($this->attr($logo, 'alt', 'Logo')) . '" class="h-12 w-auto opacity-75">';
         }
 
-        return '<section class="py-16 px-4 bg-brand-bg">'
+        return '<section class="reveal py-16 px-4 bg-brand-bg">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="flex flex-wrap items-center justify-center gap-8">' . $imgs . '</div>'
@@ -388,7 +393,7 @@ class PuckHtmlRenderer
                 . '</div>';
         }
 
-        return '<section class="py-16 px-4 bg-brand-primary-dark text-white">'
+        return '<section class="reveal py-16 px-4 bg-brand-primary-dark text-white">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">' . $items . '</div>'

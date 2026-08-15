@@ -36,4 +36,20 @@
     .section-subtitle {
         @apply text-slate-400 text-lg mt-3;
     }
+
+    /* Efectos suaves — fade-in-up al entrar en viewport (ver assets/js/app.js).
+       Toggle simple por tema: cuando DesignTheme.enable_animations = false, el
+       layout agrega la clase .no-animations al <body> y esta regla anula el
+       estado inicial oculto para que el contenido se vea siempre. */
+    .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.revealed,
+    .no-animations .reveal {
+        opacity: 1;
+        transform: none;
+    }
 }

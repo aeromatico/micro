@@ -12,7 +12,7 @@ class DesignTheme extends Model
 
     public $fillable = [
         'handle', 'name', 'tone', 'niche_affinity', 'colors',
-        'font_heading', 'font_body', 'radius', 'is_active',
+        'font_heading', 'font_body', 'radius', 'enable_animations', 'is_active',
     ];
 
     protected $jsonable = ['niche_affinity', 'colors'];

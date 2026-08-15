@@ -91,6 +91,10 @@ module.exports = {
         'group', 'group-open:rotate-180', 'transition-transform', 'transition-opacity',
         // Espaciadores (Divider)
         'h-4', 'h-8', 'h-16', 'h-32',
+        // Imagen de fondo con overlay (Hero)
+        'relative', 'absolute', 'inset-0', 'bg-cover', 'bg-center', 'bg-black/50',
+        // Efectos suaves (scroll-reveal + hover lift en cards)
+        'reveal', 'hover:-translate-y-1', 'hover:shadow-lg', 'transition-all', 'duration-300', 'shadow-md',
 
         // -------------------------------------------------------------------
         // LEGACY — clases del sistema de color pre-DesignTheme. Ya no las
