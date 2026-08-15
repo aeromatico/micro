@@ -62,7 +62,7 @@ class Tenants extends Controller
         return $this->listRefresh();
     }
 
-    public function update_onDelete(mixed $recordId = null): mixed
+    public function onDeleteTenant(mixed $recordId = null): mixed
     {
         $tenant = Tenant::findOrFail((int) $recordId);
         $name   = $tenant->name;

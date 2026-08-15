@@ -14,6 +14,15 @@ $contactInfoWidget = $this->contactInfoWidget;
 $seoWidget         = $this->seoWidget;
 $channelFormWidget = $this->channelFormWidget;
 $channels          = $this->vars['channels'];
+$paletteVars       = $this->vars['paletteVars'] ?? [];
+
+$paletteSwatchKeys = [
+    '--color-primary'   => 'Primario',
+    '--color-secondary' => 'Secundario',
+    '--color-accent'    => 'Acento',
+    '--color-surface-bg' => 'Fondo',
+    '--color-surface-alt' => 'Panel',
+];
 ?>
 <div class="layout-row">
     <div class="layout-cell">
@@ -50,7 +59,23 @@ $channels          = $this->vars['channels'];
                      ============================================================ -->
                 <div id="tab-branding" class="tab-pane active">
                     <div class="layout padded-container">
-                        <form data-request="index_onSaveBranding" data-request-flash>
+                        <?php if ($paletteVars): ?>
+                        <div style="margin-bottom:20px">
+                            <h5 style="margin-bottom:8px">Vista previa de la paleta activa</h5>
+                            <?php foreach (['light' => 'Modo claro', 'dark' => 'Modo oscuro'] as $mode => $modeLabel): ?>
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+                                <span class="text-muted" style="width:90px;font-size:12px"><?= e($modeLabel) ?></span>
+                                <?php foreach ($paletteSwatchKeys as $var => $swatchLabel): ?>
+                                <span
+                                    title="<?= e($swatchLabel) ?>: <?= e($paletteVars[$mode][$var] ?? '') ?>"
+                                    style="display:inline-block;width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:<?= e($paletteVars[$mode][$var] ?? 'transparent') ?>"
+                                ></span>
+                                <?php endforeach ?>
+                            </div>
+                            <?php endforeach ?>
+                        </div>
+                        <?php endif ?>
+                        <form data-request="onSaveBranding" data-request-flash>
                             <?= $brandingWidget->render() ?>
                             <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
@@ -66,7 +91,7 @@ $channels          = $this->vars['channels'];
                      ============================================================ -->
                 <div id="tab-contacto" class="tab-pane">
                     <div class="layout padded-container">
-                        <form data-request="index_onSaveContactInfo" data-request-flash>
+                        <form data-request="onSaveContactInfo" data-request-flash>
                             <?= $contactInfoWidget->render() ?>
                             <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
@@ -113,7 +138,7 @@ $channels          = $this->vars['channels'];
                                 </div>
                                 <?php endif ?>
 
-                                <form data-request="index_onSaveChannel" data-request-flash>
+                                <form data-request="onSaveChannel" data-request-flash>
                                     <input type="hidden" name="channel_id" id="channel_id_field" value="">
                                     <div id="channel-form-inner">
                                         <?= $channelFormWidget->render() ?>
@@ -145,7 +170,7 @@ $channels          = $this->vars['channels'];
                      ============================================================ -->
                 <div id="tab-seo" class="tab-pane">
                     <div class="layout padded-container">
-                        <form data-request="index_onSaveSeo" data-request-flash>
+                        <form data-request="onSaveSeo" data-request-flash>
                             <?= $seoWidget->render() ?>
                             <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">

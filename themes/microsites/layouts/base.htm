@@ -1,11 +1,21 @@
 description = "Layout base — dark mode, SEO, Alpine.js"
 ==
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {# Anti-parpadeo: fija .dark en <html> de forma síncrona ANTES de pintar,
+       leyendo la preferencia guardada (default 'dark', el tema es dark-first).
+       El store Alpine (assets/js/app.js) solo sincroniza tras un click. #}
+    <script>
+        (function () {
+            var saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.classList.toggle('dark', saved === 'dark');
+        })();
+    </script>
 
     {% component 'sitesSeo' %}
 
@@ -18,23 +28,36 @@ description = "Layout base — dark mode, SEO, Alpine.js"
     <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v={{ sitesSeo.cssVersion }}">
 
     {% if sitesSeo.tenant %}
+    {% set cssVars = sitesSeo.tenant.getEffectiveCssVars() %}
     {# Después de app.min.css a propósito: sobreescribe el fallback estático
        de --color-primary definido en assets/css/app.css con los valores del
-       tema del tenant (misma especificidad ':root', gana el orden). #}
+       tema del tenant (misma especificidad ':root', gana el orden). Modo
+       oscuro va bajo :root.dark, activado por el script anti-parpadeo. #}
     <style>
         :root {
-            {% for varName, value in sitesSeo.tenant.getEffectiveCssVars() %}
+            {% for varName, value in cssVars.light %}
+            {{ varName }}: {{ value }};
+            {% endfor %}
+        }
+        :root.dark {
+            {% for varName, value in cssVars.dark %}
             {{ varName }}: {{ value }};
             {% endfor %}
         }
     </style>
     {% endif %}
 
+    {# app.js (registra Alpine.store vía 'alpine:init') DEBE cargarse antes que
+       el core de Alpine: siendo ambos `defer`, se ejecutan en orden de
+       documento, y Alpine dispara 'alpine:init' de forma síncrona apenas su
+       propio script corre (document.readyState ya es 'interactive' en fase
+       defer) — si Alpine va primero, dispara el evento antes de que app.js
+       llegue a escucharlo, y $store.nav/$store.theme quedan undefined. #}
+    <script src="{{ 'assets/js/app.js' | theme }}?v={{ sitesSeo.jsVersion }}" defer></script>
     <!-- Alpine.js via CDN (jsDelivr) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="{{ 'assets/js/app.js' | theme }}?v={{ sitesSeo.jsVersion }}" defer></script>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col{{ (sitesSeo.tenant and not sitesSeo.tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
+<body class="bg-surface text-ink font-body antialiased min-h-screen flex flex-col{{ (sitesSeo.tenant and not sitesSeo.tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
 
     {% partial 'site/header' %}
 

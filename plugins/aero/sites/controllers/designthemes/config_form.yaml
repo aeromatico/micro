@@ -1,0 +1,17 @@
+name: Tema visual
+form: $/aero/sites/models/designtheme/fields.yaml
+modelClass: Aero\Sites\Models\DesignTheme
+defaultRedirect: aero/sites/designthemes
+
+create:
+    title: Nuevo tema visual
+    redirect: aero/sites/designthemes/update/:id
+    redirectClose: aero/sites/designthemes
+
+update:
+    title: Editar tema visual
+    redirect: aero/sites/designthemes
+    redirectClose: aero/sites/designthemes
+
+preview:
+    title: Ver tema visual

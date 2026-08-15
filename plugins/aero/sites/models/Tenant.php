@@ -131,9 +131,10 @@ class Tenant extends Model
     }
 
     /**
-     * Variables CSS del tema efectivo del tenant. Si no hay design_theme_id
-     * asignado, arma un set mínimo desde el primary_color legacy para no
-     * dejar la página sin estilos mientras se migra el tenant a un theme.
+     * Variables CSS del tema efectivo del tenant para ambos modos ({ light, dark }).
+     * Si no hay design_theme_id asignado, arma un set mínimo desde el
+     * primary_color legacy para no dejar la página sin estilos mientras se
+     * migra el tenant a un theme.
      */
     public function getEffectiveCssVars(): array
     {
@@ -141,30 +142,56 @@ class Tenant extends Model
             return $this->designTheme->toCssVars($this->theme_overrides ?? []);
         }
 
+        $primary = $this->primary_color ?: '#4f46e5';
+        $fontOverride = $this->theme_overrides['fonts'] ?? [];
+        $shared = [
+            '--color-primary'   => $primary,
+            '--font-heading'    => $fontOverride['heading'] ?? 'Inter',
+            '--font-heading-2'  => $fontOverride['heading2'] ?? $fontOverride['heading'] ?? 'Inter',
+            '--font-body'       => $fontOverride['body'] ?? 'Inter',
+            '--radius'          => '0.75rem',
+        ];
+
         return [
-            '--color-primary'      => $this->primary_color ?: '#4f46e5',
-            '--color-primary-dark' => $this->primary_color ?: '#3730a3',
-            '--color-secondary'    => '#0ea5e9',
-            '--color-accent'       => '#f59e0b',
-            '--color-neutral-bg'   => '#f8fafc',
-            '--color-neutral-text' => '#0f172a',
-            '--font-heading'       => 'Inter',
-            '--font-body'          => 'Inter',
-            '--radius'             => '0.75rem',
+            'light' => array_merge($shared, [
+                '--color-primary-dark'        => $primary,
+                '--color-secondary'           => '#0ea5e9',
+                '--color-accent'              => '#f59e0b',
+                '--color-surface-bg'          => '#f8fafc',
+                '--color-surface-alt'         => '#ffffff',
+                '--color-surface-text'        => '#0f172a',
+                '--color-surface-text-muted'  => '#64748b',
+                '--color-surface-border'      => '#e2e8f0',
+                '--color-neutral-bg'          => '#f8fafc',
+                '--color-neutral-text'        => '#0f172a',
+            ]),
+            'dark' => array_merge($shared, [
+                '--color-primary-dark'        => $primary,
+                '--color-secondary'           => '#0ea5e9',
+                '--color-accent'              => '#f59e0b',
+                '--color-surface-bg'          => '#0b0d12',
+                '--color-surface-alt'         => '#151821',
+                '--color-surface-text'        => '#f1f5f9',
+                '--color-surface-text-muted'  => '#94a3b8',
+                '--color-surface-border'      => 'rgba(255, 255, 255, 0.08)',
+                '--color-neutral-bg'          => '#0b0d12',
+                '--color-neutral-text'        => '#f1f5f9',
+            ]),
         ];
     }
 
     /**
-     * URL de Google Fonts CSS2 para las fuentes heading/body del tema
-     * efectivo. Si ambas fuentes son iguales, pide un solo family.
+     * URL de Google Fonts CSS2 para las fuentes heading/heading2/body del
+     * tema efectivo. Familias repetidas se dedupean a un solo family.
      */
     public function getGoogleFontsUrl(): string
     {
-        $vars = $this->getEffectiveCssVars();
-        $heading = $vars['--font-heading'] ?? 'Inter';
-        $body    = $vars['--font-body'] ?? 'Inter';
+        $vars = $this->getEffectiveCssVars()['light'] ?? [];
+        $heading  = $vars['--font-heading'] ?? 'Inter';
+        $heading2 = $vars['--font-heading-2'] ?? $heading;
+        $body     = $vars['--font-body'] ?? 'Inter';
 
-        $families = array_unique([$heading, $body]);
+        $families = array_unique([$heading, $heading2, $body]);
         $params = array_map(function ($font) {
             return 'family=' . str_replace(' ', '+', $font) . ':wght@400;500;600;700;800';
         }, $families);

@@ -1,7 +1,179 @@
 {
+  "Grid": {
+    "label": "Grid",
+    "desc": "Contenedor en grilla (2-4 columnas) donde podés arrastrar cualquier otro bloque adentro.",
+    "fields": {
+      "columns": {
+        "type": "select",
+        "label": "Columnas",
+        "options": [
+          {
+            "label": "2 columnas",
+            "value": "2"
+          },
+          {
+            "label": "3 columnas",
+            "value": "3"
+          },
+          {
+            "label": "4 columnas",
+            "value": "4"
+          }
+        ]
+      },
+      "gap": {
+        "type": "select",
+        "label": "Espaciado",
+        "options": [
+          {
+            "label": "Pequeño",
+            "value": "small"
+          },
+          {
+            "label": "Mediano",
+            "value": "medium"
+          },
+          {
+            "label": "Grande",
+            "value": "large"
+          }
+        ]
+      },
+      "content": {
+        "type": "slot"
+      }
+    }
+  },
+  "Flex": {
+    "label": "Flex",
+    "desc": "Contenedor flexible (fila o columna) donde podés arrastrar cualquier otro bloque adentro.",
+    "fields": {
+      "direction": {
+        "type": "radio",
+        "label": "Dirección",
+        "options": [
+          {
+            "label": "Fila",
+            "value": "row"
+          },
+          {
+            "label": "Columna",
+            "value": "column"
+          }
+        ]
+      },
+      "wrap": {
+        "type": "radio",
+        "label": "Ajustar línea",
+        "options": [
+          {
+            "label": "Sí",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ]
+      },
+      "justify": {
+        "type": "select",
+        "label": "Justificar",
+        "options": [
+          {
+            "label": "Inicio",
+            "value": "start"
+          },
+          {
+            "label": "Centro",
+            "value": "center"
+          },
+          {
+            "label": "Fin",
+            "value": "end"
+          },
+          {
+            "label": "Espaciado",
+            "value": "between"
+          }
+        ]
+      },
+      "align": {
+        "type": "select",
+        "label": "Alinear",
+        "options": [
+          {
+            "label": "Inicio",
+            "value": "start"
+          },
+          {
+            "label": "Centro",
+            "value": "center"
+          },
+          {
+            "label": "Fin",
+            "value": "end"
+          },
+          {
+            "label": "Estirar",
+            "value": "stretch"
+          }
+        ]
+      },
+      "gap": {
+        "type": "select",
+        "label": "Espaciado",
+        "options": [
+          {
+            "label": "Pequeño",
+            "value": "small"
+          },
+          {
+            "label": "Mediano",
+            "value": "medium"
+          },
+          {
+            "label": "Grande",
+            "value": "large"
+          }
+        ]
+      },
+      "content": {
+        "type": "slot"
+      }
+    }
+  },
+  "Space": {
+    "label": "Space",
+    "desc": "Espaciador simple (sin línea) para separar bloques verticalmente.",
+    "fields": {
+      "height": {
+        "type": "select",
+        "label": "Altura",
+        "options": [
+          {
+            "label": "Pequeño (16px)",
+            "value": "h-4"
+          },
+          {
+            "label": "Mediano (32px)",
+            "value": "h-8"
+          },
+          {
+            "label": "Grande (64px)",
+            "value": "h-16"
+          },
+          {
+            "label": "Extra grande (128px)",
+            "value": "h-32"
+          }
+        ]
+      }
+    }
+  },
   "Hero": {
     "label": "Hero",
-    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. El color de fondo lo define automáticamente el tema visual del sitio (no se elige por bloque). Opcionalmente puede llevar una foto de fondo.",
+    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. Por defecto usa un fondo neutro/transparente; el color de marca queda como acento del botón (o se puede elegir sólido para más impacto). Opcionalmente puede llevar una foto de fondo.",
     "fields": {
       "title": {
         "type": "text",
@@ -22,12 +194,64 @@
       "bgImage": {
         "type": "text",
         "label": "Imagen de fondo (URL, opcional)"
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
   "TextBlock": {
     "label": "Texto",
-    "desc": "Bloque de texto con formato HTML (puede incluir negritas, cursivas, enlaces, listas). Encabezado opcional. Fondo blanco o gris claro (tono del tema).",
+    "desc": "Bloque de texto con formato HTML (puede incluir negritas, cursivas, enlaces, listas). Encabezado opcional. Fondo transparente (hereda el fondo de la página) o superficie (panel sutil de contraste).",
     "fields": {
       "heading": {
         "type": "text",
@@ -51,19 +275,53 @@
           }
         ]
       },
-      "bgWhite": {
+      "background": {
         "type": "radio",
         "label": "Fondo",
         "options": [
           {
-            "label": "Blanco",
-            "value": "white"
+            "label": "Transparente",
+            "value": "transparent"
           },
           {
-            "label": "Gris claro",
-            "value": "gray"
+            "label": "Superficie (panel)",
+            "value": "surface"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
           }
         ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -115,6 +373,62 @@
             "value": "4"
           }
         ]
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -183,6 +497,62 @@
             "value": "outline"
           }
         ]
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -230,7 +600,7 @@
   },
   "Banner": {
     "label": "Banner (CTA)",
-    "desc": "Banner de anuncio/promoción con fondo oscuro, título, texto y botón. Usar para mensajes destacados.",
+    "desc": "Banner de anuncio/promoción con título, texto y botón. Por defecto usa un fondo neutro; se puede elegir sólido de marca para mensajes de alto impacto.",
     "fields": {
       "title": {
         "type": "text",
@@ -261,6 +631,58 @@
             "value": "text-center"
           }
         ]
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -321,6 +743,62 @@
           "question": "¿Nueva pregunta?",
           "answer": "<p>Escribe la respuesta aquí.</p>"
         }
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -345,6 +823,62 @@
           "label": "Pestaña",
           "content": "<p>Contenido…</p>"
         }
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -378,6 +912,62 @@
           "author": "Nombre",
           "role": "Cliente"
         }
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },
@@ -453,7 +1043,7 @@
   },
   "Stats": {
     "label": "Estadísticas",
-    "desc": "Sección con números/estadísticas en 3 columnas (fondo oscuro). Cada una tiene valor grande y etiqueta.",
+    "desc": "Sección con números/estadísticas en 3 columnas. Por defecto usa un fondo neutro; se puede elegir sólido de marca para más impacto.",
     "fields": {
       "title": {
         "type": "text",
@@ -476,6 +1066,58 @@
           "value": "100+",
           "label": "Clientes"
         }
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "text",
+        "label": "Fondo personalizado (hex, ej: #1a2b3c)"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          },
+          {
+            "label": "Personalizado",
+            "value": "custom"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "text",
+        "label": "Texto personalizado (hex, ej: #ffffff)"
       }
     }
   },

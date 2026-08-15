@@ -24,10 +24,33 @@ $safeJson = $puckJson
         style="display:none"
     ><?= e($contentValue) ?></textarea>
 
+    <?php if (!empty($tenantCssVars)): ?>
+    <style id="<?= $editorId ?>-tenant-vars">
+        #<?= $editorId ?> {
+            <?php foreach ($tenantCssVars as $var => $val): ?>
+            <?= $var ?>: <?= htmlspecialchars((string) $val, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>;
+            <?php endforeach ?>
+        }
+    </style>
+    <?php endif ?>
+
     <div
         id="<?= $editorId ?>"
         style="height:700px;overflow:hidden"
     ></div>
+
+    <script>
+    (function () {
+        var fontsUrl = <?= $googleFontsUrl ? json_encode($googleFontsUrl) : 'null' ?>;
+        if (fontsUrl && !document.querySelector('link[data-puck-tenant-fonts]')) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = fontsUrl;
+            link.setAttribute('data-puck-tenant-fonts', '1');
+            document.head.appendChild(link);
+        }
+    })();
+    </script>
 
     <script>
     (function () {
@@ -101,6 +124,18 @@ $safeJson = $puckJson
                 '<?= $contentId ?>',
                 existingData
             );
+
+            // Flush pending (debounced) editor data before the form serializes,
+            // so a save right after an edit never sends stale textarea values.
+            // Capture phase runs before the framework's own submit handling.
+            var editorEl = document.getElementById('<?= $editorId ?>');
+            var form = editorEl ? editorEl.closest('form') : null;
+            if (form) {
+                form.addEventListener('submit', function () {
+                    var instance = window.AeroPuckEditor.instances['<?= $editorId ?>'];
+                    if (instance) instance.flush();
+                }, true);
+            }
         }
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', mountPuck);

@@ -109,8 +109,8 @@ class SiteGenerator
         if (isset($catalog['Hero']['fields']['bgImage'])) {
             unset($catalog['Hero']['fields']['bgImage']);
             $catalog['Hero']['fields']['bgImageKeywords'] = 'string|null (2-4 palabras en inglés para una foto de fondo, '
-                . 'ej. "modern gym interior" — opcional: dejar vacío/omitir para usar el color sólido del tema, que suele '
-                . 'ser la opción más segura salvo que una foto realmente sume)';
+                . 'ej. "modern gym interior" — opcional: dejar vacío/omitir si no hay una foto realmente relevante; '
+                . 'el bloque se ve bien igual con el fondo neutro del tema)';
         }
 
         if (isset($catalog['ImageBlock'])) {

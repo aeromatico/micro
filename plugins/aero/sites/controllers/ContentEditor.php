@@ -6,6 +6,7 @@ use Aero\Sites\Models\Archetype;
 use Aero\Sites\Models\ContactConfig;
 use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\Page;
+use Aero\Sites\Models\Tenant;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
 use Backend\Classes\Controller;
 use Backend\Widgets\Form;
@@ -46,8 +47,8 @@ class ContentEditor extends Controller
         $contactPage   = Page::forTenant($tenant->id)->where('slug', 'contacto')->first();
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->first();
 
-        $this->indexPageWidget     = $this->makePageFormWidget($indexPage,   'IndexPage',   'indexPageForm');
-        $this->contactPageWidget   = $this->makePageFormWidget($contactPage, 'ContactPage', 'contactPageForm');
+        $this->indexPageWidget     = $this->makePageFormWidget($indexPage,   'IndexPage',   'indexPageForm', $tenant);
+        $this->contactPageWidget   = $this->makePageFormWidget($contactPage, 'ContactPage', 'contactPageForm', $tenant);
         $this->contactConfigWidget = $this->makeContactConfigWidget($contactConfig);
 
         $this->vars['indexPage']    = $indexPage;
@@ -189,10 +190,16 @@ class ContentEditor extends Controller
     // Widget builders
     // -------------------------------------------------------------------------
 
-    protected function makePageFormWidget(?Page $model, string $arrayName, string $alias): Form
+    protected function makePageFormWidget(?Page $model, string $arrayName, string $alias, Tenant $tenant): Form
     {
+        $model ??= new Page;
+        // Páginas nuevas (aún no guardadas) no tienen tenant_id seteado — sin
+        // esto, PuckEditor::prepareVars() no podría resolver la paleta/fuentes
+        // del tenant para inyectar sus CSS vars en el editor visual.
+        $model->setRelation('tenant', $tenant);
+
         $config            = new \stdClass;
-        $config->model     = $model ?? new Page;
+        $config->model     = $model;
         $config->arrayName = $arrayName;
         $config->alias     = $alias;
         $config->fields    = [

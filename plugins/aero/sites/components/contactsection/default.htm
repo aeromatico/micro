@@ -2,7 +2,7 @@
 
 <div class="grid lg:grid-cols-2 gap-12 items-start">
 
-    {{-- Info de contacto --}}
+    {# Info de contacto #}
     <div class="space-y-6">
         {% if cc.contact_email %}
         <a href="mailto:{{ cc.contact_email }}"
@@ -63,7 +63,7 @@
         {% endif %}
     </div>
 
-    {{-- Formulario --}}
+    {# Formulario #}
     {% if cc.form_enabled %}
     <div x-data="{ sending: false }">
         <div id="contact-response" class="mb-4"></div>

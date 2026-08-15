@@ -22,7 +22,15 @@ class PuckHtmlRenderer
      */
     public function render(array $puckData): string
     {
-        $blocks = $puckData['content'] ?? [];
+        return $this->renderBlocks($puckData['content'] ?? []);
+    }
+
+    /**
+     * Renderiza una lista de bloques (top-level `content` o el array de un
+     * campo `slot` anidado dentro de Grid/Flex — misma forma: [{type,props}]).
+     */
+    protected function renderBlocks(array $blocks): string
+    {
         $html = '';
 
         foreach ($blocks as $block) {
@@ -57,27 +65,146 @@ class PuckHtmlRenderer
         return (string) ($props[$key] ?? $default);
     }
 
+    /**
+     * Clase del botón para los bloques de alto impacto (Hero/Banner). Debe
+     * reflejar exactamente heroButtonClasses() de components.jsx. El fallback
+     * 'brand' cuando la prop no existe preserva el aspecto de páginas
+     * guardadas antes de que existiera este campo.
+     */
+    protected function backgroundButtonClasses(string $background): string
+    {
+        return $background === 'brand'
+            ? 'bg-white text-brand-primary-dark'
+            : 'bg-brand-primary text-white';
+    }
+
+    protected function isValidHex($hex): bool
+    {
+        return is_string($hex) && preg_match('/^#[0-9a-fA-F]{6}$/', $hex) === 1;
+    }
+
+    /**
+     * Espejo exacto de resolveSectionStyle() en components.jsx: personalización
+     * opt-in de fondo/texto por bloque. Devuelve clases Tailwind fijas
+     * (comportamiento idéntico al actual) salvo que el preset sea 'custom' con
+     * un hex válido, en cuyo caso va en `styleAttr` (para el atributo style).
+     */
+    protected function resolveSectionStyle(string $background, string $autoTextClass, array $opts = []): array
+    {
+        $customBgColor   = $opts['customBgColor'] ?? '';
+        $textColor       = $opts['textColor'] ?? '';
+        $customTextColor = $opts['customTextColor'] ?? '';
+
+        $classes = [];
+        $styleParts = [];
+
+        if ($background === 'custom') {
+            if ($this->isValidHex($customBgColor)) $styleParts[] = 'background-color:' . $customBgColor;
+        } elseif ($background === 'brand') {
+            $classes[] = 'bg-brand-primary-dark';
+        } elseif ($background === 'surface') {
+            $classes[] = 'bg-surface-alt';
+        }
+
+        if ($textColor === 'custom' && $this->isValidHex($customTextColor)) {
+            $styleParts[] = 'color:' . $customTextColor;
+        } elseif ($textColor === 'light') {
+            $classes[] = 'text-white';
+        } elseif ($textColor === 'dark') {
+            $classes[] = 'text-ink';
+        } else {
+            $classes[] = $autoTextClass;
+        }
+
+        return [
+            'class'     => trim(implode(' ', array_filter($classes))),
+            'styleAttr' => $styleParts ? implode(';', $styleParts) . ';' : '',
+        ];
+    }
+
+    // -------------------------------------------------------------------
+    // LAYOUT — contenedores estructurales (Grid/Flex admiten anidar
+    // cualquier otro bloque vía `slot`; Space es un espaciador simple).
+    // -------------------------------------------------------------------
+
+    protected function renderGrid(array $p): string
+    {
+        $columns = $this->attr($p, 'columns', '2');
+        $gap     = $this->attr($p, 'gap', 'medium');
+        $content = is_array($p['content'] ?? null) ? $p['content'] : [];
+
+        $colMap = ['2' => 'md:grid-cols-2', '3' => 'md:grid-cols-3', '4' => 'md:grid-cols-4'];
+        $colClass = $colMap[$columns] ?? 'md:grid-cols-2';
+        $gapMap = ['small' => 'gap-2', 'medium' => 'gap-4', 'large' => 'gap-8'];
+        $gapClass = $gapMap[$gap] ?? 'gap-4';
+
+        return '<section class="reveal py-8 px-4">'
+            . '<div class="max-w-6xl mx-auto">'
+            . '<div class="grid grid-cols-1 ' . $colClass . ' ' . $gapClass . '">' . $this->renderBlocks($content) . '</div>'
+            . '</div></section>';
+    }
+
+    protected function renderFlex(array $p): string
+    {
+        $direction = $this->attr($p, 'direction', 'row');
+        $wrap      = $this->attr($p, 'wrap', 'yes');
+        $justify   = $this->attr($p, 'justify', 'start');
+        $align     = $this->attr($p, 'align', 'stretch');
+        $gap       = $this->attr($p, 'gap', 'medium');
+        $content   = is_array($p['content'] ?? null) ? $p['content'] : [];
+
+        $dirClass = $direction === 'column' ? 'flex-col' : 'flex-row';
+        $wrapClass = $wrap === 'yes' ? 'flex-wrap' : 'flex-nowrap';
+        $justifyMap = ['start' => 'justify-start', 'center' => 'justify-center', 'end' => 'justify-end', 'between' => 'justify-between'];
+        $justifyClass = $justifyMap[$justify] ?? 'justify-start';
+        $alignMap = ['start' => 'items-start', 'center' => 'items-center', 'end' => 'items-end', 'stretch' => 'items-stretch'];
+        $alignClass = $alignMap[$align] ?? 'items-stretch';
+        $gapMap = ['small' => 'gap-2', 'medium' => 'gap-4', 'large' => 'gap-8'];
+        $gapClass = $gapMap[$gap] ?? 'gap-4';
+
+        return '<section class="reveal py-8 px-4">'
+            . '<div class="max-w-6xl mx-auto">'
+            . '<div class="flex ' . $dirClass . ' ' . $wrapClass . ' ' . $justifyClass . ' ' . $alignClass . ' ' . $gapClass . '">' . $this->renderBlocks($content) . '</div>'
+            . '</div></section>';
+    }
+
+    protected function renderSpace(array $p): string
+    {
+        $height = $this->attr($p, 'height', 'h-8');
+
+        return '<div class="' . $this->e($height) . '"></div>';
+    }
+
     // -------------------------------------------------------------------
     // BLOQUES — secciones principales
     // -------------------------------------------------------------------
 
     protected function renderHero(array $p): string
     {
-        $title    = $this->e($this->attr($p, 'title', 'Bienvenido a nuestro sitio'));
-        $subtitle = $this->e($this->attr($p, 'subtitle', 'Descubre todo lo que tenemos para ofrecerte.'));
-        $cta      = $this->attr($p, 'ctaLabel', '');
-        $ctaUrl   = $this->attr($p, 'ctaUrl', '');
-        $bgImage  = $this->attr($p, 'bgImage', '');
+        $title      = $this->e($this->attr($p, 'title', 'Bienvenido a nuestro sitio'));
+        $subtitle   = $this->e($this->attr($p, 'subtitle', 'Descubre todo lo que tenemos para ofrecerte.'));
+        $cta        = $this->attr($p, 'ctaLabel', '');
+        $ctaUrl     = $this->attr($p, 'ctaUrl', '');
+        $bgImage    = $this->attr($p, 'bgImage', '');
+        $background = $this->attr($p, 'background', 'brand');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
 
         $btn = '';
         if ($cta && $ctaUrl) {
-            $btn = '<a href="' . $this->e($ctaUrl) . '" class="inline-block bg-white text-brand-primary-dark font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity">' . $this->e($cta) . '</a>';
+            $btn = '<a href="' . $this->e($ctaUrl) . '" class="inline-block font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity ' . $this->backgroundButtonClasses($background) . '">' . $this->e($cta) . '</a>';
         }
 
-        $style = $bgImage ? ' style="background-image:url(\'' . $this->e($bgImage) . '\')"' : '';
+        $autoText = ($background === 'brand' || $bgImage) ? 'text-white' : 'text-ink';
+        $resolved = $this->resolveSectionStyle($background, $autoText, [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $styleAttr = trim(($bgImage ? 'background-image:url(\'' . $this->e($bgImage) . '\');' : '') . $resolved['styleAttr']);
+        $style = $styleAttr ? ' style="' . $styleAttr . '"' : '';
         $overlay = $bgImage ? '<div class="absolute inset-0 bg-black/50"></div>' : '';
 
-        return '<section class="reveal relative bg-brand-primary-dark text-white py-24 px-4 text-center bg-cover bg-center"' . $style . '>'
+        return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' py-24 px-4 text-center bg-cover bg-center') . '"' . $style . '>'
             . $overlay
             . '<div class="relative max-w-4xl mx-auto">'
             . '<h1 class="font-heading text-4xl md:text-6xl font-bold mb-6 leading-tight">' . $title . '</h1>'
@@ -88,19 +215,28 @@ class PuckHtmlRenderer
 
     protected function renderTextBlock(array $p): string
     {
-        $bg        = ($this->attr($p, 'bgWhite', 'white') === 'gray') ? 'bg-brand-bg' : 'bg-white';
+        $background = $this->attr($p, 'background', 'surface');
         $alignment = $this->attr($p, 'alignment', 'text-left');
         $heading   = $this->attr($p, 'heading', '');
         $content   = $this->raw($p, 'content', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $resolved = $this->resolveSectionStyle($background, '', [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $textOverride = $textColor && $textColor !== 'auto';
 
         $head = $heading
-            ? '<h2 class="font-heading text-3xl font-bold mb-6 text-brand-text">' . $this->e($heading) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold mb-6' . ($textOverride ? '' : ' text-brand-text') . '">' . $this->e($heading) . '</h2>'
             : '';
 
-        return '<section class="reveal py-14 px-4 ' . $bg . '">'
+        return '<section class="' . trim('reveal py-14 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-4xl mx-auto ' . $this->e($alignment) . '">'
             . $head
-            . '<div class="prose prose-lg max-w-none text-gray-700">' . $content . '</div>'
+            . '<div class="prose prose-lg dark:prose-invert max-w-none' . ($textOverride ? '' : ' text-ink-muted') . '">' . $content . '</div>'
             . '</div></section>';
     }
 
@@ -111,22 +247,32 @@ class PuckHtmlRenderer
         $columns  = $this->attr($p, 'columns', '3');
         $colMap   = ['2' => 'md:grid-cols-2', '3' => 'md:grid-cols-3', '4' => 'md:grid-cols-4'];
         $colClass = $colMap[$columns] ?? 'md:grid-cols-3';
+        $background = $this->attr($p, 'background', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $resolved = $this->resolveSectionStyle($background, '', [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $textOverride = $textColor && $textColor !== 'auto';
 
         $head = $title
-            ? '<h2 class="font-heading text-3xl font-bold text-center mb-12 text-brand-text">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>'
             : '';
 
         $cards = '';
         foreach ($features as $f) {
             $f = is_array($f) ? $f : [];
-            $cards .= '<div class="bg-white p-8 rounded-2xl shadow-sm text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
+            $cards .= '<div class="bg-surface-alt p-8 rounded-2xl shadow-sm text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
                 . '<div class="text-5xl mb-4">' . $this->e($this->attr($f, 'icon', '')) . '</div>'
-                . '<h3 class="font-heading text-xl font-bold mb-3 text-brand-text">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
-                . '<p class="text-gray-600 leading-relaxed">' . $this->e($this->attr($f, 'description', '')) . '</p>'
+                . '<h3 class="font-heading2 text-xl font-bold mb-3 text-ink">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
+                . '<p class="text-ink-muted leading-relaxed">' . $this->e($this->attr($f, 'description', '')) . '</p>'
                 . '</div>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-brand-bg">'
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 ' . $colClass . ' gap-8">' . $cards . '</div>'
@@ -142,7 +288,7 @@ class PuckHtmlRenderer
 
         $figure = $size === 'centered' ? 'max-w-3xl mx-auto' : 'w-full';
         $fig    = $caption
-            ? '<figcaption class="text-center text-gray-500 text-sm mt-3 italic">' . $this->e($caption) . '</figcaption>'
+            ? '<figcaption class="text-center text-ink-muted text-sm mt-3 italic">' . $this->e($caption) . '</figcaption>'
             : '';
 
         return '<div class="reveal py-8 px-4">'
@@ -155,22 +301,43 @@ class PuckHtmlRenderer
     protected function renderCTASection(array $p): string
     {
         $solid   = $this->attr($p, 'style', 'solid') !== 'outline';
-        $section = $solid ? 'bg-brand-primary text-white' : 'bg-brand-bg text-brand-text border-2 border-brand-primary';
         $button  = $solid ? 'bg-white text-brand-primary' : 'bg-brand-primary text-white';
 
         $heading = $this->e($this->attr($p, 'heading', '¿Listo para comenzar?'));
         $body    = $this->e($this->attr($p, 'body', 'Contáctanos hoy y descubre cómo podemos ayudarte.'));
         $btn     = $this->attr($p, 'buttonLabel', '');
         $btnUrl  = $this->attr($p, 'buttonUrl', '');
+        $background = $this->attr($p, 'background', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $autoText = $solid ? 'text-white' : 'text-brand-text';
+        $styleAttrValue = '';
+
+        if ($background) {
+            $resolved = $this->resolveSectionStyle($background, $autoText, [
+                'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+            ]);
+            $section = trim($resolved['class'] . (!$solid ? ' border-2 border-brand-primary' : ''));
+            $styleAttrValue = $resolved['styleAttr'];
+        } elseif ($textColor && $textColor !== 'auto') {
+            $resolved = $this->resolveSectionStyle('', $autoText, ['textColor' => $textColor, 'customTextColor' => $customTextColor]);
+            $section = ($solid ? 'bg-brand-primary' : 'bg-brand-bg border-2 border-brand-primary') . ' ' . $resolved['class'];
+            $styleAttrValue = $resolved['styleAttr'];
+        } else {
+            $section = $solid ? 'bg-brand-primary text-white' : 'bg-brand-bg text-brand-text border-2 border-brand-primary';
+        }
+        $style = $styleAttrValue ? ' style="' . $styleAttrValue . '"' : '';
 
         $btnHtml = '';
         if ($btn && $btnUrl) {
             $btnHtml = '<a href="' . $this->e($btnUrl) . '" class="inline-block font-semibold px-8 py-4 rounded-brand transition-opacity hover:opacity-90 ' . $button . '">' . $this->e($btn) . '</a>';
         }
 
-        return '<section class="reveal ' . $section . ' py-20 px-4 text-center">'
+        return '<section class="reveal ' . $section . ' py-20 px-4 text-center"' . $style . '>'
             . '<div class="max-w-2xl mx-auto">'
-            . '<h2 class="font-heading text-3xl font-bold mb-4">' . $heading . '</h2>'
+            . '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $heading . '</h2>'
             . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
             . $btnHtml
             . '</div></section>';
@@ -180,7 +347,7 @@ class PuckHtmlRenderer
     {
         $height  = $this->attr($p, 'height', 'h-8');
         $showLine = $this->attr($p, 'showLine', 'no');
-        $line    = $showLine === 'yes' ? '<hr class="w-full border-gray-200">' : '';
+        $line    = $showLine === 'yes' ? '<hr class="w-full border-surface-border">' : '';
 
         return '<div class="' . $this->e($height) . ' flex items-center px-8">' . $line . '</div>';
     }
@@ -196,15 +363,25 @@ class PuckHtmlRenderer
         $align = $this->attr($p, 'align', 'text-center');
         $btn   = $this->attr($p, 'buttonLabel', '');
         $btnUrl = $this->attr($p, 'buttonUrl', '');
+        $background = $this->attr($p, 'background', 'brand');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
 
         $btnHtml = '';
         if ($btn && $btnUrl) {
-            $btnHtml = '<a href="' . $this->e($btnUrl) . '" class="inline-block bg-white text-brand-primary-dark font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity">' . $this->e($btn) . '</a>';
+            $btnHtml = '<a href="' . $this->e($btnUrl) . '" class="inline-block font-semibold px-8 py-4 rounded-brand hover:opacity-90 transition-opacity ' . $this->backgroundButtonClasses($background) . '">' . $this->e($btn) . '</a>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-brand-primary-dark text-white">'
+        $autoText = $background === 'brand' ? 'text-white' : 'text-ink';
+        $resolved = $this->resolveSectionStyle($background, $autoText, [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-4xl mx-auto ' . $this->e($align) . '">'
-            . '<h2 class="font-heading text-3xl font-bold mb-4">' . $title . '</h2>'
+            . '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $title . '</h2>'
             . '<p class="text-lg mb-8 opacity-90 leading-relaxed">' . $body . '</p>'
             . $btnHtml
             . '</div></section>';
@@ -230,24 +407,34 @@ class PuckHtmlRenderer
     {
         $title = $this->attr($p, 'title', '');
         $items = $this->attr($p, 'items', []);
+        $background = $this->attr($p, 'background', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $resolved = $this->resolveSectionStyle($background, '', [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $textOverride = $textColor && $textColor !== 'auto';
 
         $head = $title
-            ? '<h2 class="font-heading text-3xl font-bold mb-10 text-brand-text text-center">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold mb-10' . ($textOverride ? '' : ' text-ink') . ' text-center">' . $this->e($title) . '</h2>'
             : '';
 
         $list = '';
         foreach ($items as $item) {
             $item = is_array($item) ? $item : [];
-            $list .= '<details class="group bg-brand-bg rounded-xl border border-gray-200 px-6 py-4">'
-                . '<summary class="flex items-center justify-between cursor-pointer font-semibold text-brand-text list-none">'
+            $list .= '<details class="group bg-surface-alt rounded-xl border border-surface-border px-6 py-4">'
+                . '<summary class="flex items-center justify-between cursor-pointer font-semibold text-ink list-none">'
                 . '<span>' . $this->e($this->attr($item, 'question', '')) . '</span>'
-                . '<span class="text-gray-500 group-open:rotate-180 transition-transform">▾</span>'
+                . '<span class="text-ink-muted group-open:rotate-180 transition-transform">▾</span>'
                 . '</summary>'
-                . '<div class="mt-3 text-gray-700 prose prose-sm max-w-none">' . $this->raw($item, 'answer', '') . '</div>'
+                . '<div class="mt-3 text-ink-muted prose prose-sm dark:prose-invert max-w-none">' . $this->raw($item, 'answer', '') . '</div>'
                 . '</details>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-white">'
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-3xl mx-auto">'
             . $head
             . '<div class="space-y-3">' . $list . '</div>'
@@ -257,20 +444,29 @@ class PuckHtmlRenderer
     protected function renderTabs(array $p): string
     {
         $tabs = $this->attr($p, 'tabs', []);
+        $background = $this->attr($p, 'background', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $resolved = $this->resolveSectionStyle($background, '', [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
 
         $nav = '';
         $bodies = '';
         foreach ($tabs as $i => $tab) {
             $tab = is_array($tab) ? $tab : [];
-            $nav .= '<a href="#tab-' . $i . '" class="px-4 py-2 text-sm font-semibold text-gray-600 border-b-2 border-transparent">'
+            $nav .= '<a href="#tab-' . $i . '" class="px-4 py-2 text-sm font-semibold text-ink-muted border-b-2 border-transparent">'
                 . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</a>';
-            $bodies .= '<div id="tab-' . $i . '" class="text-gray-700 prose prose-lg max-w-none">'
+            $bodies .= '<div id="tab-' . $i . '" class="text-ink-muted prose prose-lg dark:prose-invert max-w-none">'
                 . $this->raw($tab, 'content', '') . '</div>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-white">'
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-4xl mx-auto">'
-            . '<div class="border-b border-gray-200 mb-6"><div class="flex flex-wrap gap-2">' . $nav . '</div></div>'
+            . '<div class="border-b border-surface-border mb-6"><div class="flex flex-wrap gap-2">' . $nav . '</div></div>'
             . $bodies
             . '</div></section>';
     }
@@ -279,23 +475,33 @@ class PuckHtmlRenderer
     {
         $title         = $this->attr($p, 'title', '');
         $testimonials  = $this->attr($p, 'testimonials', []);
+        $background = $this->attr($p, 'background', '');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $resolved = $this->resolveSectionStyle($background, '', [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $textOverride = $textColor && $textColor !== 'auto';
 
         $head = $title
-            ? '<h2 class="font-heading text-3xl font-bold text-center mb-12 text-brand-text">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>'
             : '';
 
         $cards = '';
         foreach ($testimonials as $t) {
             $t = is_array($t) ? $t : [];
-            $cards .= '<blockquote class="bg-white p-8 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
-                . '<p class="text-gray-700 text-lg leading-relaxed mb-6">“' . $this->e($this->attr($t, 'quote', '')) . '”</p>'
+            $cards .= '<blockquote class="bg-surface-alt p-8 rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">'
+                . '<p class="text-ink-muted text-lg leading-relaxed mb-6">“' . $this->e($this->attr($t, 'quote', '')) . '”</p>'
                 . '<footer>'
-                . '<div class="font-bold text-brand-text">' . $this->e($this->attr($t, 'author', '')) . '</div>'
-                . '<div class="text-gray-500 text-sm">' . $this->e($this->attr($t, 'role', '')) . '</div>'
+                . '<div class="font-bold text-ink">' . $this->e($this->attr($t, 'author', '')) . '</div>'
+                . '<div class="text-ink-muted text-sm">' . $this->e($this->attr($t, 'role', '')) . '</div>'
                 . '</footer></blockquote>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-brand-bg">'
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 md:grid-cols-2 gap-8">' . $cards . '</div>'
@@ -308,7 +514,7 @@ class PuckHtmlRenderer
         $images = $this->attr($p, 'images', []);
 
         $head = $title
-            ? '<h2 class="font-heading text-3xl font-bold text-center mb-12 text-brand-text">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12 text-ink">' . $this->e($title) . '</h2>'
             : '';
 
         $imgs = '';
@@ -317,7 +523,7 @@ class PuckHtmlRenderer
             $imgs .= '<img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full rounded-xl object-cover">';
         }
 
-        return '<section class="reveal py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">' . $imgs . '</div>'
@@ -342,13 +548,13 @@ class PuckHtmlRenderer
 
         $media = $embed
             ? '<div class="rounded-2xl overflow-hidden"><div class="w-full aspect-video"><iframe src="' . $this->e($embed) . '" title="' . $this->e($caption ?: 'Video') . '" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>'
-            : '<div class="w-full rounded-2xl bg-gray-100 text-gray-500 text-center py-24">Añade la URL de un video de YouTube o Vimeo</div>';
+            : '<div class="w-full rounded-2xl bg-surface-alt text-ink-muted text-center py-24">Añade la URL de un video de YouTube o Vimeo</div>';
 
         $cap = $caption
-            ? '<p class="text-center text-gray-500 text-sm mt-3 italic">' . $this->e($caption) . '</p>'
+            ? '<p class="text-center text-ink-muted text-sm mt-3 italic">' . $this->e($caption) . '</p>'
             : '';
 
-        return '<section class="reveal py-16 px-4 bg-white">'
+        return '<section class="reveal py-16 px-4">'
             . '<div class="max-w-4xl mx-auto">' . $media . $cap . '</div>'
             . '</section>';
     }
@@ -359,7 +565,7 @@ class PuckHtmlRenderer
         $logos = $this->attr($p, 'logos', []);
 
         $head = $title
-            ? '<h2 class="font-heading text-2xl font-bold text-center mb-10 text-brand-text">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-2xl font-bold text-center mb-10 text-ink">' . $this->e($title) . '</h2>'
             : '';
 
         $imgs = '';
@@ -368,7 +574,7 @@ class PuckHtmlRenderer
             $imgs .= '<img src="' . $this->e($this->attr($logo, 'url', '')) . '" alt="' . $this->e($this->attr($logo, 'alt', 'Logo')) . '" class="h-12 w-auto opacity-75">';
         }
 
-        return '<section class="reveal py-16 px-4 bg-brand-bg">'
+        return '<section class="reveal py-16 px-4">'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="flex flex-wrap items-center justify-center gap-8">' . $imgs . '</div>'
@@ -379,9 +585,19 @@ class PuckHtmlRenderer
     {
         $title = $this->attr($p, 'title', '');
         $stats = $this->attr($p, 'stats', []);
+        $background = $this->attr($p, 'background', 'brand');
+        $customBgColor   = $this->attr($p, 'customBgColor', '');
+        $textColor       = $this->attr($p, 'textColor', 'auto');
+        $customTextColor = $this->attr($p, 'customTextColor', '');
+
+        $autoText = $background === 'brand' ? 'text-white' : 'text-ink';
+        $resolved = $this->resolveSectionStyle($background, $autoText, [
+            'customBgColor' => $customBgColor, 'textColor' => $textColor, 'customTextColor' => $customTextColor,
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
 
         $head = $title
-            ? '<h2 class="font-heading text-3xl font-bold text-center mb-12">' . $this->e($title) . '</h2>'
+            ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-12">' . $this->e($title) . '</h2>'
             : '';
 
         $items = '';
@@ -393,7 +609,7 @@ class PuckHtmlRenderer
                 . '</div>';
         }
 
-        return '<section class="reveal py-16 px-4 bg-brand-primary-dark text-white">'
+        return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
             . '<div class="max-w-6xl mx-auto">'
             . $head
             . '<div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">' . $items . '</div>'
@@ -407,8 +623,8 @@ class PuckHtmlRenderer
         $score = max(0, min(5, $score));
 
         $stars = '<span class="text-brand-accent">' . str_repeat('★', $score) . '</span>'
-            . '<span class="text-gray-300">' . str_repeat('★', 5 - $score) . '</span>';
-        $txt   = $text ? '<p class="text-gray-600">' . $this->e($text) . '</p>' : '';
+            . '<span class="text-surface-border">' . str_repeat('★', 5 - $score) . '</span>';
+        $txt   = $text ? '<p class="text-ink-muted">' . $this->e($text) . '</p>' : '';
 
         return '<div class="py-8 px-4 text-center">'
             . '<div class="text-3xl mb-2">' . $stars . '</div>'

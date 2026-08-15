@@ -6,7 +6,7 @@ use Cms\Classes\ComponentBase;
 
 class PageDetail extends ComponentBase
 {
-    public ?Page $page = null;
+    public $page = null;
 
     public function componentDetails(): array
     {
@@ -28,7 +28,7 @@ class PageDetail extends ComponentBase
         ];
     }
 
-    public function onRun(): void
+    public function onRun()
     {
         $host = request()->getHost();
         $tenant = Tenant::resolveFromDomain($host);

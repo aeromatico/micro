@@ -212,6 +212,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/sites/archetypes'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
+                    'designthemes' => [
+                        'label'       => 'aero.sites::lang.menu.design_themes',
+                        'icon'        => 'icon-paint-brush',
+                        'url'         => Backend::url('aero/sites/designthemes'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
                 ],
             ],
         ];

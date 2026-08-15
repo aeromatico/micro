@@ -22,19 +22,19 @@
     }
 
     .btn-ghost {
-        @apply border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold px-6 py-3 rounded-xl text-sm transition-colors;
+        @apply border border-surface-border hover:border-ink-muted text-ink-muted hover:text-ink font-semibold px-6 py-3 rounded-xl text-sm transition-colors;
     }
 
     .card {
-        @apply bg-slate-800/50 border border-slate-700/50 rounded-2xl backdrop-blur-sm;
+        @apply bg-surface-alt border border-surface-border rounded-2xl backdrop-blur-sm;
     }
 
     .section-title {
-        @apply text-3xl sm:text-4xl font-bold text-white tracking-tight;
+        @apply text-3xl sm:text-4xl font-bold text-ink tracking-tight;
     }
 
     .section-subtitle {
-        @apply text-slate-400 text-lg mt-3;
+        @apply text-ink-muted text-lg mt-3;
     }
 
     /* Efectos suaves — fade-in-up al entrar en viewport (ver assets/js/app.js).

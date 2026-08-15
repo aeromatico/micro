@@ -12,7 +12,7 @@
     <button
         type="button"
         class="btn btn-danger btn-sm"
-        data-request="update_onDelete"
+        data-request="onDeleteTenant"
         data-request-confirm="¿Confirmas la eliminación permanente de este tenant y TODOS sus datos? No se puede deshacer."
         data-load-indicator="Eliminando..."
     >

@@ -1,0 +1,185 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+        placeholder: 'Ej: Corporativo Índigo'
+
+    handle:
+        label: Handle
+        type: text
+        span: right
+        required: true
+        placeholder: corporate-indigo
+        comment: Identificador único (solo letras, números y guiones).
+
+    tone:
+        label: Tono
+        type: dropdown
+        span: left
+        required: true
+        options:
+            corporate: Corporativo
+            playful: Divertido
+            minimal: Minimalista
+            elegant: Elegante
+            bold: Audaz
+            warm: Cálido
+
+    is_active:
+        label: Activo
+        type: checkbox
+        default: true
+        span: right
+
+    niche_affinity:
+        label: Nichos afines
+        type: checkboxlist
+        span: full
+        comment: Vacío = universal (disponible para todos los nichos).
+
+    _typography:
+        label: Tipografía y forma
+        type: section
+        span: full
+
+    font_heading:
+        label: 'Fuente de encabezado principal (H1)'
+        type: text
+        span: left
+        placeholder: 'Ej: Plus Jakarta Sans'
+        comment: Nombre exacto de Google Fonts.
+
+    font_heading2:
+        label: 'Fuente de subtítulos (H2-H6)'
+        type: text
+        span: right
+        placeholder: 'Ej: Plus Jakarta Sans'
+        comment: 'Nombre exacto de Google Fonts. Vacío = usa la misma que H1.'
+
+    font_body:
+        label: Fuente de texto
+        type: text
+        span: left
+        placeholder: 'Ej: Inter'
+        comment: Nombre exacto de Google Fonts.
+
+    radius:
+        label: Radio de esquinas
+        type: radio
+        span: left
+        options:
+            sharp: Recto
+            soft: Suave
+            round: Redondeado
+
+    enable_animations:
+        label: Efectos suaves (scroll-reveal, hover)
+        type: checkbox
+        default: true
+        span: right
+
+    _light:
+        label: Paleta — Modo claro
+        type: section
+        span: full
+        comment: Se inyecta bajo :root. También es la base a partir de la cual se puede derivar el modo oscuro.
+
+    'colors[light][primary]':
+        label: Primario
+        type: colorpicker
+        span: left
+
+    'colors[light][primary_dark]':
+        label: Primario (oscuro)
+        type: colorpicker
+        span: right
+
+    'colors[light][secondary]':
+        label: Secundario
+        type: colorpicker
+        span: left
+
+    'colors[light][accent]':
+        label: Acento
+        type: colorpicker
+        span: right
+
+    'colors[light][surface_bg]':
+        label: Fondo de página
+        type: colorpicker
+        span: left
+
+    'colors[light][surface_alt]':
+        label: Fondo de tarjetas/paneles
+        type: colorpicker
+        span: right
+
+    'colors[light][surface_text]':
+        label: Texto principal
+        type: colorpicker
+        span: left
+
+    'colors[light][surface_text_muted]':
+        label: Texto secundario
+        type: colorpicker
+        span: right
+
+    'colors[light][surface_border]':
+        label: Bordes
+        type: colorpicker
+        span: left
+
+    _dark:
+        label: Paleta — Modo oscuro
+        type: section
+        span: full
+        comment: Se inyecta bajo :root.dark, activada por el toggle del sitio.
+
+    'colors[dark][primary]':
+        label: Primario
+        type: colorpicker
+        span: left
+
+    'colors[dark][primary_dark]':
+        label: Primario (oscuro)
+        type: colorpicker
+        span: right
+
+    'colors[dark][secondary]':
+        label: Secundario
+        type: colorpicker
+        span: left
+
+    'colors[dark][accent]':
+        label: Acento
+        type: colorpicker
+        span: right
+
+    'colors[dark][surface_bg]':
+        label: Fondo de página
+        type: colorpicker
+        span: left
+
+    'colors[dark][surface_alt]':
+        label: Fondo de tarjetas/paneles
+        type: colorpicker
+        span: right
+
+    'colors[dark][surface_text]':
+        label: Texto principal
+        type: colorpicker
+        span: left
+
+    'colors[dark][surface_text_muted]':
+        label: Texto secundario
+        type: colorpicker
+        span: right
+
+    'colors[dark][surface_border]':
+        label: Bordes
+        type: text
+        span: left
+        placeholder: 'rgba(255, 255, 255, 0.08) o #hex'
+        comment: Admite rgba() además de hex (útil para bordes translúcidos sobre fondos oscuros).

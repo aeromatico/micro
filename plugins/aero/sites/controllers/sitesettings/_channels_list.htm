@@ -32,7 +32,7 @@ $typeLabels = [
                 <td>
                     <a
                         href="javascript:void(0)"
-                        data-request="index_onToggleChannel"
+                        data-request="onToggleChannel"
                         data-request-data="id: <?= $channel->id ?>"
                         data-request-flash
                         title="<?= $channel->is_enabled ? 'Deshabilitar' : 'Habilitar' ?>"
@@ -44,7 +44,7 @@ $typeLabels = [
                 <td class="text-right" style="white-space:nowrap">
                     <a
                         href="javascript:void(0)"
-                        data-request="index_onEditChannel"
+                        data-request="onEditChannel"
                         data-request-data="id: <?= $channel->id ?>"
                         class="btn btn-xs btn-default"
                         title="Editar"
@@ -53,7 +53,7 @@ $typeLabels = [
                     </a>
                     <a
                         href="javascript:void(0)"
-                        data-request="index_onDeleteChannel"
+                        data-request="onDeleteChannel"
                         data-request-data="id: <?= $channel->id ?>"
                         data-request-confirm="¿Eliminar el canal «<?= e($channel->label) ?>»?"
                         data-request-flash

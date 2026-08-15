@@ -19,10 +19,21 @@ module.exports = {
                     bg: 'var(--color-neutral-bg, #f8fafc)',
                     text: 'var(--color-neutral-text, #0f172a)',
                 },
+                // Tokens de "superficie" (chrome del sitio + tarjetas de
+                // bloques Puck): a diferencia de brand-*, sí cambian entre
+                // :root (claro) y :root.dark (oscuro) — ver DesignTheme::toCssVars.
+                // Nombres planos (no anidados) para evitar utilidades ambiguas
+                // tipo `text-surface-text`.
+                surface: 'var(--color-surface-bg, #f8fafc)',
+                'surface-alt': 'var(--color-surface-alt, #ffffff)',
+                'surface-border': 'var(--color-surface-border, #e2e8f0)',
+                ink: 'var(--color-surface-text, #0f172a)',
+                'ink-muted': 'var(--color-surface-text-muted, #64748b)',
             },
             fontFamily: {
                 sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', 'Segoe UI', 'sans-serif'],
                 heading: ['var(--font-heading)', 'Inter', 'sans-serif'],
+                heading2: ['var(--font-heading-2)', 'var(--font-heading)', 'Inter', 'sans-serif'],
                 body: ['var(--font-body)', 'Inter', 'sans-serif'],
             },
             borderRadius: {
@@ -47,8 +58,17 @@ module.exports = {
         'bg-brand-primary', 'bg-brand-primary-dark', 'bg-brand-secondary', 'bg-brand-accent', 'bg-brand-bg',
         'text-brand-primary', 'text-brand-primary-dark', 'text-brand-accent', 'text-brand-text', 'text-white',
         'border-brand-primary', 'border-2',
-        'font-heading', 'font-body',
+        'font-heading', 'font-heading2', 'font-body',
         'rounded-brand',
+
+        // -------------------------------------------------------------------
+        // Tokens de superficie — chrome del sitio (header/footer/body) y
+        // fondos neutros/transparentes de bloques Puck. Reaccionan a
+        // :root.dark (ver tailwind.config.js colors.surface/ink).
+        // -------------------------------------------------------------------
+        'bg-surface', 'bg-surface-alt', 'bg-surface/95', 'bg-surface-alt/50',
+        'text-ink', 'text-ink-muted', 'text-surface-border',
+        'border-surface-border',
 
         // -------------------------------------------------------------------
         // Clases usadas por los bloques Puck (guardados en la BD, no visibles
@@ -65,6 +85,9 @@ module.exports = {
         'flex-wrap', 'list-none', 'cursor-pointer',
         'grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4',
         'sm:grid-cols-2', 'sm:grid-cols-3',
+        // Bloques de Layout (Grid/Flex/Space) — contenedores con slot
+        'flex-col', 'flex-row', 'flex-nowrap', 'justify-start', 'justify-end',
+        'items-start', 'items-end', 'items-stretch',
         // Fondos claros neutrales (variantes de bloques, no ligadas a marca)
         'bg-white', 'bg-gray-100',
         // Badges semánticos (éxito/alerta/neutro — no de marca)
@@ -79,7 +102,7 @@ module.exports = {
         'font-bold', 'font-semibold', 'italic',
         'leading-tight', 'leading-relaxed', 'opacity-75', 'opacity-90',
         'text-center', 'text-left',
-        'prose', 'prose-lg', 'prose-sm',
+        'prose', 'prose-lg', 'prose-sm', 'dark:prose-invert',
         // Bordes / radios / sombras
         'rounded-xl', 'rounded-2xl',
         'shadow-sm', 'border-gray-200', 'border-transparent', 'border-b', 'border-b-2',

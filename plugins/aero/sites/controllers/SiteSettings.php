@@ -49,19 +49,52 @@ class SiteSettings extends Controller
         $this->vars['contactConfig'] = $contactConfig;
         $this->vars['seoConfig']     = $seoConfig;
         $this->vars['channels']      = $this->getChannels($tenant->id);
+        $this->vars['paletteVars']   = $tenant->getEffectiveCssVars();
     }
 
     // -------------------------------------------------------------------------
     // AJAX — Branding
     // -------------------------------------------------------------------------
 
-    public function index_onSaveBranding()
+    public function onSaveBranding()
     {
         $tenant = $this->getCurrentTenant();
         $data   = post('Branding', []);
 
-        $tenant->name          = $data['name']          ?? $tenant->name;
-        $tenant->primary_color = $data['primary_color'] ?? $tenant->primary_color;
+        $tenant->name            = $data['name']            ?? $tenant->name;
+        $tenant->primary_color   = $data['primary_color']   ?? $tenant->primary_color;
+        $tenant->design_theme_id = $data['design_theme_id'] ?: null;
+
+        $overridePrimary = trim((string) ($data['override_primary'] ?? ''));
+        $overrideAccent  = trim((string) ($data['override_accent'] ?? ''));
+        $colorOverrides  = array_filter([
+            'primary' => $overridePrimary ?: null,
+            'accent'  => $overrideAccent ?: null,
+        ]);
+
+        $overrideFontHeading  = trim((string) ($data['override_font_heading'] ?? ''));
+        $overrideFontHeading2 = trim((string) ($data['override_font_heading2'] ?? ''));
+        $overrideFontBody     = trim((string) ($data['override_font_body'] ?? ''));
+        $fontOverrides = array_filter([
+            'heading'  => $overrideFontHeading ?: null,
+            'heading2' => $overrideFontHeading2 ?: null,
+            'body'     => $overrideFontBody ?: null,
+        ]);
+
+        $overrides = [];
+        if ($colorOverrides) $overrides['colors'] = $colorOverrides;
+        if ($fontOverrides) $overrides['fonts'] = $fontOverrides;
+        $tenant->theme_overrides = $overrides ?: null;
+
+        // makeBrandingWidget() (ejecutado por index() antes de este handler AJAX,
+        // sobre la misma instancia cacheada por ResolvesCurrentTenant) setea estos
+        // atributos virtuales para precargar el form — no son columnas reales,
+        // hay que descartarlos antes de save() o Eloquent intenta persistirlos.
+        unset(
+            $tenant->override_primary, $tenant->override_accent,
+            $tenant->override_font_heading, $tenant->override_font_heading2, $tenant->override_font_body
+        );
+
         $tenant->save();
 
         // Commit deferred file bindings (logo, favicon)
@@ -74,7 +107,7 @@ class SiteSettings extends Controller
         return [];
     }
 
-    public function index_onSaveContactInfo()
+    public function onSaveContactInfo()
     {
         $tenant        = $this->getCurrentTenant();
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
@@ -94,7 +127,7 @@ class SiteSettings extends Controller
         return [];
     }
 
-    public function index_onSaveSeo()
+    public function onSaveSeo()
     {
         $tenant    = $this->getCurrentTenant();
         $seoConfig = SeoConfig::where('tenant_id', $tenant->id)->firstOrFail();
@@ -123,7 +156,7 @@ class SiteSettings extends Controller
     // AJAX — Notification Channels
     // -------------------------------------------------------------------------
 
-    public function index_onSaveChannel()
+    public function onSaveChannel()
     {
         $tenant  = $this->getCurrentTenant();
         $id      = post('channel_id');
@@ -154,7 +187,7 @@ class SiteSettings extends Controller
         ];
     }
 
-    public function index_onEditChannel()
+    public function onEditChannel()
     {
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
@@ -166,7 +199,7 @@ class SiteSettings extends Controller
         ];
     }
 
-    public function index_onDeleteChannel()
+    public function onDeleteChannel()
     {
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
@@ -181,7 +214,7 @@ class SiteSettings extends Controller
         ];
     }
 
-    public function index_onToggleChannel()
+    public function onToggleChannel()
     {
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
@@ -211,6 +244,19 @@ class SiteSettings extends Controller
 
     protected function makeBrandingWidget(Tenant $tenant): Form
     {
+        // Atributos virtuales para precargar el form con el override actual
+        // (theme_overrides.colors.*/fonts.*); no se guardan directo,
+        // onSaveBranding() los recompone en theme_overrides (y los descarta
+        // del modelo antes de save(), ver ahí el porqué).
+        $colorOverrides = $tenant->theme_overrides['colors'] ?? [];
+        $tenant->override_primary = $colorOverrides['primary'] ?? null;
+        $tenant->override_accent  = $colorOverrides['accent'] ?? null;
+
+        $fontOverrides = $tenant->theme_overrides['fonts'] ?? [];
+        $tenant->override_font_heading  = $fontOverrides['heading'] ?? null;
+        $tenant->override_font_heading2 = $fontOverrides['heading2'] ?? null;
+        $tenant->override_font_body     = $fontOverrides['body'] ?? null;
+
         $config            = new \stdClass;
         $config->model     = $tenant;
         $config->arrayName = 'Branding';
@@ -223,11 +269,11 @@ class SiteSettings extends Controller
                 'span'     => 'left',
             ],
             'primary_color' => [
-                'label'       => 'Color principal',
+                'label'       => 'Color principal (legacy)',
                 'type'        => 'text',
                 'span'        => 'right',
                 'placeholder' => '#3b82f6',
-                'comment'     => 'Hexadecimal #rrggbb',
+                'comment'     => 'Solo se usa si no hay un tema visual asignado abajo.',
             ],
             'logo' => [
                 'label'       => 'Logo',
@@ -245,6 +291,57 @@ class SiteSettings extends Controller
                 'imageHeight' => 64,
                 'span'        => 'right',
                 'comment'     => 'Recomendado: 32×32 o 64×64 px',
+            ],
+            '_palette' => [
+                'label' => 'Paleta de colores',
+                'type'  => 'section',
+                'span'  => 'full',
+            ],
+            'design_theme_id' => [
+                'label'       => 'Tema visual',
+                'type'        => 'dropdown',
+                'span'        => 'full',
+                'placeholder' => 'Ninguno (usar color principal legacy)',
+                'options'     => $tenant->getDesignThemeIdOptions(),
+                'comment'     => 'Define la combinación de colores (claro y oscuro), tipografía y radio de esquinas del sitio.',
+            ],
+            'override_primary' => [
+                'label'       => 'Personalizar color primario (opcional)',
+                'type'        => 'colorpicker',
+                'span'        => 'left',
+                'comment'     => 'Sobreescribe el primario del tema elegido, en ambos modos.',
+            ],
+            'override_accent' => [
+                'label'       => 'Personalizar color de acento (opcional)',
+                'type'        => 'colorpicker',
+                'span'        => 'right',
+                'comment'     => 'Sobreescribe el acento del tema elegido, en ambos modos.',
+            ],
+            '_typography' => [
+                'label' => 'Tipografía',
+                'type'  => 'section',
+                'span'  => 'full',
+            ],
+            'override_font_heading' => [
+                'label'       => 'Fuente de encabezado principal (H1)',
+                'type'        => 'text',
+                'span'        => 'left',
+                'placeholder' => 'Ej: Plus Jakarta Sans',
+                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
+            ],
+            'override_font_heading2' => [
+                'label'       => 'Fuente de subtítulos (H2-H6)',
+                'type'        => 'text',
+                'span'        => 'right',
+                'placeholder' => 'Ej: Plus Jakarta Sans',
+                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
+            ],
+            'override_font_body' => [
+                'label'       => 'Fuente de texto',
+                'type'        => 'text',
+                'span'        => 'left',
+                'placeholder' => 'Ej: Inter',
+                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
             ],
         ];
 

@@ -33,3 +33,5 @@ nbproject
 /vendor_drm
 themes/*/node_modules
 plugins/rainlab/user/node_modules
+plugins/aero/sites/assets/puck-editor/node_modules
+/.agents/skills

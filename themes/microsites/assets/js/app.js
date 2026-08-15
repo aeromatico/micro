@@ -8,6 +8,18 @@ document.addEventListener('alpine:init', () => {
         toggle() { this.open = !this.open; },
         close() { this.open = false; },
     });
+
+    // Store de modo claro/oscuro. El <html> ya trae la clase correcta antes
+    // de este punto (script inline anti-parpadeo en layouts/base.htm) — este
+    // store solo sincroniza el estado tras un click del usuario.
+    Alpine.store('theme', {
+        current: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+        toggle() {
+            this.current = this.current === 'dark' ? 'light' : 'dark';
+            document.documentElement.classList.toggle('dark', this.current === 'dark');
+            localStorage.setItem('theme', this.current);
+        },
+    });
 });
 
 // Efectos suaves — fade-in-up al entrar en viewport para elementos .reveal

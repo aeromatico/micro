@@ -1,0 +1,31 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+        searchable: true
+
+    handle:
+        label: Handle
+        type: text
+        searchable: true
+        invisible: true
+
+    tone:
+        label: Tono
+        type: text
+        width: 130px
+
+    radius:
+        label: Radio
+        type: text
+        width: 100px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 80px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

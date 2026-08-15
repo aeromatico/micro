@@ -22,6 +22,7 @@
         'api_tokens'   => 'Tokens API',
         'tenant_users' => 'Usuarios & Roles',
         'archetypes'   => 'Arquetipos',
+        'design_themes' => 'Temas visuales',
     ],
 
     'permissions' => [

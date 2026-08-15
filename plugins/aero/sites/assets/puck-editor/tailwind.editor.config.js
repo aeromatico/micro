@@ -21,9 +21,19 @@ module.exports = {
                     bg: 'var(--color-neutral-bg, #f8fafc)',
                     text: 'var(--color-neutral-text, #0f172a)',
                 },
+                // Tokens de "superficie" — deben coincidir con
+                // themes/microsites/tailwind.config.js. Sin esto, los bloques
+                // que usan bg-surface-alt/text-ink/etc. (la mayoría desde la
+                // Fase 1) se ven sin estilo en el preview del editor.
+                surface: 'var(--color-surface-bg, #f8fafc)',
+                'surface-alt': 'var(--color-surface-alt, #ffffff)',
+                'surface-border': 'var(--color-surface-border, #e2e8f0)',
+                ink: 'var(--color-surface-text, #0f172a)',
+                'ink-muted': 'var(--color-surface-text-muted, #64748b)',
             },
             fontFamily: {
                 heading: ['var(--font-heading)', 'Inter', 'sans-serif'],
+                heading2: ['var(--font-heading-2)', 'var(--font-heading)', 'Inter', 'sans-serif'],
                 body: ['var(--font-body)', 'Inter', 'sans-serif'],
             },
             borderRadius: {

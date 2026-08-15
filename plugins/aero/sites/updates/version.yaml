@@ -61,3 +61,15 @@
       imagen de fondo opcional en el Hero, y efectos de scroll-reveal/hover con
       toggle simple (DesignTheme.enable_animations).
     - add_enable_animations_to_design_themes.php
+
+1.12.0:
+    - Paleta dual (claro/oscuro) por DesignTheme + toggle de modo claro/oscuro
+      en el tema microsites, catálogo de temas gestionable desde el admin,
+      selector de DesignTheme + personalización de color en SiteSettings,
+      y fondos neutros/transparentes por defecto en los bloques Puck.
+    - add_dual_palette_to_design_themes.php
+
+1.13.0:
+    - Tercera fuente configurable por DesignTheme para encabezados secundarios
+      (h2-h6), separada del h1 y del body.
+    - add_second_heading_font.php

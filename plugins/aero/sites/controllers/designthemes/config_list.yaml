@@ -1,0 +1,16 @@
+title: Temas visuales
+list: $/aero/sites/models/designtheme/columns.yaml
+modelClass: Aero\Sites\Models\DesignTheme
+recordUrl: aero/sites/designthemes/update/:id
+noRecordsMessage: No hay temas visuales configurados.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar tema...
+
+defaultSort:
+    column: name
+    direction: asc

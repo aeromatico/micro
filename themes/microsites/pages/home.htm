@@ -8,13 +8,20 @@ pageTitle = ""
 [sitesPageList]
 excludeHome = 1
 
+[sitesPageDetail]
+slug = ""
+
 [sitesContact]
 ==
 {% set tenant = sitesSeo.tenant %}
+{% set page = sitesPageDetail.page %}
 
-{{-- Hero --}}
+{% if page and page.content %}
+{# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
+{{ page.content | raw }}
+{% else %}
+{# Hero de respaldo cuando la página no tiene bloques Puck #}
 <section class="relative isolate overflow-hidden py-24 sm:py-32">
-    {{-- Fondo sutil --}}
     <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.15),transparent)]"></div>
 
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
@@ -54,8 +61,9 @@ excludeHome = 1
         {% endif %}
     </div>
 </section>
+{% endif %}
 
-{{-- Páginas como cards de navegación --}}
+{# Páginas como cards de navegación #}
 {% if sitesPageList.pages %}
 <section class="py-16">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">

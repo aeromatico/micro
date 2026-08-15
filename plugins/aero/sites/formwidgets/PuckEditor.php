@@ -31,6 +31,16 @@ class PuckEditor extends FormWidgetBase
         $this->vars['editorId']      = $this->getId('mount');
         $this->vars['puckDataId']    = $this->getId('puck-data');
         $this->vars['contentId']     = $this->getId('content');
+
+        // El preview de Puck se monta sin iframe (iframe.enabled: false en
+        // index.jsx) directo al DOM del backend, así que comparte <head>/DOM
+        // con esta página — basta inyectar las CSS vars del tenant (variante
+        // 'light', el editor no tiene toggle de modo oscuro) scopeadas al
+        // contenedor del mount, más el <link> de Google Fonts real, para que
+        // el editor se vea igual que el sitio publicado.
+        $tenant = $this->model->tenant ?? null;
+        $this->vars['tenantCssVars']   = $tenant ? ($tenant->getEffectiveCssVars()['light'] ?? null) : null;
+        $this->vars['googleFontsUrl']  = $tenant ? $tenant->getGoogleFontsUrl() : null;
     }
 
     public function getSaveValue($value): mixed
