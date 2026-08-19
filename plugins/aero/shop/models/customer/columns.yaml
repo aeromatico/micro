@@ -1,0 +1,24 @@
+columns:
+    full_name:
+        label: Nombre
+        type: text
+
+    email:
+        label: Email
+        type: text
+
+    phone:
+        label: Teléfono
+        type: text
+        width: 140px
+
+    is_guest:
+        label: Invitado
+        type: switch
+        width: 90px
+        readOnly: true
+
+    created_at:
+        label: Registrado
+        type: datetime
+        width: 160px

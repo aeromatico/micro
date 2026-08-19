@@ -1,0 +1,18 @@
+url = "/tienda/producto/:slug"
+layout = "base"
+description = "Detalle de producto"
+
+[sitesSeo]
+pageTitle = ""
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+
+[shopProductDetail]
+slug = "{{ :slug }}"
+
+[shopCart]
+==
+{% component 'shopProductDetail' %}

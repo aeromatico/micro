@@ -6,6 +6,7 @@ module.exports = {
         './pages/**/*.htm',
         './partials/**/*.htm',
         '../../plugins/aero/sites/components/**/*.htm',
+        '../../plugins/aero/shop/components/**/*.htm',
     ],
     theme: {
         extend: {
@@ -57,7 +58,7 @@ module.exports = {
         // -------------------------------------------------------------------
         'bg-brand-primary', 'bg-brand-primary-dark', 'bg-brand-secondary', 'bg-brand-accent', 'bg-brand-bg',
         'text-brand-primary', 'text-brand-primary-dark', 'text-brand-accent', 'text-brand-text', 'text-white',
-        'border-brand-primary', 'border-2',
+        'border-brand-primary', 'border-2', 'border-white', 'transition-colors',
         'font-heading', 'font-heading2', 'font-body',
         'rounded-brand',
 
@@ -76,12 +77,13 @@ module.exports = {
         // plugins/aero/sites/assets/puck-editor/src/components.jsx
         // -------------------------------------------------------------------
         // Layout / espaciado
-        'py-14', 'py-16', 'py-20', 'py-24', 'py-2', 'py-4', 'py-8',
-        'px-3', 'px-4', 'px-8', 'p-8', 'px-6',
-        'mb-2', 'mb-3', 'mb-4', 'mb-6', 'mb-8', 'mb-10', 'mb-12', 'mt-3',
-        'gap-2', 'gap-4', 'gap-8', 'mx-auto', 'space-y-3',
+        'py-14', 'py-16', 'py-20', 'py-24', 'py-32', 'py-1', 'py-2', 'py-4', 'py-6', 'py-8',
+        'sm:flex-row',
+        'px-3', 'px-4', 'px-8', 'p-8', 'p-10', 'px-6',
+        'mb-1', 'mb-2', 'mb-3', 'mb-4', 'mb-6', 'mb-8', 'mb-10', 'mb-12', 'mb-14', 'mt-3',
+        'gap-1', 'gap-2', 'gap-3', 'gap-4', 'gap-5', 'gap-8', 'gap-12', 'mx-auto', 'space-y-3',
         // Display / grid / flex
-        'grid', 'flex', 'inline-block', 'inline-flex', 'items-center', 'justify-center', 'justify-between',
+        'block', 'grid', 'flex', 'flex-shrink-0', 'inline-block', 'inline-flex', 'items-center', 'justify-center', 'justify-between',
         'flex-wrap', 'list-none', 'cursor-pointer',
         'grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4',
         'sm:grid-cols-2', 'sm:grid-cols-3',
@@ -96,18 +98,49 @@ module.exports = {
         'bg-gray-100', 'text-gray-800',
         // Texto sobre fondos claros/oscuros
         'text-gray-300', 'text-gray-500', 'text-gray-600', 'text-gray-700',
-        'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'md:text-2xl', 'md:text-6xl',
-        'text-sm', 'text-lg', 'text-xl',
+        'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'md:text-2xl', 'md:text-4xl', 'md:text-6xl',
+        'text-sm', 'text-lg', 'text-xl', 'text-xs',
         // Tipografía / helpers
-        'font-bold', 'font-semibold', 'italic',
-        'leading-tight', 'leading-relaxed', 'opacity-75', 'opacity-90',
+        'font-bold', 'font-semibold', 'italic', 'uppercase', 'tracking-wide',
+        'leading-none', 'leading-tight', 'leading-relaxed', 'opacity-75', 'opacity-90',
         'text-center', 'text-left',
+        'hover:opacity-80',
         'prose', 'prose-lg', 'prose-sm', 'dark:prose-invert',
         // Bordes / radios / sombras
-        'rounded-xl', 'rounded-2xl',
-        'shadow-sm', 'border-gray-200', 'border-transparent', 'border-b', 'border-b-2',
+        'rounded-xl', 'rounded-2xl', 'rounded-full',
+        'shadow-sm', 'border', 'border-gray-200', 'border-transparent', 'border-b', 'border-b-2',
+        // Precios (Pricing) — tarjeta destacada, tabla con divisores, badge
+        'md:scale-105', 'divide-y', 'divide-surface-border', 'md:divide-x', 'md:divide-y-0',
+        '-top-3', 'left-1/2', '-translate-x-1/2',
+        'max-w-md',
+        // FAQ — acordeón exclusivo, tarjetas, chat, dividido lateral
+        'open:border-brand-primary', 'w-8', 'h-8', 'w-9', 'h-9', 'flex-1', 'ml-11', 'px-5',
+        'rounded-tl-sm', 'rounded-br-sm', 'gap-6', 'gap-10', 'grid-cols-2', 'p-4', 'p-6',
+        'max-w-5xl', 'md:col-span-1', 'md:col-span-2',
+        // Tabs — píldoras, vertical, tarjetas, numeradas (radios ocultos + nav)
+        'sr-only', 'py-3', 'md:flex-col', 'md:col-span-3', 'sm:grid-cols-4', 'w-10', 'h-10',
+        // Tabs — hooks del mecanismo :has() en app.css (no son utilidades de
+        // Tailwind, pero el purge de contenido también alcanza a @layer base,
+        // así que deben safelistearse igual que las clases dinámicas de arriba).
+        'puck-tabs', 'puck-tabs-panel', 'puck-tabs-label',
+        'puck-tabs-radio-0', 'puck-tabs-panel-0', 'puck-tabs-label-0',
+        'puck-tabs-radio-1', 'puck-tabs-panel-1', 'puck-tabs-label-1',
+        'puck-tabs-radio-2', 'puck-tabs-panel-2', 'puck-tabs-label-2',
+        'puck-tabs-radio-3', 'puck-tabs-panel-3', 'puck-tabs-label-3',
+        'puck-tabs-radio-4', 'puck-tabs-panel-4', 'puck-tabs-label-4',
+        'puck-tabs-radio-5', 'puck-tabs-panel-5', 'puck-tabs-label-5',
+        'puck-tabs-radio-6', 'puck-tabs-panel-6', 'puck-tabs-label-6',
+        'puck-tabs-radio-7', 'puck-tabs-panel-7', 'puck-tabs-label-7',
+        // Galería — masonry, carrusel (scroll-snap), lightbox (:target, hand-written)
+        'columns-2', 'md:columns-3', 'break-inside-avoid', 'aspect-square',
+        'overflow-x-auto', 'snap-x', 'snap-mandatory', 'snap-center', 'w-72', 'md:w-80',
+        'opacity-0', 'group-hover:opacity-100', 'bg-black/90', 'fixed', 'z-50', 'puck-lightbox',
+        'p-3', 'mt-1', 'mt-2', 'pb-2', 'col-span-2',
+        // Estadísticas — franja destacada, contador destacado, tarjetas elevadas
+        'divide-white/20', 'sm:divide-x', 'sm:divide-y-0', 'sm:py-0', 'text-7xl', 'pt-8', 'border-t',
         // Medios / dimensiones
-        'object-cover', 'w-full', 'h-12', 'w-auto',
+        'object-cover', 'w-full', 'w-12', 'h-12', 'w-auto',
+        'bg-brand-primary/10',
         'max-w-3xl', 'max-w-2xl', 'max-w-4xl', 'max-w-6xl', 'max-w-none',
         'aspect-video', 'overflow-hidden', 'h-full',
         'hover:opacity-90',

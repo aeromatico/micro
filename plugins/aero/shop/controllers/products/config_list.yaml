@@ -1,0 +1,34 @@
+title: Productos
+list: $/aero/shop/models/product/columns.yaml
+modelClass: Aero\Shop\Models\Product
+recordUrl: aero/shop/products/update/:id
+noRecordsMessage: No hay productos creados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar productos
+
+filter:
+    scopes:
+        status:
+            label: Estado
+            type: group
+            conditions: status in (:filtered)
+            options:
+                draft: Borrador
+                active: Activo
+                archived: Archivado
+        type:
+            label: Tipo
+            type: group
+            conditions: type in (:filtered)
+            options:
+                physical: Físico
+                digital: Digital
+
+defaultSort:
+    column: created_at
+    direction: desc

@@ -1,0 +1,11 @@
+<?php if (!empty($variants) && $variants->count()): ?>
+    <div class="form-group">
+        <label>Variante</label>
+        <select name="variant_id" class="form-control custom-select">
+            <option value="">(Producto sin variante específica)</option>
+            <?php foreach ($variants as $variant): ?>
+                <option value="<?= $variant->id ?>"><?= e($variant->sku) ?> — <?= e($variant->label) ?></option>
+            <?php endforeach ?>
+        </select>
+    </div>
+<?php endif ?>

@@ -1,0 +1,8 @@
+name: Pedido
+form: $/aero/shop/models/order/fields.yaml
+modelClass: Aero\Shop\Models\Order
+defaultRedirect: aero/shop/orders
+
+update:
+    title: Pedido
+    redirect: aero/shop/orders

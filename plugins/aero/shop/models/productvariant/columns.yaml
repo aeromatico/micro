@@ -1,0 +1,25 @@
+columns:
+    sku:
+        label: SKU
+        type: text
+
+    label:
+        label: Combinación
+        type: text
+        sortable: false
+
+    price:
+        label: Precio
+        type: number
+        format: "%.2f"
+        width: 100px
+
+    stock_quantity:
+        label: Stock
+        type: number
+        width: 80px
+
+    is_active:
+        label: Activa
+        type: switch
+        width: 80px

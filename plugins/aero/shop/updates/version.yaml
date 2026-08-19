@@ -1,0 +1,44 @@
+1.0.0:
+    - Primera versión del plugin Shop — catálogo con variantes, inventario, monedas, pagos manuales y pedidos.
+    - create_currencies_table.php
+    - create_shop_settings_table.php
+    - create_tenant_currencies_table.php
+    - create_collections_table.php
+    - create_products_table.php
+    - create_product_collection_table.php
+    - create_product_options_table.php
+    - create_product_option_values_table.php
+    - create_product_variants_table.php
+    - create_variant_option_values_table.php
+    - create_payment_gateways_table.php
+    - create_customers_table.php
+    - create_addresses_table.php
+    - create_orders_table.php
+    - create_order_items_table.php
+    - create_order_status_history_table.php
+    - create_stock_movements_table.php
+    - seed_currencies.php
+
+1.0.1:
+    - Otorga los nuevos permisos aero.shop.* a los roles tenant_admin y superadmin
+      existentes, para que el sideMenu de la tienda sea visible en el panel mi-sitio.
+    - grant_tenant_admin_permissions.php
+
+1.0.2:
+    - "Amplía el catálogo global de monedas: peso argentino, real brasileño, peso
+      colombiano, peso chileno, sol peruano, USDT y USDC. Ensancha la columna
+      code para soportar códigos de 4-5 caracteres (stablecoins)."
+    - widen_currency_code_column.php
+    - seed_more_currencies.php
+
+1.0.3:
+    - "Storefront público: token de acceso aleatorio en pedidos para la página
+      de confirmación (evita adivinar pedidos por order_number secuencial)."
+    - add_access_token_to_orders.php
+
+1.0.4:
+    - "Permite agregar Valores a una Opción desde el admin (repeater ligado a
+      la relación). tenant_id/product_option_id deben ser nullable porque el
+      Repeater de October en modo relación inserta la fila vacía antes de
+      asignar la FK del padre."
+    - nullable_option_value_fk_columns.php

@@ -1,0 +1,27 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Variante</th>
+            <th>SKU</th>
+            <th>Precio unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($model->items as $item): ?>
+            <tr>
+                <td><?= e($item->product_name_snapshot) ?></td>
+                <td><?= e($item->variant_label_snapshot) ?></td>
+                <td><?= e($item->sku_snapshot) ?></td>
+                <td><?= number_format($item->unit_price, 2) ?></td>
+                <td><?= $item->quantity ?></td>
+                <td><?= number_format($item->line_total, 2) ?></td>
+            </tr>
+        <?php endforeach ?>
+        <?php if ($model->items->isEmpty()): ?>
+            <tr><td colspan="6" class="text-muted">Este pedido no tiene artículos.</td></tr>
+        <?php endif ?>
+    </tbody>
+</table>

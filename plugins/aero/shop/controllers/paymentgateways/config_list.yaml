@@ -1,0 +1,14 @@
+title: Métodos de pago
+list: $/aero/shop/models/paymentgateway/columns.yaml
+modelClass: Aero\Shop\Models\PaymentGateway
+recordUrl: aero/shop/paymentgateways/update/:id
+noRecordsMessage: No hay métodos de pago configurados.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: sort_order
+    direction: asc

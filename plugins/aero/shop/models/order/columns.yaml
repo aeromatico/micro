@@ -1,0 +1,33 @@
+columns:
+    order_number:
+        label: Número
+        type: text
+
+    customer:
+        label: Cliente
+        relation: customer
+        select: email
+        type: text
+
+    status:
+        label: Estado
+        type: selectable
+        options:
+            pending: Pendiente
+            awaiting_payment: Esperando pago
+            paid: Pagado
+            fulfilled: Despachado/entregado
+            cancelled: Cancelado
+            refunded: Reembolsado
+        width: 150px
+
+    grand_total:
+        label: Total
+        type: number
+        format: "%.2f"
+        width: 100px
+
+    created_at:
+        label: Fecha
+        type: datetime
+        width: 160px

@@ -1,0 +1,18 @@
+url = "/tienda/pedido/:token"
+layout = "base"
+description = "Confirmación de pedido"
+
+[sitesSeo]
+pageTitle = "Pedido confirmado"
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+
+[shopOrderConfirmation]
+token = "{{ :token }}"
+
+[shopCart]
+==
+{% component 'shopOrderConfirmation' %}

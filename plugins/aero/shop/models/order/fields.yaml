@@ -1,0 +1,92 @@
+tabs:
+    fields:
+        order_number:
+            tab: Pedido
+            label: Número de pedido
+            type: text
+            span: left
+            disabled: true
+
+        status:
+            tab: Pedido
+            label: Estado
+            type: dropdown
+            span: right
+            disabled: true
+            options:
+                pending: Pendiente
+                awaiting_payment: Esperando pago
+                paid: Pagado
+                fulfilled: Despachado/entregado
+                cancelled: Cancelado
+                refunded: Reembolsado
+
+        customer:
+            tab: Pedido
+            label: Cliente
+            type: relation
+            nameFrom: full_name
+            span: left
+            disabled: true
+
+        payment_gateway:
+            tab: Pedido
+            label: Método de pago
+            type: relation
+            span: right
+            disabled: true
+
+        payment_reference:
+            tab: Pedido
+            label: Referencia de pago reportada
+            type: text
+            span: left
+            disabled: true
+
+        currency:
+            tab: Pedido
+            label: Moneda
+            type: relation
+            span: right
+            disabled: true
+
+        subtotal:
+            tab: Pedido
+            label: Subtotal
+            type: number
+            span: left
+            disabled: true
+
+        grand_total:
+            tab: Pedido
+            label: Total
+            type: number
+            span: right
+            disabled: true
+
+        customer_notes:
+            tab: Pedido
+            label: Comentario del cliente
+            type: textarea
+            size: small
+            span: full
+            disabled: true
+
+        notes:
+            tab: Pedido
+            label: Notas internas
+            type: textarea
+            size: small
+            span: full
+
+        _items:
+            tab: Artículos
+            type: partial
+            path: order_items
+            span: full
+
+        _status_history:
+            tab: Historial
+            type: partial
+            path: order_status_history
+            span: full

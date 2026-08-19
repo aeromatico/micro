@@ -1,0 +1,13 @@
+title: Movimientos de inventario
+list: $/aero/shop/models/stockmovement/columns.yaml
+modelClass: Aero\Shop\Models\StockMovement
+noRecordsMessage: No hay movimientos de inventario registrados.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: created_at
+    direction: desc

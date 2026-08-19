@@ -1,0 +1,14 @@
+name: Método de pago
+form: $/aero/shop/models/paymentgateway/fields.yaml
+modelClass: Aero\Shop\Models\PaymentGateway
+defaultRedirect: aero/shop/paymentgateways
+
+create:
+    title: Nuevo método de pago
+    redirect: aero/shop/paymentgateways/update/:id
+    redirectClose: aero/shop/paymentgateways
+
+update:
+    title: Editar método de pago
+    redirect: aero/shop/paymentgateways
+    redirectClose: aero/shop/paymentgateways

@@ -52,4 +52,85 @@
         opacity: 1;
         transform: none;
     }
+
+    /* Bloque Tabs (Puck) — pestañas 100% CSS (sin JS): un radio oculto por
+       pestaña + :has() enlaza el radio marcado con su panel y su etiqueta.
+       Soporta hasta 8 pestañas por bloque; el primer radio trae `checked`
+       nativo, así que la pestaña 1 se ve activa incluso sin estas reglas. */
+    .puck-tabs-panel { display: none; }
+    .puck-tabs-label { transition: color .15s ease, border-color .15s ease, background-color .15s ease; }
+
+    .puck-tabs:has(.puck-tabs-radio-0:checked) .puck-tabs-panel-0,
+    .puck-tabs:has(.puck-tabs-radio-1:checked) .puck-tabs-panel-1,
+    .puck-tabs:has(.puck-tabs-radio-2:checked) .puck-tabs-panel-2,
+    .puck-tabs:has(.puck-tabs-radio-3:checked) .puck-tabs-panel-3,
+    .puck-tabs:has(.puck-tabs-radio-4:checked) .puck-tabs-panel-4,
+    .puck-tabs:has(.puck-tabs-radio-5:checked) .puck-tabs-panel-5,
+    .puck-tabs:has(.puck-tabs-radio-6:checked) .puck-tabs-panel-6,
+    .puck-tabs:has(.puck-tabs-radio-7:checked) .puck-tabs-panel-7 {
+        display: block;
+    }
+
+    /* Variante clásica — subrayado activo */
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+    .puck-tabs[data-variant="clasicas"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 { color: var(--color-primary, #4f46e5); border-color: currentColor; }
+
+    /* Variante píldoras — relleno activo */
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+    .puck-tabs[data-variant="pildoras"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 { background: var(--color-primary, #4f46e5); color: #fff; border-color: transparent; }
+
+    /* Variante vertical — fondo + borde activo */
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="verticales"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 { background: var(--color-surface, #f8fafc); border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+
+    /* Variante tarjetas — borde activo */
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="tarjetas"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 { border-color: var(--color-primary, #4f46e5); color: var(--color-primary, #4f46e5); }
+
+    /* Variante numerada — círculo relleno + texto activo */
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-0:checked) .puck-tabs-label-0 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-1:checked) .puck-tabs-label-1 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-2:checked) .puck-tabs-label-2 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-3:checked) .puck-tabs-label-3 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-4:checked) .puck-tabs-label-4 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-5:checked) .puck-tabs-label-5 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-6:checked) .puck-tabs-label-6 { color: var(--color-primary, #4f46e5); }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 > span:first-child { background: var(--color-primary, #4f46e5); border-color: transparent; color: #fff; }
+    .puck-tabs[data-variant="numeradas"]:has(.puck-tabs-radio-7:checked) .puck-tabs-label-7 { color: var(--color-primary, #4f46e5); }
+
+    /* Bloque Gallery (Puck), variante lightbox — overlay CSS puro via
+       :target (ancla con href="#id" + div con ese id). Sin JS. */
+    .puck-lightbox { display: none; }
+    .puck-lightbox:target { display: flex; }
 }

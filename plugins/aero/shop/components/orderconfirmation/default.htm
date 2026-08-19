@@ -1,0 +1,69 @@
+{% set order = __SELF__.order %}
+{% set currency = __SELF__.currency %}
+
+{% if order %}
+<div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+
+    <div class="text-center mb-10">
+        <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-5">
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2">¡Gracias por tu pedido!</h1>
+        <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
+    </div>
+
+    {% if order.payment_gateway %}
+    <div class="card p-6 mb-6">
+        <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Cómo pagar</h2>
+        <p class="text-sm font-medium text-ink mb-2">{{ order.payment_gateway.name }}</p>
+        {% if order.payment_gateway.instructions %}
+        <div class="prose prose-sm max-w-none text-ink-muted">{{ order.payment_gateway.instructions | raw }}</div>
+        {% endif %}
+        <p class="text-xs text-ink-muted mt-4">
+            Una vez realizado el pago, comunícalo al vendedor mencionando el número de pedido
+            <strong class="text-ink">{{ order.order_number }}</strong>.
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="card p-6 mb-6">
+        <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Resumen del pedido</h2>
+        <div class="space-y-3 mb-4">
+            {% for item in order.items %}
+            <div class="flex justify-between gap-3 text-sm">
+                <span class="text-ink-muted">
+                    {{ item.quantity }}× {{ item.product_name_snapshot }}{% if item.variant_label_snapshot %} <span class="text-xs">({{ item.variant_label_snapshot }})</span>{% endif %}
+                </span>
+                <span class="text-ink font-medium shrink-0">{{ currency.format(item.line_total) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="border-t border-surface-border pt-4 flex justify-between items-center">
+            <span class="font-semibold text-ink">Total</span>
+            <span class="text-xl font-bold text-ink">{{ currency.format(order.grand_total) }}</span>
+        </div>
+    </div>
+
+    {% if order.shipping_address %}
+    <div class="card p-6 mb-6">
+        <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Envío a</h2>
+        <p class="text-sm text-ink-muted">
+            {{ order.shipping_address.full_name }}<br>
+            {{ order.shipping_address.address_line1 }}{% if order.shipping_address.address_line2 %}, {{ order.shipping_address.address_line2 }}{% endif %}<br>
+            {{ order.shipping_address.city }}{% if order.shipping_address.state_province %}, {{ order.shipping_address.state_province }}{% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="/tienda" class="inline-flex items-center gap-2 text-brand-primary hover:opacity-80 font-semibold text-sm transition-opacity">
+            Seguir comprando
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+</div>
+{% endif %}

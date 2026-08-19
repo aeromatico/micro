@@ -56,6 +56,11 @@ description = "Layout base — dark mode, SEO, Alpine.js"
     <script src="{{ 'assets/js/app.js' | theme }}?v={{ sitesSeo.jsVersion }}" defer></script>
     <!-- Alpine.js via CDN (jsDelivr) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {# Framework AJAX de October (data-request="..."): sin este tag, TODOS los
+       formularios data-request del sitio (contacto, carrito, checkout) quedan
+       inertes — el atributo existe en el HTML pero ningún script lo procesa. #}
+    {% framework extras %}
 </head>
 <body class="bg-surface text-ink font-body antialiased min-h-screen flex flex-col{{ (sitesSeo.tenant and not sitesSeo.tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
 

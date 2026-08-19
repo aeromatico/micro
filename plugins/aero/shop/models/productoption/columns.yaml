@@ -1,0 +1,10 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    values_count:
+        label: Valores
+        type: number
+        sqlSelect: (select count(*) from aero_shop_product_option_values where aero_shop_product_option_values.product_option_id = aero_shop_product_options.id)
+        width: 100px

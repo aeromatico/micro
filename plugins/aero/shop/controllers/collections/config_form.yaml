@@ -1,0 +1,17 @@
+name: Colección
+form: $/aero/shop/models/collection/fields.yaml
+modelClass: Aero\Shop\Models\Collection
+defaultRedirect: aero/shop/collections
+
+create:
+    title: Nueva colección
+    redirect: aero/shop/collections/update/:id
+    redirectClose: aero/shop/collections
+
+update:
+    title: Editar colección
+    redirect: aero/shop/collections
+    redirectClose: aero/shop/collections
+
+preview:
+    title: Ver colección

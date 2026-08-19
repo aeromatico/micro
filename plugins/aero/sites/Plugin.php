@@ -99,6 +99,41 @@ class Plugin extends PluginBase
         });
     }
 
+    /**
+     * Resuelve el tenant del usuario de backend actual (mismo criterio que
+     * Aero\Sites\Traits\ResolvesCurrentTenant) y devuelve si su sitio está
+     * activado (Tenant.status === 'active'). Usado para ocultar/mostrar el
+     * ítem de menú "Sitio Web" según el switch "Sitio activado" en SiteSettings.
+     */
+    protected function isCurrentTenantSiteActive(): bool
+    {
+        $user = BackendAuth::getUser();
+        if (!$user) {
+            return false;
+        }
+
+        $tenantId = null;
+
+        $site = \System\Classes\SiteManager::instance()->getEditSite();
+        if ($site?->id) {
+            $tenantId = Tenant::where('site_id', $site->id)->value('id');
+        }
+
+        if (!$tenantId) {
+            $tenantId = Tenant::where('backend_user_id', $user->id)->value('id');
+        }
+
+        if (!$tenantId) {
+            $tenantId = \Aero\Sites\Models\TenantUser::where('user_id', $user->id)->value('tenant_id');
+        }
+
+        if (!$tenantId) {
+            return false;
+        }
+
+        return Tenant::where('id', $tenantId)->value('status') === 'active';
+    }
+
     public function registerFormWidgets(): array
     {
         return [
@@ -121,28 +156,38 @@ class Plugin extends PluginBase
 
     public function registerNavigation(): array
     {
+        $miSitioMenu = [
+            'configuracion' => [
+                'label'       => 'aero.sites::lang.menu.settings',
+                'icon'        => 'icon-cog',
+                'url'         => Backend::url('aero/sites/sitesettings'),
+                'permissions' => ['aero.sites.manage_seo'],
+            ],
+        ];
+
+        // "Sitio Web" solo visible si el tenant activó el switch "Sitio activado"
+        // en SiteSettings (Tenant.status === 'active'). "Configuración" queda
+        // siempre visible: es donde vive el switch para poder reactivarlo.
+        if ($this->isCurrentTenantSiteActive()) {
+            $miSitioMenu = [
+                'contenidos' => [
+                    'label'       => 'aero.sites::lang.menu.contents',
+                    'icon'        => 'icon-file-text-o',
+                    'url'         => Backend::url('aero/sites/contenteditor'),
+                    'permissions' => ['aero.sites.manage_pages'],
+                ],
+            ] + $miSitioMenu;
+        }
+
         return [
             // Panel del tenant admin — acceso simplificado al propio sitio
-            'mi-sitio' => [
+            'sitio-web' => [
                 'label'       => 'aero.sites::lang.menu.my_site',
                 'url'         => Backend::url('aero/sites/contenteditor'),
                 'icon'        => 'icon-desktop',
-                'permissions' => ['aero.sites.manage_pages'],
+                'permissions' => ['aero.sites.manage_pages', 'aero.sites.manage_seo'],
                 'order'       => 100,
-                'sideMenu'    => [
-                    'contenidos' => [
-                        'label'       => 'aero.sites::lang.menu.contents',
-                        'icon'        => 'icon-file-text-o',
-                        'url'         => Backend::url('aero/sites/contenteditor'),
-                        'permissions' => ['aero.sites.manage_pages'],
-                    ],
-                    'configuracion' => [
-                        'label'       => 'aero.sites::lang.menu.settings',
-                        'icon'        => 'icon-cog',
-                        'url'         => Backend::url('aero/sites/sitesettings'),
-                        'permissions' => ['aero.sites.manage_seo'],
-                    ],
-                ],
+                'sideMenu'    => $miSitioMenu,
             ],
             // Panel del superadmin — gestión de la plataforma
             'sites' => [
@@ -216,6 +261,12 @@ class Plugin extends PluginBase
                         'label'       => 'aero.sites::lang.menu.design_themes',
                         'icon'        => 'icon-paint-brush',
                         'url'         => Backend::url('aero/sites/designthemes'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
+                    'componentgallery' => [
+                        'label'       => 'aero.sites::lang.menu.component_gallery',
+                        'icon'        => 'icon-th-large',
+                        'url'         => Backend::url('aero/sites/componentgallery'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                 ],

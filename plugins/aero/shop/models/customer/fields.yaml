@@ -1,0 +1,28 @@
+fields:
+    first_name:
+        label: Nombre
+        type: text
+        span: left
+
+    last_name:
+        label: Apellido
+        type: text
+        span: right
+
+    email:
+        label: Email
+        type: text
+        span: left
+        required: true
+
+    phone:
+        label: Teléfono
+        type: text
+        span: right
+
+    user:
+        label: Cuenta vinculada (RainLab.User)
+        type: relation
+        nameFrom: email
+        span: full
+        comment: "Opcional — si el cliente se registró como usuario del sitio"

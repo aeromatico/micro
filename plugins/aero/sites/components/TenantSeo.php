@@ -15,6 +15,7 @@ class TenantSeo extends ComponentBase
     public string $primaryColor = '#6366f1';
     public string $cssVersion = '1';
     public string $jsVersion = '1';
+    public bool $isShopEnabled = false;
 
     public function componentDetails(): array
     {
@@ -65,6 +66,12 @@ class TenantSeo extends ComponentBase
         $this->analyticsId = $seo?->google_analytics_id;
         $this->canonicalUrl = url()->current();
         $this->primaryColor = $this->tenant->primary_color ?? '#6366f1';
+
+        // Dependencia blanda hacia Aero.Shop (plugin opcional) — si no está
+        // instalado, isShopEnabled queda en false sin error.
+        if (class_exists(\Aero\Shop\Models\ShopSettings::class)) {
+            $this->isShopEnabled = (bool) \Aero\Shop\Models\ShopSettings::where('tenant_id', $this->tenant->id)->value('is_enabled');
+        }
     }
 
     /**

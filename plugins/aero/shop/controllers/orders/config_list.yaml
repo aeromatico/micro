@@ -1,0 +1,29 @@
+title: Pedidos
+list: $/aero/shop/models/order/columns.yaml
+modelClass: Aero\Shop\Models\Order
+recordUrl: aero/shop/orders/update/:id
+noRecordsMessage: No hay pedidos todavía.
+recordsPerPage: 20
+showCheckboxes: false
+
+toolbar:
+    search:
+        prompt: Buscar por número de pedido
+
+filter:
+    scopes:
+        status:
+            label: Estado
+            type: group
+            conditions: status in (:filtered)
+            options:
+                pending: Pendiente
+                awaiting_payment: Esperando pago
+                paid: Pagado
+                fulfilled: Despachado/entregado
+                cancelled: Cancelado
+                refunded: Reembolsado
+
+defaultSort:
+    column: created_at
+    direction: desc

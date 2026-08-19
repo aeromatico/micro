@@ -1,0 +1,37 @@
+<form
+    data-request="onSaveAdjustment"
+    data-request-success="$('.control-popup').popup('hide')">
+    <div class="modal-header">
+        <h4 class="modal-title">Ajuste manual de inventario</h4>
+        <button type="button" class="btn-close" data-dismiss="popup"></button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>Producto</label>
+            <select
+                name="product_id"
+                class="form-control custom-select"
+                data-request="onLoadVariants"
+                data-request-update="{ variant_options: true }"
+                required>
+                <option value="">Selecciona un producto</option>
+                <?php foreach ($products as $product): ?>
+                    <option value="<?= $product->id ?>"><?= e($product->name) ?></option>
+                <?php endforeach ?>
+            </select>
+        </div>
+        <div id="variant_options"></div>
+        <div class="form-group">
+            <label>Cantidad (positivo = entrada, negativo = salida)</label>
+            <input type="number" name="quantity_delta" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Nota</label>
+            <input type="text" name="note" class="form-control" placeholder="Motivo del ajuste">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="popup">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+</form>

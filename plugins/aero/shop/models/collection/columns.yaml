@@ -1,0 +1,23 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    slug:
+        label: Slug
+        type: text
+
+    is_active:
+        label: Activa
+        type: switch
+        width: 100px
+
+    sort_order:
+        label: Orden
+        type: number
+        width: 80px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

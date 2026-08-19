@@ -1,0 +1,38 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+
+    slug:
+        label: Slug
+        type: text
+        span: right
+        comment: "Vacío = se genera automáticamente"
+
+    parent_id:
+        label: Colección padre
+        type: dropdown
+        span: left
+        placeholder: "(Ninguna)"
+
+    is_active:
+        label: Activa
+        type: switch
+        span: right
+        default: true
+
+    description:
+        label: Descripción
+        type: textarea
+        span: full
+        size: small
+
+    image:
+        label: Imagen
+        type: fileupload
+        mode: image
+        imageWidth: 600
+        imageHeight: 400
+        span: full

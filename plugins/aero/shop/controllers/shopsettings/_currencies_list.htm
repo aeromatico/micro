@@ -1,0 +1,31 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>Moneda</th>
+            <th>Tasa de cambio</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($currencies as $tc): ?>
+            <tr>
+                <td><?= e($tc->currency->code) ?> — <?= e($tc->currency->name) ?></td>
+                <td><?= e($tc->exchange_rate) ?></td>
+                <td>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-danger"
+                        data-request="onRemoveCurrency"
+                        data-request-data="id: <?= $tc->id ?>"
+                        data-request-update="{ '#currencies-list': true }"
+                        data-request-confirm="¿Eliminar esta moneda?">
+                        Quitar
+                    </button>
+                </td>
+            </tr>
+        <?php endforeach ?>
+        <?php if ($currencies->isEmpty()): ?>
+            <tr><td colspan="3" class="text-muted">No hay monedas adicionales configuradas.</td></tr>
+        <?php endif ?>
+    </tbody>
+</table>

@@ -1,0 +1,149 @@
+{% set product = __SELF__.product %}
+{% set currency = __SELF__.currency %}
+
+{% if product %}
+<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <nav class="text-sm text-ink-muted mb-8">
+        <a href="/tienda" class="hover:text-ink transition-colors">Tienda</a>
+        {% if product.collection %}
+        <span class="mx-2">/</span>
+        <a href="/tienda?coleccion={{ product.collection.slug }}" class="hover:text-ink transition-colors">{{ product.collection.name }}</a>
+        {% endif %}
+        <span class="mx-2">/</span>
+        <span class="text-ink">{{ product.name }}</span>
+    </nav>
+
+    <div x-data="{
+            selected: {},
+            options: {{ __SELF__.optionsData | json_encode | raw }},
+            variants: {{ __SELF__.variantsData | json_encode | raw }},
+            quantity: 1,
+            adding: false,
+            added: false,
+            hasVariants: {{ product.has_variants ? 'true' : 'false' }},
+            trackInventory: {{ (__SELF__.inventoryEnabled and product.track_inventory) ? 'true' : 'false' }},
+            allowBackorder: {{ product.allow_backorder ? 'true' : 'false' }},
+            basePrice: {{ product.base_price }},
+            baseStock: {{ product.display_stock }},
+            get variantKey() { return Object.values(this.selected).sort((a,b) => a - b).join(','); },
+            get hasAllSelected() { return this.options.length > 0 && Object.keys(this.selected).length === this.options.length; },
+            get selectedVariant() { return this.hasAllSelected ? (this.variants.find(v => v.key === this.variantKey) || null) : null; },
+            get currentPrice() { return this.selectedVariant ? this.selectedVariant.price : this.basePrice; },
+            get currentStock() { return this.selectedVariant ? this.selectedVariant.stock : this.baseStock; },
+            get currentImage() { return this.selectedVariant ? this.selectedVariant.image : null; },
+            get canAdd() {
+                if (this.hasVariants && !this.selectedVariant) return false;
+                if (!this.trackInventory || this.allowBackorder) return true;
+                return this.currentStock >= this.quantity;
+            },
+            init() {
+                if (this.options.length && this.variants.length === 1) {
+                    this.options.forEach(o => { this.selected[o.id] = o.values[0].id; });
+                }
+            }
+         }"
+         class="grid lg:grid-cols-2 gap-12 items-start">
+
+        {# Galería #}
+        <div>
+            <div class="aspect-square bg-surface-alt rounded-brand overflow-hidden">
+                <template x-if="currentImage">
+                    <img :src="currentImage" :alt="'{{ product.name|e('js') }}'" class="w-full h-full object-cover">
+                </template>
+                <template x-if="!currentImage">
+                    {% if product.images and product.images[0] %}
+                    <img src="{{ product.images[0].getThumbUrl(800, 800, { mode: 'crop' }) }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-ink-muted">
+                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </template>
+            </div>
+            {% if product.images and product.images|length > 1 %}
+            <div class="grid grid-cols-5 gap-3 mt-3">
+                {% for image in product.images %}
+                <div class="aspect-square bg-surface-alt rounded-lg overflow-hidden">
+                    <img src="{{ image.getThumbUrl(200, 200, { mode: 'crop' }) }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# Info + selector #}
+        <div>
+            {% if product.collection %}
+            <p class="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-2">{{ product.collection.name }}</p>
+            {% endif %}
+
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mb-4">{{ product.name }}</h1>
+
+            <p class="text-2xl font-bold text-ink mb-1" x-text="'{{ currency.symbol }} ' + currentPrice.toLocaleString('es-BO', { minimumFractionDigits: {{ currency.decimal_places }}, maximumFractionDigits: {{ currency.decimal_places }} })"></p>
+
+            <template x-if="trackInventory && !allowBackorder">
+                <p class="text-sm mb-6" :class="currentStock > 0 ? 'text-green-500' : 'text-red-500'">
+                    <span x-show="currentStock > 0" x-text="currentStock + ' disponibles'"></span>
+                    <span x-show="currentStock <= 0">Agotado</span>
+                </p>
+            </template>
+
+            {% if product.description %}
+            <div class="prose prose-sm max-w-none text-ink-muted mb-8">{{ product.description | raw }}</div>
+            {% endif %}
+
+            {# Selector de opciones #}
+            <template x-for="option in options" :key="option.id">
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2" x-text="option.name"></label>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="val in option.values" :key="val.id">
+                            <button type="button"
+                                    @click="selected[option.id] = val.id"
+                                    :class="selected[option.id] === val.id ? 'border-brand-primary bg-brand-primary text-white' : 'border-surface-border text-ink hover:border-brand-primary'"
+                                    class="px-4 py-2 rounded-brand border text-sm font-medium transition-colors"
+                                    x-text="val.value"></button>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <div id="cart-error"></div>
+
+            {# Cantidad + agregar #}
+            <form data-request="shopCart::onAdd"
+                  data-request-update="'#cart-badge': '#cart-badge', '#cart-error': '#cart-error'"
+                  @ajax-before="adding = true; added = false"
+                  @ajax-done="adding = false; added = true"
+                  @ajax-fail="adding = false"
+                  class="flex items-center gap-3 mt-8">
+
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="variant_id" :value="selectedVariant ? selectedVariant.id : ''">
+
+                <div class="flex items-center border border-surface-border rounded-brand">
+                    <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="w-10 h-11 flex items-center justify-center text-ink-muted hover:text-ink transition-colors">−</button>
+                    <input type="number" name="quantity" x-model.number="quantity" min="1" class="w-12 h-11 text-center bg-transparent text-ink border-x border-surface-border focus:outline-none">
+                    <button type="button" @click="quantity = quantity + 1" class="w-10 h-11 flex items-center justify-center text-ink-muted hover:text-ink transition-colors">+</button>
+                </div>
+
+                <button type="submit"
+                        :disabled="!canAdd || adding"
+                        class="flex-1 bg-brand-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-brand text-sm transition-all flex items-center justify-center gap-2">
+                    <svg x-show="adding" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span x-show="!adding" x-text="hasVariants && !selectedVariant ? 'Elige una opción' : (canAdd ? 'Agregar al carrito' : 'Sin stock')"></span>
+                    <span x-show="adding">Agregando...</span>
+                </button>
+            </form>
+
+            <p x-show="added" x-cloak x-transition class="mt-3 text-sm text-green-500 font-medium">✓ Agregado al carrito</p>
+        </div>
+    </div>
+</div>
+{% endif %}

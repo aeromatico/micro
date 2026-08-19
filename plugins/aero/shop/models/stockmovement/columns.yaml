@@ -1,0 +1,42 @@
+columns:
+    product:
+        label: Producto
+        relation: product
+        select: name
+        type: text
+
+    variant:
+        label: Variante
+        relation: variant
+        select: sku
+        type: text
+
+    type:
+        label: Tipo
+        type: selectable
+        options:
+            sale: Venta
+            manual_adjustment: Ajuste manual
+            restock: Reposición
+            return: Devolución
+            initial: Inicial
+        width: 130px
+
+    quantity_delta:
+        label: Cambio
+        type: number
+        width: 90px
+
+    quantity_after:
+        label: Stock resultante
+        type: number
+        width: 120px
+
+    note:
+        label: Nota
+        type: text
+
+    created_at:
+        label: Fecha
+        type: datetime
+        width: 160px

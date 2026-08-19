@@ -18,7 +18,7 @@
         </a>
 
         {# Navegación desktop #}
-        {% if pages %}
+        {% if pages or sitesSeo.isShopEnabled %}
         <div class="hidden md:flex items-center gap-1">
             {% for page in pages %}
             <a href="{{ page.slug ? '/' ~ page.slug : '/' }}"
@@ -26,10 +26,23 @@
                 {{ page.title }}
             </a>
             {% endfor %}
+            {% if sitesSeo.isShopEnabled %}
+            <a href="/tienda"
+               class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
+                Tienda
+            </a>
+            {% endif %}
         </div>
         {% endif %}
 
         <div class="flex items-center gap-1">
+            {# Carrito #}
+            {% if sitesSeo.isShopEnabled %}
+            <a href="/tienda/carrito" id="cart-badge" class="relative p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-alt transition-colors" aria-label="Carrito">
+                {% if shopCart is defined %}{{ shopCart.renderBadge() }}{% endif %}
+            </a>
+            {% endif %}
+
             {# Toggle claro/oscuro #}
             <button @click="$store.theme.toggle()"
                     class="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-alt transition-colors"
@@ -58,7 +71,7 @@
     </nav>
 
     {# Mobile menu #}
-    {% if pages %}
+    {% if pages or sitesSeo.isShopEnabled %}
     <div x-show="$store.nav.open"
          x-cloak
          x-transition:enter="transition ease-out duration-200"
@@ -75,6 +88,13 @@
             {{ page.title }}
         </a>
         {% endfor %}
+        {% if sitesSeo.isShopEnabled %}
+        <a href="/tienda"
+           @click="$store.nav.close()"
+           class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
+            Tienda
+        </a>
+        {% endif %}
     </div>
     {% endif %}
 

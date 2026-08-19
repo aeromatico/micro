@@ -1,0 +1,19 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    driver:
+        label: Driver
+        type: text
+        width: 120px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 90px
+
+    sort_order:
+        label: Orden
+        type: number
+        width: 80px

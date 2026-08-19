@@ -1,0 +1,204 @@
+tabs:
+    fields:
+        name:
+            tab: General
+            label: Nombre
+            type: text
+            span: left
+            required: true
+
+        slug:
+            tab: General
+            label: Slug
+            type: text
+            span: right
+            comment: "Vacío = se genera automáticamente"
+
+        type:
+            tab: General
+            label: Tipo de producto
+            type: radio
+            span: left
+            required: true
+            default: physical
+            options:
+                physical: Físico (con inventario)
+                digital: Digital (descarga/entrega tras pago)
+
+        status:
+            tab: General
+            label: Estado
+            type: dropdown
+            span: right
+            default: draft
+            options:
+                draft: Borrador
+                active: Activo
+                archived: Archivado
+
+        collection_id:
+            tab: General
+            label: Colección
+            type: dropdown
+            span: left
+            placeholder: "(Ninguna)"
+
+        is_featured:
+            tab: General
+            label: Destacado
+            type: switch
+            span: right
+
+        description:
+            tab: General
+            label: Descripción
+            type: richeditor
+            size: huge
+            span: full
+
+        images:
+            tab: General
+            label: Imágenes
+            type: fileupload
+            mode: image
+            imageWidth: 400
+            imageHeight: 400
+            span: full
+
+        _precios_section:
+            tab: Precios e inventario
+            type: section
+            label: "Precio, costo e inventario base"
+            comment: "Se usan solo si el producto NO tiene variantes. Con variantes, cada combinación gestiona su propio precio y stock en la pestaña Variantes."
+
+        has_variants:
+            tab: Precios e inventario
+            label: Este producto tiene variantes
+            type: switch
+            span: full
+            comment: "Ej. Talla, Color — activa la gestión de combinaciones en la pestaña Variantes"
+
+        base_price:
+            tab: Precios e inventario
+            label: Precio
+            type: number
+            span: left
+            required: true
+            step: 0.0001
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        compare_at_price:
+            tab: Precios e inventario
+            label: Precio comparativo (tachado)
+            type: number
+            span: right
+            step: 0.0001
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        cost_price:
+            tab: Precios e inventario
+            label: Costo
+            type: number
+            span: left
+            step: 0.0001
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        sku:
+            tab: Precios e inventario
+            label: SKU
+            type: text
+            span: right
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        track_inventory:
+            tab: Precios e inventario
+            label: Controlar inventario
+            type: switch
+            span: left
+            default: true
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        allow_backorder:
+            tab: Precios e inventario
+            label: Permitir venta sin stock
+            type: switch
+            span: right
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        stock_quantity:
+            tab: Precios e inventario
+            label: Stock disponible
+            type: number
+            span: left
+            trigger:
+                action: hide
+                field: has_variants
+                condition: checked
+
+        weight_grams:
+            tab: Precios e inventario
+            label: Peso (gramos)
+            type: number
+            span: right
+            trigger:
+                action: hide
+                field: type
+                condition: value[digital]
+
+        digital_file:
+            tab: Precios e inventario
+            label: Archivo digital
+            type: fileupload
+            span: full
+            trigger:
+                action: show
+                field: type
+                condition: value[digital]
+
+        _options_relation:
+            tab: Variantes
+            type: partial
+            path: relation_options
+            span: full
+
+        _variants_relation:
+            tab: Variantes
+            type: partial
+            path: relation_variants
+            span: full
+
+        _seo_section:
+            tab: SEO
+            type: section
+            label: SEO
+
+        seo_title:
+            tab: SEO
+            label: Título SEO
+            type: text
+            span: full
+
+        seo_description:
+            tab: SEO
+            label: Descripción SEO
+            type: textarea
+            size: small
+            span: full

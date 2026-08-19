@@ -1,0 +1,14 @@
+name: Producto
+form: $/aero/shop/models/product/fields.yaml
+modelClass: Aero\Shop\Models\Product
+defaultRedirect: aero/shop/products
+
+create:
+    title: Nuevo producto
+    redirect: aero/shop/products/update/:id
+    redirectClose: aero/shop/products
+
+update:
+    title: Editar producto
+    redirect: aero/shop/products
+    redirectClose: aero/shop/products

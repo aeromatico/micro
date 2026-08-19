@@ -1,0 +1,34 @@
+options:
+    label: Opciones (Talla, Color...)
+    view:
+        list: $/aero/shop/models/productoption/columns.yaml
+        toolbarButtons: create|delete
+        recordsPerPage: 10
+    form:
+        fields:
+            name:
+                label: Nombre de la opción
+                type: text
+                required: true
+                comment: "Ej: Talla, Color"
+            values:
+                label: Valores
+                type: repeater
+                span: full
+                prompt: Agregar valor
+                titleFrom: value
+                form:
+                    fields:
+                        value:
+                            label: Valor
+                            type: text
+                            required: true
+                            comment: "Ej: S, M, L o Rojo, Azul"
+
+variants:
+    label: Variantes (SKU por combinación)
+    view:
+        list: $/aero/shop/models/productvariant/columns.yaml
+        toolbarButtons: create|delete
+        recordsPerPage: 20
+    form: $/aero/shop/models/productvariant/fields.yaml

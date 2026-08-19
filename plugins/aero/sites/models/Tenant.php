@@ -224,12 +224,29 @@ class Tenant extends Model
     }
 
     /**
+     * Switch "Sitio activado" en SiteSettings — atajo booleano sobre `status`
+     * para el tenant admin. No toca el estado "suspended" (reservado a
+     * superadmin) salvo que el propio tenant lo reactive explícitamente.
+     */
+    public function getIsSiteActiveAttribute(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function setIsSiteActiveAttribute(bool $value): void
+    {
+        $this->status = $value ? 'active' : 'inactive';
+    }
+
+    /**
      * Permanently removes the tenant and ALL associated data:
      * files, pages, SEO, contact, channels, submissions, tokens,
      * domains, site definition, backend user, and frontend users.
      */
     public function purge(): void
     {
+        \Event::fire('aero.sites.tenant.purging', [$this]);
+
         \DB::transaction(function () {
             // Attached files (logo, favicon)
             $this->logo()->delete();

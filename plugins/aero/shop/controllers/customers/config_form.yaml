@@ -1,0 +1,14 @@
+name: Cliente
+form: $/aero/shop/models/customer/fields.yaml
+modelClass: Aero\Shop\Models\Customer
+defaultRedirect: aero/shop/customers
+
+create:
+    title: Nuevo cliente
+    redirect: aero/shop/customers/update/:id
+    redirectClose: aero/shop/customers
+
+update:
+    title: Editar cliente
+    redirect: aero/shop/customers
+    redirectClose: aero/shop/customers

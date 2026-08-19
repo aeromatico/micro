@@ -1,0 +1,16 @@
+title: Clientes
+list: $/aero/shop/models/customer/columns.yaml
+modelClass: Aero\Shop\Models\Customer
+recordUrl: aero/shop/customers/update/:id
+noRecordsMessage: No hay clientes registrados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar clientes
+
+defaultSort:
+    column: created_at
+    direction: desc

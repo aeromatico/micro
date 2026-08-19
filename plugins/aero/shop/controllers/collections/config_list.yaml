@@ -1,0 +1,16 @@
+title: Colecciones
+list: $/aero/shop/models/collection/columns.yaml
+modelClass: Aero\Shop\Models\Collection
+recordUrl: aero/shop/collections/update/:id
+noRecordsMessage: No hay colecciones creadas.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar colecciones
+
+defaultSort:
+    column: sort_order
+    direction: asc

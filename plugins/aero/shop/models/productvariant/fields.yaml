@@ -1,0 +1,57 @@
+fields:
+    sku:
+        label: SKU
+        type: text
+        span: left
+        required: true
+
+    is_active:
+        label: Activa
+        type: switch
+        span: right
+        default: true
+
+    price:
+        label: Precio
+        type: number
+        span: left
+        required: true
+        step: 0.0001
+
+    compare_at_price:
+        label: Precio comparativo
+        type: number
+        span: right
+        step: 0.0001
+
+    cost_price:
+        label: Costo
+        type: number
+        span: left
+        step: 0.0001
+
+    stock_quantity:
+        label: Stock
+        type: number
+        span: right
+
+    weight_grams:
+        label: Peso (gramos)
+        type: number
+        span: left
+
+    option_values:
+        label: Combinación (opciones)
+        type: relation
+        nameFrom: value
+        scope: forVariantProduct
+        span: full
+        comment: "Selecciona el valor de cada opción que define esta variante (ej. Talla: M, Color: Rojo)"
+
+    image:
+        label: Imagen
+        type: fileupload
+        mode: image
+        imageWidth: 300
+        imageHeight: 300
+        span: full

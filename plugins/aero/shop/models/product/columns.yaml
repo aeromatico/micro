@@ -1,0 +1,37 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    type:
+        label: Tipo
+        type: selectable
+        options:
+            physical: Físico
+            digital: Digital
+        width: 100px
+
+    status:
+        label: Estado
+        type: selectable
+        options:
+            draft: Borrador
+            active: Activo
+            archived: Archivado
+        width: 110px
+
+    base_price:
+        label: Precio
+        type: number
+        format: "%.2f"
+        width: 100px
+
+    stock_quantity:
+        label: Stock
+        type: number
+        width: 80px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

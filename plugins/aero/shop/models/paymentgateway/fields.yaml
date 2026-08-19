@@ -1,0 +1,37 @@
+fields:
+    name:
+        label: Nombre visible al comprador
+        type: text
+        span: left
+        required: true
+        placeholder: "Transferencia bancaria BOB, QR Simple..."
+
+    driver:
+        label: Driver
+        type: dropdown
+        span: right
+        default: manual
+        options:
+            manual: "Pago manual (instrucciones)"
+        comment: "Por ahora solo disponible el driver manual. Los drivers con API (Stripe, etc.) se conectarán aquí en el futuro."
+
+    is_active:
+        label: Activo
+        type: switch
+        span: left
+        default: true
+
+    requires_manual_confirmation:
+        label: Requiere confirmación manual del vendedor
+        type: switch
+        span: right
+        default: true
+        disabled: true
+        comment: "Siempre activo mientras el driver sea manual."
+
+    instructions:
+        label: Instrucciones de pago
+        type: richeditor
+        size: large
+        span: full
+        comment: "Datos de cuenta bancaria, QR, WhatsApp, etc. que verá el comprador."

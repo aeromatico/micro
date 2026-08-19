@@ -1,0 +1,11 @@
+{
+    "name": "aero/shop",
+    "description": "Tienda en línea por tenant — catálogo con variantes, inventario, monedas y pedidos",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Shop\\": ""
+        }
+    }
+}

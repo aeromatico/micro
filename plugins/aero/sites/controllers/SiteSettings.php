@@ -24,7 +24,7 @@ class SiteSettings extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Aero.Sites', 'mi-sitio', 'configuracion');
+        BackendMenu::setContext('Aero.Sites', 'sitio-web', 'configuracion');
     }
 
     public function index()
@@ -64,6 +64,7 @@ class SiteSettings extends Controller
         $tenant->name            = $data['name']            ?? $tenant->name;
         $tenant->primary_color   = $data['primary_color']   ?? $tenant->primary_color;
         $tenant->design_theme_id = $data['design_theme_id'] ?: null;
+        $tenant->is_site_active  = (bool) ($data['is_site_active'] ?? false);
 
         $overridePrimary = trim((string) ($data['override_primary'] ?? ''));
         $overrideAccent  = trim((string) ($data['override_accent'] ?? ''));
@@ -262,6 +263,12 @@ class SiteSettings extends Controller
         $config->arrayName = 'Branding';
         $config->alias     = 'brandingForm';
         $config->fields    = [
+            'is_site_active' => [
+                'label'   => 'Sitio activado',
+                'type'    => 'switch',
+                'span'    => 'full',
+                'comment' => 'Si se desactiva, el sitio deja de mostrarse a los visitantes y el menú "Sitio Web" se oculta en este panel.',
+            ],
             'name' => [
                 'label'    => 'Nombre del sitio',
                 'type'     => 'text',
@@ -298,12 +305,11 @@ class SiteSettings extends Controller
                 'span'  => 'full',
             ],
             'design_theme_id' => [
-                'label'       => 'Tema visual',
-                'type'        => 'dropdown',
-                'span'        => 'full',
-                'placeholder' => 'Ninguno (usar color principal legacy)',
-                'options'     => $tenant->getDesignThemeIdOptions(),
-                'comment'     => 'Define la combinación de colores (claro y oscuro), tipografía y radio de esquinas del sitio.',
+                'label'   => 'Tema visual',
+                'type'    => 'partial',
+                'path'    => 'theme_gallery',
+                'span'    => 'full',
+                'comment' => 'Elegí un tema como punto de partida. Los temas son de solo lectura — para personalizar colores o tipografía usá los campos de abajo.',
             ],
             'override_primary' => [
                 'label'       => 'Personalizar color primario (opcional)',
