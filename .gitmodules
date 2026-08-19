@@ -1,0 +1,6 @@
+[submodule "plugins/aero/hello"]
+	path = plugins/aero/hello
+	url = https://github.com/aeromatico/hello.git
+[submodule "plugins/aero/qrbo"]
+	path = plugins/aero/qrbo
+	url = https://github.com/aeromatico/qrbo.git
