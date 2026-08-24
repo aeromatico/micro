@@ -160,6 +160,50 @@ a Vapi o Retell (ambos aceptan WebSocket/SIP) y quedarse solo con la fase 9.1 + 
 Se pierde control fino y margen, se gana un MVP en días en vez de semanas. La decisión
 de construir el pipeline propio se puede tomar después con datos de uso reales.
 
+### Elección de plataforma de agente — la restricción que decide
+
+Zernio ofrece dos modos de conexión, y **solo uno sirve para WhatsApp**:
+
+| | Forwarding | SIP trunk |
+|---|---|---|
+| Zernio en el camino de la llamada | Sí, bridgea | No, el proveedor recibe directo |
+| **Funciona con WhatsApp Business Calling** | **Sí** | **No ("not yet")** |
+| Salientes iniciadas por el agente | No | Sí |
+| IVR / voicemail / grabación de Zernio | Disponibles | En pausa |
+
+Mientras un número está atado a un trunk, **WhatsApp calling queda pausado** — y
+`POST .../whatsapp/calling` devuelve `409` si el número ya tiene trunk. O sea que
+para este proyecto el modo trunk está descartado: **hay que usar forwarding.**
+
+Que el agente no pueda iniciar salientes en modo forwarding no nos afecta: las
+salientes las origina Zernio con `POST /v1/whatsapp/calls`, que acepta un
+`forwardTo` por llamada. El agente contesta, no marca.
+
+Dentro de forwarding, las opciones:
+
+- **ElevenLabs Conversational AI** — conecta por **SIP**, no por WebSocket. Zernio
+  tiene guía dedicada y preset en el dashboard que arma la URI, y aplica TLS+SRTP
+  (la config de producción que ElevenLabs recomienda) automáticamente. La doc
+  confirma explícitamente que el forwarding funciona sobre un número de WhatsApp
+  Business Calling. Mejor calidad de voz en español, que para Bolivia pesa.
+  `forwardTo: sip:+591XXXXXXXX@sip.rtc.elevenlabs.io:5061;transport=tls`
+  **Trampa documentada:** el número importado en ElevenLabs debe coincidir
+  byte-por-byte con el de la URI, **con el `+` adelante**. Si falta en cualquiera de
+  los dos lados, ElevenLabs falla el ruteo **en silencio**.
+- **Vapi / Retell** — conectan por `wss://` (media WebSocket). Zernio solo maneja la
+  pata de carrier y el puente de audio; prompt, voz y tools se configuran del lado
+  de ellos. Guía dedicada para Retell.
+- **LiveKit Agents** — **no está documentado por Zernio**. LiveKit acepta SIP
+  entrante, así que técnicamente entraría como destino `sip:` genérico, pero sin
+  preset ni guía, y sería el camino a depurar solo. Su ventaja real aparece a
+  escala: escribís el agente vos y un solo despliegue sirve a todos los tenants con
+  config dinámica, lo que mejora el margen. No es la elección para el MVP.
+
+**Recomendación para el MVP: ElevenLabs en modo forwarding.** Es el único con guía,
+preset y confirmación explícita de que funciona sobre WhatsApp calling, y su español
+es el mejor del grupo. Si más adelante las tools se vuelven el cuello de botella,
+Vapi da más control sobre el flujo de conversación y migrar es cambiar un `forwardTo`.
+
 ### Fase 9.3 — Configuración por tenant
 
 - Modelo `VoiceAgent` (`aero_hello_voice_agents`): `tenant_id`, `name`, `system_prompt`,
@@ -188,8 +232,8 @@ para gatear rutas caras y para mostrar precio al tenant.
 
 1. ~~Fase 9.1~~ ✅ hecha.
 2. Activar el plan Usage en Zernio y provisionar el número. Es el único gate duro.
-3. **Lanzar con entrantes**: habilitar calling con `forwardTo` a un agente de Vapi o
-   Retell. No requiere calentar el número.
+3. **Lanzar con entrantes**: habilitar calling con `forwardTo` al agente de
+   ElevenLabs en modo forwarding. No requiere calentar el número.
 4. Fase 9.3 (tools contra `shop`/`qrbo`/`crm`) — acá está el valor diferencial real.
 5. Calentar el número en segundo plano con el tráfico transaccional que ya existe,
    monitoreando `messagingLimitTier`. Recién al llegar a `TIER_2K` habilitar salientes.
