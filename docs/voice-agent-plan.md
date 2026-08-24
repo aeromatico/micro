@@ -70,23 +70,52 @@ Campos relevantes de `POST .../whatsapp/calling`:
 - `recordingEnabled` — off por defecto; encenderlo tiene implicancias legales de
   consentimiento.
 
-## Bloqueantes reales (verificar ANTES de escribir código)
+## Bloqueantes reales (verificado en docs.zernio.com, 2026-08-24)
 
-1. **Elegibilidad del número (422).** Zernio rechaza habilitar calling si la cuenta no
-   está en *usage-based billing* o si el límite de mensajería del número está por
-   debajo del umbral de Meta (~2.000 destinatarios diarios, `TIER_250`). Un número
-   nuevo **no califica**: hay que "calentarlo" enviando mensajes hasta subir de tier.
-   Este es el bloqueante de calendario más largo y no se puede acelerar con código.
-2. **Número dedicado provisionado por Zernio** y WABA activa.
-3. **Conflicto con SIP trunk (409).** Si el número ya está atado a un trunk, hay que
-   desatarlo primero.
-4. **Consentimiento para salientes.** Entrantes son libres. Para llamar hay que tener
-   `permission.status` en `temporary` o `permanent`; si no, mandar
-   `action: "send_call_permission_request"` — Meta lo limita a **1 prompt por consumidor
-   cada 24h (2 por 7 días)** y exige ventana de servicio de 24h abierta. Esto condiciona
-   todo el diseño de campañas salientes.
-5. **Disponibilidad en Bolivia** — no figura en el rate deck consultado. Confirmar con
-   Zernio antes de comprometer fechas.
+**El gate duro es de facturación, no de calentamiento.** Calling está disponible
+solo en el **plan Usage** de Zernio, o sea que hay que activar usage-based billing
+en la cuenta. Eso es un switch, no semanas de trabajo.
+
+**Las llamadas entrantes funcionan en cualquier tier.** Esto es lo que desbloquea el
+proyecto: un recepcionista de IA que atiende llamadas entrantes se puede lanzar sin
+calentar nada. El tier solo restringe las salientes.
+
+**Salientes (business-initiated):**
+
+- Meta bloquea salientes en números registrados en **US, Canadá, Egipto, Vietnam y
+  Nigeria**. Bolivia **no** está en esa lista. Las entrantes funcionan igual en los
+  países bloqueados.
+- Fuera de esos países, la guía de producción de Meta pide el tier de **2.000
+  destinatarios diarios (`TIER_2K`)**. Por debajo, las salientes *pueden* ser
+  rate-limited por Meta — limitadas, no bloqueadas.
+- Consentimiento: hay que tener `permission.status` en `temporary` o `permanent`. Si
+  no, mandar `action: "send_call_permission_request"` — Meta lo limita a **1 prompt
+  por consumidor cada 24h (2 por 7 días)** y exige ventana de servicio de 24h
+  abierta. Esto condiciona todo el diseño de campañas salientes.
+
+**Otros errores esperables al habilitar:** `409` si el número ya está atado a un SIP
+trunk (desatarlo primero).
+
+### Cómo se calienta el número
+
+El tier lo sube Meta solo, mirando volumen y calidad. Para pasar de `TIER_250` a
+`TIER_1K`: **1.000 mensajes de plantilla entregados a números únicos, fuera de la
+ventana de atención, en una ventana móvil de 30 días**, con las plantillas en buena
+calidad. Al completar el tramo, Meta analiza la calidad y aprueba o deniega el salto
+automático. De ahí se sigue escalando hasta `TIER_10K`/`TIER_100K`.
+
+El `qualityRating` (GREEN/YELLOW/RED) se calcula sobre los **últimos 7 días** de
+feedback: bloqueos y reportes de usuarios. Si cae, el tier baja en vez de subir — así
+que calentar mandando mensajes no pedidos es contraproducente.
+
+Ambos valores se leen en `GET /v1/accounts` bajo `metadata.qualityRating` y
+`metadata.messagingLimitTier`, así que el progreso del calentamiento se puede
+monitorear desde el backend.
+
+**Camino práctico:** usar el tráfico transaccional real de los plugins que ya existen
+(confirmaciones de pedido de `aero/shop`, avisos de `aero/qrbo`, notificaciones de
+contacto de `aero/sites`) como calentamiento natural. Son mensajes que el usuario
+pidió, así que suman volumen sin arriesgar el quality rating.
 
 ## Fases
 
@@ -157,10 +186,11 @@ para gatear rutas caras y para mostrar precio al tenant.
 
 ## Orden de trabajo sugerido
 
-1. Confirmar con Zernio: disponibilidad en Bolivia + estado de elegibilidad del número.
-2. Arrancar el warm-up del número en paralelo (es lo más lento).
-3. Fase 9.1 (recurso + modelo `Call` + webhooks) — se puede hacer y testear con el
-   historial de llamadas sin tener calling habilitado todavía.
-4. MVP con Vapi/Retell apuntado por `forwardTo`.
-5. Fase 9.3 (tools) — acá está el valor diferencial real.
-6. Evaluar pipeline propio solo si el volumen justifica el margen.
+1. ~~Fase 9.1~~ ✅ hecha.
+2. Activar el plan Usage en Zernio y provisionar el número. Es el único gate duro.
+3. **Lanzar con entrantes**: habilitar calling con `forwardTo` a un agente de Vapi o
+   Retell. No requiere calentar el número.
+4. Fase 9.3 (tools contra `shop`/`qrbo`/`crm`) — acá está el valor diferencial real.
+5. Calentar el número en segundo plano con el tráfico transaccional que ya existe,
+   monitoreando `messagingLimitTier`. Recién al llegar a `TIER_2K` habilitar salientes.
+6. Evaluar pipeline propio de audio solo si el volumen justifica el margen.
