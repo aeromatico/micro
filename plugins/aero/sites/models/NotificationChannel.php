@@ -39,6 +39,33 @@ class NotificationChannel extends Model
         $this->attributes['config'] = Crypt::encryptString(json_encode($value));
     }
 
+    public function getTypeOptions(): array
+    {
+        return [
+            'email'    => 'Email',
+            'whatsapp' => 'WhatsApp',
+            'telegram' => 'Telegram',
+            'sms'      => 'SMS',
+        ];
+    }
+
+    /**
+     * Cuentas de WhatsApp conectadas en Aero.Hello para este tenant.
+     * Dependencia blanda: sin Aero.Hello instalado el dropdown queda vacío.
+     */
+    public function getHelloAccountOptions(): array
+    {
+        if (!class_exists(\Aero\Hello\Models\Account::class) || !$this->tenant_id) {
+            return [];
+        }
+
+        return \Aero\Hello\Models\Account::enabled()
+            ->ofPlatform('whatsapp')
+            ->whereHas('profile', fn ($query) => $query->where('tenant_id', $this->tenant_id))
+            ->pluck('label', 'id')
+            ->all();
+    }
+
     public function scopeEnabled($query)
     {
         return $query->where('is_enabled', true);

@@ -111,17 +111,21 @@ fields:
             condition: value[email]
 
     _section_whatsapp:
-        label: Configuración WhatsApp
+        label: Configuración WhatsApp (Hello)
         type: section
+        comment: Los envíos por WhatsApp salen a través del plugin Aero.Hello (Zernio). Conecta la cuenta en Hello → Cuentas y selecciónala aquí.
         trigger:
             action: show
             field: type
             condition: value[whatsapp]
 
-    config[phone_number_id]:
-        label: Phone Number ID
-        type: text
-        span: left
+    config[hello_account_id]:
+        label: Cuenta de WhatsApp (Hello)
+        type: dropdown
+        span: full
+        options: getHelloAccountOptions
+        emptyOption: Usar la primera cuenta WhatsApp del tenant
+        comment: Cuenta conectada en Hello desde la que se envía la notificación.
         trigger:
             action: show
             field: type
@@ -130,27 +134,9 @@ fields:
     config[whatsapp_to]:
         label: Número destino
         type: text
-        span: right
-        placeholder: "+59170000000"
-        trigger:
-            action: show
-            field: type
-            condition: value[whatsapp]
-
-    config[access_token]:
-        label: Access Token (Meta)
-        type: text
         span: full
-        trigger:
-            action: show
-            field: type
-            condition: value[whatsapp]
-
-    config[template_name]:
-        label: Nombre del template
-        type: text
-        span: left
-        default: contact_notification
+        placeholder: "59170000000"
+        comment: Número con código de país, sin "+" (ej. 59170000000).
         trigger:
             action: show
             field: type

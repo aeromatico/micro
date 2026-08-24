@@ -2,44 +2,75 @@
 
 use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\NotificationChannel;
-use Http;
+use Log;
 
+/**
+ * Envía la notificación de contacto por WhatsApp a través de Aero.Hello
+ * (Zernio). Dependencia blanda: Aero.Sites no requiere Aero.Hello, así que
+ * si el plugin no está instalado el canal simplemente no envía.
+ */
 class WhatsappNotificationDriver implements NotificationDriverInterface
 {
     public function send(ContactSubmission $submission, NotificationChannel $channel): bool
     {
+        if (!class_exists(\Aero\Hello\Classes\Notifications\MessageDispatcher::class)) {
+            Log::warning('Aero\\Sites: canal WhatsApp inactivo — el plugin Aero.Hello no está instalado.');
+            return false;
+        }
+
         $config = $channel->config;
-        $phoneNumberId = $config['phone_number_id'] ?? null;
-        $to = $config['whatsapp_to'] ?? null;
-        $accessToken = $config['access_token'] ?? null;
-        $templateName = $config['template_name'] ?? 'contact_notification';
+        $to = preg_replace('/[^0-9]/', '', (string) ($config['whatsapp_to'] ?? ''));
 
-        if (!$phoneNumberId || !$to || !$accessToken) return false;
+        if (!$to) {
+            return false;
+        }
 
-        $to = preg_replace('/[^0-9]/', '', $to);
+        $account = $this->resolveAccount($channel, $config);
 
-        $response = Http::withToken($accessToken)
-            ->post("https://graph.facebook.com/v19.0/{$phoneNumberId}/messages", [
-                'messaging_product' => 'whatsapp',
-                'to'                => $to,
-                'type'              => 'template',
-                'template'          => [
-                    'name'       => $templateName,
-                    'language'   => ['code' => 'es'],
-                    'components' => [
-                        [
-                            'type'       => 'body',
-                            'parameters' => [
-                                ['type' => 'text', 'text' => $submission->name],
-                                ['type' => 'text', 'text' => $submission->email],
-                                ['type' => 'text', 'text' => $submission->phone ?? 'N/A'],
-                                ['type' => 'text', 'text' => mb_substr($submission->message, 0, 500)],
-                            ],
-                        ],
-                    ],
-                ],
+        if (!$account) {
+            Log::warning('Aero\\Sites: canal WhatsApp sin cuenta de Hello asociada', ['channel_id' => $channel->id]);
+            return false;
+        }
+
+        $text = sprintf(
+            "Nuevo mensaje de contacto\n\nNombre: %s\nEmail: %s\nTeléfono: %s\n\n%s",
+            $submission->name,
+            $submission->email,
+            $submission->phone ?? 'N/A',
+            mb_substr($submission->message, 0, 1000),
+        );
+
+        try {
+            $driver = app(\Aero\Hello\Classes\Notifications\MessageDispatcher::class)->make();
+            $driver->sendMessage($account, $to, ['body' => $text]);
+
+            return true;
+        }
+        catch (\Throwable $ex) {
+            Log::warning('Aero\\Sites: envío WhatsApp vía Hello falló', [
+                'channel_id' => $channel->id,
+                'error'      => $ex->getMessage(),
             ]);
 
-        return $response->successful();
+            return false;
+        }
+    }
+
+    /**
+     * Cuenta explícita del canal, o la primera cuenta WhatsApp habilitada del
+     * tenant (vía profile) si el canal no fija ninguna.
+     */
+    protected function resolveAccount(NotificationChannel $channel, array $config)
+    {
+        $accountClass = \Aero\Hello\Models\Account::class;
+
+        if (!empty($config['hello_account_id'])) {
+            return $accountClass::find($config['hello_account_id']);
+        }
+
+        return $accountClass::enabled()
+            ->ofPlatform('whatsapp')
+            ->whereHas('profile', fn ($query) => $query->where('tenant_id', $channel->tenant_id))
+            ->first();
     }
 }

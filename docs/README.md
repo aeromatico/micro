@@ -11,6 +11,7 @@
   - [Skills de Frontend](skills/frontend.md)
   - [Skills de Backend](skills/backend.md)
 - [Flujos de Trabajo](workflows.md)
+- [Plan: llamadas WhatsApp con IA](voice-agent-plan.md)
 - [Convenciones](convenciones.md)
 
 ## Git
