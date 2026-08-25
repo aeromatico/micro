@@ -38,6 +38,42 @@ class Plugin extends PluginBase
         $this->registerApiRoutes();
         $this->bootSiteContext();
         $this->bootRainLabIntegration();
+        $this->bootHelloIntegration();
+    }
+
+    /**
+     * Aero.Hello es un plugin independiente: no conoce a Sites ni a los tenants.
+     * Expone `tenant_id` como columna suelta y pregunta por evento a quién
+     * pertenece el contexto actual. Aquí Sites responde esa pregunta y repone
+     * las relaciones `tenant` que Hello ya no puede declarar por sí mismo.
+     *
+     * Dependencia blanda en las dos direcciones: sin Hello instalado esto no
+     * hace nada, y sin Sites instalado Hello funciona sin aislamiento.
+     */
+    protected function bootHelloIntegration(): void
+    {
+        if (!class_exists(\Aero\Hello\Models\Profile::class)) {
+            return;
+        }
+
+        Event::listen('aero.hello.resolveOwnerId', function (&$id) {
+            if ($id !== null) {
+                return;
+            }
+
+            $id = (new class { use \Aero\Sites\Traits\ResolvesCurrentTenant; public function id() { return $this->getCurrentTenantId(); } })->id();
+        });
+
+        foreach ([
+            \Aero\Hello\Models\Profile::class,
+            \Aero\Hello\Models\Contact::class,
+            \Aero\Hello\Models\Conversation::class,
+            \Aero\Hello\Models\Call::class,
+        ] as $model) {
+            $model::extend(function ($model) {
+                $model->belongsTo['tenant'] = [\Aero\Sites\Models\Tenant::class];
+            });
+        }
     }
 
     protected function bootRainLabIntegration(): void
@@ -68,12 +104,15 @@ class Plugin extends PluginBase
 
             $form->addTabFields([
                 'tenantAssignments' => [
-                    'label'   => 'Tenants asignados',
-                    'type'    => 'hasmanytable',
-                    'tab'     => 'Tenants',
-                    'columns' => [
-                        'tenant_id' => ['label' => 'Tenant', 'type' => 'dropdown'],
-                        'role'      => ['label' => 'Rol',    'type' => 'dropdown'],
+                    'label'  => 'Tenants asignados',
+                    'type'   => 'repeater',
+                    'tab'    => 'Tenants',
+                    'prompt' => 'Asignar tenant',
+                    'form'   => [
+                        'fields' => [
+                            'tenant_id' => ['label' => 'Tenant', 'type' => 'dropdown'],
+                            'role'      => ['label' => 'Rol',    'type' => 'dropdown'],
+                        ],
                     ],
                 ],
             ]);
