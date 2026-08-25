@@ -27,7 +27,7 @@
                     Todos
                 </a>
                 {% for collection in collections %}
-                <a href="/tienda?coleccion={{ collection.slug }}"
+                <a href="/tienda/{{ collection.slug }}"
                    class="px-3 py-2 rounded-brand text-sm font-medium transition-colors {{ activeCollection and activeCollection.slug == collection.slug ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted hover:text-ink' }}">
                     {{ collection.name }}
                 </a>
@@ -80,7 +80,7 @@
             {% if products.lastPage > 1 %}
             <div class="mt-10 flex items-center justify-center gap-2">
                 {% for p in 1..products.lastPage %}
-                <a href="?{{ activeCollection ? 'coleccion=' ~ activeCollection.slug ~ '&' : '' }}page={{ p }}"
+                <a href="?page={{ p }}"
                    class="w-9 h-9 flex items-center justify-center rounded-brand text-sm font-medium transition-colors {{ p == products.currentPage ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted hover:text-ink' }}">
                     {{ p }}
                 </a>

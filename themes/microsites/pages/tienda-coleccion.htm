@@ -1,0 +1,19 @@
+url = "/tienda/:coleccion"
+layout = "base"
+description = "Catálogo filtrado por colección"
+
+[sitesSeo]
+pageTitle = "Tienda"
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+
+[shopCatalog]
+perPage = "12"
+collectionSlug = "{{ :coleccion }}"
+
+[shopCart]
+==
+{% component 'shopCatalog' %}

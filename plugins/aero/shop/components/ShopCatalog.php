@@ -29,6 +29,12 @@ class ShopCatalog extends ComponentBase
                 'type'    => 'string',
                 'default' => '12',
             ],
+            'collectionSlug' => [
+                'title'       => 'Slug de colección',
+                'description' => 'Filtra el catálogo por colección. Normalmente {{ :coleccion }} desde la URL.',
+                'type'        => 'string',
+                'default'     => '',
+            ],
         ];
     }
 
@@ -59,15 +65,26 @@ class ShopCatalog extends ComponentBase
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at');
 
-        $collectionSlug = get('coleccion');
-        if ($collectionSlug) {
+        // El slug llega por la URL amigable /tienda/:coleccion. Se acepta ?coleccion=
+        // como alias para no romper enlaces antiguos, que se redirigen abajo.
+        $collectionSlug = trim((string) $this->property('collectionSlug')) ?: (string) get('coleccion');
+
+        if ($collectionSlug !== '') {
             $this->activeCollection = Collection::where('tenant_id', $tenant->id)
+                ->where('is_active', true)
                 ->where('slug', $collectionSlug)
                 ->first();
 
-            if ($this->activeCollection) {
-                $query->where('collection_id', $this->activeCollection->id);
+            if (!$this->activeCollection) {
+                return $this->controller->run('404');
             }
+
+            // Enlace antiguo ?coleccion=x: redirige permanente a /tienda/x
+            if (!$this->property('collectionSlug')) {
+                return redirect('/tienda/' . $this->activeCollection->slug, 301);
+            }
+
+            $query->where('collection_id', $this->activeCollection->id);
         }
 
         $perPage = max(1, min(48, (int) $this->property('perPage', 12)));
