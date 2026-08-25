@@ -42,3 +42,8 @@
       Repeater de October en modo relación inserta la fila vacía antes de
       asignar la FK del padre."
     - nullable_option_value_fk_columns.php
+
+1.0.5:
+    - "Seed de demo: crea tablas del shop si faltan, 6 colecciones, 12 productos
+      con imágenes de Unsplash y configuración de tienda para el tenant Demo."
+    - seed_demo_data.php
