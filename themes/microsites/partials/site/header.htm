@@ -39,7 +39,7 @@
             {# Carrito #}
             {% if sitesSeo.isShopEnabled %}
             <a href="/tienda/carrito" id="cart-badge" class="relative p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-alt transition-colors" aria-label="Carrito">
-                {% if shopCart is defined %}{{ shopCart.renderBadge() }}{% endif %}
+                {% if shopCart is defined %}{{ shopCart.renderBadge()|raw }}{% endif %}
             </a>
             {% endif %}
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { Puck, Render } from '@puckeditor/core';
+import { Puck, Render, Button } from '@puckeditor/core';
 import '@puckeditor/core/puck.css';
 import { components, categories } from './components';
 
@@ -63,7 +63,7 @@ function normalizeIds(data) {
 window.AeroPuckEditor = {
   instances: {},
 
-  init(containerId, puckDataId, contentId, existingData) {
+  init(containerId, puckDataId, contentId, existingData, siteUrl) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -133,6 +133,29 @@ window.AeroPuckEditor = {
           submitForm();
         },
         iframe: { enabled: false },
+        overrides: {
+          // Puck's built-in Publish button text is hardcoded ("Publish") with
+          // no label override prop, so the only way to relabel it is to
+          // replace the header actions entirely. We also add "Ver sitio"
+          // here, next to it.
+          headerActions: () => (
+            <>
+              {siteUrl && (
+                <Button href={siteUrl} newTab variant="secondary">
+                  Ver sitio
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  writeToDom(latestData);
+                  submitForm();
+                }}
+              >
+                Publicar
+              </Button>
+            </>
+          ),
+        },
       })
     );
   },

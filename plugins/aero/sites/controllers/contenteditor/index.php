@@ -17,6 +17,13 @@ $contactPage         = $this->vars['contactPage'];
 $submissions         = $this->vars['submissions'];
 $archetypes          = $this->vars['archetypes'];
 
+// Un sitio "ya construido" tiene página + al menos un bloque en el editor
+// visual. Se usa para distinguir el primer lanzamiento (CTA grande, siempre
+// visible) de una reconstrucción (panel colapsado + confirmación, porque
+// reemplaza el diseño y descarta ediciones manuales — SiteGenerator siempre
+// regenera la página completa desde cero, no hay modo "actualizar parcial").
+$hasExistingDesign = $indexPage && !empty($indexPage->puck_data);
+
 $statusLabels = [
     'pending' => ['label' => 'Pendiente', 'class' => 'warning'],
     'sent'    => ['label' => 'Enviado',   'class' => 'success'],
@@ -53,54 +60,40 @@ $statusLabels = [
                         <!-- ====================================================
                              AI GENERATION PANEL
                              ==================================================== -->
+                        <?php if (!$hasExistingDesign): ?>
                         <div id="ai-panel" class="callout fade in callout-warning no-subheader" style="margin-bottom:20px">
                             <div class="header">
                                 <i class="icon-magic"></i>
-                                <h4>Generar página con Inteligencia Artificial</h4>
+                                <h4>Generá tu primer diseño con Inteligencia Artificial</h4>
                             </div>
                             <div class="content">
                                 <p>Describe tu negocio en detalle y la IA generará automáticamente la página de inicio usando los bloques disponibles. Cuanta más información des, mejor será el resultado.</p>
-                                <form
-                                    data-request="onGenerateAi"
-                                    data-request-flash
-                                    data-request-loading="#ai-loading"
-                                    data-request-success="aeroAiOnGenerateStarted(data)"
-                                >
-                                    <?php if ($archetypes->isNotEmpty()): ?>
-                                    <div style="margin-bottom:10px">
-                                        <label for="ai-archetype-select"><strong>Arquetipo (secuencia de bloques)</strong></label>
-                                        <select name="archetype_handle" id="ai-archetype-select" class="form-control custom-select">
-                                            <option value="" data-description="La IA elige uno al azar entre los disponibles para tu nicho.">Automático</option>
-                                            <?php foreach ($archetypes as $archetype): ?>
-                                            <option value="<?= e($archetype->handle) ?>" data-description="<?= e($archetype->description ?? '') ?>">
-                                                <?= e($archetype->name) ?>
-                                            </option>
-                                            <?php endforeach ?>
-                                        </select>
-                                        <small id="ai-archetype-description" class="text-muted" style="display:block; margin-top:4px">
-                                            La IA elige uno al azar entre los disponibles para tu nicho.
-                                        </small>
-                                    </div>
-                                    <?php endif ?>
-                                    <textarea
-                                        name="ai_prompt"
-                                        class="form-control"
-                                        rows="4"
-                                        placeholder="Ej: Somos una clínica dental con 15 años de experiencia, ofrecemos ortodoncia, implantes, blanqueamiento y urgencias 24h. Tenemos precios accesibles y financiación."
-                                        style="width:100%; margin-bottom:10px"
-                                    ></textarea>
-                                    <div class="form-buttons">
-                                        <button type="submit" id="ai-generate-btn" class="btn btn-warning">
-                                            <i class="icon-magic"></i> ✨ Generar página con IA
-                                        </button>
-                                        <span id="ai-loading" style="display:none; margin-left:10px">
-                                            <i class="icon-spinner icon-spin"></i> Enviando…
-                                        </span>
-                                    </div>
-                                </form>
-                                <div id="ai-result" style="margin-top:15px"></div>
+                                <?= $this->makePartial('ai_form', [
+                                    'archetypes'  => $archetypes,
+                                    'buttonLabel' => '✨ Generar mi diseño con IA',
+                                    'confirm'     => null,
+                                ]) ?>
                             </div>
                         </div>
+                        <?php else: ?>
+                        <div id="ai-panel" class="callout fade callout-warning no-subheader" style="margin-bottom:20px">
+                            <div class="header" style="cursor:pointer" data-ai-toggle>
+                                <i class="icon-magic"></i>
+                                <h4>Reconstruir sitio con Inteligencia Artificial <i class="icon-chevron-down pull-right"></i></h4>
+                            </div>
+                            <div class="content" data-ai-body style="display:none">
+                                <p class="text-warning">
+                                    <i class="icon-warning"></i>
+                                    Esto <strong>reemplaza por completo</strong> la página de inicio actual (bloques y contenido) por un nuevo diseño generado por IA. No es un ajuste parcial: cualquier edición manual hecha en el editor visual se perderá.
+                                </p>
+                                <?= $this->makePartial('ai_form', [
+                                    'archetypes'  => $archetypes,
+                                    'buttonLabel' => '🔄 Reconstruir con IA',
+                                    'confirm'     => '¿Reconstruir la página de inicio? Se perderá el diseño y las ediciones actuales.',
+                                ]) ?>
+                            </div>
+                        </div>
+                        <?php endif ?>
 
                         <script>
                         (function () {
@@ -117,6 +110,12 @@ $statusLabels = [
                                     success: function (data) {
                                         if (data.status === 'pending' || data.status === 'processing') {
                                             setTimeout(function () { poll(logId); }, POLL_INTERVAL_MS);
+                                        } else if (data.status === 'done') {
+                                            // El widget del editor Puck de abajo quedó con los datos
+                                            // viejos (se renderizó server-side al cargar la página).
+                                            // Recargamos para que muestre el diseño recién generado;
+                                            // si no, un "Guardar" posterior pisaría el resultado de la IA.
+                                            setTimeout(function () { window.location.reload(); }, 1200);
                                         } else {
                                             setGenerating(false);
                                         }
@@ -132,6 +131,13 @@ $statusLabels = [
                                 setGenerating(true);
                                 poll(data.aiLogId);
                             };
+
+                            document.querySelectorAll('[data-ai-toggle]').forEach(function (toggle) {
+                                toggle.addEventListener('click', function () {
+                                    var body = toggle.parentElement.querySelector('[data-ai-body]');
+                                    if (body) body.style.display = (body.style.display === 'none') ? '' : 'none';
+                                });
+                            });
 
                             var archetypeSelect = document.getElementById('ai-archetype-select');
                             var archetypeDescription = document.getElementById('ai-archetype-description');

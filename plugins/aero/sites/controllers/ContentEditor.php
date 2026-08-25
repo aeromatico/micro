@@ -32,7 +32,7 @@ class ContentEditor extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Aero.Sites', 'mi-sitio', 'contenidos');
+        BackendMenu::setContext('Aero.Sites', 'sitio-web', 'contenidos');
     }
 
     public function index()

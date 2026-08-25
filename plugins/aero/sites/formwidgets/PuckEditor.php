@@ -41,6 +41,7 @@ class PuckEditor extends FormWidgetBase
         $tenant = $this->model->tenant ?? null;
         $this->vars['tenantCssVars']   = $tenant ? ($tenant->getEffectiveCssVars()['light'] ?? null) : null;
         $this->vars['googleFontsUrl']  = $tenant ? $tenant->getGoogleFontsUrl() : null;
+        $this->vars['siteUrl']         = $tenant ? ('https://' . $tenant->primary_domain) : null;
     }
 
     public function getSaveValue($value): mixed

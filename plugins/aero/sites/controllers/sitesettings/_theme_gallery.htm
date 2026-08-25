@@ -1,0 +1,142 @@
+<?php
+/**
+ * Galería de temas visuales para el tenant: solo selección (radio), nunca
+ * edición — editar la paleta/tipografía de un DesignTheme es exclusivo de
+ * superadmin en /admin/aero/sites/designthemes/. Elegir una tarjeta acá
+ * setea design_theme_id; el tenant puede además personalizar color/fuente
+ * puntual con los campos "override_*" que siguen abajo en el form.
+ */
+use Aero\Sites\Models\DesignTheme;
+
+$fieldName   = $field->getName();
+$fieldId     = $field->getId();
+$currentId   = (int) ($value ?: 0);
+$nicheType   = $model->niche_type ?? null;
+
+$themes = DesignTheme::active()->orderBy('name')->get();
+
+if ($nicheType) {
+    $themes = $themes->sortByDesc(function ($theme) use ($nicheType) {
+        $affinity = $theme->niche_affinity ?? [];
+        return empty($affinity) || in_array($nicheType, $affinity, true) ? 1 : 0;
+    })->values();
+}
+
+$radiusPreview = ['sharp' => '2px', 'soft' => '10px', 'round' => '20px'];
+$toneLabels = [
+    'corporate' => 'Corporativo', 'playful' => 'Divertido', 'minimal' => 'Minimalista',
+    'elegant' => 'Elegante', 'bold' => 'Audaz', 'warm' => 'Cálido',
+];
+?>
+<style>
+    .aero-theme-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .aero-theme-card {
+        position: relative; width: 220px; border: 2px solid #e2e8f0; border-radius: 8px;
+        padding: 12px; cursor: pointer; background: #fff; transition: border-color .15s, box-shadow .15s;
+    }
+    .aero-theme-card:hover { border-color: #94a3b8; }
+    .aero-theme-card.is-selected { border-color: #4f46e5; box-shadow: 0 0 0 1px #4f46e5; }
+    .aero-theme-card .theme-check {
+        position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%;
+        border: 2px solid #cbd5e1; background: #fff;
+    }
+    .aero-theme-card.is-selected .theme-check {
+        border-color: #4f46e5; background: #4f46e5;
+        box-shadow: inset 0 0 0 3px #fff;
+    }
+    .aero-theme-card .theme-name { font-weight: 600; font-size: 13px; margin: 0 26px 2px 0; }
+    .aero-theme-card .theme-tone { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+    .aero-theme-card .theme-swatches { display: flex; gap: 4px; margin-bottom: 4px; }
+    .aero-theme-card .theme-swatches.is-dark { padding: 4px; border-radius: 4px; background: #0f172a; }
+    .aero-theme-card .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,.08); }
+    .aero-theme-card .theme-mode-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .03em; margin: 6px 0 2px; }
+    .aero-theme-card .theme-fonts { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
+    .aero-theme-card .theme-fonts b { color: #1e293b; }
+    .aero-theme-card .theme-radius-demo { width: 36px; height: 18px; background: #94a3b8; margin-top: 8px; }
+    .aero-theme-card .theme-affinity-badge {
+        display: inline-block; font-size: 10px; background: #eef2ff; color: #4338ca;
+        padding: 1px 6px; border-radius: 10px; margin-bottom: 6px;
+    }
+    .aero-theme-empty { color: #64748b; font-size: 13px; }
+</style>
+
+<input type="hidden" name="<?= e($fieldName) ?>" id="<?= e($fieldId) ?>" value="<?= $currentId ?>" data-theme-gallery-input>
+
+<?php if ($themes->isEmpty()): ?>
+    <p class="aero-theme-empty">No hay temas visuales activos. Se usará el color principal (legacy).</p>
+<?php else: ?>
+    <div class="aero-theme-gallery" data-theme-gallery>
+        <div
+            class="aero-theme-card<?= $currentId === 0 ? ' is-selected' : '' ?>"
+            data-theme-option
+            data-theme-value="0"
+        >
+            <span class="theme-check"></span>
+            <p class="theme-name">Ninguno</p>
+            <p class="theme-tone">Usar color principal (legacy)</p>
+        </div>
+        <?php foreach ($themes as $theme): ?>
+            <?php
+                $dual = $theme->getDualColors();
+                $light = $dual['light'] ?? [];
+                $dark  = $dual['dark'] ?? [];
+                $isAffine = $nicheType && (empty($theme->niche_affinity) || in_array($nicheType, $theme->niche_affinity ?? [], true));
+            ?>
+            <div
+                class="aero-theme-card<?= $currentId === (int) $theme->id ? ' is-selected' : '' ?>"
+                data-theme-option
+                data-theme-value="<?= $theme->id ?>"
+            >
+                <span class="theme-check"></span>
+                <?php if ($isAffine): ?>
+                    <span class="theme-affinity-badge">Recomendado para tu rubro</span><br>
+                <?php endif ?>
+                <p class="theme-name"><?= e($theme->name) ?></p>
+                <p class="theme-tone"><?= e($toneLabels[$theme->tone] ?? $theme->tone) ?></p>
+
+                <p class="theme-mode-label">Claro</p>
+                <div class="theme-swatches">
+                    <?php foreach (['primary', 'secondary', 'accent', 'surface_bg', 'surface_alt'] as $key): ?>
+                        <span class="swatch" style="background:<?= e($light[$key] ?? '#e2e8f0') ?>" title="<?= e($key) ?>"></span>
+                    <?php endforeach ?>
+                </div>
+
+                <p class="theme-mode-label">Oscuro</p>
+                <div class="theme-swatches is-dark">
+                    <?php foreach (['primary', 'secondary', 'accent', 'surface_bg', 'surface_alt'] as $key): ?>
+                        <span class="swatch" style="background:<?= e($dark[$key] ?? '#0f172a') ?>" title="<?= e($key) ?>"></span>
+                    <?php endforeach ?>
+                </div>
+
+                <div class="theme-fonts">
+                    <div><b>Título:</b> <?= e($theme->font_heading ?: 'Inter') ?></div>
+                    <div><b>Texto:</b> <?= e($theme->font_body ?: 'Inter') ?></div>
+                </div>
+
+                <div class="theme-radius-demo" style="border-radius: <?= $radiusPreview[$theme->radius] ?? '10px' ?>"></div>
+            </div>
+        <?php endforeach ?>
+    </div>
+<?php endif ?>
+
+<script>
+    (function () {
+        var container = document.currentScript.previousElementSibling;
+        if (!container || !container.hasAttribute('data-theme-gallery')) {
+            container = document.querySelector('[data-theme-gallery]');
+        }
+        if (!container) return;
+
+        var input = container.parentNode.querySelector('[data-theme-gallery-input]');
+
+        container.querySelectorAll('[data-theme-option]').forEach(function (card) {
+            card.addEventListener('click', function () {
+                container.querySelectorAll('[data-theme-option]').forEach(function (c) {
+                    c.classList.remove('is-selected');
+                });
+                card.classList.add('is-selected');
+                input.value = card.getAttribute('data-theme-value');
+            });
+        });
+    })();
+</script>

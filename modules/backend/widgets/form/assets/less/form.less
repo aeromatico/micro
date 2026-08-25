@@ -68,25 +68,19 @@
 
     &.growable, // @deprecated
     &.is-growable {
-        width: 110px;
-        //.transition(width 0.2s);
+        width: 36px;
+        text-indent: -999px;
+        transition: width 0.3s ease;
         &:focus,
         &:active {
+            text-indent: 0;
             width: 200px !important;
         }
 
         @media (max-width: @screen-xs) {
-            width: 40px;
-            text-indent: -999px;
-
             &:focus,
             &:active {
-                text-indent: 0;
                 width: 100px !important;
-            }
-
-            &.icon {
-                padding-right: 0 !important;
             }
         }
     }

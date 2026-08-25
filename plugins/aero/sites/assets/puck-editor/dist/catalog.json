@@ -173,8 +173,34 @@
   },
   "Hero": {
     "label": "Hero",
-    "desc": "Sección principal (hero) con título grande, subtítulo y botón CTA. Por defecto usa un fondo neutro/transparente; el color de marca queda como acento del botón (o se puede elegir sólido para más impacto). Opcionalmente puede llevar una foto de fondo.",
+    "desc": "Sección principal (hero) con título grande, subtítulo, descripción, hasta 2 botones e imagen. 5 variantes de layout real (no solo color/fondo): centrado, imagen a la derecha/izquierda, fondo completo y minimal.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante de layout",
+        "options": [
+          {
+            "label": "Centrado (clásico)",
+            "value": "centrado"
+          },
+          {
+            "label": "Imagen a la derecha",
+            "value": "imagen-derecha"
+          },
+          {
+            "label": "Imagen a la izquierda",
+            "value": "imagen-izquierda"
+          },
+          {
+            "label": "Fondo completo (alto impacto)",
+            "value": "fondo-completo"
+          },
+          {
+            "label": "Minimal (solo texto)",
+            "value": "minimal"
+          }
+        ]
+      },
       "title": {
         "type": "text",
         "label": "Título principal"
@@ -183,15 +209,30 @@
         "type": "textarea",
         "label": "Subtítulo"
       },
+      "description": {
+        "type": "textarea",
+        "label": "Descripción (opcional, párrafo más largo)"
+      },
       "ctaLabel": {
         "type": "text",
-        "label": "Botón: texto"
+        "label": "Botón 1: texto"
       },
       "ctaUrl": {
         "type": "text",
-        "label": "Botón: URL"
+        "label": "Botón 1: URL"
+      },
+      "cta2Label": {
+        "type": "text",
+        "label": "Botón 2: texto (opcional)"
+      },
+      "cta2Url": {
+        "type": "text",
+        "label": "Botón 2: URL (opcional)"
       },
       "bgImage": {
+        "type": "custom"
+      },
+      "image": {
         "type": "custom"
       },
       "background": {
@@ -306,19 +347,63 @@
   },
   "FeatureGrid": {
     "label": "Características",
-    "desc": "Grid de características (2, 3 o 4 columnas). Cada una tiene ícono (emoji), título y descripción.",
+    "desc": "Grupo de características/beneficios (cada una con ícono, título y descripción). 5 variantes de layout real: tarjetas en grid, lista vertical, pasos numerados, imagen al lado o encabezado destacado.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante de layout",
+        "options": [
+          {
+            "label": "Tarjetas (clásico)",
+            "value": "tarjetas"
+          },
+          {
+            "label": "Lista vertical",
+            "value": "lista"
+          },
+          {
+            "label": "Pasos numerados",
+            "value": "numeradas"
+          },
+          {
+            "label": "Imagen + lista al lado",
+            "value": "imagen-lateral"
+          },
+          {
+            "label": "Encabezado destacado + íconos",
+            "value": "destacado"
+          }
+        ]
+      },
       "title": {
         "type": "text",
         "label": "Título de sección (opcional)"
+      },
+      "subtitle": {
+        "type": "textarea",
+        "label": "Subtítulo (opcional)"
+      },
+      "description": {
+        "type": "textarea",
+        "label": "Descripción (opcional, según variante)"
+      },
+      "ctaLabel": {
+        "type": "text",
+        "label": "Botón: texto (opcional, según variante)"
+      },
+      "ctaUrl": {
+        "type": "text",
+        "label": "Botón: URL (opcional)"
+      },
+      "image": {
+        "type": "custom"
       },
       "features": {
         "type": "array",
         "label": "Características",
         "arrayFields": {
           "icon": {
-            "type": "text",
-            "label": "Ícono (emoji)"
+            "type": "custom"
           },
           "title": {
             "type": "text",
@@ -330,14 +415,14 @@
           }
         },
         "defaultItemProps": {
-          "icon": "⭐",
+          "icon": "tabler:star",
           "title": "Nueva característica",
           "description": "Descripción del beneficio."
         }
       },
       "columns": {
         "type": "select",
-        "label": "Columnas",
+        "label": "Columnas (variantes en grid)",
         "options": [
           {
             "label": "2 columnas",
@@ -434,11 +519,41 @@
   },
   "CTASection": {
     "label": "Llamado a la acción",
-    "desc": "Sección de llamado a la acción con título, descripción y botón. El color lo define el tema visual; \"style\" solo controla si es sólido o de contorno.",
+    "desc": "Sección de llamado a la acción: título, subtítulo, descripción, hasta 2 botones, ícono/emoji e imagen opcional. 5 variantes de layout real, cada una usando una combinación distinta de estos campos.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante de layout",
+        "options": [
+          {
+            "label": "Clásico (un botón)",
+            "value": "clasico"
+          },
+          {
+            "label": "Doble botón",
+            "value": "doble-boton"
+          },
+          {
+            "label": "Con ícono",
+            "value": "con-icono"
+          },
+          {
+            "label": "Imagen al lado",
+            "value": "imagen-lateral"
+          },
+          {
+            "label": "Franja minimal",
+            "value": "franja-minimal"
+          }
+        ]
+      },
       "heading": {
         "type": "text",
         "label": "Título"
+      },
+      "subtitle": {
+        "type": "textarea",
+        "label": "Subtítulo (opcional)"
       },
       "body": {
         "type": "textarea",
@@ -446,15 +561,29 @@
       },
       "buttonLabel": {
         "type": "text",
-        "label": "Texto del botón"
+        "label": "Botón 1: texto"
       },
       "buttonUrl": {
         "type": "text",
-        "label": "URL del botón"
+        "label": "Botón 1: URL"
+      },
+      "cta2Label": {
+        "type": "text",
+        "label": "Botón 2: texto (opcional)"
+      },
+      "cta2Url": {
+        "type": "text",
+        "label": "Botón 2: URL (opcional)"
+      },
+      "icon": {
+        "type": "custom"
+      },
+      "image": {
+        "type": "custom"
       },
       "style": {
         "type": "radio",
-        "label": "Estilo",
+        "label": "Estilo (variante clásica)",
         "options": [
           {
             "label": "Sólido",
@@ -465,6 +594,158 @@
             "value": "outline"
           }
         ]
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "custom"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "custom"
+      }
+    }
+  },
+  "Pricing": {
+    "label": "Planes y precios",
+    "desc": "Sección de precios con lista de planes (nombre, precio, período, características, botón). 5 variantes: 3 planes en tarjetas, 3 planes con contraste, 3 planes en tabla minimal, 2 planes o 1 solo plan/producto.",
+    "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante de layout",
+        "options": [
+          {
+            "label": "3 planes — tarjetas (clásico)",
+            "value": "tres-planes"
+          },
+          {
+            "label": "3 planes — contraste destacado",
+            "value": "tres-planes-contraste"
+          },
+          {
+            "label": "3 planes — tabla minimal",
+            "value": "tres-planes-tabla"
+          },
+          {
+            "label": "2 planes",
+            "value": "dos-planes"
+          },
+          {
+            "label": "1 plan (producto/servicio único)",
+            "value": "un-plan"
+          }
+        ]
+      },
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
+      "subtitle": {
+        "type": "textarea",
+        "label": "Subtítulo (opcional)"
+      },
+      "description": {
+        "type": "textarea",
+        "label": "Descripción (opcional)"
+      },
+      "plans": {
+        "type": "array",
+        "label": "Planes",
+        "arrayFields": {
+          "name": {
+            "type": "text",
+            "label": "Nombre del plan"
+          },
+          "price": {
+            "type": "text",
+            "label": "Precio (ej: $29, Gratis, Personalizado)"
+          },
+          "period": {
+            "type": "text",
+            "label": "Período (opcional, ej: /mes)"
+          },
+          "description": {
+            "type": "textarea",
+            "label": "Descripción breve (opcional)"
+          },
+          "features": {
+            "type": "textarea",
+            "label": "Características incluidas (una por línea)"
+          },
+          "ctaLabel": {
+            "type": "text",
+            "label": "Botón: texto"
+          },
+          "ctaUrl": {
+            "type": "text",
+            "label": "Botón: URL"
+          },
+          "highlighted": {
+            "type": "radio",
+            "label": "Destacar este plan (recomendado)",
+            "options": [
+              {
+                "label": "No",
+                "value": "no"
+              },
+              {
+                "label": "Sí",
+                "value": "yes"
+              }
+            ]
+          },
+          "icon": {
+            "type": "custom"
+          }
+        },
+        "defaultItemProps": {
+          "name": "Nuevo plan",
+          "price": "$0",
+          "period": "/mes",
+          "description": "",
+          "features": "",
+          "ctaLabel": "Elegir plan",
+          "ctaUrl": "/contacto",
+          "highlighted": "no",
+          "icon": "tabler:star"
+        }
       },
       "background": {
         "type": "radio",
@@ -667,17 +948,54 @@
     }
   },
   "FAQ": {
-    "label": "FAQ (Acordeón)",
-    "desc": "Acordeón de preguntas frecuentes con título de sección. Cada ítem tiene pregunta y respuesta en HTML.",
+    "label": "FAQ (Preguntas frecuentes)",
+    "desc": "Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 5 variantes: acordeón clásico, acordeón exclusivo, tarjetas en grid, conversacional y dividido con panel lateral.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "Acordeón clásico",
+            "value": "acordeon-clasico"
+          },
+          {
+            "label": "Acordeón exclusivo (numerado)",
+            "value": "acordeon-exclusivo"
+          },
+          {
+            "label": "Tarjetas en grid",
+            "value": "tarjetas-grid"
+          },
+          {
+            "label": "Conversacional (chat)",
+            "value": "conversacional"
+          },
+          {
+            "label": "Dividido — panel lateral",
+            "value": "dividido-lateral"
+          }
+        ]
+      },
       "title": {
         "type": "text",
         "label": "Título de sección (opcional)"
+      },
+      "subtitle": {
+        "type": "text",
+        "label": "Subtítulo (opcional)"
+      },
+      "description": {
+        "type": "textarea",
+        "label": "Descripción (opcional)"
       },
       "items": {
         "type": "array",
         "label": "Preguntas",
         "arrayFields": {
+          "icon": {
+            "type": "custom"
+          },
           "question": {
             "type": "text",
             "label": "Pregunta"
@@ -685,11 +1003,17 @@
           "answer": {
             "type": "textarea",
             "label": "Respuesta (HTML permitido)"
+          },
+          "links": {
+            "type": "textarea",
+            "label": "Enlaces relacionados (opcional, uno por línea: Texto | URL)"
           }
         },
         "defaultItemProps": {
+          "icon": "",
           "question": "¿Nueva pregunta?",
-          "answer": "<p>Escribe la respuesta aquí.</p>"
+          "answer": "<p>Escribe la respuesta aquí.</p>",
+          "links": ""
         }
       },
       "background": {
@@ -742,12 +1066,45 @@
   },
   "Tabs": {
     "label": "Pestañas",
-    "desc": "Pestañas con contenido HTML. Cada pestaña tiene etiqueta y contenido. Muy útil para describir servicios o productos con múltiples facetas.",
+    "desc": "Pestañas con contenido HTML, 100% CSS (sin JS). Cada pestaña tiene ícono opcional, etiqueta y contenido. 5 variantes: subrayado clásico, píldoras, verticales, tarjetas y numeradas (pasos).",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "Clásicas — subrayado",
+            "value": "clasicas"
+          },
+          {
+            "label": "Píldoras",
+            "value": "pildoras"
+          },
+          {
+            "label": "Verticales (lateral)",
+            "value": "verticales"
+          },
+          {
+            "label": "Tarjetas",
+            "value": "tarjetas"
+          },
+          {
+            "label": "Numeradas (pasos)",
+            "value": "numeradas"
+          }
+        ]
+      },
+      "title": {
+        "type": "text",
+        "label": "Título de sección (opcional)"
+      },
       "tabs": {
         "type": "array",
         "label": "Pestañas",
         "arrayFields": {
+          "icon": {
+            "type": "custom"
+          },
           "label": {
             "type": "text",
             "label": "Etiqueta"
@@ -758,6 +1115,7 @@
           }
         },
         "defaultItemProps": {
+          "icon": "",
           "label": "Pestaña",
           "content": "<p>Contenido…</p>"
         }
@@ -891,8 +1249,34 @@
   },
   "Gallery": {
     "label": "Galería",
-    "desc": "Galería de imágenes en grid (1-3 columnas) con texto alternativo.",
+    "desc": "Galería de imágenes con texto alternativo y leyenda opcional. 5 variantes: grid uniforme, masonry, carrusel horizontal, lightbox (ampliar con click, sin JS) y editorial alternada.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "Grid uniforme (clásico)",
+            "value": "grid-uniforme"
+          },
+          {
+            "label": "Masonry (alturas variables)",
+            "value": "masonry"
+          },
+          {
+            "label": "Carrusel horizontal",
+            "value": "carrusel"
+          },
+          {
+            "label": "Lightbox (click para ampliar)",
+            "value": "lightbox"
+          },
+          {
+            "label": "Editorial (alternada)",
+            "value": "editorial-alterno"
+          }
+        ]
+      },
       "title": {
         "type": "text",
         "label": "Título de sección (opcional)"
@@ -907,12 +1291,63 @@
           "alt": {
             "type": "text",
             "label": "Texto alternativo"
+          },
+          "caption": {
+            "type": "text",
+            "label": "Leyenda (opcional)"
           }
         },
         "defaultItemProps": {
           "url": "https://placehold.co/600x400/e2e8f0/94a3b8?text=Imagen",
-          "alt": "Imagen"
+          "alt": "Imagen",
+          "caption": ""
         }
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo de sección",
+        "options": [
+          {
+            "label": "Sin cambios (usar el estilo por defecto)",
+            "value": ""
+          },
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "custom"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "custom"
       }
     }
   },
@@ -959,8 +1394,34 @@
   },
   "Stats": {
     "label": "Estadísticas",
-    "desc": "Sección con números/estadísticas en 3 columnas. Por defecto usa un fondo neutro; se puede elegir sólido de marca para más impacto.",
+    "desc": "Sección con números/estadísticas, ícono y descripción opcionales por cada una. 5 variantes: 3 columnas clásico, con íconos, franja destacada de alto contraste, un contador principal destacado, y tarjetas elevadas.",
     "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "3 columnas (clásico)",
+            "value": "tres-columnas"
+          },
+          {
+            "label": "Con íconos",
+            "value": "con-iconos"
+          },
+          {
+            "label": "Franja destacada",
+            "value": "franja-destacada"
+          },
+          {
+            "label": "Contador destacado",
+            "value": "contador-destacado"
+          },
+          {
+            "label": "Tarjetas elevadas",
+            "value": "tarjetas-elevadas"
+          }
+        ]
+      },
       "title": {
         "type": "text",
         "label": "Título de sección (opcional)"
@@ -969,6 +1430,9 @@
         "type": "array",
         "label": "Estadísticas",
         "arrayFields": {
+          "icon": {
+            "type": "custom"
+          },
           "value": {
             "type": "text",
             "label": "Valor (ej. +500)"
@@ -976,11 +1440,17 @@
           "label": {
             "type": "text",
             "label": "Etiqueta"
+          },
+          "description": {
+            "type": "text",
+            "label": "Descripción breve (opcional)"
           }
         },
         "defaultItemProps": {
+          "icon": "",
           "value": "100+",
-          "label": "Clientes"
+          "label": "Clientes",
+          "description": ""
         }
       },
       "background": {

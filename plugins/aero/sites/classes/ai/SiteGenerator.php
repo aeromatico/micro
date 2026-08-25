@@ -113,6 +113,13 @@ class SiteGenerator
                 . 'el bloque se ve bien igual con el fondo neutro del tema)';
         }
 
+        if (isset($catalog['Hero']['fields']['image'])) {
+            unset($catalog['Hero']['fields']['image']);
+            $catalog['Hero']['fields']['imageKeywords'] = 'string|null (2-4 palabras en inglés para una foto de contenido, '
+                . 'ej. "team meeting office" — SOLO completar si variant es "imagen-derecha" o "imagen-izquierda", '
+                . 'dejar vacío/omitir en cualquier otra variante)';
+        }
+
         if (isset($catalog['ImageBlock'])) {
             unset($catalog['ImageBlock']['fields']['imageUrl']);
             $catalog['ImageBlock']['fields'] = [
@@ -470,6 +477,13 @@ PROMPT;
                 if ($bgKeywords) {
                     $resolved = $this->images->resolve((string) $bgKeywords);
                     $props['bgImage'] = $resolved['url'];
+                }
+
+                $imgKeywords = $props['imageKeywords'] ?? '';
+                unset($props['imageKeywords']);
+                if ($imgKeywords) {
+                    $resolved = $this->images->resolve((string) $imgKeywords);
+                    $props['image'] = $resolved['url'];
                 }
             }
 

@@ -36,7 +36,7 @@ $safeJson = $puckJson
 
     <div
         id="<?= $editorId ?>"
-        style="height:700px;overflow:hidden"
+        style="min-height:560px"
     ></div>
 
     <script>
@@ -118,11 +118,13 @@ $safeJson = $puckJson
                 return setTimeout(mountPuck, 100);
             }
             var existingData = <?= $puckJson ?: 'null' ?>;
+            var siteUrl = <?= $siteUrl ? json_encode($siteUrl) : 'null' ?>;
             window.AeroPuckEditor.init(
                 '<?= $editorId ?>',
                 '<?= $puckDataId ?>',
                 '<?= $contentId ?>',
-                existingData
+                existingData,
+                siteUrl
             );
 
             // Flush pending (debounced) editor data before the form serializes,

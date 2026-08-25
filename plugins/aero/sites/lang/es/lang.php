@@ -6,9 +6,9 @@
     ],
 
     'menu' => [
-        'my_site'      => 'Mi Sitio',
-        'contents'     => 'Contenidos',
-        'settings'     => 'Configuración',
+        'my_site'      => 'Sitio Web',
+        'contents'     => 'Editor de contenido',
+        'settings'     => 'Configuración de sitio',
         'sites'        => 'Sites',
         'superadmin'   => 'Superadmin',
         'root_domains' => 'Dominios Raíz',
@@ -23,6 +23,7 @@
         'tenant_users' => 'Usuarios & Roles',
         'archetypes'   => 'Arquetipos',
         'design_themes' => 'Temas visuales',
+        'component_gallery' => 'Galería de componentes',
     ],
 
     'permissions' => [

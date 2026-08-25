@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@puckeditor/core": "0.22.4",
+    "@tabler/icons-react": "^3.46.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },
