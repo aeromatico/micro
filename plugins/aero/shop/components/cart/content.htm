@@ -1,0 +1,87 @@
+<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <h1 class="text-3xl font-extrabold text-ink tracking-tight mb-8">Tu carrito</h1>
+
+    <div id="cart-error"></div>
+
+    {% if __SELF__.lines|length %}
+    <div class="space-y-4 mb-8">
+        {% for line in __SELF__.lines %}
+        <div class="flex items-center gap-4 p-4 card">
+            <div class="w-20 h-20 shrink-0 rounded-lg bg-surface-alt overflow-hidden">
+                {% if line.image %}
+                <img src="{{ line.image.getThumbUrl(160, 160, { mode: 'crop' }) }}" alt="{{ line.product.name }}" class="w-full h-full object-cover">
+                {% endif %}
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <a href="/tienda/producto/{{ line.product.slug }}" class="font-semibold text-ink hover:text-brand-primary transition-colors line-clamp-1">
+                    {{ line.product.name }}
+                </a>
+                {% if line.label %}
+                <p class="text-sm text-ink-muted">{{ line.label }}</p>
+                {% endif %}
+                {% if not line.in_stock %}
+                <p class="text-sm text-red-500 font-medium mt-1">
+                    {{ line.max_available > 0 ? 'Solo quedan ' ~ line.max_available ~ ' disponibles' : 'Sin stock' }}
+                </p>
+                {% endif %}
+            </div>
+
+            <form data-request="shopCart::onUpdateQuantity"
+                  class="flex items-center border border-surface-border rounded-brand shrink-0">
+                <input type="hidden" name="key" value="{{ line.key }}">
+                <button type="submit" name="quantity" value="{{ line.quantity - 1 }}" class="w-8 h-9 flex items-center justify-center text-ink-muted hover:text-ink transition-colors">−</button>
+                <span class="w-8 text-center text-sm text-ink">{{ line.quantity }}</span>
+                <button type="submit" name="quantity" value="{{ line.quantity + 1 }}" class="w-8 h-9 flex items-center justify-center text-ink-muted hover:text-ink transition-colors">+</button>
+            </form>
+
+            <p class="w-24 text-right font-semibold text-ink shrink-0">
+                {{ __SELF__.currency.format(line.line_total) }}
+            </p>
+
+            <form data-request="shopCart::onRemove"
+                  class="shrink-0">
+                <input type="hidden" name="key" value="{{ line.key }}">
+                <button type="submit" class="p-2 text-ink-muted hover:text-red-500 transition-colors" aria-label="Quitar">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <p class="text-sm text-ink-muted">Subtotal</p>
+            <p class="text-2xl font-bold text-ink">{{ __SELF__.currency.format(__SELF__.subtotal) }}</p>
+        </div>
+
+        {% set hasIssues = false %}
+        {% for line in __SELF__.lines %}{% if not line.in_stock %}{% set hasIssues = true %}{% endif %}{% endfor %}
+
+        {% if hasIssues %}
+        <p class="text-sm text-red-500">Ajusta las cantidades marcadas antes de continuar.</p>
+        {% else %}
+        <a href="/tienda/checkout"
+           class="inline-flex items-center justify-center gap-2 bg-brand-primary hover:opacity-90 text-white font-semibold px-8 py-3.5 rounded-brand text-sm transition-all">
+            Proceder al pago
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-20">
+        <p class="text-ink-muted mb-6">Tu carrito está vacío.</p>
+        <a href="/tienda" class="inline-flex items-center gap-2 bg-brand-primary hover:opacity-90 text-white font-semibold px-8 py-3.5 rounded-brand text-sm transition-all">
+            Ver catálogo
+        </a>
+    </div>
+    {% endif %}
+
+</div>

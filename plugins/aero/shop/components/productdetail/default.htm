@@ -115,7 +115,6 @@
 
             {# Cantidad + agregar #}
             <form data-request="shopCart::onAdd"
-                  data-request-update="'#cart-badge': '#cart-badge', '#cart-error': '#cart-error'"
                   @ajax-before="adding = true; added = false"
                   @ajax-done="adding = false; added = true"
                   @ajax-fail="adding = false"

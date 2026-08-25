@@ -21,7 +21,6 @@
             <div id="checkout-error"></div>
 
             <form data-request="shopCheckout::onPlaceOrder"
-                  data-request-update="'#checkout-error': '#checkout-error'"
                   @ajax-before="sending = true"
                   @ajax-done="sending = false"
                   @ajax-fail="sending = false"

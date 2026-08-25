@@ -124,7 +124,8 @@ class Cart extends ComponentBase
     {
         return [
             '#cart-badge'   => $this->renderPartial('@badge'),
-            '#cart-content' => $this->renderPartial('@default'),
+            '#cart-content' => $this->renderPartial('@content'),
+            '#cart-error'   => '',
         ];
     }
 
