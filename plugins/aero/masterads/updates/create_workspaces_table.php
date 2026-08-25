@@ -23,7 +23,7 @@ class CreateWorkspacesTable extends \October\Rain\Database\Updates\Migration
             $table->bigIncrements('id');
             $table->string('name', 120);
             $table->string('slug', 120)->unique();
-            $table->unsignedBigInteger('owner_id');
+            $table->unsignedInteger('owner_id');
             $table->json('settings')->nullable();
             $table->timestamps();
 

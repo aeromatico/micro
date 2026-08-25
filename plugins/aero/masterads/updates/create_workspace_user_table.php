@@ -24,7 +24,7 @@ class CreateWorkspaceUserTable extends \October\Rain\Database\Updates\Migration
     {
         Schema::create('aero_masterads_workspace_user', function (Blueprint $table) {
             $table->unsignedBigInteger('workspace_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('user_id');
             $table->enum('role', ['owner', 'admin', 'viewer'])->default('viewer');
             $table->timestamps();
 

@@ -12,8 +12,9 @@ return new class extends Migration
             $table->foreignId('recommendation_id')
                 ->constrained('aero_masterads_recommendations')
                 ->cascadeOnDelete();
-            $table->foreignId('applied_by')
-                ->constrained('backend_users')
+            $table->unsignedInteger('applied_by');
+            $table->foreign('applied_by')
+                ->references('id')->on('backend_users')
                 ->restrictOnDelete();
             $table->boolean('success');
             $table->json('before_state');

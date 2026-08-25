@@ -24,8 +24,8 @@ class CreateMetaAccountsTable extends Migration
     public function up()
     {
         Schema::create('aero_masterads_meta_accounts', function ($table) {
-            $table->increments('id');
-            $table->integer('workspace_id')->unsigned();
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('workspace_id');
             $table->string('meta_act_id', 64);
             $table->string('name', 255)->nullable();
             $table->char('currency', 3);

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime('recorded_at');
             $table->timestamps();
 
-            $table->index(['subscription_id', 'metric', 'recorded_at']);
+            $table->index(['subscription_id', 'metric', 'recorded_at'], 'aero_masterads_usage_records_sub_metric_idx');
         });
     }
 

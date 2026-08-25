@@ -7,7 +7,7 @@
     - create_workspace_user_table.php
 
 1.0.6:
-    - Meta hierarchy tables: campaigns, ad_sets, ads.
+    - "Meta hierarchy tables: campaigns, ad_sets, ads."
     - create_campaigns_table.php
     - create_ad_sets_table.php
     - create_ads_table.php
@@ -21,7 +21,7 @@
     - create_meta_accounts_table.php
 
 1.0.3:
-    - Billing tables: plans, subscriptions, usage_records.
+    - "Billing tables: plans, subscriptions, usage_records."
     - create_plans_table.php
     - create_subscriptions_table.php
     - create_usage_records_table.php
