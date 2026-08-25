@@ -4,3 +4,6 @@
 [submodule "plugins/aero/qrbo"]
 	path = plugins/aero/qrbo
 	url = https://github.com/aeromatico/qrbo.git
+[submodule "plugins/aero/aifields"]
+	path = plugins/aero/aifields
+	url = https://github.com/aeromatico/aifields.git
