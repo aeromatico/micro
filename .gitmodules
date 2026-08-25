@@ -7,3 +7,6 @@
 [submodule "plugins/aero/aifields"]
 	path = plugins/aero/aifields
 	url = https://github.com/aeromatico/aifields.git
+[submodule "plugins/aero/api"]
+	path = plugins/aero/api
+	url = https://github.com/aeromatico/api-market.git
