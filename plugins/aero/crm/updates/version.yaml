@@ -1,0 +1,32 @@
+1.0.0:
+    - Primera versión del plugin CRM — empresas, contactos, leads, pipeline/kanban,
+      actividades, equipos y configuración por tenant.
+    - create_teams_table.php
+    - create_companies_table.php
+    - create_contacts_table.php
+    - create_pipelines_table.php
+    - create_deals_table.php
+    - create_leads_table.php
+    - create_activities_table.php
+    - create_crm_settings_table.php
+    - grant_tenant_admin_permissions.php
+
+1.0.1:
+    - Agrega redes sociales/mensajería (repeater) a contactos y empresas.
+    - add_social_links_to_contacts_and_companies.php
+
+1.1.0:
+    - Agrega listas de contactos y el módulo de Cobranzas, con recordatorios
+      automáticos por WhatsApp vía Aero.Hello.
+    - create_contact_lists_table.php
+    - create_contact_list_contact_table.php
+    - create_collection_items_table.php
+    - add_collections_fields_to_crm_settings_table.php
+    - grant_collections_permissions.php
+
+1.2.0:
+    - "Automatización de cobranzas configurable: reglas de recordatorio por
+      lista (cascada de mensajes antes/después del vencimiento, con plantilla
+      propia por regla) en lugar del intervalo fijo único."
+    - create_collection_reminder_rules_table.php
+    - create_collection_reminder_logs_table.php
