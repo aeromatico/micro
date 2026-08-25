@@ -1,0 +1,16 @@
+<div data-control="toolbar">
+    <?= Ui::button("Ver pipeline (kanban)", 'aero/crm/deals/board')
+        ->icon('icon-columns')
+        ->secondary() ?>
+
+    <?= Ui::button("Nuevo deal", 'aero/crm/deals/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar los registros seleccionados?") ?>
+</div>

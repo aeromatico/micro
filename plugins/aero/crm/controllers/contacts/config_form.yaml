@@ -1,0 +1,14 @@
+name: Contacto
+form: $/aero/crm/models/contact/fields.yaml
+modelClass: Aero\Crm\Models\Contact
+defaultRedirect: aero/crm/contacts
+
+create:
+    title: Nuevo contacto
+    redirect: aero/crm/contacts/update/:id
+    redirectClose: aero/crm/contacts
+
+update:
+    title: Editar contacto
+    redirect: aero/crm/contacts
+    redirectClose: aero/crm/contacts

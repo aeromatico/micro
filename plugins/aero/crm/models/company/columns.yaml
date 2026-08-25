@@ -1,0 +1,25 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    industry:
+        label: Rubro
+        type: text
+        width: 160px
+
+    phone:
+        label: Teléfono
+        type: text
+        width: 140px
+
+    owner:
+        label: Responsable
+        relation: owner
+        select: concat(first_name, ' ', last_name)
+        width: 180px
+
+    created_at:
+        label: Creada
+        type: datetime
+        width: 160px

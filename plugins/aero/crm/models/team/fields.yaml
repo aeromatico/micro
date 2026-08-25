@@ -1,0 +1,13 @@
+fields:
+    name:
+        label: Nombre del equipo
+        type: text
+        span: full
+        required: true
+
+    members:
+        label: Miembros
+        type: relation
+        nameFrom: full_name
+        span: full
+        comment: "Usuarios de backend que pertenecen a este equipo"

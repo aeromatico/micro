@@ -1,0 +1,16 @@
+title: Empresas
+list: $/aero/crm/models/company/columns.yaml
+modelClass: Aero\Crm\Models\Company
+recordUrl: aero/crm/companies/update/:id
+noRecordsMessage: No hay empresas registradas todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar empresas
+
+defaultSort:
+    column: created_at
+    direction: desc

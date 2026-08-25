@@ -1,0 +1,42 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+
+    status:
+        label: Estado
+        type: dropdown
+        span: right
+        options:
+            new: Nuevo
+            contacted: Contactado
+            qualified: Calificado
+            disqualified: Descartado
+
+    email:
+        label: Email
+        type: text
+        span: left
+
+    phone:
+        label: Teléfono
+        type: text
+        span: right
+
+    company_name:
+        label: Empresa
+        type: text
+        span: left
+
+    source:
+        label: Origen
+        type: text
+        span: right
+
+    owner:
+        label: Responsable
+        type: relation
+        nameFrom: full_name
+        span: left

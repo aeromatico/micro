@@ -1,0 +1,8 @@
+import:
+    title: Importar contactos
+    list: $/aero/crm/models/contact/columns-import.yaml
+    form: $/aero/crm/models/contact/fields-import.yaml
+    modelClass: Aero\Crm\Models\Contact\ImportModel
+    redirect: aero/crm/contacts
+    permissions:
+        - aero.crm.manage_contacts

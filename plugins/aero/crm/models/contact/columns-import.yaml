@@ -1,0 +1,7 @@
+columns:
+    first_name: Nombre
+    last_name: Apellido
+    email: Email
+    phone: Teléfono
+    company: Empresa (nombre)
+    source: Origen

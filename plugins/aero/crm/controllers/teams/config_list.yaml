@@ -1,0 +1,16 @@
+title: Equipos
+list: $/aero/crm/models/team/columns.yaml
+modelClass: Aero\Crm\Models\Team
+recordUrl: aero/crm/teams/update/:id
+noRecordsMessage: No hay equipos creados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar equipos
+
+defaultSort:
+    column: created_at
+    direction: desc

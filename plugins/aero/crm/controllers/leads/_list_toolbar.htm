@@ -1,0 +1,12 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nuevo lead", 'aero/crm/leads/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar los registros seleccionados?") ?>
+</div>

@@ -1,0 +1,29 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nuevo cobro", 'aero/crm/collections/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::button("Automatización", 'aero/crm/collectionreminderrules')
+        ->icon('icon-magic')
+        ->secondary() ?>
+
+    <?= Ui::ajaxButton("Marcar como pagado", 'onMarkAsPaid')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-check')
+        ->secondary() ?>
+
+    <?= Ui::ajaxButton("Enviar recordatorio", 'onSendReminder')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-paper-plane')
+        ->secondary()
+        ->confirmMessage("¿Enviar el recordatorio de cobro por WhatsApp a los contactos seleccionados?") ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar los cobros seleccionados?") ?>
+</div>

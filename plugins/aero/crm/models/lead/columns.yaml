@@ -1,0 +1,23 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    company_name:
+        label: Empresa
+        type: text
+        width: 160px
+
+    status:
+        label: Estado
+        type: text
+        width: 120px
+
+    email:
+        label: Email
+        type: text
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

@@ -1,0 +1,25 @@
+columns:
+    type:
+        label: Tipo
+        type: text
+        width: 100px
+
+    subject:
+        label: Asunto
+        type: text
+
+    due_at:
+        label: Vencimiento
+        type: datetime
+        width: 160px
+
+    owner:
+        label: Responsable
+        relation: owner
+        select: concat(first_name, ' ', last_name)
+        width: 160px
+
+    completed_at:
+        label: Completada
+        type: datetime
+        width: 160px

@@ -1,0 +1,14 @@
+name: Lead
+form: $/aero/crm/models/lead/fields.yaml
+modelClass: Aero\Crm\Models\Lead
+defaultRedirect: aero/crm/leads
+
+create:
+    title: Nuevo lead
+    redirect: aero/crm/leads/update/:id
+    redirectClose: aero/crm/leads
+
+update:
+    title: Editar lead
+    redirect: aero/crm/leads
+    redirectClose: aero/crm/leads

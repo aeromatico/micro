@@ -1,0 +1,101 @@
+<?php
+/** @var Aero\Crm\Controllers\Deals $this */
+if (!empty($this->vars['noTenant'])): ?>
+<div class="padded-container">
+    <div class="alert alert-warning">
+        <i class="icon-warning"></i>
+        No se encontró un tenant asociado a tu cuenta.
+    </div>
+</div>
+<?php return; endif;
+
+$pipeline = $this->vars['pipeline'];
+?>
+<div class="padded-container" id="crmBoard">
+    <style>
+        .crm-board { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; align-items: flex-start; }
+        .crm-board-column { flex: 0 0 260px; background: rgba(127,127,127,.06); border-radius: 8px; padding: 10px; min-height: 120px; }
+        .crm-board-column-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding: 0 2px; }
+        .crm-board-column-header .dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; }
+        .crm-board-card { background: var(--content-bg, #fff); border: 1px solid rgba(127,127,127,.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; cursor: grab; }
+        .crm-board-card:active { cursor: grabbing; }
+        .crm-board-card.dragging { opacity: .4; }
+        .crm-board-card .title { font-weight: 600; display:block; margin-bottom:2px; }
+        .crm-board-card .meta { font-size: 12px; opacity: .7; }
+        .crm-board-column.drop-hover { outline: 2px dashed rgba(59,130,246,.6); outline-offset: -4px; }
+    </style>
+
+    <div class="crm-board">
+        <?php foreach ($pipeline->stages as $stage): ?>
+        <div class="crm-board-column"
+             data-stage-id="<?= $stage->id ?>">
+            <div class="crm-board-column-header">
+                <div><span class="dot" style="background: <?= e($stage->color) ?>"></span><strong><?= e($stage->name) ?></strong></div>
+                <span class="meta"><?= $stage->deals->count() ?></span>
+            </div>
+
+            <?php foreach ($stage->deals as $deal): ?>
+            <div class="crm-board-card"
+                 draggable="true"
+                 data-deal-id="<?= $deal->id ?>"
+                 onclick="window.location='<?= \Backend::url('aero/crm/deals/update/' . $deal->id) ?>'">
+                <span class="title"><?= e($deal->title) ?></span>
+                <span class="meta">
+                    <?= $deal->contact?->full_name ?? $deal->company?->name ?? '' ?>
+                    <?php if ($deal->value): ?> · <?= number_format((float) $deal->value, 2) ?> <?= e($deal->currency) ?><?php endif; ?>
+                </span>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<script>
+(function () {
+    var board = document.getElementById('crmBoard');
+    if (!board) return;
+
+    var draggedId = null;
+
+    board.querySelectorAll('.crm-board-card').forEach(function (card) {
+        card.addEventListener('dragstart', function (e) {
+            draggedId = card.dataset.dealId;
+            card.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', function () {
+            card.classList.remove('dragging');
+        });
+    });
+
+    board.querySelectorAll('.crm-board-column').forEach(function (column) {
+        column.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            column.classList.add('drop-hover');
+        });
+        column.addEventListener('dragleave', function () {
+            column.classList.remove('drop-hover');
+        });
+        column.addEventListener('drop', function (e) {
+            e.preventDefault();
+            column.classList.remove('drop-hover');
+            if (!draggedId) return;
+
+            var card = board.querySelector('[data-deal-id="' + draggedId + '"]');
+            if (card) column.appendChild(card);
+
+            var ids = Array.from(column.querySelectorAll('[data-deal-id]')).map(function (el) {
+                return el.dataset.dealId;
+            });
+
+            $.request('onMoveDeal', {
+                data: { deal_id: draggedId, stage_id: column.dataset.stageId, ids: ids },
+                confirm: false
+            });
+
+            draggedId = null;
+        });
+    });
+})();
+</script>

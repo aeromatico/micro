@@ -1,0 +1,27 @@
+<?php
+/** @var Aero\Crm\Controllers\CrmSettings $this */
+if (!empty($this->vars['noTenant'])): ?>
+<div class="padded-container">
+    <div class="alert alert-warning">
+        <i class="icon-warning"></i>
+        No se encontró un tenant asociado a tu cuenta.
+    </div>
+</div>
+<?php return; endif;
+
+$settingsWidget = $this->settingsWidget;
+?>
+<div class="layout-row">
+    <div class="layout-cell">
+        <div class="padded-container">
+            <form data-request="onSave" data-request-flash>
+                <?= $settingsWidget->render() ?>
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
+                        <i class="icon-check"></i> Guardar configuración
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

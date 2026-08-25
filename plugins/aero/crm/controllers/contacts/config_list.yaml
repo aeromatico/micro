@@ -1,0 +1,17 @@
+title: Contactos
+list: $/aero/crm/models/contact/columns.yaml
+modelClass: Aero\Crm\Models\Contact
+recordUrl: aero/crm/contacts/update/:id
+noRecordsMessage: No hay contactos registrados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+filter: config_filter.yaml
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar contactos
+
+defaultSort:
+    column: created_at
+    direction: desc

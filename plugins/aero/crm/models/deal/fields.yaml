@@ -1,0 +1,63 @@
+fields:
+    title:
+        label: Título
+        type: text
+        span: full
+        required: true
+
+    stage:
+        label: Etapa
+        type: relation
+        nameFrom: name
+        span: left
+        required: true
+
+    status:
+        label: Estado
+        type: dropdown
+        span: right
+        options:
+            open: Abierto
+            won: Ganado
+            lost: Perdido
+
+    contact:
+        label: Contacto
+        type: relation
+        nameFrom: full_name
+        span: left
+
+    company:
+        label: Empresa
+        type: relation
+        nameFrom: name
+        span: right
+
+    value:
+        label: Valor
+        type: number
+        span: left
+
+    currency:
+        label: Moneda
+        type: text
+        span: right
+        placeholder: "USD"
+
+    owner:
+        label: Responsable
+        type: relation
+        nameFrom: full_name
+        span: left
+
+    team:
+        label: Equipo
+        type: relation
+        nameFrom: name
+        span: right
+
+    expected_close_date:
+        label: Cierre estimado
+        type: datepicker
+        span: left
+        mode: date

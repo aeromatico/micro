@@ -1,0 +1,12 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nueva lista", 'aero/crm/contactlists/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar las listas seleccionadas? Los contactos no se eliminan.") ?>
+</div>

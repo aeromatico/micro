@@ -1,0 +1,22 @@
+<?= $this->formRenderDesign() ?>
+
+<?php $lead = $this->formGetModel(); ?>
+<?php if ($lead && $lead->exists && !$lead->converted_deal_id): ?>
+<div class="padded-container">
+    <button
+        type="button"
+        class="btn btn-primary"
+        data-request="onConvert"
+        data-request-data="record_id: <?= $lead->id ?>"
+        data-request-confirm="¿Convertir este lead en contacto y deal?">
+        <i class="icon-exchange"></i> Convertir en contacto + deal
+    </button>
+</div>
+<?php elseif ($lead && $lead->converted_deal_id): ?>
+<div class="padded-container">
+    <p class="help-block">
+        Ya convertido —
+        <a href="<?= \Backend::url('aero/crm/deals/board') ?>">ver en el pipeline</a>.
+    </p>
+</div>
+<?php endif; ?>

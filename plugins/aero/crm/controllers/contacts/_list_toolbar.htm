@@ -1,0 +1,31 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nuevo contacto", 'aero/crm/contacts/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::button("Importar", 'aero/crm/contacts/import')
+        ->icon('icon-cloud-upload')
+        ->secondary() ?>
+
+    <select id="contactListPicker" class="form-control custom-select" style="display:inline-block;width:auto;vertical-align:middle;">
+        <option value="">Agregar a lista...</option>
+        <?php foreach ($this->getContactListOptions() as $id => $name): ?>
+            <option value="<?= $id ?>"><?= e($name) ?></option>
+        <?php endforeach ?>
+    </select>
+
+    <?= Ui::ajaxButton("Agregar a lista", 'onAddToList')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-list-ul')
+        ->secondary()
+        ->confirmMessage("¿Agregar los contactos seleccionados a la lista elegida?")
+        ->attributes(['data-request-data' => "{ contact_list_id: $('#contactListPicker').val() }"]) ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar los registros seleccionados?") ?>
+</div>

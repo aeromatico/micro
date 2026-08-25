@@ -1,0 +1,17 @@
+title: Cobranzas
+list: $/aero/crm/models/collectionitem/columns.yaml
+modelClass: Aero\Crm\Models\CollectionItem
+recordUrl: aero/crm/collections/update/:id
+noRecordsMessage: No hay cobros registrados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+filter: config_filter.yaml
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por concepto
+
+defaultSort:
+    column: due_date
+    direction: asc

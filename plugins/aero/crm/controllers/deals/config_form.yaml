@@ -1,0 +1,14 @@
+name: Deal
+form: $/aero/crm/models/deal/fields.yaml
+modelClass: Aero\Crm\Models\Deal
+defaultRedirect: aero/crm/deals
+
+create:
+    title: Nuevo deal
+    redirect: aero/crm/deals/update/:id
+    redirectClose: aero/crm/deals/board
+
+update:
+    title: Editar deal
+    redirect: aero/crm/deals/board
+    redirectClose: aero/crm/deals/board

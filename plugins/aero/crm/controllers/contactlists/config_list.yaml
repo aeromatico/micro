@@ -1,0 +1,16 @@
+title: Listas de contactos
+list: $/aero/crm/models/contactlist/columns.yaml
+modelClass: Aero\Crm\Models\ContactList
+recordUrl: aero/crm/contactlists/update/:id
+noRecordsMessage: No hay listas creadas todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar listas
+
+defaultSort:
+    column: created_at
+    direction: desc

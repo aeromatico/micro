@@ -1,0 +1,16 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nueva regla", 'aero/crm/collectionreminderrules/create')
+        ->icon('icon-plus')
+        ->primary() ?>
+
+    <?= Ui::button("Volver a Cobranzas", 'aero/crm/collections')
+        ->icon('icon-arrow-left')
+        ->secondary() ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar las reglas seleccionadas?") ?>
+</div>

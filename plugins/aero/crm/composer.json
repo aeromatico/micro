@@ -1,0 +1,11 @@
+{
+    "name": "aero/crm",
+    "description": "CRM minimalista por tenant — contactos, empresas, leads, pipeline y actividades",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Crm\\": ""
+        }
+    }
+}

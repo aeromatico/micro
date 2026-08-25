@@ -1,0 +1,14 @@
+name: Regla de recordatorio
+form: $/aero/crm/models/collectionreminderrule/fields.yaml
+modelClass: Aero\Crm\Models\CollectionReminderRule
+defaultRedirect: aero/crm/collectionreminderrules
+
+create:
+    title: Nueva regla de recordatorio
+    redirect: aero/crm/collectionreminderrules/update/:id
+    redirectClose: aero/crm/collectionreminderrules
+
+update:
+    title: Editar regla de recordatorio
+    redirect: aero/crm/collectionreminderrules
+    redirectClose: aero/crm/collectionreminderrules

@@ -1,0 +1,15 @@
+scopes:
+    status:
+        label: Estado
+        type: dropdown
+        options:
+            open: Abierto
+            won: Ganado
+            lost: Perdido
+        conditions: status = ':filtered'
+
+    stage_id:
+        label: Etapa
+        type: dropdown
+        options: getStageIdOptions
+        conditions: stage_id in (:filtered)

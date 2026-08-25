@@ -1,0 +1,14 @@
+name: Cobro
+form: $/aero/crm/models/collectionitem/fields.yaml
+modelClass: Aero\Crm\Models\CollectionItem
+defaultRedirect: aero/crm/collections
+
+create:
+    title: Nuevo cobro
+    redirect: aero/crm/collections/update/:id
+    redirectClose: aero/crm/collections
+
+update:
+    title: Editar cobro
+    redirect: aero/crm/collections
+    redirectClose: aero/crm/collections

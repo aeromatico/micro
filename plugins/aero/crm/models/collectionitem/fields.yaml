@@ -1,0 +1,68 @@
+fields:
+    contact:
+        label: Contacto
+        type: relation
+        nameFrom: full_name
+        span: auto
+        required: true
+
+    contactList:
+        label: Lista (opcional)
+        type: relation
+        nameFrom: name
+        span: auto
+        comment: "Útil para agrupar cobros generados en lote desde una lista"
+
+    concept:
+        label: Concepto
+        type: text
+        span: full
+        required: true
+        placeholder: "Ej. Mensualidad de agosto"
+
+    amount:
+        label: Monto
+        type: number
+        span: auto
+        required: true
+        step: 0.01
+
+    currency:
+        label: Moneda
+        type: dropdown
+        span: auto
+        default: BOB
+        options:
+            BOB: Bolivianos (BOB)
+            USD: Dólares (USD)
+
+    due_date:
+        label: Fecha de vencimiento
+        type: datepicker
+        mode: date
+        span: auto
+        required: true
+
+    status:
+        label: Estado
+        type: dropdown
+        span: auto
+
+    notes:
+        label: Notas
+        type: textarea
+        size: small
+        span: full
+
+    last_reminder_at:
+        label: Último recordatorio enviado
+        type: datepicker
+        mode: datetime
+        span: auto
+        disabled: true
+
+    reminder_count:
+        label: Recordatorios enviados
+        type: number
+        span: auto
+        disabled: true

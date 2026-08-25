@@ -1,0 +1,42 @@
+fields:
+    type:
+        label: Tipo
+        type: dropdown
+        span: left
+        options:
+            call: Llamada
+            email: Email
+            whatsapp: WhatsApp
+            meeting: Reunión
+            note: Nota
+            task: Tarea
+
+    due_at:
+        label: Vencimiento
+        type: datepicker
+        span: right
+        mode: datetime
+
+    subject:
+        label: Asunto
+        type: text
+        span: full
+        required: true
+
+    description:
+        label: Descripción
+        type: textarea
+        span: full
+        size: small
+
+    owner:
+        label: Responsable
+        type: relation
+        nameFrom: full_name
+        span: left
+
+    completed_at:
+        label: Completada
+        type: datepicker
+        span: right
+        mode: datetime

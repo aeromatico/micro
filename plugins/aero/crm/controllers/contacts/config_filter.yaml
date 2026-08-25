@@ -1,0 +1,6 @@
+scopes:
+    owner_id:
+        label: Responsable
+        type: dropdown
+        options: getOwnerIdOptions
+        conditions: owner_id in (:filtered)

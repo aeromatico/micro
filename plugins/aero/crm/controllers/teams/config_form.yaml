@@ -1,0 +1,14 @@
+name: Equipo
+form: $/aero/crm/models/team/fields.yaml
+modelClass: Aero\Crm\Models\Team
+defaultRedirect: aero/crm/teams
+
+create:
+    title: Nuevo equipo
+    redirect: aero/crm/teams/update/:id
+    redirectClose: aero/crm/teams
+
+update:
+    title: Editar equipo
+    redirect: aero/crm/teams
+    redirectClose: aero/crm/teams

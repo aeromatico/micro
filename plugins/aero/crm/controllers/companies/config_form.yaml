@@ -1,0 +1,14 @@
+name: Empresa
+form: $/aero/crm/models/company/fields.yaml
+modelClass: Aero\Crm\Models\Company
+defaultRedirect: aero/crm/companies
+
+create:
+    title: Nueva empresa
+    redirect: aero/crm/companies/update/:id
+    redirectClose: aero/crm/companies
+
+update:
+    title: Editar empresa
+    redirect: aero/crm/companies
+    redirectClose: aero/crm/companies

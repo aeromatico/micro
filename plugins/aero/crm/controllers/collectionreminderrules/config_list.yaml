@@ -1,0 +1,16 @@
+title: Automatización de cobranzas
+list: $/aero/crm/models/collectionreminderrule/columns.yaml
+modelClass: Aero\Crm\Models\CollectionReminderRule
+recordUrl: aero/crm/collectionreminderrules/update/:id
+noRecordsMessage: No hay reglas de recordatorio creadas todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar reglas
+
+defaultSort:
+    column: sort_order
+    direction: asc

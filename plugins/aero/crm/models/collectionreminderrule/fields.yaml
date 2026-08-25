@@ -1,0 +1,43 @@
+fields:
+    name:
+        label: Nombre del paso
+        type: text
+        span: full
+        required: true
+        placeholder: "Ej. Aviso 3 días antes"
+
+    contactList:
+        label: Lista
+        type: relation
+        nameFrom: name
+        span: auto
+        placeholder: "Todas las listas / todos los cobros"
+        comment: "Si se deja vacío, este recordatorio aplica a todos los cobros del tenant"
+
+    offset_days:
+        label: Días relativos al vencimiento
+        type: number
+        span: auto
+        required: true
+        default: 0
+        comment: "Negativo = antes del vencimiento (ej. -3). Cero = el mismo día. Positivo = después (vencido, ej. 5)."
+
+    active:
+        label: Regla activa
+        type: switch
+        span: auto
+        default: true
+
+    sort_order:
+        label: Orden
+        type: number
+        span: auto
+        default: 0
+
+    message_template:
+        label: Plantilla del mensaje
+        type: textarea
+        size: large
+        span: full
+        placeholder: 'Hola {{contacto}}, te recordamos que tienes un pago pendiente de {{monto}} {{moneda}} por "{{concepto}}" con vencimiento el {{vencimiento}}. Por favor regulariza a la brevedad.'
+        comment: "Variables disponibles: {{contacto}}, {{monto}}, {{moneda}}, {{concepto}}, {{vencimiento}}. Si se deja vacío se usa la plantilla por defecto de Configuración del CRM."

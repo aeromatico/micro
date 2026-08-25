@@ -1,0 +1,14 @@
+name: Actividad
+form: $/aero/crm/models/activity/fields.yaml
+modelClass: Aero\Crm\Models\Activity
+defaultRedirect: aero/crm/activities
+
+create:
+    title: Nueva actividad
+    redirect: aero/crm/activities/update/:id
+    redirectClose: aero/crm/activities
+
+update:
+    title: Editar actividad
+    redirect: aero/crm/activities
+    redirectClose: aero/crm/activities

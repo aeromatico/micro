@@ -1,0 +1,35 @@
+title: Actividades
+list: $/aero/crm/models/activity/columns.yaml
+modelClass: Aero\Crm\Models\Activity
+recordUrl: aero/crm/activities/update/:id
+noRecordsMessage: No hay actividades registradas todavía.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar actividades
+
+filter:
+    scopes:
+        type:
+            label: Tipo
+            type: dropdown
+            conditions: type = :value
+            options:
+                call: Llamada
+                email: Email
+                whatsapp: WhatsApp
+                meeting: Reunión
+                note: Nota
+                task: Tarea
+        pending:
+            label: Pendientes
+            type: checkbox
+            default: false
+            conditions: completed_at is null
+
+defaultSort:
+    column: due_at
+    direction: asc

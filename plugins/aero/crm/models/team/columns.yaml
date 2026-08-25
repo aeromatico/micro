@@ -1,0 +1,15 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    members_count:
+        label: Miembros
+        type: number
+        sortable: false
+        width: 120px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

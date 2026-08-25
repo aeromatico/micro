@@ -1,0 +1,20 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    color:
+        label: ' '
+        type: colorpicker
+        width: 40px
+
+    contacts_count:
+        label: Contactos
+        type: number
+        sortable: false
+        width: 120px
+
+    created_at:
+        label: Creada
+        type: datetime
+        width: 160px

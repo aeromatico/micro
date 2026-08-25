@@ -1,0 +1,25 @@
+columns:
+    name:
+        label: Nombre
+        type: text
+
+    contactList:
+        label: Lista
+        relation: contactList
+        select: name
+        default: "Todas"
+
+    offset_label:
+        label: Cuándo se envía
+        type: text
+        sortable: false
+
+    active:
+        label: Activa
+        type: switch
+        width: 100px
+
+    created_at:
+        label: Creada
+        type: datetime
+        width: 160px

@@ -1,0 +1,31 @@
+columns:
+    title:
+        label: Título
+        type: text
+
+    stage:
+        label: Etapa
+        relation: stage
+        select: name
+        width: 140px
+
+    value:
+        label: Valor
+        type: number
+        width: 120px
+
+    status:
+        label: Estado
+        type: text
+        width: 100px
+
+    owner:
+        label: Responsable
+        relation: owner
+        select: concat(first_name, ' ', last_name)
+        width: 160px
+
+    expected_close_date:
+        label: Cierre estimado
+        type: date
+        width: 140px

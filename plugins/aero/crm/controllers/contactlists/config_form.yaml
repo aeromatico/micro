@@ -1,0 +1,14 @@
+name: Lista de contactos
+form: $/aero/crm/models/contactlist/fields.yaml
+modelClass: Aero\Crm\Models\ContactList
+defaultRedirect: aero/crm/contactlists
+
+create:
+    title: Nueva lista
+    redirect: aero/crm/contactlists/update/:id
+    redirectClose: aero/crm/contactlists
+
+update:
+    title: Editar lista
+    redirect: aero/crm/contactlists
+    redirectClose: aero/crm/contactlists

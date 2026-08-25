@@ -1,0 +1,17 @@
+title: Deals
+list: $/aero/crm/models/deal/columns.yaml
+modelClass: Aero\Crm\Models\Deal
+recordUrl: aero/crm/deals/update/:id
+noRecordsMessage: No hay deals registrados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+filter: config_filter.yaml
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar deals
+
+defaultSort:
+    column: created_at
+    direction: desc

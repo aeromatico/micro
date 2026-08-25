@@ -1,0 +1,30 @@
+columns:
+    full_name:
+        label: Nombre
+        type: text
+
+    email:
+        label: Email
+        type: text
+
+    phone:
+        label: Teléfono
+        type: text
+        width: 140px
+
+    company:
+        label: Empresa
+        relation: company
+        select: name
+        width: 180px
+
+    owner:
+        label: Responsable
+        relation: owner
+        select: concat(first_name, ' ', last_name)
+        width: 160px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

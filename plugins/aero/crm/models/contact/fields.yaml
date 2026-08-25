@@ -1,0 +1,115 @@
+tabs:
+    fields:
+        first_name:
+            label: Nombre
+            type: text
+            span: left
+            tab: General
+
+        last_name:
+            label: Apellido
+            type: text
+            span: right
+            tab: General
+
+        email:
+            label: Email
+            type: text
+            span: left
+            tab: General
+
+        phone:
+            label: Teléfono
+            type: text
+            span: right
+            tab: General
+
+        social_links:
+            label: Redes sociales / mensajería
+            type: repeater
+            span: full
+            prompt: Agregar red
+            titleFrom: value
+            tab: General
+            form:
+                fields:
+                    platform:
+                        label: Red
+                        type: dropdown
+                        span: left
+                        options:
+                            whatsapp: WhatsApp
+                            telegram: Telegram
+                            instagram: Instagram
+                            facebook: Facebook
+                            linkedin: LinkedIn
+                            twitter: Twitter/X
+                            tiktok: TikTok
+                            youtube: YouTube
+                            website: Sitio web
+                            other: Otro
+                    value:
+                        label: Número / usuario / URL
+                        type: text
+                        span: right
+
+        company:
+            label: Empresa
+            type: relation
+            nameFrom: name
+            span: left
+            tab: General
+
+        owner:
+            label: Responsable
+            type: relation
+            nameFrom: full_name
+            span: right
+            tab: General
+
+        source:
+            label: Origen
+            type: balloon-selector
+            span: left
+            allowEmpty: true
+            tab: General
+            options:
+                website: Sitio web
+                referral: Referido
+                whatsapp: WhatsApp
+                social_media: Redes sociales
+                event: Feria/Evento
+                cold_call: Llamada en frío
+                paid_ads: Publicidad paga
+                shop: Compra en tienda
+                other: Otro
+            comment: "¿Cómo llegó este contacto?"
+
+        shopCustomer:
+            label: Cliente de tienda vinculado
+            type: relation
+            nameFrom: email
+            span: right
+            tab: General
+            comment: "Enlace manual a un cliente de aero/shop (opcional)"
+
+        contactLists:
+            label: Listas
+            type: relation
+            span: full
+            tab: General
+            comment: "Listas a las que pertenece este contacto (útiles para cobranzas y campañas)"
+
+        _actions_hello:
+            type: partial
+            path: $/aero/crm/controllers/contacts/_actions_hello.php
+            span: full
+            tab: Acciones
+            context: update
+
+        _actions_shop:
+            type: partial
+            path: $/aero/crm/controllers/contacts/_actions_shop.php
+            span: full
+            tab: Acciones
+            context: update

@@ -1,0 +1,61 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+
+    website:
+        label: Sitio web
+        type: text
+        span: right
+
+    industry:
+        label: Rubro
+        type: text
+        span: left
+
+    phone:
+        label: Teléfono
+        type: text
+        span: right
+
+    address:
+        label: Dirección
+        type: text
+        span: full
+
+    social_links:
+        label: Redes sociales / mensajería
+        type: repeater
+        span: full
+        prompt: Agregar red
+        titleFrom: value
+        form:
+            fields:
+                platform:
+                    label: Red
+                    type: dropdown
+                    span: left
+                    options:
+                        whatsapp: WhatsApp
+                        telegram: Telegram
+                        instagram: Instagram
+                        facebook: Facebook
+                        linkedin: LinkedIn
+                        twitter: Twitter/X
+                        tiktok: TikTok
+                        youtube: YouTube
+                        website: Sitio web
+                        other: Otro
+                value:
+                    label: Número / usuario / URL
+                    type: text
+                    span: right
+
+    owner:
+        label: Responsable
+        type: relation
+        nameFrom: full_name
+        span: left
+        comment: "Usuario de backend a cargo de esta empresa"

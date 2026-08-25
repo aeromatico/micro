@@ -1,0 +1,15 @@
+scopes:
+    status:
+        label: Estado
+        type: dropdown
+        options:
+            pending: Pendiente
+            paid: Pagado
+            void: Anulado
+        conditions: status in (:filtered)
+
+    contact_list_id:
+        label: Lista
+        type: dropdown
+        options: getContactListIdOptions
+        conditions: contact_list_id in (:filtered)

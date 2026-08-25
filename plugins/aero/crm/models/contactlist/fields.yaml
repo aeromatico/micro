@@ -1,0 +1,25 @@
+fields:
+    name:
+        label: Nombre de la lista
+        type: text
+        span: auto
+        required: true
+
+    color:
+        label: Color
+        type: colorpicker
+        span: auto
+        availableColors: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899']
+
+    description:
+        label: Descripción
+        type: textarea
+        size: small
+        span: full
+
+    contacts:
+        label: Contactos
+        type: relation
+        nameFrom: full_name
+        span: full
+        comment: "Contactos incluidos en esta lista"
