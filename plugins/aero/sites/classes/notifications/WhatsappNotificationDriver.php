@@ -13,7 +13,7 @@ class WhatsappNotificationDriver implements NotificationDriverInterface
 {
     public function send(ContactSubmission $submission, NotificationChannel $channel): bool
     {
-        if (!class_exists(\Aero\Hello\Classes\Notifications\MessageDispatcher::class)) {
+        if (!class_exists(\Aero\Hello\Classes\Hello::class)) {
             Log::warning('Aero\\Sites: canal WhatsApp inactivo — el plugin Aero.Hello no está instalado.');
             return false;
         }
@@ -41,8 +41,10 @@ class WhatsappNotificationDriver implements NotificationDriverInterface
         );
 
         try {
-            $driver = app(\Aero\Hello\Classes\Notifications\MessageDispatcher::class)->make();
-            $driver->sendMessage($account, $to, ['body' => $text]);
+            // Vía la fachada y no el driver directo: así el envío queda como
+            // Message en la bandeja de Hello, con reintentos y estado, en vez
+            // de ser una llamada suelta a la API que no deja rastro.
+            \Aero\Hello\Classes\Hello::send($to, $text, ['account_id' => $account->id]);
 
             return true;
         }
