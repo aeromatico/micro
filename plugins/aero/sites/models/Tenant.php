@@ -95,6 +95,8 @@ class Tenant extends Model
 
     public function afterSave(): void
     {
+        static::forgetResolvedHosts();
+
         if (!$this->site_id) return;
 
         $dirty = $this->getDirty();
@@ -295,7 +297,36 @@ class Tenant extends Model
         });
     }
 
+    /**
+     * @var array<string, ?self> resolvedHosts memoiza la resolución por host
+     * durante el request. Sin esto cada componente CMS que necesita el tenant
+     * (TenantSeo, PageList, PageDetail, ContactSection, y los del shop vía
+     * StorefrontContext) dispara su propio par de queries: se medían 4 SELECT
+     * a aero_sites_domains y 4 a aero_sites_tenants por página, todos para
+     * llegar a la misma fila.
+     */
+    protected static array $resolvedHosts = [];
+
     public static function resolveFromDomain(string $host): ?self
+    {
+        if (array_key_exists($host, static::$resolvedHosts)) {
+            return static::$resolvedHosts[$host];
+        }
+
+        return static::$resolvedHosts[$host] = static::lookupByDomain($host);
+    }
+
+    /**
+     * forgetResolvedHosts limpia la memoización. Solo hace falta en tests o en
+     * comandos de larga duración que cambian dominios en caliente — el ciclo
+     * normal de request se lleva el estado consigo.
+     */
+    public static function forgetResolvedHosts(): void
+    {
+        static::$resolvedHosts = [];
+    }
+
+    protected static function lookupByDomain(string $host): ?self
     {
         // Buscar primero en dominios custom
         $domain = Domain::where('domain', $host)->with('tenant')->first();

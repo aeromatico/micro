@@ -54,8 +54,12 @@ description = "Layout base — dark mode, SEO, Alpine.js"
        defer) — si Alpine va primero, dispara el evento antes de que app.js
        llegue a escucharlo, y $store.nav/$store.theme quedan undefined. #}
     <script src="{{ 'assets/js/app.js' | theme }}?v={{ sitesSeo.jsVersion }}" defer></script>
-    <!-- Alpine.js via CDN (jsDelivr) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {# Alpine servido desde el propio dominio y con version fija. Antes venia de
+       cdn.jsdelivr.net con el rango flotante @3.x.x: una conexion extra a un
+       tercero en la ruta critica, una version que podia cambiar sin que nadie
+       la aprobara, y un asset que Cloudflare no podia cachear como nuestro.
+       Para actualizar: bin/alpine-update.sh #}
+    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=3.16.3"></script>
 
     {# Framework AJAX de October (data-request="..."): sin este tag, TODOS los
        formularios data-request del sitio (contacto, carrito, checkout) quedan

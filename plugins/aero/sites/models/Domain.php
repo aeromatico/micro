@@ -18,4 +18,14 @@ class Domain extends Model
     public $belongsTo = [
         'tenant' => [Tenant::class],
     ];
+
+    public function afterSave(): void
+    {
+        Tenant::forgetResolvedHosts();
+    }
+
+    public function afterDelete(): void
+    {
+        Tenant::forgetResolvedHosts();
+    }
 }
