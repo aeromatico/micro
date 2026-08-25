@@ -30,3 +30,9 @@
       propia por regla) en lugar del intervalo fijo único."
     - create_collection_reminder_rules_table.php
     - create_collection_reminder_logs_table.php
+
+1.2.1:
+    - Repara la tabla de logs de recordatorios, que quedaba sin foreign key ni
+      indice unico porque los nombres autogenerados superaban los 64 caracteres
+      de MySQL y la migracion moria a medias.
+    - repair_collection_reminder_logs.php
