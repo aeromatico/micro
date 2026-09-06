@@ -86,3 +86,10 @@
       inmediato vía TenantUser + ResolvesCurrentTenant. Notifica por
       Aero.Notify (evento sites.user.invited) si está instalado."
     - create_tenant_invites_table.php
+
+1.17.0:
+    - "Habilita la gestión de API keys del gateway Aero.Api (tab
+      'Configuración') para el rol tenant_admin, aislada por tenant vía
+      owner_type/owner_id — cada uno ve y crea solo las suyas, un superadmin
+      sigue viendo todas."
+    - grant_api_keys_to_tenant_admin.php

@@ -39,7 +39,33 @@ class Plugin extends PluginBase
         $this->bootSiteContext();
         $this->bootRainLabIntegration();
         $this->bootHelloIntegration();
+        $this->bootApiIntegration();
         $this->registerConfigMenuTab();
+    }
+
+    /**
+     * Aero.Api no conoce a ningún plugin de tenants: pregunta por evento quién
+     * es el dueño actual para aislar las API keys por tenant. Mismo patrón que
+     * bootHelloIntegration(), aplicado al par owner_type/owner_id genérico de
+     * ApiKey en vez de un tenant_id fijo.
+     */
+    protected function bootApiIntegration(): void
+    {
+        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
+            return;
+        }
+
+        Event::listen('aero.api.resolveOwner', function (&$owner) {
+            if ($owner !== null) {
+                return;
+            }
+
+            $tenantId = (new class { use \Aero\Sites\Traits\ResolvesCurrentTenant; public function id() { return $this->getCurrentTenantId(); } })->id();
+
+            if ($tenantId) {
+                $owner = ['type' => \Aero\Sites\Models\Tenant::class, 'id' => $tenantId];
+            }
+        });
     }
 
     /**
