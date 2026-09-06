@@ -40,7 +40,7 @@ fields:
 secondaryTabs:
     fields:
         _test:
-            label: aero.connector::lang.connector.test
             type: partial
             path: $/aero/connector/models/connector/_tester.htm
             tab: aero.connector::lang.connector.test
+            context: update

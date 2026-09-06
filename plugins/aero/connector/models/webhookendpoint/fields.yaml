@@ -48,13 +48,13 @@ fields:
 secondaryTabs:
     fields:
         _url:
-            label: aero.connector::lang.webhook.public_url
             type: partial
             path: $/aero/connector/models/webhookendpoint/_public_url.htm
             tab: aero.connector::lang.webhook.public_url
+            context: update
 
         _deliveries:
-            label: aero.connector::lang.webhook.recent_deliveries
             type: partial
             path: $/aero/connector/models/webhookendpoint/_deliveries.htm
             tab: aero.connector::lang.webhook.recent_deliveries
+            context: update
