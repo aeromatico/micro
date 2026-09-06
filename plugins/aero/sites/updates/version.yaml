@@ -73,3 +73,7 @@
     - Tercera fuente configurable por DesignTheme para encabezados secundarios
       (h2-h6), separada del h1 y del body.
     - add_second_heading_font.php
+1.14.0:
+    - Habilita el menú "Mensajería" (API keys propias de un tenant sobre
+      Aero.Hello) para el rol tenant_admin.
+    - grant_hello_api_keys_to_tenant_admin.php
