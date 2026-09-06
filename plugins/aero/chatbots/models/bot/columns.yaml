@@ -1,0 +1,33 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+
+    tenant:
+        label: Tenant
+        relation: tenant
+        select: name
+        searchable: true
+
+    account:
+        label: Cuenta
+        relation: account
+        select: label
+
+    rules_count:
+        label: Reglas
+        type: number
+        relationCount: rules
+
+    is_active:
+        label: Activo
+        type: switch
+        sortable: false
+
+    handoff_minutes:
+        label: Pausa (min)
+        type: number
+
+    created_at:
+        label: Creado
+        type: datetime

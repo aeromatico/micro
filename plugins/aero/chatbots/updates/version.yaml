@@ -1,0 +1,11 @@
+1.0.0:
+    - "Primera versión: chatbots de reglas simples por cuenta de Aero.Hello, con
+      pausa automática (handoff) cuando un humano responde manualmente."
+    - create_bots_table.php
+    - create_rules_table.php
+    - create_conversation_states_table.php
+    - create_logs_table.php
+
+1.0.1:
+    - Otorga los permisos de chatbots a los roles tenant_admin y superadmin.
+    - grant_tenant_admin_permissions.php

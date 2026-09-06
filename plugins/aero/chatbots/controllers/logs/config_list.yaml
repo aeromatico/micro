@@ -1,0 +1,13 @@
+title: Registro de respuestas
+list: $/aero/chatbots/models/log/columns.yaml
+modelClass: Aero\Chatbots\Models\Log
+noRecordsMessage: Todavía no hay respuestas automáticas registradas.
+recordsPerPage: 30
+
+toolbar:
+    search:
+        prompt: Buscar en el registro
+
+defaultSort:
+    column: matched_at
+    direction: desc

@@ -1,0 +1,22 @@
+columns:
+    matched_at:
+        label: Fecha
+        type: datetime
+        defaultSort: desc
+
+    bot:
+        label: Bot
+        relation: bot
+        select: name
+
+    tenant:
+        label: Tenant
+        type: partial
+        path: $/aero/chatbots/models/log/_column_tenant.htm
+        sortable: false
+
+    rule:
+        label: Regla
+        type: partial
+        path: $/aero/chatbots/models/log/_column_rule.htm
+        sortable: false

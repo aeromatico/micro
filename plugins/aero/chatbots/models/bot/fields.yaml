@@ -1,0 +1,39 @@
+fields:
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        comment: "Solo lo elige el superadmin; a un tenant admin se le asigna automáticamente y el campo queda oculto."
+
+    account_id:
+        label: Cuenta de Hello
+        type: dropdown
+        span: right
+        required: true
+        comment: "Número o cuenta social conectada en Aero.Hello que este bot va a contestar."
+
+    name:
+        label: Nombre del bot
+        span: full
+        required: true
+
+    is_active:
+        label: Activo
+        type: switch
+        span: left
+        default: true
+
+    handoff_minutes:
+        label: Pausa tras respuesta humana (minutos)
+        type: number
+        span: right
+        required: true
+        default: 30
+        comment: "Si un agente responde manualmente la conversación, el bot deja de contestar por este tiempo."
+
+    fallback_message:
+        label: Mensaje por defecto
+        type: textarea
+        size: small
+        span: full
+        comment: "Se envía cuando el mensaje entrante no matchea ninguna regla. Vacío = el bot no responde en ese caso. WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado`. Para emojis, usá el atajo del sistema: Win+. en Windows, Cmd+Ctrl+Space en Mac."

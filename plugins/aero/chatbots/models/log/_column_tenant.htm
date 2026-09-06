@@ -1,0 +1,6 @@
+<?php $tenant = $record->bot?->tenant; ?>
+<?php if ($tenant): ?>
+    <?= e($tenant->name) ?>
+<?php else: ?>
+    <span class="text-muted">&mdash;</span>
+<?php endif ?>

@@ -20,7 +20,7 @@ class CollectionReminderRule extends Model
     public $rules = [
         'tenant_id'   => 'required|exists:aero_sites_tenants,id',
         'start_days_before' => 'required|integer|between:1,30',
-        'frequency_days'    => 'required|integer|in:1,2,3,5,7',
+        'frequency_days'    => 'required|integer|in:1,2,3,7,30,365',
     ];
 
     public $belongsTo = [
@@ -58,8 +58,12 @@ class CollectionReminderRule extends Model
     public function getFrequencyDaysOptions(): array
     {
         return [
-            1 => 'Cada 1 día', 2 => 'Cada 2 días', 3 => 'Cada 3 días',
-            5 => 'Cada 5 días', 7 => 'Cada 7 días',
+            1   => 'Cada 1 día',
+            2   => 'Cada 2 días',
+            3   => 'Cada 3 días',
+            7   => 'Cada semana',
+            30  => 'Cada mes',
+            365 => 'Cada año',
         ];
     }
 

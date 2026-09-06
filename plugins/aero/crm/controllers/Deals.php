@@ -56,7 +56,7 @@ class Deals extends Controller
         $this->vars['pipeline'] = $pipeline->load(['stages' => function ($q) {
             $q->orderBy('sort_order');
         }, 'stages.deals' => function ($q) {
-            $q->orderBy('sort_order')->with(['contact', 'company']);
+            $q->inPipeline()->orderBy('sort_order')->with(['contact', 'company']);
         }]);
     }
 
@@ -81,6 +81,20 @@ class Deals extends Controller
         foreach ($ids as $order => $id) {
             Deal::forTenant($tenantId)->where('id', (int) $id)->update(['sort_order' => $order]);
         }
+
+        return ['result' => 'ok'];
+    }
+
+    /**
+     * Quita un deal del tablero (tarjeta con confirmación en board.htm). No
+     * borra el registro — solo apaga `in_pipeline` para conservar su
+     * historial; se puede reactivar desde la lista completa de deals.
+     */
+    public function onDeleteDeal()
+    {
+        $deal = Deal::forTenant($this->getCurrentTenantId())->findOrFail((int) post('deal_id'));
+        $deal->in_pipeline = false;
+        $deal->save();
 
         return ['result' => 'ok'];
     }

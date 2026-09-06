@@ -1,0 +1,16 @@
+title: Bots
+list: $/aero/chatbots/models/bot/columns.yaml
+modelClass: Aero\Chatbots\Models\Bot
+recordUrl: aero/chatbots/bots/update/:id
+noRecordsMessage: No hay bots configurados todavía.
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar bots
+
+defaultSort:
+    column: created_at
+    direction: desc

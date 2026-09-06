@@ -1,0 +1,28 @@
+<div class="control-tabs master-tabs" data-control="tab">
+
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#tab-bot" data-toggle="tab">
+                <i class="icon-android"></i> Bot
+            </a>
+        </li>
+        <li>
+            <a href="#tab-reglas" data-toggle="tab">
+                <i class="icon-list-alt"></i> Reglas
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="tab-bot" class="tab-pane active">
+            <?= $this->formRenderDesign() ?>
+        </div>
+
+        <div id="tab-reglas" class="tab-pane">
+            <div class="padded-container">
+                <?= $this->relationRender('rules') ?>
+            </div>
+        </div>
+    </div>
+
+</div>

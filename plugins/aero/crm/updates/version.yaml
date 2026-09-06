@@ -47,3 +47,19 @@
       offset_days (reemplazado por start_days_before/frequency_days) para que no
       rompa la creación de reglas."
     - make_offset_days_nullable.php
+
+1.2.4:
+    - Agrega el switch "En el pipeline" a Deal — quitar una tarjeta del
+      tablero ya no borra el registro, solo lo oculta del kanban conservando
+      su historial (actividades, valor, etc.). Se puede reactivar desde la
+      lista completa de deals.
+    - add_in_pipeline_to_deals_table.php
+
+1.2.5:
+    - "Nuevo menú 'Equipo' (aero/crm/team): invitar colaboradores por
+      correo/WhatsApp a gestionar el tenant como el propietario original.
+      Reemplaza al menú 'Equipos' en la navegación (que gestionaba
+      Team/TeamMember para asignar Deals) por Aero.Sites\\TenantUser, que es
+      lo que ResolvesCurrentTenant usa en todo el proyecto. Team/TeamMember
+      no se tocó — sigue disponible para si se retoma la asignación de deals
+      por equipo, solo dejó de estar en el menú."

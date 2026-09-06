@@ -1,0 +1,14 @@
+name: Bot
+form: $/aero/chatbots/models/bot/fields.yaml
+modelClass: Aero\Chatbots\Models\Bot
+defaultRedirect: aero/chatbots/bots
+
+create:
+    title: Nuevo bot
+    redirect: aero/chatbots/bots/update/:id
+    redirectClose: aero/chatbots/bots
+
+update:
+    title: Editar bot
+    redirect: aero/chatbots/bots
+    redirectClose: aero/chatbots/bots

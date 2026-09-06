@@ -81,4 +81,82 @@ class Contact extends Model
     {
         return trim("{$this->first_name} {$this->last_name}") ?: ($this->email ?: "Contacto #{$this->id}");
     }
+
+    /**
+     * El CRM es la fuente de verdad del contacto; Hello solo necesita un
+     * espejo (nombre + identidad de WhatsApp) para poder mandarle mensajes.
+     * Se sincroniza solo en create/update — nunca al revés, Hello no edita
+     * contactos del CRM.
+     */
+    public function afterCreate()
+    {
+        $this->syncHelloContact();
+    }
+
+    public function afterUpdate()
+    {
+        $this->syncHelloContact();
+    }
+
+    /**
+     * A propósito NO se borra el contacto de Hello: en cascada se llevaría
+     * puesto todo su historial de conversaciones y mensajes de WhatsApp
+     * (aero_hello_conversations/messages tienen FK cascadeOnDelete sobre
+     * contact_id). Queda huérfano — ya no editable desde el CRM, pero con su
+     * historial intacto — y se avisa para que quede claro que no se borró.
+     */
+    public function afterDelete()
+    {
+        if ($this->hello_contact_id && class_exists(\Aero\Hello\Models\Contact::class)) {
+            \Flash::warning('El contacto se borró del CRM. Su historial de mensajes en Hello no se borra: queda ahí, sin vincular.');
+        }
+    }
+
+    public function syncHelloContact(): void
+    {
+        if (!class_exists(\Aero\Hello\Models\Contact::class)) {
+            return;
+        }
+
+        $helloContact = $this->hello_contact_id
+            ? \Aero\Hello\Models\Contact::find($this->hello_contact_id)
+            : null;
+
+        if (!$helloContact) {
+            $helloContact = \Aero\Hello\Models\Contact::create([
+                'tenant_id' => $this->tenant_id,
+                'name'      => $this->full_name,
+            ]);
+
+            // Update directo por query builder: evita disparar otro
+            // afterUpdate de este mismo modelo (recursión) por asignar y
+            // guardar hello_contact_id con $this->save().
+            $this->hello_contact_id = $helloContact->id;
+            $this->newQuery()->where('id', $this->id)->update(['hello_contact_id' => $helloContact->id]);
+        }
+        elseif ($helloContact->name !== $this->full_name) {
+            $helloContact->name = $this->full_name;
+            $helloContact->save();
+        }
+
+        $this->syncWhatsappIdentity($helloContact);
+    }
+
+    protected function syncWhatsappIdentity(\Aero\Hello\Models\Contact $helloContact): void
+    {
+        $phone = $this->phone ? preg_replace('/[^0-9+]/', '', $this->phone) : null;
+        if (!$phone) {
+            return;
+        }
+
+        $identity = $helloContact->identities()->where('platform', 'whatsapp')->first();
+
+        if (!$identity) {
+            $helloContact->identities()->create(['platform' => 'whatsapp', 'external_id' => $phone]);
+        }
+        elseif ($identity->external_id !== $phone) {
+            $identity->external_id = $phone;
+            $identity->save();
+        }
+    }
 }

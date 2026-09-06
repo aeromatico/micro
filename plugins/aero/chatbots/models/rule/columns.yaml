@@ -1,0 +1,18 @@
+columns:
+    priority:
+        label: Prioridad
+        type: number
+
+    trigger_keywords:
+        label: Palabras clave
+        type: partial
+        path: $/aero/chatbots/models/rule/_column_keywords.htm
+        sortable: false
+
+    response_text:
+        label: Respuesta
+        type: text
+
+    is_active:
+        label: Activa
+        type: switch

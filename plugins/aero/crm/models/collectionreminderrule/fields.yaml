@@ -13,7 +13,7 @@ fields:
         span: auto
         required: true
         default: 2
-        comment: "Cada cuántos días se genera un nuevo recordatorio."
+        comment: "Cada cuánto se repite el recordatorio hasta que se registre el pago: 1, 2 o 3 días, cada semana, cada mes o cada año."
 
     contactList:
         label: Lista

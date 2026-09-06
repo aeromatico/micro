@@ -29,3 +29,8 @@ columns:
         label: Cierre estimado
         type: date
         width: 140px
+
+    in_pipeline:
+        label: En pipeline
+        type: switch
+        width: 90px

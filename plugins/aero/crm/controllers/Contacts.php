@@ -92,8 +92,9 @@ class Contacts extends Controller
     }
 
     /**
-     * Crea (si hace falta) un Aero\Hello\Models\Contact y lo enlaza a este
-     * Contact del CRM, para poder enviarle WhatsApp/email desde aquí.
+     * Backfill para contactos creados antes de la sincronización automática
+     * (ver Contact::afterCreate/afterUpdate): los nuevos ya no necesitan este
+     * botón, se enlazan solos al guardar.
      */
     public function onLinkHelloContact($recordId = null)
     {
@@ -103,17 +104,11 @@ class Contacts extends Controller
         }
 
         $contact = Contact::forTenant($this->getCurrentTenantId())->findOrFail($recordId ?: post('record_id'));
+        $contact->syncHelloContact();
 
-        if (!$contact->hello_contact_id) {
-            $helloContact = \Aero\Hello\Models\Contact::create([
-                'tenant_id' => $this->getCurrentTenantId(),
-                'name'      => $contact->full_name,
-            ]);
-            $contact->hello_contact_id = $helloContact->id;
-            $contact->save();
-        }
-
-        Flash::success('Contacto vinculado con Hello. Agrega su número/identidad de WhatsApp desde Hello → Contactos.');
+        Flash::success($contact->phone
+            ? 'Contacto vinculado con Hello, con su número de WhatsApp.'
+            : 'Contacto vinculado con Hello. Agregale un teléfono para poder mandarle WhatsApp.');
         return $this->formRefresh();
     }
 

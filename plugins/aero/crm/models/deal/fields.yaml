@@ -61,3 +61,10 @@ fields:
         type: datepicker
         span: left
         mode: date
+
+    in_pipeline:
+        label: En el pipeline
+        type: switch
+        span: right
+        default: true
+        comment: "Si lo apagás, la tarjeta desaparece del tablero (kanban) pero el deal y su historial se conservan aquí."

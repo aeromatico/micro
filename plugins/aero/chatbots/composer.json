@@ -1,0 +1,11 @@
+{
+    "name": "aero/chatbots",
+    "description": "Chatbots de autorespuesta por tenant sobre Aero.Hello",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Chatbots\\": ""
+        }
+    }
+}

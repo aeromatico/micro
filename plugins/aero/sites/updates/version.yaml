@@ -87,6 +87,13 @@
       Aero.Notify (evento sites.user.invited) si está instalado."
     - create_tenant_invites_table.php
 
+1.16.0:
+    - Otorga al rol tenant_admin el resto del contenido de Hello (bandeja,
+      llamadas, contactos, plantillas, campañas, publicaciones): cada tenant
+      ya gestiona todo su contenido de mensajería, la plataforma se queda
+      solo con las conexiones (perfiles/números, cuentas conectadas).
+    - grant_hello_content_to_tenant_admin.php
+
 1.17.0:
     - "Habilita la gestión de API keys del gateway Aero.Api (tab
       'Configuración') para el rol tenant_admin, aislada por tenant vía

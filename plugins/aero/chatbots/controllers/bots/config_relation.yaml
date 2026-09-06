@@ -1,0 +1,37 @@
+rules:
+    label: Reglas
+    view:
+        list: $/aero/chatbots/models/rule/columns.yaml
+        toolbarButtons: create|delete
+        recordsPerPage: 20
+        defaultSort:
+            column: priority
+            direction: desc
+    form:
+        fields:
+            priority:
+                label: Prioridad
+                type: number
+                span: left
+                default: 0
+                comment: "A mayor número, más prioridad. Si dos reglas matchean, gana la de mayor prioridad."
+            is_active:
+                label: Activa
+                type: switch
+                span: right
+                default: true
+            trigger_keywords:
+                label: Palabras clave
+                type: taglist
+                mode: array
+                customTags: true
+                span: full
+                required: true
+                comment: "El bot responde si el mensaje entrante contiene cualquiera de estas palabras (sin distinguir mayúsculas)."
+            response_text:
+                label: Respuesta
+                type: textarea
+                size: small
+                span: full
+                required: true
+                comment: "WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado` — títulos, listas y enlaces con formato Markdown no se ven como tal, llegan con los símbolos literales. Para emojis, usá el atajo del sistema: Win+. en Windows, Cmd+Ctrl+Space en Mac."

@@ -17,11 +17,13 @@ $pipeline = $this->vars['pipeline'];
         .crm-board-column { flex: 0 0 260px; background: rgba(127,127,127,.06); border-radius: 8px; padding: 10px; min-height: 120px; }
         .crm-board-column-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; padding: 0 2px; }
         .crm-board-column-header .dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; }
-        .crm-board-card { background: var(--content-bg, #fff); border: 1px solid rgba(127,127,127,.2); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; cursor: grab; }
+        .crm-board-card { position: relative; background: var(--bs-tertiary-bg, #fff); color: var(--bs-body-color, #212529); border: 1px solid var(--bs-border-color, rgba(127,127,127,.2)); border-radius: 6px; padding: 8px 26px 8px 10px; margin-bottom: 8px; cursor: grab; }
         .crm-board-card:active { cursor: grabbing; }
         .crm-board-card.dragging { opacity: .4; }
         .crm-board-card .title { font-weight: 600; display:block; margin-bottom:2px; }
         .crm-board-card .meta { font-size: 12px; opacity: .7; }
+        .crm-board-card-delete { position: absolute; top: 6px; right: 6px; border: 0; background: transparent; color: var(--bs-body-color, #212529); opacity: .35; cursor: pointer; padding: 2px 4px; line-height: 1; }
+        .crm-board-card-delete:hover { opacity: 1; color: var(--bs-danger, #dc3545); }
         .crm-board-column.drop-hover { outline: 2px dashed rgba(59,130,246,.6); outline-offset: -4px; }
     </style>
 
@@ -39,6 +41,10 @@ $pipeline = $this->vars['pipeline'];
                  draggable="true"
                  data-deal-id="<?= $deal->id ?>"
                  onclick="window.location='<?= \Backend::url('aero/crm/deals/update/' . $deal->id) ?>'">
+                <button type="button" class="crm-board-card-delete" title="Quitar del pipeline"
+                        onclick="event.stopPropagation(); crmDeleteDeal(<?= $deal->id ?>, this)">
+                    <i class="icon-eye-slash"></i>
+                </button>
                 <span class="title"><?= e($deal->title) ?></span>
                 <span class="meta">
                     <?= $deal->contact?->full_name ?? $deal->company?->name ?? '' ?>
@@ -98,4 +104,21 @@ $pipeline = $this->vars['pipeline'];
         });
     });
 })();
+
+function crmDeleteDeal(dealId, btn) {
+    if (!confirm('¿Quitar este deal del pipeline? Se sigue viendo en la lista completa de deals, donde podés reactivarlo.')) return;
+
+    var card = btn.closest('.crm-board-card');
+    var column = card.closest('.crm-board-column');
+
+    $.request('onDeleteDeal', {
+        data: { deal_id: dealId },
+        confirm: false,
+        success: function () {
+            card.remove();
+            var counter = column.querySelector('.crm-board-column-header .meta');
+            if (counter) counter.textContent = column.querySelectorAll('.crm-board-card').length;
+        }
+    });
+}
 </script>

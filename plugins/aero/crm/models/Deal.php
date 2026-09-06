@@ -11,7 +11,7 @@ class Deal extends Model
     public $fillable = [
         'tenant_id', 'pipeline_id', 'stage_id', 'contact_id', 'company_id', 'title',
         'value', 'currency', 'owner_id', 'team_id', 'expected_close_date',
-        'status', 'sort_order', 'closed_at',
+        'status', 'sort_order', 'closed_at', 'in_pipeline',
     ];
 
     public $rules = [
@@ -22,6 +22,10 @@ class Deal extends Model
     ];
 
     protected $dates = ['expected_close_date', 'closed_at'];
+
+    public $attributes = [
+        'in_pipeline' => true,
+    ];
 
     public $belongsTo = [
         'tenant'   => [\Aero\Sites\Models\Tenant::class],
@@ -45,6 +49,11 @@ class Deal extends Model
     public function scopeOpen($query)
     {
         return $query->where('status', 'open');
+    }
+
+    public function scopeInPipeline($query)
+    {
+        return $query->where('in_pipeline', true);
     }
 
     /**

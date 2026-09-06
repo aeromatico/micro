@@ -13,3 +13,9 @@ scopes:
         type: dropdown
         options: getStageIdOptions
         conditions: stage_id in (:filtered)
+
+    in_pipeline:
+        label: En pipeline
+        type: switch
+        default: true
+        conditions: in_pipeline = :filtered
