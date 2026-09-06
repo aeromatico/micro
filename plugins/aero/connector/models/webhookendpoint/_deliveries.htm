@@ -1,0 +1,46 @@
+<?php if (!$formModel->exists): ?>
+    <p class="text-muted">Guarda el webhook primero para poder simular entregas.</p>
+<?php else: ?>
+    <div class="form-group">
+        <label><?= e(trans('aero.connector::lang.webhook.simulate')) ?></label>
+        <textarea
+            id="WebhookSimulatePayload"
+            class="form-control"
+            rows="4"
+            style="font-family: monospace;"
+            placeholder='{"event": "message", "data": {}}'
+        ></textarea>
+    </div>
+
+    <p>
+        <button type="button" class="btn btn-primary" id="WebhookSimulateButton">
+            <?= e(trans('aero.connector::lang.webhook.simulate')) ?>
+        </button>
+    </p>
+
+    <div id="WebhookDeliveriesList">
+        <?= $this->makePartial('~/plugins/aero/connector/models/webhookendpoint/_deliveries_list.htm', ['endpoint' => $formModel]) ?>
+    </div>
+
+    <script>
+        (function () {
+            var button = document.getElementById('WebhookSimulateButton');
+            if (!button) { return; }
+
+            button.addEventListener('click', function () {
+                $.request('onSimulateWebhook', {
+                    data: {
+                        record_id: <?= (int) $formModel->id ?>,
+                        payload: document.getElementById('WebhookSimulatePayload').value
+                    },
+                    beforeUpdate: function () {
+                        button.disabled = true;
+                    },
+                    complete: function () {
+                        button.disabled = false;
+                    }
+                });
+            });
+        })();
+    </script>
+<?php endif ?>

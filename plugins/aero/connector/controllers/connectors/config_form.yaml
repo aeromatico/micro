@@ -1,0 +1,10 @@
+name: aero.connector::lang.menu.connectors
+form: $/aero/connector/models/connector/fields.yaml
+modelClass: Aero\Connector\Models\Connector
+defaultRedirect: aero/connector/connectors
+create:
+    redirect: aero/connector/connectors/update/:id
+    redirectClose: aero/connector/connectors
+update:
+    redirect: aero/connector/connectors
+    redirectClose: aero/connector/connectors

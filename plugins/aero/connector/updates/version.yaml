@@ -1,0 +1,5 @@
+1.0.0:
+    - Primera versión - conector genérico de endpoints HTTP, IA y webhooks con tester.
+    - create_connectors_table.php
+    - create_webhook_endpoints_table.php
+    - create_connector_logs_table.php

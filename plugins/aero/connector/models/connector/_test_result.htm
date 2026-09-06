@@ -1,0 +1,15 @@
+<?php if ($result): ?>
+    <div class="callout <?= $result['successful'] ? 'callout-success' : 'callout-danger' ?>" style="margin-top: 10px;">
+        <p>
+            <strong><?= e(trans('aero.connector::lang.connector.test_result')) ?>:</strong>
+            <?= $result['status_code'] ?? 'N/A' ?>
+            (<?= $result['duration_ms'] ?>ms)
+        </p>
+
+        <?php if ($result['error']): ?>
+            <p class="text-danger"><?= e($result['error']) ?></p>
+        <?php endif ?>
+
+        <pre style="max-height: 300px; overflow: auto; white-space: pre-wrap;"><?= e(is_string($result['body']) ? $result['body'] : json_encode($result['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?></pre>
+    </div>
+<?php endif ?>

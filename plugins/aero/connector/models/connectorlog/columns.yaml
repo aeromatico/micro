@@ -1,0 +1,24 @@
+columns:
+    created_at:
+        label: aero.connector::lang.log.created_at
+        type: datetime
+    direction_label:
+        label: aero.connector::lang.log.direction
+        sortable: false
+    connector:
+        label: aero.connector::lang.log.connector
+        relation: connector
+        select: name
+        sortable: false
+    webhookEndpoint:
+        label: aero.connector::lang.log.webhook
+        relation: webhookEndpoint
+        select: name
+        sortable: false
+    status_code:
+        label: aero.connector::lang.log.status_code
+    duration_ms:
+        label: aero.connector::lang.log.duration_ms
+    is_test:
+        label: aero.connector::lang.log.is_test
+        type: switch

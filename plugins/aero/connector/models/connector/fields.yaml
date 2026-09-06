@@ -1,0 +1,46 @@
+fields:
+    name:
+        label: aero.connector::lang.connector.name
+        type: text
+        span: left
+
+    type:
+        label: aero.connector::lang.connector.type
+        type: dropdown
+        span: right
+
+    base_url:
+        label: aero.connector::lang.connector.base_url
+        type: text
+        span: full
+
+    is_enabled:
+        label: aero.connector::lang.connector.is_enabled
+        type: switch
+        span: full
+
+    config_json:
+        label: aero.connector::lang.connector.config
+        type: textarea
+        size: small
+        span: full
+        attributes:
+            style: 'font-family: monospace;'
+        comment: '{"model":"gpt-4o-mini","method":"POST","headers":{}}'
+
+    credentials_json:
+        label: aero.connector::lang.connector.credentials
+        type: textarea
+        size: small
+        span: full
+        attributes:
+            style: 'font-family: monospace;'
+        comment: '{"api_key":"...","token":"..."}'
+
+secondaryTabs:
+    fields:
+        _test:
+            label: aero.connector::lang.connector.test
+            type: partial
+            path: $/aero/connector/models/connector/_tester.htm
+            tab: aero.connector::lang.connector.test

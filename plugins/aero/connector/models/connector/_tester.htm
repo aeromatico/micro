@@ -1,0 +1,44 @@
+<?php if (!$formModel->exists): ?>
+    <p class="text-muted">Guarda el conector primero para poder probarlo.</p>
+<?php else: ?>
+    <div class="form-group">
+        <label><?= e(trans('aero.connector::lang.connector.sample_payload')) ?></label>
+        <textarea
+            id="ConnectorTestPayload"
+            class="form-control"
+            rows="4"
+            style="font-family: monospace;"
+            placeholder='{"prompt": "hola"}'
+        ></textarea>
+    </div>
+
+    <p>
+        <button type="button" class="btn btn-primary" id="ConnectorTestButton">
+            <?= e(trans('aero.connector::lang.connector.test')) ?>
+        </button>
+    </p>
+
+    <div id="ConnectorTestResult"></div>
+
+    <script>
+        (function () {
+            var button = document.getElementById('ConnectorTestButton');
+            if (!button) { return; }
+
+            button.addEventListener('click', function () {
+                $.request('onTestConnector', {
+                    data: {
+                        record_id: <?= (int) $formModel->id ?>,
+                        test_payload: document.getElementById('ConnectorTestPayload').value
+                    },
+                    beforeUpdate: function () {
+                        button.disabled = true;
+                    },
+                    complete: function () {
+                        button.disabled = false;
+                    }
+                });
+            });
+        })();
+    </script>
+<?php endif ?>

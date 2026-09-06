@@ -1,0 +1,60 @@
+fields:
+    name:
+        label: aero.connector::lang.webhook.name
+        type: text
+        span: left
+
+    slug:
+        label: aero.connector::lang.webhook.slug
+        type: text
+        span: right
+        comment: Se genera del nombre si se deja vacío.
+
+    dispatch_event:
+        label: aero.connector::lang.webhook.dispatch_event
+        type: text
+        span: full
+        comment: 'Nombre del evento Laravel a disparar, ej. aero.connector.webhook.whatsapp'
+
+    verification:
+        label: aero.connector::lang.webhook.verification
+        type: dropdown
+        span: left
+
+    signature_header:
+        label: aero.connector::lang.webhook.signature_header
+        type: text
+        span: right
+        comment: 'Ej. X-Hub-Signature-256 (dejar vacío usa X-Signature)'
+        trigger:
+            action: show
+            field: verification
+            condition: value[hmac_sha256]
+
+    secret:
+        label: aero.connector::lang.webhook.secret
+        type: password
+        span: full
+        trigger:
+            action: show
+            field: verification
+            condition: value[hmac_sha256][header_token]
+
+    is_enabled:
+        label: aero.connector::lang.webhook.is_enabled
+        type: switch
+        span: full
+
+secondaryTabs:
+    fields:
+        _url:
+            label: aero.connector::lang.webhook.public_url
+            type: partial
+            path: $/aero/connector/models/webhookendpoint/_public_url.htm
+            tab: aero.connector::lang.webhook.public_url
+
+        _deliveries:
+            label: aero.connector::lang.webhook.recent_deliveries
+            type: partial
+            path: $/aero/connector/models/webhookendpoint/_deliveries.htm
+            tab: aero.connector::lang.webhook.recent_deliveries

@@ -1,0 +1,10 @@
+name: aero.connector::lang.menu.webhooks
+form: $/aero/connector/models/webhookendpoint/fields.yaml
+modelClass: Aero\Connector\Models\WebhookEndpoint
+defaultRedirect: aero/connector/webhookendpoints
+create:
+    redirect: aero/connector/webhookendpoints/update/:id
+    redirectClose: aero/connector/webhookendpoints
+update:
+    redirect: aero/connector/webhookendpoints
+    redirectClose: aero/connector/webhookendpoints

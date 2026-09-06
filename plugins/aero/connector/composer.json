@@ -1,0 +1,11 @@
+{
+    "name": "aero/connector",
+    "description": "Conector genérico de endpoints HTTP, modelos de IA y APIs/webhooks sociales, con tester de backend",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Connector\\": ""
+        }
+    }
+}

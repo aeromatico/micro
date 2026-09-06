@@ -1,0 +1,14 @@
+list: $/aero/connector/models/connector/columns.yaml
+modelClass: Aero\Connector\Models\Connector
+title: aero.connector::lang.menu.connectors
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: created_at
+    direction: desc
+recordUrl: aero/connector/connectors/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

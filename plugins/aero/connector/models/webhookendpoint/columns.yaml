@@ -1,0 +1,19 @@
+columns:
+    name:
+        label: aero.connector::lang.webhook.name
+        searchable: true
+    slug:
+        label: aero.connector::lang.webhook.slug
+        searchable: true
+    verification:
+        label: aero.connector::lang.webhook.verification
+    dispatch_event:
+        label: aero.connector::lang.webhook.dispatch_event
+        invisible: true
+    is_enabled:
+        label: aero.connector::lang.webhook.is_enabled
+        type: switch
+    created_at:
+        label: aero.connector::lang.log.created_at
+        type: date
+        invisible: true

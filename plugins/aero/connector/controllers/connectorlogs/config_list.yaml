@@ -1,0 +1,9 @@
+list: $/aero/connector/models/connectorlog/columns.yaml
+modelClass: Aero\Connector\Models\ConnectorLog
+title: aero.connector::lang.menu.logs
+showSetup: true
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+noRecordsMessage: backend::lang.list.no_records

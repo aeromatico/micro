@@ -1,0 +1,14 @@
+list: $/aero/connector/models/webhookendpoint/columns.yaml
+modelClass: Aero\Connector\Models\WebhookEndpoint
+title: aero.connector::lang.menu.webhooks
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: created_at
+    direction: desc
+recordUrl: aero/connector/webhookendpoints/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

@@ -1,0 +1,17 @@
+columns:
+    name:
+        label: aero.connector::lang.connector.name
+        searchable: true
+    type_label:
+        label: aero.connector::lang.connector.type
+        sortable: false
+    base_url:
+        label: aero.connector::lang.connector.base_url
+        searchable: true
+    is_enabled:
+        label: aero.connector::lang.connector.is_enabled
+        type: switch
+    created_at:
+        label: aero.connector::lang.log.created_at
+        type: date
+        invisible: true

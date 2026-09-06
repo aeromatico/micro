@@ -1,0 +1,9 @@
+<?php if (!$formModel->exists): ?>
+    <p class="text-muted">Guarda el webhook primero para obtener su URL pública.</p>
+<?php else: ?>
+    <div class="form-group">
+        <label><?= e(trans('aero.connector::lang.webhook.public_url')) ?></label>
+        <input type="text" class="form-control" readonly value="<?= e($formModel->public_url) ?>" onclick="this.select()">
+        <p class="help-block">Entrega esta URL al proveedor externo para que envíe sus webhooks.</p>
+    </div>
+<?php endif ?>

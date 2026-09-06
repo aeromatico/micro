@@ -1,0 +1,21 @@
+<table class="table" style="margin-top: 10px;">
+    <thead>
+        <tr>
+            <th><?= e(trans('aero.connector::lang.log.created_at')) ?></th>
+            <th><?= e(trans('aero.connector::lang.log.is_test')) ?></th>
+            <th><?= e(trans('aero.connector::lang.log.request_payload')) ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($endpoint->logs()->limit(20)->get() as $log): ?>
+            <tr>
+                <td><?= $log->created_at ?></td>
+                <td><?= $log->is_test ? 'Sí' : 'No' ?></td>
+                <td><pre style="max-height: 150px; overflow: auto; white-space: pre-wrap; margin: 0;"><?= e(json_encode($log->request_payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?></pre></td>
+            </tr>
+        <?php endforeach ?>
+        <?php if ($endpoint->logs()->count() === 0): ?>
+            <tr><td colspan="3" class="text-muted">Sin entregas todavía.</td></tr>
+        <?php endif ?>
+    </tbody>
+</table>
