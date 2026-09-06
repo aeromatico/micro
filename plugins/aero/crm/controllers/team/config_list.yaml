@@ -1,0 +1,15 @@
+title: Equipo
+list: $/aero/crm/controllers/team/columns.yaml
+modelClass: Aero\Sites\Models\TenantUser
+noRecordsMessage: Todavía no invitaste a nadie a tu equipo.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por correo o nombre
+
+defaultSort:
+    column: created_at
+    direction: desc

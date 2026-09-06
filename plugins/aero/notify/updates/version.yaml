@@ -15,3 +15,16 @@
       catálogo de eventos es genérico para toda la plataforma y el gateway
       queda reservado a superadmin hasta que exista el motor de entrega."
     - revoke_tenant_admin_permissions.php
+
+1.1.0:
+    - "Primer motor de entrega real: Notify::fire() resuelve audiencias,
+      renderiza la plantilla del canal en Twig y despacha por email
+      (Mail::html) o WhatsApp (Aero.Hello, con fallback a la cuenta general
+      si el tenant no tiene la suya propia). Cada intento queda en el nuevo
+      registro de Entregas. Pendiente: dedup/digest/delay de Rule todavía no
+      se aplican, es entrega inmediata sin deduplicar."
+    - create_deliveries_table.php
+    - grant_view_deliveries_to_tenant_admin.php
+    - "'sites.user.invited' suma el canal whatsapp y sus plantillas globales,
+      para el invite-by-email de Aero.Crm\\Controllers\\Team."
+    - seed_invite_templates.php

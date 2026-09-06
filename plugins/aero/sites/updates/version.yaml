@@ -77,3 +77,12 @@
     - Habilita el menú "Mensajería" (API keys propias de un tenant sobre
       Aero.Hello) para el rol tenant_admin.
     - grant_hello_api_keys_to_tenant_admin.php
+
+1.15.0:
+    - "TenantInvite: invitar a alguien por email/WhatsApp a colaborar en un
+      tenant. Crea el Backend\\User si no existe (rol tenant_admin, activación
+      vía el flujo nativo de reset password) o solo agrega el TenantUser si ya
+      tenía cuenta (p.ej. dueño de otro tenant); en ambos casos el acceso es
+      inmediato vía TenantUser + ResolvesCurrentTenant. Notifica por
+      Aero.Notify (evento sites.user.invited) si está instalado."
+    - create_tenant_invites_table.php

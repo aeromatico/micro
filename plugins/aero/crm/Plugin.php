@@ -100,10 +100,10 @@ class Plugin extends PluginBase
                     'url'         => Backend::url('aero/crm/activities'),
                     'permissions' => ['aero.crm.manage_activities'],
                 ],
-                'crm-equipos' => [
-                    'label'       => 'Equipos',
+                'crm-equipo' => [
+                    'label'       => 'Equipo',
                     'icon'        => 'icon-users',
-                    'url'         => Backend::url('aero/crm/teams'),
+                    'url'         => Backend::url('aero/crm/team'),
                     'permissions' => ['aero.crm.manage_teams'],
                 ],
             ];

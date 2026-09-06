@@ -38,6 +38,29 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         $this->bootTenantPurgeCleanup();
+        $this->registerConfigMenuTab();
+    }
+
+    /**
+     * Espejo de "Tienda → Configuración" como tab del menú central
+     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
+     * un solo lugar. El menú propio de Tienda sigue existiendo tal cual —
+     * esto solo agrega un acceso más al mismo controlador, no lo mueve.
+     */
+    protected function registerConfigMenuTab(): void
+    {
+        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
+            return;
+        }
+
+        Event::listen('backend.menu.extendItems', function ($manager) {
+            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'shop-settings', [
+                'label'       => 'aero.shop::lang.menu.settings',
+                'icon'        => 'icon-shopping-cart',
+                'url'         => Backend::url('aero/shop/shopsettings'),
+                'permissions' => ['aero.shop.manage_settings'],
+            ]);
+        });
     }
 
     protected function registerPaymentGatewayDrivers(): void

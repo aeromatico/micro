@@ -1,0 +1,25 @@
+columns:
+    user[email]:
+        label: Correo
+        relation: user
+        select: email
+        searchable: true
+
+    user[first_name]:
+        label: Nombre
+        relation: user
+        select: first_name
+
+    role:
+        label: Rol
+        type: selectable
+        options:
+            admin: Admin
+            moderator: Moderador
+            user: Usuario
+        width: 140px
+
+    created_at:
+        label: Desde
+        type: datetime
+        width: 160px

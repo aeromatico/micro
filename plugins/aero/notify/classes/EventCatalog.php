@@ -146,7 +146,7 @@ class EventCatalog
                 'description' => 'Se invitó a alguien a colaborar en un micrositio.',
                 'priority' => 4,
                 'default_audiences' => ['actor'],
-                'default_channels' => ['email'],
+                'default_channels' => ['email', 'whatsapp'],
                 'variables_schema' => [
                     'invitee_name' => ['type' => 'string', 'required' => true, 'label' => 'Nombre del invitado'],
                     'role'         => ['type' => 'string', 'required' => true, 'label' => 'Rol asignado'],

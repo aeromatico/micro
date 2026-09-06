@@ -1,0 +1,14 @@
+title: Entregas
+list: $/aero/notify/models/delivery/columns.yaml
+modelClass: Aero\Notify\Models\Delivery
+noRecordsMessage: No hay entregas registradas todavía.
+recordsPerPage: 50
+showCheckboxes: false
+
+toolbar:
+    search:
+        prompt: Buscar por dirección o evento
+
+defaultSort:
+    column: created_at
+    direction: desc

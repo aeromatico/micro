@@ -48,6 +48,7 @@ class Tenant extends Model
         'contactSubmissions'    => [ContactSubmission::class],
         'apiTokens'             => [ApiToken::class],
         'tenantUsers'           => [TenantUser::class],
+        'invites'               => [TenantInvite::class],
     ];
 
     public $belongsToMany = [

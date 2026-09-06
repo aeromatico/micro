@@ -1,0 +1,34 @@
+<form
+    data-request="onInvite"
+    data-request-success="$('.control-popup').popup('hide')">
+    <div class="modal-header">
+        <h4 class="modal-title">Invitar a tu equipo</h4>
+        <button type="button" class="btn-close" data-dismiss="popup"></button>
+    </div>
+    <div class="modal-body">
+        <p class="text-muted">
+            Le vamos a mandar un enlace de acceso. Si ya tiene una cuenta (por ejemplo,
+            es dueño de otro tenant), se agrega directamente como colaborador acá.
+        </p>
+        <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" name="email" class="form-control" required autofocus>
+        </div>
+        <div class="form-group">
+            <label>WhatsApp (opcional)</label>
+            <input type="text" name="phone" class="form-control" placeholder="+591 70000000">
+        </div>
+        <div class="form-group">
+            <label>Rol</label>
+            <select name="role" class="form-control custom-select">
+                <option value="admin" selected>Admin (gestiona el tenant como el propietario)</option>
+                <option value="moderator">Moderador</option>
+                <option value="user">Usuario</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="popup">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Enviar invitación</button>
+    </div>
+</form>

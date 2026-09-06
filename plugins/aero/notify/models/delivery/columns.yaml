@@ -1,0 +1,43 @@
+columns:
+    status:
+        label: Estado
+        type: selectable
+
+    channel:
+        label: Canal
+        type: selectable
+
+    audience:
+        label: Audiencia
+        type: selectable
+
+    address:
+        label: Dirección
+        searchable: true
+
+    event[name]:
+        label: Evento
+        relation: event
+        select: name
+        searchable: true
+
+    tenant[name]:
+        label: Tenant
+        relation: tenant
+        select: name
+        searchable: true
+        default: false
+
+    error:
+        label: Detalle
+        default: false
+
+    sent_at:
+        label: Enviado
+        type: datetime
+        width: 160px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

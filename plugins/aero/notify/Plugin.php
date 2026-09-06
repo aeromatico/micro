@@ -36,6 +36,19 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('notify.events', \Aero\Notify\Console\ListNotifyEvents::class);
     }
 
+    /**
+     * Drivers de canal por defecto. Registrados vía el mismo evento que
+     * DriverManager expone para extenderse, así un consumidor externo puede
+     * sumar un canal sin tocar esta clase.
+     */
+    public function boot(): void
+    {
+        \Event::listen('aero.notify.registerChannelDrivers', function ($manager) {
+            $manager->register('email', \Aero\Notify\Classes\Drivers\EmailDriver::class);
+            $manager->register('whatsapp', \Aero\Notify\Classes\Drivers\WhatsAppDriver::class);
+        });
+    }
+
     public function registerNavigation(): array
     {
         return [
@@ -52,6 +65,12 @@ class Plugin extends PluginBase
                         'icon'        => 'icon-list-ul',
                         'url'         => Backend::url('aero/notify/events'),
                         'permissions' => ['aero.notify.view_events'],
+                    ],
+                    'notify-deliveries' => [
+                        'label'       => 'Entregas',
+                        'icon'        => 'icon-paper-plane',
+                        'url'         => Backend::url('aero/notify/deliveries'),
+                        'permissions' => ['aero.notify.view_deliveries'],
                     ],
                 ],
             ],

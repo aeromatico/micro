@@ -1,0 +1,13 @@
+<div data-control="toolbar">
+    <?= Ui::popupButton("Invitar por correo", 'onLoadInviteForm')
+        ->icon('icon-envelope')
+        ->primary() ?>
+
+    <?= Ui::ajaxButton("Quitar del equipo", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Quitar el acceso a los miembros seleccionados? El propietario original del tenant no se puede quitar.") ?>
+</div>
+<?= $this->listRender() ?>

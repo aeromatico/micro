@@ -330,6 +330,70 @@ php -l plugins/<plugin>/models/<model>/ImportModel.php
   `$controller->run('import')` seguido de
   `$controller->asExtension(VersatileImportExportController::class)`.
 
+## Flujo 8 — Exponer una API para un módulo nuevo (aero/api)
+
+`aero/api` es el gateway central de keys: una sola key por dueño, con checkboxes de permisos por área (`*` = todo, `modulo.*` = área completa, `modulo.accion` = puntual). El middleware `aero.api` ya está registrado globalmente por ese plugin — un módulo nuevo NO necesita su propio modelo de key, su propio middleware ni su propia pantalla de tokens. Ver [[project_api_plugin]].
+
+1. En el `Plugin.php` del módulo nuevo, dentro de `boot()`, publicar los scopes:
+
+   ```php
+   protected function registerApiScopes(): void
+   {
+       if (!class_exists(\Aero\Api\Classes\ScopeRegistry::class)) {
+           return;
+       }
+
+       Event::listen('aero.api.registerScopes', function () {
+           return ['chatbots' => [
+               'label'  => trans('aero.chatbots::lang.plugin.name'),
+               'scopes' => [
+                   'chatbots.bots.manage' => 'Administrar bots',
+                   'chatbots.bots.read'   => 'Leer bots',
+               ],
+           ]];
+       });
+   }
+   ```
+
+   Preferí una clase `Classes/Api/Scopes.php` con constantes (`Scopes::BOTS_MANAGE`) en vez de strings sueltos, para no tipear el scope a mano en las rutas — así lo hacen `aero/hello` y `aero/qrbo`.
+
+2. Proteger las rutas directamente con el middleware del gateway:
+
+   ```php
+   Route::prefix('api/v1/chatbots')->group(function () use ($scopes) {
+       Route::post('bots', [BotsController::class, 'store'])->middleware('aero.api:' . $scopes::BOTS_MANAGE);
+   });
+   ```
+
+3. En el controller, leer la key y su dueño (si la key está atada a uno) desde `$request->attributes`:
+
+   ```php
+   $key = $request->attributes->get('api_key');
+   $owner = $request->attributes->get('api_owner'); // ej. un Tenant de Aero.Sites
+   ```
+
+4. Migrar (`october:migrate`) — no hace falta migración propia del módulo para esto, `aero_api_keys` ya existe.
+5. Probar con una key emitida desde el backend en **Configuración → API keys**, marcando el scope nuevo en el checkbox (aparece solo, `ScopeRegistry` lo recoge del evento).
+
+**Menú "Configuración" (backend):** `aero/api` registra un menú principal por tabs (`sideMenu`) en `Backend::url('aero/api/apikeys')`, cuyo primer tab es la gestión unificada de keys. Es el lugar para juntar pantallas de ajustes transversales de distintos plugins bajo un único ítem de navegación en vez de que cada uno abra su propio menú de nivel superior. Para agregar un tab nuevo (típicamente una pantalla de settings de tu plugin) sin tocar `aero/api`:
+
+```php
+Event::listen('backend.menu.extendItems', function ($manager) {
+    $manager->addSideMenuItem('Aero.Api', 'configuracion', 'minuevotab', [
+        'label'       => 'aero.mimodulo::lang.menu.settings',
+        'icon'        => 'icon-sliders',
+        'url'         => Backend::url('aero/mimodulo/settings'),
+        'permissions' => ['aero.mimodulo.manage_settings'],
+    ]);
+});
+```
+
+El primer argumento siempre es `'Aero.Api'` (el dueño del menú) y el segundo siempre `'configuracion'` (su código) — son fijos, no del plugin que agrega el tab. **Importante:** el ítem principal "Configuración" solo se muestra a quien tenga alguno de los permisos listados en su propio `permissions` (hoy `aero.api.manage_keys`, `aero.shop.manage_settings`, `aero.sites.manage_seo`); si tu tab usa un permiso distinto, agregalo también a ese array en `plugins/aero/api/Plugin.php` o los usuarios con solo tu permiso no verán el menú.
+
+**Patrón híbrido (adoptado 2026-09-06):** cuando el plugin ya tiene su propio menú de nivel superior con pantallas de contenido real (no solo settings) — como "Tienda" (productos, pedidos, clientes...) o "Sitio Web" (páginas, SEO...) — NO lo desarmamos ni movemos su Configuración de ahí. En vez de eso, el plugin agrega un tab **espejo** en "Configuración" que apunta al mismo controlador de settings, sin quitarlo de su menú propio. Así cada plugin sigue siendo dueño de su navegación, pero todos los ajustes quedan también accesibles desde un único lugar. Ver `registerConfigMenuTab()` en `plugins/aero/shop/Plugin.php` y `plugins/aero/sites/Plugin.php` como referencia — es el mismo snippet de arriba, solo que apunta a un controlador de settings que ya existía.
+
+**Cuándo SÍ conviene un modelo de key propio además del gateway:** solo si el módulo debe seguir funcionando sin `aero/api` instalado (dependencia blanda) — en ese caso replicá el patrón de `KeyResolver` de `aero/qrbo` o `aero/hello` (intenta el gateway primero, cae al modelo propio si no está instalado). Para un módulo interno de este proyecto (donde `aero/api` siempre está presente) no hace falta: andá directo al gateway.
+
 ## Comandos del día a día
 
 ```bash
