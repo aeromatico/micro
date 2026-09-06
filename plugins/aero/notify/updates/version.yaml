@@ -9,3 +9,9 @@
 1.0.1:
     - Reparte los permisos del gateway entre los roles tenant_admin y superadmin.
     - grant_role_permissions.php
+
+1.0.2:
+    - "Revoca los permisos de Notify concedidos a tenant_admin en 1.0.1: el
+      catálogo de eventos es genérico para toda la plataforma y el gateway
+      queda reservado a superadmin hasta que exista el motor de entrega."
+    - revoke_tenant_admin_permissions.php

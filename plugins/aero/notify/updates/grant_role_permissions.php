@@ -3,42 +3,37 @@
 use October\Rain\Database\Updates\Migration;
 
 /**
- * Reparte los permisos del gateway entre los dos roles del proyecto.
+ * Todo el gateway queda reservado a superadmin, sin excepción.
  *
- * El catálogo de eventos y las reglas de la plataforma quedan fuera de
- * tenant_admin a propósito: un dueño de tenant configura a quién y por dónde se
- * le avisa, pero no inventa eventos ni toca los valores por defecto de los demás.
+ * El catálogo de eventos es genérico para toda la plataforma (no por tenant),
+ * y todavía no existe el motor de entrega ni la resolución de audiencias por
+ * tenant (fase 2). Hasta que eso exista, ningún permiso de Notify se concede a
+ * tenant_admin: no hay nada que un dueño de tenant deba configurar aquí.
  */
 return new class extends Migration
 {
-    /** Lo que puede hacer el dueño de un tenant. */
-    protected array $tenantAdminPermissions = [
-        'aero.notify.view_events'      => 1,
-        'aero.notify.manage_rules'     => 1,
-        'aero.notify.manage_templates' => 1,
-        'aero.notify.manage_channels'  => 1,
-        'aero.notify.view_deliveries'  => 1,
-        'aero.notify.resend'           => 1,
-        'aero.notify.send_test'        => 1,
-    ];
-
-    /** Lo anterior más el control de la plataforma. */
-    protected array $superadminOnlyPermissions = [
+    protected array $superadminPermissions = [
+        'aero.notify.view_events'         => 1,
         'aero.notify.manage_events'       => 1,
         'aero.notify.manage_global_rules' => 1,
+        'aero.notify.manage_rules'        => 1,
+        'aero.notify.manage_templates'    => 1,
+        'aero.notify.manage_channels'     => 1,
+        'aero.notify.view_deliveries'     => 1,
+        'aero.notify.resend'              => 1,
+        'aero.notify.send_test'           => 1,
     ];
 
     public function up(): void
     {
-        $this->applyTo('tenant_admin', $this->tenantAdminPermissions);
-        $this->applyTo('superadmin', $this->tenantAdminPermissions + $this->superadminOnlyPermissions);
+        $this->applyTo('superadmin', $this->superadminPermissions);
     }
 
     public function down(): void
     {
-        $all = array_keys($this->tenantAdminPermissions + $this->superadminOnlyPermissions);
+        $all = array_keys($this->superadminPermissions);
 
-        foreach (['tenant_admin', 'superadmin'] as $code) {
+        foreach (['superadmin'] as $code) {
             $role = \Backend\Models\UserRole::where('code', $code)->first();
 
             if (!$role) {

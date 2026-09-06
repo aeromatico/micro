@@ -9,9 +9,11 @@ use Flash;
 /**
  * Catálogo de eventos notificables.
  *
- * El catálogo es de la plataforma: solo el superadmin lo edita. Un
- * administrador de tenant entra en modo lectura, para saber qué eventos
- * existen y qué variables trae cada uno antes de escribir sus plantillas.
+ * El catálogo es genérico para toda la plataforma (no por tenant) y, por
+ * ahora, de acceso exclusivo a superadmin — ver
+ * updates/grant_role_permissions.php. El modo lectura (canManage() en false)
+ * queda preparado para cuando algún otro rol reciba view_events sin
+ * manage_events, pero hoy ningún rol de tenant lo tiene.
  */
 class Events extends Controller
 {

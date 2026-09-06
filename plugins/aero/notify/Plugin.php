@@ -61,17 +61,19 @@ class Plugin extends PluginBase
     public function registerPermissions(): array
     {
         return [
-            // Reservados al superadmin: el catálogo y las reglas de la
-            // plataforma no se conceden al rol tenant_admin.
+            // Todo el plugin es de la plataforma por ahora: el catálogo de
+            // eventos es genérico para todos los tenants y todavía no existe
+            // el motor de entrega ni la resolución de audiencias por tenant
+            // (fase 2). Ninguno de estos permisos se concede a tenant_admin
+            // (ver updates/grant_role_permissions.php); se revisa cuando el
+            // resto del gateway esté construido.
             'aero.notify.manage_events' => [
                 'tab'   => 'Notificaciones',
                 'label' => 'Administrar el catálogo de eventos',
-                'roles' => ['developer'],
             ],
             'aero.notify.manage_global_rules' => [
                 'tab'   => 'Notificaciones',
                 'label' => 'Administrar las reglas globales de la plataforma',
-                'roles' => ['developer'],
             ],
 
             'aero.notify.view_events' => [
