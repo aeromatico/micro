@@ -107,7 +107,7 @@ class Plugin extends PluginBase
                     ],
                     'webhookendpoints' => [
                         'label'       => 'aero.connector::lang.menu.webhooks',
-                        'icon'        => 'icon-satellite-dish',
+                        'icon'        => 'icon-inbox',
                         'url'         => Backend::url('aero/connector/webhookendpoints'),
                         'permissions' => ['aero.connector.manage_webhooks'],
                     ],
