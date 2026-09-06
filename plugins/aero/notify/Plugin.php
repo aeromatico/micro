@@ -1,0 +1,107 @@
+<?php namespace Aero\Notify;
+
+use Backend;
+use System\Classes\PluginBase;
+
+/**
+ * Gateway de notificaciones omnicanal.
+ *
+ * Punto único de las notificaciones transaccionales del ecosistema: un catálogo
+ * de eventos, reglas de entrega por audiencia y canal, y plantillas por canal e
+ * idioma. Los plugins de negocio disparan eventos; aquí se decide a quién, por
+ * dónde y con qué texto.
+ *
+ * Solo depende de Aero.Sites, que aporta el Tenant. Hello, Api, Crm, Qrbo y
+ * Shop son opcionales y se detectan con class_exists(): el gateway tiene que
+ * poder instalarse en un entorno donde falte cualquiera de ellos.
+ */
+class Plugin extends PluginBase
+{
+    public $require = ['Aero.Sites'];
+
+    public function pluginDetails(): array
+    {
+        return [
+            'name'        => 'Notify',
+            'description' => 'Gateway omnicanal de notificaciones transaccionales',
+            'author'      => 'Aero',
+            'icon'        => 'icon-bell',
+            'homepage'    => 'https://micro.clouds.com.bo',
+        ];
+    }
+
+    public function register(): void
+    {
+        $this->registerConsoleCommand('notify.seed-events', \Aero\Notify\Console\SeedNotifyEvents::class);
+        $this->registerConsoleCommand('notify.events', \Aero\Notify\Console\ListNotifyEvents::class);
+    }
+
+    public function registerNavigation(): array
+    {
+        return [
+            'notify' => [
+                'label'       => 'Notificaciones',
+                'url'         => Backend::url('aero/notify/events'),
+                'icon'        => 'icon-bell',
+                'permissions' => ['aero.notify.*'],
+                'order'       => 220,
+
+                'sideMenu' => [
+                    'notify-events' => [
+                        'label'       => 'Eventos',
+                        'icon'        => 'icon-list-ul',
+                        'url'         => Backend::url('aero/notify/events'),
+                        'permissions' => ['aero.notify.view_events'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function registerPermissions(): array
+    {
+        return [
+            // Reservados al superadmin: el catálogo y las reglas de la
+            // plataforma no se conceden al rol tenant_admin.
+            'aero.notify.manage_events' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Administrar el catálogo de eventos',
+                'roles' => ['developer'],
+            ],
+            'aero.notify.manage_global_rules' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Administrar las reglas globales de la plataforma',
+                'roles' => ['developer'],
+            ],
+
+            'aero.notify.view_events' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Ver el catálogo de eventos',
+            ],
+            'aero.notify.manage_rules' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Administrar las reglas de entrega del tenant',
+            ],
+            'aero.notify.manage_templates' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Administrar plantillas',
+            ],
+            'aero.notify.manage_channels' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Administrar canales',
+            ],
+            'aero.notify.view_deliveries' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Ver el registro de entregas',
+            ],
+            'aero.notify.resend' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Reenviar una entrega',
+            ],
+            'aero.notify.send_test' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Enviar notificaciones de prueba',
+            ],
+        ];
+    }
+}

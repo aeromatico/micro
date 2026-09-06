@@ -1,0 +1,48 @@
+columns:
+    is_active:
+        label: Activo
+        type: switch
+        width: 80
+
+    code:
+        label: Código
+        searchable: true
+        sortable: true
+
+    name:
+        label: Evento
+        searchable: true
+
+    category:
+        label: Categoría
+        type: selectable
+        sortable: true
+
+    source_plugin:
+        label: Origen
+        searchable: true
+        sortable: true
+
+    priority:
+        label: Prio
+        align: center
+        width: 70
+        sortable: true
+
+    is_transactional:
+        label: Transaccional
+        type: switch
+        invisible: true
+
+    rules_count:
+        label: Reglas
+        align: center
+        width: 80
+        relation: rules
+        relationCount: true
+        sortable: false
+
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

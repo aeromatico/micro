@@ -1,0 +1,24 @@
+<?= Form::open(['class' => 'layout']) ?>
+
+    <div class="layout-row">
+        <?= $this->formRender() ?>
+    </div>
+
+    <div class="form-buttons">
+        <div class="loading-indicator-container">
+            <button
+                type="submit"
+                data-request="onSave"
+                data-request-data="close:true"
+                data-hotkey="ctrl+enter, cmd+enter"
+                data-load-indicator="Creando…"
+                class="btn btn-primary">
+                Crear
+            </button>
+            <span class="btn-text">
+                o <a href="<?= Backend::url('aero/notify/events') ?>">Cancelar</a>
+            </span>
+        </div>
+    </div>
+
+<?= Form::close() ?>

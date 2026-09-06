@@ -1,0 +1,11 @@
+1.0.0:
+    - Primera versión del gateway de notificaciones omnicanal — catálogo de
+      eventos, plantillas por canal e idioma y reglas de entrega.
+    - create_events_table.php
+    - create_templates_table.php
+    - create_rules_table.php
+    - seed_notify_events.php
+
+1.0.1:
+    - Reparte los permisos del gateway entre los roles tenant_admin y superadmin.
+    - grant_role_permissions.php

@@ -6,6 +6,7 @@ use Aero\Crm\Models\CollectionReminderLog;
 use Aero\Crm\Models\CollectionReminderRule;
 use Aero\Crm\Models\Contact;
 use Aero\Crm\Models\CrmSettings;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -67,31 +68,59 @@ class CollectionReminderGenerator
     }
 
     /**
-     * Dispara una regla puntual sobre los cobros que ya alcanzaron su fecha
-     * objetivo (due_date + offset_days <= hoy) y que todavía no la tienen
-     * registrada en el log — esto también sirve de "catch up" si el cron no
-     * corrió exactamente el día exacto.
+     * Calcula el siguiente recordatorio pendiente desde la fecha de inicio.
+     * El vencimiento se trata como una fecha especial, aunque no coincida con
+     * la frecuencia configurada.
      */
     protected function generateForRule(CollectionReminderRule $rule, CrmSettings $settings): Collection
     {
         $query = CollectionItem::forTenant($rule->tenant_id)
             ->pending()
-            ->whereRaw('DATE_ADD(due_date, INTERVAL ? DAY) <= ?', [$rule->offset_days, now()->toDateString()])
-            ->whereDoesntHave('reminderLogs', function ($q) use ($rule) {
-                $q->where('collection_reminder_rule_id', $rule->id);
-            });
+            ->where('due_date', '>=', now()->toDateString());
 
         if ($rule->contact_list_id) {
             $query->where('contact_list_id', $rule->contact_list_id);
         }
 
-        $items = $query->with('contact')->get();
+        $items = $query
+            ->with(['contact', 'reminderLogs' => function ($q) use ($rule) {
+                $q->where('collection_reminder_rule_id', $rule->id)
+                    ->whereNotNull('scheduled_date')
+                    ->orderByDesc('scheduled_date');
+            }])
+            ->get();
 
-        return $items->map(fn (CollectionItem $item) => [
-            'item' => $item,
-            'rule' => $rule,
-            'sent' => $this->sendReminder($item, $settings, $rule),
-        ]);
+        return $items->map(function (CollectionItem $item) use ($rule, $settings) {
+            $today = now()->startOfDay();
+            $dueDate = Carbon::parse($item->due_date)->startOfDay();
+            $startDate = $dueDate->copy()->subDays((int) $rule->start_days_before);
+            $lastLog = $item->reminderLogs->first();
+            $dueWasSent = $item->reminderLogs->contains(function ($log) use ($dueDate) {
+                return Carbon::parse($log->scheduled_date)->isSameDay($dueDate);
+            });
+
+            if ($dueWasSent) {
+                return null;
+            }
+
+            $nextDate = $lastLog
+                ? Carbon::parse($lastLog->scheduled_date)->addDays((int) $rule->frequency_days)
+                : $startDate;
+
+            if ($today->gte($dueDate) || $nextDate->gt($dueDate)) {
+                $nextDate = $dueDate;
+            }
+
+            if ($today->lt($nextDate)) {
+                return null;
+            }
+
+            return [
+                'item' => $item,
+                'rule' => $rule,
+                'sent' => $this->sendReminder($item, $settings, $rule, $nextDate->toDateString()),
+            ];
+        })->filter();
     }
 
     /**
@@ -128,7 +157,7 @@ class CollectionReminderGenerator
      * una regla, registra el CollectionReminderLog correspondiente para
      * que no se repita ese paso de la cascada.
      */
-    public function sendReminder(CollectionItem $item, ?CrmSettings $settings = null, ?CollectionReminderRule $rule = null): bool
+    public function sendReminder(CollectionItem $item, ?CrmSettings $settings = null, ?CollectionReminderRule $rule = null, ?string $scheduledDate = null): bool
     {
         if (!class_exists(\Aero\Hello\Models\Contact::class)) {
             return false;
@@ -148,6 +177,20 @@ class CollectionReminderGenerator
         $template = $rule?->message_template ?: $settings?->reminder_message_template;
         $body = $this->renderTemplate($template, $contact, $item);
 
+        if ($rule) {
+            try {
+                CollectionReminderLog::create([
+                    'collection_item_id'          => $item->id,
+                    'collection_reminder_rule_id' => $rule->id,
+                    'scheduled_date'              => $scheduledDate ?: now()->toDateString(),
+                    'sent_at'                     => now(),
+                ]);
+            }
+            catch (\Throwable $ex) {
+                return false;
+            }
+        }
+
         try {
             \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, [
                 'platform'  => 'whatsapp',
@@ -157,6 +200,12 @@ class CollectionReminderGenerator
         catch (\Throwable $ex) {
             // Un contacto sin cuenta o sin identidad de WhatsApp no debe cortar
             // el lote completo; se salta y se reintenta en la próxima corrida.
+            if ($rule) {
+                CollectionReminderLog::where('collection_item_id', $item->id)
+                    ->where('collection_reminder_rule_id', $rule->id)
+                    ->where('scheduled_date', $scheduledDate ?: now()->toDateString())
+                    ->delete();
+            }
             return false;
         }
 
@@ -169,14 +218,6 @@ class CollectionReminderGenerator
             'description'  => $body,
             'completed_at' => now(),
         ]);
-
-        if ($rule) {
-            CollectionReminderLog::create([
-                'collection_item_id'          => $item->id,
-                'collection_reminder_rule_id' => $rule->id,
-                'sent_at'                     => now(),
-            ]);
-        }
 
         $item->last_reminder_at = now();
         $item->reminder_count = ($item->reminder_count ?? 0) + 1;

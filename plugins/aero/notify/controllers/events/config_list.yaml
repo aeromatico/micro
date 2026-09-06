@@ -1,0 +1,18 @@
+title: Catálogo de eventos
+list: $/aero/notify/models/event/columns.yaml
+modelClass: Aero\Notify\Models\Event
+recordUrl: aero/notify/events/update/:id
+noRecordsMessage: 'No hay eventos en el catálogo. Corré php artisan notify:seed-events.'
+recordsPerPage: 50
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por código, nombre u origen
+
+filter: config_filter.yaml
+
+defaultSort:
+    column: code
+    direction: asc

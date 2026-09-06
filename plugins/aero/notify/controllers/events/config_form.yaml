@@ -1,0 +1,14 @@
+name: Evento
+form: $/aero/notify/models/event/fields.yaml
+modelClass: Aero\Notify\Models\Event
+defaultRedirect: aero/notify/events
+
+create:
+    title: Nuevo evento
+    redirect: aero/notify/events/update/:id
+    redirectClose: aero/notify/events
+
+update:
+    title: 'Evento: :code'
+    redirect: aero/notify/events
+    redirectClose: aero/notify/events

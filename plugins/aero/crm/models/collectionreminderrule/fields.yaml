@@ -1,10 +1,19 @@
 fields:
-    name:
-        label: Nombre del paso
-        type: text
-        span: full
+    start_days_before:
+        label: Iniciar recordatorio
+        type: number
+        span: auto
         required: true
-        placeholder: "Ej. Aviso 3 días antes"
+        default: 5
+        comment: "Cuántos días antes de la fecha de vencimiento comienza la cobranza automática. Valores permitidos: 1, 2, 3, 4, 5, 7 o 10."
+
+    frequency_days:
+        label: Repetir recordatorio
+        type: dropdown
+        span: auto
+        required: true
+        default: 2
+        comment: "Cada cuántos días se genera un nuevo recordatorio."
 
     contactList:
         label: Lista
@@ -13,14 +22,6 @@ fields:
         span: auto
         placeholder: "Todas las listas / todos los cobros"
         comment: "Si se deja vacío, este recordatorio aplica a todos los cobros del tenant"
-
-    offset_days:
-        label: Días relativos al vencimiento
-        type: number
-        span: auto
-        required: true
-        default: 0
-        comment: "Negativo = antes del vencimiento (ej. -3). Cero = el mismo día. Positivo = después (vencido, ej. 5)."
 
     active:
         label: Regla activa

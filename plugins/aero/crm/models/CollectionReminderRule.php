@@ -3,11 +3,7 @@
 use Model;
 
 /**
- * Un paso de la cascada de recordatorios de cobranza: "cuántos días antes o
- * después del vencimiento enviar qué mensaje, a qué lista". Varias reglas
- * activas para la misma lista (o sin lista = todos los cobros) forman una
- * secuencia de dunning (ej. -3, 0, +5, +15 días). Ver
- * Classes\Collections\CollectionReminderGenerator para la lógica de disparo.
+ * Configuración de recordatorios automáticos para una lista de cobros.
  */
 class CollectionReminderRule extends Model
 {
@@ -17,13 +13,14 @@ class CollectionReminderRule extends Model
 
     public $fillable = [
         'tenant_id', 'contact_list_id', 'name', 'offset_days',
+        'start_days_before', 'frequency_days',
         'message_template', 'active', 'sort_order',
     ];
 
     public $rules = [
         'tenant_id'   => 'required|exists:aero_sites_tenants,id',
-        'name'        => 'required|max:255',
-        'offset_days' => 'required|integer|between:-365,365',
+        'start_days_before' => 'required|integer|between:1,30',
+        'frequency_days'    => 'required|integer|in:1,2,3,5,7',
     ];
 
     public $belongsTo = [
@@ -36,8 +33,10 @@ class CollectionReminderRule extends Model
     ];
 
     public $attributes = [
-        'active'      => true,
-        'offset_days' => 0,
+        'active'            => true,
+        'offset_days'       => null,
+        'start_days_before' => 5,
+        'frequency_days'    => 2,
     ];
 
     public function scopeForTenant($query, int $tenantId)
@@ -55,14 +54,17 @@ class CollectionReminderRule extends Model
         return ['' => 'Todas las listas / todos los cobros'] + ContactList::orderBy('name')->pluck('name', 'id')->all();
     }
 
+
+    public function getFrequencyDaysOptions(): array
+    {
+        return [
+            1 => 'Cada 1 día', 2 => 'Cada 2 días', 3 => 'Cada 3 días',
+            5 => 'Cada 5 días', 7 => 'Cada 7 días',
+        ];
+    }
+
     public function getOffsetLabelAttribute(): string
     {
-        if ($this->offset_days === 0) {
-            return 'El día del vencimiento';
-        }
-
-        return $this->offset_days < 0
-            ? abs($this->offset_days) . ' día(s) antes del vencimiento'
-            : $this->offset_days . ' día(s) después del vencimiento (vencido)';
+        return sprintf('%d días antes, cada %d días', $this->start_days_before, $this->frequency_days);
     }
 }

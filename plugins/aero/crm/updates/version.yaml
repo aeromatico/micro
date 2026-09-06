@@ -36,3 +36,14 @@
       indice unico porque los nombres autogenerados superaban los 64 caracteres
       de MySQL y la migracion moria a medias.
     - repair_collection_reminder_logs.php
+
+1.2.2:
+    - Reemplaza el nombre del paso por inicio y frecuencia configurables,
+      registra cada fecha programada y agrega el recordatorio especial del vencimiento.
+    - add_collection_reminder_schedule.php
+
+1.2.3:
+    - "Reconcilia el esquema de recordatorios instalado a medias: hace opcional
+      offset_days (reemplazado por start_days_before/frequency_days) para que no
+      rompa la creación de reglas."
+    - make_offset_days_nullable.php

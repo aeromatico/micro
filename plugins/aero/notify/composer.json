@@ -1,0 +1,11 @@
+{
+    "name": "aero/notify",
+    "description": "Gateway omnicanal de notificaciones transaccionales",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Notify\\": ""
+        }
+    }
+}

@@ -1,8 +1,4 @@
 columns:
-    name:
-        label: Nombre
-        type: text
-
     contactList:
         label: Lista
         relation: contactList
@@ -10,7 +6,7 @@ columns:
         default: "Todas"
 
     offset_label:
-        label: Cuándo se envía
+        label: Configuración
         type: text
         sortable: false
 

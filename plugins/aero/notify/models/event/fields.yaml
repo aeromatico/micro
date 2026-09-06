@@ -1,0 +1,94 @@
+secondaryTabs:
+    stretch: true
+
+    fields:
+        code:
+            label: Código del evento
+            tab: General
+            span: left
+            comment: 'Forma grupo.recurso.accion, en minúsculas. Es la clave que usan los plugins al disparar.'
+            placeholder: 'crm.collection.reminder'
+
+        name:
+            label: Nombre
+            tab: General
+            span: right
+
+        category:
+            label: Categoría
+            tab: General
+            type: dropdown
+            span: left
+
+        source_plugin:
+            label: Plugin de origen
+            tab: General
+            span: right
+            placeholder: 'Aero.Crm'
+
+        priority:
+            label: Prioridad
+            tab: General
+            type: number
+            span: left
+            min: 1
+            max: 9
+            comment: '1 es crítico y 9 informativo. Gobierna la cola de envío y si el evento respeta las horas de silencio.'
+
+        is_active:
+            label: Activo
+            tab: General
+            type: switch
+            span: right
+            comment: 'Un evento inactivo no dispara nada, sin importar sus reglas.'
+
+        is_transactional:
+            label: Transaccional
+            tab: General
+            type: switch
+            span: left
+            comment: 'Los transaccionales ignoran la baja global del destinatario. Desactivalo para eventos de marketing.'
+
+        is_system:
+            label: Del sistema
+            tab: General
+            type: switch
+            span: right
+            comment: 'Los eventos del sistema no se pueden eliminar desde esta pantalla.'
+
+        description:
+            label: Descripción
+            tab: General
+            type: textarea
+            size: small
+
+        variables_schema_json:
+            label: Contrato de variables
+            tab: Variables
+            type: codeeditor
+            language: json
+            size: large
+            comment: 'Las marcadas como required se exigen al disparar el evento: si faltan, el disparo falla en vez de enviar una plantilla a medio renderizar.'
+
+        sample_context_json:
+            label: Contexto de ejemplo
+            tab: Variables
+            type: codeeditor
+            language: json
+            size: small
+            comment: 'Valores usados por la vista previa y el botón de enviar prueba.'
+
+        default_audiences:
+            label: Audiencias por defecto
+            tab: Reglas por defecto
+            type: taglist
+            mode: array
+            span: left
+            comment: 'Se usan al sembrar las reglas globales de un evento nuevo.'
+
+        default_channels:
+            label: Canales por defecto
+            tab: Reglas por defecto
+            type: taglist
+            mode: array
+            span: right
