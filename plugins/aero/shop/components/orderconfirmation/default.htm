@@ -14,19 +14,9 @@
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
     </div>
 
-    {% if order.payment_gateway %}
-    <div class="card p-6 mb-6">
-        <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Cómo pagar</h2>
-        <p class="text-sm font-medium text-ink mb-2">{{ order.payment_gateway.name }}</p>
-        {% if order.payment_gateway.instructions %}
-        <div class="prose prose-sm max-w-none text-ink-muted">{{ order.payment_gateway.instructions | raw }}</div>
-        {% endif %}
-        <p class="text-xs text-ink-muted mt-4">
-            Una vez realizado el pago, comunícalo al vendedor mencionando el número de pedido
-            <strong class="text-ink">{{ order.order_number }}</strong>.
-        </p>
+    <div id="order-payment-status">
+        {% partial __SELF__~"::paymentStatus" %}
     </div>
-    {% endif %}
 
     <div class="card p-6 mb-6">
         <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Resumen del pedido</h2>

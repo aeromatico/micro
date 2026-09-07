@@ -197,10 +197,16 @@ class Checkout extends ComponentBase
                     'to_status'   => 'awaiting_payment',
                 ]);
 
+                if ($gateway->driver === 'pagos_qr') {
+                    \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::issueForOrder($gateway, $order);
+                }
+
                 return $order;
             });
         } catch (InsufficientStockException $e) {
             return $this->errorResponse($e->getMessage() . ' Vuelve al carrito para ajustar la cantidad.');
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse($e->getMessage());
         }
 
         $cart->clear();

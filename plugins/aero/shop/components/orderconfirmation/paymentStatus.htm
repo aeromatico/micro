@@ -1,0 +1,65 @@
+{% set order = __SELF__.order %}
+{% set qrCode = __SELF__.qrCode %}
+
+{% if order.payment_gateway %}
+<div class="card p-6 mb-6">
+    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Cómo pagar</h2>
+    <p class="text-sm font-medium text-ink mb-2">{{ order.payment_gateway.name }}</p>
+
+    {% if order.payment_gateway.driver == 'pagos_qr' %}
+
+        {% if order.status == 'paid' %}
+        <div class="flex items-center gap-2 text-green-600 text-sm font-semibold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Pago confirmado
+        </div>
+        {% elseif qrCode and qrCode.status == 'pending' %}
+        <div x-data="{ checking: false }">
+            <p class="text-xs text-ink-muted mb-4">Escanea el QR desde tu app bancaria para pagar. El pedido se confirma solo, automáticamente.</p>
+            <div class="flex justify-center mb-4">
+                <img src="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
+                     alt="QR de pago"
+                     class="w-56 h-56 rounded-brand border border-surface-border">
+            </div>
+            <button type="button"
+                    data-request="shopOrderConfirmation::onCheckPaymentStatus"
+                    @ajax-before="checking = true"
+                    @ajax-done="checking = false"
+                    @ajax-fail="checking = false"
+                    :disabled="checking"
+                    class="w-full bg-brand-primary hover:opacity-90 disabled:opacity-60 text-white font-semibold py-3 rounded-brand text-sm transition-all flex items-center justify-center gap-2">
+                <svg x-show="checking" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span x-text="checking ? 'Verificando...' : 'Ya pagué, verificar'">Ya pagué, verificar</span>
+            </button>
+        </div>
+        {% elseif qrCode and qrCode.status == 'expired' %}
+        <p class="text-sm text-red-500">El QR de pago venció. Contacta al vendedor para generar uno nuevo.</p>
+        {% elseif qrCode and qrCode.status == 'cancelled' %}
+        <p class="text-sm text-red-500">Este QR de pago fue anulado. Contacta al vendedor.</p>
+        {% else %}
+        <p class="text-sm text-red-500">No se pudo generar el QR de pago. Contacta al vendedor.</p>
+        {% endif %}
+
+    {% else %}
+        {% if order.payment_gateway.qr_image %}
+        <div class="flex justify-center mb-4">
+            <img src="{{ order.payment_gateway.qr_image.getThumbUrl(400, 400, { mode: 'auto' }) }}"
+                 alt="QR de pago"
+                 class="w-56 h-56 rounded-brand border border-surface-border">
+        </div>
+        {% endif %}
+        {% if order.payment_gateway.instructions %}
+        <div class="prose prose-sm max-w-none text-ink-muted">{{ order.payment_gateway.instructions | raw }}</div>
+        {% endif %}
+        <p class="text-xs text-ink-muted mt-4">
+            Una vez realizado el pago, comunícalo al vendedor mencionando el número de pedido
+            <strong class="text-ink">{{ order.order_number }}</strong>.
+        </p>
+    {% endif %}
+</div>
+{% endif %}

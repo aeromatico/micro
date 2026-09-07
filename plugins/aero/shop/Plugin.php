@@ -39,6 +39,7 @@ class Plugin extends PluginBase
     {
         $this->bootTenantPurgeCleanup();
         $this->registerConfigMenuTab();
+        $this->bootQrboPaymentBridge();
     }
 
     /**
@@ -72,10 +73,48 @@ class Plugin extends PluginBase
 
         Event::listen('aero.shop.registerPaymentGateways', function ($manager) {
             $manager->register('manual', \Aero\Shop\Classes\PaymentGateways\ManualPaymentGateway::class);
+            $manager->register('pagos_qr_offline', \Aero\Shop\Classes\PaymentGateways\OfflineQrGateway::class);
+
+            if (class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
+                $manager->register('pagos_qr', \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::class);
+            }
         });
 
         $manager = $this->app->make(\Aero\Shop\Classes\PaymentGatewayManager::class);
         Event::fire('aero.shop.registerPaymentGateways', [$manager]);
+    }
+
+    /**
+     * Cuando aero/qrbo confirma el pago de un QR (webhook del banco o
+     * reconciliación cada 5 min), busca el pedido con ese `payment_reference`
+     * (guardado por PagosQrGateway::issueForOrder()) y lo marca "paid" sin
+     * intervención del vendedor. No hace nada si aero/qrbo no está instalado.
+     */
+    protected function bootQrboPaymentBridge(): void
+    {
+        if (!class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+            return;
+        }
+
+        Event::listen('aero.qrbo.paymentReceived', function ($payment, $qrCode) {
+            $order = \Aero\Shop\Models\Order::where('tenant_id', $qrCode->tenant_id)
+                ->where('payment_reference', $qrCode->internal_reference)
+                ->where('status', 'awaiting_payment')
+                ->first();
+
+            if (!$order) {
+                return;
+            }
+
+            $order->status = 'paid';
+            $order->paid_at = now();
+            $order->save();
+
+            $order->status_history()->create([
+                'from_status' => 'awaiting_payment',
+                'to_status'   => 'paid',
+            ]);
+        });
     }
 
     /**

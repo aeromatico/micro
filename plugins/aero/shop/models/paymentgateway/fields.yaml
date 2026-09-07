@@ -13,7 +13,32 @@ fields:
         default: manual
         options:
             manual: "Pago manual (instrucciones)"
-        comment: "Por ahora solo disponible el driver manual. Los drivers con API (Stripe, etc.) se conectarán aquí en el futuro."
+            pagos_qr: "Pagos QR (BNB / Banco Económico)"
+            pagos_qr_offline: "Pagos QR (offline)"
+        comment: "'Pagos QR' genera un QR de cobro real por pedido usando una cuenta bancaria conectada en aero/qrbo, y confirma el pago automáticamente. 'Pagos QR (offline)' solo muestra una imagen de QR fija, igual a todos los compradores."
+
+    qrbo_bank_account_id:
+        label: Cuenta bancaria (QRBO)
+        type: dropdown
+        span: right
+        trigger:
+            action: show
+            field: driver
+            condition: value[pagos_qr]
+        comment: "Cuenta conectada en QRBO → Cuentas bancarias. El QR de cada pedido se genera contra ella."
+
+    qr_image:
+        label: Imagen del QR
+        type: fileupload
+        mode: image
+        imageWidth: 400
+        imageHeight: 400
+        span: right
+        trigger:
+            action: show
+            field: driver
+            condition: value[pagos_qr_offline]
+        comment: "El mismo QR se muestra a todos los compradores. El comprador confirma el pago fuera de línea y el vendedor lo marca manualmente."
 
     is_active:
         label: Activo
@@ -27,11 +52,15 @@ fields:
         span: right
         default: true
         disabled: true
-        comment: "Siempre activo mientras el driver sea manual."
+        trigger:
+            action: hide
+            field: driver
+            condition: value[pagos_qr]
+        comment: "Siempre activo mientras el driver sea manual. Con 'Pagos QR' el pedido se marca pagado solo."
 
     instructions:
         label: Instrucciones de pago
         type: richeditor
         size: large
         span: full
-        comment: "Datos de cuenta bancaria, QR, WhatsApp, etc. que verá el comprador."
+        comment: "Datos de cuenta bancaria, QR, WhatsApp, etc. que verá el comprador. Con 'Pagos QR' se muestran además del QR generado por pedido."

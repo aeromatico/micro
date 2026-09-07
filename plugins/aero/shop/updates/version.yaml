@@ -47,3 +47,10 @@
     - "Seed de demo: crea tablas del shop si faltan, 6 colecciones, 12 productos
       con imágenes de Unsplash y configuración de tienda para el tenant Demo."
     - seed_demo_data.php
+
+1.0.6:
+    - "Nuevo método de pago dinámico 'pagos_qr': genera un QR de cobro real por
+      pedido usando la cuenta bancaria del tenant en aero/qrbo (si está
+      instalado) y marca el pedido como pagado automáticamente al confirmarse
+      el pago."
+    - add_qrbo_bank_account_id_to_payment_gateways.php

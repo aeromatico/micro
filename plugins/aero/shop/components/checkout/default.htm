@@ -107,6 +107,9 @@
                                    class="mt-1 accent-brand-primary">
                             <div>
                                 <p class="font-semibold text-ink text-sm">{{ pg.name }}</p>
+                                {% if pg.qr_image %}
+                                <img src="{{ pg.qr_image.getThumbUrl(160, 160, { mode: 'crop' }) }}" alt="QR de pago" class="w-24 h-24 rounded-brand border border-surface-border mt-2">
+                                {% endif %}
                                 {% if pg.instructions %}
                                 <div class="text-xs text-ink-muted mt-1 prose prose-sm max-w-none">{{ pg.instructions | raw }}</div>
                                 {% endif %}
