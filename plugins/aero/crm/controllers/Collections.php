@@ -95,4 +95,32 @@ class Collections extends Controller
         Flash::success($message);
         return $this->listRefresh();
     }
+
+    /**
+     * Genera (o regenera, si el anterior venció/se pagó/se anuló) el QR de
+     * cobro de este ítem contra la cuenta configurada en Configuración de
+     * CRM → Cuenta bancaria para cobranzas.
+     */
+    public function onGenerateQr($recordId = null)
+    {
+        $tenantId = $this->getCurrentTenantId();
+        $item = CollectionItem::forTenant($tenantId)->findOrFail($recordId ?: post('record_id'));
+
+        $qrCode = (new \Aero\Crm\Classes\Collections\CollectionQrIssuer())->issueFor($item);
+
+        if (!$qrCode) {
+            Flash::error('No se pudo generar el QR — revisá que haya una cuenta bancaria configurada en Configuración de CRM.');
+        } else {
+            Flash::success('QR de cobro generado.');
+        }
+
+        return $this->formRefresh();
+    }
+
+    protected function formRefresh()
+    {
+        return [
+            '#Form-' . $this->formGetWidget()->getId() => $this->formGetWidget()->render(),
+        ];
+    }
 }

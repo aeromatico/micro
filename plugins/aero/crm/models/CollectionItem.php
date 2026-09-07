@@ -16,6 +16,7 @@ class CollectionItem extends Model
     public $fillable = [
         'tenant_id', 'contact_id', 'contact_list_id', 'owner_id',
         'concept', 'amount', 'currency', 'due_date', 'status', 'notes',
+        'payment_reference',
     ];
 
     protected $dates = ['due_date', 'paid_at', 'last_reminder_at'];
@@ -78,5 +79,20 @@ class CollectionItem extends Model
     public function isOverdue(): bool
     {
         return $this->status === 'pending' && $this->due_date && $this->due_date->lt(now()->startOfDay());
+    }
+
+    /**
+     * El QrCode de aero/qrbo generado para este cobro (ver
+     * Classes\Collections\CollectionQrIssuer), si tiene uno y el plugin está
+     * instalado. No es una relación Eloquent porque `payment_reference`
+     * apunta a `QrCode.internal_reference`, no a un id.
+     */
+    public function getQrCode(): ?\Aero\Qrbo\Models\QrCode
+    {
+        if (!$this->payment_reference || !class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+            return null;
+        }
+
+        return \Aero\Qrbo\Models\QrCode::where('internal_reference', $this->payment_reference)->first();
     }
 }

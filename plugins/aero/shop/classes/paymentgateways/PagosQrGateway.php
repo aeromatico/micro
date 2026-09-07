@@ -4,17 +4,19 @@ use Aero\Shop\Models\Order;
 use Aero\Shop\Models\PaymentGateway;
 
 /**
- * Driver "pagos_qr": genera un QR de cobro real (BNB / Banco Económico) por
- * pedido usando la cuenta bancaria que el tenant ya conectó en aero/qrbo, con
- * sus propias credenciales. El pedido se marca "paid" automáticamente cuando
- * aero/qrbo confirma el pago (ver Plugin::bootQrboPaymentBridge()) — no
- * requiere confirmación manual del vendedor.
+ * Driver "pagos_qr": usa la cuenta bancaria que el tenant conectó en
+ * aero/qrbo. Con una cuenta con API real (BNB/Banco Económico) genera un QR
+ * de cobro nuevo por pedido y el pedido se marca "paid" automáticamente
+ * cuando aero/qrbo confirma el pago (ver Plugin::bootQrboPaymentBridge()).
+ * Con una cuenta estática (correo, sin API) reutiliza su QR fijo — ahí no
+ * hay confirmación automática, el vendedor marca el pedido pagado a mano
+ * (ver QrIssuer::issue()).
  */
 class PagosQrGateway
 {
     public static function label(): string
     {
-        return 'Pagos QR (BNB / Banco Económico)';
+        return 'Pagos QR (aero/qrbo)';
     }
 
     /**
@@ -45,6 +47,7 @@ class PagosQrGateway
                 currency: 'BOB',
                 description: 'Pedido ' . $order->order_number,
                 externalReference: $order->order_number,
+                origin: 'shop',
             );
         } catch (\Aero\Qrbo\Classes\Exceptions\QrboException $e) {
             throw new \RuntimeException('No se pudo generar el QR de pago: ' . $e->getMessage(), 0, $e);

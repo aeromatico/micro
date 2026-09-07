@@ -191,11 +191,25 @@ class CollectionReminderGenerator
             }
         }
 
+        $sendOptions = [
+            'platform'  => 'whatsapp',
+            'tenant_id' => $item->tenant_id,
+        ];
+
+        // Si hay una cuenta de cobranzas configurada en QRBO, cada
+        // recordatorio lleva el QR de pago adjunto — reutiliza el mismo QR
+        // mientras siga vigente (ver CollectionQrIssuer) en vez de generar
+        // uno nuevo en cada envío.
+        if (class_exists(\Aero\Crm\Classes\Collections\CollectionQrIssuer::class)) {
+            $qrCode = (new \Aero\Crm\Classes\Collections\CollectionQrIssuer())->issueFor($item);
+            if ($qrCode && $qrCode->qr_image) {
+                $sendOptions['media_url'] = url('/api/v1/qrbo/public/qr/' . $qrCode->internal_reference . '/image');
+                $sendOptions['media_type'] = 'image';
+            }
+        }
+
         try {
-            \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, [
-                'platform'  => 'whatsapp',
-                'tenant_id' => $item->tenant_id,
-            ]);
+            \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, $sendOptions);
         }
         catch (\Throwable $ex) {
             // Un contacto sin cuenta o sin identidad de WhatsApp no debe cortar

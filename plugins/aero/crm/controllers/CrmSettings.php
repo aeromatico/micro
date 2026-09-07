@@ -49,6 +49,7 @@ class CrmSettings extends Controller
         $settings->collections_enabled = (bool) ($data['collections_enabled'] ?? false);
         $settings->reminder_interval_days = (int) ($data['reminder_interval_days'] ?? 3) ?: 3;
         $settings->reminder_message_template = $data['reminder_message_template'] ?? null;
+        $settings->collections_bank_account_id = $data['collections_bank_account_id'] ?: null;
         $settings->save();
 
         if (!$wasEnabled && $settings->is_enabled) {
@@ -96,6 +97,16 @@ class CrmSettings extends Controller
                 'comment' => 'Se usa en el modo simple y como respaldo de cualquier regla de Automatización que no tenga su propia plantilla. Variables: {{contacto}}, {{monto}}, {{moneda}}, {{concepto}}, {{vencimiento}}.',
             ],
         ];
+
+        if (class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+            $config->fields['collections_bank_account_id'] = [
+                'label'       => 'Cuenta bancaria para cobranzas (QRBO)',
+                'type'        => 'dropdown',
+                'span'        => 'full',
+                'emptyOption' => '-- Ninguna (solo texto) --',
+                'comment'     => 'Se configura en: Pagos QR → Cuentas. Si la elegís, cada recordatorio de cobranza incluye el QR de pago — con una cuenta con API de banco el cobro se marca pagado solo; con una estática (sin API), queda para confirmar a mano.',
+            ];
+        }
 
         $widget = $this->makeWidget(Form::class, $config);
         $widget->bindToController();

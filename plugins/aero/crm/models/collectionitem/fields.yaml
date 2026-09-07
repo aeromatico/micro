@@ -66,3 +66,9 @@ fields:
         type: number
         span: auto
         disabled: true
+
+    _payment_info:
+        type: partial
+        path: payment_info
+        span: full
+        context: update

@@ -73,7 +73,6 @@ class Plugin extends PluginBase
 
         Event::listen('aero.shop.registerPaymentGateways', function ($manager) {
             $manager->register('manual', \Aero\Shop\Classes\PaymentGateways\ManualPaymentGateway::class);
-            $manager->register('pagos_qr_offline', \Aero\Shop\Classes\PaymentGateways\OfflineQrGateway::class);
 
             if (class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
                 $manager->register('pagos_qr', \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::class);

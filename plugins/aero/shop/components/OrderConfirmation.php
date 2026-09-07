@@ -51,16 +51,19 @@ class OrderConfirmation extends ComponentBase
     }
 
     /**
-     * Solo tiene efecto con el driver pagos_qr: dispara una consulta
-     * inmediata al banco (misma lógica que el reconciliador de cron y el
-     * botón "Consultar estado" del backend) para que el comprador no tenga
-     * que esperar hasta 5 minutos después de pagar.
+     * Solo tiene efecto con el driver pagos_qr sobre una cuenta con API real
+     * (BNB/Banco Económico): dispara una consulta inmediata al banco (misma
+     * lógica que el reconciliador de cron y el botón "Consultar estado" del
+     * backend) para que el comprador no tenga que esperar hasta 5 minutos
+     * después de pagar. Un QR estático ('email_gmail') no tiene un
+     * getStatus() real que consultar — su confirmación es manual, así que
+     * este botón solo refresca la pantalla por si el vendedor ya lo marcó.
      */
     public function onCheckPaymentStatus()
     {
         if ($this->order?->payment_gateway?->driver === 'pagos_qr' && class_exists(\Aero\Qrbo\Classes\QrStatusReconciler::class)) {
             $qrCode = \Aero\Qrbo\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
-            if ($qrCode && $qrCode->status === 'pending') {
+            if ($qrCode && $qrCode->status === 'pending' && $qrCode->bank_code !== 'email_gmail') {
                 app(\Aero\Qrbo\Classes\QrStatusReconciler::class)->reconcile($qrCode);
             }
         }

@@ -63,3 +63,12 @@
       lo que ResolvesCurrentTenant usa en todo el proyecto. Team/TeamMember
       no se tocó — sigue disponible para si se retoma la asignación de deals
       por equipo, solo dejó de estar en el menú."
+
+1.2.6:
+    - "Cobranzas se conecta con aero/qrbo (si está instalado): una cuenta
+      bancaria por defecto en Configuración de CRM genera un QR de cobro real
+      que se adjunta a los recordatorios de WhatsApp. Con una cuenta con API
+      de banco el cobro se marca pagado solo; con una cuenta estática (sin
+      API) queda para confirmar a mano, igual que en aero/shop."
+    - add_collections_bank_account_id_to_crm_settings_table.php
+    - add_payment_reference_to_collection_items_table.php

@@ -43,6 +43,13 @@ tabs:
             span: left
             disabled: true
 
+        _payment_info:
+            tab: Pedido
+            type: partial
+            path: payment_info
+            span: full
+            context: update
+
         currency:
             tab: Pedido
             label: Moneda

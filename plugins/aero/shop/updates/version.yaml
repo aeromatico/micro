@@ -54,3 +54,12 @@
       instalado) y marca el pedido como pagado automáticamente al confirmarse
       el pago."
     - add_qrbo_bank_account_id_to_payment_gateways.php
+
+1.0.7:
+    - "'Pago manual' pasa a llamarse 'Pagos offline' y ahora también puede
+      llevar una cuenta QRBO (una de QR fijo/correo, sin API) para mostrar su
+      QR al comprador — el pedido igual se confirma a mano. 'Pagos QR' ahora
+      solo ofrece cuentas con API real de banco (antes listaba cualquiera,
+      lo que rompía si elegías una de QR fijo). Se quita el switch
+      'Requiere confirmación manual', que no controlaba nada."
+    - drop_requires_manual_confirmation_column.php

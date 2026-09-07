@@ -1,0 +1,49 @@
+<?php
+    $item = $this->formGetModel();
+    $qrCode = $item->exists ? $item->getQrCode() : null;
+    $hasQrbo = class_exists(\Aero\Qrbo\Models\BankAccount::class);
+?>
+<?php if ($hasQrbo && $item->exists): ?>
+<div class="padded-container">
+    <h4>QR de cobro</h4>
+
+    <?php if ($qrCode): ?>
+    <p class="help-block">
+        Cuenta: <strong><?= e($qrCode->bankAccount->label ?? '—') ?></strong>
+        — Estado del QR: <strong><?= e($qrCode->getStatusOptions()[$qrCode->status] ?? $qrCode->status) ?></strong>
+    </p>
+
+    <?php if ($qrCode->bank_code === 'email_gmail'): ?>
+    <div class="alert alert-warning">
+        <i class="icon-warning"></i>
+        Este es un QR estático (sin API de banco) — no se confirma solo. Verificá el monto recibido en
+        <a href="<?= Backend::url('aero/qrbo/bankaccounts/update/' . $qrCode->bank_account_id) ?>#primarytab-transacciones" target="_blank">
+            QRBO → Cuentas → <?= e($qrCode->bankAccount->label ?? 'esta cuenta') ?> → Transacciones
+        </a>
+        antes de marcar el cobro como pagado.
+    </div>
+    <?php endif; ?>
+
+    <?php if ($qrCode->qr_image): ?>
+    <div>
+        <img src="data:image/png;base64,<?= $qrCode->qr_image ?>"
+             alt="QR de cobro"
+             style="max-width: 220px; border: 1px solid #ddd; padding: 6px; background: #fff;">
+    </div>
+    <?php endif; ?>
+    <?php endif; ?>
+
+    <button
+        type="button"
+        class="btn btn-default"
+        data-request="onGenerateQr"
+        data-request-data="record_id: <?= $item->id ?>"
+        data-request-confirm="<?= $qrCode ? '¿Generar un QR nuevo? El actual seguirá existiendo pero dejará de mostrarse acá.' : '¿Generar el QR de cobro para este ítem?' ?>">
+        <i class="icon-qrcode"></i> <?= $qrCode ? 'Regenerar QR' : 'Generar QR' ?>
+    </button>
+    <p class="help-block">
+        La cuenta bancaria usada se configura en Configuración de CRM → Cuenta bancaria para cobranzas.
+        Se adjunta solo a cada recordatorio de WhatsApp que se mande desde acá en adelante.
+    </p>
+</div>
+<?php endif; ?>

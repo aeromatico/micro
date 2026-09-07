@@ -1,14 +1,15 @@
 <?php namespace Aero\Shop\Classes\PaymentGateways;
 
 /**
- * Driver "manual": el comprador paga fuera de línea (transferencia, QR, WhatsApp)
- * y el vendedor confirma el pago desde el backend. requires_manual_confirmation
- * es siempre true para este driver.
+ * Driver "manual" (Pagos offline): el comprador paga fuera de línea
+ * (transferencia, QR fijo, WhatsApp) y el vendedor confirma el pedido a mano
+ * desde el backend — sin importar si el gateway tiene o no una cuenta QRBO
+ * asociada (ver PaymentGateway::qrbo_bank_account).
  */
 class ManualPaymentGateway
 {
     public static function label(): string
     {
-        return 'Pago manual (instrucciones)';
+        return 'Pagos offline';
     }
 }
