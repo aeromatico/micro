@@ -3,3 +3,19 @@
     - create_connectors_table.php
     - create_webhook_endpoints_table.php
     - create_connector_logs_table.php
+1.1.0:
+    - Agrega credit_cost/credit_type_id opcionales para que Aero.Credits pueda cobrar por llamada exitosa.
+    - add_credit_cost_to_connectors_table.php
+
+1.2.0:
+    - "El campo 'Tipo' deja de elegirse a mano: el modelo lo calcula solo por
+      el host de base_url (con un override opcional 'provider_hint'). El
+      formulario pasa a pedir API Key/Secret como texto plano en vez de JSON."
+    - add_provider_hint_to_connectors_table.php
+
+1.3.0:
+    - "El selector 'Proveedor' pasa a tener presets específicos (OpenRouter,
+      OpenCode Zen, Kilocode, OpenAI, Anthropic) que autocompletan la URL
+      base. Se agrega un campo 'Puerto' opcional para despliegues propios
+      (Ollama, LM Studio, gateways internos)."
+    - add_port_to_connectors_table.php

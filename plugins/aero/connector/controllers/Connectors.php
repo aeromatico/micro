@@ -24,13 +24,28 @@ class Connectors extends Controller
     }
 
     /**
-     * `config_json`/`credentials_json` son campos virtuales (JSON plano en un
-     * textarea) para no atarse a un formulario dinámico por tipo de conector.
+     * `config_json`/`credentials_json` siguen siendo JSON plano (avanzado),
+     * pero "API Key"/"Secret"/"Modelo IA" son inputs directos que se mezclan
+     * encima de lo que venga en el JSON avanzado.
      */
     public function formBeforeSave($model): void
     {
-        $model->config = $this->decodeJsonField(post('Connector.config_json'));
-        $model->credentials = $this->decodeJsonField(post('Connector.credentials_json'));
+        $advancedConfig = $this->decodeJsonField(post('Connector.config_json'));
+        $model->config = array_filter(
+            array_merge($advancedConfig, [
+                'model' => post('Connector.ai_model') ?: null,
+            ]),
+            fn ($value) => $value !== null && $value !== ''
+        );
+
+        $advancedCredentials = $this->decodeJsonField(post('Connector.credentials_json'));
+        $model->credentials = array_filter(
+            array_merge($advancedCredentials, [
+                'api_key' => post('Connector.api_key') ?: null,
+                'secret'  => post('Connector.secret') ?: null,
+            ]),
+            fn ($value) => $value !== null && $value !== ''
+        );
     }
 
     protected function decodeJsonField(?string $raw): array

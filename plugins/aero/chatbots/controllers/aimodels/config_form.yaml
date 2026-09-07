@@ -1,0 +1,14 @@
+name: Modelo de IA
+form: $/aero/chatbots/models/aimodel/fields.yaml
+modelClass: Aero\Chatbots\Models\AiModel
+defaultRedirect: aero/chatbots/aimodels
+
+create:
+    title: Nuevo modelo de IA
+    redirect: aero/chatbots/aimodels/update/:id
+    redirectClose: aero/chatbots/aimodels
+
+update:
+    title: Editar modelo de IA
+    redirect: aero/chatbots/aimodels
+    redirectClose: aero/chatbots/aimodels

@@ -4,41 +4,91 @@ fields:
         type: text
         span: left
 
-    type:
-        label: aero.connector::lang.connector.type
-        type: dropdown
-        span: right
+    provider_hint:
+        label: aero.connector::lang.connector.provider_hint
+        type: balloon-selector
+        span: full
+        default: ''
+        options:
+            '':            aero.connector::lang.connector.provider_auto
+            openrouter:    aero.connector::lang.connector.provider_openrouter
+            opencode_zen:  aero.connector::lang.connector.provider_opencode_zen
+            kilocode:      aero.connector::lang.connector.provider_kilocode
+            openai:        aero.connector::lang.connector.provider_openai
+            anthropic:     aero.connector::lang.connector.provider_anthropic
+            deepseek:      aero.connector::lang.connector.provider_deepseek
+            ai_custom:     aero.connector::lang.connector.provider_ai_custom
+            http:          aero.connector::lang.connector.provider_http
+        comment: aero.connector::lang.connector.provider_hint_comment
 
     base_url:
         label: aero.connector::lang.connector.base_url
         type: text
+        span: left
+        comment: aero.connector::lang.connector.base_url_comment
+
+    port:
+        label: aero.connector::lang.connector.port
+        type: number
+        span: right
+        comment: aero.connector::lang.connector.port_comment
+
+    api_key:
+        label: aero.connector::lang.connector.api_key
+        type: text
+        span: left
+
+    secret:
+        label: aero.connector::lang.connector.secret
+        type: text
+        span: right
+        comment: aero.connector::lang.connector.secret_comment
+
+    ai_model:
+        label: aero.connector::lang.connector.ai_model
+        type: text
         span: full
+        comment: aero.connector::lang.connector.ai_model_comment
 
     is_enabled:
         label: aero.connector::lang.connector.is_enabled
         type: switch
         span: full
 
-    config_json:
-        label: aero.connector::lang.connector.config
-        type: textarea
-        size: small
-        span: full
-        attributes:
-            style: 'font-family: monospace;'
-        comment: '{"model":"gpt-4o-mini","method":"POST","headers":{}}'
-
-    credentials_json:
-        label: aero.connector::lang.connector.credentials
-        type: textarea
-        size: small
-        span: full
-        attributes:
-            style: 'font-family: monospace;'
-        comment: '{"api_key":"...","token":"..."}'
-
 secondaryTabs:
     fields:
+        config_json:
+            label: aero.connector::lang.connector.config
+            type: textarea
+            size: small
+            tab: aero.connector::lang.connector.advanced
+            attributes:
+                style: 'font-family: monospace;'
+            comment: '{"method":"POST","headers":{},"auth_style":"api_key_header","header_name":"X-Token"}'
+
+        credentials_json:
+            label: aero.connector::lang.connector.credentials_advanced
+            type: textarea
+            size: small
+            tab: aero.connector::lang.connector.advanced
+            attributes:
+                style: 'font-family: monospace;'
+            comment: aero.connector::lang.connector.credentials_advanced_comment
+
+        credit_cost:
+            label: aero.connector::lang.connector.credit_cost
+            comment: aero.connector::lang.connector.credit_cost_comment
+            type: number
+            tab: aero.connector::lang.connector.credits
+            span: left
+
+        credit_type_id:
+            label: aero.connector::lang.connector.credit_type
+            type: dropdown
+            tab: aero.connector::lang.connector.credits
+            span: right
+            emptyOption: aero.connector::lang.connector.credit_type_default
+
         _test:
             type: partial
             path: $/aero/connector/models/connector/_tester.htm

@@ -20,7 +20,7 @@ class AiOpenAiCompatibleDriver implements ConnectorDriver
             ['role' => 'user', 'content' => $payload['prompt'] ?? ''],
         ];
 
-        return $this->chat($connector, $messages);
+        return $this->chat($connector, $messages, $payload['model'] ?? null);
     }
 
     public function test(Connector $connector, array $overridePayload = []): ConnectorResponse
@@ -29,15 +29,20 @@ class AiOpenAiCompatibleDriver implements ConnectorDriver
             ['role' => 'user', 'content' => $overridePayload['prompt'] ?? 'Responde solo "ok" si me recibes.'],
         ];
 
-        return $this->chat($connector, $messages);
+        return $this->chat($connector, $messages, $overridePayload['model'] ?? null);
     }
 
-    protected function chat(Connector $connector, array $messages): ConnectorResponse
+    /**
+     * `$modelOverride` permite que un mismo connector (con un modelo "por
+     * defecto" en su `config`) sea usado con distinto modelo por cada
+     * consumidor (ej. cada bot de Aero.Chatbots elige el suyo del catálogo).
+     */
+    protected function chat(Connector $connector, array $messages, ?string $modelOverride = null): ConnectorResponse
     {
         $config = (array) $connector->config;
         $apiKey = $connector->credentials['api_key'] ?? null;
-        $model = $config['model'] ?? 'gpt-4o-mini';
-        $baseUrl = rtrim($connector->base_url ?: 'https://api.openai.com/v1', '/');
+        $model = $modelOverride ?: ($config['model'] ?? 'gpt-4o-mini');
+        $baseUrl = rtrim($connector->resolvedBaseUrl() ?: 'https://api.openai.com/v1', '/');
 
         $started = microtime(true);
 

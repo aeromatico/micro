@@ -3,45 +3,34 @@
 use Aero\Connector\Models\Connector;
 
 /**
- * Aplica el estilo de auth declarado por el tipo (none|bearer|basic|api_key_header|api_key_query)
- * a una petición saliente genérica. Los drivers de fábrica (HttpDriver) lo usan
- * directo; un driver a medida puede ignorarlo y armar sus propios headers.
+ * Arma el auth de una petición saliente genérica (usado por HttpDriver) a
+ * partir de las credenciales estandarizadas del Connector, sin depender de
+ * un "tipo" elegido a mano: api_key + secret → Basic; solo api_key → Bearer
+ * (igual que los drivers de IA). Estilos menos comunes (header/query con
+ * nombre custom) siguen disponibles vía `config.auth_style` en el JSON
+ * avanzado, para no forzarle ese detalle a un dropdown en el flujo normal.
  */
 class AuthBuilder
 {
     public static function apply(Connector $connector, array $headers, array $query): array
     {
-        $type = TypeRegistry::find($connector->type) ?? [];
-        $auth = $type['auth'] ?? 'none';
         $credentials = $connector->credentials;
         $config = (array) $connector->config;
+        $apiKey = $credentials['api_key'] ?? null;
+        $secret = $credentials['secret'] ?? null;
+        $style = $config['auth_style'] ?? null;
 
-        switch ($auth) {
-            case 'bearer':
-                if (!empty($credentials['token'])) {
-                    $headers['Authorization'] = 'Bearer ' . $credentials['token'];
-                }
-                break;
-
-            case 'basic':
-                if (!empty($credentials['username'])) {
-                    $headers['Authorization'] = 'Basic ' . base64_encode(
-                        ($credentials['username'] ?? '') . ':' . ($credentials['password'] ?? '')
-                    );
-                }
-                break;
-
-            case 'api_key_header':
-                if (!empty($credentials['api_key'])) {
-                    $headers[$config['header_name'] ?? 'X-API-Key'] = $credentials['api_key'];
-                }
-                break;
-
-            case 'api_key_query':
-                if (!empty($credentials['api_key'])) {
-                    $query[$config['query_param'] ?? 'api_key'] = $credentials['api_key'];
-                }
-                break;
+        if ($style === 'api_key_header' && $apiKey) {
+            $headers[$config['header_name'] ?? 'X-API-Key'] = $apiKey;
+        }
+        elseif ($style === 'api_key_query' && $apiKey) {
+            $query[$config['query_param'] ?? 'api_key'] = $apiKey;
+        }
+        elseif ($apiKey && $secret) {
+            $headers['Authorization'] = 'Basic ' . base64_encode("{$apiKey}:{$secret}");
+        }
+        elseif ($apiKey) {
+            $headers['Authorization'] = 'Bearer ' . $apiKey;
         }
 
         return [$headers, $query];

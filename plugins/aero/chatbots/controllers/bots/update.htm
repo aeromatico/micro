@@ -1,28 +1,69 @@
+<?= Form::open(['class' => 'layout']) ?>
+
 <div class="control-tabs master-tabs" data-control="tab">
 
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#tab-bot" data-toggle="tab">
-                <i class="icon-android"></i> Bot
+            <a href="#tab-config" data-toggle="tab">
+                <i class="icon-cog"></i> Configuración
             </a>
         </li>
         <li>
-            <a href="#tab-reglas" data-toggle="tab">
-                <i class="icon-list-alt"></i> Reglas
+            <a href="#tab-chatbot" data-toggle="tab">
+                <i class="icon-android"></i> Chatbot
+            </a>
+        </li>
+        <li>
+            <a href="#tab-chatbot-ia" data-toggle="tab">
+                <i class="icon-magic"></i> Chatbot IA
             </a>
         </li>
     </ul>
 
     <div class="tab-content">
-        <div id="tab-bot" class="tab-pane active">
-            <?= $this->formRenderDesign() ?>
+        <div id="tab-config" class="tab-pane active">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'outside']) ?>
+            </div>
         </div>
 
-        <div id="tab-reglas" class="tab-pane">
+        <div id="tab-chatbot" class="tab-pane">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'primary']) ?>
+            </div>
             <div class="padded-container">
                 <?= $this->relationRender('rules') ?>
+            </div>
+        </div>
+
+        <div id="tab-chatbot-ia" class="tab-pane">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'secondary']) ?>
             </div>
         </div>
     </div>
 
 </div>
+
+<div class="form-buttons">
+    <button
+        type="submit"
+        data-request="onSave"
+        data-request-data="close:1"
+        data-hotkey="ctrl+enter, cmd+enter"
+        class="btn btn-primary">
+        <?= e(trans('backend::lang.form.save')) ?>
+    </button>
+    <button
+        type="button"
+        class="btn btn-danger oc-icon-trash-o"
+        data-request="onDelete"
+        data-request-confirm="<?= e(trans('backend::lang.form.delete_confirm')) ?>">
+        <?= e(trans('backend::lang.form.delete')) ?>
+    </button>
+    <a href="<?= Backend::url('aero/chatbots/bots') ?>" class="btn btn-default">
+        <?= e(trans('backend::lang.form.cancel')) ?>
+    </a>
+</div>
+
+<?= Form::close() ?>

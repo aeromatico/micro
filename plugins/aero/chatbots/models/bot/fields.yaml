@@ -1,39 +1,70 @@
 fields:
-    tenant_id:
-        label: Tenant
-        type: dropdown
-        span: left
-        comment: "Solo lo elige el superadmin; a un tenant admin se le asigna automáticamente y el campo queda oculto."
-
-    account_id:
-        label: Cuenta de Hello
-        type: dropdown
-        span: right
-        required: true
-        comment: "Número o cuenta social conectada en Aero.Hello que este bot va a contestar."
-
-    name:
-        label: Nombre del bot
+    reply_mode:
+        label: Modo de respuesta
+        type: balloon-selector
         span: full
-        required: true
+        default: autoresponder
+        options:
+            autoresponder: Autorespondedor
+            ai: IA
+            super_ai: "Súper IA (próximamente)"
+        comment: "Autorespondedor = solo reglas + mensaje por defecto (modo clásico). IA = si ninguna regla matchea, responde con el conector/modelo de la pestaña Chatbot IA. Súper IA: reservado para más adelante, hoy funciona igual que IA."
 
-    is_active:
-        label: Activo
-        type: switch
-        span: left
-        default: true
+tabs:
+    suppressTabs: true
+    fields:
+        account_id:
+            label: Cuenta
+            type: dropdown
+            span: left
+            required: true
+            comment: "Número o cuenta social conectada en Aero.Hello que este bot va a contestar."
 
-    handoff_minutes:
-        label: Pausa tras respuesta humana (minutos)
-        type: number
-        span: right
-        required: true
-        default: 30
-        comment: "Si un agente responde manualmente la conversación, el bot deja de contestar por este tiempo."
+        name:
+            label: Nombre del bot
+            span: right
+            comment: "Opcional — si lo dejás vacío, se genera uno solo a partir de la cuenta."
 
-    fallback_message:
-        label: Mensaje por defecto
-        type: textarea
-        size: small
-        span: full
-        comment: "Se envía cuando el mensaje entrante no matchea ninguna regla. Vacío = el bot no responde en ese caso. WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado`. Para emojis, usá el atajo del sistema: Win+. en Windows, Cmd+Ctrl+Space en Mac."
+        tenant_id:
+            label: Tenant
+            type: dropdown
+            span: left
+            comment: "Solo lo elige el superadmin; a un tenant admin se le asigna automáticamente y el campo queda oculto."
+
+        handoff_minutes:
+            label: Pausa tras respuesta humana (minutos)
+            type: number
+            span: right
+            default: 15
+            comment: "Si un agente responde manualmente la conversación, el bot deja de contestar por este tiempo. Opcional, usa 15 si lo dejás vacío."
+
+        fallback_message:
+            label: Mensaje por defecto
+            type: textarea
+            size: small
+            span: full
+            comment: "Se envía cuando el mensaje entrante no matchea ninguna regla, SOLO en modo Autorespondedor. En modo IA/Súper IA, si la IA falla no se responde nada antes que mandar un texto genérico. Vacío = el bot no responde en ese caso. WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado`. Para emojis, usá el atajo del sistema: Win+. en Windows, Cmd+Ctrl+Space en Mac."
+
+secondaryTabs:
+    fields:
+        ai_connector_id:
+            label: Conector de IA
+            type: dropdown
+            span: left
+            emptyOption: "(elegir un conector)"
+            comment: "Los conectores se administran en Aero.Connector. Solo tiene efecto si el Modo de respuesta (pestaña Configuración) es IA o Súper IA."
+
+        ai_model:
+            label: Modelo
+            type: dropdown
+            span: right
+            dependsOn: ai_connector_id
+            emptyOption: "(elegir un conector primero)"
+            comment: "Catálogo predefinido de modelos del conector elegido."
+
+        ai_system_prompt:
+            label: Prompt del sistema
+            type: textarea
+            size: small
+            span: full
+            comment: "Define el tono/rol del bot. Vacío = se usa un prompt genérico de atención por WhatsApp en español."

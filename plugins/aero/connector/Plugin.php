@@ -51,19 +51,16 @@ class Plugin extends PluginBase
                     'label'    => trans('aero.connector::lang.types.http'),
                     'category' => 'http',
                     'driver'   => \Aero\Connector\Drivers\HttpDriver::class,
-                    'auth'     => 'bearer',
                 ],
                 'ai_openai_compatible' => [
                     'label'    => trans('aero.connector::lang.types.ai_openai_compatible'),
                     'category' => 'ai',
                     'driver'   => \Aero\Connector\Drivers\AiOpenAiCompatibleDriver::class,
-                    'auth'     => 'none',
                 ],
                 'ai_anthropic' => [
                     'label'    => trans('aero.connector::lang.types.ai_anthropic'),
                     'category' => 'ai',
                     'driver'   => \Aero\Connector\Drivers\AiAnthropicDriver::class,
-                    'auth'     => 'none',
                 ],
             ];
         });

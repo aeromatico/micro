@@ -1,0 +1,14 @@
+list: $/aero/chatbots/models/aimodel/columns.yaml
+modelClass: Aero\Chatbots\Models\AiModel
+title: Modelos de IA
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: created_at
+    direction: desc
+recordUrl: aero/chatbots/aimodels/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

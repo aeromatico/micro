@@ -36,6 +36,7 @@ class HttpDriver implements ConnectorDriver
         $query = [];
 
         [$headers, $query] = AuthBuilder::apply($connector, $headers, $query);
+        $baseUrl = $connector->resolvedBaseUrl();
 
         $started = microtime(true);
 
@@ -43,11 +44,11 @@ class HttpDriver implements ConnectorDriver
             $request = Http::withHeaders($headers)->timeout(20);
 
             $response = match ($method) {
-                'GET'    => $request->get($connector->base_url, array_merge($query, $payload)),
-                'DELETE' => $request->delete($connector->base_url, $payload),
-                'PUT'    => $request->put($connector->base_url, $payload),
-                'PATCH'  => $request->patch($connector->base_url, $payload),
-                default  => $request->post($connector->base_url, $payload),
+                'GET'    => $request->get($baseUrl, array_merge($query, $payload)),
+                'DELETE' => $request->delete($baseUrl, $payload),
+                'PUT'    => $request->put($baseUrl, $payload),
+                'PATCH'  => $request->patch($baseUrl, $payload),
+                default  => $request->post($baseUrl, $payload),
             };
 
             $durationMs = (int) round((microtime(true) - $started) * 1000);

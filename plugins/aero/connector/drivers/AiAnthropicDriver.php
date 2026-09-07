@@ -20,7 +20,7 @@ class AiAnthropicDriver implements ConnectorDriver
             ['role' => 'user', 'content' => $payload['prompt'] ?? ''],
         ];
 
-        return $this->messages($connector, $messages);
+        return $this->messages($connector, $messages, $payload['model'] ?? null);
     }
 
     public function test(Connector $connector, array $overridePayload = []): ConnectorResponse
@@ -29,15 +29,15 @@ class AiAnthropicDriver implements ConnectorDriver
             ['role' => 'user', 'content' => $overridePayload['prompt'] ?? 'Responde solo "ok" si me recibes.'],
         ];
 
-        return $this->messages($connector, $messages);
+        return $this->messages($connector, $messages, $overridePayload['model'] ?? null);
     }
 
-    protected function messages(Connector $connector, array $messages): ConnectorResponse
+    protected function messages(Connector $connector, array $messages, ?string $modelOverride = null): ConnectorResponse
     {
         $config = (array) $connector->config;
         $apiKey = $connector->credentials['api_key'] ?? null;
-        $model = $config['model'] ?? 'claude-sonnet-5';
-        $baseUrl = rtrim($connector->base_url ?: 'https://api.anthropic.com', '/');
+        $model = $modelOverride ?: ($config['model'] ?? 'claude-sonnet-5');
+        $baseUrl = rtrim($connector->resolvedBaseUrl() ?: 'https://api.anthropic.com', '/');
 
         $started = microtime(true);
 

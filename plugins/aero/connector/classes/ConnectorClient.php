@@ -2,6 +2,7 @@
 
 use Aero\Connector\Models\Connector;
 use Aero\Connector\Models\ConnectorLog;
+use Event;
 
 /**
  * Punto único para ejecutar un Connector: resuelve su driver por tipo,
@@ -42,6 +43,12 @@ class ConnectorClient
             'duration_ms'      => $response->durationMs,
             'is_test'          => $isTest,
         ]);
+
+        // Evento genérico, reutilizable más allá de créditos (métricas,
+        // billing propio, etc.) — no se dispara en pruebas del tester.
+        if (!$isTest) {
+            Event::fire('aero.connector.afterRun', [$connector, $response]);
+        }
 
         return $response;
     }

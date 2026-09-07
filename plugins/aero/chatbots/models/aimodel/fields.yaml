@@ -1,0 +1,41 @@
+fields:
+    connector_id:
+        label: Conector
+        type: dropdown
+        span: left
+        required: true
+        emptyOption: "(elegir un conector)"
+        comment: "Conector de IA (Aero.Connector) del que viene este modelo. Si no aparece ninguno en la lista, primero creá uno en Aero.Connector > Conectores."
+
+    model_id:
+        label: ID del modelo
+        type: text
+        span: right
+        required: true
+        comment: "El identificador exacto que espera la API del proveedor, ej. openai/gpt-4o-mini."
+
+    label:
+        label: Nombre para mostrar
+        type: text
+        span: full
+        required: true
+        comment: "Lo que ve el tenant al elegir el modelo en su bot."
+
+    is_active:
+        label: Activo
+        type: switch
+        span: full
+        default: true
+        comment: "Solo los modelos activos aparecen para elegir en los bots."
+
+    credit_cost:
+        label: Costo en créditos por respuesta
+        type: number
+        span: left
+        comment: "Vacío o 0 = no cobra créditos. Solo se cobra si la respuesta de IA fue exitosa. Requiere Aero.Credits instalado."
+
+    credit_type_id:
+        label: Color de crédito
+        type: dropdown
+        span: right
+        emptyOption: "(usar el color por defecto)"

@@ -70,6 +70,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/chatbots/logs'),
                         'permissions' => ['aero.chatbots.manage', 'aero.chatbots.superadmin'],
                     ],
+                    'configuracion' => [
+                        'label'       => 'Configuración',
+                        'icon'        => 'icon-cogs',
+                        'url'         => Backend::url('aero/chatbots/aimodels'),
+                        'permissions' => ['aero.chatbots.superadmin'],
+                    ],
                 ],
             ],
         ];

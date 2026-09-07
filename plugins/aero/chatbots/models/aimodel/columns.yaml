@@ -1,0 +1,19 @@
+columns:
+    label:
+        label: Nombre
+        searchable: true
+    connector_label:
+        label: Conector
+        sortable: false
+    model_id:
+        label: ID del modelo
+        searchable: true
+    credit_cost:
+        label: Créditos
+    is_active:
+        label: Activo
+        type: switch
+    created_at:
+        label: Creado
+        type: date
+        invisible: true

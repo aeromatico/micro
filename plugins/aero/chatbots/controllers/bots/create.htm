@@ -1,1 +1,63 @@
-<?= $this->formRenderDesign() ?>
+<?= Form::open(['class' => 'layout']) ?>
+
+<div class="control-tabs master-tabs" data-control="tab">
+
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#tab-config" data-toggle="tab">
+                <i class="icon-cog"></i> Configuración
+            </a>
+        </li>
+        <li>
+            <a href="#tab-chatbot" data-toggle="tab">
+                <i class="icon-android"></i> Chatbot
+            </a>
+        </li>
+        <li>
+            <a href="#tab-chatbot-ia" data-toggle="tab">
+                <i class="icon-magic"></i> Chatbot IA
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="tab-config" class="tab-pane active">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'outside']) ?>
+            </div>
+        </div>
+
+        <div id="tab-chatbot" class="tab-pane">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'primary']) ?>
+            </div>
+            <p class="text-muted padded-container">
+                Las reglas de palabras clave aparecen después de crear el bot.
+            </p>
+        </div>
+
+        <div id="tab-chatbot-ia" class="tab-pane">
+            <div class="layout-row">
+                <?= $this->formRender(['section' => 'secondary']) ?>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="form-buttons">
+    <button
+        type="submit"
+        data-request="onSave"
+        data-request-data="close:1"
+        data-hotkey="ctrl+enter, cmd+enter"
+        data-load-indicator="<?= e(trans('backend::lang.form.creating')) ?>"
+        class="btn btn-primary">
+        <?= e(trans('backend::lang.form.create')) ?>
+    </button>
+    <a href="<?= Backend::url('aero/chatbots/bots') ?>" class="btn btn-default">
+        <?= e(trans('backend::lang.form.cancel')) ?>
+    </a>
+</div>
+
+<?= Form::close() ?>
