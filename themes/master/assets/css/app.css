@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: light;
+        --color-canvas: #faf9fc;
+        --color-canvas-elev: #f2f0f6;
+        --color-canvas-elev-2: #e8e5ee;
+        --color-ink: #17151f;
+        --color-ink-dim: #5c5868;
+        --color-edge: #ddd9e6;
+        --color-accent: #b7bd3f;
+        --color-accent-fg: #15131c;
+    }
+    html.dark {
+        color-scheme: dark;
+        --color-canvas: #121016;
+        --color-canvas-elev: #1c1a22;
+        --color-canvas-elev-2: #242230;
+        --color-ink: #f4f3f8;
+        --color-ink-dim: #a9a6ba;
+        --color-edge: #332f40;
+        --color-accent: #b7bd3f;
+        --color-accent-fg: #15131c;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        @apply bg-canvas text-ink font-body antialiased transition-colors duration-200;
+    }
+    h1, h2, h3 {
+        @apply font-display tracking-tight;
+    }
+}
+
+[x-cloak] {
+    display: none !important;
+}

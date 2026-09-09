@@ -1,0 +1,43 @@
+description = "Layout base — dark-first (con toggle claro/oscuro), Alpine.js"
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {# Anti-parpadeo: fija .dark en <html> de forma síncrona ANTES de pintar,
+       leyendo la preferencia guardada (default 'dark', el tema es dark-first). #}
+    <script>
+        (function () {
+            var saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.classList.toggle('dark', saved === 'dark');
+        })();
+    </script>
+
+    <title>{{ this.page.title ?: 'Market — el sistema operativo de tu negocio digital' }}</title>
+    {% if this.page.description %}<meta name="description" content="{{ this.page.description }}">{% endif %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Urbanist:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v=7">
+
+    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=3.16.3"></script>
+
+    {% framework extras %}
+</head>
+<body class="bg-canvas text-ink font-body antialiased min-h-screen flex flex-col">
+
+    {% partial 'site/header' %}
+
+    <main class="flex-1">
+        {% page %}
+    </main>
+
+    {% partial 'site/footer' %}
+
+</body>
+</html>

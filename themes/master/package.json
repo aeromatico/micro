@@ -1,0 +1,11 @@
+{
+    "name": "master-theme",
+    "private": true,
+    "scripts": {
+        "dev": "npx tailwindcss -i assets/css/app.css -o assets/css/app.min.css --watch",
+        "build": "npx tailwindcss -i assets/css/app.css -o assets/css/app.min.css --minify"
+    },
+    "devDependencies": {
+        "tailwindcss": "^3.4.19"
+    }
+}
