@@ -18,7 +18,7 @@ class Archetype extends Model
 
     public $fillable = [
         'handle', 'name', 'niche_type', 'description',
-        'tone_instructions', 'target_audience',
+        'tone_instructions', 'target_audience', 'base_prompt',
         'blocks', 'recommended_tones', 'is_active', 'sort_order',
     ];
 
@@ -48,6 +48,26 @@ class Archetype extends Model
     public function getNicheTypeOptions(): array
     {
         return ['' => 'Universal (cualquier nicho)'] + app(NicheManager::class)->options();
+    }
+
+    /**
+     * `base_prompt` propio si lo tiene; si no, el prompt de ejemplo del
+     * nicho al que pertenece (o el del nicho del tenant, para arquetipos
+     * universales sin niche_type). Usado para autocompletar la descripción
+     * del negocio en el panel de generación con IA — ver ContentEditor.
+     */
+    public function resolveBasePrompt(?string $tenantNicheType = null): string
+    {
+        if (filled($this->base_prompt)) {
+            return $this->base_prompt;
+        }
+
+        $nicheHandle = $this->niche_type ?: $tenantNicheType;
+        if (!$nicheHandle) {
+            return '';
+        }
+
+        return app(NicheManager::class)->make($nicheHandle)->getBasePrompt();
     }
 
     /**

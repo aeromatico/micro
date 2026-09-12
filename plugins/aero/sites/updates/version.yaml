@@ -100,3 +100,34 @@
       owner_type/owner_id — cada uno ve y crea solo las suyas, un superadmin
       sigue viendo todas."
     - grant_api_keys_to_tenant_admin.php
+
+1.18.0:
+    - "Prompt base por arquetipo: al elegir un arquetipo en el panel de
+      generación con IA, autocompleta el campo de descripción del negocio con
+      un texto de ejemplo ya afinado para ese arquetipo (el usuario solo lo
+      edita), en vez de partir de un campo en blanco. Cargado por ahora solo
+      para el arquetipo Estándar."
+    - add_base_prompt_to_archetypes.php
+
+1.19.0:
+    - "Selector de 'Modelo de IA' en el panel de generación: además del
+      proveedor único de Aero.AiFields (default), se puede elegir un
+      Connector de Aero.Connector puntual — deja comparar redacción/estilo
+      entre modelos (frontera y chinos) para el mismo prompt. Aumenta
+      max_tokens (8000→16000) y agrega timeouts explícitos también del lado
+      de SiteGenerator al llamar por Connector, por el mismo motivo que la
+      1.17.x (modelos 'reasoning' gastan tokens de pensamiento del mismo
+      presupuesto). También suma guía de paleta/tono del DesignTheme
+      asignado al prompt del sistema, para que la IA elija tokens de
+      color/estilo coherentes con el tema visual del tenant en vez de
+      ignorarlo."
+    - add_connector_id_to_ai_generations.php
+
+1.20.0:
+    - "Prompt base propio por arquetipo (antes solo lo tenía 'Estándar'): cada
+      uno de los 9 arquetipos restantes suma su propio texto de ejemplo para
+      autocompletar la descripción del negocio, en vez de heredar todos el
+      mismo prompt genérico del nicho — así 'Portafolio visual' y 'Enfoque en
+      resultados' (por ejemplo) ya no muestran idéntico texto solo por
+      compartir nicho inmuebles."
+    - add_base_prompt_variants_to_archetypes.php

@@ -39,7 +39,7 @@ fields:
         size: small
         span: full
         placeholder: 'Ej: Cálido y profesional, evitar promesas exageradas.'
-        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque).
+        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque). Vacío = hereda el del nicho (specs/niches/{handle}.yaml).
 
     target_audience:
         label: Público objetivo
@@ -47,7 +47,15 @@ fields:
         size: small
         span: full
         placeholder: 'Ej: Pacientes evaluando dónde atenderse, sensibles al trato y la confianza.'
-        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque).
+        comment: Se inyecta en el prompt de la IA para toda la generación (no por bloque). Vacío = hereda el del nicho (specs/niches/{handle}.yaml).
+
+    base_prompt:
+        label: Prompt base (autocompletado)
+        type: textarea
+        size: small
+        span: full
+        placeholder: 'Ej: [Nombre del negocio] es una clínica dental con [X años] de experiencia...'
+        comment: Al elegir este arquetipo en el panel de generación, este texto llena automáticamente el campo de descripción del negocio (el usuario lo edita antes de generar). Dejar vacío para heredar el prompt base del nicho (specs/niches/{handle}.yaml) en vez de uno propio.
 
     recommended_tones:
         label: Tonos de tema afines

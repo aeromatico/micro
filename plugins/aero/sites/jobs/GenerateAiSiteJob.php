@@ -23,13 +23,18 @@ class GenerateAiSiteJob implements ShouldQueue
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
     public int $tries = 1; // SiteGenerator ya reintenta internamente la corrección del JSON
-    public int $timeout = 180;
+    // SiteGenerator hace hasta 3 llamadas HTTP (150s c/u) si el JSON sale
+    // inválido y hay que pedir corrección — debe quedar por encima de ese
+    // peor caso o el worker mata el proceso a mitad de camino y el registro
+    // se queda en status=processing para siempre (el polling nunca termina).
+    public int $timeout = 500;
 
     public function __construct(
         protected int $tenantId,
         protected string $prompt,
         protected int $generationId,
-        protected ?string $archetypeHandle = null
+        protected ?string $archetypeHandle = null,
+        protected ?int $connectorId = null
     ) {
     }
 
@@ -46,10 +51,15 @@ class GenerateAiSiteJob implements ShouldQueue
             return;
         }
 
-        $log->update(['status' => 'processing', 'step' => 'generating_content', 'archetype_handle' => $this->archetypeHandle]);
+        $log->update([
+            'status'           => 'processing',
+            'step'             => 'generating_content',
+            'archetype_handle' => $this->archetypeHandle,
+            'connector_id'     => $this->connectorId,
+        ]);
 
         try {
-            $result = (new SiteGenerator())->generate($tenant, $this->prompt, 2, $log, $this->archetypeHandle);
+            $result = (new SiteGenerator())->generate($tenant, $this->prompt, 2, $log, $this->archetypeHandle, $this->connectorId);
 
             if (!$result) {
                 // SiteGenerator ya marcó status=failed en $log si todos los intentos fallaron.

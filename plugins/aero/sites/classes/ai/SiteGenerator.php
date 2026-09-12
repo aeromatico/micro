@@ -2,6 +2,7 @@
 
 use Aero\AiFields\Models\Settings as AiSettings;
 use Aero\AiFields\Services\AiService;
+use Aero\Sites\Classes\Niches\NicheManager;
 use Aero\Sites\Models\AiGeneration;
 use Aero\Sites\Models\Archetype;
 use Aero\Sites\Models\DesignTheme;
@@ -144,7 +145,7 @@ class SiteGenerator
     // Prompt
     // -----------------------------------------------------------------------
 
-    protected function buildSystemPrompt(Tenant $tenant, array $archetype): string
+    protected function buildSystemPrompt(Tenant $tenant, array $archetype, ?DesignTheme $theme = null): string
     {
         $nicheLabel = $tenant->niche_type;
         $tenant->load(['seoConfig', 'contactConfig']);
@@ -197,6 +198,8 @@ class SiteGenerator
             $writingGuidance .= "\nPúblico objetivo: {$archetype['target_audience']}";
         }
 
+        $paletteGuidance = $this->buildPaletteGuidance($tenant, $theme);
+
         return <<<PROMPT
 Eres un diseñador de sitios web. Debes generar una página de inicio (landing page) profesional
 para un micrositio de negocio usando EXCLUSIVAMENTE los componentes disponibles abajo.
@@ -228,7 +231,60 @@ Rubro / nicho: {$nicheLabel}
 {$contactInfo}
 Descripción del negocio (SEO): {$defaultDesc}
 {$writingGuidance}
+{$paletteGuidance}
 PROMPT;
+    }
+
+    /**
+     * Describe la paleta/tema visual YA asignado al tenant (resuelto por
+     * resolveTheme() antes de llamar acá) para que la IA elija props de
+     * bloque (background/style/textColor, etc.) que luzcan bien con ella,
+     * en vez de ignorarla — el objetivo es mantener homogeneidad visual
+     * entre lo que genera la IA y el resto del sitio/tema del tenant.
+     * Los colores nunca se escriben literal en el JSON (los props de color
+     * son siempre tokens semánticos del catálogo, ver componentCatalog());
+     * esto solo informa el "criterio" de la IA al elegir esos tokens.
+     */
+    protected function buildPaletteGuidance(Tenant $tenant, ?DesignTheme $theme): string
+    {
+        if (!$theme) {
+            return "\nNo hay un tema visual asignado todavía — usá los valores por defecto de cada componente "
+                . 'y evitá abusar de fondos de color fuerte.';
+        }
+
+        $colors = $tenant->getEffectiveCssVars()['light'] ?? [];
+        $toneLabels = [
+            'corporate' => 'corporativo, sobrio',
+            'playful'   => 'divertido, desenfadado',
+            'minimal'   => 'minimalista, con mucho espacio en blanco',
+            'elegant'   => 'elegante, sofisticado',
+            'bold'      => 'audaz, de alto contraste',
+            'warm'      => 'cálido, cercano',
+        ];
+        $toneLabel = $toneLabels[$theme->tone] ?? $theme->tone;
+
+        $imageMoods = [
+            'corporate' => 'profesionales, luz natural, colores neutros — evitá fotos muy saturadas o llamativas',
+            'playful'   => 'luminosas, coloridas, con gente sonriendo',
+            'minimal'   => 'con poco recargo visual y espacio negativo, tonos neutros',
+            'elegant'   => 'con buena iluminación, tonos suaves y sobrios, poco contraste',
+            'bold'      => 'con contraste fuerte y colores vivos',
+            'warm'      => 'con tonos tierra/dorados, ambiente acogedor',
+        ];
+        $imageMood = $imageMoods[$theme->tone] ?? 'coherentes con un tono ' . $toneLabel;
+
+        return <<<GUIDANCE
+
+Paleta y tema visual (ya asignado a este sitio, NO lo elegís vos):
+- Tema: {$theme->name} (tono {$toneLabel})
+- Primario: {$colors['--color-primary']} · Secundario: {$colors['--color-secondary']} · Acento: {$colors['--color-accent']}
+- Fondo de página: {$colors['--color-surface-bg']} · Fondo de tarjetas: {$colors['--color-surface-alt']}
+
+Reglas de paleta (para mantener homogeneidad con el resto del sitio):
+- NUNCA escribas un color literal (hex/rgb) en ningún prop. Todo prop de tipo color/estilo (background, style, textColor, etc.) es siempre uno de los valores semánticos que ofrece el catálogo para ese componente — esos valores ya están ligados a esta paleta.
+- Alterná fondos entre bloques consecutivos (no uses el fondo de marca/acento en más de 2 bloques seguidos), salvo que el tono del tema sea "bold".
+- Para bgImageKeywords/imageKeywords: preferí fotos {$imageMood}, para que no choquen con esta paleta.
+GUIDANCE;
     }
 
     // -----------------------------------------------------------------------
@@ -243,18 +299,20 @@ PROMPT;
      */
     protected function resolveArchetype(Tenant $tenant, ?string $archetypeHandle = null, string $userPrompt = ''): array
     {
+        $niche = $this->resolveNiche($tenant->niche_type);
+
         $default = [
             'handle' => 'default',
             'blocks' => array_map(fn ($type) => ['type' => $type, 'instruction' => ''], ['Hero', 'FeatureGrid', 'Testimonials', 'CTASection']),
             'recommended_tones'  => [],
-            'tone_instructions'  => '',
-            'target_audience'    => '',
+            'tone_instructions'  => $niche->getToneInstructions(),
+            'target_audience'    => $niche->getTargetAudience(),
         ];
 
         if ($archetypeHandle) {
             $chosen = Archetype::active()->where('handle', $archetypeHandle)->first();
             if ($chosen) {
-                return $this->archetypeToArray($chosen);
+                return $this->archetypeToArray($chosen, $tenant);
             }
         }
 
@@ -264,7 +322,16 @@ PROMPT;
             return $default;
         }
 
-        return $this->archetypeToArray($this->pickBestArchetype($candidates, $userPrompt));
+        return $this->archetypeToArray($this->pickBestArchetype($candidates, $userPrompt), $tenant);
+    }
+
+    /**
+     * NicheManager::make() ya cae a 'generic' si el handle no está
+     * registrado, así que esto nunca lanza para un niche_type desconocido.
+     */
+    protected function resolveNiche(?string $nicheType): \Aero\Sites\Classes\Niches\NicheManagerInterface
+    {
+        return app(NicheManager::class)->make($nicheType ?: 'generic');
     }
 
     /**
@@ -323,14 +390,22 @@ PROMPT;
         return array_values(array_unique($words));
     }
 
-    protected function archetypeToArray(Archetype $archetype): array
+    /**
+     * Cuando el arquetipo no define tone_instructions/target_audience propios
+     * (típicamente los universales, niche_type null), hereda los del nicho
+     * del tenant — así ningún arquetipo llega a la IA sin guía de tono/
+     * audiencia por el solo hecho de ser "universal".
+     */
+    protected function archetypeToArray(Archetype $archetype, Tenant $tenant): array
     {
+        $niche = $this->resolveNiche($archetype->niche_type ?: $tenant->niche_type);
+
         return [
             'handle'             => $archetype->handle,
             'blocks'             => $archetype->blocks_with_instructions,
             'recommended_tones'  => $archetype->recommended_tones ?? [],
-            'tone_instructions'  => $archetype->tone_instructions ?? '',
-            'target_audience'    => $archetype->target_audience ?? '',
+            'tone_instructions'  => $archetype->tone_instructions ?: $niche->getToneInstructions(),
+            'target_audience'    => $archetype->target_audience ?: $niche->getTargetAudience(),
         ];
     }
 
@@ -525,14 +600,77 @@ PROMPT;
      *                                tenant_id/user_id ya seteados en ese registro.
      * @param string|null $archetypeHandle  Arquetipo elegido explícitamente por el usuario
      *                                      (ver Archetype); null = elegir uno al azar por nicho.
+     * @param int|null    $connectorId  Modelo de IA elegido explícitamente por el usuario
+     *                                  (Aero\Connector\Models\Connector, categoría "ai");
+     *                                  null = usa el proveedor único configurado en
+     *                                  Aero.AiFields (comportamiento de siempre).
      * @return array{html: string, puck_data: array, log_id: int}|null
      */
-    public function generate(Tenant $tenant, string $userPrompt, int $retries = 2, ?AiGeneration $log = null, ?string $archetypeHandle = null): ?array
+    /**
+     * Llama al modelo de IA y normaliza la respuesta al shape que espera el
+     * loop de generate() (`content`/`usage.input_tokens`/`usage.output_tokens`/
+     * `provider`/`model`), sin importar si viene de Aero.AiFields (proveedor
+     * único global) o de un Aero\Connector\Models\Connector elegido por el
+     * usuario (varios modelos a elección — "Modelo de IA" en el panel).
+     */
+    protected function callAi(string $systemPrompt, string $userPrompt, ?int $connectorId): array
+    {
+        if (!$connectorId || !class_exists(\Aero\Connector\Models\Connector::class)) {
+            return $this->ai->complete($userPrompt, [
+                'system'      => $systemPrompt,
+                'provider'    => null,  // usa el default de AiFields
+                // Modelos "reasoning" (ej. deepseek-v4-flash) gastan tokens
+                // de razonamiento del mismo presupuesto de max_tokens antes
+                // de escribir el JSON final — con 8000 a veces se quedaban
+                // sin espacio a mitad del JSON (respuesta inválida).
+                'max_tokens'  => 16000,
+                'temperature' => 0.5,
+            ]);
+        }
+
+        $connector = \Aero\Connector\Models\Connector::find($connectorId);
+        if (!$connector || !$connector->is_enabled) {
+            throw new Exception('El modelo de IA elegido ya no está disponible.');
+        }
+
+        $response = app(\Aero\Connector\Classes\ConnectorClient::class)->send($connector, [
+            'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
+            ],
+            'max_tokens' => 16000,
+            'timeout'    => 150,
+        ]);
+
+        if (!$response->successful) {
+            throw new Exception($response->error ?: "Fallo del proveedor (HTTP {$response->statusCode}).");
+        }
+
+        $content = \Aero\Connector\Classes\AiResponseText::extract($connector, $response);
+        if (!$content) {
+            throw new Exception('El modelo respondió sin contenido de texto.');
+        }
+
+        $body = is_array($response->body) ? $response->body : (json_decode((string) $response->rawBody, true) ?? []);
+        $usage = $body['usage'] ?? [];
+
+        return [
+            'content'  => $content,
+            'usage'    => [
+                'input_tokens'  => $usage['prompt_tokens'] ?? $usage['input_tokens'] ?? 0,
+                'output_tokens' => $usage['completion_tokens'] ?? $usage['output_tokens'] ?? 0,
+            ],
+            'provider' => $connector->provider_hint ?: $connector->type,
+            'model'    => $connector->ai_model,
+        ];
+    }
+
+    public function generate(Tenant $tenant, string $userPrompt, int $retries = 2, ?AiGeneration $log = null, ?string $archetypeHandle = null, ?int $connectorId = null): ?array
     {
         $archetype = $this->resolveArchetype($tenant, $archetypeHandle, $userPrompt);
-        $this->resolveTheme($tenant, $archetype);
+        $theme     = $this->resolveTheme($tenant, $archetype);
 
-        $systemPrompt = $this->buildSystemPrompt($tenant, $archetype);
+        $systemPrompt = $this->buildSystemPrompt($tenant, $archetype, $theme);
         $combinedPrompt = "DESCRIPCIÓN ADICIONAL DEL USUARIO:\n{$userPrompt}\n\nGenera el JSON de la página.";
 
         $lastError = null;
@@ -545,12 +683,7 @@ PROMPT;
             }
 
             try {
-                $result = $this->ai->complete($combinedPrompt, [
-                    'system'      => $systemPrompt,
-                    'provider'    => null,  // usa el default de AiFields
-                    'max_tokens'  => 8000,
-                    'temperature' => 0.5,
-                ]);
+                $result = $this->callAi($systemPrompt, $combinedPrompt, $connectorId);
 
                 $attempts++;
 
