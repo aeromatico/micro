@@ -131,3 +131,10 @@
       resultados' (por ejemplo) ya no muestran idéntico texto solo por
       compartir nicho inmuebles."
     - add_base_prompt_variants_to_archetypes.php
+
+1.21.0:
+    - "Habilita el Dashboard central de October (con sus widgets) para el rol
+      tenant_admin, agregando el permiso 'dashboard' que le faltaba — al no
+      tenerlo, el menú Dashboard (order=10) quedaba oculto y el tenant
+      aterrizaba directo en 'Sitio web' (order=100) tras iniciar sesión."
+    - grant_dashboard_to_tenant_admin.php
