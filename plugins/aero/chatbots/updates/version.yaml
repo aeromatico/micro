@@ -37,3 +37,13 @@
       su propio tab superior 'Chatbot IA', y el tab 'Reglas' se renombra a
       'Chatbot'. Reintento automático + logging cuando la IA falla."
     - add_reply_mode_to_bots_table.php
+
+1.5.0:
+    - "Súper IA deja de ser un placeholder: el bot puede usar 'AI tools'
+      (function calling) para consultar datos reales del tenant (contenido
+      del sitio, contacto, catálogo de la tienda) en vez de depender solo del
+      prompt. Nuevo AiToolRegistry (evento aero.chatbots.registerAiTools,
+      consumido por Aero.Sites y Aero.Shop) y checkboxlist por bot para
+      elegir qué fuentes habilitar. El cobro de créditos ahora ocurre por
+      cada llamada real al connector, no solo por la respuesta final."
+    - add_ai_tool_categories_to_bots_table.php

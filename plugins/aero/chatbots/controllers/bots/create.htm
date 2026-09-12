@@ -18,6 +18,11 @@
                 <i class="icon-magic"></i> Chatbot IA
             </a>
         </li>
+        <li>
+            <a href="#tab-super-chatbot-ia" data-toggle="tab">
+                <i class="icon-rocket"></i> Super Chatbot IA
+            </a>
+        </li>
     </ul>
 
     <div class="tab-content">
@@ -38,7 +43,13 @@
 
         <div id="tab-chatbot-ia" class="tab-pane">
             <div class="layout-row">
-                <?= $this->formRender(['section' => 'secondary']) ?>
+                <?= $this->formRenderField('handoff_minutes') ?>
+            </div>
+        </div>
+
+        <div id="tab-super-chatbot-ia" class="tab-pane">
+            <div class="layout-row">
+                <?= $this->formRenderField('ai_tool_categories') ?>
             </div>
         </div>
     </div>

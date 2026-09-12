@@ -22,8 +22,10 @@ class Bot extends Model
 
     public $fillable = [
         'tenant_id', 'account_id', 'name', 'is_active', 'fallback_message', 'handoff_minutes',
-        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt',
+        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt', 'ai_tool_categories',
     ];
+
+    protected $jsonable = ['ai_tool_categories'];
 
     public $attributes = [
         'reply_mode' => 'autoresponder',
@@ -67,6 +69,14 @@ class Bot extends Model
         if ($this->handoff_minutes === null || $this->handoff_minutes === '') {
             $this->handoff_minutes = 15;
         }
+
+        // "Desactivar" en el selector de modo es la única fuente de verdad
+        // para is_active — evita que quede un bot con reply_mode='ai' pero
+        // is_active=false (o viceversa) por tocar el switch de la lista sin
+        // pasar por acá. ChatbotEngine::handle() sigue filtrando por
+        // is_active (Bot::active()), así que esto es lo único que hace falta
+        // para que "Desactivar" corte las respuestas automáticas del todo.
+        $this->is_active = $this->reply_mode !== 'disabled';
     }
 
     public function scopeForTenant($query, int $tenantId)
@@ -134,5 +144,28 @@ class Bot extends Model
             ->where('connector_id', $this->ai_connector_id)
             ->pluck('label', 'model_id')
             ->all();
+    }
+
+    /**
+     * Categorías de "AI tools" (Súper IA) declaradas por cualquier plugin
+     * vía el evento `aero.chatbots.registerAiTools` — hoy solo `site` y
+     * `shop` (Aero.Sites y Aero.Shop), pero no hace falta tocar este método
+     * ni migrar la BD para agregar una nueva: alcanza con que el plugin
+     * dueño del dato la declare (ver Aero\Chatbots\Classes\AiToolRegistry).
+     */
+    public function getAiToolCategoriesOptions(): array
+    {
+        $labels = [
+            'site' => 'Sitio web / landing',
+            'shop' => 'Tienda',
+        ];
+
+        $options = [];
+
+        foreach (\Aero\Chatbots\Classes\AiToolRegistry::categories() as $category) {
+            $options[$category] = $labels[$category] ?? ucfirst($category);
+        }
+
+        return $options;
     }
 }
