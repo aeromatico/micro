@@ -1,9 +1,10 @@
 <?php namespace Aero\Sites\Controllers;
 
 use Aero\Sites\Models\ContactConfig;
+use Aero\Sites\Models\ContactSubmission;
 use Aero\Sites\Models\NotificationChannel;
 use Aero\Sites\Models\SeoConfig;
-use Aero\Sites\Models\Tenant;
+use Aero\Sites\Traits\HasBrandingForm;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
 use Backend\Classes\Controller;
 use Backend\Widgets\Form;
@@ -12,14 +13,15 @@ use Flash;
 
 class SiteSettings extends Controller
 {
-    use ResolvesCurrentTenant;
+    use ResolvesCurrentTenant, HasBrandingForm;
 
     public $requiredPermissions = ['aero.sites.manage_seo'];
 
-    public ?Form $brandingWidget     = null;
-    public ?Form $contactInfoWidget  = null;
-    public ?Form $seoWidget          = null;
-    public ?Form $channelFormWidget  = null;
+    public ?Form $contactInfoWidget   = null;
+    public ?Form $contactConfigWidget = null;
+    public ?Form $seoWidget           = null;
+    public ?Form $channelFormWidget   = null;
+    public ?Form $generalWidget       = null;
 
     public function __construct()
     {
@@ -40,73 +42,41 @@ class SiteSettings extends Controller
         $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->first();
         $seoConfig     = SeoConfig::where('tenant_id', $tenant->id)->first();
 
-        $this->brandingWidget    = $this->makeBrandingWidget($tenant);
-        $this->contactInfoWidget = $this->makeContactInfoWidget($contactConfig);
-        $this->seoWidget         = $this->makeSeoWidget($seoConfig);
-        $this->channelFormWidget = $this->makeChannelFormWidget(new NotificationChannel);
+        $this->generalWidget       = $this->makeGeneralWidget($tenant);
+        $this->contactInfoWidget   = $this->makeContactInfoWidget($contactConfig);
+        $this->contactConfigWidget = $this->makeContactConfigWidget($contactConfig);
+        $this->seoWidget           = $this->makeSeoWidget($seoConfig);
+        $this->channelFormWidget   = $this->makeChannelFormWidget(new NotificationChannel);
 
         $this->vars['tenant']        = $tenant;
         $this->vars['contactConfig'] = $contactConfig;
         $this->vars['seoConfig']     = $seoConfig;
         $this->vars['channels']      = $this->getChannels($tenant->id);
-        $this->vars['paletteVars']   = $tenant->getEffectiveCssVars();
+        $this->vars['submissions']   = ContactSubmission::where('tenant_id', $tenant->id)
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
     }
 
     // -------------------------------------------------------------------------
-    // AJAX — Branding
+    // AJAX — General
     // -------------------------------------------------------------------------
 
-    public function onSaveBranding()
+    public function onSaveGeneral()
     {
         $tenant = $this->getCurrentTenant();
-        $data   = post('Branding', []);
+        $data   = post('General', []);
 
-        $tenant->name            = $data['name']            ?? $tenant->name;
-        $tenant->primary_color   = $data['primary_color']   ?? $tenant->primary_color;
-        $tenant->design_theme_id = $data['design_theme_id'] ?: null;
-        $tenant->is_site_active  = (bool) ($data['is_site_active'] ?? false);
-
-        $overridePrimary = trim((string) ($data['override_primary'] ?? ''));
-        $overrideAccent  = trim((string) ($data['override_accent'] ?? ''));
-        $colorOverrides  = array_filter([
-            'primary' => $overridePrimary ?: null,
-            'accent'  => $overrideAccent ?: null,
-        ]);
-
-        $overrideFontHeading  = trim((string) ($data['override_font_heading'] ?? ''));
-        $overrideFontHeading2 = trim((string) ($data['override_font_heading2'] ?? ''));
-        $overrideFontBody     = trim((string) ($data['override_font_body'] ?? ''));
-        $fontOverrides = array_filter([
-            'heading'  => $overrideFontHeading ?: null,
-            'heading2' => $overrideFontHeading2 ?: null,
-            'body'     => $overrideFontBody ?: null,
-        ]);
-
-        $overrides = [];
-        if ($colorOverrides) $overrides['colors'] = $colorOverrides;
-        if ($fontOverrides) $overrides['fonts'] = $fontOverrides;
-        $tenant->theme_overrides = $overrides ?: null;
-
-        // makeBrandingWidget() (ejecutado por index() antes de este handler AJAX,
-        // sobre la misma instancia cacheada por ResolvesCurrentTenant) setea estos
-        // atributos virtuales para precargar el form — no son columnas reales,
-        // hay que descartarlos antes de save() o Eloquent intenta persistirlos.
-        unset(
-            $tenant->override_primary, $tenant->override_accent,
-            $tenant->override_font_heading, $tenant->override_font_heading2, $tenant->override_font_body
-        );
-
+        $tenant->niche_type = $data['niche_type'] ?? $tenant->niche_type;
         $tenant->save();
 
-        // Commit deferred file bindings (logo, favicon)
-        $sessionKey = post('_session_key', '');
-        if ($sessionKey) {
-            $tenant->commitDeferred($sessionKey);
-        }
-
-        Flash::success('Branding guardado correctamente.');
+        Flash::success('Rubro guardado correctamente.');
         return [];
     }
+
+    // -------------------------------------------------------------------------
+    // AJAX — Contacto
+    // -------------------------------------------------------------------------
 
     public function onSaveContactInfo()
     {
@@ -125,6 +95,20 @@ class SiteSettings extends Controller
         $contactConfig->save();
 
         Flash::success('Información de contacto guardada.');
+        return [];
+    }
+
+    public function onSaveContactConfig()
+    {
+        $tenant        = $this->getCurrentTenant();
+        $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
+        $data          = post('ContactConfig', []);
+
+        $contactConfig->form_enabled    = (bool) ($data['form_enabled'] ?? false);
+        $contactConfig->success_message = $data['success_message'] ?? $contactConfig->success_message;
+        $contactConfig->save();
+
+        Flash::success('Configuración del formulario guardada.');
         return [];
     }
 
@@ -243,111 +227,18 @@ class SiteSettings extends Controller
     // Widget builders
     // -------------------------------------------------------------------------
 
-    protected function makeBrandingWidget(Tenant $tenant): Form
+    protected function makeGeneralWidget(\Aero\Sites\Models\Tenant $tenant): Form
     {
-        // Atributos virtuales para precargar el form con el override actual
-        // (theme_overrides.colors.*/fonts.*); no se guardan directo,
-        // onSaveBranding() los recompone en theme_overrides (y los descarta
-        // del modelo antes de save(), ver ahí el porqué).
-        $colorOverrides = $tenant->theme_overrides['colors'] ?? [];
-        $tenant->override_primary = $colorOverrides['primary'] ?? null;
-        $tenant->override_accent  = $colorOverrides['accent'] ?? null;
-
-        $fontOverrides = $tenant->theme_overrides['fonts'] ?? [];
-        $tenant->override_font_heading  = $fontOverrides['heading'] ?? null;
-        $tenant->override_font_heading2 = $fontOverrides['heading2'] ?? null;
-        $tenant->override_font_body     = $fontOverrides['body'] ?? null;
-
         $config            = new \stdClass;
         $config->model     = $tenant;
-        $config->arrayName = 'Branding';
-        $config->alias     = 'brandingForm';
+        $config->arrayName = 'General';
+        $config->alias     = 'generalForm';
         $config->fields    = [
-            'is_site_active' => [
-                'label'   => 'Sitio activado',
-                'type'    => 'switch',
-                'span'    => 'full',
-                'comment' => 'Si se desactiva, el sitio deja de mostrarse a los visitantes y el menú "Sitio Web" se oculta en este panel.',
-            ],
-            'name' => [
-                'label'    => 'Nombre del sitio',
-                'type'     => 'text',
-                'required' => true,
-                'span'     => 'left',
-            ],
-            'primary_color' => [
-                'label'       => 'Color principal (legacy)',
-                'type'        => 'text',
-                'span'        => 'right',
-                'placeholder' => '#3b82f6',
-                'comment'     => 'Solo se usa si no hay un tema visual asignado abajo.',
-            ],
-            'logo' => [
-                'label'       => 'Logo',
-                'type'        => 'fileupload',
-                'mode'        => 'image',
-                'imageWidth'  => 400,
-                'imageHeight' => 200,
-                'span'        => 'left',
-            ],
-            'favicon' => [
-                'label'       => 'Favicon',
-                'type'        => 'fileupload',
-                'mode'        => 'image',
-                'imageWidth'  => 64,
-                'imageHeight' => 64,
-                'span'        => 'right',
-                'comment'     => 'Recomendado: 32×32 o 64×64 px',
-            ],
-            '_palette' => [
-                'label' => 'Paleta de colores',
-                'type'  => 'section',
-                'span'  => 'full',
-            ],
-            'design_theme_id' => [
-                'label'   => 'Tema visual',
-                'type'    => 'partial',
-                'path'    => 'theme_gallery',
-                'span'    => 'full',
-                'comment' => 'Elegí un tema como punto de partida. Los temas son de solo lectura — para personalizar colores o tipografía usá los campos de abajo.',
-            ],
-            'override_primary' => [
-                'label'       => 'Personalizar color primario (opcional)',
-                'type'        => 'colorpicker',
-                'span'        => 'left',
-                'comment'     => 'Sobreescribe el primario del tema elegido, en ambos modos.',
-            ],
-            'override_accent' => [
-                'label'       => 'Personalizar color de acento (opcional)',
-                'type'        => 'colorpicker',
-                'span'        => 'right',
-                'comment'     => 'Sobreescribe el acento del tema elegido, en ambos modos.',
-            ],
-            '_typography' => [
-                'label' => 'Tipografía',
-                'type'  => 'section',
-                'span'  => 'full',
-            ],
-            'override_font_heading' => [
-                'label'       => 'Fuente de encabezado principal (H1)',
-                'type'        => 'text',
-                'span'        => 'left',
-                'placeholder' => 'Ej: Plus Jakarta Sans',
-                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
-            ],
-            'override_font_heading2' => [
-                'label'       => 'Fuente de subtítulos (H2-H6)',
-                'type'        => 'text',
-                'span'        => 'right',
-                'placeholder' => 'Ej: Plus Jakarta Sans',
-                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
-            ],
-            'override_font_body' => [
-                'label'       => 'Fuente de texto',
-                'type'        => 'text',
-                'span'        => 'left',
-                'placeholder' => 'Ej: Inter',
-                'comment'     => 'Nombre exacto de Google Fonts. Vacío = usa la del tema visual.',
+            'niche_type' => [
+                'label'   => 'Rubro del negocio',
+                'type'    => 'dropdown',
+                'span'    => 'left',
+                'comment' => 'Afecta el prompt sugerido al generar contenido con IA y las recomendaciones de temas visuales. No reescribe el contenido ya generado.',
             ],
         ];
 
@@ -405,6 +296,32 @@ class SiteSettings extends Controller
                 'span'        => 'right',
                 'placeholder' => '-63.182222',
                 'step'        => 'any',
+            ],
+        ];
+
+        $widget = $this->makeWidget(Form::class, $config);
+        $widget->bindToController();
+        return $widget;
+    }
+
+    protected function makeContactConfigWidget(?ContactConfig $model): Form
+    {
+        $config            = new \stdClass;
+        $config->model     = $model ?? new ContactConfig;
+        $config->arrayName = 'ContactConfig';
+        $config->alias     = 'contactConfigForm';
+        $config->fields    = [
+            'form_enabled' => [
+                'label'   => 'Formulario de contacto activo',
+                'type'    => 'checkbox',
+                'default' => true,
+                'span'    => 'left',
+            ],
+            'success_message' => [
+                'label'       => 'Mensaje de éxito',
+                'type'        => 'text',
+                'span'        => 'full',
+                'placeholder' => '¡Gracias! Nos comunicaremos contigo pronto.',
             ],
         ];
 

@@ -3,10 +3,10 @@
 use Aero\Sites\Jobs\GenerateAiSiteJob;
 use Aero\Sites\Models\AiGeneration;
 use Aero\Sites\Models\Archetype;
-use Aero\Sites\Models\ContactConfig;
-use Aero\Sites\Models\ContactSubmission;
+use Aero\Sites\Models\DesignTheme;
 use Aero\Sites\Models\Page;
 use Aero\Sites\Models\Tenant;
+use Aero\Sites\Traits\HasBrandingForm;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
 use ApplicationException;
 use Backend\Classes\Controller;
@@ -21,13 +21,11 @@ use ValidationException;
 
 class ContentEditor extends Controller
 {
-    use ResolvesCurrentTenant;
+    use ResolvesCurrentTenant, HasBrandingForm;
 
     public $requiredPermissions = ['aero.sites.manage_pages'];
 
-    public ?Form $indexPageWidget    = null;
-    public ?Form $contactPageWidget  = null;
-    public ?Form $contactConfigWidget = null;
+    public ?Form $indexPageWidget = null;
 
     public function __construct()
     {
@@ -43,30 +41,37 @@ class ContentEditor extends Controller
         if (!$tenant) {
             $this->vars['noTenant'] = true;
             $this->vars['indexPage'] = null;
-            $this->vars['contactPage'] = null;
-            $this->vars['submissions'] = collect();
             $this->vars['archetypes'] = collect();
             return;
         }
 
-        $indexPage     = Page::forTenant($tenant->id)->where('slug', '')->first();
-        $contactPage   = Page::forTenant($tenant->id)->where('slug', 'contacto')->first();
-        $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->first();
+        $indexPage = Page::forTenant($tenant->id)->where('slug', '')->first();
 
-        $this->indexPageWidget     = $this->makePageFormWidget($indexPage,   'IndexPage',   'indexPageForm', $tenant);
-        $this->contactPageWidget   = $this->makePageFormWidget($contactPage, 'ContactPage', 'contactPageForm', $tenant);
-        $this->contactConfigWidget = $this->makeContactConfigWidget($contactConfig);
+        $this->indexPageWidget = $this->makePageFormWidget($indexPage, 'IndexPage', 'indexPageForm', $tenant);
+        $this->brandingWidget  = $this->makeBrandingWidget($tenant);
 
         $this->vars['indexPage']    = $indexPage;
-        $this->vars['contactPage']  = $contactPage;
-        $this->vars['submissions']  = ContactSubmission::where('tenant_id', $tenant->id)
-            ->orderByDesc('created_at')
-            ->limit(50)
-            ->get();
+        $this->vars['tenant']       = $tenant;
+        $this->vars['paletteVars']  = $tenant->getEffectiveCssVars();
         $this->vars['archetypes']   = Archetype::active()
             ->forNiche($tenant->niche_type)
             ->orderBy('sort_order')
             ->get();
+        $this->vars['aiConnectors'] = $this->getAiConnectors();
+
+        // Para prellenar el panel de "Rehacer con IA" con lo último que se usó
+        // (el botón de acceso rápido regenera de un clic, sin que el usuario
+        // tenga que volver a escribir el mismo prompt).
+        $this->vars['lastGeneration'] = AiGeneration::where('tenant_id', $tenant->id)
+            ->orderByDesc('id')
+            ->first();
+
+        // Pestaña "Componentes" — misma galería de referencia de
+        // ComponentGallery, embebida acá para no salir del editor de
+        // contenidos (ver componentgallery/_gallery.php).
+        $this->vars['blocks']             = ComponentGallery::BLOCKS;
+        $this->vars['themes']             = DesignTheme::active()->orderBy('name')->get(['id', 'handle', 'name']);
+        $this->vars['defaultThemeHandle'] = ComponentGallery::resolveDefaultThemeHandle($this->vars['themes']);
     }
 
     // -------------------------------------------------------------------------
@@ -79,41 +84,19 @@ class ContentEditor extends Controller
         $indexPage = Page::forTenant($tenant->id)->where('slug', '')->firstOrFail();
         $data      = post('IndexPage', []);
 
-        $indexPage->title     = $data['title']   ?? $indexPage->title;
-        $indexPage->puck_data = isset($data['puck_data']) ? json_decode($data['puck_data'], true) : $indexPage->puck_data;
-        $indexPage->content   = $data['content'] ?? $indexPage->content;
+        $indexPage->title        = $data['title'] ?? $indexPage->title;
+        $indexPage->content_mode = $data['content_mode'] ?? $indexPage->content_mode ?? 'puck';
+
+        if ($indexPage->content_mode === 'code') {
+            $indexPage->content = $data['content_raw'] ?? '';
+        } else {
+            $indexPage->puck_data = isset($data['puck_data']) ? json_decode($data['puck_data'], true) : $indexPage->puck_data;
+            $indexPage->content   = $data['content'] ?? $indexPage->content;
+        }
+
         $indexPage->save();
 
         Flash::success('Página de inicio guardada.');
-        return [];
-    }
-
-    public function onSaveContactPage()
-    {
-        $tenant      = $this->getCurrentTenant();
-        $contactPage = Page::forTenant($tenant->id)->where('slug', 'contacto')->firstOrFail();
-        $data        = post('ContactPage', []);
-
-        $contactPage->title     = $data['title']   ?? $contactPage->title;
-        $contactPage->puck_data = isset($data['puck_data']) ? json_decode($data['puck_data'], true) : $contactPage->puck_data;
-        $contactPage->content   = $data['content'] ?? $contactPage->content;
-        $contactPage->save();
-
-        Flash::success('Página de contacto guardada.');
-        return [];
-    }
-
-    public function onSaveContactConfig()
-    {
-        $tenant        = $this->getCurrentTenant();
-        $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
-        $data          = post('ContactConfig', []);
-
-        $contactConfig->form_enabled    = (bool) ($data['form_enabled'] ?? false);
-        $contactConfig->success_message = $data['success_message'] ?? $contactConfig->success_message;
-        $contactConfig->save();
-
-        Flash::success('Configuración del formulario guardada.');
         return [];
     }
 
@@ -183,13 +166,27 @@ class ContentEditor extends Controller
             throw new \ApplicationException('La generación con IA está habilitada solo para el tenant demo y superadministradores.');
         }
 
-        // Check AiFields is configured
-        try {
-            if (!\Aero\AiFields\Models\Settings::isConfigured()) {
-                throw new \ApplicationException('No hay un proveedor de IA configurado. Ve a Sistema → AI Fields y configura el endpoint, API key y modelo.');
+        $connectorId = (int) post('connector_id') ?: null;
+
+        if ($connectorId) {
+            // El usuario eligió un modelo puntual (Aero.Connector) — no
+            // depende de que Aero.AiFields esté configurado, pero sí de que
+            // ese connector siga existiendo/habilitado.
+            $connector = class_exists(\Aero\Connector\Models\Connector::class)
+                ? \Aero\Connector\Models\Connector::find($connectorId)
+                : null;
+            if (!$connector || !$connector->is_enabled) {
+                throw new \ApplicationException('El modelo de IA elegido ya no está disponible.');
             }
-        } catch (\Exception $e) {
-            if ($e instanceof \ApplicationException) throw $e;
+        } else {
+            // Sin connector elegido: usa el proveedor único de Aero.AiFields (default de siempre).
+            try {
+                if (!\Aero\AiFields\Models\Settings::isConfigured()) {
+                    throw new \ApplicationException('No hay un proveedor de IA configurado. Ve a Sistema → AI Fields y configura el endpoint, API key y modelo.');
+                }
+            } catch (\Exception $e) {
+                if ($e instanceof \ApplicationException) throw $e;
+            }
         }
 
         $archetypeHandle = post('archetype_handle') ?: null;
@@ -200,9 +197,10 @@ class ContentEditor extends Controller
             'prompt'           => mb_substr($prompt, 0, 2000),
             'status'           => 'pending',
             'archetype_handle' => $archetypeHandle,
+            'connector_id'     => $connectorId,
         ]);
 
-        GenerateAiSiteJob::dispatch($tenant->id, $prompt, $log->id, $archetypeHandle);
+        GenerateAiSiteJob::dispatch($tenant->id, $prompt, $log->id, $archetypeHandle, $connectorId);
 
         return [
             '#ai-result' => $this->makePartial('ai_pending', ['log_id' => $log->id]),
@@ -240,6 +238,29 @@ class ContentEditor extends Controller
     }
 
     // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Modelos de IA seleccionables en el panel de generación — cualquier
+     * Connector habilitado de categoría "ai" (mismo criterio que
+     * Aero\Chatbots\Models\Bot::getAiConnectorIdOptions()). Vacío si
+     * Aero.Connector no está instalado o no hay ninguno configurado, en
+     * cuyo caso el panel cae al proveedor único de Aero.AiFields.
+     */
+    protected function getAiConnectors()
+    {
+        if (!class_exists(\Aero\Connector\Models\Connector::class)) {
+            return collect();
+        }
+
+        return \Aero\Connector\Models\Connector::where('is_enabled', true)
+            ->get()
+            ->filter(fn ($c) => (\Aero\Connector\Classes\TypeRegistry::find($c->type)['category'] ?? null) === 'ai')
+            ->values();
+    }
+
+    // -------------------------------------------------------------------------
     // Widget builders
     // -------------------------------------------------------------------------
 
@@ -262,36 +283,40 @@ class ContentEditor extends Controller
                 'required' => true,
                 'span'     => 'full',
             ],
+            'content_mode' => [
+                'label'   => 'Tipo de contenido',
+                'type'    => 'balloon-selector',
+                'span'    => 'full',
+                'default' => 'puck',
+                'options' => [
+                    'puck' => 'Editor Visual',
+                    'code' => 'Código',
+                ],
+                'comment' => 'Editor Visual = bloques generados con IA o armados a mano. Código = pegá tu propio HTML.',
+            ],
             'puck_data' => [
-                'label' => 'Editor Visual',
-                'type'  => 'puckEditor',
-                'span'  => 'full',
+                'label'   => 'Editor Visual',
+                'type'    => 'puckEditor',
+                'span'    => 'full',
+                'trigger' => [
+                    'action'    => 'show',
+                    'field'     => 'content_mode',
+                    'condition' => 'value[puck]',
+                ],
             ],
-        ];
-
-        $widget = $this->makeWidget(Form::class, $config);
-        $widget->bindToController();
-        return $widget;
-    }
-
-    protected function makeContactConfigWidget(?ContactConfig $model): Form
-    {
-        $config            = new \stdClass;
-        $config->model     = $model ?? new ContactConfig;
-        $config->arrayName = 'ContactConfig';
-        $config->alias     = 'contactConfigForm';
-        $config->fields    = [
-            'form_enabled' => [
-                'label'   => 'Formulario de contacto activo',
-                'type'    => 'checkbox',
-                'default' => true,
-                'span'    => 'left',
-            ],
-            'success_message' => [
-                'label'       => 'Mensaje de éxito',
-                'type'        => 'text',
-                'span'        => 'full',
-                'placeholder' => '¡Gracias! Nos comunicaremos contigo pronto.',
+            'content_raw' => [
+                'label'     => 'Código',
+                'type'      => 'codeeditor',
+                'language'  => 'html',
+                'size'      => 'huge',
+                'span'      => 'full',
+                'valueFrom' => 'content',
+                'comment'   => 'HTML propio. Se guarda y se muestra tal cual en la página de inicio.',
+                'trigger'   => [
+                    'action'    => 'show',
+                    'field'     => 'content_mode',
+                    'condition' => 'value[code]',
+                ],
             ],
         ];
 

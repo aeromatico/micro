@@ -325,6 +325,12 @@ class Plugin extends PluginBase
                     'url'         => Backend::url('aero/sites/contenteditor'),
                     'permissions' => ['aero.sites.manage_pages'],
                 ],
+                'paginas' => [
+                    'label'       => 'aero.sites::lang.menu.pages',
+                    'icon'        => 'icon-copy',
+                    'url'         => Backend::url('aero/sites/pages'),
+                    'permissions' => ['aero.sites.manage_pages'],
+                ],
             ] + $miSitioMenu;
         }
 

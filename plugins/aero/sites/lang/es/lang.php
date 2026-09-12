@@ -7,7 +7,7 @@
 
     'menu' => [
         'my_site'      => 'Sitio Web',
-        'contents'     => 'Editor de contenido',
+        'contents'     => 'Página de inicio',
         'settings'     => 'Configuración de sitio',
         'sites'        => 'Sites',
         'superadmin'   => 'Superadmin',

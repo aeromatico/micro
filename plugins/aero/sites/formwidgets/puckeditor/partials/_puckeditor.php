@@ -34,10 +34,31 @@ $safeJson = $puckJson
     </style>
     <?php endif ?>
 
-    <div
-        id="<?= $editorId ?>"
-        style="min-height:560px"
-    ></div>
+    <div id="<?= $editorId ?>-container">
+        <div
+            id="<?= $editorId ?>"
+            class="aero-puck-mount"
+            style="min-height:560px"
+        ></div>
+
+        <div class="aero-puck-mobile-invite" style="display:none">
+            <div style="text-align:center; padding:56px 24px; border:1px dashed rgba(127,127,127,.35); border-radius:8px">
+                <i class="icon-desktop" style="font-size:34px; opacity:.5; display:block; margin-bottom:14px"></i>
+                <h4 style="margin:0 0 8px">El Editor Visual funciona mejor en computadora</h4>
+                <p class="text-muted" style="margin:0">
+                    Abrí esta página desde una PC o notebook para armar tu diseño con bloques.
+                    Desde el celular podés usar <strong>Editor HTML</strong> o <strong>Código</strong> mientras tanto.
+                </p>
+            </div>
+        </div>
+
+        <style>
+            @media (max-width: 768px) {
+                #<?= $editorId ?>-container .aero-puck-mount { display: none !important; }
+                #<?= $editorId ?>-container .aero-puck-mobile-invite { display: block !important; }
+            }
+        </style>
+    </div>
 
     <script>
     (function () {
@@ -114,6 +135,12 @@ $safeJson = $puckJson
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
         function mountPuck() {
+            // En pantallas chicas se muestra la invitación a usar una
+            // computadora en su lugar (ver .aero-puck-mobile-invite arriba)
+            // en vez de montar el editor de bloques, pesado e inutilizable
+            // con gestos táctiles.
+            if (window.matchMedia('(max-width: 768px)').matches) return;
+
             if (typeof window.AeroPuckEditor === 'undefined') {
                 return setTimeout(mountPuck, 100);
             }

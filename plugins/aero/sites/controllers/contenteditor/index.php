@@ -2,20 +2,28 @@
 /** @var Aero\Sites\Controllers\ContentEditor $this */
 if (!empty($this->vars['noTenant'])): ?>
 <div class="padded-container">
-    <div class="alert alert-warning">
-        <i class="icon-warning"></i>
+    <p class="text-muted">
         No hay ningún tenant asociado al sitio activo. Selecciona un sitio con tenant en el selector de sitios del backend.
-    </div>
+    </p>
 </div>
 <?php return; endif;
 
 $indexPageWidget     = $this->indexPageWidget;
-$contactPageWidget   = $this->contactPageWidget;
-$contactConfigWidget = $this->contactConfigWidget;
+$brandingWidget      = $this->brandingWidget;
 $indexPage           = $this->vars['indexPage'];
-$contactPage         = $this->vars['contactPage'];
-$submissions         = $this->vars['submissions'];
+$tenant              = $this->vars['tenant'];
+$paletteVars         = $this->vars['paletteVars'] ?? [];
 $archetypes          = $this->vars['archetypes'];
+$aiConnectors        = $this->vars['aiConnectors'];
+$lastGeneration      = $this->vars['lastGeneration'];
+
+$paletteSwatchKeys = [
+    '--color-primary'   => 'Primario',
+    '--color-secondary' => 'Secundario',
+    '--color-accent'    => 'Acento',
+    '--color-surface-bg' => 'Fondo',
+    '--color-surface-alt' => 'Panel',
+];
 
 // Un sitio "ya construido" tiene página + al menos un bloque en el editor
 // visual. Se usa para distinguir el primer lanzamiento (CTA grande, siempre
@@ -24,12 +32,14 @@ $archetypes          = $this->vars['archetypes'];
 // regenera la página completa desde cero, no hay modo "actualizar parcial").
 $hasExistingDesign = $indexPage && !empty($indexPage->puck_data);
 
-$statusLabels = [
-    'pending' => ['label' => 'Pendiente', 'class' => 'warning'],
-    'sent'    => ['label' => 'Enviado',   'class' => 'success'],
-    'failed'  => ['label' => 'Fallido',   'class' => 'danger'],
-    'partial' => ['label' => 'Parcial',   'class' => 'info'],
-];
+// Prompt de arranque para quien no elige ningún arquetipo — sale del nicho
+// del propio tenant (specs/niches/{handle}.yaml vía NicheManager), no de un
+// registro de Archetype, para que ya venga afín al rubro del negocio en vez
+// de un texto genérico sin relación con el nicho.
+$genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
+    ->make($tenant->niche_type)
+    ->getBasePrompt();
+
 ?>
 <div class="layout-row">
     <div class="layout-cell">
@@ -43,8 +53,13 @@ $statusLabels = [
                     </a>
                 </li>
                 <li>
-                    <a href="#tab-contacto" data-toggle="tab">
-                        <i class="icon-phone"></i> Contacto
+                    <a href="#tab-branding" data-toggle="tab">
+                        <i class="icon-image"></i> Branding
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-componentes" data-toggle="tab">
+                        <i class="icon-th-large"></i> Componentes
                     </a>
                 </li>
             </ul>
@@ -61,35 +76,41 @@ $statusLabels = [
                              AI GENERATION PANEL
                              ==================================================== -->
                         <?php if (!$hasExistingDesign): ?>
-                        <div id="ai-panel" class="callout fade in callout-warning no-subheader" style="margin-bottom:20px">
-                            <div class="header">
-                                <i class="icon-magic"></i>
-                                <h4>Generá tu primer diseño con Inteligencia Artificial</h4>
-                            </div>
-                            <div class="content">
-                                <p>Describe tu negocio en detalle y la IA generará automáticamente la página de inicio usando los bloques disponibles. Cuanta más información des, mejor será el resultado.</p>
-                                <?= $this->makePartial('ai_form', [
-                                    'archetypes'  => $archetypes,
-                                    'buttonLabel' => '✨ Generar mi diseño con IA',
-                                    'confirm'     => null,
-                                ]) ?>
-                            </div>
+                        <div id="ai-panel" style="margin-bottom:28px">
+                            <h4 style="margin-top:0">Generá tu primer diseño con Inteligencia Artificial</h4>
+                            <p class="text-muted">Describe tu negocio en detalle y la IA generará automáticamente la página de inicio usando los bloques disponibles. Cuanta más información des, mejor será el resultado.</p>
+                            <?= $this->makePartial('ai_form', [
+                                'archetypes'         => $archetypes,
+                                'tenant'             => $tenant,
+                                'aiConnectors'       => $aiConnectors,
+                                'genericBasePrompt'  => $genericBasePrompt,
+                                'buttonLabel'        => 'Generar mi diseño con IA',
+                                'confirm'            => null,
+                            ]) ?>
                         </div>
                         <?php else: ?>
-                        <div id="ai-panel" class="callout fade callout-warning no-subheader" style="margin-bottom:20px">
-                            <div class="header" style="cursor:pointer" data-ai-toggle>
-                                <i class="icon-magic"></i>
-                                <h4>Reconstruir sitio con Inteligencia Artificial <i class="icon-chevron-down pull-right"></i></h4>
-                            </div>
-                            <div class="content" data-ai-body style="display:none">
-                                <p class="text-warning">
-                                    <i class="icon-warning"></i>
+                        <div id="ai-panel" style="margin-bottom:28px">
+                            <h4 style="margin-top:0; cursor:pointer" data-ai-toggle>
+                                Reconstruir sitio con Inteligencia Artificial
+                                <i class="icon-chevron-down"></i>
+                            </h4>
+                            <div data-ai-body style="display:none">
+                                <p class="text-muted">
                                     Esto <strong>reemplaza por completo</strong> la página de inicio actual (bloques y contenido) por un nuevo diseño generado por IA. No es un ajuste parcial: cualquier edición manual hecha en el editor visual se perderá.
                                 </p>
                                 <?= $this->makePartial('ai_form', [
-                                    'archetypes'  => $archetypes,
-                                    'buttonLabel' => '🔄 Reconstruir con IA',
-                                    'confirm'     => '¿Reconstruir la página de inicio? Se perderá el diseño y las ediciones actuales.',
+                                    'archetypes'         => $archetypes,
+                                    'tenant'             => $tenant,
+                                    'aiConnectors'       => $aiConnectors,
+                                    'genericBasePrompt'  => $genericBasePrompt,
+                                    'buttonLabel'        => 'Reconstruir con IA',
+                                    'confirm'            => '¿Reconstruir la página de inicio? Se perderá el diseño y las ediciones actuales.',
+                                    // "Rehacer con IA" (botón de acceso rápido junto a
+                                    // Guardar) precarga esto y dispara el submit directo,
+                                    // sin que el usuario tenga que reescribir el prompt.
+                                    'lastPrompt'         => $lastGeneration->prompt ?? '',
+                                    'lastArchetypeHandle'=> $lastGeneration->archetype_handle ?? '',
+                                    'lastConnectorId'    => $lastGeneration->connector_id ?? null,
                                 ]) ?>
                             </div>
                         </div>
@@ -134,19 +155,61 @@ $statusLabels = [
 
                             document.querySelectorAll('[data-ai-toggle]').forEach(function (toggle) {
                                 toggle.addEventListener('click', function () {
-                                    var body = toggle.parentElement.querySelector('[data-ai-body]');
+                                    var panel = toggle.closest('#ai-panel');
+                                    var body = panel ? panel.querySelector('[data-ai-body]') : null;
                                     if (body) body.style.display = (body.style.display === 'none') ? '' : 'none';
                                 });
                             });
 
                             var archetypeSelect = document.getElementById('ai-archetype-select');
                             var archetypeDescription = document.getElementById('ai-archetype-description');
+                            var promptTextarea = document.getElementById('ai-prompt-textarea');
+                            // Aplica el prompt base asociado a la opción elegida.
+                            // - force=true (el usuario cambió de arquetipo): reemplaza
+                            //   siempre, para que el campo refleje al instante el prompt
+                            //   realmente asociado a esa opción.
+                            // - force=false (carga inicial): sólo autocompleta si el campo
+                            //   viene vacío, así no pisa el último prompt usado en
+                            //   "Rehacer con IA".
+                            function applyArchetypePrompt(force) {
+                                var opt = archetypeSelect.options[archetypeSelect.selectedIndex];
+                                archetypeDescription.textContent = (opt && opt.dataset.description) || '';
+
+                                if (!promptTextarea) return;
+                                var basePrompt = (opt && opt.dataset.basePrompt) || '';
+                                if (force || promptTextarea.value.trim() === '') {
+                                    promptTextarea.value = basePrompt;
+                                }
+                            }
                             if (archetypeSelect && archetypeDescription) {
                                 archetypeSelect.addEventListener('change', function () {
-                                    var opt = archetypeSelect.options[archetypeSelect.selectedIndex];
-                                    archetypeDescription.textContent = (opt && opt.dataset.description) || '';
+                                    applyArchetypePrompt(true);
                                 });
+                                // Precarga desde el inicio: la opción seleccionada por defecto
+                                // ("Sin arquetipo") también trae un prompt genérico del nicho.
+                                applyArchetypePrompt(false);
                             }
+
+                            // Delegado en document: el botón vive más abajo en el DOM
+                            // (dentro del form de "Guardar página de inicio"), y este
+                            // script corre antes de que exista — no se puede hacer
+                            // getElementById acá arriba.
+                            document.addEventListener('click', function (e) {
+                                if (!e.target.closest('#ai-redo-btn')) return;
+
+                                var panel = document.getElementById('ai-panel');
+                                var body = panel ? panel.querySelector('[data-ai-body]') : null;
+                                if (body) body.style.display = '';
+                                if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                                // El form ya viene precargado con el último prompt/arquetipo
+                                // usado (ver ContentEditor::index() → $lastGeneration), así
+                                // que "Rehacer con IA" dispara el submit directo — el usuario
+                                // solo confirma el diálogo de "esto reemplaza el diseño
+                                // actual", no tiene que reescribir nada.
+                                var generateBtn = document.getElementById('ai-generate-btn');
+                                if (generateBtn) generateBtn.click();
+                            });
                         })();
                         </script>
 
@@ -157,130 +220,67 @@ $statusLabels = [
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
                                     <i class="icon-check"></i> Guardar página de inicio
                                 </button>
+                                <?php if ($hasExistingDesign): ?>
+                                <button type="button" id="ai-redo-btn" class="btn btn-default">
+                                    <i class="icon-refresh"></i> Rehacer con IA
+                                </button>
+                                <?php endif ?>
                             </div>
                         </form>
                         <?php else: ?>
-                        <div class="alert alert-warning">
-                            No se encontró la página de inicio para este sitio.
-                        </div>
+                        <p class="text-muted">No se encontró la página de inicio para este sitio.</p>
                         <?php endif ?>
                     </div>
                 </div>
 
                 <!-- ============================================================
-                     TAB: CONTACTO  (sub-tabs: Página / Formulario / Mensajes)
+                     TAB: BRANDING (identidad visual — al lado del diseño para
+                     poder ajustar paleta/tipografía y ver el resultado ahí mismo)
                      ============================================================ -->
-                <div id="tab-contacto" class="tab-pane">
-                    <div class="control-tabs" data-control="tab">
-
-                        <ul class="nav nav-tabs secondary-tabs">
-                            <li class="active">
-                                <a href="#subtab-pagina" data-toggle="tab">
-                                    <i class="icon-file-text-o"></i> Página
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#subtab-formulario" data-toggle="tab">
-                                    <i class="icon-sliders"></i> Formulario
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#subtab-mensajes" data-toggle="tab">
-                                    <i class="icon-envelope"></i> Mensajes
-                                    <?php if ($submissions->isNotEmpty()): ?>
-                                    <span class="badge"><?= $submissions->count() ?></span>
-                                    <?php endif ?>
-                                </a>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content">
-
-                            <!-- Sub-tab: Página de contacto -->
-                            <div id="subtab-pagina" class="tab-pane active">
-                                <div class="layout padded-container">
-                                    <?php if ($contactPage): ?>
-                                    <form data-request="onSaveContactPage" data-request-flash>
-                                        <?= $contactPageWidget->render() ?>
-                                        <div class="form-buttons">
-                                            <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
-                                                <i class="icon-check"></i> Guardar página de contacto
-                                            </button>
-                                        </div>
-                                    </form>
-                                    <?php else: ?>
-                                    <div class="alert alert-warning">
-                                        No se encontró la página de contacto para este sitio.
-                                    </div>
-                                    <?php endif ?>
-                                </div>
+                <div id="tab-branding" class="tab-pane">
+                    <div class="layout padded-container">
+                        <?php if ($paletteVars): ?>
+                        <div style="margin-bottom:20px">
+                            <h5 style="margin-bottom:8px">Vista previa de la paleta activa</h5>
+                            <?php foreach (['light' => 'Modo claro', 'dark' => 'Modo oscuro'] as $mode => $modeLabel): ?>
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+                                <span class="text-muted" style="width:90px;font-size:12px"><?= e($modeLabel) ?></span>
+                                <?php foreach ($paletteSwatchKeys as $var => $swatchLabel): ?>
+                                <span
+                                    title="<?= e($swatchLabel) ?>: <?= e($paletteVars[$mode][$var] ?? '') ?>"
+                                    style="display:inline-block;width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:<?= e($paletteVars[$mode][$var] ?? 'transparent') ?>"
+                                ></span>
+                                <?php endforeach ?>
                             </div>
-
-                            <!-- Sub-tab: Configuración del formulario -->
-                            <div id="subtab-formulario" class="tab-pane">
-                                <div class="layout padded-container">
-                                    <form data-request="onSaveContactConfig" data-request-flash>
-                                        <?= $contactConfigWidget->render() ?>
-                                        <div class="form-buttons">
-                                            <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
-                                                <i class="icon-check"></i> Guardar configuración
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                            <?php endforeach ?>
+                        </div>
+                        <?php endif ?>
+                        <form data-request="onSaveBranding" data-request-flash>
+                            <?= $brandingWidget->render() ?>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
+                                    <i class="icon-check"></i> Guardar branding
+                                </button>
                             </div>
+                        </form>
+                    </div>
+                </div><!-- /#tab-branding -->
 
-                            <!-- Sub-tab: Mensajes recibidos -->
-                            <div id="subtab-mensajes" class="tab-pane">
-                                <div class="layout padded-container">
-                                    <?php if ($submissions->isEmpty()): ?>
-                                    <div class="alert alert-info">
-                                        <i class="icon-envelope-o"></i>
-                                        No hay mensajes recibidos aún.
-                                    </div>
-                                    <?php else: ?>
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Email</th>
-                                                <th>Teléfono</th>
-                                                <th>Mensaje</th>
-                                                <th>Estado</th>
-                                                <th>Fecha</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($submissions as $s): ?>
-                                            <?php $st = $statusLabels[$s->status] ?? ['label' => $s->status, 'class' => 'default'] ?>
-                                            <tr>
-                                                <td><?= e($s->name) ?></td>
-                                                <td><?= e($s->email) ?></td>
-                                                <td><?= e($s->phone) ?></td>
-                                                <td style="max-width:300px">
-                                                    <span title="<?= e($s->message) ?>">
-                                                        <?= e(str($s->message)->limit(80)) ?>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span class="label label-<?= $st['class'] ?>">
-                                                        <?= $st['label'] ?>
-                                                    </span>
-                                                </td>
-                                                <td style="white-space:nowrap">
-                                                    <?= $s->created_at?->format('d/m/Y H:i') ?>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach ?>
-                                        </tbody>
-                                    </table>
-                                    <?php endif ?>
-                                </div>
-                            </div>
-
-                        </div><!-- /.tab-content (sub-tabs) -->
-                    </div><!-- /.control-tabs (sub-tabs) -->
-                </div><!-- /#tab-contacto -->
+                <!-- ============================================================
+                     TAB: COMPONENTES (galería de referencia de bloques Puck,
+                     embebida de aero/sites/componentgallery — ver
+                     componentgallery/_gallery.php)
+                     ============================================================ -->
+                <div id="tab-componentes" class="tab-pane">
+                    <?php
+                    $blocks       = $this->vars['blocks'];
+                    $themes       = $this->vars['themes'];
+                    $defaultTheme = $this->vars['defaultThemeHandle'];
+                    $previewUrl   = \Backend::url('aero/sites/componentgallery/preview');
+                    $firstBlock   = array_key_first($blocks);
+                    include __DIR__ . '/../componentgallery/_gallery.php';
+                    ?>
+                </div><!-- /#tab-componentes -->
 
             </div><!-- /.tab-content (main) -->
         </div><!-- /.control-tabs (main) -->

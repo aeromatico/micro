@@ -9,19 +9,19 @@ if (!empty($this->vars['noTenant'])): ?>
 </div>
 <?php return; endif;
 
-$brandingWidget    = $this->brandingWidget;
-$contactInfoWidget = $this->contactInfoWidget;
-$seoWidget         = $this->seoWidget;
-$channelFormWidget = $this->channelFormWidget;
-$channels          = $this->vars['channels'];
-$paletteVars       = $this->vars['paletteVars'] ?? [];
+$generalWidget       = $this->generalWidget;
+$contactInfoWidget   = $this->contactInfoWidget;
+$contactConfigWidget = $this->contactConfigWidget;
+$seoWidget           = $this->seoWidget;
+$channelFormWidget   = $this->channelFormWidget;
+$channels            = $this->vars['channels'];
+$submissions         = $this->vars['submissions'];
 
-$paletteSwatchKeys = [
-    '--color-primary'   => 'Primario',
-    '--color-secondary' => 'Secundario',
-    '--color-accent'    => 'Acento',
-    '--color-surface-bg' => 'Fondo',
-    '--color-surface-alt' => 'Panel',
+$statusLabels = [
+    'pending' => ['label' => 'Pendiente', 'class' => 'warning'],
+    'sent'    => ['label' => 'Enviado',   'class' => 'success'],
+    'failed'  => ['label' => 'Fallido',   'class' => 'danger'],
+    'partial' => ['label' => 'Parcial',   'class' => 'info'],
 ];
 ?>
 <div class="layout-row">
@@ -31,13 +31,26 @@ $paletteSwatchKeys = [
             <!-- Tab nav -->
             <ul class="nav nav-tabs">
                 <li class="active">
-                    <a href="#tab-branding" data-toggle="tab">
-                        <i class="icon-image"></i> Branding
+                    <a href="#tab-general" data-toggle="tab">
+                        <i class="icon-cog"></i> General
                     </a>
                 </li>
                 <li>
                     <a href="#tab-contacto" data-toggle="tab">
                         <i class="icon-phone"></i> Contacto
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-formulario" data-toggle="tab">
+                        <i class="icon-sliders"></i> Formulario
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-mensajes" data-toggle="tab">
+                        <i class="icon-envelope"></i> Mensajes
+                        <?php if ($submissions->isNotEmpty()): ?>
+                        <span class="badge"><?= $submissions->count() ?></span>
+                        <?php endif ?>
                     </a>
                 </li>
                 <li>
@@ -55,31 +68,16 @@ $paletteSwatchKeys = [
             <div class="tab-content">
 
                 <!-- ============================================================
-                     TAB: BRANDING
+                     TAB: GENERAL (rubro del negocio y otros ajustes generales
+                     del sitio que no encajan en Branding/Contacto/SEO)
                      ============================================================ -->
-                <div id="tab-branding" class="tab-pane active">
+                <div id="tab-general" class="tab-pane active">
                     <div class="layout padded-container">
-                        <?php if ($paletteVars): ?>
-                        <div style="margin-bottom:20px">
-                            <h5 style="margin-bottom:8px">Vista previa de la paleta activa</h5>
-                            <?php foreach (['light' => 'Modo claro', 'dark' => 'Modo oscuro'] as $mode => $modeLabel): ?>
-                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
-                                <span class="text-muted" style="width:90px;font-size:12px"><?= e($modeLabel) ?></span>
-                                <?php foreach ($paletteSwatchKeys as $var => $swatchLabel): ?>
-                                <span
-                                    title="<?= e($swatchLabel) ?>: <?= e($paletteVars[$mode][$var] ?? '') ?>"
-                                    style="display:inline-block;width:28px;height:28px;border-radius:6px;border:1px solid rgba(0,0,0,.15);background:<?= e($paletteVars[$mode][$var] ?? 'transparent') ?>"
-                                ></span>
-                                <?php endforeach ?>
-                            </div>
-                            <?php endforeach ?>
-                        </div>
-                        <?php endif ?>
-                        <form data-request="onSaveBranding" data-request-flash>
-                            <?= $brandingWidget->render() ?>
+                        <form data-request="onSaveGeneral" data-request-flash>
+                            <?= $generalWidget->render() ?>
                             <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
-                                    <i class="icon-check"></i> Guardar branding
+                                    <i class="icon-check"></i> Guardar
                                 </button>
                             </div>
                         </form>
@@ -87,7 +85,7 @@ $paletteSwatchKeys = [
                 </div>
 
                 <!-- ============================================================
-                     TAB: CONTACTO
+                     TAB: CONTACTO (datos de contacto mostrados en el sitio)
                      ============================================================ -->
                 <div id="tab-contacto" class="tab-pane">
                     <div class="layout padded-container">
@@ -99,6 +97,69 @@ $paletteSwatchKeys = [
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     TAB: FORMULARIO (comportamiento del form de contacto)
+                     ============================================================ -->
+                <div id="tab-formulario" class="tab-pane">
+                    <div class="layout padded-container">
+                        <form data-request="onSaveContactConfig" data-request-flash>
+                            <?= $contactConfigWidget->render() ?>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
+                                    <i class="icon-check"></i> Guardar configuración
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     TAB: MENSAJES (bandeja de envíos del formulario)
+                     ============================================================ -->
+                <div id="tab-mensajes" class="tab-pane">
+                    <div class="layout padded-container">
+                        <?php if ($submissions->isEmpty()): ?>
+                        <p class="text-muted">No hay mensajes recibidos aún.</p>
+                        <?php else: ?>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Mensaje</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($submissions as $s): ?>
+                                <?php $st = $statusLabels[$s->status] ?? ['label' => $s->status, 'class' => 'default'] ?>
+                                <tr>
+                                    <td><?= e($s->name) ?></td>
+                                    <td><?= e($s->email) ?></td>
+                                    <td><?= e($s->phone) ?></td>
+                                    <td style="max-width:300px">
+                                        <span title="<?= e($s->message) ?>">
+                                            <?= e(str($s->message)->limit(80)) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="label label-<?= $st['class'] ?>">
+                                            <?= $st['label'] ?>
+                                        </span>
+                                    </td>
+                                    <td style="white-space:nowrap">
+                                        <?= $s->created_at?->format('d/m/Y H:i') ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach ?>
+                            </tbody>
+                        </table>
+                        <?php endif ?>
                     </div>
                 </div>
 

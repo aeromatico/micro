@@ -160,3 +160,17 @@
       sea su rubro, ve el catálogo completo de arquetipos en el panel de
       generación con IA, no solo los del propio nicho."
     - relate_all_archetypes_to_all_niches.php
+
+1.25.0:
+    - "Rediseño del Editor de Contenidos: pestañas Branding (extraída a un
+      trait HasBrandingForm reutilizable) y Componentes (galería de bloques
+      embebida) sumadas junto a Inicio; selector de Connector de IA
+      disponible también acá; galería de componentes abierta a tenant admins
+      como referencia. Nueva sección 'Páginas' (CRUD standalone, separado de
+      Inicio) para gestionar el resto de páginas del sitio. Página → Contenido
+      ahora tiene selector de tipo (globo): Editor Visual (Puck, como antes),
+      Editor HTML (redactor de texto enriquecido) o Código (HTML propio
+      pegado a mano) — Contenidos → Inicio también suma la opción Código. En
+      pantallas chicas, Editor Visual muestra una invitación a usar una
+      computadora en vez del editor de bloques (inutilizable a mano)."
+    - add_content_mode_to_pages.php

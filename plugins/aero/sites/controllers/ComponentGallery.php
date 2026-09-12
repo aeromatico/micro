@@ -3,21 +3,25 @@
 use Aero\Sites\Classes\Ai\HeadlessRenderer;
 use Aero\Sites\Classes\Ai\ImageSourceService;
 use Aero\Sites\Models\DesignTheme;
+use Aero\Sites\Traits\ResolvesCurrentTenant;
 use Backend\Classes\Controller;
-use BackendMenu;
 use Response;
 
 /**
- * Herramienta interna (no pública) para diseñar y previsualizar variantes de
- * layout real de los bloques Puck, lado a lado, con el CSS/tipografía/paleta
- * reales del tema `microsites` — no una maqueta separada. `preview()` sirve
- * el mismo par components.jsx/PuckHtmlRenderer.php que usan el editor visual
- * y el generador con IA, así que cualquier variante que se vea acá es
- * automáticamente una opción real y sincronizada en ambos.
+ * Galería de referencia (antes interna/solo-superadmin) para diseñar y
+ * previsualizar variantes de layout real de los bloques Puck, lado a lado,
+ * con el CSS/tipografía/paleta reales del tema `microsites` — no una maqueta
+ * separada. `preview()` sirve el mismo par components.jsx/PuckHtmlRenderer.php
+ * que usan el editor visual y el generador con IA, así que cualquier
+ * variante que se vea acá es automáticamente una opción real y sincronizada
+ * en ambos. Abierta también a tenant admins (manage_pages) — les sirve como
+ * inspiración/referencia mientras diseñan, junto a Contenidos.
  */
 class ComponentGallery extends Controller
 {
-    public $requiredPermissions = ['aero.sites.superadmin'];
+    use ResolvesCurrentTenant;
+
+    public $requiredPermissions = ['aero.sites.superadmin', 'aero.sites.manage_pages'];
 
     /**
      * Catálogo de bloques con galería de variantes real. El resto de
@@ -360,8 +364,14 @@ class ComponentGallery extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Aero.Sites', 'sites', 'componentgallery');
+        $this->setSitesMenuContext('componentgallery', 'componentgallery');
     }
+
+    /**
+     * Tema preseleccionado en el selector de la galería — el resto queda
+     * disponible en el dropdown, este es solo el que se ve al entrar.
+     */
+    public const DEFAULT_THEME_HANDLE = 'corporate-indigo';
 
     public function index()
     {
@@ -369,7 +379,16 @@ class ComponentGallery extends Controller
 
         $this->vars['blocks'] = self::BLOCKS;
         $this->vars['themes'] = DesignTheme::active()->orderBy('name')->get(['id', 'handle', 'name']);
-        $this->vars['defaultThemeHandle'] = optional($this->vars['themes']->first())->handle;
+        $this->vars['defaultThemeHandle'] = self::resolveDefaultThemeHandle($this->vars['themes']);
+    }
+
+    public static function resolveDefaultThemeHandle($themes): ?string
+    {
+        if ($themes->contains('handle', self::DEFAULT_THEME_HANDLE)) {
+            return self::DEFAULT_THEME_HANDLE;
+        }
+
+        return optional($themes->first())->handle;
     }
 
     /**

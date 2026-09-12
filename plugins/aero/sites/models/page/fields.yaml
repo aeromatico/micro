@@ -29,11 +29,53 @@ tabs:
                 contact: Contacto
             tab: Contenido
 
+        content_mode:
+            label: Tipo de contenido
+            type: balloon-selector
+            span: full
+            default: puck
+            options:
+                puck: Editor Visual
+                richeditor: Editor HTML
+                code: Código
+            comment: "Editor Visual = bloques arrastrables. Editor HTML = redactor de texto enriquecido. Código = pegá tu propio HTML."
+            tab: Contenido
+
         puck_data:
             label: Editor Visual
             type: puckEditor
             span: full
             tab: Contenido
+            trigger:
+                action: show
+                field: content_mode
+                condition: value[puck]
+
+        content_richeditor:
+            label: Editor HTML
+            type: richeditor
+            size: huge
+            span: full
+            valueFrom: content
+            tab: Contenido
+            trigger:
+                action: show
+                field: content_mode
+                condition: value[richeditor]
+
+        content_raw:
+            label: Código
+            type: codeeditor
+            language: html
+            size: huge
+            span: full
+            valueFrom: content
+            comment: "HTML propio. Se guarda y se muestra tal cual en la página."
+            tab: Contenido
+            trigger:
+                action: show
+                field: content_mode
+                condition: value[code]
 
         is_published:
             label: Publicado

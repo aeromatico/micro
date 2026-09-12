@@ -52,4 +52,24 @@ trait ResolvesCurrentTenant
         }
         return $query;
     }
+
+    /**
+     * Algunos controllers (Pages, ComponentGallery) son alcanzables desde
+     * DOS side menus distintos — el del superadmin ('sites') y el del
+     * tenant admin ('sitio-web', ver Plugin::registerNavigation()) — con
+     * códigos de item distintos en cada uno. `BackendMenu::setContext()`
+     * solo admite fijar UN owner/item por request, así que hay que elegir
+     * según quién está mirando o el sidebar resalta el ítem equivocado (o
+     * ninguno, si el owner no es visible para ese usuario).
+     */
+    protected function setSitesMenuContext(string $sitesItemCode, string $sitioWebItemCode): void
+    {
+        $isSuperadmin = (bool) BackendAuth::getUser()?->hasAnyAccess(['aero.sites.superadmin']);
+
+        \BackendMenu::setContext(
+            'Aero.Sites',
+            $isSuperadmin ? 'sites' : 'sitio-web',
+            $isSuperadmin ? $sitesItemCode : $sitioWebItemCode
+        );
+    }
 }

@@ -23,6 +23,7 @@ if ($nicheType) {
 }
 
 $radiusPreview = ['sharp' => '2px', 'soft' => '10px', 'round' => '20px'];
+$radiusLabels  = ['sharp' => 'Recto', 'soft' => 'Suave', 'round' => 'Redondeado'];
 $toneLabels = [
     'corporate' => 'Corporativo', 'playful' => 'Divertido', 'minimal' => 'Minimalista',
     'elegant' => 'Elegante', 'bold' => 'Audaz', 'warm' => 'Cálido',
@@ -31,33 +32,34 @@ $toneLabels = [
 <style>
     .aero-theme-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
     .aero-theme-card {
-        position: relative; width: 220px; border: 2px solid #e2e8f0; border-radius: 8px;
-        padding: 12px; cursor: pointer; background: #fff; transition: border-color .15s, box-shadow .15s;
+        position: relative; width: 220px; border: 2px solid var(--bs-border-color); border-radius: 8px;
+        padding: 12px; cursor: pointer; background: var(--oc-form-control-bg); transition: border-color .15s, box-shadow .15s;
     }
-    .aero-theme-card:hover { border-color: #94a3b8; }
-    .aero-theme-card.is-selected { border-color: #4f46e5; box-shadow: 0 0 0 1px #4f46e5; }
+    .aero-theme-card:hover { border-color: var(--bs-secondary-color); }
+    .aero-theme-card.is-selected { border-color: var(--bs-primary); box-shadow: 0 0 0 1px var(--bs-primary); }
     .aero-theme-card .theme-check {
         position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%;
-        border: 2px solid #cbd5e1; background: #fff;
+        border: 2px solid var(--bs-border-color); background: var(--oc-form-control-bg);
     }
     .aero-theme-card.is-selected .theme-check {
-        border-color: #4f46e5; background: #4f46e5;
-        box-shadow: inset 0 0 0 3px #fff;
+        border-color: var(--bs-primary); background: var(--bs-primary);
+        box-shadow: inset 0 0 0 3px var(--oc-form-control-bg);
     }
     .aero-theme-card .theme-name { font-weight: 600; font-size: 13px; margin: 0 26px 2px 0; }
-    .aero-theme-card .theme-tone { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+    .aero-theme-card .theme-tone { font-size: 11px; color: var(--bs-secondary-color); margin-bottom: 8px; }
     .aero-theme-card .theme-swatches { display: flex; gap: 4px; margin-bottom: 4px; }
     .aero-theme-card .theme-swatches.is-dark { padding: 4px; border-radius: 4px; background: #0f172a; }
     .aero-theme-card .swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,.08); }
-    .aero-theme-card .theme-mode-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: .03em; margin: 6px 0 2px; }
-    .aero-theme-card .theme-fonts { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.5; }
-    .aero-theme-card .theme-fonts b { color: #1e293b; }
-    .aero-theme-card .theme-radius-demo { width: 36px; height: 18px; background: #94a3b8; margin-top: 8px; }
+    .aero-theme-card .theme-mode-label { font-size: 10px; color: var(--bs-secondary-color); text-transform: uppercase; letter-spacing: .03em; margin: 6px 0 2px; }
+    .aero-theme-card .theme-fonts { font-size: 11px; color: var(--bs-secondary-color); margin-top: 8px; line-height: 1.5; }
+    .aero-theme-card .theme-fonts b { color: var(--bs-body-color); }
+    .aero-theme-card .theme-radius { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--bs-secondary-color); }
+    .aero-theme-card .theme-radius-demo { width: 36px; height: 18px; background: var(--bs-secondary-bg); flex-shrink: 0; }
     .aero-theme-card .theme-affinity-badge {
-        display: inline-block; font-size: 10px; background: #eef2ff; color: #4338ca;
+        display: inline-block; font-size: 10px; background: var(--bs-secondary-bg); color: var(--bs-primary);
         padding: 1px 6px; border-radius: 10px; margin-bottom: 6px;
     }
-    .aero-theme-empty { color: #64748b; font-size: 13px; }
+    .aero-theme-empty { color: var(--bs-secondary-color); font-size: 13px; }
 </style>
 
 <input type="hidden" name="<?= e($fieldName) ?>" id="<?= e($fieldId) ?>" value="<?= $currentId ?>" data-theme-gallery-input>
@@ -113,7 +115,10 @@ $toneLabels = [
                     <div><b>Texto:</b> <?= e($theme->font_body ?: 'Inter') ?></div>
                 </div>
 
-                <div class="theme-radius-demo" style="border-radius: <?= $radiusPreview[$theme->radius] ?? '10px' ?>"></div>
+                <div class="theme-radius">
+                    <div class="theme-radius-demo" style="border-radius: <?= $radiusPreview[$theme->radius] ?? '10px' ?>"></div>
+                    <span><b>Bordes:</b> <?= e($radiusLabels[$theme->radius] ?? $theme->radius) ?></span>
+                </div>
             </div>
         <?php endforeach ?>
     </div>

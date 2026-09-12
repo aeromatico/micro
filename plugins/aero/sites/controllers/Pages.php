@@ -1,7 +1,6 @@
 <?php namespace Aero\Sites\Controllers;
 
 use Aero\Sites\Traits\ResolvesCurrentTenant;
-use BackendMenu;
 use Backend\Classes\Controller;
 
 class Pages extends Controller
@@ -23,12 +22,17 @@ class Pages extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Aero.Sites', 'sites', 'pages');
+        $this->setSitesMenuContext('pages', 'paginas');
     }
 
     public function listExtendQuery($query): void
     {
         $this->scopeQueryToTenant($query);
+
+        // Inicio (slug vacío) tiene su propio flujo especializado de diseño +
+        // generación con IA en Contenidos — no se edita desde acá, para no
+        // duplicar el punto de entrada.
+        $query->where('slug', '!=', '');
     }
 
     public function formExtendModel($model): void
@@ -40,10 +44,16 @@ class Pages extends Controller
 
     public function formBeforeSave($model): void
     {
-        // content HTML is emitted by PuckEditor widget as a hidden textarea
-        // outside of getSaveData(), so we capture it directly from POST.
         $data = post('Page', []);
-        if (array_key_exists('content', $data)) {
+        $mode = $data['content_mode'] ?? $model->content_mode ?? 'puck';
+
+        if ($mode === 'richeditor') {
+            $model->content = $data['content_richeditor'] ?? '';
+        } elseif ($mode === 'code') {
+            $model->content = $data['content_raw'] ?? '';
+        } elseif (array_key_exists('content', $data)) {
+            // Puck mode: HTML is emitted by PuckEditor widget as a hidden
+            // textarea outside of getSaveData(), so we capture it from POST.
             $model->content = $data['content'];
         }
     }
