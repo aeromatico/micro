@@ -144,3 +144,19 @@
       elección, usado en el header/footer del sitio solo cuando no hay logo
       de imagen (la imagen sigue teniendo prioridad si existe)."
     - add_logo_text_to_tenants.php
+
+1.23.0:
+    - "Arquetipos 'Estándar' y 'Con estadísticas' pasan a niche_type=NULL
+      (universal) — se sembraron con niche_type='generic' por error, dejando
+      sin ningún arquetipo a cualquier nicho sin arquetipos propios (incluidos
+      los 14 nichos nuevos). Ahora actúan como fallback universal para
+      cualquier nicho, presente o futuro, sin arquetipos dedicados."
+    - make_generic_archetypes_universal.php
+
+1.24.0:
+    - "Los 10 arquetipos existentes quedan relacionados a TODOS los nichos
+      (niche_type=NULL en los 8 que todavía tenían uno fijo: consultorio,
+      inmuebles, radioemisora, tienda_whatsapp) — cualquier tenant, sea cual
+      sea su rubro, ve el catálogo completo de arquetipos en el panel de
+      generación con IA, no solo los del propio nicho."
+    - relate_all_archetypes_to_all_niches.php
