@@ -40,8 +40,44 @@ class Plugin extends PluginBase
         $this->bootRainLabIntegration();
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
+        $this->bootChatbotsIntegration();
         $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
+    }
+
+    /**
+     * Aero.Chatbots no conoce el contenido del microsite ni los datos de
+     * contacto de un tenant — pregunta por evento qué "AI tools" hay
+     * disponibles para el modo Súper IA. Dependencia blanda: si
+     * Aero.Chatbots no está instalado, este listener simplemente nunca se
+     * dispara.
+     */
+    protected function bootChatbotsIntegration(): void
+    {
+        Event::listen('aero.chatbots.registerAiTools', function () {
+            return [
+                'get_contact_info' => [
+                    'description' => 'Obtiene los datos de contacto del negocio: nombre, teléfono, WhatsApp, email y dirección.',
+                    'category'    => 'site',
+                    'parameters'  => ['type' => 'object', 'properties' => []],
+                    'handler'     => [\Aero\Sites\Classes\Ai\ChatbotTools::class, 'getContactInfo'],
+                ],
+                'get_landing_content' => [
+                    'description' => 'Obtiene el contenido publicado de una página del sitio web del negocio (por defecto, la página de inicio).',
+                    'category'    => 'site',
+                    'parameters'  => [
+                        'type'       => 'object',
+                        'properties' => [
+                            'slug' => [
+                                'type'        => 'string',
+                                'description' => 'Slug de la página a consultar. Vacío para la página de inicio.',
+                            ],
+                        ],
+                    ],
+                    'handler' => [\Aero\Sites\Classes\Ai\ChatbotTools::class, 'getLandingContent'],
+                ],
+            ];
+        });
     }
 
     /**
