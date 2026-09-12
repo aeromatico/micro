@@ -40,6 +40,35 @@ class Plugin extends PluginBase
         $this->bootTenantPurgeCleanup();
         $this->registerConfigMenuTab();
         $this->bootQrboPaymentBridge();
+        $this->bootChatbotsIntegration();
+    }
+
+    /**
+     * Aero.Chatbots no conoce el catálogo de la tienda — pregunta por evento
+     * qué "AI tools" hay disponibles para el modo Súper IA. Dependencia
+     * blanda: si Aero.Chatbots no está instalado, este listener simplemente
+     * nunca se dispara.
+     */
+    protected function bootChatbotsIntegration(): void
+    {
+        Event::listen('aero.chatbots.registerAiTools', function () {
+            return [
+                'list_products' => [
+                    'description' => 'Lista o busca productos activos del catálogo de la tienda, con precio y disponibilidad.',
+                    'category'    => 'shop',
+                    'parameters'  => [
+                        'type'       => 'object',
+                        'properties' => [
+                            'query' => [
+                                'type'        => 'string',
+                                'description' => 'Texto para buscar por nombre o descripción. Vacío para listar los primeros productos del catálogo.',
+                            ],
+                        ],
+                    ],
+                    'handler' => [\Aero\Shop\Classes\Ai\ChatbotTools::class, 'listProducts'],
+                ],
+            ];
+        });
     }
 
     /**
