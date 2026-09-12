@@ -41,6 +41,31 @@ class Plugin extends PluginBase
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
         $this->registerConfigMenuTab();
+        $this->bootBackendCompactUi();
+    }
+
+    /**
+     * Densifica el backend cuando esta activo el modo de menu izquierdo
+     * (Settings > Backend Preferences > menu_mode = left): el rail de
+     * iconos, el sidenav de seccion, tablas, formularios y el dashboard
+     * quedan ~40% mas compactos. Ver assets/css/backend-compact.css.
+     */
+    protected function bootBackendCompactUi(): void
+    {
+        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+            if ($context !== 'default') {
+                return '';
+            }
+
+            $cssPath = plugins_path('aero/sites/assets/css/backend-compact.css');
+            if (!file_exists($cssPath)) {
+                return '';
+            }
+
+            $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/backend-compact.css') . '?v=' . filemtime($cssPath);
+
+            return '<link rel="stylesheet" href="' . $assetUrl . '">';
+        });
     }
 
     /**

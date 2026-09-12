@@ -1,0 +1,292 @@
+/* ============================================================================
+   Backend Compact — densidad ~40%
+   ----------------------------------------------------------------------------
+   Sobrescribe la UI del backend (OctoberCMS 4) cuando esta en modo
+   "menu izquierdo" (BrandSetting menu_mode = left).
+   Inyectado via backend.layout.extendHead desde plugins/aero/sites/Plugin.php
+
+   Estrategia:
+     - Rail izquierdo: 63px -> 44px y separacion vertical de items ~40% menor.
+     - Sidenav de seccion: 240px -> 185px, paddings internos reducidos.
+     - Vertical: corta paddings/margenes ~40-60% (toolbars, filas, formularios).
+     - Tipografia: mantiene legibilidad, recorta levemente (13-13.5px).
+   ========================================================================== */
+
+/* == 1. Rail del menu principal (modo left) ================================ */
+
+body.main-menu-left .left-side-menu-container { width: 44px; }
+body.main-menu-left .left-side-menu-container .layout-mainmenu { width: 44px; }
+
+/* Agrupa menos aire en la base del rail (zona de extras/account) */
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar.control-toolbar .toolbar-item { padding-bottom: 8px; }
+
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] { margin-left: 0; }
+
+/* Estado colapsado (iconos). El panel expandido (reveal) conserva los valores base. */
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item {
+    width: 44px;
+    height: 36px;
+    margin: 0 0 5px;
+    line-height: 36px;
+}
+
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a {
+    display: block;
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 42px;
+    line-height: 36px;
+}
+
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon,
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > .nav-icon {
+    width: 44px;
+    height: 36px;
+    left: 0;
+    line-height: 36px;
+    text-align: center;
+}
+
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon i {
+    font-size: 21px;
+    line-height: inherit;
+}
+
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon .svg-icon {
+    width: 21px;
+    height: 21px;
+}
+
+/* Contadores compactos en el rail */
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a > span.counter {
+    left: auto;
+    right: 3px;
+    top: -2px;
+    font-size: 10px;
+    line-height: 12px;
+    padding: 1px 4px;
+    border-radius: 8px;
+}
+
+/* Account (avatar/logout) al pie del rail */
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item.mainmenu-account > a { padding: 0; }
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item.mainmenu-account .nav-icon { width: 44px; left: 0; line-height: 36px; }
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item.mainmenu-account > a::after { top: 14px; right: 10px; }
+
+/* Overlay de submenu alineado al rail compacto */
+body.main-menu-left .left-side-menu-container .layout-mainmenu { box-shadow: 6px 0 10px rgba(0, 0, 0, 0.2); }
+
+/* == 2. Sidenav de seccion (240px) ========================================== */
+
+.layout-sidenav-container > .layout-sidenav-spacer { width: 185px; }
+
+nav.layout-sidenav ul { padding: 10px 12px 10px 0; }
+nav.layout-sidenav ul > li.mainmenu-item { margin: 0 0 4px; }
+nav.layout-sidenav ul > li.mainmenu-item > a { padding: 5px 8px 5px 44px; }
+nav.layout-sidenav ul > li.mainmenu-item > a .nav-icon { left: 17px; line-height: 32px; }
+nav.layout-sidenav ul > li.mainmenu-item > a .nav-icon .svg-icon { width: 18px; }
+nav.layout-sidenav ul > li.mainmenu-item > a .nav-icon i { font-size: 18px; line-height: inherit; }
+nav.layout-sidenav ul > li.mainmenu-item > a .nav-label { font-size: 13px; line-height: 22px; }
+nav.layout-sidenav ul > li.mainmenu-item.active > a { padding-left: 41px; }
+nav.layout-sidenav ul > li.mainmenu-item.divider { margin: 3px 0 6px; }
+nav.layout-sidenav ul > li.mainmenu-item.section-title { padding: 4px 0 4px 10px; font-size: 11px; }
+nav.layout-sidenav ul > li.mainmenu-item.section-title .nav-label { font-size: 11px; }
+nav.layout-sidenav ul > li.mainmenu-item.sidebar-button { margin-bottom: 14px; }
+nav.layout-sidenav ul > li.mainmenu-item.sidebar-button > a { height: 30px; padding: 4px 30px 0 10px; }
+
+/* Sidenav responsive (ventanas < 1200px): colapsa a iconos y expande al hover */
+@media (max-width: 1199px) {
+    .layout-sidenav-container > .layout-sidenav-spacer { width: 56px; }
+    #layout-sidenav:hover { width: 185px; }
+    #layout-sidenav:not(:hover) ul > li.mainmenu-item.sidebar-button > a { padding: 4px 12px 0 0; }
+}
+
+/* == 3. Vertical: containers, toolbars, tablas y listas ===================== */
+
+.layout-container, .padded-container { padding-top: 10px; }
+
+.control-breadcrumb ol,
+.control-breadcrumb ul,
+.control-breadcrumb .breadcrumb { padding: 0 0 8px; margin: 0; }
+.control-breadcrumb { margin-top: 4px; }
+.control-breadcrumb li, .control-breadcrumb a { font-size: 13px; }
+
+.list-widget-container { margin-bottom: 10px; }
+
+#layout-body table.data td { padding: 6px 10px; font-size: 13px; line-height: 1.4; }
+#layout-body table.data th { padding-top: 5px; padding-bottom: 5px; font-size: 12.5px; line-height: 1.4; }
+#layout-body table.data tbody tr { font-size: 13px; }
+
+.list-pagination { margin-top: 4px; }
+.list-pagination .pagination > li > a,
+.list-pagination .pagination > li > span { padding: 3px 9px; font-size: 12.5px; }
+
+.control-toolbar .btn,
+.list-header .btn,
+.form-buttons .btn,
+.record-management-controls .record-management-button { padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
+
+.form-control { font-size: 13.5px; padding-top: 5px; padding-bottom: 5px; }
+.form-label { font-size: 13px; margin-bottom: 4px; }
+.form-group { padding-bottom: 10px; }
+#layout-body .tab-pane { padding-top: 10px; }
+.form-buttons { padding-bottom: 10px; margin-top: 6px; }
+.form-group.span-full { margin-bottom: 0; }
+
+.fancy-layout .control-tabs.primary-tabs .tab-pane { padding-top: 10px; }
+.form-document-layout .form-tabless-fields:not(.not-fancy) input[type="text"] { font-size: 20px; }
+
+.report-widget { padding: 10px; }
+.scoreboard { padding: 8px 14px; }
+.scoreboard .scoreboard-item { padding: 4px 12px; }
+.scoreboard .scoreboard-item .progress { margin-bottom: 4px; }
+
+/* == 4. Dashboard (modulo oc-dashboard) ===================================== */
+
+.oc-dashboard {
+    --oc-dashboard-gap-size: 12px;
+    --oc-widget-body-padding: 10px;
+}
+
+.oc-dashboard .dashboard-toolbar-container { padding-bottom: 10px; }
+.oc-dashboard .dashboard-toolbar-button { padding: 4px 8px; min-height: 28px; font-size: 12.5px; }
+.oc-dashboard .dashboards h2 { font-size: 20px; margin: 6px 0 2px; }
+.oc-dashboard .dashboard-selector { padding-top: 4px; }
+.oc-dashboard .dashboard-selector .dropdown-menu > li > a { padding: 5px 12px; font-size: 12.5px; }
+.oc-dashboard .widget-inner-container { border-radius: 8px; }
+.oc-dashboard .report-row .add-widget-button { height: 40px; margin: 12px; }
+
+.oc-dashboard .dashboard-report-widget .widget-controls .edit-widget-button { width: 26px; height: 26px; top: 8px; right: 12px; }
+
+/* == 5. Modales y popovers =================================================== */
+
+.modal-content { font-size: 13px; }
+.modal-header, .modal-footer { padding: 8px 12px; }
+.modal-body { padding: 10px 12px; }
+.popover { font-size: 12.5px; }
+
+/* == 6. Acabados finos ======================================================= */
+
+#layout-footer { height: 34px; }
+#layout-footer .brand, #layout-footer .tagline { margin: 0 10px; height: 34px; line-height: 34px; font-size: 13px; }
+
+.panel, .control-panel { margin-bottom: 8px; }
+.panel .panel-body { padding: 8px 12px; }
+
+.hint { padding: 8px 12px; font-size: 12.5px; }
+
+.fieldlist thead th { padding: 5px 10px; font-size: 12px; }
+.fieldlist tbody td { padding: 4px 10px; font-size: 12.5px; }
+
+/* == 7. Estado expandido del rail (hover): mantener el look compacto ======== */
+
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-label { font-size: 13px; line-height: inherit; }
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item {
+    height: 36px;
+    margin-bottom: 5px;
+    line-height: 36px;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a {
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 12px 0 42px;
+    line-height: 36px;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon {
+    width: 44px;
+    height: 36px;
+    left: 0;
+    line-height: 36px;
+    text-align: center;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon i { font-size: 21px; line-height: inherit; }
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-icon .svg-icon { width: 21px; height: 21px; }
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a .nav-label {
+    font-size: 13px;
+    line-height: 36px;
+    height: 36px;
+    padding-left: 0;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item.has-subitems > a:after { top: calc(50% - 9.75px); right: 12px; }
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu] > li.mainmenu-item > a > span.counter { top: 6px; right: 18px; }
+
+/* == 8. Submenus desplegables (dropdown) del menu ============================ */
+
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item > a {
+    padding: 3px 12px 3px 40px;
+    line-height: 22px;
+    font-size: 13px;
+    min-height: 0;
+}
+
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item .nav-icon {
+    left: 14px;
+    width: 18px;
+    line-height: 22px;
+}
+
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item .nav-icon .svg-icon { width: 17px; height: 17px; }
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item .nav-icon i { font-size: 17px; line-height: inherit; }
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item .nav-label { font-size: 13px; }
+
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item.section-title { padding: 4px 14px; font-size: 12px; line-height: 20px; }
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item.section-title .nav-label { font-size: 12px; line-height: 20px; }
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item.divider { margin: 3px 0; }
+
+ul.mainmenu-items.mainmenu-submenu-dropdown > li.mainmenu-item span.counter { font-size: 11px; padding: 1px 4px; margin: 3px 0 0 8px; }
+
+body.main-menu-left .mainmenu-submenu-dropdown .menu-header .mainmenu-item .nav-label { font-size: 13px; }
+
+/* == 9. Bloque fijo inferior del rail (preview de sitio + cuenta) =========== */
+
+body.main-menu-left:not(.reveal-left-side-menu) .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item > a {
+    position: relative;
+    padding: 0;
+}
+
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item > a .nav-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 44px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+}
+
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item.mainmenu-preview > a .nav-icon i {
+    position: static;
+    top: auto;
+    width: auto;
+    font-size: 21px;
+    line-height: inherit;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item.mainmenu-account > a .nav-icon img {
+    width: 30px;
+    height: 30px;
+    max-width: 30px;
+    max-height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item > a {
+    padding: 0 12px 0 42px;
+}
+
+body.main-menu-left.reveal-left-side-menu .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item > a .nav-label,
+body.main-menu-left .left-side-menu-container .layout-mainmenu .main-menu-container .navbar ul.mainmenu-items[data-main-menu].mainmenu-extras > li.mainmenu-item.mainmenu-preview > a .nav-label {
+    padding-left: 0;
+}
