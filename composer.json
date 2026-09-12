@@ -9,7 +9,8 @@
         "october/rain": "^4.2",
         "laravel/framework": "^12.0",
         "rainlab/user-plugin": "^3.5",
-        "phpoffice/phpspreadsheet": "^5.9"
+        "phpoffice/phpspreadsheet": "^5.9",
+        "webklex/php-imap": "^6"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5|^9.0",
