@@ -19,3 +19,14 @@
       base. Se agrega un campo 'Puerto' opcional para despliegues propios
       (Ollama, LM Studio, gateways internos)."
     - add_port_to_connectors_table.php
+
+1.4.0:
+    - "Fix: los drivers de IA (Anthropic/OpenAI-compatible) usaban 30s de
+      timeout HTTP y no reenviaban max_tokens del llamador (Anthropic caía a
+      256 por defecto) — cortaba a mitad cualquier respuesta larga o modelo
+      'reasoning' lento. Se agrega Aero\\Connector\\Classes\\AiResponseText,
+      helper compartido para extraer el texto de la respuesta sin duplicar
+      lógica por consumidor. Se siembra una vidriera de 10 modelos de IA de
+      moda (frontera + chinos) vía OpenRouter, deshabilitados hasta cargarles
+      la API key."
+    - seed_showcase_ai_models.php
