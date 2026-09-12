@@ -56,7 +56,7 @@ class Plugin extends PluginBase
                 'label'       => 'Notificaciones',
                 'url'         => Backend::url('aero/notify/events'),
                 'icon'        => 'icon-bell',
-                'permissions' => ['aero.notify.*'],
+                'permissions' => ['aero.notify.view_events', 'aero.notify.view_deliveries'],
                 'order'       => 220,
 
                 'sideMenu' => [

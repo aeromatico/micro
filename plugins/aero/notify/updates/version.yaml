@@ -28,3 +28,12 @@
     - "'sites.user.invited' suma el canal whatsapp y sus plantillas globales,
       para el invite-by-email de Aero.Crm\\Controllers\\Team."
     - seed_invite_templates.php
+
+1.2.0:
+    - "Trait HasAdhocAlert + partial reusable _alert_recipient_fields para que
+      cualquier plugin ofrezca 'avisame por WhatsApp/correo' a un destinatario
+      suelto (no un usuario del sistema) con 3 columnas propias y un campo de
+      form. WhatsAppDriver/EmailDriver ahora soportan adjuntos (media_url/
+      media_type, attachment_binary/attachment_url). Nuevo evento
+      qrbo.qr.generated (primer consumidor, ver Aero.Qrbo)."
+    - seed_qr_generated_templates.php

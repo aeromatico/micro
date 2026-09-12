@@ -25,6 +25,7 @@ class EventCatalog
             static::crm(),
             static::shop(),
             static::hello(),
+            static::credits(),
             static::system(),
         );
     }
@@ -169,6 +170,24 @@ class EventCatalog
         ];
 
         return [
+            [
+                'code' => 'qrbo.qr.generated',
+                'source_plugin' => 'Aero.Qrbo',
+                'category' => 'billing',
+                'name' => 'QR generado — alerta a quien lo va a cobrar',
+                'description' => 'Quien generó el QR pidió que se le avise (con la imagen) por WhatsApp y/o correo — no es el tenant_admin, es un destinatario suelto cargado en el form.',
+                'priority' => 5,
+                'default_audiences' => ['adhoc'],
+                'default_channels' => ['whatsapp', 'email'],
+                'variables_schema' => $money + [
+                    'description' => ['type' => 'string', 'required' => false, 'label' => 'Descripción'],
+                    'due_date'    => ['type' => 'string', 'required' => false, 'label' => 'Vencimiento'],
+                ],
+                'sample_context' => [
+                    'amount' => 150.00, 'currency' => 'BOB',
+                    'description' => 'Venta mostrador', 'due_date' => '10/09/2026',
+                ],
+            ],
             [
                 'code' => 'qrbo.payment.received',
                 'source_plugin' => 'Aero.Qrbo',
@@ -687,6 +706,48 @@ class EventCatalog
                     'campaign_name' => 'Promo agosto', 'sent_count' => 320,
                     'failed_count' => 4, 'tenant_name' => 'Panadería Delicia',
                 ],
+            ],
+        ];
+    }
+
+    protected static function credits(): array
+    {
+        $creditVars = [
+            'credit_type'  => ['type' => 'string', 'required' => true, 'label' => 'Color de crédito'],
+            'credit_color' => ['type' => 'string', 'required' => false, 'label' => 'Código del color'],
+            'balance'      => ['type' => 'number', 'required' => true, 'label' => 'Saldo actual'],
+            'threshold'    => ['type' => 'number', 'required' => false, 'label' => 'Umbral de alerta'],
+        ];
+
+        $creditSample = [
+            'credit_type' => 'Azul', 'credit_color' => 'azul',
+            'balance' => 30, 'threshold' => 50,
+        ];
+
+        return [
+            [
+                'code' => 'credits.balance.low',
+                'source_plugin' => 'Aero.Credits',
+                'category' => 'billing',
+                'name' => 'Saldo de créditos bajo',
+                'description' => 'El saldo de un tenant en un color de crédito cruzó su umbral de alerta.',
+                'priority' => 4,
+                'default_audiences' => ['tenant_admin', 'superadmin'],
+                'default_channels' => ['email', 'inapp'],
+                'variables_schema' => $creditVars + self::TENANT_VARS,
+                'sample_context' => $creditSample + ['tenant_name' => 'Panadería Delicia'],
+            ],
+            [
+                'code' => 'credits.balance.depleted',
+                'source_plugin' => 'Aero.Credits',
+                'category' => 'billing',
+                'name' => 'Saldo de créditos agotado',
+                'description' => 'Un tenant se quedó sin saldo en un color de crédito: las acciones que lo usan quedan bloqueadas.',
+                'priority' => 2,
+                'default_audiences' => ['tenant_admin', 'superadmin'],
+                'default_channels' => ['email', 'inapp'],
+                'variables_schema' => $creditVars + self::TENANT_VARS,
+                'sample_context' => ['credit_type' => 'Azul', 'credit_color' => 'azul', 'balance' => 0, 'threshold' => 50, 'tenant_name' => 'Panadería Delicia'],
             ],
         ];
     }

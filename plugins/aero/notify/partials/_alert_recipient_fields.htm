@@ -1,0 +1,37 @@
+<?php
+/**
+ * Campo reusable "Alerta (opcional)" para cualquier form que use
+ * Aero\Notify\Traits\HasAdhocAlert — prefijo + WhatsApp + correo. Arma los
+ * `name` dinámicamente con la clase del modelo del form actual, así sirve
+ * igual en QrCode, CollectionItem o el que siga sin copiar este archivo.
+ */
+$model      = $this->formGetModel();
+$modelClass = class_basename($model);
+$prefixOpts = method_exists($model, 'getAlertPrefixOptions') ? $model->getAlertPrefixOptions() : ['+591' => '+591'];
+?>
+<div class="form-group span-left" style="width:30%;float:left;box-sizing:border-box;padding-right:10px">
+    <label>Prefijo</label>
+    <select name="<?= e($modelClass) ?>[alert_prefix]" class="form-control custom-select">
+        <?php foreach ($prefixOpts as $value => $label): ?>
+        <option value="<?= e($value) ?>" <?= post("{$modelClass}.alert_prefix", $model->alert_prefix ?: '+591') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
+        <?php endforeach; ?>
+    </select>
+</div>
+<div class="form-group span-right" style="width:70%;float:left;box-sizing:border-box">
+    <label>WhatsApp</label>
+    <input
+        type="text"
+        name="<?= e($modelClass) ?>[alert_phone]"
+        class="form-control"
+        placeholder="70000000"
+        value="<?= e(post("{$modelClass}.alert_phone", $model->alert_phone)) ?>">
+</div>
+<div class="form-group span-full" style="clear:both">
+    <label>Correo</label>
+    <input
+        type="text"
+        name="<?= e($modelClass) ?>[alert_email]"
+        class="form-control"
+        placeholder="correo@ejemplo.com"
+        value="<?= e(post("{$modelClass}.alert_email", $model->alert_email)) ?>">
+</div>
