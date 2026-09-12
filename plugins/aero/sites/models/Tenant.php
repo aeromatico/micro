@@ -13,7 +13,8 @@ class Tenant extends Model
 
     public $fillable = [
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
-        'niche_type', 'status', 'primary_color', 'design_theme_id', 'theme_overrides',
+        'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
+        'design_theme_id', 'theme_overrides',
     ];
 
     protected $jsonable = ['theme_overrides'];
@@ -194,8 +195,19 @@ class Tenant extends Model
     }
 
     /**
+     * Texto del logo (fallback a "Nombre del sitio" si no se personalizó) —
+     * usado por el header/footer del tema cuando el tenant no tiene logo de
+     * imagen. Ver logo_text_font para la tipografía asociada.
+     */
+    public function getEffectiveLogoTextAttribute(): string
+    {
+        return $this->logo_text ?: $this->name;
+    }
+
+    /**
      * URL de Google Fonts CSS2 para las fuentes heading/heading2/body del
-     * tema efectivo. Familias repetidas se dedupean a un solo family.
+     * tema efectivo, más logo_text_font si el tenant eligió una para su
+     * logo de texto. Familias repetidas se dedupean a un solo family.
      */
     public function getGoogleFontsUrl(): string
     {
@@ -204,7 +216,7 @@ class Tenant extends Model
         $heading2 = $vars['--font-heading-2'] ?? $heading;
         $body     = $vars['--font-body'] ?? 'Inter';
 
-        $families = array_unique([$heading, $heading2, $body]);
+        $families = array_unique(array_filter([$heading, $heading2, $body, $this->logo_text_font]));
         $params = array_map(function ($font) {
             return 'family=' . str_replace(' ', '+', $font) . ':wght@400;500;600;700;800';
         }, $families);

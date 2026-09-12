@@ -13,7 +13,7 @@
             {% if tenant and tenant.logo %}
                 <img src="{{ tenant.logo.getPath() }}" alt="{{ tenant.name }}" class="h-8 w-auto">
             {% else %}
-                <span class="text-lg font-bold text-ink tracking-tight">{{ tenant.name ?? 'Micrositio' }}</span>
+                <span class="text-lg font-bold text-ink tracking-tight" style="{% if tenant and tenant.logo_text_font %}font-family: '{{ tenant.logo_text_font }}', var(--font-heading, inherit);{% endif %}">{{ tenant.effective_logo_text ?? tenant.name ?? 'Micrositio' }}</span>
             {% endif %}
         </a>
 

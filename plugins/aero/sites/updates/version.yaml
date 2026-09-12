@@ -138,3 +138,9 @@
       tenerlo, el menú Dashboard (order=10) quedaba oculto y el tenant
       aterrizaba directo en 'Sitio web' (order=100) tras iniciar sesión."
     - grant_dashboard_to_tenant_admin.php
+
+1.22.0:
+    - "Logo de texto opcional en Branding: nombre + fuente de Google Fonts a
+      elección, usado en el header/footer del sitio solo cuando no hay logo
+      de imagen (la imagen sigue teniendo prioridad si existe)."
+    - add_logo_text_to_tenants.php
