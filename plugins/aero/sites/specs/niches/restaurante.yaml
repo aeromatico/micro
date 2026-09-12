@@ -1,0 +1,53 @@
+name: Restaurante
+handle: restaurante
+icon: icon-spoon
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  store: false   # fase futura: pedidos online
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Sabores que enamoran. Descubrí nuestro menú y hacé tu pedido.</p>"
+  - title: "Menú"
+    slug: "menu"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto y Reservas"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Restaurante. Conocé nuestro menú y hacé tu pedido o reserva."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Confirmaremos tu reserva o pedido a la brevedad."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del restaurante] sirve comida [tipo de cocina: local, italiana, parrilla, etc.] en
+  [ciudad/zona]. Llevamos [X años] atendiendo y nos especializamos en [platos/especialidades
+  destacadas]. Ofrecemos [servicio en salón/delivery/take away]. Nos destacamos por
+  [diferenciador: sabor, ambiente, ingredientes frescos, atención]. Buscamos transmitir el
+  sabor y la experiencia del lugar sin caer en clichés gastronómicos vacíos.
+tone_instructions: "Apetitoso y cálido, evocando sabores y experiencia sin abusar de adjetivos genéricos (\"delicioso\", \"exquisito\") sin contexto que los respalde."
+target_audience: "Comensales decidiendo dónde comer o pedir delivery, comparando por tipo de cocina, precio y experiencia."

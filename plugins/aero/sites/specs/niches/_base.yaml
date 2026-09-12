@@ -42,6 +42,19 @@ contact_defaults:
 
 recommended_notification: email
 
+# Guía de generación con IA (panel "Contenidos" del tenant): base_prompt
+# autocompleta la descripción del negocio cuando el arquetipo elegido no
+# trae uno propio; tone/target_audience se usan como respaldo del prompt
+# de sistema cuando el arquetipo no define los suyos (ver SiteGenerator).
+base_prompt: |
+  [Nombre del negocio] es [tipo de negocio/rubro] con sede en [ciudad/zona]. Llevamos
+  [X años] en el mercado y ofrecemos [servicios o productos principales]. Nuestros clientes
+  nos eligen por [diferenciador: precio, calidad, atención personalizada, rapidez, tecnología,
+  garantía, etc.]. Atendemos principalmente a [tipo de cliente objetivo]. Buscamos transmitir
+  una imagen profesional y confiable, sin sonar genéricos ni exagerar promesas que no podamos
+  cumplir.
+tone_instructions: "Profesional pero cercano. Frases cortas y directas. Evitar jerga técnica innecesaria y adjetivos vacíos (\"líder\", \"el mejor\") sin respaldo."
+target_audience: "Clientes comparando proveedores, sensibles a que la propuesta de valor sea clara y concreta."
 
 # Layouts disponibles en el tema microsites
 available_layouts:

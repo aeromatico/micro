@@ -1,0 +1,53 @@
+name: Peluquería / Salón de Belleza
+handle: peluqueria
+icon: icon-scissors
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  agenda: false   # fase futura: reserva de turnos
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Tu mejor versión te espera. Reservá tu turno hoy mismo.</p>"
+  - title: "Servicios"
+    slug: "servicios"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto y Turnos"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Peluquería y salón de belleza. Reservá tu turno."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te contactaremos para confirmar tu turno."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del salón] ofrece servicios de [corte, color, tratamientos, uñas, maquillaje, etc.]
+  en [ciudad/zona]. Contamos con [X años] de experiencia y estilistas especializados en
+  [técnicas/tendencias]. Nos destacamos por [diferenciador: productos premium, atención
+  personalizada, tendencias, ambiente]. Buscamos transmitir estilo y confianza sin sonar
+  pretenciosos.
+tone_instructions: "Elegante y cercano, aspiracional sin ser inaccesible — transmitir cuidado personal y estilo, evitando jerga técnica excesiva."
+target_audience: "Personas buscando cuidado personal y estilo, comparando salones por confianza, resultado y ambiente."

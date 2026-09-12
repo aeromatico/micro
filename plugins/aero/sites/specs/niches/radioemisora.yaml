@@ -47,3 +47,12 @@ contact_defaults:
   success_message: "¡Gracias por escribirnos! Te responderemos a la brevedad."
 
 recommended_notification: telegram
+
+base_prompt: |
+  [Nombre de la radio] transmite [género musical/tipo de contenido] desde [ciudad/zona].
+  Llevamos [X años] al aire y contamos con programas como [nombres de programas destacados].
+  Nos escuchan principalmente [tipo de oyente]. Nos destacamos por [diferenciador: locutores,
+  variedad musical, cobertura en vivo, interacción con oyentes, etc.]. Buscamos transmitir
+  energía y cercanía con la comunidad.
+tone_instructions: "Enérgico y cercano, con personalidad de marca radial (puede ser informal según el estilo de la radio)."
+target_audience: "Oyentes actuales y potenciales, además de posibles anunciantes/patrocinadores."

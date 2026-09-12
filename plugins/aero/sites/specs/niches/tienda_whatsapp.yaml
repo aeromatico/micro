@@ -42,3 +42,12 @@ contact_defaults:
   success_message: "¡Pedido recibido! Te contactaremos por WhatsApp para confirmar."
 
 recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la tienda] vende [tipo de productos] por WhatsApp en [ciudad/zona]. Ofrecemos
+  [productos/catálogo principal] con [diferenciador: precios, variedad, rapidez de entrega,
+  atención personalizada, envíos, etc.]. Atendemos principalmente a [tipo de cliente objetivo].
+  Buscamos transmitir cercanía y confianza para que el cliente compre fácil y rápido por
+  WhatsApp.
+tone_instructions: "Cercano y práctico, como hablarle a un cliente por WhatsApp. Emojis con moderación solo si el negocio lo amerita."
+target_audience: "Compradores que buscan rapidez y confianza para comprar por WhatsApp, sensibles al precio y la atención personalizada."

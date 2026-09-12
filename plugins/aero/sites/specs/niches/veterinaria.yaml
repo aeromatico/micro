@@ -1,0 +1,53 @@
+name: Veterinaria y Mascotas
+handle: veterinaria
+icon: icon-paw
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  agenda: false   # fase futura: reserva de turnos/consultas
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Cuidamos a tu mascota como si fuera nuestra. Agendá tu consulta.</p>"
+  - title: "Servicios"
+    slug: "servicios"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto y Citas"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Veterinaria y cuidado de mascotas. Agendá tu consulta hoy."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Nos comunicaremos contigo para confirmar la cita de tu mascota."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la veterinaria] brinda atención veterinaria en [ciudad/zona], incluyendo
+  [consultas, vacunación, cirugías, peluquería canina, venta de alimentos/accesorios, etc.].
+  Contamos con [X años] de experiencia y veterinarios especializados en [especies/áreas].
+  Nos destacamos por [diferenciador: trato cariñoso, tecnología, urgencias, precios]. Buscamos
+  transmitir cuidado y confianza hacia las mascotas y sus dueños.
+tone_instructions: "Cálido, cariñoso y profesional — transmitir cuidado genuino hacia las mascotas, sin prometer resultados médicos no garantizables."
+target_audience: "Dueños de mascotas buscando atención veterinaria confiable, comparando por trato, precio y disponibilidad de urgencias."

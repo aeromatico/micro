@@ -42,3 +42,13 @@ contact_defaults:
   success_message: "¡Gracias! Nos comunicaremos contigo para confirmar tu cita."
 
 recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del consultorio/clínica] brinda atención en [especialidad médica] en [ciudad/zona].
+  Contamos con [X años] de experiencia y atendemos [tipo de paciente objetivo]. Nuestros
+  servicios incluyen [lista de servicios/especialidades]. Nos destacamos por [diferenciador:
+  trato personalizado, tecnología, horarios flexibles, seguros/obras sociales aceptadas, etc.].
+  Buscamos transmitir confianza y calidez humana, sin prometer resultados médicos que no
+  podamos garantizar.
+tone_instructions: "Cálido y profesional a la vez, transmitiendo confianza y cuidado humano sin sonar frío ni corporativo. Evitar promesas médicas exageradas o garantías de resultado."
+target_audience: "Pacientes potenciales evaluando dónde atenderse, preocupados por la calidad de atención, el trato y la confianza en el profesional."

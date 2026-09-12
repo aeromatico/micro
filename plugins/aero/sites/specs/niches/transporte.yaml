@@ -1,0 +1,52 @@
+name: Transporte
+handle: transporte
+icon: icon-bus
+
+features:
+  pages: true
+  contact: true
+  seo: true
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Transporte confiable y puntual. Consultá nuestras rutas y servicios.</p>"
+  - title: "Rutas y Servicios"
+    slug: "rutas"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Servicio de transporte confiable. Consultá rutas, horarios y reservas."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te contactaremos para confirmar tu reserva o consulta."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la empresa de transporte] opera en [ciudad/ruta/región] ofreciendo servicio de
+  [pasajeros/carga/encomiendas/traslados]. Contamos con [X años] de experiencia y una flota de
+  [cantidad/tipo de vehículos]. Cubrimos las rutas [detalle de rutas o zonas]. Nos destacamos
+  por [diferenciador: puntualidad, seguridad, precio, cobertura, atención]. Buscamos transmitir
+  confiabilidad y seguridad sin sonar a promesas vacías.
+tone_instructions: "Directo, confiable y claro — priorizar información concreta (rutas, horarios, precios) por sobre el lenguaje emocional."
+target_audience: "Personas o empresas que necesitan trasladarse o enviar carga, comparando opciones por puntualidad, precio y cobertura de rutas."

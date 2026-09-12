@@ -1,0 +1,54 @@
+name: Gimnasios / Centros de Entrenamiento
+handle: gimnasios
+icon: icon-heartbeat
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  agenda: false   # fase futura: reserva de clases
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Entrená con nosotros y alcanzá tus objetivos. Planes para todos los niveles.</p>"
+  - title: "Planes y Membresías"
+    slug: "planes"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Clases y Entrenadores"
+    slug: "clases"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Gimnasio y entrenamiento personalizado. Conocé nuestros planes."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te contactaremos para coordinar tu clase de prueba."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del gimnasio] ofrece entrenamiento en [ciudad/zona] con [tipo de disciplinas:
+  musculación, funcional, crossfit, spinning, etc.]. Contamos con [X años] de trayectoria e
+  instructores certificados en [especialidades]. Nuestros planes incluyen [detalle de
+  membresías/horarios]. Nos destacamos por [diferenciador: equipamiento, ambiente, resultados,
+  acompañamiento personalizado]. Buscamos transmitir energía y motivación sin sonar a
+  publicidad genérica de gimnasio.
+tone_instructions: "Enérgico y motivador, cercano al lenguaje fitness, sin exagerar promesas de resultados físicos ni usar frases hechas vacías."
+target_audience: "Personas buscando empezar o retomar una rutina de entrenamiento, comparando gimnasios por ambiente, precio y resultados."

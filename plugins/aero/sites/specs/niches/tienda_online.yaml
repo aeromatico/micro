@@ -1,0 +1,58 @@
+name: Tienda Online
+handle: tienda_online
+icon: icon-shopping-bag
+
+# Usa el mismo Aero.Shop que "Tienda Rápida WhatsApp" (carrito, checkout y
+# pagos QR — ver ShopSettings.is_enabled) — la diferencia entre ambos nichos
+# es de posicionamiento/copy: acá el cliente navega el catálogo y compra
+# directo con carrito y pago online, en vez de coordinar el pedido por chat.
+features:
+  pages: true
+  contact: true
+  seo: true
+  store: false   # fase futura: catálogo de productos embebido en el editor
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Comprá online fácil y seguro. Explorá nuestro catálogo y recibí tu pedido donde estés.</p>"
+  - title: "Catálogo"
+    slug: "catalogo"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Envíos y Pagos"
+    slug: "envios-y-pagos"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Tienda online. Comprá con carrito y pago seguro, envíos a domicilio."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te responderemos a la brevedad sobre tu consulta."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la tienda] vende [tipo de productos] online en [ciudad/zona/todo el país], con
+  catálogo, carrito de compras y pago [QR, tarjeta, transferencia] integrados en el sitio.
+  Ofrecemos [productos/catálogo principal] con [diferenciador: precios, variedad, rapidez de
+  entrega, garantía, envíos a domicilio]. Atendemos principalmente a [tipo de cliente
+  objetivo]. Buscamos transmitir confianza para comprar online: seguridad en el pago,
+  claridad en tiempos de entrega y política de cambios/devoluciones.
+tone_instructions: "Claro y confiable, priorizando seguridad de compra (pago, envío, devoluciones) sobre lenguaje puramente promocional."
+target_audience: "Compradores online comparando tiendas por catálogo, precio, medios de pago disponibles y confianza en el envío."

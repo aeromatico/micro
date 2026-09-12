@@ -1,0 +1,52 @@
+name: Limpieza y Lavandería
+handle: limpieza_lavanderia
+icon: icon-magic
+
+features:
+  pages: true
+  contact: true
+  seo: true
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Servicios de limpieza y lavandería confiables. Solicitá tu servicio hoy.</p>"
+  - title: "Servicios"
+    slug: "servicios"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Servicios de limpieza y lavandería. Solicitá tu servicio hoy."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te contactaremos para coordinar el servicio."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del negocio] ofrece servicios de [limpieza de hogares/oficinas, lavado y planchado
+  de ropa, tintorería, etc.] en [ciudad/zona]. Contamos con [X años] de experiencia y personal
+  [capacitado/de confianza]. Nos destacamos por [diferenciador: rapidez, cuidado de las
+  prendas/espacios, recojo y entrega a domicilio, precios]. Buscamos transmitir confianza y
+  prolijidad.
+tone_instructions: "Práctico y confiable, priorizando rapidez y cuidado del servicio; evitar promesas vagas de \"calidad\" sin contenido concreto."
+target_audience: "Personas y negocios que necesitan tercerizar limpieza o lavado, valorando confianza, puntualidad y precio."

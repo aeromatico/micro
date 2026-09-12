@@ -42,3 +42,12 @@ contact_defaults:
   success_message: "¡Gracias por contactarnos! Un asesor se comunicará contigo en breve."
 
 recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la inmobiliaria] opera en [ciudad/zona] ofreciendo [compra/venta/alquiler] de
+  propiedades [tipo: residenciales, comerciales, etc.]. Llevamos [X años] en el mercado y
+  hemos gestionado [cantidad] propiedades. Nos destacamos por [diferenciador: asesoría
+  personalizada, financiamiento, variedad de oferta, conocimiento de la zona, etc.]. Buscamos
+  transmitir profesionalismo y confianza, sin sonar a venta agresiva.
+tone_instructions: "Aspiracional pero honesto. Profesionalismo inmobiliario sin sonar a venta agresiva."
+target_audience: "Personas buscando comprar, vender o alquilar, comparando inmobiliarias por confianza y variedad de oferta."

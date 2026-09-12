@@ -65,6 +65,21 @@ abstract class BaseNiche implements NicheManagerInterface
         return $this->spec['recommended_notification'] ?? 'email';
     }
 
+    public function getBasePrompt(): string
+    {
+        return $this->spec['base_prompt'] ?? '';
+    }
+
+    public function getToneInstructions(): string
+    {
+        return $this->spec['tone_instructions'] ?? '';
+    }
+
+    public function getTargetAudience(): string
+    {
+        return $this->spec['target_audience'] ?? '';
+    }
+
     public function provision(Tenant $tenant): void
     {
         $this->provisionSeoConfig($tenant);

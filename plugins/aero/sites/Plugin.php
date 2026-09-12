@@ -439,11 +439,25 @@ class Plugin extends PluginBase
         );
 
         Event::listen('aero.sites.registerNiches', function ($manager) {
-            $manager->register('generic',         \Aero\Sites\Classes\Niches\GenericNiche::class);
-            $manager->register('inmuebles',       \Aero\Sites\Classes\Niches\InmueblesNiche::class);
-            $manager->register('consultorio',     \Aero\Sites\Classes\Niches\ConsultorioNiche::class);
-            $manager->register('tienda_whatsapp', \Aero\Sites\Classes\Niches\TiendaWhatsappNiche::class);
-            $manager->register('radioemisora',    \Aero\Sites\Classes\Niches\RadioemisoraNiche::class);
+            $manager->register('generic',             \Aero\Sites\Classes\Niches\GenericNiche::class);
+            $manager->register('inmuebles',            \Aero\Sites\Classes\Niches\InmueblesNiche::class);
+            $manager->register('consultorio',          \Aero\Sites\Classes\Niches\ConsultorioNiche::class);
+            $manager->register('tienda_whatsapp',      \Aero\Sites\Classes\Niches\TiendaWhatsappNiche::class);
+            $manager->register('tienda_online',        \Aero\Sites\Classes\Niches\TiendaOnlineNiche::class);
+            $manager->register('radioemisora',         \Aero\Sites\Classes\Niches\RadioemisoraNiche::class);
+            $manager->register('gimnasios',            \Aero\Sites\Classes\Niches\GimnasiosNiche::class);
+            $manager->register('transporte',           \Aero\Sites\Classes\Niches\TransporteNiche::class);
+            $manager->register('deportes',             \Aero\Sites\Classes\Niches\DeportesNiche::class);
+            $manager->register('restaurante',          \Aero\Sites\Classes\Niches\RestauranteNiche::class);
+            $manager->register('peluqueria',           \Aero\Sites\Classes\Niches\PeluqueriaNiche::class);
+            $manager->register('libreria',             \Aero\Sites\Classes\Niches\LibreriaNiche::class);
+            $manager->register('farmacia',             \Aero\Sites\Classes\Niches\FarmaciaNiche::class);
+            $manager->register('veterinaria',          \Aero\Sites\Classes\Niches\VeterinariaNiche::class);
+            $manager->register('limpieza_lavanderia',  \Aero\Sites\Classes\Niches\LimpiezaLavanderiaNiche::class);
+            $manager->register('hogar',                \Aero\Sites\Classes\Niches\HogarNiche::class);
+            $manager->register('electronicos',         \Aero\Sites\Classes\Niches\ElectronicosNiche::class);
+            $manager->register('celulares',            \Aero\Sites\Classes\Niches\CelularesNiche::class);
+            $manager->register('mercados_abarrotes',   \Aero\Sites\Classes\Niches\MercadosAbarrotesNiche::class);
         });
     }
 

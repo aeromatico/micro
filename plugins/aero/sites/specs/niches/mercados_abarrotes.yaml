@@ -1,0 +1,53 @@
+name: Mercados y Abarrotes
+handle: mercados_abarrotes
+icon: icon-shopping-basket
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  store: false   # fase futura: catálogo/tienda integrada
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Productos frescos y abarrotes con la mejor calidad y precio.</p>"
+  - title: "Productos"
+    slug: "productos"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Mercado y abarrotes. Productos frescos con entrega a domicilio."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te contactaremos para confirmar tu pedido."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre del negocio] es un mercado/tienda de abarrotes en [ciudad/zona] que ofrece
+  [productos frescos, abarrotes, bebidas, limpieza, etc.]. Llevamos [X años] atendiendo al
+  barrio/zona y ofrecemos [entrega a domicilio, horario extendido]. Nos destacamos por
+  [diferenciador: precios, frescura, variedad, cercanía]. Buscamos transmitir cercanía y
+  confianza de barrio.
+tone_instructions: "Cercano y de barrio, priorizando precio, frescura y comodidad de entrega sobre lenguaje comercial formal."
+target_audience: "Familias y vecinos de la zona buscando abastecerse, valorando precio, cercanía y rapidez de entrega."

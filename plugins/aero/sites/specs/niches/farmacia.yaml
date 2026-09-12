@@ -1,0 +1,53 @@
+name: Farmacia
+handle: farmacia
+icon: icon-plus-square
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  store: false   # fase futura: catálogo/tienda integrada
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Tu salud es nuestra prioridad. Consultá disponibilidad y hacé tu pedido.</p>"
+  - title: "Productos y Servicios"
+    slug: "productos"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Nosotros"
+    slug: "nosotros"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Farmacia. Medicamentos y productos de salud, consultá disponibilidad."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias! Te responderemos a la brevedad sobre tu consulta o pedido."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la farmacia] atiende en [ciudad/zona] ofreciendo [medicamentos, productos de
+  cuidado personal, servicios: entrega a domicilio, control de presión, etc.]. Contamos con
+  [X años] de trayectoria y [horario de atención, ej: 24 horas]. Nos destacamos por
+  [diferenciador: rapidez de entrega, variedad, precios, atención farmacéutica]. Buscamos
+  transmitir confianza y cercanía sin hacer afirmaciones médicas que no podamos garantizar.
+tone_instructions: "Confiable y cercano, transmitiendo cuidado y rapidez de atención. Evitar cualquier afirmación médica que no pueda garantizarse."
+target_audience: "Personas que necesitan medicamentos o productos de salud rápido, valorando cercanía, horario y disponibilidad."
