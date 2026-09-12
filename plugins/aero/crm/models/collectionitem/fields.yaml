@@ -1,17 +1,21 @@
 fields:
-    contact:
-        label: Contacto
-        type: relation
-        nameFrom: full_name
-        span: auto
-        required: true
-
-    contactList:
-        label: Lista (opcional)
+    contactLists:
+        label: Listas (opcional)
         type: relation
         nameFrom: name
-        span: auto
-        comment: "Útil para agrupar cobros generados en lote desde una lista"
+        span: full
+        scope: belongingToTenant
+        emptyOption: "No hay listas cargadas en este tenant"
+        comment: "Agrupa el cobro en una o varias listas. Es solo organización, no define quién recibe el recordatorio."
+
+    recipients:
+        label: Contactos
+        type: relation
+        nameFrom: full_name
+        span: full
+        scope: belongingToTenant
+        emptyOption: "No hay contactos cargados en este tenant"
+        comment: "Personas que reciben el recordatorio de cobro. Sumá una o varias, pertenezcan o no a la lista."
 
     concept:
         label: Concepto

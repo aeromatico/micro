@@ -3,9 +3,16 @@
 use Model;
 
 /**
- * Un cobro pendiente/pagado asociado a un Contact. El módulo de Cobranzas
- * lo usa tanto para el seguimiento manual (marcar como pagado) como para
- * los recordatorios automáticos (ver Classes\Collections\CollectionReminderGenerator).
+ * Un cobro pendiente/pagado. El módulo de Cobranzas lo usa tanto para el
+ * seguimiento manual (marcar como pagado) como para los recordatorios
+ * automáticos (ver Classes\Collections\CollectionReminderGenerator).
+ *
+ * Los destinatarios del cobro son uno o varios Contact a través de la
+ * relación `recipients` (tabla pivote aero_crm_collection_item_contact) y
+ * puede agruparse en una o varias listas vía `contactLists` (tabla pivote
+ * aero_crm_collection_item_contact_list). `contact_id` y `contact_list_id`
+ * son legados de cuando había un único contacto y una única lista: quedaron
+ * opcionales y se conservan para no perder el histórico.
  */
 class CollectionItem extends Model
 {
@@ -23,7 +30,6 @@ class CollectionItem extends Model
 
     public $rules = [
         'tenant_id' => 'required|exists:aero_sites_tenants,id',
-        'contact_id' => 'required|exists:aero_crm_contacts,id',
         'concept'   => 'required|max:255',
         'amount'    => 'required|numeric|min:0',
         'due_date'  => 'required|date',
@@ -38,6 +44,21 @@ class CollectionItem extends Model
 
     public $hasMany = [
         'reminderLogs' => [CollectionReminderLog::class],
+    ];
+
+    public $belongsToMany = [
+        'recipients' => [
+            Contact::class,
+            'table'    => 'aero_crm_collection_item_contact',
+            'key'      => 'collection_item_id',
+            'otherKey' => 'contact_id',
+        ],
+        'contactLists' => [
+            ContactList::class,
+            'table'    => 'aero_crm_collection_item_contact_list',
+            'key'      => 'collection_item_id',
+            'otherKey' => 'contact_list_id',
+        ],
     ];
 
     public function scopeForTenant($query, int $tenantId)
@@ -67,6 +88,23 @@ class CollectionItem extends Model
     public function getContactListIdOptions(): array
     {
         return ContactList::orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /**
+     * Filtro del listado de cobros por lista (relación muchos-a-muchos). El
+     * Filter widget entrega el FilterScope con el valor elegido; se usa
+     * whereHas para incluir los cobros que tengan esa lista entre las suyas.
+     */
+    public function scopeFilterContactList($query, $filter)
+    {
+        $value = $filter instanceof \Backend\Classes\FilterScope ? $filter->value : $filter;
+        if (!$value) {
+            return $query;
+        }
+
+        return $query->whereHas('contactLists', function ($q) use ($value) {
+            $q->whereIn('aero_crm_contact_lists.id', (array) $value);
+        });
     }
 
     public function markAsPaid(): void

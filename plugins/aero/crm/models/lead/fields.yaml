@@ -40,3 +40,10 @@ fields:
         type: relation
         nameFrom: full_name
         span: left
+
+    in_pipeline:
+        label: En el pipeline
+        type: switch
+        span: right
+        default: true
+        comment: "Si lo apagás, al convertir este lead el deal creado no aparecerá en el tablero (kanban) del pipeline."

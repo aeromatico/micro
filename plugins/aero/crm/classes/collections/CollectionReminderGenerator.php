@@ -79,11 +79,16 @@ class CollectionReminderGenerator
             ->where('due_date', '>=', now()->toDateString());
 
         if ($rule->contact_list_id) {
-            $query->where('contact_list_id', $rule->contact_list_id);
+            $query->where(function ($q) use ($rule) {
+                $q->where('contact_list_id', $rule->contact_list_id)
+                    ->orWhereHas('contactLists', function ($qq) use ($rule) {
+                        $qq->where('aero_crm_contact_lists.id', $rule->contact_list_id);
+                    });
+            });
         }
 
         $items = $query
-            ->with(['contact', 'reminderLogs' => function ($q) use ($rule) {
+            ->with(['contact', 'recipients', 'reminderLogs' => function ($q) use ($rule) {
                 $q->where('collection_reminder_rule_id', $rule->id)
                     ->whereNotNull('scheduled_date')
                     ->orderByDesc('scheduled_date');
@@ -139,7 +144,7 @@ class CollectionReminderGenerator
                 $q->whereNull('last_reminder_at')
                     ->orWhere('last_reminder_at', '<=', now()->subDays($intervalDays));
             })
-            ->with('contact')
+            ->with(['contact', 'recipients'])
             ->get();
 
         return $items->map(fn (CollectionItem $item) => [
@@ -150,32 +155,30 @@ class CollectionReminderGenerator
 
     /**
      * Envía el recordatorio de un CollectionItem puntual vía Aero\Hello
-     * (mismo circuito que Contacts::onSendMessage) y registra la Activity
-     * en el contacto. Devuelve false sin lanzar excepción cuando el
-     * contacto no tiene canal de WhatsApp vinculado, para no cortar un
-     * lote completo por un contacto sin vincular. Cuando se dispara desde
-     * una regla, registra el CollectionReminderLog correspondiente para
-     * que no se repita ese paso de la cascada.
+     * (mismo circuito que Contacts::onSendMessage) al contacto principal y a
+     * los contactos adicionales cargados a mano (ver la relación
+     * `recipients`), registrando una Activity por cada uno. Devuelve la
+     * cantidad de contactos notificados; los que no tienen canal de WhatsApp
+     * vinculado se saltean sin lanzar excepción, para no cortar un lote
+     * completo. Cuando se dispara desde una regla, registra el
+     * CollectionReminderLog correspondiente para que no se repita ese paso de
+     * la cascada — si nadie pudo recibirlo, el log se revierte y queda para
+     * la próxima corrida.
      */
-    public function sendReminder(CollectionItem $item, ?CrmSettings $settings = null, ?CollectionReminderRule $rule = null, ?string $scheduledDate = null): bool
+    public function sendReminder(CollectionItem $item, ?CrmSettings $settings = null, ?CollectionReminderRule $rule = null, ?string $scheduledDate = null): int
     {
         if (!class_exists(\Aero\Hello\Models\Contact::class)) {
-            return false;
+            return 0;
         }
 
-        $contact = $item->contact ?: Contact::find($item->contact_id);
-        if (!$contact || !$contact->hello_contact_id) {
-            return false;
-        }
-
-        $helloContact = \Aero\Hello\Models\Contact::with('identities')->find($contact->hello_contact_id);
-        if (!$helloContact) {
-            return false;
+        $item->loadMissing(['contact', 'recipients']);
+        $recipients = $this->resolveRecipients($item);
+        if ($recipients->isEmpty()) {
+            return 0;
         }
 
         $settings ??= CrmSettings::where('tenant_id', $item->tenant_id)->first();
         $template = $rule?->message_template ?: $settings?->reminder_message_template;
-        $body = $this->renderTemplate($template, $contact, $item);
 
         if ($rule) {
             try {
@@ -187,7 +190,7 @@ class CollectionReminderGenerator
                 ]);
             }
             catch (\Throwable $ex) {
-                return false;
+                return 0;
             }
         }
 
@@ -208,36 +211,77 @@ class CollectionReminderGenerator
             }
         }
 
-        try {
-            \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, $sendOptions);
+        $sent = 0;
+        foreach ($recipients as $contact) {
+            if (!$contact->hello_contact_id) {
+                continue;
+            }
+
+            $helloContact = \Aero\Hello\Models\Contact::with('identities')->find($contact->hello_contact_id);
+            if (!$helloContact) {
+                continue;
+            }
+
+            $body = $this->renderTemplate($template, $contact, $item);
+
+            try {
+                \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, $sendOptions);
+            }
+            catch (\Throwable $ex) {
+                // Un contacto sin cuenta o sin identidad de WhatsApp no debe
+                // cortar el resto de los destinatarios.
+                continue;
+            }
+
+            Activity::create([
+                'tenant_id'    => $item->tenant_id,
+                'related_type' => Contact::class,
+                'related_id'   => $contact->id,
+                'type'         => 'whatsapp',
+                'subject'      => $rule ? 'Recordatorio de cobro enviado: ' . $rule->name : 'Recordatorio de cobro enviado',
+                'description'  => $body,
+                'completed_at' => now(),
+            ]);
+
+            $sent++;
         }
-        catch (\Throwable $ex) {
-            // Un contacto sin cuenta o sin identidad de WhatsApp no debe cortar
-            // el lote completo; se salta y se reintenta en la próxima corrida.
+
+        if ($sent === 0) {
             if ($rule) {
                 CollectionReminderLog::where('collection_item_id', $item->id)
                     ->where('collection_reminder_rule_id', $rule->id)
                     ->where('scheduled_date', $scheduledDate ?: now()->toDateString())
                     ->delete();
             }
-            return false;
+            return 0;
         }
-
-        Activity::create([
-            'tenant_id'    => $item->tenant_id,
-            'related_type' => Contact::class,
-            'related_id'   => $contact->id,
-            'type'         => 'whatsapp',
-            'subject'      => $rule ? 'Recordatorio de cobro enviado: ' . $rule->name : 'Recordatorio de cobro enviado',
-            'description'  => $body,
-            'completed_at' => now(),
-        ]);
 
         $item->last_reminder_at = now();
         $item->reminder_count = ($item->reminder_count ?? 0) + 1;
         $item->save();
 
-        return true;
+        return $sent;
+    }
+
+    /**
+     * Contacto principal + adicionales, sin duplicados (el principal puede
+     * estar también cargado como adicional).
+     */
+    protected function resolveRecipients(CollectionItem $item): Collection
+    {
+        $recipients = collect();
+
+        if ($item->contact) {
+            $recipients->push($item->contact);
+        }
+
+        foreach ($item->recipients as $contact) {
+            if (!$recipients->contains('id', $contact->id)) {
+                $recipients->push($contact);
+            }
+        }
+
+        return $recipients;
     }
 
     protected function renderTemplate(?string $template, Contact $contact, CollectionItem $item): string

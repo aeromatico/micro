@@ -11,5 +11,6 @@ scopes:
     contact_list_id:
         label: Lista
         type: dropdown
+        emptyOption: Todas las listas
         options: getContactListIdOptions
-        conditions: contact_list_id in (:filtered)
+        modelScope: filterContactList

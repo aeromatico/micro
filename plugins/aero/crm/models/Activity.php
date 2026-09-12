@@ -15,8 +15,8 @@ class Activity extends Model
 
     public $rules = [
         'tenant_id'    => 'required|exists:aero_sites_tenants,id',
-        'related_type' => 'required',
-        'related_id'   => 'required|integer',
+        'related_type' => 'nullable',
+        'related_id'   => 'nullable|integer',
         'type'         => 'required|in:call,email,whatsapp,meeting,note,task',
         'subject'      => 'required|max:255',
     ];

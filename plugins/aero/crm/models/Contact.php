@@ -67,6 +67,18 @@ class Contact extends Model
     }
 
     /**
+     * Filtra las opciones de los campos de relación del formulario de cobros
+     * (Contacto / Contactos adicionales) al tenant del registro en edición —
+     * el Relation widget le pasa el modelo, no un id.
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
+
+    /**
      * Opciones para el filtro de lista "Responsable" (config_filter.yaml).
      */
     public function getOwnerIdOptions()

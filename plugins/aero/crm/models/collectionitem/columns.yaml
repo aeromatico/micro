@@ -1,8 +1,14 @@
 columns:
-    contact:
-        label: Contacto
-        relation: contact
+    recipients:
+        label: Contactos
+        relation: recipients
         select: concat(first_name, ' ', last_name)
+
+    contactLists:
+        label: Listas
+        relation: contactLists
+        select: name
+        width: 160px
 
     concept:
         label: Concepto

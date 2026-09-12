@@ -72,3 +72,35 @@
       API) queda para confirmar a mano, igual que en aero/shop."
     - add_collections_bank_account_id_to_crm_settings_table.php
     - add_payment_reference_to_collection_items_table.php
+
+1.3.0:
+    - "Seeders de demostración: limpia datos existentes del CRM y carga
+      datos ficticios realistas (empresas, contactos, deals, leads,
+      actividades, equipos, listas, cobranzas y reglas de recordatorio)
+      para verificar la operabilidad completa del módulo."
+    - seed_clear_crm_data.php
+    - seed_demo_data.php
+
+1.3.2:
+    - "Switch 'En el pipeline' en Lead: al convertir un lead, el deal creado
+      hereda el valor y respeta si debe aparecer o no en el tablero kanban."
+    - add_in_pipeline_to_leads_table.php
+
+1.3.3:
+    - "Cobranzas: la lista del cobro ya no aparece preseleccionada (placeholder
+      para elegirla) y los destinatarios pasan a ser uno o varios contactos
+      (tabla pivote), para que además de la lista se pueda sumar a mano a
+      quien también debe recibir el recordatorio."
+    - create_collection_item_contact_table.php
+
+1.3.4:
+    - "Cobranzas: se quita el contacto único del formulario — ahora se cargan
+      los contactos directamente. La columna legada contact_id queda opcional
+      y sus valores se migran al pivote para no perder el histórico."
+    - make_collection_items_contact_id_nullable.php
+
+1.3.5:
+    - "Cobranzas: un cobro puede pertenecer a varias listas (relación
+      contactLists). La columna legada contact_list_id queda opcional y sus
+      valores se migran al pivote."
+    - add_contact_lists_to_collection_items.php

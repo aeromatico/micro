@@ -34,6 +34,7 @@ fields:
         type: relation
         nameFrom: full_name
         span: left
+        emptyOption: Todos
 
     completed_at:
         label: Completada

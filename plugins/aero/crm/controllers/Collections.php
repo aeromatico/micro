@@ -80,16 +80,20 @@ class Collections extends Controller
         $items = CollectionItem::forTenant($tenantId)->whereIn('id', $ids)->get();
 
         $sent = 0;
+        $skipped = 0;
         foreach ($items as $item) {
-            if ($generator->sendReminder($item)) {
-                $sent++;
+            $notified = $generator->sendReminder($item);
+            if ($notified > 0) {
+                $sent += $notified;
+            }
+            else {
+                $skipped++;
             }
         }
 
-        $skipped = count($items) - $sent;
         $message = "Recordatorio enviado a {$sent} contacto(s).";
         if ($skipped > 0) {
-            $message .= " {$skipped} omitido(s) por no tener WhatsApp vinculado en Hello.";
+            $message .= " {$skipped} cobro(s) omitido(s) por no tener WhatsApp vinculado en Hello.";
         }
 
         Flash::success($message);

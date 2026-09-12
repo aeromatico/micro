@@ -37,6 +37,17 @@ class ContactList extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
+    /**
+     * Filtra las opciones del campo "Lista" del formulario de cobros al
+     * tenant del registro en edición — el Relation widget le pasa el modelo.
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
+
     public function getContactsCountAttribute(): int
     {
         return $this->contacts()->count();

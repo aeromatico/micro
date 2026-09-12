@@ -38,6 +38,13 @@ class Activities extends Controller
         }
     }
 
+    public function formExtendFields($form): void
+    {
+        if ($this->asExtension('FormController')->formGetContext() === 'create') {
+            $form->removeField('completed_at');
+        }
+    }
+
     public function onComplete($recordId = null)
     {
         $activity = Activity::forTenant($this->getCurrentTenantId())->findOrFail($recordId ?: post('record_id'));

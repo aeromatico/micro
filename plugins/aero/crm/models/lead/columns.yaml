@@ -17,6 +17,11 @@ columns:
         label: Email
         type: text
 
+    in_pipeline:
+        label: Pipeline
+        type: switch
+        width: 90px
+
     created_at:
         label: Creado
         type: datetime
