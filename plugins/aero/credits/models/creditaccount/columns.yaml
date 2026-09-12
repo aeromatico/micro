@@ -1,0 +1,14 @@
+columns:
+    tenant_name:
+        label: aero.credits::lang.account.tenant
+        searchable: false
+    creditType[label]:
+        label: aero.credits::lang.account.credit_type
+        relation: creditType
+        sortable: false
+    balance:
+        label: aero.credits::lang.account.balance
+    updated_at:
+        label: aero.credits::lang.account.updated_at
+        type: datetime
+        invisible: true

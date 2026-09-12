@@ -1,0 +1,20 @@
+columns:
+    created_at:
+        label: aero.credits::lang.transaction.created_at
+        type: datetime
+    tenant_id:
+        label: aero.credits::lang.transaction.tenant
+    creditType[label]:
+        label: aero.credits::lang.transaction.credit_type
+        relation: creditType
+        sortable: false
+    action_code:
+        label: aero.credits::lang.transaction.action_code
+        searchable: true
+    delta:
+        label: aero.credits::lang.transaction.delta
+    balance_after:
+        label: aero.credits::lang.transaction.balance_after
+    reason:
+        label: aero.credits::lang.transaction.reason
+        searchable: true

@@ -1,0 +1,39 @@
+fields:
+    code:
+        label: aero.credits::lang.type.code
+        type: text
+        span: left
+        comment: aero.credits::lang.type.code_comment
+
+    label:
+        label: aero.credits::lang.type.label
+        type: text
+        span: right
+
+    color:
+        label: aero.credits::lang.type.color
+        type: colorpicker
+        availableColors: ['#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7', '#f97316', '#06b6d4']
+        span: left
+
+    usd_value:
+        label: aero.credits::lang.type.usd_value
+        type: number
+        step: 0.0001
+        span: right
+        comment: aero.credits::lang.type.usd_value_comment
+
+    low_balance_threshold:
+        label: aero.credits::lang.type.low_balance_threshold
+        type: number
+        span: left
+
+    sort_order:
+        label: aero.credits::lang.type.sort_order
+        type: number
+        span: right
+
+    is_active:
+        label: aero.credits::lang.type.is_active
+        type: switch
+        span: full

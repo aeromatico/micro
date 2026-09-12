@@ -1,0 +1,18 @@
+columns:
+    color:
+        label: aero.credits::lang.type.color
+        type: colorpicker
+        sortable: false
+    code:
+        label: aero.credits::lang.type.code
+        searchable: true
+    label:
+        label: aero.credits::lang.type.label
+        searchable: true
+    usd_value:
+        label: aero.credits::lang.type.usd_value
+    low_balance_threshold:
+        label: aero.credits::lang.type.low_balance_threshold
+    is_active:
+        label: aero.credits::lang.type.is_active
+        type: switch

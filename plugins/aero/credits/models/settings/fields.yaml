@@ -1,0 +1,7 @@
+fields:
+    block_on_insufficient_balance:
+        label: aero.credits::lang.settings.block_on_insufficient_balance
+        comment: aero.credits::lang.settings.block_on_insufficient_balance_comment
+        type: switch
+        default: true
+        span: full

@@ -1,0 +1,14 @@
+1.0.0:
+    - Primera versión — sistema de créditos prepago multi-color (azul/rojo) para IA y servicios conectados.
+    - create_credit_types_table.php
+    - create_credit_accounts_table.php
+    - create_credit_transactions_table.php
+    - create_credit_actions_table.php
+    - seed_credit_types_and_actions.php
+    - seed_credit_alert_templates.php
+
+1.1.0:
+    - "Tercer color de crédito 'naranja', de menor valor que azul/rojo — pensado
+      como tier de entrada para acciones de bajo costo (ej. tool-calling de
+      Súper IA en Aero.Chatbots)."
+    - seed_credit_type_naranja.php

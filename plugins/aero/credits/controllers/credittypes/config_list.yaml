@@ -1,0 +1,13 @@
+list: $/aero/credits/models/credittype/columns.yaml
+modelClass: Aero\Credits\Models\CreditType
+title: aero.credits::lang.menu.credittypes
+showSetup: true
+recordsPerPage: 20
+defaultSort:
+    column: sort_order
+    direction: asc
+recordUrl: aero/credits/credittypes/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

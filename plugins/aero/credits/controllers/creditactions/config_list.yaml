@@ -1,0 +1,13 @@
+list: $/aero/credits/models/creditaction/columns.yaml
+modelClass: Aero\Credits\Models\CreditAction
+title: aero.credits::lang.menu.creditactions
+showSetup: true
+recordsPerPage: 20
+defaultSort:
+    column: code
+    direction: asc
+recordUrl: aero/credits/creditactions/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

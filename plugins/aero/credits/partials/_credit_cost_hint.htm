@@ -1,0 +1,23 @@
+<?php
+/**
+ * Pill reusable para mostrar "esto cuesta N créditos (~$0.0X)" junto a un
+ * botón de IA/acción facturable. Uso desde cualquier form:
+ *
+ *   <?= (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_credit_cost_hint.htm', [
+ *       'actionCode' => 'aifields.complete',
+ *   ]) ?>
+ */
+if (!class_exists(\Aero\Credits\Classes\Credits::class) || empty($actionCode)) {
+    return;
+}
+
+$cost = \Aero\Credits\Classes\Credits::cost($actionCode);
+
+if (!$cost['type']) {
+    return;
+}
+?>
+<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#8492a6">
+    <span style="width:8px;height:8px;border-radius:50%;background:<?= e($cost['type']->color) ?>;display:inline-block"></span>
+    <?= $cost['amount'] ?> créditos (~$<?= number_format(\Aero\Credits\Classes\Credits::usdValue($cost['amount'], $cost['type']->code), 4) ?> USD)
+</span>

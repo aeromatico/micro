@@ -1,0 +1,10 @@
+name: aero.credits::lang.menu.creditactions
+form: $/aero/credits/models/creditaction/fields.yaml
+modelClass: Aero\Credits\Models\CreditAction
+defaultRedirect: aero/credits/creditactions
+create:
+    redirect: aero/credits/creditactions/update/:id
+    redirectClose: aero/credits/creditactions
+update:
+    redirect: aero/credits/creditactions
+    redirectClose: aero/credits/creditactions

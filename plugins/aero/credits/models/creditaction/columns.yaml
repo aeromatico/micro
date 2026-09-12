@@ -1,0 +1,18 @@
+columns:
+    code:
+        label: aero.credits::lang.action.code
+        searchable: true
+    label:
+        label: aero.credits::lang.action.label
+        searchable: true
+    plugin:
+        label: aero.credits::lang.action.plugin
+    creditType[label]:
+        label: aero.credits::lang.action.credit_type
+        relation: creditType
+        sortable: false
+    default_cost:
+        label: aero.credits::lang.action.default_cost
+    is_active:
+        label: aero.credits::lang.action.is_active
+        type: switch

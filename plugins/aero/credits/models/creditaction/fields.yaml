@@ -1,0 +1,32 @@
+fields:
+    code:
+        label: aero.credits::lang.action.code
+        type: text
+        span: left
+        disabled: true
+
+    label:
+        label: aero.credits::lang.action.label
+        type: text
+        span: right
+
+    plugin:
+        label: aero.credits::lang.action.plugin
+        type: text
+        span: left
+        disabled: true
+
+    credit_type_id:
+        label: aero.credits::lang.action.credit_type
+        type: dropdown
+        span: right
+
+    default_cost:
+        label: aero.credits::lang.action.default_cost
+        type: number
+        span: left
+
+    is_active:
+        label: aero.credits::lang.action.is_active
+        type: switch
+        span: right

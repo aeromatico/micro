@@ -1,0 +1,13 @@
+list: $/aero/credits/models/creditaccount/columns.yaml
+modelClass: Aero\Credits\Models\CreditAccount
+title: aero.credits::lang.menu.creditaccounts
+showSetup: true
+recordsPerPage: 30
+defaultSort:
+    column: updated_at
+    direction: desc
+noRecordsMessage: aero.credits::lang.account.no_records
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

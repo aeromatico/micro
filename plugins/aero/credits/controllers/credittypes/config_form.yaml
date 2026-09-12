@@ -1,0 +1,10 @@
+name: aero.credits::lang.menu.credittypes
+form: $/aero/credits/models/credittype/fields.yaml
+modelClass: Aero\Credits\Models\CreditType
+defaultRedirect: aero/credits/credittypes
+create:
+    redirect: aero/credits/credittypes/update/:id
+    redirectClose: aero/credits/credittypes
+update:
+    redirect: aero/credits/credittypes
+    redirectClose: aero/credits/credittypes

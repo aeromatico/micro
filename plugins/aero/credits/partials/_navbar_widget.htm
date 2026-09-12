@@ -1,0 +1,10 @@
+<?php if ($totals): ?>
+    <li class="mainmenu-item hidden-xs" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0" title="Créditos consumidos hoy (todos los tenants)">
+        <?php foreach ($totals as $total): ?>
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#8492a6;white-space:nowrap">
+                <span style="width:7px;height:7px;border-radius:50%;background:<?= e($total['color']) ?>;display:inline-block;flex:0 0 auto"></span>
+                <?= number_format($total['consumed']) ?>
+            </span>
+        <?php endforeach ?>
+    </li>
+<?php endif ?>

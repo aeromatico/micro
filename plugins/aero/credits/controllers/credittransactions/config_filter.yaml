@@ -1,0 +1,12 @@
+scopes:
+    credit_type_id:
+        label: aero.credits::lang.transaction.credit_type
+        type: dropdown
+        conditions: credit_type_id = :value
+        options: getCreditTypeOptions
+
+    action_code:
+        label: aero.credits::lang.transaction.action_code
+        type: dropdown
+        conditions: action_code = :value
+        options: getActionCodeOptions

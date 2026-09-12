@@ -1,0 +1,12 @@
+list: $/aero/credits/models/credittransaction/columns.yaml
+modelClass: Aero\Credits\Models\CreditTransaction
+title: aero.credits::lang.menu.credittransactions
+showSetup: true
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+filter: config_filter.yaml
+toolbar:
+    search:
+        prompt: backend::lang.list.search_prompt
