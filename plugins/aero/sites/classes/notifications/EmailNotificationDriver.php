@@ -13,12 +13,12 @@ class EmailNotificationDriver implements NotificationDriverInterface
 
         if (!$to) return false;
 
-        $this->applySmtpConfig($config);
+        $mailer = $this->applySmtpConfig($config);
 
         $fromName = $config['from_name'] ?? ($submission->tenant->name ?? 'Notificación');
         $template = $config['template'] ?? 'aero.sites::mail.contact';
 
-        Mail::send($template, [
+        Mail::mailer($mailer)->send($template, [
             'submission' => $submission,
             'tenant'     => $submission->tenant,
         ], function ($message) use ($to, $fromName, $submission) {
@@ -30,20 +30,25 @@ class EmailNotificationDriver implements NotificationDriverInterface
         return true;
     }
 
-    protected function applySmtpConfig(array $config): void
+    protected function applySmtpConfig(array $config): string
     {
         if (empty($config['smtp_host'])) {
-            return;
+            return config('mail.default');
         }
+
+        $encryption = $config['smtp_encryption'] ?: 'tls';
 
         config([
             'mail.mailers.smtp.host'       => $config['smtp_host'],
             'mail.mailers.smtp.port'       => (int) ($config['smtp_port'] ?? 587),
-            'mail.mailers.smtp.encryption' => $config['smtp_encryption'] ?: 'tls',
+            'mail.mailers.smtp.scheme'     => $encryption === 'ssl' ? 'smtps' : 'smtp',
+            'mail.mailers.smtp.encryption' => $encryption,
             'mail.mailers.smtp.username'   => $config['smtp_username'] ?? null,
             'mail.mailers.smtp.password'   => $config['smtp_password'] ?? null,
         ]);
 
         Mail::purge('smtp');
+
+        return 'smtp';
     }
 }

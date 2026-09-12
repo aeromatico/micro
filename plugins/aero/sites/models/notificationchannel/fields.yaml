@@ -49,8 +49,8 @@ fields:
         label: Host SMTP
         type: text
         span: left
-        placeholder: smtp.gmail.com
-        comment: Para Gmail usa smtp.gmail.com
+        placeholder: smtp.zeptomail.com
+        comment: "Gmail: smtp.gmail.com · Zeptomail: smtp.zeptomail.com (.eu/.in/.com.au/.ca según tu región)"
         trigger:
             action: show
             field: type
@@ -84,17 +84,18 @@ fields:
         label: Usuario SMTP
         type: text
         span: right
-        placeholder: tucuenta@gmail.com
+        placeholder: emailapikey
+        comment: "Zeptomail/Splashify: usa literalmente emailapikey · Gmail: tu correo completo"
         trigger:
             action: show
             field: type
             condition: value[email]
 
     config[smtp_password]:
-        label: Contraseña de aplicación
+        label: Contraseña / API key
         type: password
         span: left
-        comment: "Gmail: genera una en myaccount.google.com/apppasswords (no uses tu contraseña habitual)"
+        comment: "Zeptomail: la API key del agente (debe ser de la misma región que el host, sin espacios) · Gmail: contraseña de aplicación"
         trigger:
             action: show
             field: type
