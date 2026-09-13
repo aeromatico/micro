@@ -174,3 +174,25 @@
       pantallas chicas, Editor Visual muestra una invitación a usar una
       computadora en vez del editor de bloques (inutilizable a mano)."
     - add_content_mode_to_pages.php
+
+1.26.0:
+    - "Alta pública de tenants en producción: página /alta en el tema master
+      con wizard de 2 pasos (subdominio + rubro, luego pago QR propio vía
+      aero/qrbo) y creación del administrador al confirmarse el pago. El
+      tenant se reserva como 'pending_payment' apenas se elige subdominio
+      (bloquea el handle) y se activa solo cuando el webhook de aero/qrbo
+      confirma el cobro."
+    - add_signup_fields_to_tenants.php
+
+1.27.0:
+    - "Baja del sistema de notificaciones propio (NotificationChannel/
+      NotificationDispatcher/drivers, controller notificationchannels y su
+      pantalla standalone): el contacto ahora dispara
+      'sites.contact.submitted' en Aero.Notify (ver
+      Jobs\\DispatchContactNotification) y los canales propios del tenant
+      (SMTP, WhatsApp, Telegram, Twilio) pasan a Aero\\Notify\\Models\\Channel
+      — administrables desde el mismo lugar (SiteSettings → pestaña Canales)
+      pero ahora reusables por cualquier evento del gateway, no solo el
+      contacto. Requiere que Aero.Notify 1.3.0+ ya haya corrido su migración
+      de copia de datos antes de esta baja."
+    - drop_notification_channels_table.php

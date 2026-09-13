@@ -29,4 +29,47 @@ class Settings extends Model
     {
         return (int) self::get('image_cache_ttl_days', 30);
     }
+
+    // -------------------------------------------------------------------------
+    // Alta pública de tenants (/alta) — cobro del plan vía aero/qrbo
+    // -------------------------------------------------------------------------
+
+    public static function getSignupPlanPrice(string $plan): float
+    {
+        $default = $plan === 'pro' ? 99 : 49;
+        return (float) self::get("signup_price_{$plan}", $default);
+    }
+
+    public static function getSignupBankAccountId(): ?int
+    {
+        $id = self::get('signup_bank_account_id');
+        return $id ? (int) $id : null;
+    }
+
+    public static function getSignupBankAccount(): ?\Aero\Qrbo\Models\BankAccount
+    {
+        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+            return null;
+        }
+
+        $id = static::getSignupBankAccountId();
+        return $id ? \Aero\Qrbo\Models\BankAccount::active()->find($id) : null;
+    }
+
+    public static function getSignupPendingTtlHours(): int
+    {
+        return (int) self::get('signup_pending_ttl_hours', 2);
+    }
+
+    public function getSignupBankAccountIdOptions(): array
+    {
+        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+            return [];
+        }
+
+        return \Aero\Qrbo\Models\BankAccount::active()
+            ->get()
+            ->mapWithKeys(fn ($account) => [$account->id => "{$account->label} (tenant #{$account->tenant_id})"])
+            ->toArray();
+    }
 }

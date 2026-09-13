@@ -2,7 +2,7 @@
 
 use Aero\Sites\Models\ContactConfig;
 use Aero\Sites\Models\ContactSubmission;
-use Aero\Sites\Models\NotificationChannel;
+use Aero\Notify\Models\Channel;
 use Aero\Sites\Models\SeoConfig;
 use Aero\Sites\Traits\HasBrandingForm;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
@@ -46,12 +46,19 @@ class SiteSettings extends Controller
         $this->contactInfoWidget   = $this->makeContactInfoWidget($contactConfig);
         $this->contactConfigWidget = $this->makeContactConfigWidget($contactConfig);
         $this->seoWidget           = $this->makeSeoWidget($seoConfig);
-        $this->channelFormWidget   = $this->makeChannelFormWidget(new NotificationChannel);
+
+        // Aero.Sites no requiere Aero.Notify (es al revés): sin el plugin
+        // instalado, la sección de canales simplemente no se muestra.
+        if (class_exists(Channel::class)) {
+            $this->channelFormWidget = $this->makeChannelFormWidget(new Channel);
+            $this->vars['channels']  = $this->getChannels($tenant->id);
+        } else {
+            $this->vars['channels'] = collect();
+        }
 
         $this->vars['tenant']        = $tenant;
         $this->vars['contactConfig'] = $contactConfig;
         $this->vars['seoConfig']     = $seoConfig;
-        $this->vars['channels']      = $this->getChannels($tenant->id);
         $this->vars['submissions']   = ContactSubmission::where('tenant_id', $tenant->id)
             ->orderByDesc('created_at')
             ->limit(50)
@@ -143,20 +150,22 @@ class SiteSettings extends Controller
 
     public function onSaveChannel()
     {
+        $this->assertChannelsAvailable();
+
         $tenant  = $this->getCurrentTenant();
         $id      = post('channel_id');
         $data    = post('Channel', []);
 
         if ($id) {
-            $channel = NotificationChannel::forTenant($tenant->id)->findOrFail((int) $id);
+            $channel = Channel::forTenant($tenant->id)->findOrFail((int) $id);
         } else {
-            $channel             = new NotificationChannel;
+            $channel             = new Channel;
             $channel->tenant_id  = $tenant->id;
-            $channel->sort_order = NotificationChannel::forTenant($tenant->id)->count() + 1;
+            $channel->sort_order = Channel::forTenant($tenant->id)->count() + 1;
         }
 
         $channel->label      = $data['label']                       ?? $channel->label;
-        $channel->type       = $data['type']                        ?? $channel->type;
+        $channel->channel    = $data['channel']                     ?? $channel->channel;
         $channel->is_enabled = (bool) ($data['is_enabled']          ?? false);
         $channel->config     = array_filter($data['config'] ?? [], fn($v) => $v !== null && $v !== '');
         $channel->save();
@@ -167,16 +176,18 @@ class SiteSettings extends Controller
             '#channel-list' => $this->makePartial('channels_list', [
                 'channels' => $this->getChannels($tenant->id),
             ]),
-            '#channel-form-inner' => $this->makeChannelFormWidget(new NotificationChannel)->render(),
+            '#channel-form-inner' => $this->makeChannelFormWidget(new Channel)->render(),
             '#channel_id_field'   => '<input type="hidden" name="channel_id" id="channel_id_field" value="">',
         ];
     }
 
     public function onEditChannel()
     {
+        $this->assertChannelsAvailable();
+
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
-        $channel = NotificationChannel::forTenant($tenant->id)->findOrFail($id);
+        $channel = Channel::forTenant($tenant->id)->findOrFail($id);
 
         return [
             '#channel-form-inner' => $this->makeChannelFormWidget($channel)->render(),
@@ -186,9 +197,11 @@ class SiteSettings extends Controller
 
     public function onDeleteChannel()
     {
+        $this->assertChannelsAvailable();
+
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
-        NotificationChannel::forTenant($tenant->id)->findOrFail($id)->delete();
+        Channel::forTenant($tenant->id)->findOrFail($id)->delete();
 
         Flash::success('Canal eliminado.');
 
@@ -201,9 +214,11 @@ class SiteSettings extends Controller
 
     public function onToggleChannel()
     {
+        $this->assertChannelsAvailable();
+
         $tenant  = $this->getCurrentTenant();
         $id      = (int) post('id');
-        $channel = NotificationChannel::forTenant($tenant->id)->findOrFail($id);
+        $channel = Channel::forTenant($tenant->id)->findOrFail($id);
         $channel->is_enabled = !$channel->is_enabled;
         $channel->save();
 
@@ -220,7 +235,14 @@ class SiteSettings extends Controller
 
     protected function getChannels(int $tenantId)
     {
-        return NotificationChannel::forTenant($tenantId)->orderBy('sort_order')->get();
+        return Channel::forTenant($tenantId)->orderBy('sort_order')->get();
+    }
+
+    protected function assertChannelsAvailable(): void
+    {
+        if (!class_exists(Channel::class)) {
+            throw new \ApplicationException('Aero.Notify no está instalado: no se pueden administrar canales.');
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -387,13 +409,13 @@ class SiteSettings extends Controller
         return $widget;
     }
 
-    protected function makeChannelFormWidget(NotificationChannel $model): Form
+    protected function makeChannelFormWidget(Channel $model): Form
     {
         $config            = new \stdClass;
         $config->model     = $model;
         $config->arrayName = 'Channel';
         $config->alias     = 'channelForm';
-        $config->form      = '$/aero/sites/models/notificationchannel/fields.yaml';
+        $config->form      = '$/aero/notify/models/channel/inline_fields.yaml';
 
         $widget = $this->makeWidget(Form::class, $config);
         $widget->bindToController();

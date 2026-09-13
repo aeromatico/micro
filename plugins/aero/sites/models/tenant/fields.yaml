@@ -38,6 +38,22 @@ tabs:
                 active: Activo
                 inactive: Inactivo
                 suspended: Suspendido
+                pending_payment: 'Pendiente de pago (alta reservada)'
+            tab: General
+
+        plan:
+            label: Plan contratado
+            type: dropdown
+            span: right
+            emptyOption: '— Sin plan (creado desde el backend) —'
+            options: getPlanOptions
+            tab: General
+
+        plan_price:
+            label: Precio pagado al activarse (Bs)
+            type: number
+            span: left
+            disabled: true
             tab: General
 
         primary_color:

@@ -28,9 +28,9 @@ class Plugin extends PluginBase
 
     public function register(): void
     {
-        $this->registerNotificationDrivers();
         $this->registerNiches();
         $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
+        $this->registerConsoleCommand('aero.sites:release-expired-signups', \Aero\Sites\Console\ReleaseExpiredSignups::class);
     }
 
     public function boot(): void
@@ -43,6 +43,47 @@ class Plugin extends PluginBase
         $this->bootChatbotsIntegration();
         $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
+        $this->bootQrboSignupBridge();
+    }
+
+    public function registerSchedule($schedule): void
+    {
+        $schedule->command('aero.sites:release-expired-signups')->hourly();
+    }
+
+    /**
+     * Cuando aero/qrbo confirma el pago de un QR de alta (webhook del banco
+     * o reconciliación), busca el tenant reservado con ese
+     * `signup_payment_reference` y termina de aprovisionarlo (site
+     * definition, dominio, páginas del niche) — el usuario administrador se
+     * crea aparte, cuando el propio dueño completa el formulario final del
+     * wizard (ver SignupWizard::onCreateAdmin). Nunca deja escapar una
+     * excepción: si algo falla acá, el webhook de aero/qrbo igual debe
+     * terminar de procesarse y el pago quedar registrado.
+     */
+    protected function bootQrboSignupBridge(): void
+    {
+        if (!class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+            return;
+        }
+
+        Event::listen('aero.qrbo.paymentReceived', function ($payment, $qrCode) {
+            $tenant = \Aero\Sites\Models\Tenant::where('signup_payment_reference', $qrCode->internal_reference)
+                ->where('status', 'pending_payment')
+                ->first();
+
+            if (!$tenant) {
+                return;
+            }
+
+            try {
+                app(\Aero\Sites\Classes\TenantProvisioner::class)->provisionSite($tenant);
+                $tenant->status = 'active';
+                $tenant->save();
+            } catch (\Exception $e) {
+                \Log::error("Aero\\Sites: fallo al aprovisionar el sitio del tenant {$tenant->id} tras pago confirmado: " . $e->getMessage());
+            }
+        });
     }
 
     /**
@@ -300,6 +341,7 @@ class Plugin extends PluginBase
             \Aero\Sites\Components\PageList::class      => 'sitesPageList',
             \Aero\Sites\Components\PageDetail::class    => 'sitesPageDetail',
             \Aero\Sites\Components\ContactSection::class => 'sitesContact',
+            \Aero\Sites\Components\SignupWizard::class   => 'signupWizard',
         ];
     }
 
@@ -380,12 +422,6 @@ class Plugin extends PluginBase
                         'label'       => 'aero.sites::lang.menu.contact',
                         'icon'        => 'icon-phone',
                         'url'         => Backend::url('aero/sites/contactconfigs'),
-                        'permissions' => ['aero.sites.superadmin'],
-                    ],
-                    'notificationchannels' => [
-                        'label'       => 'aero.sites::lang.menu.channels',
-                        'icon'        => 'icon-bell',
-                        'url'         => Backend::url('aero/sites/notificationchannels'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                     'contactsubmissions' => [
@@ -476,25 +512,6 @@ class Plugin extends PluginBase
     }
 
     // -------------------------------------------------------------------------
-    // Notification Drivers
-    // -------------------------------------------------------------------------
-
-    protected function registerNotificationDrivers(): void
-    {
-        $dispatcher = $this->app->singleton(
-            \Aero\Sites\Classes\Notifications\NotificationDispatcher::class,
-            fn() => new \Aero\Sites\Classes\Notifications\NotificationDispatcher()
-        );
-
-        Event::listen('aero.sites.registerNotificationDrivers', function ($manager) {
-            $manager->register('email',    \Aero\Sites\Classes\Notifications\EmailNotificationDriver::class);
-            $manager->register('whatsapp', \Aero\Sites\Classes\Notifications\WhatsappNotificationDriver::class);
-            $manager->register('telegram', \Aero\Sites\Classes\Notifications\TelegramNotificationDriver::class);
-            $manager->register('sms',      \Aero\Sites\Classes\Notifications\SmsNotificationDriver::class);
-        });
-    }
-
-    // -------------------------------------------------------------------------
     // Niche Drivers
     // -------------------------------------------------------------------------
 
@@ -525,6 +542,7 @@ class Plugin extends PluginBase
             $manager->register('electronicos',         \Aero\Sites\Classes\Niches\ElectronicosNiche::class);
             $manager->register('celulares',            \Aero\Sites\Classes\Niches\CelularesNiche::class);
             $manager->register('mercados_abarrotes',   \Aero\Sites\Classes\Niches\MercadosAbarrotesNiche::class);
+            $manager->register('servicios_digitales',  \Aero\Sites\Classes\Niches\ServiciosDigitalesNiche::class);
         });
     }
 

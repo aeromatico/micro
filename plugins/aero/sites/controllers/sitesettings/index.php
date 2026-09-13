@@ -180,6 +180,7 @@ $statusLabels = [
                         </div>
 
                         <!-- Formulario agregar / editar canal -->
+                        <?php if ($channelFormWidget): ?>
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h3 class="panel-title">
@@ -222,6 +223,7 @@ $statusLabels = [
                                 </form>
                             </div>
                         </div>
+                        <?php endif ?>
 
                     </div>
                 </div>

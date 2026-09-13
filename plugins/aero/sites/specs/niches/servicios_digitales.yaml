@@ -1,0 +1,54 @@
+name: Servicios Digitales
+handle: servicios_digitales
+icon: icon-laptop
+
+features:
+  pages: true
+  contact: true
+  seo: true
+  portfolio: false   # fase futura: galería de proyectos/casos embebida en el editor
+
+default_pages:
+  - title: "Inicio"
+    slug: ""
+    layout: home
+    is_published: true
+    sort_order: 1
+    content: "<h1>Bienvenidos a {name}</h1><p>Diseño, desarrollo y marketing digital para hacer crecer tu negocio en línea.</p>"
+  - title: "Servicios"
+    slug: "servicios"
+    layout: default
+    is_published: true
+    sort_order: 2
+  - title: "Portafolio"
+    slug: "portafolio"
+    layout: default
+    is_published: true
+    sort_order: 3
+  - title: "Contacto"
+    slug: "contacto"
+    layout: contact
+    is_published: true
+    sort_order: 99
+
+seo_defaults:
+  title_format: "%s | {name}"
+  default_description: "{name} — Servicios digitales: diseño, desarrollo y marketing para tu negocio."
+  sitemap_enabled: true
+  robots_txt: "User-agent: *\nAllow: /"
+
+contact_defaults:
+  form_enabled: true
+  success_message: "¡Gracias por tu mensaje! Te contactaremos para conversar sobre tu proyecto."
+
+recommended_notification: whatsapp
+
+base_prompt: |
+  [Nombre de la agencia/freelancer] ofrece [servicios: diseño web, desarrollo, marketing
+  digital, branding, gestión de redes, etc.] para negocios en [ciudad/zona/remoto]. Contamos
+  con [X años] de experiencia y hemos trabajado con [tipo de cliente objetivo]. Nos destacamos
+  por [diferenciador: calidad, rapidez de entrega, precios competitivos, resultados medibles,
+  atención cercana]. Buscamos transmitir profesionalismo y resultados concretos, sin caer en
+  jerga técnica innecesaria ni promesas de resultados que no podamos garantizar.
+tone_instructions: "Profesional y orientado a resultados, con lenguaje claro que evite jerga técnica innecesaria. Directo sobre lo que se entrega, sin promesas vacías de 'éxito garantizado'."
+target_audience: "Dueños de negocio o encargados de marketing evaluando con quién trabajar su presencia digital, comparando portafolio, precio y confianza."

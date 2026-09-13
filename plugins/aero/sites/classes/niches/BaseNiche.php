@@ -1,7 +1,6 @@
 <?php namespace Aero\Sites\Classes\Niches;
 
 use Aero\Sites\Models\ContactConfig;
-use Aero\Sites\Models\NotificationChannel;
 use Aero\Sites\Models\Page;
 use Aero\Sites\Models\SeoConfig;
 use Aero\Sites\Models\Tenant;
@@ -128,10 +127,14 @@ abstract class BaseNiche implements NicheManagerInterface
 
     protected function provisionDefaultChannel(Tenant $tenant): void
     {
+        if (!class_exists(\Aero\Notify\Models\Channel::class)) {
+            return;
+        }
+
         $type = $this->getRecommendedNotification();
-        NotificationChannel::create([
+        \Aero\Notify\Models\Channel::create([
             'tenant_id'  => $tenant->id,
-            'type'       => $type,
+            'channel'    => $type,
             'label'      => ucfirst($type) . ' principal',
             'config'     => [],
             'is_enabled' => false,

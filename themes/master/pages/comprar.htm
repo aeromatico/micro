@@ -1,0 +1,235 @@
+url = "/comprar/:plan?"
+layout = "base"
+title = "Crea tu cuenta — Market"
+description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu sitio en minutos."
+
+[signupWizard]
+==
+<script src="{{ 'assets/js/signup.js' | theme }}"></script>
+
+<section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
+
+    <div class="flex items-center justify-between gap-4 mb-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm text-ink-dim hover:text-ink transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+            Volver a inicio
+        </a>
+        <span class="text-xs uppercase tracking-wide font-bold text-ink-dim" x-text="step === 1 ? 'Paso 1 de 2' : 'Paso 2 de 2'"></span>
+    </div>
+
+    <div class="flex items-center gap-2 mb-10">
+        <div class="h-[3px] flex-1 rounded-full bg-accent"></div>
+        <div class="h-[3px] flex-1 rounded-full transition-colors duration-300" :class="step === 2 ? 'bg-accent' : 'bg-edge'"></div>
+    </div>
+
+    {% if not signupEnabled %}
+    <div class="mb-8 p-5 border border-dashed border-edge rounded-2xl text-sm text-ink-dim">
+        El alta está temporalmente deshabilitada. Vuelve a intentarlo más tarde o <a href="/#contacto" class="text-ink underline underline-offset-2">contáctanos</a>.
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start">
+
+        <div class="bg-canvas-elev border border-edge rounded-2xl p-7 sm:p-9 min-w-0">
+
+            <!-- STEP 1 -->
+            <div x-show="step === 1" x-cloak class="flex flex-col gap-8">
+                <div>
+                    <span class="text-xs tracking-wide text-accent uppercase font-bold">Configura tu sitio</span>
+                    <h1 class="text-2xl sm:text-[28px] font-bold mt-2 text-pretty">Elige el nombre y el rubro de tu negocio</h1>
+                    <p class="text-sm text-ink-dim mt-2">Podrás cambiar el diseño y el contenido después, desde el editor con IA.</p>
+                </div>
+
+                <div>
+                    <label for="signup-handle" class="block text-[13px] font-bold mb-2">Nombre de tu sitio</label>
+                    <div class="flex items-stretch border rounded-xl bg-canvas overflow-hidden transition-colors"
+                         :class="available === true ? 'border-accent' : (available === false ? 'border-red-400/70' : 'border-edge focus-within:border-accent')">
+                        <input id="signup-handle" type="text" x-model="handle" @input="onHandleInput()"
+                               placeholder="minegocio" autocomplete="off" spellcheck="false" maxlength="30"
+                               class="flex-1 min-w-0 bg-transparent border-none outline-none px-4 py-3 text-[15px] font-display" />
+                        <span class="flex items-center px-4 text-sm text-ink-dim whitespace-nowrap">.market.com.bo</span>
+                        <span class="flex items-center justify-center w-11 flex-shrink-0">
+                            <svg x-show="checking" x-cloak class="w-4 h-4 animate-spin text-ink-dim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                            <svg x-show="!checking && available === true" x-cloak class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6"/></svg>
+                            <svg x-show="!checking && available === false" x-cloak class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                        </span>
+                    </div>
+                    <p class="text-xs mt-2 min-h-[16px]" :class="available === true ? 'text-accent' : (available === false ? 'text-red-400' : 'text-ink-dim')" x-text="statusMessage"></p>
+                </div>
+
+                <div>
+                    <label class="block text-[13px] font-bold mb-2">Rubro de tu negocio</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto pr-1">
+                        <template x-for="n in niches" :key="n.id">
+                            <button type="button" @click="selectNiche(n.id)"
+                                    class="text-left border rounded-xl px-3.5 py-3 text-[13px] font-semibold transition-colors"
+                                    :class="niche === n.id ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas hover:border-ink-dim'"
+                                    x-text="n.label">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[13px] font-bold mb-2">Plan</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <template x-for="(p, id) in plans" :key="id">
+                            <button type="button" @click="plan = id"
+                                    class="text-left border rounded-xl p-4 transition-colors"
+                                    :class="plan === id ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas hover:border-ink-dim'">
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-sm font-bold" x-text="p.label"></span>
+                                    <span class="font-display text-lg font-bold" x-text="'Bs ' + p.price"></span>
+                                </div>
+                                <p class="text-xs text-ink-dim mt-1">/ mes</p>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="button" @click="goToPayment()" :disabled="!canContinue"
+                            class="w-full inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
+                        <span x-show="!creating">Continuar al pago</span>
+                        <span x-show="creating" x-cloak>Preparando tu QR…</span>
+                    </button>
+                    <p class="text-xs text-red-400 mt-2 text-center" x-show="createError" x-cloak x-text="createError"></p>
+                    <p class="text-xs text-ink-dim mt-3 text-center">Sin tarjeta de crédito requerida en este paso</p>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div x-show="step === 2" x-cloak class="flex flex-col gap-6">
+
+                <!-- 2a/2b: payment -->
+                <template x-if="payment && paymentStatus === 'pending'">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <span class="text-xs tracking-wide text-accent uppercase font-bold">Confirma tu pago</span>
+                            <h1 class="text-2xl sm:text-[28px] font-bold mt-2 text-pretty">Activa tu sitio con un pago QR</h1>
+                            <p class="text-sm text-ink-dim mt-2">Escanea el código con tu app bancaria o billetera móvil. Activamos tu sitio apenas se acredita el pago — no necesitas recargar esta página.</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-accent"><strong x-text="payment.domain"></strong></span>
+                            <span class="inline-flex items-center text-xs px-3 py-1.5 rounded-full border border-edge text-ink-dim">Rubro: <span class="ml-1" x-text="payment.niche_label"></span></span>
+                            <span class="inline-flex items-center text-xs px-3 py-1.5 rounded-full border border-edge text-ink-dim">Plan <span class="ml-1" x-text="payment.plan_label"></span></span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-5 items-center">
+                            <div class="bg-white rounded-2xl p-3 w-40 h-40 flex items-center justify-center border border-edge">
+                                <img :src="payment.qr_image" alt="QR de cobro" class="w-full h-full object-contain" />
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <div class="font-display text-3xl font-bold">Bs <span x-text="payment.amount"></span><span class="text-sm font-semibold text-ink-dim"> / primer mes</span></div>
+                                <div class="text-xs text-ink-dim">Referencia <span class="font-mono" x-text="payment.reference.slice(0, 8)"></span></div>
+                                <div class="text-xs text-ink-dim">Válido hasta <span x-text="payment.due_date"></span></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-canvas border border-edge text-[13px] text-ink-dim">
+                            <svg class="w-4 h-4 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                            Esperando confirmación del banco…
+                        </div>
+
+                        <button type="button" @click="backToStep1()" class="text-xs font-semibold text-ink-dim hover:text-ink underline underline-offset-2 self-start">← Cambiar sitio, rubro o plan</button>
+                    </div>
+                </template>
+
+                <!-- 2c: admin form -->
+                <template x-if="payment && paymentStatus === 'paid' && !done">
+                    <div class="flex flex-col gap-6">
+                        <div class="flex items-center gap-3 text-accent">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6"/></svg>
+                            <span class="text-sm font-bold">Pago confirmado</span>
+                        </div>
+                        <div>
+                            <span class="text-xs tracking-wide text-accent uppercase font-bold">Último paso</span>
+                            <h1 class="text-2xl sm:text-[28px] font-bold mt-2 text-pretty">Crea tu cuenta de administrador</h1>
+                            <p class="text-sm text-ink-dim mt-2">La vas a usar para entrar a tu panel, editar tu sitio y ver tus pedidos y cobros.</p>
+                        </div>
+
+                        <form @submit.prevent="submitAdmin()" class="flex flex-col gap-4">
+                            <div>
+                                <label for="admin-name" class="block text-[13px] font-bold mb-1.5">Nombre completo</label>
+                                <input id="admin-name" type="text" x-model="adminForm.name" required placeholder="Ana Fernández" autocomplete="name"
+                                       class="w-full border border-edge focus:border-accent bg-canvas rounded-lg px-4 py-2.5 text-sm outline-none transition-colors" />
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="admin-email" class="block text-[13px] font-bold mb-1.5">Correo electrónico</label>
+                                    <input id="admin-email" type="email" x-model="adminForm.email" required placeholder="ana@minegocio.com" autocomplete="email"
+                                           class="w-full border border-edge focus:border-accent bg-canvas rounded-lg px-4 py-2.5 text-sm outline-none transition-colors" />
+                                </div>
+                                <div>
+                                    <label for="admin-phone" class="block text-[13px] font-bold mb-1.5">WhatsApp</label>
+                                    <input id="admin-phone" type="tel" x-model="adminForm.phone" required placeholder="+591 700 00000" autocomplete="tel"
+                                           class="w-full border border-edge focus:border-accent bg-canvas rounded-lg px-4 py-2.5 text-sm outline-none transition-colors" />
+                                </div>
+                            </div>
+                            <div>
+                                <label for="admin-password" class="block text-[13px] font-bold mb-1.5">Contraseña</label>
+                                <input id="admin-password" type="password" x-model="adminForm.password" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password"
+                                       class="w-full border border-edge focus:border-accent bg-canvas rounded-lg px-4 py-2.5 text-sm outline-none transition-colors" />
+                                <p class="text-xs text-ink-dim mt-1.5">Vas a entrar con este correo en <span x-text="payment.domain + '/backend'"></span></p>
+                            </div>
+                            <button type="submit" :disabled="adminSubmitting"
+                                    class="mt-1 inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg transition-opacity disabled:opacity-50">
+                                <span x-show="!adminSubmitting">Crear mi cuenta y entrar al panel</span>
+                                <span x-show="adminSubmitting" x-cloak>Creando tu cuenta…</span>
+                            </button>
+                            <p class="text-xs text-red-400 text-center" x-show="adminError" x-cloak x-text="adminError"></p>
+                        </form>
+                    </div>
+                </template>
+
+                <!-- 2d: done -->
+                <template x-if="done">
+                    <div class="flex flex-col items-center text-center gap-5 py-4">
+                        <span class="text-xs tracking-wide text-accent uppercase font-bold">Listo</span>
+                        <h1 class="text-2xl sm:text-[28px] font-bold text-pretty">Tu sitio ya está en línea</h1>
+                        <p class="text-sm text-ink-dim max-w-[420px]">Guarda el enlace y compártelo con tus clientes. Ya puedes entrar a tu panel para personalizarlo.</p>
+                        <span class="inline-flex items-center gap-2 border border-accent rounded-full px-4 py-2 font-display font-bold text-[15px]">
+                            <span x-text="'https://' + done.primary_domain"></span>
+                        </span>
+                        <a :href="done.backend_url" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-7 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Ir a mi panel</a>
+                    </div>
+                </template>
+
+            </div>
+        </div>
+
+        <!-- LIVE PREVIEW -->
+        <div class="hidden lg:flex flex-col gap-3 sticky top-6">
+            <span class="text-[11px] uppercase tracking-wide font-bold text-ink-dim pl-1">Vista previa</span>
+            <div class="bg-canvas-elev border border-edge rounded-2xl overflow-hidden">
+                <div class="flex items-center gap-2 px-3 py-2.5 border-b border-edge">
+                    <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
+                    <span class="flex-1 bg-canvas rounded px-2.5 py-1 text-[11px] text-ink-dim truncate" x-text="(payment ? payment.domain : (handle || 'tunegocio')) + '.market.com.bo'"></span>
+                </div>
+                <div class="p-4 flex flex-col gap-3">
+                    <div class="h-16 rounded-xl bg-canvas-elev2 flex items-center gap-2.5 px-3.5">
+                        <span class="w-5 h-5 rounded-md bg-accent flex-shrink-0"></span>
+                        <div class="flex-1 flex flex-col gap-1.5">
+                            <div class="h-2.5 rounded bg-canvas w-3/5"></div>
+                            <div class="h-2 rounded bg-canvas w-2/5"></div>
+                        </div>
+                    </div>
+                    <div class="h-2.5 rounded bg-canvas-elev2 w-[85%]"></div>
+                    <div class="h-2.5 rounded bg-canvas-elev2 w-[65%]"></div>
+                    <div class="flex gap-2">
+                        <div class="h-9 flex-1 rounded-lg bg-canvas-elev2"></div>
+                        <div class="h-9 flex-1 rounded-lg bg-canvas-elev2"></div>
+                        <div class="h-9 flex-1 rounded-lg bg-canvas-elev2"></div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-xs text-ink-dim px-1 leading-relaxed">
+                <span x-text="niche ? 'El generador con IA arma el resto apenas entres a tu panel.' : 'Elige un nombre y un rubro para ver cómo empieza a tomar forma tu sitio.'"></span>
+            </p>
+        </div>
+
+    </div>
+</section>

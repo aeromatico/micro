@@ -21,7 +21,12 @@ columns:
     status:
         label: Estado
         type: text
-        width: 100px
+        width: 140px
+
+    plan:
+        label: Plan
+        type: text
+        width: 90px
 
     rootDomain[domain]:
         label: Dominio raíz

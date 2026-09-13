@@ -15,6 +15,7 @@ class Tenant extends Model
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
         'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
         'design_theme_id', 'theme_overrides',
+        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference',
     ];
 
     protected $jsonable = ['theme_overrides'];
@@ -26,7 +27,7 @@ class Tenant extends Model
         'handle'         => 'required|alpha_dash|unique:aero_sites_tenants,handle',
         'root_domain_id' => 'required|exists:aero_sites_root_domains,id',
         'niche_type'     => 'required',
-        'status'         => 'in:active,inactive,suspended',
+        'status'         => 'in:active,inactive,suspended,pending_payment',
         'primary_color'  => 'regex:/^#[0-9A-Fa-f]{6}$/',
     ];
 
@@ -45,7 +46,7 @@ class Tenant extends Model
     public $hasMany = [
         'domains'               => [Domain::class],
         'pages'                 => [Page::class],
-        'notificationChannels'  => [NotificationChannel::class],
+        'notificationChannels'  => [\Aero\Notify\Models\Channel::class],
         'contactSubmissions'    => [ContactSubmission::class],
         'apiTokens'             => [ApiToken::class],
         'tenantUsers'           => [TenantUser::class],
@@ -133,10 +134,16 @@ class Tenant extends Model
     public function getStatusOptions(): array
     {
         return [
-            'active'    => 'Activo',
-            'inactive'  => 'Inactivo',
-            'suspended' => 'Suspendido',
+            'active'          => 'Activo',
+            'inactive'        => 'Inactivo',
+            'suspended'       => 'Suspendido',
+            'pending_payment' => 'Pendiente de pago (alta reservada)',
         ];
+    }
+
+    public function getPlanOptions(): array
+    {
+        return \Aero\Sites\Classes\SignupPlans::labels();
     }
 
     public function getDesignThemeIdOptions(): array
@@ -282,8 +289,10 @@ class Tenant extends Model
             // Contact config
             $this->contactConfig?->delete();
 
-            // Notification channels
-            $this->notificationChannels()->delete();
+            // Notification channels (Aero.Notify — no requerido por Sites)
+            if (class_exists(\Aero\Notify\Models\Channel::class)) {
+                $this->notificationChannels()->delete();
+            }
 
             // Contact submissions
             $this->contactSubmissions()->delete();

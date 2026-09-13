@@ -22,3 +22,38 @@ fields:
         default: 30
         comment: Cuántos días se reutiliza la misma imagen resuelta para las mismas palabras clave antes de volver a consultar la API.
         span: left
+
+    # ===================================
+    # Alta pública de tenants (/alta)
+    # ===================================
+
+    section_signup:
+        label: Alta pública de tenants (/alta)
+        type: section
+        comment: Configuración del formulario público de alta en el tema master — el cobro del plan se emite como QR contra la cuenta bancaria elegida acá (plugin aero/qrbo).
+
+    signup_bank_account_id:
+        label: Cuenta bancaria receptora
+        type: dropdown
+        options: getSignupBankAccountIdOptions
+        comment: Cuenta de aero/qrbo contra la que se emite el QR de cobro de cada alta nueva. Sin una cuenta elegida, /alta no puede cobrar y queda deshabilitado.
+        span: full
+
+    signup_price_negocio:
+        label: 'Precio plan Negocio (Bs/mes)'
+        type: number
+        default: 49
+        span: left
+
+    signup_price_pro:
+        label: 'Precio plan Pro (Bs/mes)'
+        type: number
+        default: 99
+        span: right
+
+    signup_pending_ttl_hours:
+        label: Horas para liberar un subdominio reservado sin pagar
+        type: number
+        default: 2
+        comment: Si nadie completa el pago dentro de este plazo, el subdominio reservado se libera automáticamente (aero.sites:release-expired-signups, corre cada hora).
+        span: left
