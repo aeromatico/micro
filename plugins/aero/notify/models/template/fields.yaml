@@ -1,0 +1,59 @@
+fields:
+    event_id:
+        label: Evento
+        type: dropdown
+        span: left
+        comment: 'Vacío = plantilla suelta (código propio), sin evento asociado.'
+        emptyOption: '(ninguno)'
+
+    tenant_id:
+        label: Alcance
+        type: dropdown
+        span: right
+        comment: 'Plataforma = plantilla global. Una fila de un tenant la sobreescribe (ver Template::resolveFor).'
+
+    channel:
+        label: Canal
+        type: dropdown
+        span: left
+        options: getChannelOptions
+
+    locale:
+        label: Idioma
+        type: dropdown
+        span: right
+        options:
+            es: Español
+            en: English
+            pt: Português
+
+    code:
+        label: Código
+        span: full
+        comment: 'Se autogenera como tenant.evento.canal.idioma si lo dejás vacío. Debe ser único.'
+        placeholder: 'sites.user.invited.whatsapp.es'
+
+    subject:
+        label: Asunto
+        span: full
+        comment: 'Solo aplica a canales con asunto (email, en la app). Admite variables Twig.'
+
+    body:
+        label: Cuerpo
+        type: codeeditor
+        language: html
+        size: huge
+        span: full
+        comment: 'Twig sobre las variables del contrato del evento, más to_name (nombre del destinatario resuelto).'
+
+    is_active:
+        label: Activa
+        type: switch
+        span: left
+
+    checked_at:
+        label: Última verificación
+        type: datepicker
+        mode: datetime
+        span: right
+        disabled: true

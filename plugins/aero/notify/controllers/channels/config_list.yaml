@@ -1,0 +1,16 @@
+title: Canales por tenant
+list: $/aero/notify/models/channel/columns.yaml
+modelClass: Aero\Notify\Models\Channel
+recordUrl: aero/notify/channels/update/:id
+noRecordsMessage: 'No hay canales configurados. Sin uno, los eventos con Rule en whatsapp/telegram/sms/email-propio siguen usando las credenciales de plataforma.'
+recordsPerPage: 20
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por nombre
+
+defaultSort:
+    column: sort_order
+    direction: asc

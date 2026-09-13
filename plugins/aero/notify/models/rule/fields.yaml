@@ -1,0 +1,103 @@
+tabs:
+    stretch: true
+
+    fields:
+        event_id:
+            label: Evento
+            tab: General
+            type: dropdown
+            span: left
+            comment: 'Código del evento que dispara esta regla.'
+
+        tenant_id:
+            label: Alcance
+            tab: General
+            type: dropdown
+            span: right
+            comment: 'Plataforma = regla global que heredan todos los tenants sin reglas propias para este evento (ver Rule::effectiveFor).'
+
+        audience:
+            label: Audiencia
+            tab: General
+            type: dropdown
+            span: left
+
+        channel:
+            label: Canal
+            tab: General
+            type: dropdown
+            span: right
+            options: getChannelOptions
+
+        template_id:
+            label: Plantilla
+            tab: General
+            type: dropdown
+            span: left
+            emptyOption: '(sin plantilla — la entrega se salta con no_template)'
+            dependsOn: [event_id, channel, tenant_id]
+
+        is_enabled:
+            label: Activa
+            tab: General
+            type: switch
+            span: right
+
+        priority:
+            label: Prioridad (override)
+            tab: Control de envío
+            type: number
+            span: left
+            comment: 'Vacío = usa la prioridad del evento. 1 es crítico, 9 informativo.'
+
+        sort_order:
+            label: Orden
+            tab: Control de envío
+            type: number
+            span: right
+            comment: 'Reglas del mismo evento se evalúan en este orden.'
+
+        delay_seconds:
+            label: Retraso (segundos)
+            tab: Control de envío
+            type: number
+            span: left
+            min: 0
+
+        max_per_hour:
+            label: Máximo por hora
+            tab: Control de envío
+            type: number
+            span: right
+            min: 1
+            comment: 'Vacío = sin límite.'
+
+        dedup_window_min:
+            label: Ventana de deduplicación (min)
+            tab: Control de envío
+            type: number
+            span: left
+            min: 0
+            comment: 'Guardado pero todavía no aplicado por Notify::fire() — ver classes/Notify.php.'
+
+        digest_window_min:
+            label: Ventana de digest (min)
+            tab: Control de envío
+            type: number
+            span: right
+            min: 0
+            comment: 'Guardado pero todavía no aplicado por Notify::fire() — ver classes/Notify.php.'
+
+        digest_key_expr:
+            label: Clave de agrupación del digest
+            tab: Control de envío
+            span: full
+            comment: 'Reservado para cuando exista el digest. Sin efecto todavía.'
+
+        conditions_json:
+            label: Condiciones (AND)
+            tab: Condiciones
+            type: codeeditor
+            language: json
+            size: small
+            comment: 'Ej: [{"var":"amount","op":">=","value":100}]. Reservado — Notify::fire() todavía no las evalúa.'

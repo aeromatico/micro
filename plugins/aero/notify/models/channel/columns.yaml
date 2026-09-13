@@ -1,0 +1,25 @@
+columns:
+    is_enabled:
+        label: Habilitado
+        type: switch
+        width: 90
+
+    label:
+        label: Nombre
+        searchable: true
+
+    channel:
+        label: Canal
+        type: selectable
+        sortable: true
+
+    tenant[name]:
+        label: Tenant
+        relation: tenant
+        select: name
+        searchable: true
+
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

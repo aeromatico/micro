@@ -1,0 +1,14 @@
+name: Canal
+form: $/aero/notify/models/channel/fields.yaml
+modelClass: Aero\Notify\Models\Channel
+defaultRedirect: aero/notify/channels
+
+create:
+    title: Nuevo canal
+    redirect: aero/notify/channels/update/:id
+    redirectClose: aero/notify/channels
+
+update:
+    title: Editar canal
+    redirect: aero/notify/channels
+    redirectClose: aero/notify/channels

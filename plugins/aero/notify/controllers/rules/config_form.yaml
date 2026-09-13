@@ -1,0 +1,14 @@
+name: Regla
+form: $/aero/notify/models/rule/fields.yaml
+modelClass: Aero\Notify\Models\Rule
+defaultRedirect: aero/notify/rules
+
+create:
+    title: Nueva regla
+    redirect: aero/notify/rules/update/:id
+    redirectClose: aero/notify/rules
+
+update:
+    title: Editar regla
+    redirect: aero/notify/rules
+    redirectClose: aero/notify/rules

@@ -46,6 +46,8 @@ class Plugin extends PluginBase
         \Event::listen('aero.notify.registerChannelDrivers', function ($manager) {
             $manager->register('email', \Aero\Notify\Classes\Drivers\EmailDriver::class);
             $manager->register('whatsapp', \Aero\Notify\Classes\Drivers\WhatsAppDriver::class);
+            $manager->register('telegram', \Aero\Notify\Classes\Drivers\TelegramDriver::class);
+            $manager->register('sms', \Aero\Notify\Classes\Drivers\SmsDriver::class);
         });
     }
 
@@ -56,7 +58,11 @@ class Plugin extends PluginBase
                 'label'       => 'Notificaciones',
                 'url'         => Backend::url('aero/notify/events'),
                 'icon'        => 'icon-bell',
-                'permissions' => ['aero.notify.view_events', 'aero.notify.view_deliveries'],
+                'permissions' => [
+                    'aero.notify.view_events', 'aero.notify.view_deliveries',
+                    'aero.notify.manage_rules', 'aero.notify.manage_global_rules', 'aero.notify.manage_templates',
+                    'aero.notify.manage_channels',
+                ],
                 'order'       => 220,
 
                 'sideMenu' => [
@@ -65,6 +71,24 @@ class Plugin extends PluginBase
                         'icon'        => 'icon-list-ul',
                         'url'         => Backend::url('aero/notify/events'),
                         'permissions' => ['aero.notify.view_events'],
+                    ],
+                    'notify-rules' => [
+                        'label'       => 'Reglas',
+                        'icon'        => 'icon-sitemap',
+                        'url'         => Backend::url('aero/notify/rules'),
+                        'permissions' => ['aero.notify.manage_rules', 'aero.notify.manage_global_rules'],
+                    ],
+                    'notify-templates' => [
+                        'label'       => 'Plantillas',
+                        'icon'        => 'icon-file-text-o',
+                        'url'         => Backend::url('aero/notify/templates'),
+                        'permissions' => ['aero.notify.manage_templates'],
+                    ],
+                    'notify-channels' => [
+                        'label'       => 'Canales',
+                        'icon'        => 'icon-plug',
+                        'url'         => Backend::url('aero/notify/channels'),
+                        'permissions' => ['aero.notify.manage_channels'],
                     ],
                     'notify-deliveries' => [
                         'label'       => 'Entregas',

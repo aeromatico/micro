@@ -1,40 +1,46 @@
 fields:
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        required: true
+
     label:
         label: Nombre del canal
         type: text
-        span: left
-        required: true
-        placeholder: "Email principal"
-
-    type:
-        label: Tipo
-        type: dropdown
         span: right
         required: true
-        comment: Selecciona el tipo para ver los campos de configuración.
+        placeholder: 'Email principal'
+
+    channel:
+        label: Canal
+        type: dropdown
+        span: left
+        required: true
+        comment: 'Elegí el canal para ver los campos de configuración.'
 
     is_enabled:
         label: Habilitado
-        type: checkbox
+        type: switch
+        span: right
         default: true
-        span: auto
 
     _section_email:
         label: Configuración Email
         type: section
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[to]:
-        label: Email destino (para recibir mensajes)
+        label: Email destino (para recibir notificaciones)
         type: text
         span: full
         placeholder: admin@ejemplo.com
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     _section_smtp:
@@ -42,7 +48,7 @@ fields:
         type: section
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[smtp_host]:
@@ -50,10 +56,9 @@ fields:
         type: text
         span: left
         placeholder: smtp.zeptomail.com
-        comment: "Gmail: smtp.gmail.com · Zeptomail: smtp.zeptomail.com (.eu/.in/.com.au/.ca según tu región)"
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[smtp_port]:
@@ -61,10 +66,9 @@ fields:
         type: number
         span: right
         placeholder: 587
-        comment: Gmail usa 587 (TLS) o 465 (SSL)
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[smtp_encryption]:
@@ -77,28 +81,25 @@ fields:
             ssl: SSL
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[smtp_username]:
         label: Usuario SMTP
         type: text
         span: right
-        placeholder: emailapikey
-        comment: "Zeptomail/Splashify: usa literalmente emailapikey · Gmail: tu correo completo"
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[smtp_password]:
         label: Contraseña / API key
         type: password
         span: left
-        comment: "Zeptomail: la API key del agente (debe ser de la misma región que el host, sin espacios) · Gmail: contraseña de aplicación"
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     config[from_name]:
@@ -108,7 +109,7 @@ fields:
         placeholder: Mi Sitio Web
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[email]
 
     _section_whatsapp:
@@ -117,7 +118,7 @@ fields:
         comment: Los envíos por WhatsApp salen a través del plugin Aero.Hello (Zernio). Conecta la cuenta en Hello → Cuentas y selecciónala aquí.
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[whatsapp]
 
     config[hello_account_id]:
@@ -126,10 +127,9 @@ fields:
         span: full
         options: getHelloAccountOptions
         emptyOption: Usar la primera cuenta WhatsApp del tenant
-        comment: Cuenta conectada en Hello desde la que se envía la notificación.
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[whatsapp]
 
     config[whatsapp_to]:
@@ -140,7 +140,7 @@ fields:
         comment: Número con código de país, sin "+" (ej. 59170000000).
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[whatsapp]
 
     _section_telegram:
@@ -148,7 +148,7 @@ fields:
         type: section
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[telegram]
 
     config[bot_token]:
@@ -157,7 +157,7 @@ fields:
         span: left
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[telegram]
 
     config[chat_id]:
@@ -166,7 +166,7 @@ fields:
         span: right
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[telegram]
 
     _section_sms:
@@ -174,7 +174,7 @@ fields:
         type: section
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[sms]
 
     config[account_sid]:
@@ -183,7 +183,7 @@ fields:
         span: left
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[sms]
 
     config[auth_token]:
@@ -192,7 +192,7 @@ fields:
         span: right
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[sms]
 
     config[from]:
@@ -202,7 +202,7 @@ fields:
         placeholder: "+15005550006"
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[sms]
 
     config[sms_to]:
@@ -212,5 +212,5 @@ fields:
         placeholder: "+59170000000"
         trigger:
             action: show
-            field: type
+            field: channel
             condition: value[sms]

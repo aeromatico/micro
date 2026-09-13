@@ -1,0 +1,15 @@
+title: Plantillas
+list: $/aero/notify/models/template/columns.yaml
+modelClass: Aero\Notify\Models\Template
+noRecordsMessage: 'No hay plantillas todavía. Sin plantilla para un canal, Notify::fire() salta la entrega con no_template.'
+recordsPerPage: 50
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por código
+
+defaultSort:
+    column: updated_at
+    direction: desc

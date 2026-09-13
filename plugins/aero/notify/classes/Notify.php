@@ -2,6 +2,7 @@
 
 use Aero\Notify\Classes\Drivers\DriverManager;
 use Aero\Notify\Classes\Support\Channels;
+use Aero\Notify\Models\Channel;
 use Aero\Notify\Models\Delivery;
 use Aero\Notify\Models\Event;
 use Aero\Notify\Models\Rule;
@@ -16,6 +17,12 @@ use October\Rain\Parse\Twig;
  * plantilla del canal y despacha. Cada intento queda logueado en Delivery,
  * incluso cuando se salta por falta de dirección/plantilla/driver — así el
  * listado de entregas explica qué pasó en vez de solo mostrar lo que sí salió.
+ *
+ * Si el tenant tiene un Channel propio para el canal de la regla (SMTP,
+ * bot de Telegram, cuenta Twilio, WhatsApp explícito — ver Models\Channel),
+ * su dirección y credenciales reemplazan a las resueltas por audiencia. Es
+ * opt-in: sin Channel configurado, todo funciona igual que antes de que
+ * existiera esa tabla.
  *
  * Pendiente de fases posteriores (documentado, no implementado todavía):
  * dedup_window_min, digest_window_min, delay_seconds y max_per_hour de Rule
@@ -74,6 +81,14 @@ class Notify
         ]);
 
         $address = static::addressFor($rule->channel, $recipient);
+
+        // Un canal propio del tenant (SMTP, bot de Telegram, cuenta Twilio,
+        // WhatsApp explícito — ver Models\Channel) puede reemplazar la
+        // dirección resuelta por audiencia. Es opt-in: sin fila configurada,
+        // el comportamiento es exactamente el de antes.
+        $channel = Channel::activeFor($tenantId, $rule->channel);
+        $address = $channel?->destinationAddress() ?: $address;
+
         $delivery->address = $address;
 
         if (!$address) {
@@ -109,7 +124,13 @@ class Notify
         }
 
         try {
-            $externalId = $drivers->make($rule->channel)->send($address, $subject, $body, $context + ['tenant_id' => $tenantId]);
+            $driverContext = $context + ['tenant_id' => $tenantId];
+
+            if ($channel) {
+                $driverContext['channel_config'] = $channel->config;
+            }
+
+            $externalId = $drivers->make($rule->channel)->send($address, $subject, $body, $driverContext);
             $delivery->markSent($externalId);
         } catch (\Throwable $e) {
             $delivery->markFailed($e->getMessage());

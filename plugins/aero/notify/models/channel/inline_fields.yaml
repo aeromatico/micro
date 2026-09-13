@@ -1,0 +1,214 @@
+# Variante del form de Channel para uso embebido (widget AJAX dentro de otra
+# pantalla, ej. Aero.Sites\Controllers\SiteSettings): sin tenant_id porque el
+# tenant ya está fijo por el contexto donde se embebe. Ver también fields.yaml
+# (la del CRUD completo en Aero.Notify\Controllers\Channels).
+fields:
+    label:
+        label: Nombre del canal
+        type: text
+        span: left
+        required: true
+        placeholder: 'Email principal'
+
+    channel:
+        label: Canal
+        type: dropdown
+        span: right
+        required: true
+        comment: 'Elegí el canal para ver los campos de configuración.'
+
+    is_enabled:
+        label: Habilitado
+        type: checkbox
+        span: auto
+        default: true
+
+    _section_email:
+        label: Configuración Email
+        type: section
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[to]:
+        label: Email destino (para recibir notificaciones)
+        type: text
+        span: full
+        placeholder: admin@ejemplo.com
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    _section_smtp:
+        label: Servidor SMTP (opcional — deja vacío para usar el servidor del sistema)
+        type: section
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[smtp_host]:
+        label: Host SMTP
+        type: text
+        span: left
+        placeholder: smtp.zeptomail.com
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[smtp_port]:
+        label: Puerto
+        type: number
+        span: right
+        placeholder: 587
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[smtp_encryption]:
+        label: Cifrado
+        type: dropdown
+        span: left
+        options:
+            "": Sin cifrado
+            tls: TLS (recomendado)
+            ssl: SSL
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[smtp_username]:
+        label: Usuario SMTP
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[smtp_password]:
+        label: Contraseña / API key
+        type: password
+        span: left
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    config[from_name]:
+        label: Nombre del remitente
+        type: text
+        span: right
+        placeholder: Mi Sitio Web
+        trigger:
+            action: show
+            field: channel
+            condition: value[email]
+
+    _section_whatsapp:
+        label: Configuración WhatsApp (Hello)
+        type: section
+        comment: Los envíos por WhatsApp salen a través del plugin Aero.Hello (Zernio). Conecta la cuenta en Hello → Cuentas y selecciónala aquí.
+        trigger:
+            action: show
+            field: channel
+            condition: value[whatsapp]
+
+    config[hello_account_id]:
+        label: Cuenta de WhatsApp (Hello)
+        type: dropdown
+        span: full
+        options: getHelloAccountOptions
+        emptyOption: Usar la primera cuenta WhatsApp del tenant
+        trigger:
+            action: show
+            field: channel
+            condition: value[whatsapp]
+
+    config[whatsapp_to]:
+        label: Número destino
+        type: text
+        span: full
+        placeholder: "59170000000"
+        comment: Número con código de país, sin "+" (ej. 59170000000).
+        trigger:
+            action: show
+            field: channel
+            condition: value[whatsapp]
+
+    _section_telegram:
+        label: Configuración Telegram
+        type: section
+        trigger:
+            action: show
+            field: channel
+            condition: value[telegram]
+
+    config[bot_token]:
+        label: Bot Token
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: channel
+            condition: value[telegram]
+
+    config[chat_id]:
+        label: Chat ID
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: channel
+            condition: value[telegram]
+
+    _section_sms:
+        label: Configuración SMS (Twilio)
+        type: section
+        trigger:
+            action: show
+            field: channel
+            condition: value[sms]
+
+    config[account_sid]:
+        label: Account SID
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: channel
+            condition: value[sms]
+
+    config[auth_token]:
+        label: Auth Token
+        type: text
+        span: right
+        trigger:
+            action: show
+            field: channel
+            condition: value[sms]
+
+    config[from]:
+        label: Número origen
+        type: text
+        span: left
+        placeholder: "+15005550006"
+        trigger:
+            action: show
+            field: channel
+            condition: value[sms]
+
+    config[sms_to]:
+        label: Número destino
+        type: text
+        span: right
+        placeholder: "+59170000000"
+        trigger:
+            action: show
+            field: channel
+            condition: value[sms]

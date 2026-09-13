@@ -124,6 +124,17 @@ class Template extends Model
         return Channels::options();
     }
 
+    public function getTenantIdOptions(): array
+    {
+        return [self::GLOBAL_TENANT => '— Plataforma (global) —']
+            + \Aero\Sites\Models\Tenant::orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    public function getEventIdOptions(): array
+    {
+        return Event::orderBy('code')->pluck('code', 'id')->all();
+    }
+
     public function hasSubject(): bool
     {
         return in_array($this->channel, Channels::withSubject(), true);

@@ -57,7 +57,11 @@ class EventCatalog
                 'description' => 'Alguien envió el formulario de contacto de un micrositio.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['email', 'inapp'],
+                // whatsapp/telegram/sms solo entregan si el tenant configuró
+                // un Channel propio (ver Models\Channel); sin uno, la Rule
+                // global existe pero se salta como no_address, igual que
+                // pasaba con el canal deshabilitado en el sistema legacy.
+                'default_channels' => ['email', 'inapp', 'whatsapp', 'telegram', 'sms'],
                 'variables_schema' => [
                     'name'    => ['type' => 'string', 'required' => true,  'label' => 'Nombre de quien escribe'],
                     'email'   => ['type' => 'string', 'required' => false, 'label' => 'Email de contacto'],

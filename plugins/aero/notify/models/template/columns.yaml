@@ -1,0 +1,38 @@
+columns:
+    is_active:
+        label: Activa
+        type: switch
+        width: 70
+
+    event[code]:
+        label: Evento
+        relation: event
+        select: code
+        searchable: true
+        sortable: true
+
+    tenant[name]:
+        label: Alcance
+        relation: tenant
+        select: name
+        default: '— Plataforma —'
+
+    channel:
+        label: Canal
+        type: selectable
+        sortable: true
+
+    locale:
+        label: Idioma
+        width: 80
+        sortable: true
+
+    code:
+        label: Código
+        searchable: true
+        invisible: true
+
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

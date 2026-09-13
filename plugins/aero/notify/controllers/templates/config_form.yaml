@@ -1,0 +1,14 @@
+name: Plantilla
+form: $/aero/notify/models/template/fields.yaml
+modelClass: Aero\Notify\Models\Template
+defaultRedirect: aero/notify/templates
+
+create:
+    title: Nueva plantilla
+    redirect: aero/notify/templates/update/:id
+    redirectClose: aero/notify/templates
+
+update:
+    title: Editar plantilla
+    redirect: aero/notify/templates
+    redirectClose: aero/notify/templates

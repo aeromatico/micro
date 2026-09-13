@@ -1,0 +1,55 @@
+columns:
+    is_enabled:
+        label: Activa
+        type: switch
+        width: 70
+
+    event[code]:
+        label: Evento
+        relation: event
+        select: code
+        searchable: true
+        sortable: true
+
+    tenant[name]:
+        label: Alcance
+        relation: tenant
+        select: name
+        default: '— Plataforma —'
+
+    audience:
+        label: Audiencia
+        type: selectable
+
+    channel:
+        label: Canal
+        type: selectable
+
+    template[code]:
+        label: Plantilla
+        relation: template
+        select: code
+        default: '(sin plantilla)'
+
+    priority:
+        label: Prio
+        align: center
+        width: 60
+        invisible: true
+
+    delay_seconds:
+        label: Retraso (s)
+        align: center
+        width: 90
+        invisible: true
+
+    sort_order:
+        label: Orden
+        align: center
+        width: 70
+        invisible: true
+
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

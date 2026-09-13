@@ -34,6 +34,8 @@ class Rule extends Model
         'is_enabled'        => 'boolean',
     ];
 
+    protected $purgeable = ['conditions_json'];
+
     public $rules = [
         'event_id'          => 'required|exists:aero_notify_events,id',
         'audience'          => 'required|max:40',
@@ -149,6 +151,54 @@ class Rule extends Model
     public function getChannelOptions(): array
     {
         return Channels::options();
+    }
+
+    public function getTenantIdOptions(): array
+    {
+        return [self::GLOBAL_TENANT => '— Plataforma (global) —']
+            + \Aero\Sites\Models\Tenant::orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    public function getEventIdOptions(): array
+    {
+        return Event::orderBy('code')->pluck('code', 'id')->all();
+    }
+
+    /** Puente entre el editor de código (texto) y la columna JSON `conditions`. */
+    public function getConditionsJsonAttribute(): string
+    {
+        $value = (array) $this->conditions;
+
+        if (!$value) {
+            return '[]';
+        }
+
+        return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    public function setConditionsJsonAttribute($value): void
+    {
+        if (is_array($value)) {
+            $this->conditions = $value;
+            return;
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            $this->conditions = [];
+            return;
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+            throw new \ValidationException([
+                'conditions_json' => 'Condiciones: el JSON no es válido (' . json_last_error_msg() . ').',
+            ]);
+        }
+
+        $this->conditions = $decoded;
     }
 
     public function getTemplateIdOptions(): array

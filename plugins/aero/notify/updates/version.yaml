@@ -37,3 +37,39 @@
       media_type, attachment_binary/attachment_url). Nuevo evento
       qrbo.qr.generated (primer consumidor, ver Aero.Qrbo)."
     - seed_qr_generated_templates.php
+
+1.2.1:
+    - "Pantallas de backend para Reglas y Plantillas (Rules/Templates): hasta
+      ahora la única forma de configurar quién recibe un evento y con qué
+      texto era escribir una migración a mano — ver seed_invite_templates.php
+      y seed_qr_generated_templates.php como ejemplo del patrón que esto
+      reemplaza. Rules separa permiso global (manage_global_rules) de propio
+      del tenant (manage_rules) vía ScopesToTenant; Templates queda bajo un
+      único manage_templates. Ningún cambio de esquema ni de permisos
+      concedidos: hoy ambas pantallas siguen siendo de superadmin, igual que
+      el resto del gateway."
+
+1.3.0:
+    - "Canales propios del tenant (Models\\Channel, tabla aero_notify_channels):
+      SMTP propio, bot de Telegram, cuenta Twilio o WhatsApp explícito.
+      Notify::deliverOne() los consulta para CUALQUIER evento con Rule en ese
+      canal — no solo el contacto que los originó. Reemplaza al sistema
+      legacy de Aero.Sites (NotificationChannel/NotificationDispatcher, ver
+      Aero\\Sites\\Jobs\\DispatchContactNotification), que queda dado de baja en
+      la 1.4.x de Aero.Sites. Nuevos drivers 'telegram' y 'sms' (Twilio).
+      EmailDriver acepta SMTP propio vía channel_config. Nueva pantalla
+      Canales bajo manage_channels (permiso ya reservado, sin usar hasta
+      ahora). 'sites.contact.submitted' suma whatsapp/telegram/sms a sus
+      Rules globales: sin Channel configurado para un tenant, esas Rules
+      simplemente se saltan como no_address, igual que el canal
+      deshabilitado en el sistema legacy."
+    - create_channels_table.php
+    - migrate_legacy_notification_channels.php
+    - seed_contact_channel_rules.php
+
+1.3.1:
+    - "Plantillas globales de 'sites.contact.submitted' para sus 5 canales
+      (email, inapp, whatsapp, telegram, sms). Sin esto el evento tenía Rules
+      pero ninguna plantilla: toda entrega se saltaba como no_template, con
+      Channel configurado o sin él."
+    - seed_contact_templates.php

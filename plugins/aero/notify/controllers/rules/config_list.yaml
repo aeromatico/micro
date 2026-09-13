@@ -1,0 +1,15 @@
+title: Reglas de entrega
+list: $/aero/notify/models/rule/columns.yaml
+modelClass: Aero\Notify\Models\Rule
+noRecordsMessage: 'No hay reglas todavía. Un evento sin reglas propias del tenant hereda las globales de la plataforma.'
+recordsPerPage: 50
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por código de evento
+
+defaultSort:
+    column: updated_at
+    direction: desc
