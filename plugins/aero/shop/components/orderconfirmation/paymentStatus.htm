@@ -16,24 +16,33 @@
             Pago confirmado
         </div>
         {% elseif qrCode and qrCode.status == 'pending' %}
+        {% set flow = qrCode.flow|default('qr_dynamic') %}
         <div x-data="{ checking: false }">
-            {% if qrCode.bank_code == 'email_gmail' %}
-            <p class="text-xs text-ink-muted mb-4">Escaneá el QR para pagar. Este QR es fijo, así que el pedido no se confirma solo — avisale al vendedor cuando hayas pagado.</p>
+            {% if flow == 'redirect' %}
+            <p class="text-xs text-ink-muted mb-4">Termina el pago en la ventana de {{ order.payment_gateway.name }} — te traerá de vuelta a esta página automáticamente.</p>
+            <a href="{{ qrCode.redirect_url }}"
+               class="block w-full text-center bg-brand-primary hover:opacity-90 text-white font-semibold py-3 rounded-brand text-sm transition-all mb-3">
+                Pagar con {{ order.payment_gateway.name }}
+            </a>
             {% else %}
-            <p class="text-xs text-ink-muted mb-4">Escanea el QR desde tu app bancaria para pagar. El pedido se confirma solo, automáticamente.</p>
+                {% if flow == 'qr_static' %}
+                <p class="text-xs text-ink-muted mb-4">Escaneá el QR para pagar. Este QR es fijo, así que el pedido no se confirma solo — avisale al vendedor cuando hayas pagado.</p>
+                {% else %}
+                <p class="text-xs text-ink-muted mb-4">Escanea el QR desde tu app bancaria para pagar. El pedido se confirma solo, automáticamente.</p>
+                {% endif %}
+                <div class="flex justify-center mb-2">
+                    <img src="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
+                         alt="QR de pago"
+                         class="w-56 h-56 rounded-brand border border-surface-border">
+                </div>
+                <div class="flex justify-center mb-4">
+                    <a href="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
+                       download="qr-pedido-{{ order.order_number }}.png"
+                       class="text-xs font-semibold text-brand-primary hover:underline">
+                        Descargar QR
+                    </a>
+                </div>
             {% endif %}
-            <div class="flex justify-center mb-2">
-                <img src="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
-                     alt="QR de pago"
-                     class="w-56 h-56 rounded-brand border border-surface-border">
-            </div>
-            <div class="flex justify-center mb-4">
-                <a href="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
-                   download="qr-pedido-{{ order.order_number }}.png"
-                   class="text-xs font-semibold text-brand-primary hover:underline">
-                    Descargar QR
-                </a>
-            </div>
             <button type="button"
                     data-request="shopOrderConfirmation::onCheckPaymentStatus"
                     @ajax-before="checking = true"
@@ -45,15 +54,15 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                <span x-text="checking ? 'Verificando...' : '{{ qrCode.bank_code == 'email_gmail' ? 'Ya avisé al vendedor' : 'Ya pagué, verificar' }}'">{{ qrCode.bank_code == 'email_gmail' ? 'Ya avisé al vendedor' : 'Ya pagué, verificar' }}</span>
+                <span x-text="checking ? 'Verificando...' : '{{ flow == 'qr_static' ? 'Ya avisé al vendedor' : 'Ya pagué, verificar' }}'">{{ flow == 'qr_static' ? 'Ya avisé al vendedor' : 'Ya pagué, verificar' }}</span>
             </button>
         </div>
         {% elseif qrCode and qrCode.status == 'expired' %}
-        <p class="text-sm text-red-500">El QR de pago venció. Contacta al vendedor para generar uno nuevo.</p>
+        <p class="text-sm text-red-500">El intento de pago venció. Contacta al vendedor para generar uno nuevo.</p>
         {% elseif qrCode and qrCode.status == 'cancelled' %}
-        <p class="text-sm text-red-500">Este QR de pago fue anulado. Contacta al vendedor.</p>
+        <p class="text-sm text-red-500">Este intento de pago fue anulado. Contacta al vendedor.</p>
         {% else %}
-        <p class="text-sm text-red-500">No se pudo generar el QR de pago. Contacta al vendedor.</p>
+        <p class="text-sm text-red-500">No se pudo generar el pago. Contacta al vendedor.</p>
         {% endif %}
 
     {% else %}

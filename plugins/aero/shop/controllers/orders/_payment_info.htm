@@ -5,15 +5,16 @@
         $qrCode = \Aero\Qrbo\Models\QrCode::where('internal_reference', $order->payment_reference)->first();
     }
 ?>
+<?php $flow = $qrCode ? ($qrCode->flow ?: 'qr_dynamic') : null; ?>
 <?php if ($qrCode): ?>
 <div class="padded-container">
-    <h4>Cobro QR</h4>
+    <h4>Cobro <?= $flow === 'redirect' ? '(' . e($qrCode->bankAccount->label ?? $qrCode->bank_code) . ')' : 'QR' ?></h4>
     <p class="help-block">
         Cuenta: <strong><?= e($qrCode->bankAccount->label ?? '—') ?></strong>
-        — Estado del QR: <strong><?= e($qrCode->getStatusOptions()[$qrCode->status] ?? $qrCode->status) ?></strong>
+        — Estado: <strong><?= e($qrCode->getStatusOptions()[$qrCode->status] ?? $qrCode->status) ?></strong>
     </p>
 
-    <?php if ($qrCode->bank_code === 'email_gmail'): ?>
+    <?php if ($flow === 'qr_static'): ?>
     <div class="alert alert-warning">
         <i class="icon-warning"></i>
         Este es un QR estático (sin API de banco) — el mismo QR se reutiliza en varios pedidos, así que no se confirma solo ni identifica el pedido por sí mismo.
@@ -30,6 +31,11 @@
              alt="QR de pago"
              style="max-width: 220px; border: 1px solid #ddd; padding: 6px; background: #fff;">
     </div>
+    <?php elseif ($flow === 'redirect' && $qrCode->status === 'pending'): ?>
+    <p class="help-block">
+        Link de pago enviado al comprador:
+        <a href="<?= e($qrCode->redirect_url) ?>" target="_blank"><?= e($qrCode->redirect_url) ?></a>
+    </p>
     <?php endif; ?>
 </div>
 <?php endif; ?>
