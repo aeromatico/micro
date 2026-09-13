@@ -16,7 +16,7 @@ class Leads extends Controller
     /**
      * Config del formulario de Deal, reutilizada por la acción create para
      * que "Nuevo lead" guarde un Deal directo en el pipeline sin cambiar de
-     * URL (sigue siendo /admin/aero/crm/leads/create).
+     * URL (sigue siendo /backend/aero/crm/leads/create).
      */
     const DEAL_FORM_CONFIG = '$/aero/crm/controllers/deals/config_form.yaml';
 
