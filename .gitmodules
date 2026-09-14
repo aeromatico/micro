@@ -2,7 +2,7 @@
 	path = plugins/aero/hello
 	url = https://github.com/aeromatico/hello.git
 [submodule "plugins/aero/qrbo"]
-	path = plugins/aero/qrbo
+	path = plugins/aero/pay
 	url = https://github.com/aeromatico/qrbo.git
 [submodule "plugins/aero/aifields"]
 	path = plugins/aero/aifields
