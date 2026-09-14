@@ -43,7 +43,7 @@ class Plugin extends PluginBase
         $this->bootChatbotsIntegration();
         $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
-        $this->bootQrboSignupBridge();
+        $this->bootPaySignupBridge();
     }
 
     public function registerSchedule($schedule): void
@@ -52,22 +52,22 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Cuando aero/qrbo confirma el pago de un QR de alta (webhook del banco
+     * Cuando aero/pay confirma el pago de un QR de alta (webhook del banco
      * o reconciliación), busca el tenant reservado con ese
      * `signup_payment_reference` y termina de aprovisionarlo (site
      * definition, dominio, páginas del niche) — el usuario administrador se
      * crea aparte, cuando el propio dueño completa el formulario final del
      * wizard (ver SignupWizard::onCreateAdmin). Nunca deja escapar una
-     * excepción: si algo falla acá, el webhook de aero/qrbo igual debe
+     * excepción: si algo falla acá, el webhook de aero/pay igual debe
      * terminar de procesarse y el pago quedar registrado.
      */
-    protected function bootQrboSignupBridge(): void
+    protected function bootPaySignupBridge(): void
     {
-        if (!class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+        if (!class_exists(\Aero\Pay\Models\QrCode::class)) {
             return;
         }
 
-        Event::listen('aero.qrbo.paymentReceived', function ($payment, $qrCode) {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
             $tenant = \Aero\Sites\Models\Tenant::where('signup_payment_reference', $qrCode->internal_reference)
                 ->where('status', 'pending_payment')
                 ->first();

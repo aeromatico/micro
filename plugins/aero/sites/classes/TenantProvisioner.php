@@ -13,7 +13,7 @@ use System\Models\SiteDefinition;
 /**
  * Aprovisionamiento de un Tenant, en dos mitades independientes porque el
  * alta pública (SignupWizard) las corre en momentos distintos: el sitio se
- * arma apenas se confirma el pago (evento aero.qrbo.paymentReceived), y el
+ * arma apenas se confirma el pago (evento aero.pay.paymentReceived), y el
  * usuario administrador recién cuando el propio dueño completa sus datos en
  * el paso final del wizard. La creación desde el backend (Tenants::onCreate)
  * sigue corriendo ambas mitades una atrás de la otra, como siempre.

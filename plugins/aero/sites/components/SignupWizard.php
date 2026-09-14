@@ -15,8 +15,8 @@ use Str;
  * Wizard público de alta en 2 pasos para /alta (tema master):
  *  1) subdominio + rubro + plan -> reserva el Tenant (status=pending_payment)
  *     y emite un QR de cobro contra la cuenta configurada en Settings.
- *  2) el visitante paga el QR; aero/qrbo confirma vía webhook y dispara
- *     aero.qrbo.paymentReceived (ver Plugin::bootQrboSignupBridge), que
+ *  2) el visitante paga el QR; aero/pay confirma vía webhook y dispara
+ *     aero.pay.paymentReceived (ver Plugin::bootPaySignupBridge), que
  *     activa el tenant. El front hace polling con onCheckPaymentStatus y,
  *     al ver 'paid', muestra el formulario final que llama onCreateAdmin.
  *
@@ -124,7 +124,7 @@ class SignupWizard extends ComponentBase
         }
 
         $bankAccount = Settings::getSignupBankAccount();
-        if (!$bankAccount || !class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
+        if (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
             return ['success' => false, 'message' => 'El cobro no está disponible en este momento. Intenta más tarde.'];
         }
 
@@ -156,7 +156,7 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
         }
 
-        $qrCode = app(\Aero\Qrbo\Classes\QrIssuer::class)->issue(
+        $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
             bankAccount: $bankAccount,
             amount: $planData['price'],
             currency: 'BOB',

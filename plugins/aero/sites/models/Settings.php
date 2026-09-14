@@ -31,7 +31,7 @@ class Settings extends Model
     }
 
     // -------------------------------------------------------------------------
-    // Alta pública de tenants (/alta) — cobro del plan vía aero/qrbo
+    // Alta pública de tenants (/alta) — cobro del plan vía aero/pay
     // -------------------------------------------------------------------------
 
     public static function getSignupPlanPrice(string $plan): float
@@ -46,14 +46,14 @@ class Settings extends Model
         return $id ? (int) $id : null;
     }
 
-    public static function getSignupBankAccount(): ?\Aero\Qrbo\Models\BankAccount
+    public static function getSignupBankAccount(): ?\Aero\Pay\Models\BankAccount
     {
-        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+        if (!class_exists(\Aero\Pay\Models\BankAccount::class)) {
             return null;
         }
 
         $id = static::getSignupBankAccountId();
-        return $id ? \Aero\Qrbo\Models\BankAccount::active()->find($id) : null;
+        return $id ? \Aero\Pay\Models\BankAccount::active()->find($id) : null;
     }
 
     public static function getSignupPendingTtlHours(): int
@@ -63,11 +63,11 @@ class Settings extends Model
 
     public function getSignupBankAccountIdOptions(): array
     {
-        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+        if (!class_exists(\Aero\Pay\Models\BankAccount::class)) {
             return [];
         }
 
-        return \Aero\Qrbo\Models\BankAccount::active()
+        return \Aero\Pay\Models\BankAccount::active()
             ->get()
             ->mapWithKeys(fn ($account) => [$account->id => "{$account->label} (tenant #{$account->tenant_id})"])
             ->toArray();
