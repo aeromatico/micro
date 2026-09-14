@@ -206,7 +206,7 @@ class CollectionReminderGenerator
         if (class_exists(\Aero\Crm\Classes\Collections\CollectionQrIssuer::class)) {
             $qrCode = (new \Aero\Crm\Classes\Collections\CollectionQrIssuer())->issueFor($item);
             if ($qrCode && $qrCode->qr_image) {
-                $sendOptions['media_url'] = url('/api/v1/qrbo/public/qr/' . $qrCode->internal_reference . '/image');
+                $sendOptions['media_url'] = url('/api/v1/pay/public/qr/' . $qrCode->internal_reference . '/image');
                 $sendOptions['media_type'] = 'image';
             }
         }

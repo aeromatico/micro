@@ -98,7 +98,7 @@ class CrmSettings extends Controller
             ],
         ];
 
-        if (class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+        if (class_exists(\Aero\Pay\Models\BankAccount::class)) {
             $config->fields['collections_bank_account_id'] = [
                 'label'       => 'Cuenta bancaria para cobranzas (QRBO)',
                 'type'        => 'dropdown',

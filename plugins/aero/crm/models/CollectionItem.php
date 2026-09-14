@@ -120,17 +120,17 @@ class CollectionItem extends Model
     }
 
     /**
-     * El QrCode de aero/qrbo generado para este cobro (ver
+     * El QrCode de aero/pay generado para este cobro (ver
      * Classes\Collections\CollectionQrIssuer), si tiene uno y el plugin está
      * instalado. No es una relación Eloquent porque `payment_reference`
      * apunta a `QrCode.internal_reference`, no a un id.
      */
-    public function getQrCode(): ?\Aero\Qrbo\Models\QrCode
+    public function getQrCode(): ?\Aero\Pay\Models\QrCode
     {
-        if (!$this->payment_reference || !class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+        if (!$this->payment_reference || !class_exists(\Aero\Pay\Models\QrCode::class)) {
             return null;
         }
 
-        return \Aero\Qrbo\Models\QrCode::where('internal_reference', $this->payment_reference)->first();
+        return \Aero\Pay\Models\QrCode::where('internal_reference', $this->payment_reference)->first();
     }
 }

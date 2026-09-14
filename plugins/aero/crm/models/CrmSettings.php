@@ -28,18 +28,18 @@ class CrmSettings extends Model
     }
 
     /**
-     * Cuentas bancarias activas del tenant en aero/qrbo, para el selector de
+     * Cuentas bancarias activas del tenant en aero/pay, para el selector de
      * "Cuenta bancaria para cobranzas" — dinámicas y estáticas por igual,
      * ambas soportadas (ver Classes\Collections\CollectionQrIssuer). Vacío
-     * si aero/qrbo no está instalado.
+     * si aero/pay no está instalado.
      */
     public function getCollectionsBankAccountIdOptions(): array
     {
-        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+        if (!class_exists(\Aero\Pay\Models\BankAccount::class)) {
             return [];
         }
 
-        return \Aero\Qrbo\Models\BankAccount::active()
+        return \Aero\Pay\Models\BankAccount::active()
             ->where('tenant_id', $this->tenant_id)
             ->pluck('label', 'id')
             ->all();

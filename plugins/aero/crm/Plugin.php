@@ -38,24 +38,24 @@ class Plugin extends PluginBase
         $this->bootTenantPurgeCleanup();
         $this->bootShopCustomerSync();
         $this->registerConfigMenuTab();
-        $this->bootQrboPaymentBridge();
+        $this->bootPayPaymentBridge();
     }
 
     /**
-     * Cuando aero/qrbo confirma el pago de un QR (webhook del banco o
+     * Cuando aero/pay confirma el pago de un QR (webhook del banco o
      * reconciliación cada 5 min), busca el cobro con ese `payment_reference`
      * y lo marca pagado sin intervención del vendedor — mismo patrón que
-     * aero/shop (ver Aero\Shop\Plugin::bootQrboPaymentBridge()). No aplica a
+     * aero/shop (ver Aero\Shop\Plugin::bootPayPaymentBridge()). No aplica a
      * cuentas estáticas (sin API): esas nunca disparan este evento, se
      * confirman a mano desde el cobro (ver controllers/collections/_payment_info.htm).
      */
-    protected function bootQrboPaymentBridge(): void
+    protected function bootPayPaymentBridge(): void
     {
-        if (!class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+        if (!class_exists(\Aero\Pay\Models\QrCode::class)) {
             return;
         }
 
-        Event::listen('aero.qrbo.paymentReceived', function ($payment, $qrCode) {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
             if (!$qrCode || $qrCode->origin !== 'crm') {
                 return;
             }

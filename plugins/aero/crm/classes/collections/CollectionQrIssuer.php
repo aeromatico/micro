@@ -4,7 +4,7 @@ use Aero\Crm\Models\CollectionItem;
 use Aero\Crm\Models\CrmSettings;
 
 /**
- * Genera (o reutiliza) el QR de cobro de aero/qrbo para un CollectionItem,
+ * Genera (o reutiliza) el QR de cobro de aero/pay para un CollectionItem,
  * usando la cuenta bancaria configurada en CrmSettings.collections_bank_account_id
  * — no hay cuenta por cobro individual, es una sola por tenant (decisión de
  * negocio, más simple para el caso normal de un solo negocio con una cuenta).
@@ -18,9 +18,9 @@ class CollectionQrIssuer
 {
     protected const QR_VALIDITY_DAYS = 180;
 
-    public function issueFor(CollectionItem $item): ?\Aero\Qrbo\Models\QrCode
+    public function issueFor(CollectionItem $item): ?\Aero\Pay\Models\QrCode
     {
-        if (!class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
+        if (!class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
             return null;
         }
 
@@ -34,7 +34,7 @@ class CollectionQrIssuer
             return null;
         }
 
-        $bankAccount = \Aero\Qrbo\Models\BankAccount::active()
+        $bankAccount = \Aero\Pay\Models\BankAccount::active()
             ->where('tenant_id', $item->tenant_id)
             ->find($settings->collections_bank_account_id);
 
@@ -43,7 +43,7 @@ class CollectionQrIssuer
         }
 
         try {
-            $qrCode = app(\Aero\Qrbo\Classes\QrIssuer::class)->issue(
+            $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
                 bankAccount: $bankAccount,
                 amount: (float) $item->amount,
                 currency: $item->currency ?: 'BOB',
