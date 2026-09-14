@@ -175,8 +175,8 @@ class EventCatalog
 
         return [
             [
-                'code' => 'qrbo.qr.generated',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.qr.generated',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'QR generado — alerta a quien lo va a cobrar',
                 'description' => 'Quien generó el QR pidió que se le avise (con la imagen) por WhatsApp y/o correo — no es el tenant_admin, es un destinatario suelto cargado en el form.',
@@ -193,8 +193,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.payment.received',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.payment.received',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Pago QR recibido',
                 'description' => 'El banco confirmó un pago sobre un QR generado.',
@@ -214,8 +214,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.payment.failed',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.payment.failed',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Pago QR fallido',
                 'description' => 'El procesamiento de un pago falló o fue rechazado.',
@@ -232,8 +232,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.qr.expired',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.qr.expired',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'QR expirado sin pago',
                 'description' => 'Un QR llegó a su fecha límite sin recibir pago.',
@@ -249,8 +249,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.charge.created',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.charge.created',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Cargo mensual generado',
                 'description' => 'La facturación mensual generó un cargo para el tenant.',
@@ -269,8 +269,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.charge.overdue',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.charge.overdue',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Cargo vencido',
                 'description' => 'Un cargo mensual pasó su fecha de vencimiento sin pagarse.',
@@ -287,8 +287,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.subscription.renewed',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.subscription.renewed',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Suscripción renovada',
                 'description' => 'La suscripción del tenant se renovó por otro periodo.',
@@ -305,8 +305,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.subscription.cancelled',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.subscription.cancelled',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Suscripción cancelada',
                 'description' => 'La suscripción del tenant fue cancelada.',
@@ -323,8 +323,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.quota.exceeded',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.quota.exceeded',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'billing',
                 'name' => 'Límite de plan excedido',
                 'description' => 'El tenant intentó una operación por encima de su plan.',
@@ -342,8 +342,8 @@ class EventCatalog
                 ],
             ],
             [
-                'code' => 'qrbo.billing.run_completed',
-                'source_plugin' => 'Aero.Qrbo',
+                'code' => 'pay.billing.run_completed',
+                'source_plugin' => 'Aero.Pay',
                 'category' => 'system',
                 'name' => 'Corrida de facturación terminada',
                 'description' => 'Resumen de la generación mensual de cargos. Pensado como digest.',
