@@ -39,7 +39,7 @@ class Plugin extends PluginBase
     {
         $this->bootTenantPurgeCleanup();
         $this->registerConfigMenuTab();
-        $this->bootQrboPaymentBridge();
+        $this->bootPayPaymentBridge();
         $this->bootChatbotsIntegration();
     }
 
@@ -103,7 +103,7 @@ class Plugin extends PluginBase
         Event::listen('aero.shop.registerPaymentGateways', function ($manager) {
             $manager->register('manual', \Aero\Shop\Classes\PaymentGateways\ManualPaymentGateway::class);
 
-            if (class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
+            if (class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
                 $manager->register('pagos_qr', \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::class);
             }
         });
@@ -118,13 +118,13 @@ class Plugin extends PluginBase
      * (guardado por PagosQrGateway::issueForOrder()) y lo marca "paid" sin
      * intervención del vendedor. No hace nada si aero/qrbo no está instalado.
      */
-    protected function bootQrboPaymentBridge(): void
+    protected function bootPayPaymentBridge(): void
     {
-        if (!class_exists(\Aero\Qrbo\Models\QrCode::class)) {
+        if (!class_exists(\Aero\Pay\Models\QrCode::class)) {
             return;
         }
 
-        Event::listen('aero.qrbo.paymentReceived', function ($payment, $qrCode) {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
             $order = \Aero\Shop\Models\Order::where('tenant_id', $qrCode->tenant_id)
                 ->where('payment_reference', $qrCode->internal_reference)
                 ->where('status', 'awaiting_payment')

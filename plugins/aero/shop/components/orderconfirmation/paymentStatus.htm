@@ -31,12 +31,12 @@
                 <p class="text-xs text-ink-muted mb-4">Escanea el QR desde tu app bancaria para pagar. El pedido se confirma solo, automáticamente.</p>
                 {% endif %}
                 <div class="flex justify-center mb-2">
-                    <img src="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
+                    <img src="/api/v1/pay/public/qr/{{ qrCode.internal_reference }}/image"
                          alt="QR de pago"
                          class="w-56 h-56 rounded-brand border border-surface-border">
                 </div>
                 <div class="flex justify-center mb-4">
-                    <a href="/api/v1/qrbo/public/qr/{{ qrCode.internal_reference }}/image"
+                    <a href="/api/v1/pay/public/qr/{{ qrCode.internal_reference }}/image"
                        download="qr-pedido-{{ order.order_number }}.png"
                        class="text-xs font-semibold text-brand-primary hover:underline">
                         Descargar QR

@@ -62,10 +62,10 @@ class OrderConfirmation extends ComponentBase
      */
     public function onCheckPaymentStatus()
     {
-        if ($this->order?->payment_gateway?->driver === 'pagos_qr' && class_exists(\Aero\Qrbo\Classes\QrStatusReconciler::class)) {
-            $qrCode = \Aero\Qrbo\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
+        if ($this->order?->payment_gateway?->driver === 'pagos_qr' && class_exists(\Aero\Pay\Classes\QrStatusReconciler::class)) {
+            $qrCode = \Aero\Pay\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
             if ($qrCode && $qrCode->status === 'pending' && ($qrCode->flow ?: 'qr_dynamic') !== 'qr_static') {
-                app(\Aero\Qrbo\Classes\QrStatusReconciler::class)->reconcile($qrCode);
+                app(\Aero\Pay\Classes\QrStatusReconciler::class)->reconcile($qrCode);
             }
         }
 
@@ -80,9 +80,9 @@ class OrderConfirmation extends ComponentBase
         if (
             $this->order?->payment_gateway?->driver === 'pagos_qr'
             && $this->order->payment_reference
-            && class_exists(\Aero\Qrbo\Models\QrCode::class)
+            && class_exists(\Aero\Pay\Models\QrCode::class)
         ) {
-            $this->qrCode = \Aero\Qrbo\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
+            $this->qrCode = \Aero\Pay\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
         }
     }
 }

@@ -49,7 +49,7 @@ class PaymentGateway extends Model
      */
     public function getQrboBankAccountIdOptions(): array
     {
-        if (!class_exists(\Aero\Qrbo\Models\BankAccount::class)) {
+        if (!class_exists(\Aero\Pay\Models\BankAccount::class)) {
             return [];
         }
 
@@ -58,7 +58,7 @@ class PaymentGateway extends Model
             return [];
         }
 
-        return \Aero\Qrbo\Models\BankAccount::active()
+        return \Aero\Pay\Models\BankAccount::active()
             ->where('tenant_id', $tenantId)
             ->pluck('label', 'id')
             ->all();

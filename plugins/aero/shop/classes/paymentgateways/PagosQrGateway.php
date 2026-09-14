@@ -9,7 +9,7 @@ use Aero\Shop\Models\PaymentGateway;
  * aero/qrbo agregó flow() === 'redirect', PayPal/NOWPayments. Con un
  * proveedor con getStatus()/webhook real el pedido se marca "paid"
  * automáticamente cuando aero/qrbo confirma el pago (ver
- * Plugin::bootQrboPaymentBridge()). Con una cuenta 'qr_static' (correo, sin
+ * Plugin::bootPayPaymentBridge()). Con una cuenta 'qr_static' (correo, sin
  * API) no hay confirmación automática, el vendedor marca el pedido pagado a
  * mano (ver QrIssuer::issue()).
  */
@@ -23,17 +23,17 @@ class PagosQrGateway
     /**
      * Emite el intento de cobro para el monto del pedido y guarda su
      * referencia interna en `order.payment_reference`, que es lo que el
-     * listener de `aero.qrbo.paymentReceived` usa para encontrar el pedido a
+     * listener de `aero.pay.paymentReceived` usa para encontrar el pedido a
      * marcar como pagado. Lanza RuntimeException (nunca tipos de aero/qrbo)
      * para que Checkout no necesite conocer esa dependencia opcional.
      */
     public static function issueForOrder(PaymentGateway $gateway, Order $order): void
     {
-        if (!class_exists(\Aero\Qrbo\Classes\QrIssuer::class)) {
+        if (!class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
             throw new \RuntimeException('El plugin de Pagos QR no está disponible en este momento.');
         }
 
-        $bankAccount = \Aero\Qrbo\Models\BankAccount::active()
+        $bankAccount = \Aero\Pay\Models\BankAccount::active()
             ->where('tenant_id', $order->tenant_id)
             ->find($gateway->qrbo_bank_account_id);
 
@@ -47,7 +47,7 @@ class PagosQrGateway
         $confirmationUrl = '/tienda/pedido/' . $order->access_token;
 
         try {
-            $qrCode = app(\Aero\Qrbo\Classes\QrIssuer::class)->issue(
+            $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
                 bankAccount: $bankAccount,
                 amount: (float) $order->grand_total,
                 currency: $order->currency?->code ?: 'BOB',
@@ -57,7 +57,7 @@ class PagosQrGateway
                 returnUrl: $confirmationUrl,
                 cancelUrl: $confirmationUrl,
             );
-        } catch (\Aero\Qrbo\Classes\Exceptions\QrboException $e) {
+        } catch (\Aero\Pay\Classes\Exceptions\QrboException $e) {
             throw new \RuntimeException('No se pudo generar el pago: ' . $e->getMessage(), 0, $e);
         }
 

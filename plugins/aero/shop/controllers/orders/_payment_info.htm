@@ -1,8 +1,8 @@
 <?php
     $order = $this->formGetModel();
     $qrCode = null;
-    if ($order->payment_reference && class_exists(\Aero\Qrbo\Models\QrCode::class)) {
-        $qrCode = \Aero\Qrbo\Models\QrCode::where('internal_reference', $order->payment_reference)->first();
+    if ($order->payment_reference && class_exists(\Aero\Pay\Models\QrCode::class)) {
+        $qrCode = \Aero\Pay\Models\QrCode::where('internal_reference', $order->payment_reference)->first();
     }
 ?>
 <?php $flow = $qrCode ? ($qrCode->flow ?: 'qr_dynamic') : null; ?>
@@ -19,8 +19,8 @@
         <i class="icon-warning"></i>
         Este es un QR estático (sin API de banco) — el mismo QR se reutiliza en varios pedidos, así que no se confirma solo ni identifica el pedido por sí mismo.
         Antes de marcar el pedido como pagado, verificá el monto recibido en
-        <a href="<?= Backend::url('aero/qrbo/bankaccounts/update/' . $qrCode->bank_account_id) ?>#primarytab-transacciones" target="_blank">
-            QRBO → Cuentas → <?= e($qrCode->bankAccount->label ?? 'esta cuenta') ?> → Transacciones
+        <a href="<?= Backend::url('aero/pay/bankaccounts/update/' . $qrCode->bank_account_id) ?>#primarytab-transacciones" target="_blank">
+            Pagos → Cuentas → <?= e($qrCode->bankAccount->label ?? 'esta cuenta') ?> → Transacciones
         </a>.
     </div>
     <?php endif; ?>
