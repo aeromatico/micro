@@ -51,6 +51,19 @@ class Leads extends Controller
         }
     }
 
+    /**
+     * Al guardar el alta (que es un Deal) volvemos a la lista de leads en vez
+     * del formulario de Deal, para no quedar en la pantalla del registro.
+     */
+    public function formGetRedirectUrl($context = null, $model = null)
+    {
+        if ($this->action === 'create') {
+            return \Backend::url('aero/crm/leads');
+        }
+
+        return null;
+    }
+
     public function listExtendQuery($query): void
     {
         $this->scopeQueryToTenant($query);
@@ -69,6 +82,34 @@ class Leads extends Controller
             $model->pipeline_id = $pipeline->id;
             $model->stage_id = $pipeline->stages()->orderBy('sort_order')->value('id');
         }
+    }
+
+    /**
+     * El alta guarda el Deal del pipeline y además deja su registro en
+     * aero_crm_leads (vinculado al deal/contacto), para que la lista de Leads
+     * siga creciendo como antes. Al estar ya convertido, el lead queda
+     * enlazado y "Convertir" no duplica nada.
+     */
+    public function formAfterCreate($model)
+    {
+        if (!$model instanceof Deal) {
+            return;
+        }
+
+        $contact = $model->contact;
+
+        Lead::create([
+            'tenant_id'            => $model->tenant_id,
+            'name'                 => $model->title,
+            'email'                => $contact?->email,
+            'phone'                => $contact?->phone,
+            'company_name'         => $model->company?->name,
+            'status'               => $model->status === 'lost' ? 'disqualified' : 'qualified',
+            'owner_id'             => $model->owner_id,
+            'converted_contact_id' => $model->contact_id,
+            'converted_deal_id'    => $model->id,
+            'in_pipeline'          => (bool) $model->in_pipeline,
+        ]);
     }
 
     public function onConvert($recordId = null)
