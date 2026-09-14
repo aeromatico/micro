@@ -50,6 +50,7 @@ class SignupWizard extends ComponentBase
 
         $plans = SignupPlans::all();
         $signupEnabled = (bool) Settings::getSignupBankAccount();
+        $domainRegistrationPrice = Settings::getDomainRegistrationPrice();
 
         $requestedPlan = (string) $this->param('plan');
         $initialPlan = SignupPlans::exists($requestedPlan) ? $requestedPlan : 'negocio';
@@ -61,10 +62,11 @@ class SignupWizard extends ComponentBase
         // JSON pre-escapado (comillas/apóstrofes/HTML) para poder inyectarlo
         // directo dentro de un atributo x-data="..." sin romper el HTML.
         $this->page['signupConfigJson'] = json_encode([
-            'niches'        => $niches,
-            'initialPlan'   => $initialPlan,
-            'plans'         => $plans,
-            'signupEnabled' => $signupEnabled,
+            'niches'                  => $niches,
+            'initialPlan'             => $initialPlan,
+            'plans'                   => $plans,
+            'signupEnabled'           => $signupEnabled,
+            'domainRegistrationPrice' => $domainRegistrationPrice,
         ], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG);
     }
 
@@ -115,6 +117,20 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => $formatError];
         }
 
+        // El dominio propio solo lo ofrecemos en el plan Pro — la
+        // disponibilidad ya se verificó en vivo desde el navegador contra la
+        // API de clouds.com.bo (ver signup.js searchDomains()), acá solo se
+        // valida formato: no se vuelve a consultar la API para confirmar
+        // (el registro real es un paso manual del equipo después del pago,
+        // así que una segunda verificación no evita nada — a lo sumo el
+        // dominio elegido ya no está disponible cuando se lo registre a
+        // mano, y ahí se contacta al cliente).
+        $domain = trim((string) post('domain', ''));
+        $domainError = $this->validateDomainFormat($domain, $plan);
+        if ($domainError) {
+            return ['success' => false, 'message' => $domainError];
+        }
+
         if (!array_key_exists($niche, app(NicheManager::class)->options())) {
             return ['success' => false, 'message' => 'Elige un rubro válido.'];
         }
@@ -140,6 +156,8 @@ class SignupWizard extends ComponentBase
         }
 
         $planData = SignupPlans::find($plan);
+        $domainPrice = $domain !== '' ? Settings::getDomainRegistrationPrice() : 0.0;
+        $amount = (float) $planData['price'] + $domainPrice;
 
         try {
             $tenant = Tenant::create([
@@ -149,6 +167,7 @@ class SignupWizard extends ComponentBase
                 'niche_type'     => $niche,
                 'plan'           => $plan,
                 'plan_price'     => $planData['price'],
+                'signup_domain'  => $domain !== '' ? $domain : null,
                 'status'         => 'pending_payment',
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
@@ -156,11 +175,16 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
         }
 
+        $description = "Alta Market — {$handle} (plan {$planData['label']})";
+        if ($domain !== '') {
+            $description .= " + dominio {$domain}";
+        }
+
         $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
             bankAccount: $bankAccount,
-            amount: $planData['price'],
+            amount: $amount,
             currency: 'BOB',
-            description: "Alta Market — {$handle} (plan {$planData['label']})",
+            description: $description,
             origin: 'sites',
         );
 
@@ -169,15 +193,16 @@ class SignupWizard extends ComponentBase
         $tenant->save();
 
         return [
-            'success'     => true,
-            'tenant_id'   => $tenant->id,
-            'reference'   => $qrCode->internal_reference,
-            'domain'      => $tenant->handle . '.' . $rootDomain->domain,
-            'niche_label' => app(NicheManager::class)->options()[$niche] ?? $niche,
-            'plan_label'  => $planData['label'],
-            'amount'      => $planData['price'],
-            'due_date'    => $qrCode->due_date?->toFormattedDateString(),
-            'qr_image'    => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
+            'success'      => true,
+            'tenant_id'    => $tenant->id,
+            'reference'    => $qrCode->internal_reference,
+            'domain'       => $tenant->handle . '.' . $rootDomain->domain,
+            'niche_label'  => app(NicheManager::class)->options()[$niche] ?? $niche,
+            'plan_label'   => $planData['label'],
+            'amount'       => $amount,
+            'own_domain'   => $domain !== '' ? $domain : null,
+            'due_date'     => $qrCode->due_date?->toFormattedDateString(),
+            'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
         ];
     }
 
@@ -292,6 +317,27 @@ class SignupWizard extends ComponentBase
         }
         if (in_array($handle, static::RESERVED_HANDLES, true)) {
             return "\"{$handle}\" está reservado, prueba otro nombre";
+        }
+
+        return null;
+    }
+
+    /**
+     * Formato solamente — la disponibilidad ya se validó en el navegador
+     * contra la API de clouds.com.bo (ver docblock de onCreateSignup()).
+     */
+    protected function validateDomainFormat(string $domain, string $plan): ?string
+    {
+        if ($domain === '') {
+            return null;
+        }
+
+        if ($plan !== 'pro') {
+            return 'El registro de dominio propio solo está disponible en el plan Pro.';
+        }
+
+        if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.[a-z]{2,24}$/i', $domain)) {
+            return 'El dominio elegido no tiene un formato válido.';
         }
 
         return null;

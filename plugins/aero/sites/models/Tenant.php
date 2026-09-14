@@ -15,7 +15,7 @@ class Tenant extends Model
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
         'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
         'design_theme_id', 'theme_overrides',
-        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference',
+        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain',
     ];
 
     protected $jsonable = ['theme_overrides'];

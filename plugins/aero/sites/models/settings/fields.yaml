@@ -57,3 +57,10 @@ fields:
         default: 2
         comment: Si nadie completa el pago dentro de este plazo, el subdominio reservado se libera automáticamente (aero.sites:release-expired-signups, corre cada hora).
         span: left
+
+    signup_domain_price:
+        label: 'Cargo por registrar dominio propio (Bs, plan Pro)'
+        type: number
+        default: 129
+        comment: 'Se suma al precio del plan si el cliente elige registrar un dominio propio (disponibilidad buscada en vivo contra clouds.com.bo). El registro real del dominio queda pendiente, es un paso manual del equipo.'
+        span: right

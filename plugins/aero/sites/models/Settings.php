@@ -61,6 +61,17 @@ class Settings extends Model
         return (int) self::get('signup_pending_ttl_hours', 2);
     }
 
+    /**
+     * Cargo fijo en Bs por registrar un dominio propio en el alta (solo
+     * ofrecido en el plan Pro) — no es el costo real del dominio en el
+     * registrador (eso varía por extensión, ver clouds.com.bo/api/v1/domains),
+     * es lo que cobramos nosotros por gestionarlo.
+     */
+    public static function getDomainRegistrationPrice(): float
+    {
+        return (float) self::get('signup_domain_price', 129);
+    }
+
     public function getSignupBankAccountIdOptions(): array
     {
         if (!class_exists(\Aero\Pay\Models\BankAccount::class)) {

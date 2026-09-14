@@ -74,7 +74,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     <label class="block text-[13px] font-bold mb-2">Plan</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <template x-for="(p, id) in plans" :key="id">
-                            <button type="button" @click="plan = id"
+                            <button type="button" @click="selectPlan(id)"
                                     class="text-left border rounded-xl p-4 transition-colors"
                                     :class="plan === id ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas hover:border-ink-dim'">
                                 <div class="flex items-baseline justify-between">
@@ -87,7 +87,50 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     </div>
                 </div>
 
+                <!-- Dominio propio (opcional, solo plan Pro) -->
+                <div x-show="plan === 'pro'" x-cloak class="border border-edge rounded-xl p-4 bg-canvas">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" :checked="wantsDomain" @change="toggleWantsDomain()"
+                               class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
+                        <span class="text-[13px]">
+                            <span class="font-bold">Registrar un dominio propio</span>
+                            <span class="text-ink-dim"> — Bs <span x-text="domainRegistrationPrice"></span> adicionales (ej. tunegocio.com en vez de tunegocio.market.com.bo)</span>
+                        </span>
+                    </label>
+
+                    <div x-show="wantsDomain" x-cloak class="mt-4 flex flex-col gap-3">
+                        <div class="flex gap-2">
+                            <input type="text" x-model="domainQuery" @keydown.enter.prevent="searchDomains()"
+                                   placeholder="nombre de tu dominio" autocomplete="off" spellcheck="false"
+                                   class="flex-1 min-w-0 border border-edge focus:border-accent bg-canvas-elev rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors" />
+                            <button type="button" @click="searchDomains()" :disabled="domainSearching || !domainQuery.trim()"
+                                    class="flex-shrink-0 inline-flex items-center gap-2 bg-canvas-elev2 hover:bg-edge border border-edge font-semibold text-sm px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50">
+                                <svg x-show="domainSearching" x-cloak class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                                <span x-text="domainSearching ? 'Buscando…' : 'Buscar'"></span>
+                            </button>
+                        </div>
+
+                        <p class="text-xs text-red-400" x-show="domainError" x-cloak x-text="domainError"></p>
+
+                        <div x-show="domainResults.length > 0" x-cloak class="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
+                            <template x-for="r in domainResults" :key="r.domain">
+                                <button type="button" @click="r.available && selectDomainOption(r.domain)" :disabled="!r.available"
+                                        class="flex items-center justify-between border rounded-lg px-3.5 py-2.5 text-[13px] transition-colors text-left"
+                                        :class="!r.available ? 'border-edge opacity-40 cursor-not-allowed' : (selectedDomain === r.domain ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas-elev hover:border-ink-dim')">
+                                    <span class="font-semibold" x-text="r.domain"></span>
+                                    <span x-show="r.available" x-cloak class="text-accent font-bold" x-text="selectedDomain === r.domain ? 'Elegido ✓' : 'Disponible'"></span>
+                                    <span x-show="!r.available" x-cloak class="text-ink-dim">No disponible</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
+                    <div x-show="selectedDomain" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
+                        <span class="text-ink-dim">Plan <span x-text="plans[plan] && plans[plan].label"></span> + dominio <span class="font-semibold" x-text="selectedDomain"></span></span>
+                        <span class="font-display font-bold" x-text="'Bs ' + totalPrice"></span>
+                    </div>
                     <button type="button" @click="goToPayment()" :disabled="!canContinue"
                             class="w-full inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
                         <span x-show="!creating">Continuar al pago</span>
@@ -114,6 +157,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                             <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-accent"><strong x-text="payment.domain"></strong></span>
                             <span class="inline-flex items-center text-xs px-3 py-1.5 rounded-full border border-edge text-ink-dim">Rubro: <span class="ml-1" x-text="payment.niche_label"></span></span>
                             <span class="inline-flex items-center text-xs px-3 py-1.5 rounded-full border border-edge text-ink-dim">Plan <span class="ml-1" x-text="payment.plan_label"></span></span>
+                            <span x-show="payment.own_domain" x-cloak class="inline-flex items-center text-xs px-3 py-1.5 rounded-full border border-edge text-ink-dim">+ dominio <span class="ml-1 font-semibold" x-text="payment.own_domain"></span></span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-5 items-center">

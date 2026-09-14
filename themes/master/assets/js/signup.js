@@ -1,8 +1,21 @@
+// API pública de otro sitio propio (clouds.com.bo) — búsqueda de
+// disponibilidad de dominios en vivo, llamada directo desde el navegador
+// (sin pasar por nuestro backend, ya habilitado para subdominios de
+// market.com.bo). Extensiones fijas: cubren lo más pedido sin abrumar con
+// una lista enorme en la UI.
+const DOMAIN_SEARCH_API = 'https://clouds.com.bo/api/v1/domains/check-availability';
+const DOMAIN_EXTENSIONS = [
+    'com', 'net', 'org', 'store', 'shop', 'pro', 'club', 'info', 'online',
+    'tienda', 'one', 'promo', 'doctor', 'cafe', 'me', 'click', 'tech', 'link',
+    'social', 'red', 'stream', 'pizza', 'group',
+];
+
 function signupWizard(config) {
     return {
         niches: config.niches || [],
         plans: config.plans || {},
         signupEnabled: !!config.signupEnabled,
+        domainRegistrationPrice: config.domainRegistrationPrice || 0,
 
         step: 1,
         handle: '',
@@ -13,6 +26,14 @@ function signupWizard(config) {
         available: null,
         statusMessage: '',
         _checkTimer: null,
+
+        // Dominio propio (opcional, solo plan Pro)
+        wantsDomain: false,
+        domainQuery: '',
+        domainSearching: false,
+        domainError: '',
+        domainResults: [],
+        selectedDomain: null,
 
         creating: false,
         createError: '',
@@ -28,6 +49,63 @@ function signupWizard(config) {
 
         get canContinue() {
             return this.signupEnabled && this.available === true && !!this.niche && !!this.plan && !this.creating;
+        },
+
+        get totalPrice() {
+            const base = (this.plans[this.plan] && this.plans[this.plan].price) || 0;
+            return this.selectedDomain ? base + this.domainRegistrationPrice : base;
+        },
+
+        selectPlan(id) {
+            this.plan = id;
+            if (id !== 'pro') {
+                this.wantsDomain = false;
+                this.selectedDomain = null;
+                this.domainResults = [];
+            }
+        },
+
+        toggleWantsDomain() {
+            this.wantsDomain = !this.wantsDomain;
+            if (!this.wantsDomain) {
+                this.selectedDomain = null;
+                this.domainResults = [];
+                this.domainError = '';
+            }
+        },
+
+        searchDomains() {
+            const query = this.domainQuery.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+            if (!query) return;
+
+            this.domainSearching = true;
+            this.domainError = '';
+            this.domainResults = [];
+            this.selectedDomain = null;
+
+            fetch(DOMAIN_SEARCH_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ domain: query, extensions: DOMAIN_EXTENSIONS, type: 'register' }),
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    this.domainSearching = false;
+                    const results = (data && data.data && data.data.results) || [];
+                    if (!results.length) {
+                        this.domainError = 'No se pudo buscar dominios. Intenta de nuevo.';
+                        return;
+                    }
+                    this.domainResults = results;
+                })
+                .catch(() => {
+                    this.domainSearching = false;
+                    this.domainError = 'No se pudo buscar dominios. Intenta de nuevo.';
+                });
+        },
+
+        selectDomainOption(domain) {
+            this.selectedDomain = this.selectedDomain === domain ? null : domain;
         },
 
         onHandleInput() {
@@ -63,7 +141,12 @@ function signupWizard(config) {
             this.creating = true;
             this.createError = '';
             oc.request(null, 'signupWizard::onCreateSignup', {
-                data: { handle: this.handle, niche: this.niche, plan: this.plan },
+                data: {
+                    handle: this.handle,
+                    niche: this.niche,
+                    plan: this.plan,
+                    domain: this.plan === 'pro' ? (this.selectedDomain || '') : '',
+                },
             })
                 .then((data) => {
                     this.creating = false;

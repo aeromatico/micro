@@ -196,3 +196,13 @@
       contacto. Requiere que Aero.Notify 1.3.0+ ya haya corrido su migración
       de copia de datos antes de esta baja."
     - drop_notification_channels_table.php
+
+1.29.0:
+    - "Dominio propio opcional en el alta (solo plan Pro, +Bs
+      Settings::getDomainRegistrationPrice(), default 129): la disponibilidad
+      se busca en vivo desde el navegador contra la API pública de
+      clouds.com.bo (otro sitio propio, sin pasar por nuestro backend). El
+      dominio elegido se guarda en Tenant::signup_domain y se suma al monto
+      del QR de alta — el registro real del dominio queda pendiente, es un
+      paso manual del equipo, no hay automatización de compra todavía."
+    - add_signup_domain_to_tenants.php
