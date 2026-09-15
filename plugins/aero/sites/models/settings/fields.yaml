@@ -61,6 +61,13 @@ fields:
     signup_domain_price:
         label: 'Cargo por registrar dominio propio (Bs, plan Pro)'
         type: number
-        default: 129
-        comment: 'Se suma al precio del plan si el cliente elige registrar un dominio propio (disponibilidad buscada en vivo contra clouds.com.bo). El registro real del dominio queda pendiente, es un paso manual del equipo.'
+        default: 99
+        comment: 'Se suma al precio del plan si el cliente elige registrar un dominio propio (disponibilidad buscada en vivo contra clouds.com.bo). Cubre el primer año — el registro real del dominio queda pendiente, es un paso manual del equipo.'
         span: right
+
+    signup_domain_renewal_markup_percent:
+        label: '% de margen sobre el costo de renovación'
+        type: number
+        default: 30
+        comment: 'Se suma al costo mayorista de renovación (en USD, informado por clouds.com.bo) antes de mostrárselo al cliente en Bs junto a cada resultado de búsqueda — solo informativo, se cobra recién al renovar.'
+        span: left

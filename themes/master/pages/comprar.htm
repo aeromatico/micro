@@ -118,7 +118,10 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                                         class="flex items-center justify-between border rounded-lg px-3.5 py-2.5 text-[13px] transition-colors text-left"
                                         :class="!r.available ? 'border-edge opacity-40 cursor-not-allowed' : (selectedDomain === r.domain ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas-elev hover:border-ink-dim')">
                                     <span class="font-semibold" x-text="r.domain"></span>
-                                    <span x-show="r.available" x-cloak class="text-accent font-bold" x-text="selectedDomain === r.domain ? 'Elegido ✓' : 'Disponible'"></span>
+                                    <span x-show="r.available" x-cloak class="flex flex-col items-end">
+                                        <span class="text-accent font-bold" x-text="selectedDomain === r.domain ? 'Elegido ✓' : 'Disponible'"></span>
+                                        <span x-show="renewalPriceBob(r)" x-cloak class="text-[11px] text-ink-dim" x-text="'Renovación: Bs ' + renewalPriceBob(r) + '/año'"></span>
+                                    </span>
                                     <span x-show="!r.available" x-cloak class="text-ink-dim">No disponible</span>
                                 </button>
                             </template>

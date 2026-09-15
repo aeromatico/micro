@@ -51,6 +51,8 @@ class SignupWizard extends ComponentBase
         $plans = SignupPlans::all();
         $signupEnabled = (bool) Settings::getSignupBankAccount();
         $domainRegistrationPrice = Settings::getDomainRegistrationPrice();
+        $domainRenewalMarkupPercent = Settings::getDomainRenewalMarkupPercent();
+        $usdToBobRate = Settings::getUsdToBobRate();
 
         $requestedPlan = (string) $this->param('plan');
         $initialPlan = SignupPlans::exists($requestedPlan) ? $requestedPlan : 'negocio';
@@ -62,11 +64,13 @@ class SignupWizard extends ComponentBase
         // JSON pre-escapado (comillas/apóstrofes/HTML) para poder inyectarlo
         // directo dentro de un atributo x-data="..." sin romper el HTML.
         $this->page['signupConfigJson'] = json_encode([
-            'niches'                  => $niches,
-            'initialPlan'             => $initialPlan,
-            'plans'                   => $plans,
-            'signupEnabled'           => $signupEnabled,
-            'domainRegistrationPrice' => $domainRegistrationPrice,
+            'niches'                     => $niches,
+            'initialPlan'                => $initialPlan,
+            'plans'                      => $plans,
+            'signupEnabled'              => $signupEnabled,
+            'domainRegistrationPrice'    => $domainRegistrationPrice,
+            'domainRenewalMarkupPercent' => $domainRenewalMarkupPercent,
+            'usdToBobRate'               => $usdToBobRate,
         ], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG);
     }
 

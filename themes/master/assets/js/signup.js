@@ -16,6 +16,8 @@ function signupWizard(config) {
         plans: config.plans || {},
         signupEnabled: !!config.signupEnabled,
         domainRegistrationPrice: config.domainRegistrationPrice || 0,
+        domainRenewalMarkupPercent: config.domainRenewalMarkupPercent || 0,
+        usdToBobRate: config.usdToBobRate || null,
 
         step: 1,
         handle: '',
@@ -106,6 +108,19 @@ function signupWizard(config) {
 
         selectDomainOption(domain) {
             this.selectedDomain = this.selectedDomain === domain ? null : domain;
+        },
+
+        // Precio de renovación (año 2 en adelante) en Bs, para mostrar junto
+        // a cada resultado — el mayorista en USD (renewal_price) más nuestro
+        // margen, convertido con la tasa que ya trae el servidor. Null (no
+        // se muestra nada) si la tasa no está disponible, en vez de arriesgar
+        // un número inventado.
+        renewalPriceBob(result) {
+            if (!this.usdToBobRate) return null;
+            const usd = parseFloat(result.renewal_price);
+            if (!usd) return null;
+            const withMarkup = usd * (1 + this.domainRenewalMarkupPercent / 100);
+            return Math.round(withMarkup * this.usdToBobRate);
         },
 
         onHandleInput() {

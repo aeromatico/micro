@@ -206,3 +206,15 @@
       del QR de alta — el registro real del dominio queda pendiente, es un
       paso manual del equipo, no hay automatización de compra todavía."
     - add_signup_domain_to_tenants.php
+
+1.30.0:
+    - "El cargo por registrar dominio propio baja de Bs 129 a Bs 99 (default,
+      configurable en Settings > Sites). Nuevo: junto a cada resultado
+      disponible de la búsqueda se muestra el precio de renovación (año 2 en
+      adelante) en Bs — costo mayorista en USD que informa clouds.com.bo más
+      un margen configurable (30% default), convertido con la tasa cacheada
+      de Aero.Api\Classes\Currency\CurrencyRateService (misma tasa de
+      api/v1/currencies, sin llamada HTTP propia ni API key nuestra). Sin
+      tasa disponible (Aero.Api no instalado o sin refrescar nunca), el
+      precio de renovación simplemente no se muestra — nunca un número
+      inventado."

@@ -65,11 +65,44 @@ class Settings extends Model
      * Cargo fijo en Bs por registrar un dominio propio en el alta (solo
      * ofrecido en el plan Pro) — no es el costo real del dominio en el
      * registrador (eso varía por extensión, ver clouds.com.bo/api/v1/domains),
-     * es lo que cobramos nosotros por gestionarlo.
+     * es lo que cobramos nosotros por gestionarlo el primer año.
      */
     public static function getDomainRegistrationPrice(): float
     {
-        return (float) self::get('signup_domain_price', 129);
+        return (float) self::get('signup_domain_price', 99);
+    }
+
+    /**
+     * % que se suma al costo mayorista de renovación (en USD, ver
+     * clouds.com.bo/api/v1/domains) antes de convertirlo a Bs y mostrárselo
+     * al cliente — la registración es el cargo fijo de arriba, pero la
+     * renovación del año 2 en adelante sí depende de la extensión elegida.
+     */
+    public static function getDomainRenewalMarkupPercent(): float
+    {
+        return (float) self::get('signup_domain_renewal_markup_percent', 30);
+    }
+
+    /**
+     * Tasa USD -> BOB para mostrar el precio de renovación en bolivianos.
+     * Reusa el servicio ya cacheado de aero/api (misma tasa que expone
+     * api/v1/currencies) en vez de una llamada HTTP propia — evita duplicar
+     * la key de exchangerate-api.com o depender de una API key nuestra.
+     * Null si aero/api no está instalado o la tasa no está disponible
+     * todavía (sin refrescar nunca) — el front oculta el precio de
+     * renovación en ese caso en vez de mostrar un número inventado.
+     */
+    public static function getUsdToBobRate(): ?float
+    {
+        if (!class_exists(\Aero\Api\Classes\Currency\CurrencyRateService::class)) {
+            return null;
+        }
+
+        try {
+            return app(\Aero\Api\Classes\Currency\CurrencyRateService::class)->latest('USD')->rate('BOB');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function getSignupBankAccountIdOptions(): array
