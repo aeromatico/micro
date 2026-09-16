@@ -28,6 +28,14 @@ columns:
         type: text
         width: 90px
 
+    signup_domain_source:
+        label: Dominio propio
+        type: selectable
+        options:
+            register: 'Nuevo (pendiente)'
+            existing: 'Ya lo tenía (pendiente)'
+        width: 150px
+
     rootDomain[domain]:
         label: Dominio raíz
         relation: rootDomain

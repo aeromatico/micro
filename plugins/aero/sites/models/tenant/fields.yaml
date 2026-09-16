@@ -56,6 +56,25 @@ tabs:
             disabled: true
             tab: General
 
+        signup_domain:
+            label: Dominio propio pedido en el alta
+            type: text
+            span: left
+            disabled: true
+            comment: "Vacío si eligió quedarse con el subdominio."
+            tab: General
+
+        signup_domain_source:
+            label: Origen del dominio
+            type: dropdown
+            span: right
+            disabled: true
+            emptyOption: '— Sin dominio propio —'
+            options:
+                register: 'Nuevo — pendiente registrarlo (equipo)'
+                existing: 'Ya lo tenía — pendiente apuntar DNS (equipo)'
+            tab: General
+
         primary_color:
             label: Color primario
             type: colorpicker
