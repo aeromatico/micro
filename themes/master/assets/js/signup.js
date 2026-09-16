@@ -100,7 +100,11 @@ function signupWizard(config) {
 
         get totalPrice() {
             const base = (this.plans[this.plan] && this.plans[this.plan].price) || 0;
-            const addsFee = this.plan === 'pro' && this.domainMode === 'register' && this.selectedDomain;
+            // Se suma apenas elige "Registrar un dominio propio" — no hace
+            // falta que ya haya buscado/elegido el nombre puntual, el cargo
+            // es por el servicio de registro en sí, no por un dominio
+            // específico.
+            const addsFee = this.plan === 'pro' && this.domainMode === 'register';
             return addsFee ? base + this.domainRegistrationPrice : base;
         },
 
@@ -111,18 +115,21 @@ function signupWizard(config) {
             }
         },
 
+        // Radio explícito de 3 opciones ('', 'register', 'existing') — ya
+        // no hace falta el toggle de "clickear la misma apaga", cada una
+        // tiene su propio botón incluida "Mantener el subdominio" (mode '').
         setDomainMode(mode) {
-            this.domainMode = this.domainMode === mode ? '' : mode;
+            this.domainMode = mode;
 
-            if (this.domainMode !== 'register') {
+            if (mode !== 'register') {
                 this.selectedDomain = null;
                 this.domainResults = [];
                 this.domainError = '';
             }
-            if (this.domainMode !== 'existing') {
+            if (mode !== 'existing') {
                 this.existingDomain = '';
             }
-            if (this.domainMode === 'register') {
+            if (mode === 'register') {
                 this.loadExtensionCatalog();
             }
         },

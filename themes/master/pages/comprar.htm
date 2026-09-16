@@ -5,7 +5,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
 [signupWizard]
 ==
-<script src="{{ 'assets/js/signup.js' | theme }}?v=5"></script>
+<script src="{{ 'assets/js/signup.js' | theme }}?v=6"></script>
 
 <section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
 
@@ -89,6 +89,15 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
                 <!-- Dominio propio (opcional, solo plan Pro) -->
                 <div x-show="plan === 'pro'" x-cloak class="border border-edge rounded-xl p-4 bg-canvas flex flex-col gap-2.5">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="radio" :checked="domainMode === ''" @change="setDomainMode('')"
+                               class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
+                        <span class="text-[13px]">
+                            <span class="font-bold">Mantener el subdominio</span>
+                            <span class="text-ink-dim"> — tunegocio.market.com.bo, incluido sin costo adicional</span>
+                        </span>
+                    </label>
+
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input type="radio" :checked="domainMode === 'register'" @change="setDomainMode('register')"
                                class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
@@ -189,8 +198,10 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                 </div>
 
                 <div>
-                    <div x-show="domainMode === 'register' && selectedDomain" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
-                        <span class="text-ink-dim">Plan <span x-text="plans[plan] && plans[plan].label"></span> + dominio <span class="font-semibold" x-text="selectedDomain"></span></span>
+                    <div x-show="domainMode === 'register'" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
+                        <span class="text-ink-dim">Plan <span x-text="plans[plan] && plans[plan].label"></span> + dominio
+                            <span class="font-semibold" x-text="selectedDomain || '(elige uno abajo)'"></span>
+                        </span>
                         <span class="font-display font-bold" x-text="'Bs ' + totalPrice"></span>
                     </div>
                     <div x-show="domainMode === 'existing' && existingDomain.trim()" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
