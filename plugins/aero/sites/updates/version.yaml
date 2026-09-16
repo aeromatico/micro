@@ -197,6 +197,15 @@
       de copia de datos antes de esta baja."
     - drop_notification_channels_table.php
 
+1.28.0:
+    - "Primeros disparos reales de Aero.Notify más allá del contacto:
+      TenantProvisioner::provisionAdmin() dispara 'sites.tenant.created' (un
+      único choke point, cubre alta desde backend y SignupWizard);
+      Tenant::afterSave() dispara 'sites.tenant.suspended' cuando status
+      cambia a suspended. Ambos guardados con class_exists() (Aero.Sites no
+      requiere Aero.Notify). Sin campo 'reason' en Tenant: se manda null, es
+      variable opcional del evento."
+
 1.29.0:
     - "Dominio propio opcional en el alta (solo plan Pro, +Bs
       Settings::getDomainRegistrationPrice(), default 129): la disponibilidad
@@ -213,8 +222,17 @@
       disponible de la búsqueda se muestra el precio de renovación (año 2 en
       adelante) en Bs — costo mayorista en USD que informa clouds.com.bo más
       un margen configurable (30% default), convertido con la tasa cacheada
-      de Aero.Api\Classes\Currency\CurrencyRateService (misma tasa de
+      de Aero.Api\\Classes\\Currency\\CurrencyRateService (misma tasa de
       api/v1/currencies, sin llamada HTTP propia ni API key nuestra). Sin
       tasa disponible (Aero.Api no instalado o sin refrescar nunca), el
       precio de renovación simplemente no se muestra — nunca un número
       inventado."
+
+1.31.0:
+    - "El dominio propio del alta (plan Pro) ahora tiene dos modos:
+      'register' (nuevo, cobra Settings::getDomainRegistrationPrice(), sin
+      cambios) o 'existing' (el cliente ya lo tiene, gratis — solo avisa
+      cuál es para que el equipo lo apunte a la plataforma después de
+      activarse). Nueva columna signup_domain_source distingue cuál de los
+      dos fue."
+    - add_signup_domain_source_to_tenants.php

@@ -58,13 +58,16 @@ function signupWizard(config) {
         statusMessage: '',
         _checkTimer: null,
 
-        // Dominio propio (opcional, solo plan Pro)
-        wantsDomain: false,
+        // Dominio propio (opcional, solo plan Pro): '' (ninguno),
+        // 'register' (nuevo, +Bs domainRegistrationPrice) o 'existing' (ya
+        // lo tiene, gratis, solo avisa cuál es).
+        domainMode: '',
         domainQuery: '',
         domainSearching: false,
         domainError: '',
         domainResults: [],
         selectedDomain: null,
+        existingDomain: '',
 
         // Catálogo de precios por extensión (independiente de lo que busque
         // el cliente) — se carga una sola vez, con un nombre neutro, para
@@ -87,30 +90,39 @@ function signupWizard(config) {
         done: null,
 
         get canContinue() {
-            return this.signupEnabled && this.available === true && !!this.niche && !!this.plan && !this.creating;
+            if (!this.signupEnabled || this.available !== true || !this.niche || !this.plan || this.creating) {
+                return false;
+            }
+            if (this.plan === 'pro' && this.domainMode === 'register' && !this.selectedDomain) return false;
+            if (this.plan === 'pro' && this.domainMode === 'existing' && !this.existingDomain.trim()) return false;
+            return true;
         },
 
         get totalPrice() {
             const base = (this.plans[this.plan] && this.plans[this.plan].price) || 0;
-            return this.selectedDomain ? base + this.domainRegistrationPrice : base;
+            const addsFee = this.plan === 'pro' && this.domainMode === 'register' && this.selectedDomain;
+            return addsFee ? base + this.domainRegistrationPrice : base;
         },
 
         selectPlan(id) {
             this.plan = id;
             if (id !== 'pro') {
-                this.wantsDomain = false;
-                this.selectedDomain = null;
-                this.domainResults = [];
+                this.setDomainMode('');
             }
         },
 
-        toggleWantsDomain() {
-            this.wantsDomain = !this.wantsDomain;
-            if (!this.wantsDomain) {
+        setDomainMode(mode) {
+            this.domainMode = this.domainMode === mode ? '' : mode;
+
+            if (this.domainMode !== 'register') {
                 this.selectedDomain = null;
                 this.domainResults = [];
                 this.domainError = '';
-            } else {
+            }
+            if (this.domainMode !== 'existing') {
+                this.existingDomain = '';
+            }
+            if (this.domainMode === 'register') {
                 this.loadExtensionCatalog();
             }
         },
@@ -239,12 +251,18 @@ function signupWizard(config) {
             if (!this.canContinue) return;
             this.creating = true;
             this.createError = '';
+            const domainMode = this.plan === 'pro' ? this.domainMode : '';
+            const domainValue = domainMode === 'register'
+                ? (this.selectedDomain || '')
+                : (domainMode === 'existing' ? this.existingDomain.trim() : '');
+
             oc.request(null, 'signupWizard::onCreateSignup', {
                 data: {
                     handle: this.handle,
                     niche: this.niche,
                     plan: this.plan,
-                    domain: this.plan === 'pro' ? (this.selectedDomain || '') : '',
+                    domain_mode: domainMode,
+                    domain: domainValue,
                 },
             })
                 .then((data) => {

@@ -86,7 +86,35 @@ class TenantProvisioner
 
         $this->createFrontendUser($tenant, $name, $email, $password);
 
+        $this->notifyTenantCreated($tenant, $email);
+
         return $user;
+    }
+
+    /**
+     * Único choke point de alta de admin: cubre tanto la creación desde el
+     * backend (Tenants::onCreate -> provisionTenant) como el alta pública
+     * (SignupWizard). Aero.Sites no requiere Aero.Notify — se guarda con
+     * class_exists(), mismo patrón que TenantInvite::notify().
+     */
+    protected function notifyTenantCreated(Tenant $tenant, string $adminEmail): void
+    {
+        if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
+            return;
+        }
+
+        try {
+            \Aero\Notify\Classes\Notify::fire('sites.tenant.created', [
+                'tenant_name' => $tenant->name,
+                'handle'      => $tenant->handle,
+                'niche_type'  => $tenant->niche_type,
+                'admin_email' => $adminEmail,
+            ], [
+                'tenant_id' => $tenant->id,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Aero.Sites: fallo notificando sites.tenant.created: ' . $e->getMessage());
+        }
     }
 
     /**

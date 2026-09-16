@@ -15,7 +15,7 @@ class Tenant extends Model
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
         'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
         'design_theme_id', 'theme_overrides',
-        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain',
+        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain', 'signup_domain_source',
     ];
 
     protected $jsonable = ['theme_overrides'];
@@ -100,10 +100,15 @@ class Tenant extends Model
     {
         static::forgetResolvedHosts();
 
+        $dirty = $this->getDirty();
+
+        if (array_key_exists('status', $dirty) && $this->status === 'suspended') {
+            $this->notifyTenantSuspended();
+        }
+
         if (!$this->site_id) return;
 
-        $dirty = $this->getDirty();
-        $sync  = [];
+        $sync = [];
 
         if (array_key_exists('name', $dirty)) {
             $sync['name'] = $this->name;
@@ -115,6 +120,30 @@ class Tenant extends Model
 
         if ($sync) {
             SiteDefinition::where('id', $this->site_id)->update($sync);
+        }
+    }
+
+    /**
+     * Aero.Sites no requiere Aero.Notify — se guarda con class_exists(),
+     * mismo patrón que TenantInvite::notify(). Sin campo 'reason' en la
+     * tabla (nadie lo pidió al construir el status): se manda null, la
+     * variable es opcional en el contrato del evento (ver EventCatalog).
+     */
+    protected function notifyTenantSuspended(): void
+    {
+        if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
+            return;
+        }
+
+        try {
+            \Aero\Notify\Classes\Notify::fire('sites.tenant.suspended', [
+                'tenant_name' => $this->name,
+                'reason'      => null,
+            ], [
+                'tenant_id' => $this->id,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Aero.Sites: fallo notificando sites.tenant.suspended: ' . $e->getMessage());
         }
     }
 

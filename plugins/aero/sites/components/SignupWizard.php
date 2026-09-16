@@ -121,16 +121,24 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => $formatError];
         }
 
-        // El dominio propio solo lo ofrecemos en el plan Pro — la
-        // disponibilidad ya se verificó en vivo desde el navegador contra la
-        // API de clouds.com.bo (ver signup.js searchDomains()), acá solo se
-        // valida formato: no se vuelve a consultar la API para confirmar
-        // (el registro real es un paso manual del equipo después del pago,
-        // así que una segunda verificación no evita nada — a lo sumo el
-        // dominio elegido ya no está disponible cuando se lo registre a
-        // mano, y ahí se contacta al cliente).
+        // Dominio propio solo en el plan Pro, de dos formas:
+        // - 'register': lo elige de la búsqueda en vivo contra la API de
+        //   clouds.com.bo (ver signup.js searchDomains()) — acá solo se
+        //   valida formato, no se vuelve a consultar la API (el registro
+        //   real es un paso manual del equipo después del pago, una
+        //   segunda verificación no evita nada). Cobra
+        //   Settings::getDomainRegistrationPrice().
+        // - 'existing': ya lo tiene y solo nos avisa cuál es, para que el
+        //   equipo lo apunte a la plataforma después — gratis, sin
+        //   disponibilidad que verificar (es suyo).
+        $domainMode = post('domain_mode', '');
         $domain = trim((string) post('domain', ''));
-        $domainError = $this->validateDomainFormat($domain, $plan);
+
+        if (!in_array($domainMode, ['', 'register', 'existing'], true)) {
+            return ['success' => false, 'message' => 'Opción de dominio no válida.'];
+        }
+
+        $domainError = $domainMode !== '' ? $this->validateDomainFormat($domain, $plan) : null;
         if ($domainError) {
             return ['success' => false, 'message' => $domainError];
         }
@@ -160,19 +168,22 @@ class SignupWizard extends ComponentBase
         }
 
         $planData = SignupPlans::find($plan);
-        $domainPrice = $domain !== '' ? Settings::getDomainRegistrationPrice() : 0.0;
+        // Un dominio existente es gratis (ya es del cliente, no hay nada
+        // que registrar) — solo 'register' suma el cargo.
+        $domainPrice = $domainMode === 'register' ? Settings::getDomainRegistrationPrice() : 0.0;
         $amount = (float) $planData['price'] + $domainPrice;
 
         try {
             $tenant = Tenant::create([
-                'name'           => Str::title(str_replace(['-', '_'], ' ', $handle)),
-                'handle'         => $handle,
-                'root_domain_id' => $rootDomain->id,
-                'niche_type'     => $niche,
-                'plan'           => $plan,
-                'plan_price'     => $planData['price'],
-                'signup_domain'  => $domain !== '' ? $domain : null,
-                'status'         => 'pending_payment',
+                'name'                 => Str::title(str_replace(['-', '_'], ' ', $handle)),
+                'handle'               => $handle,
+                'root_domain_id'       => $rootDomain->id,
+                'niche_type'           => $niche,
+                'plan'                 => $plan,
+                'plan_price'           => $planData['price'],
+                'signup_domain'        => $domainMode !== '' ? $domain : null,
+                'signup_domain_source' => $domainMode !== '' ? $domainMode : null,
+                'status'               => 'pending_payment',
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             // Carrera: alguien más tomó el mismo handle entre el chequeo y el create.
@@ -180,8 +191,10 @@ class SignupWizard extends ComponentBase
         }
 
         $description = "Alta Market — {$handle} (plan {$planData['label']})";
-        if ($domain !== '') {
+        if ($domainMode === 'register') {
             $description .= " + dominio {$domain}";
+        } elseif ($domainMode === 'existing') {
+            $description .= " (dominio propio: {$domain})";
         }
 
         $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
@@ -204,7 +217,7 @@ class SignupWizard extends ComponentBase
             'niche_label'  => app(NicheManager::class)->options()[$niche] ?? $niche,
             'plan_label'   => $planData['label'],
             'amount'       => $amount,
-            'own_domain'   => $domain !== '' ? $domain : null,
+            'own_domain'   => $domainMode !== '' ? $domain : null,
             'due_date'     => $qrCode->due_date?->toFormattedDateString(),
             'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
         ];
@@ -327,21 +340,23 @@ class SignupWizard extends ComponentBase
     }
 
     /**
-     * Formato solamente — la disponibilidad ya se validó en el navegador
-     * contra la API de clouds.com.bo (ver docblock de onCreateSignup()).
+     * Formato solamente — cuando se elige 'register', la disponibilidad ya
+     * se validó en el navegador contra la API de clouds.com.bo (ver
+     * docblock de onCreateSignup()); cuando es 'existing', no hay
+     * disponibilidad que validar, es del cliente.
      */
     protected function validateDomainFormat(string $domain, string $plan): ?string
     {
-        if ($domain === '') {
-            return null;
+        if ($plan !== 'pro') {
+            return 'El dominio propio solo está disponible en el plan Pro.';
         }
 
-        if ($plan !== 'pro') {
-            return 'El registro de dominio propio solo está disponible en el plan Pro.';
+        if ($domain === '') {
+            return 'Escribe el dominio.';
         }
 
         if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.[a-z]{2,24}$/i', $domain)) {
-            return 'El dominio elegido no tiene un formato válido.';
+            return 'El dominio no tiene un formato válido.';
         }
 
         return null;

@@ -5,7 +5,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
 [signupWizard]
 ==
-<script src="{{ 'assets/js/signup.js' | theme }}?v=4"></script>
+<script src="{{ 'assets/js/signup.js' | theme }}?v=5"></script>
 
 <section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
 
@@ -88,9 +88,9 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                 </div>
 
                 <!-- Dominio propio (opcional, solo plan Pro) -->
-                <div x-show="plan === 'pro'" x-cloak class="border border-edge rounded-xl p-4 bg-canvas">
+                <div x-show="plan === 'pro'" x-cloak class="border border-edge rounded-xl p-4 bg-canvas flex flex-col gap-2.5">
                     <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" :checked="wantsDomain" @change="toggleWantsDomain()"
+                        <input type="radio" :checked="domainMode === 'register'" @change="setDomainMode('register')"
                                class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
                         <span class="text-[13px]">
                             <span class="font-bold">Registrar un dominio propio</span>
@@ -98,7 +98,22 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                         </span>
                     </label>
 
-                    <div x-show="wantsDomain" x-cloak class="mt-4 flex flex-col gap-3">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="radio" :checked="domainMode === 'existing'" @change="setDomainMode('existing')"
+                               class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
+                        <span class="text-[13px]">
+                            <span class="font-bold">Usaré un dominio existente</span>
+                            <span class="text-ink-dim"> — ya tienes un dominio propio, solo dinos cuál es (sin costo adicional)</span>
+                        </span>
+                    </label>
+
+                    <div x-show="domainMode === 'existing'" x-cloak class="pl-7">
+                        <input type="text" x-model="existingDomain" placeholder="tudominio.com" autocomplete="off" spellcheck="false"
+                               class="w-full border border-edge focus:border-accent bg-canvas-elev rounded-lg px-3.5 py-2.5 text-sm outline-none transition-colors" />
+                        <p class="text-xs text-ink-dim mt-1.5">Deberás apuntar este dominio a nuestra plataforma después de activar tu cuenta — te vamos a guiar en ese paso.</p>
+                    </div>
+
+                    <div x-show="domainMode === 'register'" x-cloak class="mt-1.5 flex flex-col gap-3">
                         <div class="flex gap-2">
                             <input type="text" x-model="domainQuery" @keydown.enter.prevent="searchDomains()"
                                    placeholder="nombre de tu dominio" autocomplete="off" spellcheck="false"
@@ -149,6 +164,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                                     <thead class="sticky top-0 bg-canvas-elev2">
                                         <tr>
                                             <th class="text-left font-semibold px-3.5 py-2">Extensión</th>
+                                            <th class="text-right font-semibold px-3.5 py-2">Registro</th>
                                             <th class="text-right font-semibold px-3.5 py-2">Renovación / año</th>
                                         </tr>
                                     </thead>
@@ -156,19 +172,29 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                                         <template x-for="e in extensionCatalog" :key="e.tld">
                                             <tr class="border-t border-edge">
                                                 <td class="px-3.5 py-2 font-mono" x-text="e.tld"></td>
+                                                <td class="px-3.5 py-2 text-right text-ink-dim" x-text="'Bs ' + domainRegistrationPrice"></td>
                                                 <td class="px-3.5 py-2 text-right text-ink-dim" x-text="renewalPriceLabel(e)"></td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
                             </div>
+                            <p class="text-[11px] text-ink-dim px-3.5 py-3 border-t border-edge bg-canvas">
+                                Los dominios terminados en <strong>.bo</strong> solo los vende el Estado boliviano a través de
+                                <a href="https://nic.bo" target="_blank" rel="noopener" class="underline underline-offset-2 hover:text-ink">nic.bo</a>
+                                — son compatibles con nuestra plataforma, pero no los gestionamos nosotros: regístralo ahí y elige "Usaré un dominio existente" acá arriba.
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <div x-show="selectedDomain" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
+                    <div x-show="domainMode === 'register' && selectedDomain" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
                         <span class="text-ink-dim">Plan <span x-text="plans[plan] && plans[plan].label"></span> + dominio <span class="font-semibold" x-text="selectedDomain"></span></span>
+                        <span class="font-display font-bold" x-text="'Bs ' + totalPrice"></span>
+                    </div>
+                    <div x-show="domainMode === 'existing' && existingDomain.trim()" x-cloak class="flex items-center justify-between text-[13px] mb-3 px-1">
+                        <span class="text-ink-dim">Plan <span x-text="plans[plan] && plans[plan].label"></span> — dominio propio <span class="font-semibold" x-text="existingDomain.trim()"></span></span>
                         <span class="font-display font-bold" x-text="'Bs ' + totalPrice"></span>
                     </div>
                     <button type="button" @click="goToPayment()" :disabled="!canContinue"
