@@ -10,6 +10,35 @@ const DOMAIN_EXTENSIONS = [
     'social', 'red', 'stream', 'pizza', 'group',
 ];
 
+// El costo mayorista en USD por extensión casi no cambia — cachear en
+// localStorage evita repetir una consulta lenta (23 extensiones a una API
+// externa) en cada visita. La tasa USD->BOB y el margen sí se aplican
+// siempre frescos (vienen del servidor en cada carga de página), acá solo
+// se cachea el precio en USD.
+const CATALOG_CACHE_KEY = 'signup_domain_catalog_v1';
+const CATALOG_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
+
+function readCatalogCache() {
+    try {
+        const raw = localStorage.getItem(CATALOG_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.items) || !parsed.savedAt) return null;
+        if (Date.now() - parsed.savedAt > CATALOG_CACHE_TTL_MS) return null;
+        return parsed.items;
+    } catch {
+        return null;
+    }
+}
+
+function writeCatalogCache(items) {
+    try {
+        localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), items }));
+    } catch {
+        // Privado/bloqueado/lleno — sin cache, simplemente vuelve a consultar la próxima vez.
+    }
+}
+
 function signupWizard(config) {
     return {
         niches: config.niches || [],
@@ -89,6 +118,12 @@ function signupWizard(config) {
         loadExtensionCatalog() {
             if (this.extensionCatalog.length || this.catalogLoading) return;
 
+            const cached = readCatalogCache();
+            if (cached) {
+                this.extensionCatalog = cached;
+                return;
+            }
+
             this.catalogLoading = true;
             fetch(DOMAIN_SEARCH_API, {
                 method: 'POST',
@@ -103,10 +138,17 @@ function signupWizard(config) {
                 .then((data) => {
                     this.catalogLoading = false;
                     const results = (data && data.data && data.data.results) || [];
-                    this.extensionCatalog = results
-                        .map((r) => ({ tld: r.tld, renewalBob: this.renewalPriceBob(r) }))
-                        .filter((r) => r.renewalBob !== null)
-                        .sort((a, b) => a.renewalBob - b.renewalBob);
+                    // Se cachea el precio mayorista crudo en USD (renewal_price),
+                    // no el convertido — el orden ascendente por USD es el mismo
+                    // que por Bs (transformación lineal), así que ordenar acá
+                    // ya deja el orden correcto para cuando se muestre.
+                    const items = results
+                        .filter((r) => parseFloat(r.renewal_price))
+                        .map((r) => ({ tld: r.tld, renewal_price: r.renewal_price }))
+                        .sort((a, b) => parseFloat(a.renewal_price) - parseFloat(b.renewal_price));
+
+                    this.extensionCatalog = items;
+                    writeCatalogCache(items);
                 })
                 .catch(() => {
                     this.catalogLoading = false;
@@ -147,17 +189,22 @@ function signupWizard(config) {
             this.selectedDomain = this.selectedDomain === domain ? null : domain;
         },
 
-        // Precio de renovación (año 2 en adelante) en Bs, para mostrar junto
-        // a cada resultado — el mayorista en USD (renewal_price) más nuestro
-        // margen, convertido con la tasa que ya trae el servidor. Null (no
-        // se muestra nada) si la tasa no está disponible, en vez de arriesgar
-        // un número inventado.
-        renewalPriceBob(result) {
-            if (!this.usdToBobRate) return null;
+        // Precio de renovación (año 2 en adelante) — el mayorista en USD
+        // (renewal_price) más nuestro margen, mostrado en ambas monedas:
+        // "USD XX (Bs XX actualmente)". Sin tasa disponible se sigue
+        // mostrando el USD (el margen ya aplica), solo se omite el
+        // paréntesis en Bs en vez de arriesgar un número inventado.
+        renewalPriceLabel(result) {
             const usd = parseFloat(result.renewal_price);
             if (!usd) return null;
-            const withMarkup = usd * (1 + this.domainRenewalMarkupPercent / 100);
-            return Math.round(withMarkup * this.usdToBobRate);
+
+            const usdWithMarkup = usd * (1 + this.domainRenewalMarkupPercent / 100);
+            const usdLabel = 'USD ' + usdWithMarkup.toFixed(2);
+
+            if (!this.usdToBobRate) return usdLabel;
+
+            const bob = Math.round(usdWithMarkup * this.usdToBobRate);
+            return `${usdLabel} (Bs ${bob} actualmente)`;
         },
 
         onHandleInput() {
