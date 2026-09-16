@@ -174,9 +174,31 @@ function signupWizard(config) {
                 });
         },
 
+        // Si escribió "tunegocio" busca las extensiones de siempre; si
+        // escribió "tunegocio.com" (o cualquier extensión, la tenga o no en
+        // nuestra lista curada) esa va primero en los resultados y el resto
+        // de las extensiones habituales le siguen — no hace falta que sepa
+        // de antemano que "acá no se pone la extensión".
+        parseDomainQuery(raw) {
+            const cleaned = raw.trim().toLowerCase();
+            const dotIndex = cleaned.indexOf('.');
+
+            if (dotIndex === -1) {
+                return { name: cleaned.replace(/[^a-z0-9-]/g, ''), ext: null };
+            }
+
+            const name = cleaned.slice(0, dotIndex).replace(/[^a-z0-9-]/g, '');
+            const ext = cleaned.slice(dotIndex + 1).replace(/[^a-z0-9.-]/g, '');
+            return { name, ext: ext || null };
+        },
+
         searchDomains() {
-            const query = this.domainQuery.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
-            if (!query) return;
+            const { name, ext } = this.parseDomainQuery(this.domainQuery);
+            if (!name) return;
+
+            const extensions = ext
+                ? [ext, ...DOMAIN_EXTENSIONS.filter((e) => e !== ext)]
+                : DOMAIN_EXTENSIONS;
 
             this.domainSearching = true;
             this.domainError = '';
@@ -186,7 +208,7 @@ function signupWizard(config) {
             fetch(DOMAIN_SEARCH_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ domain: query, extensions: DOMAIN_EXTENSIONS, type: 'register' }),
+                body: JSON.stringify({ domain: name, extensions, type: 'register' }),
             })
                 .then((r) => r.json())
                 .then((data) => {
