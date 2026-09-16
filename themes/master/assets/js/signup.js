@@ -37,6 +37,14 @@ function signupWizard(config) {
         domainResults: [],
         selectedDomain: null,
 
+        // Catálogo de precios por extensión (independiente de lo que busque
+        // el cliente) — se carga una sola vez, con un nombre neutro, para
+        // que vea de entrada qué extensiones existen y cuánto cuesta
+        // renovar cada una antes de buscar su nombre puntual.
+        extensionCatalog: [],
+        catalogLoading: false,
+        showCatalog: false,
+
         creating: false,
         createError: '',
 
@@ -73,7 +81,36 @@ function signupWizard(config) {
                 this.selectedDomain = null;
                 this.domainResults = [];
                 this.domainError = '';
+            } else {
+                this.loadExtensionCatalog();
             }
+        },
+
+        loadExtensionCatalog() {
+            if (this.extensionCatalog.length || this.catalogLoading) return;
+
+            this.catalogLoading = true;
+            fetch(DOMAIN_SEARCH_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Nombre neutro solo para consultar precio por extensión —
+                // no importa si "está disponible", acá no se muestra
+                // disponibilidad, solo el precio de renovación de cada TLD
+                // (que es el mismo sin importar el nombre elegido).
+                body: JSON.stringify({ domain: 'tunegocio', extensions: DOMAIN_EXTENSIONS, type: 'register' }),
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    this.catalogLoading = false;
+                    const results = (data && data.data && data.data.results) || [];
+                    this.extensionCatalog = results
+                        .map((r) => ({ tld: r.tld, renewalBob: this.renewalPriceBob(r) }))
+                        .filter((r) => r.renewalBob !== null)
+                        .sort((a, b) => a.renewalBob - b.renewalBob);
+                })
+                .catch(() => {
+                    this.catalogLoading = false;
+                });
         },
 
         searchDomains() {
