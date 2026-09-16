@@ -38,17 +38,29 @@ class Activities extends Controller
         }
     }
 
-    public function formExtendFields($form): void
+    public function onUpdateStatus($recordId = null)
     {
-        if ($this->asExtension('FormController')->formGetContext() === 'create') {
-            $form->removeField('completed_at');
+        $activity = Activity::forTenant($this->getCurrentTenantId())
+            ->findOrFail($recordId ?: post('record_id'));
+
+        $status = post('status');
+
+        if (!array_key_exists($status, Activity::statusOptions())) {
+            Flash::error('Estado no válido.');
+            return $this->listRefresh();
         }
+
+        $activity->status = $status;
+        $activity->save();
+
+        Flash::success('Actividad actualizada a "' . $activity->status_label . '".');
+        return $this->listRefresh();
     }
 
     public function onComplete($recordId = null)
     {
         $activity = Activity::forTenant($this->getCurrentTenantId())->findOrFail($recordId ?: post('record_id'));
-        $activity->completed_at = now();
+        $activity->status = Activity::STATUS_COMPLETED;
         $activity->save();
 
         Flash::success('Actividad marcada como completada.');

@@ -104,3 +104,9 @@
       contactLists). La columna legada contact_list_id queda opcional y sus
       valores se migran al pivote."
     - add_contact_lists_to_collection_items.php
+
+1.3.6:
+    - "Actividades: nuevo estado (Pendiente, En curso, Completada, Cancelada)
+      editable directamente desde la lista. La fecha de finalizado se registra
+      sola al pasar a Completada y se borra si la actividad se reabre."
+    - add_status_to_activities_table.php

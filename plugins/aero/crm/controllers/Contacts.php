@@ -157,6 +157,7 @@ class Contacts extends Controller
             'type'          => $type === 'email' ? 'email' : 'whatsapp',
             'subject'       => 'Mensaje enviado',
             'description'   => $body,
+            'status'        => Activity::STATUS_COMPLETED,
             'completed_at'  => now(),
             'owner_id'      => BackendAuth::getUser()?->id,
         ]);

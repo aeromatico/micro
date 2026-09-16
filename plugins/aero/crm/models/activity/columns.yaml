@@ -19,7 +19,15 @@ columns:
         select: concat(first_name, ' ', last_name)
         width: 160px
 
+    status:
+        label: Estado
+        type: partial
+        path: $/aero/crm/models/activity/_column_status.htm
+        clickable: false
+        width: 140px
+
     completed_at:
-        label: Completada
+        label: Finalizado
         type: datetime
+        default: '—'
         width: 160px

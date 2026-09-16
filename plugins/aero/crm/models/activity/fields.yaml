@@ -36,8 +36,13 @@ fields:
         span: left
         emptyOption: Todos
 
-    completed_at:
-        label: Completada
-        type: datepicker
+    status:
+        label: Estado
+        type: dropdown
         span: right
-        mode: datetime
+        default: pending
+        options:
+            pending: Pendiente
+            in_progress: En curso
+            completed: Completada
+            cancelled: Cancelada

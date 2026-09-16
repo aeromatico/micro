@@ -1,0 +1,28 @@
+<?php
+    $activityClass = \Aero\Crm\Models\Activity::class;
+
+    $status = $record->status ?: $activityClass::STATUS_PENDING;
+    $options = $activityClass::statusOptions();
+    $overdue = $status === $activityClass::STATUS_PENDING && $record->due_at && $record->due_at->isPast();
+
+    $colors = [
+        $activityClass::STATUS_PENDING     => '#a07800',
+        $activityClass::STATUS_IN_PROGRESS => '#0d6efd',
+        $activityClass::STATUS_COMPLETED   => '#198754',
+        $activityClass::STATUS_CANCELLED   => '#6c757d',
+    ];
+    $color = $overdue ? '#dc3545' : ($colors[$status] ?? 'inherit');
+?>
+<select
+    name="status"
+    class="form-control form-control-sm activity-status-select"
+    data-request="onUpdateStatus"
+    data-request-data="record_id: <?= (int) $record->id ?>"
+    title="Cambiar estado"
+    style="min-width: 120px; color: <?= $color ?>; font-weight: 600">
+    <?php foreach ($options as $value => $label): ?>
+        <option value="<?= e($value) ?>" <?= $status === $value ? 'selected="selected"' : '' ?>>
+            <?= e($label) ?><?= ($overdue && $value === $activityClass::STATUS_PENDING) ? ' · vencida' : '' ?>
+        </option>
+    <?php endforeach ?>
+</select>

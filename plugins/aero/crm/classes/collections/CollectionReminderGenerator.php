@@ -240,6 +240,7 @@ class CollectionReminderGenerator
                 'type'         => 'whatsapp',
                 'subject'      => $rule ? 'Recordatorio de cobro enviado: ' . $rule->name : 'Recordatorio de cobro enviado',
                 'description'  => $body,
+                'status'       => Activity::STATUS_COMPLETED,
                 'completed_at' => now(),
             ]);
 
