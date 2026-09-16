@@ -219,6 +219,11 @@ class SignupWizard extends ComponentBase
             'amount'       => $amount,
             'own_domain'   => $domainMode !== '' ? $domain : null,
             'due_date'     => $qrCode->due_date?->toFormattedDateString(),
+            // Momento exacto (no solo la fecha de due_date, que es de día
+            // completo) en que Console\ReleaseExpiredSignups va a anular
+            // este QR y liberar el handle — el temporizador de signup.js
+            // cuenta regresivo hasta acá, no hasta due_date.
+            'expires_at'   => $tenant->created_at->addMinutes(Settings::getSignupPaymentTtlMinutes())->toIso8601String(),
             'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
         ];
     }

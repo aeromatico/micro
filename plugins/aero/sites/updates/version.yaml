@@ -236,3 +236,18 @@
       activarse). Nueva columna signup_domain_source distingue cuál de los
       dos fue."
     - add_signup_domain_source_to_tenants.php
+
+1.32.0:
+    - "El QR de alta ahora vence en minutos, no en días:
+      Settings::getSignupPaymentTtlMinutes() (default 3) reemplaza a
+      signup_pending_ttl_hours. aero.sites:release-expired-signups pasa de
+      cada hora a cada minuto y, antes de purgar el tenant, anula el QR
+      contra el banco (Aero.Pay\\Classes\\PaymentDriverManager::cancelQr) —
+      antes quedaba 'pending' del lado del banco hasta su propio
+      vencimiento (varios días). El wizard muestra una cuenta regresiva
+      real (SignupWizard::onCreateSignup ahora manda expires_at, un
+      timestamp preciso — due_date sigue siendo de día completo, no sirve
+      para esto) y un estado final si el tiempo se agota. Verificado
+      end-to-end contra el banco real (Banco Económico): QR generado,
+      forzado a expirar, anulado contra el banco y tenant purgado sin
+      errores."

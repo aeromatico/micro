@@ -56,9 +56,16 @@ class Settings extends Model
         return $id ? \Aero\Pay\Models\BankAccount::active()->find($id) : null;
     }
 
-    public static function getSignupPendingTtlHours(): int
+    /**
+     * Minutos que tiene el visitante para pagar el QR de alta antes de que
+     * se anule y se libere el handle reservado — ver
+     * Console\ReleaseExpiredSignups (corre cada minuto) y el temporizador
+     * de signup.js. Corto a propósito: es un pago inmediato con la app del
+     * banco ya en la mano, no una reserva de horas.
+     */
+    public static function getSignupPaymentTtlMinutes(): int
     {
-        return (int) self::get('signup_pending_ttl_hours', 2);
+        return (int) self::get('signup_payment_ttl_minutes', 3);
     }
 
     /**

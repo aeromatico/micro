@@ -81,8 +81,10 @@ function signupWizard(config) {
         createError: '',
 
         payment: null,
-        paymentStatus: 'pending',
+        paymentStatus: 'pending', // 'pending' | 'expiring' | 'expired' | 'paid'
+        secondsLeft: 0,
         _pollTimer: null,
+        _countdownTimer: null,
 
         adminForm: { name: '', email: '', phone: '', password: '' },
         adminSubmitting: false,
@@ -301,8 +303,10 @@ function signupWizard(config) {
                         return;
                     }
                     this.payment = data;
+                    this.paymentStatus = 'pending';
                     this.step = 2;
                     this.startPolling();
+                    this.startCountdown();
                 })
                 .catch(() => {
                     this.creating = false;
@@ -312,6 +316,7 @@ function signupWizard(config) {
 
         backToStep1() {
             clearInterval(this._pollTimer);
+            clearInterval(this._countdownTimer);
             this.step = 1;
             this.payment = null;
             this.paymentStatus = 'pending';
@@ -322,6 +327,35 @@ function signupWizard(config) {
             this._pollTimer = setInterval(() => this.checkPaymentStatus(), 5000);
         },
 
+        // Cuenta regresiva puramente visual, con el reloj del navegador —
+        // quien realmente anula el QR y libera el handle es
+        // aero.sites:release-expired-signups (cron, cada minuto) del lado
+        // del servidor. Llegar a 0 acá solo cambia el mensaje a "un
+        // momento…"; la confirmación real llega por checkPaymentStatus()
+        // cuando el polling encuentra el tenant ya purgado.
+        startCountdown() {
+            clearInterval(this._countdownTimer);
+            if (!this.payment?.expires_at) return;
+
+            const expiresAt = new Date(this.payment.expires_at).getTime();
+
+            const tick = () => {
+                this.secondsLeft = Math.max(0, Math.round((expiresAt - Date.now()) / 1000));
+                if (this.secondsLeft === 0 && this.paymentStatus === 'pending') {
+                    this.paymentStatus = 'expiring';
+                }
+            };
+
+            tick();
+            this._countdownTimer = setInterval(tick, 1000);
+        },
+
+        get countdownLabel() {
+            const m = Math.floor(this.secondsLeft / 60);
+            const s = this.secondsLeft % 60;
+            return m + ':' + String(s).padStart(2, '0');
+        },
+
         checkPaymentStatus() {
             if (!this.payment) return;
             oc.request(null, 'signupWizard::onCheckPaymentStatus', {
@@ -329,7 +363,15 @@ function signupWizard(config) {
             }).then((data) => {
                 if (data.status === 'paid') {
                     clearInterval(this._pollTimer);
+                    clearInterval(this._countdownTimer);
                     this.paymentStatus = 'paid';
+                } else if (data.status === 'not_found') {
+                    // El tenant ya no existe — expiró y el cron lo purgó
+                    // (o algo más lo eliminó); en cualquier caso no hay
+                    // nada que seguir esperando.
+                    clearInterval(this._pollTimer);
+                    clearInterval(this._countdownTimer);
+                    this.paymentStatus = 'expired';
                 }
             });
         },

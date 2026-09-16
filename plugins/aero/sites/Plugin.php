@@ -48,7 +48,14 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        $schedule->command('aero.sites:release-expired-signups')->hourly();
+        // Cada minuto, no cada hora: la ventana real
+        // (Settings::getSignupPaymentTtlMinutes(), default 3 min) es corta
+        // a propósito — con un cron horario, un alta expirada podría
+        // quedar "reservada" hasta 59 minutos de más antes de liberarse.
+        $schedule->command('aero.sites:release-expired-signups')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**

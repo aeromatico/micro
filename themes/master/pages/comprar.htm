@@ -5,7 +5,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
 [signupWizard]
 ==
-<script src="{{ 'assets/js/signup.js' | theme }}?v=7"></script>
+<script src="{{ 'assets/js/signup.js' | theme }}?v=8"></script>
 
 <section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
 
@@ -223,7 +223,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
             <div x-show="step === 2" x-cloak class="flex flex-col gap-6">
 
                 <!-- 2a/2b: payment -->
-                <template x-if="payment && paymentStatus === 'pending'">
+                <template x-if="payment && (paymentStatus === 'pending' || paymentStatus === 'expiring')">
                     <div class="flex flex-col gap-6">
                         <div>
                             <span class="text-xs tracking-wide text-accent uppercase font-bold">Confirma tu pago</span>
@@ -245,16 +245,32 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                             <div class="flex flex-col gap-1.5">
                                 <div class="font-display text-3xl font-bold">Bs <span x-text="payment.amount"></span><span class="text-sm font-semibold text-ink-dim"> / primer mes</span></div>
                                 <div class="text-xs text-ink-dim">Referencia <span class="font-mono" x-text="payment.reference.slice(0, 8)"></span></div>
-                                <div class="text-xs text-ink-dim">Válido hasta <span x-text="payment.due_date"></span></div>
+                                <div class="text-sm font-bold" :class="secondsLeft <= 30 ? 'text-red-500' : 'text-ink'">
+                                    Tienes <span x-text="countdownLabel"></span> para pagar
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-canvas border border-edge text-[13px] text-ink-dim">
+                        <div x-show="paymentStatus === 'pending'" x-cloak class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-canvas border border-edge text-[13px] text-ink-dim">
                             <svg class="w-4 h-4 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
                             Esperando confirmación del banco…
                         </div>
+                        <div x-show="paymentStatus === 'expiring'" x-cloak class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-canvas border border-edge text-[13px] text-ink-dim">
+                            <svg class="w-4 h-4 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+                            El tiempo se agotó — verificando por si el pago llegó justo a tiempo…
+                        </div>
 
                         <button type="button" @click="backToStep1()" class="text-xs font-semibold text-ink-dim hover:text-ink underline underline-offset-2 self-start">← Cambiar sitio, rubro o plan</button>
+                    </div>
+                </template>
+
+                <!-- 2e: expiró, se liberó el handle -->
+                <template x-if="paymentStatus === 'expired'">
+                    <div class="flex flex-col items-center text-center gap-5 py-4">
+                        <span class="text-xs tracking-wide text-red-500 uppercase font-bold">Tiempo agotado</span>
+                        <h1 class="text-2xl sm:text-[28px] font-bold text-pretty">No llegó el pago a tiempo</h1>
+                        <p class="text-sm text-ink-dim max-w-[420px]">Liberamos el nombre para que otra persona pueda usarlo. Si ya pagaste y el dinero salió de tu cuenta, contáctanos — si no, puedes intentarlo de nuevo.</p>
+                        <button type="button" @click="backToStep1()" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-7 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Intentar de nuevo</button>
                     </div>
                 </template>
 

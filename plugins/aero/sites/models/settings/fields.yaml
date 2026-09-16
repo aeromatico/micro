@@ -51,11 +51,11 @@ fields:
         default: 99
         span: right
 
-    signup_pending_ttl_hours:
-        label: Horas para liberar un subdominio reservado sin pagar
+    signup_payment_ttl_minutes:
+        label: Minutos para pagar el QR de alta
         type: number
-        default: 2
-        comment: Si nadie completa el pago dentro de este plazo, el subdominio reservado se libera automáticamente (aero.sites:release-expired-signups, corre cada hora).
+        default: 3
+        comment: Pasado este plazo se anula el QR y se libera el subdominio reservado (aero.sites:release-expired-signups, corre cada minuto). El wizard muestra un temporizador con esta misma cuenta regresiva.
         span: left
 
     signup_domain_price:
