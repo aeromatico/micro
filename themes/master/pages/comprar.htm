@@ -112,9 +112,28 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
                         <p class="text-xs text-red-400" x-show="domainError" x-cloak x-text="domainError"></p>
 
+                        <!-- Resultados de la búsqueda del cliente — siempre pegados al
+                             cajón de búsqueda, sin importar si el catálogo de más abajo
+                             está desplegado o no. -->
+                        <div x-show="domainResults.length > 0" x-cloak class="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
+                            <template x-for="r in domainResults" :key="r.domain">
+                                <button type="button" @click="r.available && selectDomainOption(r.domain)" :disabled="!r.available"
+                                        class="flex items-center justify-between border rounded-lg px-3.5 py-2.5 text-[13px] transition-colors text-left"
+                                        :class="!r.available ? 'border-edge opacity-40 cursor-not-allowed' : (selectedDomain === r.domain ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas-elev hover:border-ink-dim')">
+                                    <span class="font-semibold" x-text="r.domain"></span>
+                                    <span x-show="r.available" x-cloak class="flex flex-col items-end">
+                                        <span class="text-accent font-bold" x-text="selectedDomain === r.domain ? 'Elegido ✓' : 'Disponible'"></span>
+                                        <span x-show="renewalPriceLabel(r)" x-cloak class="text-[11px] text-ink-dim" x-text="'Renovación: ' + renewalPriceLabel(r) + '/año'"></span>
+                                    </span>
+                                    <span x-show="!r.available" x-cloak class="text-ink-dim">No disponible</span>
+                                </button>
+                            </template>
+                        </div>
+
                         <!-- Catálogo de precios por extensión — para que vean de entrada
                              qué extensiones existen y cuánto cuesta renovar cada una,
-                             sin depender de que ya hayan buscado su nombre. -->
+                             sin depender de que ya hayan buscado su nombre. Va debajo de
+                             los resultados a propósito. -->
                         <button type="button" @click="showCatalog = !showCatalog"
                                 class="text-xs font-semibold text-ink-dim hover:text-ink underline underline-offset-2 self-start">
                             <span x-text="showCatalog ? '▲ Ocultar extensiones y precios de renovación' : '▼ Ver todas las extensiones y precios de renovación'"></span>
@@ -143,21 +162,6 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-
-                        <div x-show="domainResults.length > 0" x-cloak class="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
-                            <template x-for="r in domainResults" :key="r.domain">
-                                <button type="button" @click="r.available && selectDomainOption(r.domain)" :disabled="!r.available"
-                                        class="flex items-center justify-between border rounded-lg px-3.5 py-2.5 text-[13px] transition-colors text-left"
-                                        :class="!r.available ? 'border-edge opacity-40 cursor-not-allowed' : (selectedDomain === r.domain ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas-elev hover:border-ink-dim')">
-                                    <span class="font-semibold" x-text="r.domain"></span>
-                                    <span x-show="r.available" x-cloak class="flex flex-col items-end">
-                                        <span class="text-accent font-bold" x-text="selectedDomain === r.domain ? 'Elegido ✓' : 'Disponible'"></span>
-                                        <span x-show="renewalPriceLabel(r)" x-cloak class="text-[11px] text-ink-dim" x-text="'Renovación: ' + renewalPriceLabel(r) + '/año'"></span>
-                                    </span>
-                                    <span x-show="!r.available" x-cloak class="text-ink-dim">No disponible</span>
-                                </button>
-                            </template>
                         </div>
                     </div>
                 </div>
