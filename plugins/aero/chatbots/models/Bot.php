@@ -99,7 +99,7 @@ class Bot extends Model
         $query = Account::orderBy('label');
 
         if ($tenantId = $this->getCurrentTenantId()) {
-            $query->whereHas('profile', fn ($q) => $q->where('tenant_id', $tenantId));
+            $query->forTenant((int) $tenantId);
         }
 
         return $query->get()

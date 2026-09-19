@@ -78,7 +78,7 @@ class Channel extends Model
 
         return \Aero\Hello\Models\Account::enabled()
             ->ofPlatform('whatsapp')
-            ->whereHas('profile', fn ($query) => $query->where('tenant_id', $this->tenant_id))
+            ->forTenant((int) $this->tenant_id)
             ->pluck('label', 'id')
             ->all();
     }

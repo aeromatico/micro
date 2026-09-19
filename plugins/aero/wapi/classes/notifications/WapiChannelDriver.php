@@ -32,10 +32,57 @@ class WapiChannelDriver implements ChannelDriverInterface
         return $this->client ?? new WapiClient(WapiCredentials::apiKey($account->profile));
     }
 
+    public function capabilities(): array
+    {
+        return [
+            'text'       => true,
+            'media'      => true,
+            'templates'  => false,
+            'window_24h' => false,
+            'calls'      => false,
+            'posts'      => false,
+            'location'   => true,
+            'contact'    => true,
+            'poll'       => true,
+        ];
+    }
+
     public function sendMessage(Account $account, string $to, array $payload): string
     {
         $instanceId = $account->zernio_account_id;
         $to = ltrim($to, '+');
+
+        // Ubicación, contacto y encuesta llegan estructurados en
+        // provider_payload (message_type + campos propios de cada tipo).
+        $structured = match ($payload['message_type'] ?? null) {
+            'location' => [
+                'type'         => 'location',
+                'latitude'     => $payload['latitude'] ?? null,
+                'longitude'    => $payload['longitude'] ?? null,
+                'locationName' => $payload['location_name'] ?? null,
+            ],
+            'contact' => [
+                'type'         => 'contact',
+                'contactName'  => $payload['contact_name'] ?? null,
+                'contactPhone' => $payload['contact_phone'] ?? null,
+            ],
+            'poll' => [
+                'type'         => 'poll',
+                'pollName'     => $payload['poll_name'] ?? null,
+                'pollOptions'  => $payload['poll_options'] ?? null,
+                'pollMultiple' => !empty($payload['poll_multiple']),
+            ],
+            default => null,
+        };
+
+        if ($structured) {
+            $response = $this->clientFor($account)->post(
+                "/instances/{$instanceId}/messages",
+                array_filter(['to' => $to] + $structured, fn ($v) => $v !== null)
+            );
+
+            return $response['messageId'] ?? '';
+        }
 
         $body = array_filter([
             'to'               => $to,
@@ -43,7 +90,7 @@ class WapiChannelDriver implements ChannelDriverInterface
             'text'             => $payload['body'] ?? null,
             'caption'          => !empty($payload['media_url']) ? ($payload['body'] ?? null) : null,
             'mediaUrl'         => $payload['media_url'] ?? null,
-            'replyToMessageId' => $payload['conversation_id'] ?? null,
+            'replyToMessageId' => $payload['reply_to_message_id'] ?? null,
         ], fn ($value) => $value !== null);
 
         $response = $this->clientFor($account)->post("/instances/{$instanceId}/messages", $body);

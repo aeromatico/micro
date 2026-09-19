@@ -289,3 +289,7 @@
 1.37.0:
     - "Plantilla: dos interruptores (Mostrar header / Mostrar footer del layout, activados por defecto) para ocultar el navbar o el footer de todo el sitio, p. ej. al armarlos con bloques Puck dentro de cada página."
     - add_show_header_footer_to_layouts.php
+
+1.38.0:
+    - "Otorga al rol tenant_admin aero.hello.manage_settings: cada tenant elige su canal de WhatsApp por defecto (WhatsApp Web o Cloud API) desde Configuración → Mensajería."
+    - grant_hello_settings_to_tenant_admin.php
