@@ -37,6 +37,11 @@ class WapiClient
         return $this->handle($this->request()->post($uri, $payload));
     }
 
+    public function put(string $uri, array $payload = []): array
+    {
+        return $this->handle($this->request()->put($uri, $payload));
+    }
+
     public function delete(string $uri): array
     {
         return $this->handle($this->request()->delete($uri));

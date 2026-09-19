@@ -25,3 +25,8 @@
       acuses reales. Registra
       tambien los eventos message_ack, disconnected y authenticated en el webhook. Las
       pantallas de conexion avisan cuando el QR o el codigo caduca sin vincularse.
+1.4.0:
+    - Almacen de chats respaldable - los ajustes de retencion (30 dias por defecto)
+      y de guardar multimedia (desactivado por defecto) se editan en Configuracion,
+      wapi (solo superadmin), se envian a wapi al guardar y la pantalla muestra lo
+      que hay almacenado.

@@ -1,0 +1,42 @@
+<?php
+/** Estado del almacén de chats de wapi, tal como lo informa su API (solo lectura). */
+$status = null;
+$error = null;
+
+if (\Aero\Wapi\Models\Settings::isConfigured()) {
+    try {
+        $status = (new \Aero\Wapi\Classes\WapiClient())->get('/account/settings');
+    } catch (\Throwable $e) {
+        $error = $e->getMessage();
+    }
+}
+
+$stats = $status['stats'] ?? null;
+$mb = fn ($bytes) => $bytes >= 1048576 ? number_format($bytes / 1048576, 1) . ' MB' : number_format($bytes / 1024, 0) . ' KB';
+?>
+<div class="form-group" style="margin-top:8px">
+    <div class="callout callout-info" style="margin-bottom:0">
+        <div class="header"><i class="icon-database"></i><h3><?= e(trans('aero.wapi::lang.settings.storage_title')) ?></h3></div>
+        <div class="content">
+            <?php if ($stats): ?>
+                <p style="margin-bottom:6px">
+                    <strong><?= number_format($stats['messages']) ?></strong> <?= e(trans('aero.wapi::lang.settings.storage_messages')) ?>
+                    · <strong><?= number_format($stats['chats']) ?></strong> <?= e(trans('aero.wapi::lang.settings.storage_chats')) ?>
+                    <?php if (!empty($stats['oldestMessageAt'])): ?>
+                        · <?= e(trans('aero.wapi::lang.settings.storage_oldest')) ?>
+                        <strong><?= e(\Carbon\Carbon::parse($stats['oldestMessageAt'])->format('d/m/Y')) ?></strong>
+                    <?php endif ?>
+                    <?php if ($stats['mediaFiles'] > 0): ?>
+                        · <strong><?= number_format($stats['mediaFiles']) ?></strong> <?= e(trans('aero.wapi::lang.settings.storage_media')) ?>
+                        (<?= e($mb($stats['mediaBytes'])) ?>)
+                    <?php endif ?>
+                </p>
+            <?php elseif ($error): ?>
+                <p class="text-danger" style="margin-bottom:6px"><?= e(trans('aero.wapi::lang.settings.storage_unreachable')) ?> <?= e($error) ?></p>
+            <?php else: ?>
+                <p style="margin-bottom:6px"><?= e(trans('aero.wapi::lang.settings.storage_not_configured')) ?></p>
+            <?php endif ?>
+            <p class="help-block" style="margin-bottom:0"><?= e(trans('aero.wapi::lang.settings.storage_backup')) ?></p>
+        </div>
+    </div>
+</div>
