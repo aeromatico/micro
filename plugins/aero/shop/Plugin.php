@@ -41,6 +41,28 @@ class Plugin extends PluginBase
         $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
         $this->bootChatbotsIntegration();
+        $this->bootRestApi();
+    }
+
+    /**
+     * API REST básica de la tienda (catálogo, métodos de pago y pedidos),
+     * autenticada con las keys de Aero.Api y acotada a la tienda del dueño de
+     * la key. Es dependencia blanda: sin Aero.Api no hay middleware `aero.api`,
+     * así que las rutas ni se registran.
+     */
+    protected function bootRestApi(): void
+    {
+        if (!class_exists(\Aero\Api\Classes\ScopeRegistry::class)) {
+            return;
+        }
+
+        $this->app['router']->group([], function () {
+            require __DIR__ . '/routes.php';
+        });
+
+        Event::listen('aero.api.registerScopes', function () {
+            return ['shop' => ['label' => 'Tienda', 'scopes' => \Aero\Shop\Classes\Api\Scopes::all()]];
+        });
     }
 
     /**

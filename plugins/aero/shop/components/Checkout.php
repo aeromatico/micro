@@ -123,86 +123,31 @@ class Checkout extends ComponentBase
         }
 
         try {
-            $order = Db::transaction(function () use ($tenant, $settings, $data, $lines, $gateway, $requiresShipping, $cart) {
-                $userId = $this->currentUserId();
-
-                $customer = Customer::updateOrCreate(
-                    ['tenant_id' => $tenant->id, 'email' => $data['email']],
-                    [
-                        'user_id'    => $userId,
-                        'first_name' => $data['first_name'],
-                        'last_name'  => $data['last_name'] ?? null,
-                        'phone'      => $data['phone'],
-                    ]
-                );
-
-                $shippingAddressId = null;
-                if ($requiresShipping) {
-                    $address = Address::create([
-                        'tenant_id'      => $tenant->id,
-                        'customer_id'    => $customer->id,
-                        'type'           => 'shipping',
-                        'full_name'      => trim($data['first_name'] . ' ' . ($data['last_name'] ?? '')),
-                        'phone'          => $data['phone'],
+            // Un solo camino de creación de pedidos (web, API y chat): ver OrderService.
+            $order = (new \Aero\Shop\Classes\OrderService())->create(
+                $tenant->id,
+                array_map(fn ($l) => ['product_id' => $l['product']->id, 'variant_id' => $l['variant']?->id, 'quantity' => $l['quantity']], $lines),
+                [
+                    'user_id'    => $this->currentUserId(),
+                    'first_name' => $data['first_name'],
+                    'last_name'  => $data['last_name'] ?? null,
+                    'email'      => $data['email'],
+                    'phone'      => $data['phone'],
+                ],
+                $gateway->id,
+                [
+                    'shipping' => $requiresShipping ? [
                         'address_line1'  => $data['address_line1'],
                         'address_line2'  => $data['address_line2'] ?? null,
                         'city'           => $data['city'],
                         'state_province' => $data['state_province'] ?? null,
                         'postal_code'    => $data['postal_code'] ?? null,
-                        'country_code'   => strtoupper($data['country_code']),
-                    ]);
-                    $shippingAddressId = $address->id;
-                }
-
-                $orderNumber = (new OrderNumberGenerator())->generate($tenant->id);
-                $subtotal = $cart->subtotal();
-
-                $order = Order::create([
-                    'tenant_id'           => $tenant->id,
-                    'customer_id'         => $customer->id,
-                    'order_number'        => $orderNumber,
-                    'status'              => 'awaiting_payment',
-                    'currency_id'         => $settings->base_currency_id,
-                    'exchange_rate_snapshot' => 1,
-                    'subtotal'            => $subtotal,
-                    'grand_total'         => $subtotal,
-                    'payment_gateway_id'  => $gateway->id,
-                    'shipping_address_id' => $shippingAddressId,
-                    'billing_address_id'  => $shippingAddressId,
-                    'customer_notes'      => $data['customer_notes'] ?? null,
-                    'requires_shipping'   => $requiresShipping,
-                ]);
-
-                foreach ($lines as $line) {
-                    OrderItem::create([
-                        'tenant_id'              => $tenant->id,
-                        'order_id'               => $order->id,
-                        'product_id'             => $line['product']->id,
-                        'product_variant_id'     => $line['variant']?->id,
-                        'product_name_snapshot'  => $line['product']->name,
-                        'variant_label_snapshot' => $line['label'],
-                        'sku_snapshot'           => $line['sku'],
-                        'unit_price'             => $line['unit_price'],
-                        'quantity'               => $line['quantity'],
-                        'line_total'             => $line['line_total'],
-                        'product_type_snapshot'  => $line['product']->type,
-                    ]);
-                }
-
-                $order->load('items');
-                (new InventoryService())->reserveForOrderStrict($order);
-
-                $order->status_history()->create([
-                    'from_status' => null,
-                    'to_status'   => 'awaiting_payment',
-                ]);
-
-                if ($gateway->driver === 'pagos_qr') {
-                    \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::issueForOrder($gateway, $order);
-                }
-
-                return $order;
-            });
+                        'country_code'   => $data['country_code'],
+                    ] : null,
+                    'customer_notes' => $data['customer_notes'] ?? null,
+                    'source'         => 'web',
+                ]
+            );
         } catch (InsufficientStockException $e) {
             return $this->errorResponse($e->getMessage() . ' Vuelve al carrito para ajustar la cantidad.');
         } catch (\RuntimeException $e) {
