@@ -2,6 +2,11 @@
 {% set pages = sitesPageList.pages %}
 {% set tenant = sitesSeo.tenant %}
 
+{% if tenant and tenant.layout and tenant.layout.footer_html %}
+{{ tenant.layout.footer_html | raw }}
+{% else %}
+{# Marcadores usados por ContentEditor::onLoadDefaultFooter() — ver header.htm #}
+<!-- AERO:FOOTER:START -->
 <footer class="border-t border-surface-border bg-surface mt-auto">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -68,3 +73,5 @@
         </div>
     </div>
 </footer>
+<!-- AERO:FOOTER:END -->
+{% endif %}

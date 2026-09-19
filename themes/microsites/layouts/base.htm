@@ -1,5 +1,26 @@
 description = "Layout base — dark mode, SEO, Alpine.js"
 ==
+{% set tenant = sitesSeo.tenant %}
+{% set customLayout = tenant and tenant.layout and tenant.layout.mode == 'custom' and tenant.layout.custom_html %}
+
+{% if customLayout %}
+{# ================================================================
+   PLANTILLA PROPIA DEL TENANT — reemplaza TODO el documento (head,
+   dependencias CDN propias, header/footer, scripts). Solo se le
+   inyectan dos cosas que October necesita en cualquier documento:
+   el contenido de la página y los assets de los formularios AJAX
+   (data-request) del sitio — el tenant marca dónde van con estos
+   dos placeholders literales en su HTML. Ver Aero\Sites\Models\Layout
+   y la pestaña "Plantilla" del editor de contenidos. #}
+{% set pageContent %}{% page %}{% endset %}
+{% set frameworkScripts %}{% framework extras %}{% endset %}
+{{ tenant.layout.custom_html
+    | replace({
+        '<!-- AERO:CONTENT -->': pageContent,
+        '<!-- AERO:SCRIPTS -->': frameworkScripts,
+    })
+    | raw }}
+{% else %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,16 +40,16 @@ description = "Layout base — dark mode, SEO, Alpine.js"
 
     {% component 'sitesSeo' %}
 
-    {% if sitesSeo.tenant %}
+    {% if tenant %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="{{ sitesSeo.tenant.getGoogleFontsUrl() }}" rel="stylesheet">
+    <link href="{{ tenant.getGoogleFontsUrl() }}" rel="stylesheet">
     {% endif %}
 
     <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v={{ sitesSeo.cssVersion }}">
 
-    {% if sitesSeo.tenant %}
-    {% set cssVars = sitesSeo.tenant.getEffectiveCssVars() %}
+    {% if tenant %}
+    {% set cssVars = tenant.getEffectiveCssVars() %}
     {# Después de app.min.css a propósito: sobreescribe el fallback estático
        de --color-primary definido en assets/css/app.css con los valores del
        tema del tenant (misma especificidad ':root', gana el orden). Modo
@@ -65,16 +86,32 @@ description = "Layout base — dark mode, SEO, Alpine.js"
        formularios data-request del sitio (contacto, carrito, checkout) quedan
        inertes — el atributo existe en el HTML pero ningún script lo procesa. #}
     {% framework extras %}
-</head>
-<body class="bg-surface text-ink font-body antialiased min-h-screen flex flex-col{{ (sitesSeo.tenant and not sitesSeo.tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
 
+    {% if tenant and tenant.layout and tenant.layout.mode == 'default' and tenant.layout.extra_head_html %}
+    {# Assets adicionales del tenant (ver pestaña "Plantilla" > "Assets
+       adicionales") — después de todo nuestro stock a propósito, para que
+       pueda sobreescribirlo si lo pide explícitamente. HTML de confianza
+       del propio tenant, mismo nivel de riesgo que header_html/footer_html
+       y Page.content_mode='code'. #}
+    {{ tenant.layout.extra_head_html | raw }}
+    {% endif %}
+</head>
+{% set underConstruction = tenant and tenant.isUnderConstruction() %}
+<body class="bg-surface text-ink font-body antialiased min-h-screen flex flex-col{{ (tenant and not tenant.getEffectiveAnimationsEnabled()) ? ' no-animations' : '' }}">
+
+    {% set layoutOn = not tenant or not tenant.layout or tenant.layout.mode != 'default' %}
+    {% if not underConstruction and (layoutOn or tenant.layout.show_header) %}
     {% partial 'site/header' %}
+    {% endif %}
 
     <main class="flex-1">
         {% page %}
     </main>
 
+    {% if not underConstruction and (layoutOn or tenant.layout.show_footer) %}
     {% partial 'site/footer' %}
+    {% endif %}
 
 </body>
 </html>
+{% endif %}

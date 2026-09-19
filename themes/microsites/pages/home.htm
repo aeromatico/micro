@@ -18,9 +18,36 @@ slug = ""
 {% set tenant = sitesSeo.tenant %}
 {% set page = sitesPageDetail.page %}
 
-{% if page and page.content %}
+{% if page and not page.is_placeholder and page.content %}
 {# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
 {{ page.content | raw }}
+{% elseif not page or page.is_placeholder %}
+{# El alta recién provisiona la home con contenido de relleno del nicho —
+   se oculta hasta que el admin genere su primer landing con IA o guarde
+   contenido propio (BaseNiche::provisionPages / GenerateAiSiteJob /
+   ContentEditor::onSaveIndex bajan is_placeholder a false). #}
+<section class="relative isolate overflow-hidden min-h-[70vh] flex items-center py-24">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.15),transparent)]"></div>
+
+    <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 text-center">
+        {% if tenant and tenant.logo %}
+        <img src="{{ tenant.logo.getPath() }}" alt="{{ tenant.name }}" class="h-14 w-auto mx-auto mb-8 rounded-2xl">
+        {% endif %}
+
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-6">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+            Sitio en construcción
+        </span>
+
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+            {{ tenant.name ?? 'Este sitio' }} está preparando su página
+        </h1>
+
+        <p class="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
+            Muy pronto vas a encontrar aquí toda la información. Vuelve más tarde.
+        </p>
+    </div>
+</section>
 {% else %}
 {# Hero de respaldo cuando la página no tiene bloques Puck #}
 <section class="relative isolate overflow-hidden py-24 sm:py-32">
@@ -61,30 +88,6 @@ slug = ""
             Contáctanos
         </a>
         {% endif %}
-    </div>
-</section>
-{% endif %}
-
-{# Páginas como cards de navegación #}
-{% if sitesPageList.pages %}
-<section class="py-16">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {% for page in sitesPageList.pages %}
-            <a href="{{ page.slug ? '/' ~ page.slug : '/' }}"
-               class="group card p-6 hover:border-indigo-500/50 hover:bg-slate-800/70 transition-all duration-200">
-                <h3 class="font-semibold text-white group-hover:text-indigo-400 transition-colors mb-1">
-                    {{ page.title }}
-                </h3>
-                <span class="text-xs text-slate-500 group-hover:text-slate-400 transition-colors flex items-center gap-1">
-                    Ver más
-                    <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </span>
-            </a>
-            {% endfor %}
-        </div>
     </div>
 </section>
 {% endif %}

@@ -1,6 +1,14 @@
 {% set pages = sitesPageList.pages %}
 {% set tenant = sitesSeo.tenant %}
 
+{% if tenant and tenant.layout and tenant.layout.header_html %}
+{{ tenant.layout.header_html | raw }}
+{% else %}
+{# Marcadores usados por ContentEditor::onLoadDefaultHeader() para extraer
+   este fragmento ya resuelto (nombre/logo/páginas reales del tenant) y
+   ofrecerlo como punto de partida al editar "Header / navbar propio" — ver
+   pestaña Plantilla. No afectan el render (son comentarios HTML). #}
+<!-- AERO:HEADER:START -->
 <header x-data="{ scrolled: false }"
         @scroll.window="scrolled = window.scrollY > 20"
         :class="scrolled ? 'bg-surface/95 backdrop-blur-md shadow-lg shadow-black/20 border-b border-surface-border' : 'bg-transparent'"
@@ -101,3 +109,5 @@
 </header>
 
 <div class="h-16"></div>
+<!-- AERO:HEADER:END -->
+{% endif %}

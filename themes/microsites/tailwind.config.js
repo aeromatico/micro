@@ -117,6 +117,10 @@ module.exports = {
         'open:border-brand-primary', 'w-8', 'h-8', 'w-9', 'h-9', 'flex-1', 'ml-11', 'px-5',
         'rounded-tl-sm', 'rounded-br-sm', 'gap-6', 'gap-10', 'grid-cols-2', 'p-4', 'p-6',
         'max-w-5xl', 'md:col-span-1', 'md:col-span-2',
+        // Header / Footer (bloques Puck)
+        'gap-x-6', 'gap-y-2', 'hover:opacity-100', 'opacity-80', 'max-w-xs', 'mt-5', 'mt-6', 'py-10', 'py-12', 'py-14',
+        'md:flex-row', 'md:items-center', 'md:justify-between', 'md:justify-center', 'right-0', 'top-full',
+        'sm:inline-flex', 'z-40', 'z-50', 'h-14', 'rounded-full', 'max-w-md', 'list-none', 'w-56', 'px-5',
         // Tabs — píldoras, vertical, tarjetas, numeradas (radios ocultos + nav)
         'sr-only', 'py-3', 'md:flex-col', 'md:col-span-3', 'sm:grid-cols-4', 'w-10', 'h-10',
         // Tabs — hooks del mecanismo :has() en app.css (no son utilidades de
