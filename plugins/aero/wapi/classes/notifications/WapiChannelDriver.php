@@ -141,6 +141,7 @@ class WapiChannelDriver implements ChannelDriverInterface
             'from'            => $this->stripChatSuffix($data['from'] ?? ''),
             'type'            => $this->normalizeInboundType($data['type'] ?? null),
             'body'            => $data['body'] ?? null,
+            'name'            => $data['pushName'] ?? null,
             'media_url'       => (!empty($data['hasMedia']) && $externalId)
                 ? $this->downloadMedia($account, $externalId)
                 : null,

@@ -28,7 +28,7 @@ Notas sobre Zernio:
   un error claro.
 
 ## Redactar (envío puntual)
-- **Ruta:** Mensajería → **Redactar** (`backend/aero/hello/compose`), justo antes de Bandeja. Permiso `manage_conversations`.
+- **Ruta:** WhatsApp Business → **Redactar** (`backend/aero/hello/compose`), justo antes de Bandeja. Permiso `manage_conversations`.
 - Editor con barra de formato (`*negrita*`, `_cursiva_`, `~tachado~`, `` `código` ``, bloque ```` ``` ````, listas `- ` y `1. `, cita `> `), leyenda, vista previa y contador con tope de 4096 caracteres (límite de WhatsApp; el servidor lo revalida).
 - Destinatarios: números manuales (chips, pegar varios; 8 dígitos bolivianos → 591), listas y contactos de Aero.Crm (con enlace para gestionarlos en el CRM). Se unen y deduplican; máx. 300 por envío.
 - **Adjuntos:** un archivo por envío (imagen JPG/PNG/WebP ≤5 MB, video MP4 y audio ≤16 MB, documento ≤100 MB). Se guarda como archivo público de October (`System\Models\File`) y todos los destinatarios comparten la misma URL. Con adjunto el texto es el pie y se limita a 1024 caracteres. `media_type`: `image|video|audio|document` (Zernio recibe `document` como `file`).
@@ -59,9 +59,20 @@ Notas sobre Zernio:
 - Rate limit: cualquier excepción que implemente `RateLimitedInterface` reintenta sin marcar el mensaje como fallido.
 
 ## Canal por defecto (tenant)
-- **Ruta:** Configuración → **Mensajería** (`backend/aero/hello/channelsettings`), permiso `aero.hello.manage_settings` (rol `tenant_admin`, migración 1.38 de aero/sites).
+- **Ruta:** Configuración → **WhatsApp** (`backend/aero/hello/channelsettings`), permiso `aero.hello.manage_settings` (rol `tenant_admin`, migración 1.38 de aero/sites).
 - El tenant elige **WhatsApp Web** (wapi) o **WhatsApp Cloud API** (Zernio). Se guarda en `aero_hello_tenant_settings.default_whatsapp_driver`.
 - `Hello::resolveAccount()` (notify, API, CRM, cobranzas) prioriza ese driver; si no tiene cuenta de él, usa la que haya. Un `account_id` explícito (bots, respuestas en una conversación) manda siempre.
+
+## Contactos sincronizados con el CRM
+- Enlace: `aero_crm_contacts.hello_contact_id`. Solo tenants con el CRM activado (los contactos de Hello sin tenant quedan fuera).
+- **Hello → CRM:** al crearse una identidad de WhatsApp (mensaje entrante, envío desde Redactar o la API) el contacto se crea en el CRM (`source = whatsapp`) o se enlaza al que ya tenga ese teléfono. Lo hace `Aero\Crm\Classes\HelloSync` desde eventos de modelo, así Hello sigue sin depender del CRM.
+- **CRM → Hello:** `Contact::syncHelloContact()`; si el número ya chateó, enlaza ese contacto (con su historial) en vez de duplicarlo.
+- **Nombres:** wapi envía el nombre de perfil de WhatsApp (`pushName`). Solo rellena contactos con nombre "marcador" (vacío, un número o "Contacto #n"); un nombre real nunca se pisa. Después, editar el nombre en cualquiera de los dos lados lo copia al otro ("Ana María Pérez" ↔ nombre "Ana" + apellido "María Pérez"). Guardia `HelloSync::quietly()` contra bucles.
+- **Teléfono:** formato único `Aero\Hello\Classes\PhoneNumber::normalize()` (solo dígitos, 8 dígitos bolivianos → 591). El CRM lo muestra con "+".
+- **Límites:** ContactIdentity es única por (plataforma, número) global, así que un mismo número no puede estar en dos tenants. Si el CRM y el chat tienen dos contactos con historial para el mismo número no se fusionan (queda en el log). Zernio aún no aporta nombre de perfil.
+- **Cliente de tienda:** un contacto nuevo (o con email/teléfono cambiado) se enlaza solo al `Aero\Shop\Models\Customer` del mismo tenant que coincida (email, o teléfono normalizado) y, si no tenía nombre real, toma el del cliente. Los selectores de relación del CRM (Empresa, Responsable, Miembros de equipo, Cliente de tienda, Listas, Etapa, Equipo…) tienen opción vacía y solo listan registros del tenant; "Responsable" usa `Aero\Crm\Classes\TenantUsers` (admin primario + TenantUser).
+- **Reparación / pasada inicial:** `php artisan crm:sync-hello [--tenant=ID] [--dry-run]` (idempotente).
+- Tras cambiar código de jobs hay que `php artisan queue:restart`: el worker mantiene el código viejo en memoria.
 
 ## Conectar una sesión (tenant)
 - **Ruta:** Mensajería → **Conectar** (`backend/aero/hello/connect`).
