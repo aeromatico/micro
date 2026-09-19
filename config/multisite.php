@@ -41,7 +41,12 @@ return [
         'system_asset_combiner' => true,
         'cms_maintenance_setting' => true,
         'backend_mail_setting' => false,
-        'dashboard_traffic_statistics' => false,
+        // Habilitado: cada Tenant de Aero.Sites tiene su propio SiteDefinition
+        // (site_id), y Aero\Sites\Plugin::bootSiteContext() ya resuelve
+        // Site::getEditSite() al sitio del tenant actual. Sin esta bandera,
+        // CmsReportDataSource (indicador "Traffic Information") no filtra por
+        // site_id y todos los tenant_admin ven el tráfico de toda la plataforma.
+        'dashboard_traffic_statistics' => true,
 
         // Vendor
         'rainlab_googleanalytics_setting' => false,

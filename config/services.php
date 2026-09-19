@@ -29,6 +29,11 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    'zeptomail' => [
+        'token' => env('ZEPTOMAIL_TOKEN'),
+        'endpoint' => env('ZEPTOMAIL_ENDPOINT', 'https://api.zeptomail.com/v1.1/email'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
