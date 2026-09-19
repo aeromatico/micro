@@ -1,0 +1,10 @@
+name: Plantillas
+form: $/aero/sms/models/template/fields.yaml
+modelClass: Aero\Sms\Models\Template
+defaultRedirect: aero/sms/templates
+create:
+    redirect: aero/sms/templates/update/:id
+    redirectClose: aero/sms/templates
+update:
+    redirect: aero/sms/templates
+    redirectClose: aero/sms/templates

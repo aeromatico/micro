@@ -1,0 +1,15 @@
+title: Mensajes
+list: $/aero/sms/models/message/columns.yaml
+modelClass: Aero\Sms\Models\Message
+recordUrl: aero/sms/messages/preview/:id
+noRecordsMessage: Aún no se ha enviado ningún SMS.
+recordsPerPage: 50
+defaultSort:
+    column: id
+    direction: desc
+showSetup: true
+filter: $/aero/sms/models/message/filters.yaml
+toolbar:
+    buttons: false
+    search:
+        prompt: Buscar número, referencia o texto

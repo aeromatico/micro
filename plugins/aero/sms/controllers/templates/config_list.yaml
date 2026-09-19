@@ -1,0 +1,10 @@
+title: Plantillas
+list: $/aero/sms/models/template/columns.yaml
+modelClass: Aero\Sms\Models\Template
+recordUrl: aero/sms/templates/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

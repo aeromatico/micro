@@ -1,0 +1,9 @@
+fields:
+    uuid: {label: ID público, span: left, disabled: true}
+    status: {label: Estado, span: right, disabled: true}
+    name: {label: Nombre, span: left, disabled: true}
+    consumer: {label: API key, span: right, disabled: true}
+    total: {label: Destinatarios, span: left, disabled: true}
+    credits_charged: {label: Créditos cobrados, span: right, disabled: true}
+    scheduled_at: {label: Programado, type: datepicker, mode: datetime, span: left, disabled: true}
+    completed_at: {label: Terminado, type: datepicker, mode: datetime, span: right, disabled: true}

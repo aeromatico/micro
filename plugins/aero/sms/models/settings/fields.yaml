@@ -1,0 +1,64 @@
+fields:
+    driver:
+        label: Proveedor
+        type: dropdown
+        default: simulated
+        options:
+            simulated: "Simulado (no envía nada, para pruebas)"
+            twilio: Twilio
+        comment: "Con 'Simulado' se puede probar API, colas y cobro de créditos sin gastar. Los números que terminan en 0000 simulan un fallo."
+    default_country_code:
+        label: Prefijo de país por defecto
+        span: left
+        default: '591'
+        comment: "Se antepone a los números sin '+'. Bolivia = 591."
+    max_per_minute:
+        label: Mensajes por minuto
+        span: right
+        type: number
+        default: 60
+        comment: "Ritmo de salida de los envíos masivos. Un número largo de Twilio ronda 1 mensaje/segundo."
+    max_batch_size:
+        label: Máximo de destinatarios por lote
+        type: number
+        default: 5000
+    section_twilio:
+        label: Twilio
+        type: section
+        trigger:
+            action: show
+            field: driver
+            condition: value[twilio]
+    twilio_account_sid:
+        label: Account SID
+        span: left
+        trigger:
+            action: show
+            field: driver
+            condition: value[twilio]
+    twilio_auth_token:
+        label: Auth Token
+        type: sensitive
+        span: right
+        trigger:
+            action: show
+            field: driver
+            condition: value[twilio]
+    twilio_from:
+        label: Número remitente
+        span: left
+        placeholder: "+15551234567"
+        comment: "Un número comprado en Twilio. No hace falta si usas un Messaging Service."
+        trigger:
+            action: show
+            field: driver
+            condition: value[twilio]
+    twilio_messaging_service_sid:
+        label: Messaging Service SID
+        span: right
+        placeholder: MGxxxxxxxx
+        comment: "Opcional; tiene prioridad sobre el número remitente."
+        trigger:
+            action: show
+            field: driver
+            condition: value[twilio]

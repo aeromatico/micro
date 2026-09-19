@@ -1,0 +1,10 @@
+name: Bajas
+form: $/aero/sms/models/optout/fields.yaml
+modelClass: Aero\Sms\Models\OptOut
+defaultRedirect: aero/sms/optouts
+create:
+    redirect: aero/sms/optouts/update/:id
+    redirectClose: aero/sms/optouts
+update:
+    redirect: aero/sms/optouts
+    redirectClose: aero/sms/optouts

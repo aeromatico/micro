@@ -1,0 +1,11 @@
+columns:
+    id: {label: ID, width: 70px}
+    created_at: {label: Fecha, type: datetime}
+    tenant_name: {label: Tenant, sortable: false}
+    consumer: {label: Key, searchable: true}
+    to: {label: Destino, searchable: true}
+    body: {label: Texto, searchable: true, type: text, clickable: false}
+    reference: {label: Referencia, searchable: true, invisible: true}
+    segments: {label: Seg.}
+    credits_charged: {label: Créditos}
+    status: {label: Estado, type: selectable}

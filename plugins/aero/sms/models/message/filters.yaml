@@ -1,0 +1,6 @@
+scopes:
+    status:
+        label: Estado
+        type: dropdown
+        options: getStatusOptions
+        conditions: status = ':filtered'

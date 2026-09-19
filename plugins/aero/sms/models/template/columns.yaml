@@ -1,0 +1,5 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    slug: {label: Código, searchable: true}
+    body: {label: Texto, searchable: true}
+    is_active: {label: Activa, type: switch}

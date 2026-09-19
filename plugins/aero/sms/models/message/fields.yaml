@@ -1,0 +1,16 @@
+fields:
+    uuid: {label: ID público, span: left, disabled: true}
+    status: {label: Estado, type: dropdown, span: right, options: getStatusOptions, disabled: true}
+    tenant_name: {label: Tenant, span: left, disabled: true}
+    consumer: {label: API key, span: right, disabled: true}
+    to: {label: Destino, span: left, disabled: true}
+    reference: {label: Referencia, span: right, disabled: true}
+    body: {label: Texto, type: textarea, size: small, disabled: true}
+    segments: {label: Segmentos, span: left, disabled: true}
+    encoding: {label: Codificación, span: right, disabled: true}
+    credits_charged: {label: Créditos cobrados, span: left, disabled: true}
+    driver: {label: Proveedor, span: right, disabled: true}
+    provider_message_id: {label: ID del proveedor, span: left, disabled: true}
+    error_message: {label: Error, span: right, disabled: true}
+    sent_at: {label: Enviado, type: datepicker, mode: datetime, span: left, disabled: true}
+    delivered_at: {label: Entregado, type: datepicker, mode: datetime, span: right, disabled: true}

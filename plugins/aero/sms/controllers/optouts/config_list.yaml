@@ -1,0 +1,10 @@
+title: Bajas
+list: $/aero/sms/models/optout/columns.yaml
+modelClass: Aero\Sms\Models\OptOut
+recordUrl: aero/sms/optouts/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

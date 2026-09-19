@@ -1,0 +1,3 @@
+name: Mensaje
+form: $/aero/sms/models/message/fields.yaml
+modelClass: Aero\Sms\Models\Message

@@ -1,0 +1,6 @@
+1.0.1:
+    - "Primera versión: mensajes, lotes, plantillas y bajas de SMS."
+    - create_sms_tables.php
+1.0.2:
+    - "Acción facturable sms.segment en Aero.Credits (si está instalado)."
+    - seed_sms_credit_action.php

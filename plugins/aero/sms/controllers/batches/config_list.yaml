@@ -1,0 +1,11 @@
+title: Lotes
+list: $/aero/sms/models/batch/columns.yaml
+modelClass: Aero\Sms\Models\Batch
+recordUrl: aero/sms/batches/preview/:id
+noRecordsMessage: Aún no hay lotes.
+recordsPerPage: 30
+defaultSort:
+    column: id
+    direction: desc
+toolbar:
+    buttons: false

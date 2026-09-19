@@ -1,0 +1,9 @@
+columns:
+    id: {label: ID, width: 70px}
+    created_at: {label: Fecha, type: datetime}
+    name: {label: Nombre, searchable: true}
+    consumer: {label: Key, searchable: true}
+    total: {label: Destinatarios}
+    progress: {label: Enviados, sortable: false}
+    credits_charged: {label: Créditos}
+    status: {label: Estado}

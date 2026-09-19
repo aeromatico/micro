@@ -1,0 +1,5 @@
+columns:
+    phone: {label: Número, searchable: true}
+    source: {label: Origen}
+    reason: {label: Motivo}
+    created_at: {label: Fecha, type: datetime}

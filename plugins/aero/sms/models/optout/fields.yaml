@@ -1,0 +1,4 @@
+fields:
+    phone: {label: Número, comment: "Con o sin +. Sin prefijo se asume el país por defecto."}
+    reason: {label: Motivo}
+    source: {label: Origen, type: dropdown, default: manual, options: {manual: Manual, inbound: "Respondió STOP", api: API}}

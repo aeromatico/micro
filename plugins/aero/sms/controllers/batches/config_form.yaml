@@ -1,0 +1,3 @@
+name: Lote
+form: $/aero/sms/models/batch/fields.yaml
+modelClass: Aero\Sms\Models\Batch

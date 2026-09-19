@@ -1,0 +1,5 @@
+fields:
+    name: {label: Nombre, span: left}
+    slug: {label: Código, span: right, preset: {field: name, type: slug}, comment: "Es lo que envía el consumidor en el campo 'template'."}
+    is_active: {label: Activa, type: switch, default: true}
+    body: {label: Texto, type: textarea, size: large, comment: "Usa variables como {{nombre}}. Ej: Hola {{nombre}}, tu código es {{codigo}}."}
