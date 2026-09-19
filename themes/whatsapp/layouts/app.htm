@@ -1,0 +1,31 @@
+description = "Shell de la PWA de chat"
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Chat</title>
+    <meta name="theme-color" content="#17695a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex">
+    <link rel="manifest" href="/manifest.webmanifest?h={{ this.param.handle }}">
+    <link rel="icon" type="image/svg+xml" href="{{ 'assets/img/icon.svg' | theme }}?v=7">
+    <link rel="apple-touch-icon" href="{{ 'assets/img/icon-192.png' | theme }}?v=7">
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('aero.chat.theme') || 'auto';
+                if (t !== 'auto') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ 'assets/css/app.css' | theme }}?v=7">
+    <script defer src="{{ 'assets/js/app.js' | theme }}?v=7"></script>
+    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=7.16.3"></script>
+</head>
+<body>
+{% page %}
+</body>
+</html>

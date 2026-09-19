@@ -1,0 +1,334 @@
+description = "Bandeja: cuentas, lista de chats, conversación y hojas"
+==
+<section class="inbox" x-show="screen === 'inbox'">
+
+    <!-- Cuentas (chips en móvil, riel en escritorio) -->
+    <nav class="accounts" aria-label="Números conectados">
+        <button type="button" class="acct" :class="{ on: accountId === null }" @click="pickAccount(null)" aria-label="Todas las cuentas">
+            <span class="acct-badge all"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg></span>
+            <span class="acct-name">Todas</span>
+            <i class="dot" x-show="totalUnread > 0" x-text="totalUnread > 99 ? '99+' : totalUnread"></i>
+        </button>
+        <template x-for="a in accounts" :key="a.id">
+            <button type="button" class="acct" :class="{ on: accountId === a.id }" @click="pickAccount(a.id)" :aria-label="a.label" :title="a.label">
+                <span class="acct-badge" :style="'background:' + acctColor(a)" x-text="initials(a.label)"></span>
+                <span class="acct-name" x-text="a.label"></span>
+                <i class="dot" x-show="a.unread > 0" x-text="a.unread > 99 ? '99+' : a.unread"></i>
+            </button>
+        </template>
+    </nav>
+
+    <!-- Lista -->
+    <aside class="list">
+        <header class="bar">
+            <div class="grow">
+                <div class="title" x-text="listTitle"></div>
+                <div class="sub" x-text="listSub"></div>
+            </div>
+            <button type="button" class="icon-btn" @click="sheet = 'menu'" aria-label="Menú"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
+        </header>
+        <div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" x-model.debounce.400ms="q" @input.debounce.400ms="loadConvs()" placeholder="Buscar chat o número" aria-label="Buscar"></div>
+        <div class="filters" role="tablist">
+            <template x-for="f in filters" :key="f.id">
+                <button type="button" role="tab" class="chip" :class="{ on: filter === f.id }" :aria-selected="filter === f.id" @click="setFilter(f.id)" x-text="f.label"></button>
+            </template>
+        </div>
+        <div class="banner" x-show="!online">Sin conexión. Mostrando lo último cargado.</div>
+        <ul class="rows">
+            <template x-for="c in convs" :key="c.id">
+                <li>
+                    <button type="button" class="row" :class="{ on: current && current.id === c.id }" @click="openConv(c)">
+                        <span class="avatar" x-text="initials(cname(c))"></span>
+                        <span class="row-main">
+                            <span class="row-top"><b x-text="cname(c)"></b><time x-text="fmtTime(c.last_message_at)"></time></span>
+                            <span class="row-mid"><span class="preview" x-text="preview(c)"></span><i class="dot" x-show="c.unread_count > 0" x-text="c.unread_count"></i></span>
+                            <span class="row-bot">
+                                <span class="agent" :class="{ free: !c.assigned_to }"><span class="mini" x-text="c.assigned_to ? c.assigned_to.initials : '?'"></span><span x-text="c.assigned_to ? (c.assigned_to.id === user.id ? 'Tú' : c.assigned_to.name) : 'Sin asignar'"></span></span>
+                                <span class="plat" x-show="accountId === null" x-text="acctLabel(c.account_id)"></span>
+                            </span>
+                        </span>
+                    </button>
+                </li>
+            </template>
+        </ul>
+        <p class="empty" x-show="!loading && convs.length === 0" x-text="q ? 'Nada coincide con tu búsqueda.' : 'No hay conversaciones aquí.'"></p>
+        <p class="empty" x-show="loading && convs.length === 0">Cargando…</p>
+    </aside>
+
+    <!-- Conversación -->
+    <main class="chat">
+        <div class="chat-empty" x-show="!current">
+            <div class="logo" aria-hidden="true">ae</div>
+            <p>Elige una conversación para empezar.</p>
+        </div>
+        <template x-if="current">
+            <div class="chat-in">
+                <header class="bar">
+                    <button type="button" class="icon-btn back" @click="closeChat()" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
+                    <span class="avatar" x-text="initials(cname(current))"></span>
+                    <div class="grow">
+                        <div class="title" x-text="cname(current)"></div>
+                        <div class="sub"><span x-text="current.contact.phone || ''"></span> · <span x-text="current.assigned_to ? 'atiende ' + (current.assigned_to.id === user.id ? 'tú' : current.assigned_to.name) : 'sin asignar'"></span></div>
+                    </div>
+                    <button type="button" class="icon-btn" @click="openCrm()" aria-label="Contacto y CRM"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></button>
+                    <button type="button" class="btn primary sm" @click="sheet = 'delegate'">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span>Delegar</span>
+                    </button>
+                </header>
+
+                <div class="thread" x-ref="thread">
+                    <template x-for="m in msgs" :key="m.id">
+                        <div class="msg" :class="msgClass(m)">
+                            <template x-if="m.kind === 'event'">
+                                <div class="event" x-text="eventText(m)"></div>
+                            </template>
+                            <template x-if="m.kind !== 'event'">
+                                <div class="bubble">
+                                    <div class="note-label" x-show="m.kind === 'note'" x-text="'Nota interna · ' + (m.by ? m.by.name : '')"></div>
+                                    <a class="media" x-show="m.media_url" :href="m.media_url" target="_blank" rel="noopener">Ver adjunto</a>
+                                    <div class="body" x-text="m.body"></div>
+                                    <div class="meta"><time x-text="fmtTime(m.at)"></time><span x-show="m.status === 'sending'"> · enviando…</span><span class="fail" x-show="m.status === 'failed'" x-text="' · ' + (m.failed_reason || 'no se envió')"></span></div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <form class="composer" @submit.prevent="send()" :class="{ note: mode === 'note' }">
+                    <div class="modes">
+                        <button type="button" class="chip" :class="{ on: mode === 'reply' }" @click="mode = 'reply'">Responder</button>
+                        <button type="button" class="chip" :class="{ on: mode === 'note' }" @click="mode = 'note'">Nota interna</button>
+                    </div>
+                    <div class="input-row">
+                        <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown.enter.prevent="if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target)"></textarea>
+                        <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+                    </div>
+                </form>
+            </div>
+        </template>
+    </main>
+
+    <!-- Hojas -->
+    <div class="scrim" x-show="sheet" x-transition.opacity @click="sheet = ''"></div>
+
+    <div class="sheet" x-show="sheet === 'delegate'" x-transition role="dialog" aria-label="Delegar conversación">
+        <h2>Delegar conversación a</h2>
+        <button type="button" class="pick" @click="delegate(null)"><span class="mini gray">–</span><span class="grow"><b>Sin asignar</b><small>Volver a la cola</small></span></button>
+        <template x-for="g in agents" :key="g.id">
+            <button type="button" class="pick" :class="{ on: current && current.assigned_to && current.assigned_to.id === g.id }" @click="delegate(g.id)">
+                <span class="mini" x-text="g.initials"></span>
+                <span class="grow"><b x-text="g.id === user.id ? g.name + ' (tú)' : g.name"></b><small x-text="g.open + ' chats abiertos'"></small></span>
+            </button>
+        </template>
+        <label class="field"><span>Nota para quien lo recibe (opcional)</span><input type="text" x-model="delegateNote" maxlength="500"></label>
+    </div>
+
+
+    <div class="sheet drawer" x-show="sheet === 'crm'" x-transition role="dialog" aria-label="Contacto y CRM">
+        <div class="drawer-head">
+            <div class="grow"><b x-text="crm && crm.contact ? crm.contact.name : (current ? cname(current) : '')"></b><small class="muted" x-text="crm && crm.contact ? crm.contact.phone : ''"></small></div>
+            <button type="button" class="icon-btn" @click="sheet = ''" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <p class="empty" x-show="crmLoading && !crm">Cargando…</p>
+        <p class="empty" x-show="crmError" x-text="crmError"></p>
+        <template x-if="crm || pay">
+            <div class="crm">
+                <div class="tabs" role="tablist">
+                    <template x-for="t in crmTabs" :key="t.id">
+                        <button type="button" role="tab" class="tab" :class="{ on: crmTab === t.id }" :aria-selected="crmTab === t.id" @click="crmTab = t.id" x-text="t.label"></button>
+                    </template>
+                </div>
+
+                <template x-if="crmOk"><div x-show="crmTab === 'contact'" class="pane">
+                    <h3>Listas de contactos</h3>
+                    <div class="chips-wrap">
+                        <template x-for="l in crm.all_lists" :key="l.id">
+                            <button type="button" class="chip" :class="{ on: crm.list_ids && crm.list_ids.indexOf(l.id) >= 0 }" @click="toggleList(l)" x-text="l.name"></button>
+                        </template>
+                        <span class="muted" x-show="!crm.all_lists.length">Aún no hay listas. Créalas en el CRM.</span>
+                    </div>
+                    <h3>Asignar rápido</h3>
+                    <div class="quick">
+                        <template x-for="g in agents" :key="g.id">
+                            <button type="button" class="qa" :class="{ on: current.assigned_to && current.assigned_to.id === g.id }" @click="delegate(g.id)" :aria-label="'Asignar a ' + g.name" :title="g.name"><span class="mini big" x-text="g.initials"></span></button>
+                        </template>
+                    </div>
+                </div>
+
+                </template>
+                <template x-if="crmOk"><div x-show="crmTab === 'ticket'" class="pane">
+                    <template x-if="crm.ticket">
+                        <div class="card-in">
+                            <div class="row-line"><b x-text="crm.ticket.number"></b><span class="tag" x-text="statusLabel(crm.ticket.status)"></span></div>
+                            <div x-text="crm.ticket.subject"></div>
+                            <small class="muted" x-text="(crm.ticket.department || '') + (crm.ticket.assignee ? ' · ' + crm.ticket.assignee.name : '')"></small>
+                            <div class="chips-wrap">
+                                <template x-for="st in ticketStatuses" :key="st.id">
+                                    <button type="button" class="chip" :class="{ on: crm.ticket.status === st.id }" @click="setTicketStatus(st.id)" x-text="st.label"></button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="!crm.ticket || ['resolved','closed'].indexOf(crm.ticket.status) >= 0">
+                        <div class="card-in">
+                            <small class="muted" x-text="crm.ticket ? 'El último ticket está cerrado. Puedes abrir otro:' : 'Este chat no tiene ticket todavía.'"></small>
+                            <p class="muted" x-show="!crm.departments.length">No hay departamentos. Créalos en el CRM (Tickets).</p>
+                            <label class="field" x-show="crm.departments.length"><span>Departamento</span>
+                                <select x-model="deptId"><template x-for="d in crm.departments" :key="d.id"><option :value="d.id" x-text="d.name"></option></template></select></label>
+                            <button type="button" class="btn primary" :disabled="!crm.departments.length || crmBusy" @click="createTicket()">Crear ticket desde este chat</button>
+                        </div>
+                    </template>
+                </div>
+
+                </template>
+                <template x-if="crmOk"><div x-show="crmTab === 'lead'" class="pane">
+                    <template x-if="!crm.lead">
+                        <div class="card-in"><small class="muted">Este contacto todavía no es un lead.</small>
+                            <button type="button" class="btn primary" :disabled="crmBusy" @click="setLead(null)">Crear lead</button></div>
+                    </template>
+                    <template x-if="crm.lead">
+                        <div class="card-in">
+                            <h3>Estado del lead</h3>
+                            <div class="chips-wrap">
+                                <template x-for="st in leadStatuses" :key="st.id">
+                                    <button type="button" class="chip" :class="{ on: crm.lead.status === st.id }" @click="setLead(st.id)" x-text="st.label"></button>
+                                </template>
+                            </div>
+                            <button type="button" class="btn" x-show="!crm.lead.converted" :disabled="crmBusy" @click="convertLead()">Convertir en negocio</button>
+                        </div>
+                    </template>
+                    <template x-if="crm.deal">
+                        <div class="card-in">
+                            <h3>Negocio</h3>
+                            <div class="row-line"><b x-text="crm.deal.title"></b><span class="tag" x-text="crm.deal.status === 'won' ? 'Ganado' : crm.deal.status === 'lost' ? 'Perdido' : 'Abierto'"></span></div>
+                            <template x-for="st in crm.stages" :key="st.id">
+                                <button type="button" class="pick" :class="{ on: crm.deal.stage_id === st.id }" @click="moveDeal(st.id)"><span class="grow"><b x-text="st.name"></b></span></button>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                </template>
+                <div x-show="crmTab === 'sale'" class="pane">
+                    <template x-if="shop && shop.available">
+                        <div class="pane-in">
+                            <label class="search sm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                                <input type="search" x-model.debounce.350ms="shopQ" @input.debounce.350ms="searchProducts()" placeholder="Buscar producto" aria-label="Buscar producto"></label>
+
+                            <p class="muted" x-show="!shopResults.length && !shopLoading">No hay productos que coincidan.</p>
+                            <template x-for="p in shopResults" :key="p.id">
+                                <div class="prod">
+                                    <img x-show="p.image_url" :src="p.image_url" alt="" loading="lazy">
+                                    <span class="prod-ph" x-show="!p.image_url" aria-hidden="true"></span>
+                                    <div class="grow">
+                                        <b x-text="p.name"></b>
+                                        <small class="muted" style="display:block" x-text="(p.has_price_range ? 'Desde ' : '') + money(p.price, shop.currency.code) + (p.stock !== null ? ' · ' + p.stock + ' disp.' : '')"></small>
+                                        <select class="mini-select" x-show="p.has_variants" x-model.number="p._variant" :aria-label="'Variante de ' + p.name">
+                                            <option :value="0">Elige variante</option>
+                                            <template x-for="v in p.variants" :key="v.id"><option :value="v.id" :disabled="!v.in_stock" x-text="v.label + ' · ' + money(v.price, shop.currency.code) + (v.in_stock ? '' : ' (agotado)')"></option></template>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn sm" :disabled="!p.in_stock || (p.has_variants && !p._variant)" @click="addToCart(p)" x-text="p.in_stock ? 'Agregar' : 'Agotado'"></button>
+                                </div>
+                            </template>
+
+                            <div class="card-in" x-show="shopCart.length">
+                                <h3>Pedido</h3>
+                                <template x-for="(l, idx) in shopCart" :key="l.key">
+                                    <div class="charge">
+                                        <div class="grow"><b x-text="l.name"></b><small class="muted" style="display:block" x-text="(l.variantLabel ? l.variantLabel + ' · ' : '') + money(l.price, shop.currency.code)"></small></div>
+                                        <div class="stepper"><button type="button" @click="cartQty(idx, -1)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button type="button" @click="cartQty(idx, 1)" aria-label="Agregar uno">+</button></div>
+                                    </div>
+                                </template>
+                                <div class="row-line total"><span>Total</span><b x-text="money(cartTotal, shop.currency.code)"></b></div>
+
+                                <label class="field" x-show="!shop.customer.phone"><span>Teléfono del cliente</span><input type="tel" x-model="shopForm.phone" placeholder="+591 7…"></label>
+                                <template x-if="cartNeedsShipping">
+                                    <div class="pane-in">
+                                        <label class="field"><span>Dirección de envío</span><input type="text" x-model="shopForm.addr1" placeholder="Calle, número, zona"></label>
+                                        <label class="field"><span>Ciudad</span><input type="text" x-model="shopForm.city"></label>
+                                    </div>
+                                </template>
+                                <label class="field"><span>Método de pago</span>
+                                    <select x-model.number="shopForm.gateway"><template x-for="g in shop.gateways" :key="g.id"><option :value="g.id" x-text="g.name"></option></template></select></label>
+                                <label class="field"><span>Nota del pedido (opcional)</span><input type="text" x-model="shopForm.notes" maxlength="500"></label>
+                                <label class="check"><input type="checkbox" x-model="shopForm.notify"><span>Avisar al cliente cuando pague</span></label>
+                                <button type="button" class="btn primary" :disabled="shopBusy" @click="createOrder()" x-text="shopBusy ? 'Creando…' : 'Crear pedido y enviar al cliente'"></button>
+                                <small class="muted">Se crea un pedido real en tu tienda y se envía el resumen con el pago por este chat.</small>
+                            </div>
+
+                            <div class="card-in" x-show="shop.orders.length">
+                                <h3>Pedidos de esta conversación</h3>
+                                <template x-for="o in shop.orders" :key="o.id">
+                                    <div class="charge stack">
+                                        <div class="row-line"><div class="grow"><b x-text="o.number"></b><small class="muted" style="display:block" x-text="o.items + ' prod. · ' + money(o.total, o.currency)"></small></div><span class="tag" :class="'st-' + o.status" x-text="orderLabel(o.status)"></span></div>
+                                        <div class="chips-wrap" x-show="o.status === 'awaiting_payment' || o.status === 'pending'">
+                                            <button type="button" class="chip" :disabled="shopBusy" @click="resendOrder(o)">Reenviar</button>
+                                            <button type="button" class="chip" :disabled="shopBusy" @click="cancelOrder(o)">Cancelar pedido</button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="crmTab === 'pay'" class="pane">
+                    <p class="muted" x-show="crm && !crmOk && crm.crm === false">El CRM no está activado, pero puedes cobrar con QR igualmente.</p>
+                    <p class="muted" x-show="crm && crm.crm && !crm.whatsapp">El CRM solo se enlaza con chats de WhatsApp; el cobro por QR sí está disponible.</p>
+
+                    <template x-if="pay && !pay.available"><p class="muted">Los cobros con QR no están disponibles en este espacio.</p></template>
+                    <template x-if="pay && pay.available && !pay.banks.length"><p class="muted">Este espacio no tiene una cuenta bancaria activa en Pay. Conéctala en Pay para poder cobrar.</p></template>
+
+                    <template x-if="pay && pay.available && pay.banks.length">
+                        <form class="card-in" @submit.prevent="createCharge()">
+                            <h3>Cobro rápido por QR</h3>
+                            <label class="field"><span>Monto (Bs)</span><input type="text" inputmode="decimal" x-model="payForm.amount" placeholder="0,00" autocomplete="off" required></label>
+                            <label class="field"><span>Descripción</span><input type="text" x-model="payForm.description" maxlength="100" placeholder="Ej. Plan mensual" required></label>
+                            <label class="field"><span>Vence en</span>
+                                <select x-model.number="payForm.days"><template x-for="d in pay.presets" :key="d.days"><option :value="d.days" x-text="d.label"></option></template></select></label>
+                            <label class="field" x-show="pay.banks.length > 1"><span>Cuenta</span>
+                                <select x-model.number="payForm.bank"><template x-for="b in pay.banks" :key="b.id"><option :value="b.id" x-text="b.label"></option></template></select></label>
+                            <label class="check"><input type="checkbox" x-model="payForm.notify"><span>Avisar al cliente cuando pague</span></label>
+                            <button type="submit" class="btn primary" :disabled="payBusy || !payForm.amount || !payForm.description.trim()" x-text="payBusy ? 'Generando…' : 'Generar y enviar QR'"></button>
+                            <small class="muted" x-show="!pay.media">Esta cuenta no admite imágenes: el QR no se podrá adjuntar.</small>
+                        </form>
+                    </template>
+
+                    <template x-if="pay && pay.charges.length">
+                        <div class="card-in">
+                            <h3>Cobros de esta conversación</h3>
+                            <template x-for="c in pay.charges" :key="c.id">
+                                <div class="charge">
+                                    <div class="grow"><b x-text="money(c.amount, c.currency)"></b><small class="muted" style="display:block" x-text="c.description"></small></div>
+                                    <span class="tag" :class="'st-' + c.status" x-text="chargeLabel(c.status)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="crmOk && crm.collections.length">
+                        <div class="card-in">
+                            <h3>Cobranzas pendientes (CRM)</h3>
+                            <template x-for="i in crm.collections" :key="i.id">
+                                <div class="charge stack">
+                                    <div class="row-line"><div class="grow"><small class="muted" x-text="i.concept"></small><div class="amount" x-text="money(i.amount, i.currency)"></div></div></div>
+                                    <small :class="{ fail: i.overdue }" x-text="(i.overdue ? 'Vencido · ' : 'Vence ') + i.due_date"></small>
+                                    <button type="button" class="btn" x-show="crm.pay" :disabled="crmBusy" @click="sendQr(i)">Enviar QR al chat</button>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <div class="sheet" x-show="sheet === 'menu'" x-transition role="dialog" aria-label="Menú">
+        <div class="me"><span class="mini big" x-text="user ? user.initials : ''"></span><span class="grow"><b x-text="user ? user.name : ''"></b><small x-text="tenant ? tenant.name : ''"></small></span></div>
+        <button type="button" class="pick" @click="cycleTheme()"><span class="grow"><b>Tema</b><small x-text="themeLabel"></small></span></button>
+        <button type="button" class="pick" x-show="installPrompt" @click="install()"><span class="grow"><b>Instalar app</b><small>Agregar a la pantalla de inicio</small></span></button>
+        <button type="button" class="pick danger" @click="logout(true)"><span class="grow"><b>Cerrar sesión</b></span></button>
+    </div>
+</section>

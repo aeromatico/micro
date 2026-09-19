@@ -1,0 +1,23 @@
+title = "Service worker"
+url = "/sw.js"
+layout = ""
+is_hidden = 0
+==
+<?php
+function onStart()
+{
+    $dir = themes_path('whatsapp/assets/js/');
+    $js = file_get_contents($dir . 'sw.js');
+    $assets = array_map(fn ($p) => $this->controller->themeUrl($p) . '?v=7', [
+        'assets/css/app.css', 'assets/js/app.js', 'assets/js/alpine.min.js', 'assets/img/icon.svg',
+    ]);
+    $js = str_replace('__ASSETS__', json_encode($assets, JSON_UNESCAPED_SLASHES), $js);
+
+    return response($js, 200, [
+        'Content-Type' => 'application/javascript; charset=utf-8',
+        'Cache-Control' => 'no-cache',
+        'Service-Worker-Allowed' => '/',
+    ]);
+}
+?>
+==

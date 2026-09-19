@@ -1,0 +1,9 @@
+1.0.0:
+    - "Primera versión: tokens de sesión por agente y eventos de conversación (notas internas y delegaciones)."
+    - create_chat_tables.php
+1.1.0:
+    - "Cobros rápidos por QR desde el chat (Aero.Pay): emisión, envío al cliente y procesamiento del pago."
+    - create_chat_charges_table.php
+1.2.0:
+    - "Ventas por WhatsApp: pedidos reales de la tienda (Aero.Shop) creados desde el chat, con envío del QR o instrucciones de pago al cliente."
+    - create_chat_orders_table.php

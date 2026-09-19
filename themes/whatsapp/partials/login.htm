@@ -1,0 +1,14 @@
+description = "Login del tenant"
+==
+<section class="center" x-show="screen === 'login'">
+    <form class="card" @submit.prevent="login()">
+        <div class="logo" aria-hidden="true" x-text="tenant ? tenant.name.slice(0, 2).toLowerCase() : 'ae'"></div>
+        <h1 x-text="tenant ? tenant.name : ''"></h1>
+        <p class="muted">Inicia sesión con tu usuario del panel.</p>
+        <label class="field"><span>Usuario o correo</span><input type="text" x-model="loginForm.login" autocomplete="username" autocapitalize="none" required></label>
+        <label class="field"><span>Contraseña</span><input type="password" x-model="loginForm.password" autocomplete="current-password" required></label>
+        <p class="error" x-show="loginError" x-text="loginError"></p>
+        <button class="btn primary" type="submit" :disabled="busy" x-text="busy ? 'Entrando…' : 'Entrar'"></button>
+        <a class="link" href="/">Cambiar de espacio</a>
+    </form>
+</section>

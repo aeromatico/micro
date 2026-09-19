@@ -1,0 +1,11 @@
+title = "Chat"
+url = "/:handle?"
+layout = "app"
+is_hidden = 0
+==
+<div x-data="chatApp()" x-init="init()" x-cloak class="app" :class="{ 'in-chat': screen === 'inbox' && current }" @keydown.escape.window="sheet = ''">
+    {% partial 'gate' %}
+    {% partial 'login' %}
+    {% partial 'inbox' %}
+    <div class="toast" role="status" x-show="toast" x-transition.opacity x-text="toast"></div>
+</div>
