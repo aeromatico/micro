@@ -20,7 +20,7 @@ use Flash;
  */
 class Instances extends Controller
 {
-    public $requiredPermissions = ['aero.hello.manage_accounts'];
+    public $requiredPermissions = ['aero.hello.superadmin'];
 
     public function __construct()
     {

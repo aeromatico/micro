@@ -140,15 +140,15 @@ class Plugin extends PluginBase
             'wapi' => [
                 'label'       => 'aero.wapi::lang.menu.wapi',
                 'url'         => Backend::url('aero/wapi/instances'),
-                'icon'        => 'icon-whatsapp',
-                'permissions' => ['aero.hello.manage_accounts'],
+                'icon'        => 'icon-mobile-phone',
+                'permissions' => ['aero.hello.superadmin'],
                 'order'       => 211,
                 'sideMenu'    => [
                     'instances' => [
                         'label'       => 'aero.wapi::lang.menu.instances',
                         'icon'        => 'icon-qrcode',
                         'url'         => Backend::url('aero/wapi/instances'),
-                        'permissions' => ['aero.hello.manage_accounts'],
+                        'permissions' => ['aero.hello.superadmin'],
                     ],
                 ],
             ],
