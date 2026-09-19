@@ -71,7 +71,7 @@ return new class extends Migration
                     ['Hero', 'Título directo con la especialidad. Subtítulo breve sobre disponibilidad/rapidez de atención.'],
                     ['FeatureGrid', '3 razones concretas para elegir la atención (disponibilidad, tecnología, especialización), priorizando lo accionable.'],
                     ['Testimonials', '1-2 testimonios cortos enfocados en la rapidez/eficiencia de la atención.'],
-                    ['CTASection', 'CTA urgente pero no alarmista: "Reservá tu turno ahora".'],
+                    ['CTASection', 'CTA urgente pero no alarmista: "Reserva tu turno ahora".'],
                 ],
             ],
             'inmuebles-portafolio' => [

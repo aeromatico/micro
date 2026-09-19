@@ -251,3 +251,41 @@
       end-to-end contra el banco real (Banco Económico): QR generado,
       forzado a expirar, anulado contra el banco y tenant purgado sin
       errores."
+
+1.33.0:
+    - "Nueva columna aero_sites_pages.is_placeholder: la home que arma
+      BaseNiche::provisionPages() al alta queda marcada como placeholder
+      (contenido genérico del nicho, no el sitio real del tenant) hasta que
+      el admin genera su primer landing con IA (GenerateAiSiteJob) o guarda
+      contenido propio desde el editor (ContentEditor::onSaveIndex), que
+      son los dos únicos choke points que la bajan a false. home.htm
+      muestra un bloque 'Sitio en construcción' mientras is_placeholder
+      sea true, en vez del HTML de relleno del nicho."
+    - add_is_placeholder_to_pages.php
+
+1.34.0:
+    - "Gestor de plantillas (Aero\\Sites\\Models\\Layout, hasOne de Tenant):
+      modo 'default' deja usar el shell del theme de siempre pero permite
+      reemplazar header/footer (header_html/footer_html, ver partials/site/
+      header.htm y footer.htm); modo 'custom' deja pegar un documento HTML
+      completo propio (custom_html) con dependencias CDN propias — base.htm
+      lo splicea reemplazando los placeholders literales <!-- AERO:CONTENT -->
+      y <!-- AERO:SCRIPTS -->. Nueva pestaña 'Plantilla' en ContentEditor."
+    - create_layouts_table.php
+
+1.35.0:
+    - "Nueva columna aero_sites_layouts.extra_head_html: en modo 'default'
+      (Plataforma) permite inyectar dependencias adicionales (CSS/JS propio,
+      un <script src> de terceros, fuentes, etc.) sin renunciar al
+      stock del theme ni pasar al modo 'custom' — se imprime en base.htm
+      justo antes de </head>, después de {% framework extras %}, así que
+      puede sobreescribir estilos del theme si el admin lo pide a propósito."
+    - add_extra_head_html_to_layouts.php
+
+1.36.0:
+    - "Otorga al rol tenant_admin aero.hello.manage_accounts: cada tenant conecta su propio número desde Mensajería → Conectar (QR de WhatsApp Web o alta manual de Cloud API) y ve sus Cuentas conectadas, aisladas por tenant en Hello. Perfiles sigue siendo solo superadmin."
+    - grant_hello_accounts_to_tenant_admin.php
+
+1.37.0:
+    - "Plantilla: dos interruptores (Mostrar header / Mostrar footer del layout, activados por defecto) para ocultar el navbar o el footer de todo el sitio, p. ej. al armarlos con bloques Puck dentro de cada página."
+    - add_show_header_footer_to_layouts.php
