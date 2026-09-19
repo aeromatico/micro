@@ -12,3 +12,6 @@
       como tier de entrada para acciones de bajo costo (ej. tool-calling de
       Súper IA en Aero.Chatbots)."
     - seed_credit_type_naranja.php
+1.2.0:
+    - "Acción facturable hello.message_send (naranja, 1 crédito): cada mensaje de WhatsApp enviado por la API pública de Hello, con reembolso si falla."
+    - seed_hello_message_send_action.php

@@ -63,6 +63,9 @@ Notas sobre Zernio:
 - El tenant elige **WhatsApp Web** (wapi) o **WhatsApp Cloud API** (Zernio). Se guarda en `aero_hello_tenant_settings.default_whatsapp_driver`.
 - `Hello::resolveAccount()` (notify, API, CRM, cobranzas) prioriza ese driver; si no tiene cuenta de él, usa la que haya. Un `account_id` explícito (bots, respuestas en una conversación) manda siempre.
 
+## API y webhooks para las apps del tenant
+Los tenants crean sus propias apps con las API keys de Configuración → API keys (permisos `hello.*`), reciben mensajes y estados por webhook firmado y pagan 1 crédito naranja por mensaje enviado por API. Referencia completa para desarrolladores: `docs/hello-api.md`. Código: `Classes/Webhooks/TenantWebhooks.php`, `Jobs/DeliverTenantWebhookJob.php`, `Classes/ApiCredits.php`, `Classes/StructuredMessage.php` (compartida con Redactar).
+
 ## Contactos sincronizados con el CRM
 - Enlace: `aero_crm_contacts.hello_contact_id`. Solo tenants con el CRM activado (los contactos de Hello sin tenant quedan fuera).
 - **Hello → CRM:** al crearse una identidad de WhatsApp (mensaje entrante, envío desde Redactar o la API) el contacto se crea en el CRM (`source = whatsapp`) o se enlaza al que ya tenga ese teléfono. Lo hace `Aero\Crm\Classes\HelloSync` desde eventos de modelo, así Hello sigue sin depender del CRM.
