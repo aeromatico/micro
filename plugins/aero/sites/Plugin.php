@@ -333,18 +333,12 @@ class Plugin extends PluginBase
                 return null; // let OctoberCMS handle it natively
             }
 
-            // Admin primario del tenant (creado automáticamente en el provisioning)
-            $tenant = Tenant::where('backend_user_id', $user->id)->first();
-
-            // Admin adicional asignado manualmente vía TenantUser — mismo
-            // criterio que Aero\Sites\Traits\ResolvesCurrentTenant, que este
-            // listener debe igualar o los admins no primarios caen al
-            // fallback (Primary Site) y ven datos de toda la plataforma.
-            if (!$tenant) {
-                $tenantUser = TenantUser::where('user_id', $user->id)->first();
-                if ($tenantUser) {
-                    $tenant = Tenant::find($tenantUser->tenant_id);
-                }
+            // El subdominio del host decide el tenant. Si el usuario no tiene
+            // acceso a ese tenant se corta acá: devolver null haría caer al
+            // Primary Site y mostraría datos de toda la plataforma.
+            $tenant = Tenant::resolveForBackendUser($user, null, $denied);
+            if ($denied) {
+                abort(403, 'No tenés acceso a este espacio.');
             }
 
             if ($tenant?->site_id) {
@@ -425,11 +419,7 @@ class Plugin extends PluginBase
         }
 
         if (!$tenantId) {
-            $tenantId = Tenant::where('backend_user_id', $user->id)->value('id');
-        }
-
-        if (!$tenantId) {
-            $tenantId = \Aero\Sites\Models\TenantUser::where('user_id', $user->id)->value('tenant_id');
+            $tenantId = Tenant::resolveForBackendUser($user)?->id;
         }
 
         if (!$tenantId) {

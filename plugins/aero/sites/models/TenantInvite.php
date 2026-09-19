@@ -56,7 +56,7 @@ class TenantInvite extends Model
             $invite->accepted_at     = now();
             $invite->save();
 
-            static::notify($tenant, $invite, $existingUser->full_name, \Backend::url('backend'));
+            static::notify($tenant, $invite, $existingUser->full_name, $tenant->backendUrl('backend'));
 
             return $invite;
         }
@@ -69,7 +69,7 @@ class TenantInvite extends Model
         $invite->save();
 
         $code = $user->getResetPasswordCode();
-        $activationUrl = \Backend::url('backend/auth/reset/' . $user->id . '/' . $code);
+        $activationUrl = $tenant->backendUrl('backend/auth/reset/' . $user->id . '/' . $code);
 
         static::notify($tenant, $invite, $user->full_name, $activationUrl);
 

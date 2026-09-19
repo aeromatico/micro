@@ -19,21 +19,10 @@ trait ResolvesCurrentTenant
             $this->currentTenant = Tenant::where('site_id', $site->id)->first();
         }
 
-        // 2. Fallback — resolver por el backend user autenticado
-        if (!$this->currentTenant) {
-            $user = BackendAuth::getUser();
-            if ($user) {
-                // Admin primario del tenant (creado automáticamente en el provisioning)
-                $this->currentTenant = Tenant::where('backend_user_id', $user->id)->first();
-
-                // Admin adicional asignado manualmente vía TenantUser
-                if (!$this->currentTenant) {
-                    $tenantUser = TenantUser::where('user_id', $user->id)->first();
-                    if ($tenantUser) {
-                        $this->currentTenant = Tenant::find($tenantUser->tenant_id);
-                    }
-                }
-            }
+        // 2. Backend user autenticado: el subdominio del host manda (ver
+        // Tenant::resolveForBackendUser); sin subdominio, criterio histórico.
+        if (!$this->currentTenant && ($user = BackendAuth::getUser())) {
+            $this->currentTenant = Tenant::resolveForBackendUser($user);
         }
 
         return $this->currentTenant;

@@ -389,6 +389,70 @@ class Tenant extends Model
         static::$resolvedHosts = [];
     }
 
+    /**
+     * Tenant dueño de un host del tipo {handle}.{root_domain}. Es el único
+     * criterio para el backend: cada tenant tiene siempre un subdominio único
+     * desde que se crea la cuenta, incluso si además apunta un dominio custom
+     * (que solo sirve para el sitio público). No filtra por status: un tenant
+     * suspendido debe seguir resolviéndose para no caer al fallback de otro.
+     */
+    public static function resolveFromSubdomain(string $host): ?self
+    {
+        foreach (RootDomain::active()->get() as $root) {
+            $suffix = '.' . $root->domain;
+            if (str_ends_with($host, $suffix)) {
+                $handle = substr($host, 0, -strlen($suffix));
+                return $handle !== '' ? static::where('handle', $handle)->first() : null;
+            }
+        }
+
+        return null;
+    }
+
+    /** URL del backend en el subdominio del tenant (nunca en dominio custom). */
+    public function backendUrl(string $path = 'backend'): string
+    {
+        $host = $this->handle . '.' . ($this->rootDomain?->domain ?? request()->getHost());
+
+        return request()->getScheme() . '://' . $host . parse_url(\Backend::url($path), PHP_URL_PATH);
+    }
+
+    public function isAccessibleBy(\Backend\Models\User $user): bool
+    {
+        return (int) $this->backend_user_id === (int) $user->id
+            || TenantUser::where('tenant_id', $this->id)->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * Tenant con el que trabaja un usuario de backend no superadmin.
+     *
+     * Si el host es el subdominio de un tenant, ese tenant manda y el
+     * usuario debe tener acceso (si no, $denied = true y devuelve null: el
+     * llamador debe cortar, nunca caer a otro tenant). Si el host no es de
+     * ningún tenant (dominio maestro), se usa el criterio histórico:
+     * propietario primero, luego el primer TenantUser.
+     */
+    public static function resolveForBackendUser(\Backend\Models\User $user, ?string $host = null, ?bool &$denied = null): ?self
+    {
+        $denied = false;
+        $host ??= request()->getHost();
+
+        if ($bySubdomain = static::resolveFromSubdomain($host)) {
+            if ($bySubdomain->isAccessibleBy($user)) {
+                return $bySubdomain;
+            }
+            $denied = true;
+            return null;
+        }
+
+        $tenant = static::where('backend_user_id', $user->id)->first();
+        if (!$tenant && ($tenantUser = TenantUser::where('user_id', $user->id)->first())) {
+            $tenant = static::find($tenantUser->tenant_id);
+        }
+
+        return $tenant;
+    }
+
     protected static function lookupByDomain(string $host): ?self
     {
         // Buscar primero en dominios custom
