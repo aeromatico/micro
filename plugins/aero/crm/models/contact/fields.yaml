@@ -57,13 +57,15 @@ tabs:
             label: Empresa
             type: relation
             nameFrom: name
+            emptyOption: "-- Sin empresa --"
+            scope: belongingToTenant
             span: left
             tab: General
 
-        owner:
+        owner_id:
             label: Responsable
-            type: relation
-            nameFrom: full_name
+            type: dropdown
+            emptyOption: "-- Sin responsable --"
             span: right
             tab: General
 
@@ -89,13 +91,16 @@ tabs:
             label: Cliente de tienda vinculado
             type: relation
             nameFrom: email
+            emptyOption: "-- Sin cliente de tienda --"
+            scope: belongingToTenant
             span: right
             tab: General
-            comment: "Enlace manual a un cliente de aero/shop (opcional)"
+            comment: "Se enlaza solo si el email o teléfono coincide con un cliente de la tienda; también puedes elegirlo a mano (opcional)"
 
         contactLists:
             label: Listas
             type: relation
+            scope: belongingToTenant
             span: full
             tab: General
             comment: "Listas a las que pertenece este contacto (útiles para cobranzas y campañas)"

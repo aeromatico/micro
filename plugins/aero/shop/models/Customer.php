@@ -30,6 +30,17 @@ class Customer extends Model
         $this->is_guest = is_null($this->user_id);
     }
 
+    /**
+     * Opciones de relación en formularios de otros plugins (p.ej. CRM →
+     * "Cliente de tienda vinculado"): solo clientes del tenant del registro.
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
+
     public function scopeForTenant($query, int $tenantId)
     {
         return $query->where('tenant_id', $tenantId);

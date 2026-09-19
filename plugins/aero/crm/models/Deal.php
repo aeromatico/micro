@@ -5,6 +5,7 @@ use Model;
 class Deal extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+    use \Aero\Crm\Classes\HasTenantOwnerOptions;
 
     public $table = 'aero_crm_deals';
 

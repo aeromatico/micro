@@ -29,4 +29,15 @@ class PipelineStage extends Model
     {
         return $query->where('tenant_id', $tenantId);
     }
+
+    /**
+     * Opciones de relación en formularios de otros modelos: solo las del
+     * tenant del registro en edición (el Relation widget pasa el modelo).
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
 }

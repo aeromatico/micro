@@ -110,3 +110,17 @@
       editable directamente desde la lista. La fecha de finalizado se registra
       sola al pasar a Completada y se borra si la actividad se reabre."
     - add_status_to_activities_table.php
+1.4.0:
+    - "Sincronia bidireccional con Hello: todo contacto de WhatsApp del chat se crea o enlaza en el CRM del tenant (nombre de perfil de WhatsApp si existe) y nombre/telefono se mantienen iguales desde ambos lados; un numero que ya chateo se enlaza en vez de duplicarse. Comando crm:sync-hello (--dry-run, --tenant) para completar lo existente."
+1.4.1:
+    - "Contactos: los selectores Empresa, Responsable y Cliente de tienda ya no preseleccionan el primer registro (opcion vacia); Empresa, Listas y Cliente de tienda solo muestran registros del tenant del contacto. Un contacto nuevo o con email/telefono cambiado se enlaza solo al cliente de tienda del mismo tenant que coincida (completando nombre y email si faltaban); crm:sync-hello lo aplica tambien a los existentes."
+1.4.2:
+    - "Responsable (contactos, empresas, negocios, leads y actividades): selector propio con opcion vacia que lista solo los usuarios del tenant (admin primario + TenantUser); el filtro de contactos igual. Un superadmin sin tenant sigue viendo a todos y un responsable ya guardado se conserva."
+1.4.3:
+    - "Negocios, reglas de recordatorio y listas: selectores de Etapa, Contacto, Empresa, Equipo, Lista y Contactos solo muestran registros del tenant; Contacto/Empresa/Equipo de un negocio ya no preseleccionan el primero."
+1.4.4:
+    - "Fix: guardar contactos, empresas, negocios, leads y actividades fallaba al dejar Responsable vacio (el desplegable enviaba una cadena vacia a una columna entera); ahora se guarda como NULL."
+1.4.5:
+    - "Equipos: el campo Miembros ahora es una lista de casillas con solo los usuarios del tenant (los miembros ya guardados se conservan) en vez de todos los usuarios del backend."
+1.4.6:
+    - "Fix: editar un contacto enlazado a Hello no guardaba nada (decia \"Contacto actualizado\"): el partial de la pestana Acciones tenia un <form> anidado que cerraba el formulario principal y los botones Guardar enviaban el cuerpo vacio. Ahora el envio de mensajes usa un boton dentro del formulario."

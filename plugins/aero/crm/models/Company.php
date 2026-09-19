@@ -5,6 +5,7 @@ use Model;
 class Company extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+    use \Aero\Crm\Classes\HasTenantOwnerOptions;
 
     public $table = 'aero_crm_companies';
 
@@ -26,6 +27,17 @@ class Company extends Model
         'contacts' => [Contact::class],
         'deals'    => [Deal::class],
     ];
+
+    /**
+     * Opciones del campo "Empresa" en otros formularios (el Relation widget
+     * pasa el modelo en edición): solo las empresas de su mismo tenant.
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
 
     public function scopeForTenant($query, int $tenantId)
     {

@@ -13,6 +13,36 @@ use Aero\Shop\Models\Customer;
 class ShopCustomerSync
 {
     /**
+     * Cliente de la tienda del tenant que corresponde a un email o teléfono
+     * (email primero: es único; el teléfono se compara normalizado).
+     */
+    public static function findCustomer(int $tenantId, ?string $email, ?string $phone): ?Customer
+    {
+        if ($email) {
+            $byEmail = Customer::where('tenant_id', $tenantId)->where('email', $email)->first();
+            if ($byEmail) {
+                return $byEmail;
+            }
+        }
+
+        $digits = \Aero\Hello\Classes\PhoneNumber::normalize($phone);
+        if (!$digits) {
+            return null;
+        }
+
+        // Prefiltro en SQL por los últimos 8 dígitos (el teléfono se guardó
+        // con formatos distintos) y comparación exacta ya normalizada.
+        $tail = substr($digits, -8);
+        $stripped = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'+',''),'(',''),')','')";
+
+        return Customer::where('tenant_id', $tenantId)
+            ->whereNotNull('phone')
+            ->whereRaw("{$stripped} LIKE ?", ['%' . $tail])
+            ->get()
+            ->first(fn ($c) => \Aero\Hello\Classes\PhoneNumber::normalize($c->phone) === $digits);
+    }
+
+    /**
      * syncContactFromCustomer crea (o vincula, si ya existe uno con el
      * mismo email) el Contact del CRM correspondiente a un Customer de
      * tienda recién creado.

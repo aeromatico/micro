@@ -5,6 +5,7 @@ use Model;
 class Activity extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+    use \Aero\Crm\Classes\HasTenantOwnerOptions;
 
     public const STATUS_PENDING     = 'pending';
     public const STATUS_IN_PROGRESS = 'in_progress';

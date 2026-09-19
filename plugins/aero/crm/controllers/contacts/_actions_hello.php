@@ -14,7 +14,9 @@
             <i class="icon-link"></i> Vincular con Hello
         </button>
     <?php else: ?>
-        <form data-request="onSendMessage" data-request-flash>
+        <?php /* Sin <form> propio: este partial vive DENTRO del formulario del contacto y un
+                 <form> anidado cierra el principal, dejando los botones Guardar sin campos. */ ?>
+        <div>
             <input type="hidden" name="record_id" value="<?= $model->id ?>">
             <div class="form-group">
                 <select name="message_type" class="form-control custom-select" style="max-width:200px;margin-bottom:8px">
@@ -23,11 +25,11 @@
                 </select>
             </div>
             <div class="form-group">
-                <textarea name="message_body" class="form-control" rows="3" placeholder="Escribe el mensaje..." required></textarea>
+                <textarea name="message_body" class="form-control" rows="3" placeholder="Escribe el mensaje..."></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" data-load-indicator="Enviando...">
+            <button type="button" class="btn btn-primary" data-request="onSendMessage" data-request-flash data-load-indicator="Enviando...">
                 <i class="icon-send"></i> Enviar mensaje
             </button>
-        </form>
+        </div>
     <?php endif; ?>
 </div>

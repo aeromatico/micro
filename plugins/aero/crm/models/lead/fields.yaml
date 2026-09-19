@@ -35,10 +35,10 @@ fields:
         type: text
         span: right
 
-    owner:
+    owner_id:
         label: Responsable
-        type: relation
-        nameFrom: full_name
+        type: dropdown
+        emptyOption: "-- Sin responsable --"
         span: left
 
     in_pipeline:

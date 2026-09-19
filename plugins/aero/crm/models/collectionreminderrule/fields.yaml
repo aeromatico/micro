@@ -19,6 +19,7 @@ fields:
         label: Lista
         type: relation
         nameFrom: name
+        scope: belongingToTenant
         span: auto
         placeholder: "Todas las listas / todos los cobros"
         comment: "Si se deja vacío, este recordatorio aplica a todos los cobros del tenant"

@@ -9,6 +9,7 @@ fields:
         label: Etapa
         type: relation
         nameFrom: name
+        scope: belongingToTenant
         span: left
         required: true
 
@@ -25,12 +26,16 @@ fields:
         label: Contacto
         type: relation
         nameFrom: full_name
+        emptyOption: "-- Sin contacto --"
+        scope: belongingToTenant
         span: left
 
     company:
         label: Empresa
         type: relation
         nameFrom: name
+        emptyOption: "-- Sin empresa --"
+        scope: belongingToTenant
         span: right
 
     value:
@@ -44,16 +49,18 @@ fields:
         span: right
         placeholder: "USD"
 
-    owner:
+    owner_id:
         label: Responsable
-        type: relation
-        nameFrom: full_name
+        type: dropdown
+        emptyOption: "-- Sin responsable --"
         span: left
 
     team:
         label: Equipo
         type: relation
         nameFrom: name
+        emptyOption: "-- Sin equipo --"
+        scope: belongingToTenant
         span: right
 
     expected_close_date:

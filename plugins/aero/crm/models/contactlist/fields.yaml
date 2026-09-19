@@ -21,5 +21,6 @@ fields:
         label: Contactos
         type: relation
         nameFrom: full_name
+        scope: belongingToTenant
         span: full
         comment: "Contactos incluidos en esta lista"

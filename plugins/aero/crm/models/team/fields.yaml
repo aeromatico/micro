@@ -7,7 +7,6 @@ fields:
 
     members:
         label: Miembros
-        type: relation
-        nameFrom: full_name
+        type: checkboxlist
         span: full
         comment: "Usuarios de backend que pertenecen a este equipo"

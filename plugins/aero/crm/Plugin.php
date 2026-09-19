@@ -11,6 +11,7 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('crm:generate-cobranza-reminders', \Aero\Crm\Console\GenerateCollectionRemindersCommand::class);
+        $this->registerConsoleCommand('crm:sync-hello', \Aero\Crm\Console\SyncHelloContacts::class);
     }
 
     public function registerSchedule($schedule): void
@@ -39,6 +40,46 @@ class Plugin extends PluginBase
         $this->bootShopCustomerSync();
         $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
+        $this->bootHelloSync();
+    }
+
+    /**
+     * Hello → CRM: todo contacto de WhatsApp que aparece en el chat se crea o
+     * se enlaza en el CRM del tenant, y los cambios de nombre en Hello se
+     * copian al CRM (el otro sentido vive en Contact::syncHelloContact()).
+     */
+    protected function bootHelloSync(): void
+    {
+        if (!class_exists(\Aero\Hello\Models\ContactIdentity::class)) {
+            return;
+        }
+
+        \Aero\Hello\Models\ContactIdentity::extend(function ($model) {
+            $model->bindEvent('model.afterCreate', function () use ($model) {
+                if ($model->platform === 'whatsapp') {
+                    try {
+                        \Aero\Crm\Classes\HelloSync::mirror($model->contact, $model->external_id);
+                    }
+                    catch (\Throwable $e) {
+                        // Nunca tumbar un mensaje entrante por la sincronía del CRM.
+                        \Log::warning('aero.crm: falló la sincronía Hello → CRM: ' . $e->getMessage());
+                    }
+                }
+            });
+        });
+
+        \Aero\Hello\Models\Contact::extend(function ($model) {
+            $model->bindEvent('model.afterUpdate', function () use ($model) {
+                if ($model->isDirty('name') || $model->wasChanged('name')) {
+                    try {
+                        \Aero\Crm\Classes\HelloSync::pushName($model);
+                    }
+                    catch (\Throwable $e) {
+                        \Log::warning('aero.crm: falló el cambio de nombre Hello → CRM: ' . $e->getMessage());
+                    }
+                }
+            });
+        });
     }
 
     /**

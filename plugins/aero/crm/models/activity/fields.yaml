@@ -29,12 +29,11 @@ fields:
         span: full
         size: small
 
-    owner:
+    owner_id:
         label: Responsable
-        type: relation
-        nameFrom: full_name
+        type: dropdown
         span: left
-        emptyOption: Todos
+        emptyOption: "-- Sin responsable --"
 
     status:
         label: Estado

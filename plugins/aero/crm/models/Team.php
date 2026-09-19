@@ -32,6 +32,29 @@ class Team extends Model
         'deals' => [Deal::class],
     ];
 
+    /**
+     * Opciones del campo "Miembros": solo usuarios del tenant del equipo (o del
+     * tenant actual en un equipo nuevo); los miembros ya guardados se conservan.
+     */
+    public function getMembersOptions(): array
+    {
+        return \Aero\Crm\Classes\TenantUsers::options(
+            $this->tenant_id ? (int) $this->tenant_id : \Aero\Crm\Classes\TenantUsers::currentTenantId(),
+            $this->exists ? $this->members()->pluck('backend_users.id')->all() : []
+        );
+    }
+
+    /**
+     * Opciones de relación en formularios de otros modelos: solo las del
+     * tenant del registro en edición (el Relation widget pasa el modelo).
+     */
+    public function scopeBelongingToTenant($query, $model)
+    {
+        return $model && $model->tenant_id
+            ? $query->where('tenant_id', $model->tenant_id)
+            : $query;
+    }
+
     public function scopeForTenant($query, int $tenantId)
     {
         return $query->where('tenant_id', $tenantId);
