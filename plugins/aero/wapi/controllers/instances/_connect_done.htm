@@ -1,0 +1,10 @@
+<?php /** @var \Aero\Hello\Models\Account $account */ ?>
+<div class="alert alert-success">
+    <i class="icon-check-circle"></i>
+    <strong><?= e($account->label) ?></strong> quedó conectado
+    <?= $account->phone_number ? ('(' . e($account->phone_number) . ')') : '' ?>.
+    Ya puede enviar y recibir mensajes desde Hello.
+</div>
+<button type="button" class="btn btn-default" onclick="oc.request(this, 'onCancelConnect', { data: {} })">
+    Conectar otro número
+</button>

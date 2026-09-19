@@ -1,0 +1,48 @@
+<?php /** @var \Illuminate\Support\Collection $accounts */ ?>
+<?php if ($accounts->isEmpty()): ?>
+    <div class="alert alert-info" style="margin-bottom:0">
+        <i class="icon-info-circle"></i>
+        Todavía no hay números de WhatsApp Web conectados.
+    </div>
+<?php else: ?>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Número</th>
+                <th>Perfil</th>
+                <th style="width:120px">Estado</th>
+                <th style="width:160px">Conectado</th>
+                <th style="width:80px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($accounts as $account): ?>
+            <tr>
+                <td><?= e($account->label) ?></td>
+                <td><?= e($account->phone_number ?: '—') ?></td>
+                <td><?= e($account->profile?->label ?: '—') ?></td>
+                <td>
+                    <span class="label label-<?= $account->is_enabled ? 'success' : 'default' ?>">
+                        <?= e($account->status) ?>
+                    </span>
+                </td>
+                <td><?= $account->connected_at?->format('d/m/Y H:i') ?: '—' ?></td>
+                <td class="text-right">
+                    <a
+                        href="javascript:void(0)"
+                        data-request="onDeleteAccount"
+                        data-request-data="id: <?= $account->id ?>"
+                        data-request-confirm="¿Desconectar «<?= e($account->label) ?>»? Se elimina la instancia en wapi y la cuenta en Hello."
+                        data-request-flash
+                        class="btn btn-xs btn-danger"
+                        title="Desconectar"
+                    >
+                        <i class="icon-trash-o"></i>
+                    </a>
+                </td>
+            </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>

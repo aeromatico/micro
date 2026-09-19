@@ -1,0 +1,131 @@
+<?php /** @var string $instanceId */ /** @var string $label */ /** @var string $method */ /** @var ?string $phone */ /** @var ?string $profileId */ ?>
+<div
+    class="panel panel-default"
+    data-connect-panel
+    data-instance-id="<?= e($instanceId) ?>"
+    data-label="<?= e($label) ?>"
+    data-method="<?= e($method) ?>"
+    data-profile-id="<?= e($profileId ?? '') ?>"
+>
+    <div class="panel-body text-center">
+        <p><strong><?= e($label) ?></strong></p>
+
+        <?php if ($method === 'code'): ?>
+        <p class="help-block">
+            En el celular del número <strong><?= e($phone) ?></strong>: WhatsApp → Dispositivos vinculados →
+            Vincular un dispositivo → <strong>Vincular con el número de teléfono</strong> y teclea este código.
+        </p>
+        <div id="wapi-code" style="font-family:monospace; font-size:40px; letter-spacing:6px; font-weight:bold; padding:18px 8px; background:#fff; color:#111; border:1px solid #ddd; border-radius:6px; max-width:420px; margin:0 auto; user-select:all">
+            <span class="text-muted" style="font-size:16px; letter-spacing:0; font-weight:normal">Generando código…</span>
+        </div>
+        <?php else: ?>
+        <div id="wapi-qr-canvas" style="width:340px; height:340px; max-width:100%; background:#fff; color:#555; display:flex; align-items:center; justify-content:center; margin:0 auto">
+            <span class="text-muted">Generando código QR…</span>
+        </div>
+        <?php endif ?>
+
+        <p id="wapi-qr-status" class="help-block">Esperando vinculación…</p>
+        <button
+            type="button"
+            class="btn btn-default"
+            onclick="oc.request(this, 'onCancelConnect', { data: { instance_id: '<?= e($instanceId) ?>', profile_id: '<?= e($profileId ?? '') ?>' } })"
+        >
+            Cancelar
+        </button>
+        <?php if ($method === 'qr'): ?>
+        <p class="help-block" style="margin-top:12px">¿El QR no conecta? Cancela y elige "Código de 8 dígitos".</p>
+        <?php endif ?>
+    </div>
+</div>
+
+<script>
+(function () {
+    var panel = document.currentScript.previousElementSibling;
+    var instanceId = panel.getAttribute('data-instance-id');
+    var label = panel.getAttribute('data-label');
+    var method = panel.getAttribute('data-method');
+    var profileId = panel.getAttribute('data-profile-id');
+    var canvas = panel.querySelector('#wapi-qr-canvas');
+    var codeEl = panel.querySelector('#wapi-code');
+    var statusEl = panel.querySelector('#wapi-qr-status');
+    var lastQr = null;
+    var stopped = false;
+    var seenActive = false;
+    var qrLibReady = (method !== 'qr' || window.qrcode)
+        ? Promise.resolve()
+        : new Promise(function (resolve) {
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+            script.onload = resolve;
+            document.head.appendChild(script);
+        });
+
+    function renderQr(text) {
+        if (text === lastQr) return;
+        lastQr = text;
+        qrLibReady.then(function () {
+            // Nivel L y zona de silencio de 4 módulos: el QR de WhatsApp es largo
+            // (~240 caracteres) y con nivel H quedaba de 77x77 módulos de ~3px,
+            // sin borde blanco - las cámaras no lo leían.
+            var qr = qrcode(0, 'L');
+            qr.addData(text);
+            qr.make();
+            // Tamaño en múltiplos exactos de píxel por módulo: con escala
+            // fraccionaria los cuadritos quedan de anchos desiguales.
+            var modules = qr.getModuleCount() + 8;
+            var cell = Math.max(3, Math.floor(340 / modules));
+            canvas.innerHTML = qr.createSvgTag({ cellSize: 1, margin: 4, scalable: true });
+            var svg = canvas.querySelector('svg');
+            svg.setAttribute('shape-rendering', 'crispEdges');
+            svg.style.cssText = 'display:block;width:' + (cell * modules) + 'px;height:' + (cell * modules) + 'px';
+        });
+    }
+
+    function renderCode(code) {
+        // ABCDEFGH -> ABCD-EFGH, como lo muestra WhatsApp en el celular
+        codeEl.textContent = code.length === 8 ? code.slice(0, 4) + '-' + code.slice(4) : code;
+    }
+
+    function poll() {
+        if (stopped) return;
+
+        oc.request(panel, 'onPollInstance', {
+            data: { instance_id: instanceId, label: label, method: method, profile_id: profileId },
+            success: function (data) {
+                if (data.connected) {
+                    stopped = true;
+                    return;
+                }
+
+                // Al crear la instancia el estado puede figurar un instante como
+                // 'disconnected' antes de arrancar: solo es caducidad si ya se
+                // había visto activa.
+                if (data.status && data.status !== 'disconnected') seenActive = true;
+                if (data.status === 'disconnected' && seenActive) {
+                    stopped = true;
+                    statusEl.textContent = 'La vinculación caducó o se cerró sin completarse. Pulsa Cancelar y vuelve a intentarlo.';
+                    return;
+                }
+
+                if (method === 'code' && data.code) {
+                    renderCode(data.code);
+                    statusEl.textContent = 'Teclea este código en tu celular. Se renueva cada ~3 minutos.';
+                } else if (method === 'qr' && data.qr) {
+                    renderQr(data.qr);
+                    statusEl.textContent = 'Escanea el código con WhatsApp → Dispositivos vinculados.';
+                } else {
+                    statusEl.textContent = 'Preparando la vinculación… (' + (data.status || '') + ')';
+                }
+
+                setTimeout(poll, 3000);
+            },
+            error: function () {
+                statusEl.textContent = 'No se pudo consultar el estado, reintentando…';
+                setTimeout(poll, 5000);
+            },
+        });
+    }
+
+    setTimeout(poll, 1500);
+})();
+</script>

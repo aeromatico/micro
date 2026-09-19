@@ -1,0 +1,27 @@
+1.0.0:
+    - Primera versión - driver de WhatsApp Web (wapi, self-hosted) registrado
+      en Aero.Hello vía MessageDispatcher. Envío directo (sin ventana 24h ni
+      plantillas) y webhook de mensajes entrantes. Sin UI propia, las cuentas
+      se crean desde Hello, Cuentas conectadas, con driver=wapi.
+1.1.0:
+    - UI de conexión por QR en el backend (wapi, Numeros conectados) - crear
+      instancia, escanear y queda dada de alta como Account de Hello con su
+      webhook registrado en un solo flujo, sin pasos por consola.
+    - Override de credenciales por perfil (wapi_api_key en Profile, mismo
+      criterio que zernio_api_key de Hello) - un perfil con
+      use_own_credentials aisla sus instancias/envios bajo su propia cuenta
+      de wapi en vez de la global.
+    - add_wapi_api_key_to_profiles.php
+1.2.0:
+    - Descarga de medios entrantes (fotos, audios, documentos) - agrega
+      GET /v1/instances/:id/messages/:messageId/media al lado de wapi
+      (server, commit aparte en su repo) y WapiChannelDriver::parseWebhook()
+      la consume al vuelo, materializando el adjunto como System\Models\File
+      publico (disco uploads) igual que cualquier otro archivo de Hello.
+1.3.0:
+    - Motor Baileys (protocolo directo, sin navegador) como motor por defecto de las
+      conexiones nuevas (y unico motor: whatsapp-web.js y Chromium se retiraron).
+      Arregla la vinculacion de cuentas con mucho historial y aporta id de mensaje y
+      acuses reales. Registra
+      tambien los eventos message_ack, disconnected y authenticated en el webhook. Las
+      pantallas de conexion avisan cuando el QR o el codigo caduca sin vincularse.

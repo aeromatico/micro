@@ -1,0 +1,25 @@
+fields:
+
+    base_url:
+        label: aero.wapi::lang.settings.base_url
+        type: text
+        comment: aero.wapi::lang.settings.base_url_comment
+        span: full
+
+    api_key:
+        label: aero.wapi::lang.settings.api_key
+        type: password
+        comment: aero.wapi::lang.settings.api_key_comment
+        span: full
+
+    webhook_secret:
+        label: aero.wapi::lang.settings.webhook_secret
+        type: password
+        comment: aero.wapi::lang.settings.webhook_secret_comment
+        span: full
+
+    allow_unsigned_webhooks:
+        label: aero.wapi::lang.settings.allow_unsigned_webhooks
+        type: switch
+        comment: aero.wapi::lang.settings.allow_unsigned_webhooks_comment
+        span: full

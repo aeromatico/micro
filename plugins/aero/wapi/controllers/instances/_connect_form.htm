@@ -1,0 +1,70 @@
+<?php /** @var \Illuminate\Support\Collection $profiles */ ?>
+<form
+    onsubmit="
+        event.preventDefault();
+        var f = this;
+        oc.request(f, 'onStartConnect', {
+            data: {
+                label: f.elements['label'].value,
+                method: f.elements['connect_method'].value,
+                phone: f.elements['phone'].value,
+                profile_id: f.elements['profile_id'].value,
+            },
+            flash: true,
+        });
+    "
+>
+    <div class="form-group" style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap">
+        <div style="flex:1; min-width:220px">
+            <label>Nombre de la conexión</label>
+            <input type="text" name="label" class="form-control" placeholder="Ej: Ventas Santa Cruz" required>
+        </div>
+        <?php if ($profiles->isNotEmpty()): ?>
+        <div style="flex:1; min-width:220px">
+            <label>Perfil (opcional)</label>
+            <select name="profile_id" class="form-control">
+                <option value="">-- Credenciales globales --</option>
+                <?php foreach ($profiles as $id => $profileLabel): ?>
+                <option value="<?= $id ?>"><?= e($profileLabel) ?></option>
+                <?php endforeach ?>
+            </select>
+        </div>
+        <?php else: ?>
+        <input type="hidden" name="profile_id" value="">
+        <?php endif ?>
+        <button type="submit" class="btn btn-primary" data-load-indicator="Creando...">
+            <i class="icon-link"></i> Conectar número
+        </button>
+    </div>
+
+    <div class="form-group">
+        <label style="display:block">¿Cómo vinculas el número?</label>
+        <label style="font-weight:normal; margin-right:18px">
+            <input type="radio" name="connect_method" value="qr" checked
+                   onchange="this.form.querySelector('[data-code-phone]').style.display='none'">
+            Escanear un código QR
+        </label>
+        <label style="font-weight:normal">
+            <input type="radio" name="connect_method" value="code"
+                   onchange="this.form.querySelector('[data-code-phone]').style.display=''">
+            Código de 8 dígitos
+        </label>
+    </div>
+
+    <div class="form-group" data-code-phone style="display:none; max-width:360px">
+        <label>Número de WhatsApp que vas a vincular</label>
+        <input type="text" name="phone" class="form-control" inputmode="numeric" placeholder="59170000000">
+        <p class="help-block">
+            Con código de país y solo dígitos. Es el número del celular donde vas a teclear el código.
+            Úsalo si el QR no conecta.
+        </p>
+    </div>
+
+    <p class="help-block">
+        <strong>QR:</strong> en tu celular ve a WhatsApp → Dispositivos vinculados → Vincular un dispositivo.<br>
+        <strong>Código:</strong> en la misma pantalla elige "Vincular con el número de teléfono" y teclea el código que aparecerá aquí.
+        <?php if ($profiles->isNotEmpty()): ?>
+        <br>Elegir un perfil usa su propia API key de wapi si tiene "Usar credenciales propias" activado.
+        <?php endif ?>
+    </p>
+</form>
