@@ -1,0 +1,14 @@
+name: Ticket
+form: $/aero/crm/models/ticket/fields.yaml
+modelClass: Aero\Crm\Models\Ticket
+defaultRedirect: aero/crm/tickets
+
+create:
+    title: Nuevo ticket
+    redirect: aero/crm/tickets/update/:id
+    redirectClose: aero/crm/tickets
+
+update:
+    title: Ticket
+    redirect: aero/crm/tickets/update/:id
+    redirectClose: aero/crm/tickets

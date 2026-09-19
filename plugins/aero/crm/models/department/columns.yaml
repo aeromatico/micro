@@ -1,0 +1,26 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+
+    color:
+        label: ' '
+        type: colorpicker
+        width: 40px
+
+    users_count:
+        label: Integrantes
+        type: number
+        sortable: false
+        width: 120px
+
+    tickets_count:
+        label: Tickets
+        type: number
+        sortable: false
+        width: 100px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 90px

@@ -124,3 +124,7 @@
     - "Equipos: el campo Miembros ahora es una lista de casillas con solo los usuarios del tenant (los miembros ya guardados se conservan) en vez de todos los usuarios del backend."
 1.4.6:
     - "Fix: editar un contacto enlazado a Hello no guardaba nada (decia \"Contacto actualizado\"): el partial de la pestana Acciones tenia un <form> anidado que cerraba el formulario principal y los botones Guardar enviaban el cuerpo vacio. Ahora el envio de mensajes usa un boton dentro del formulario."
+1.5.0:
+    - "Tickets y departamentos: mesa de ayuda con el mismo esquema para el sitio principal (superadmin, sin tenant) y para cada tenant. Departamentos con integrantes (se asignan desde CRM > Equipo o desde el propio departamento), tickets numerados por ambito con prioridad, estado, asignacion a un integrante del departamento, respuestas y notas internas. Un usuario sin rol admin solo ve los tickets de sus departamentos o asignados a el."
+    - create_ticketing_tables.php
+    - grant_ticket_permissions.php

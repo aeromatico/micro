@@ -1,0 +1,20 @@
+scopes:
+    status:
+        label: Estado
+        type: dropdown
+        options:
+            open: Abierto
+            pending: En espera
+            resolved: Resuelto
+            closed: Cerrado
+        conditions: status = :filtered
+
+    priority:
+        label: Prioridad
+        type: dropdown
+        options:
+            low: Baja
+            normal: Normal
+            high: Alta
+            urgent: Urgente
+        conditions: priority = :filtered

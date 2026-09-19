@@ -1,0 +1,16 @@
+title: Departamentos
+list: $/aero/crm/models/department/columns.yaml
+modelClass: Aero\Crm\Models\Department
+recordUrl: aero/crm/departments/update/:id
+noRecordsMessage: Todavía no hay departamentos.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar departamentos
+
+defaultSort:
+    column: name
+    direction: asc

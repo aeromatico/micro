@@ -1,0 +1,17 @@
+title: Tickets
+list: $/aero/crm/models/ticket/columns.yaml
+modelClass: Aero\Crm\Models\Ticket
+recordUrl: aero/crm/tickets/update/:id
+noRecordsMessage: No hay tickets.
+recordsPerPage: 30
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por asunto o solicitante
+
+filter: $/aero/crm/models/ticket/scopes.yaml
+
+defaultSort:
+    column: created_at
+    direction: desc

@@ -1,0 +1,14 @@
+name: Departamento
+form: $/aero/crm/models/department/fields.yaml
+modelClass: Aero\Crm\Models\Department
+defaultRedirect: aero/crm/departments
+
+create:
+    title: Nuevo departamento
+    redirect: aero/crm/departments/update/:id
+    redirectClose: aero/crm/departments
+
+update:
+    title: Editar departamento
+    redirect: aero/crm/departments
+    redirectClose: aero/crm/departments

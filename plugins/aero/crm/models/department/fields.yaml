@@ -1,0 +1,36 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: auto
+        required: true
+
+    color:
+        label: Color
+        type: colorpicker
+        span: auto
+        availableColors: ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899']
+
+    email:
+        label: Correo del departamento
+        type: text
+        span: auto
+        comment: Opcional. Para avisos y, más adelante, tickets por correo.
+
+    is_active:
+        label: Activo
+        type: switch
+        span: auto
+        comment: Los inactivos no se pueden elegir en tickets nuevos.
+
+    description:
+        label: Descripción
+        type: textarea
+        size: small
+        span: full
+
+    users:
+        label: Integrantes
+        type: checkboxlist
+        span: full
+        comment: Quienes atienden los tickets de este departamento. También se asignan desde Equipo.

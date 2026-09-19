@@ -149,6 +149,24 @@ class Plugin extends PluginBase
             ],
         ];
 
+        // Mesa de ayuda: también para el superadmin sin tenant (sitio principal).
+        if ($this->isCrmEnabledForCurrentTenant() || $this->isPlatformDesk()) {
+            $sideMenu += [
+                'crm-tickets' => [
+                    'label'       => 'Tickets',
+                    'icon'        => 'icon-life-ring',
+                    'url'         => Backend::url('aero/crm/tickets'),
+                    'permissions' => ['aero.crm.manage_tickets'],
+                ],
+                'crm-departamentos' => [
+                    'label'       => 'Departamentos',
+                    'icon'        => 'icon-sitemap',
+                    'url'         => Backend::url('aero/crm/departments'),
+                    'permissions' => ['aero.crm.manage_departments'],
+                ],
+            ];
+        }
+
         if ($this->isCrmEnabledForCurrentTenant()) {
             $sideMenu += [
                 'crm-empresas' => [
@@ -211,6 +229,7 @@ class Plugin extends PluginBase
                     'aero.crm.manage_companies', 'aero.crm.manage_contacts', 'aero.crm.manage_leads',
                     'aero.crm.manage_deals', 'aero.crm.manage_activities', 'aero.crm.manage_teams',
                     'aero.crm.manage_settings', 'aero.crm.manage_collections',
+                    'aero.crm.manage_tickets', 'aero.crm.manage_departments',
                 ],
                 'order'       => 160,
                 'sideMenu'    => $sideMenu,
@@ -233,6 +252,12 @@ class Plugin extends PluginBase
         return (bool) \Aero\Crm\Models\CrmSettings::where('tenant_id', $tenantId)->value('is_enabled');
     }
 
+    /** Superadmin sin tenant resuelto: atiende la mesa de ayuda de la plataforma. */
+    protected function isPlatformDesk(): bool
+    {
+        return (bool) \BackendAuth::getUser()?->is_superuser && !$this->resolveCurrentBackendTenantId();
+    }
+
     protected function resolveCurrentBackendTenantId(): ?int
     {
         $user = \BackendAuth::getUser();
@@ -248,11 +273,7 @@ class Plugin extends PluginBase
         }
 
         if (!$tenantId) {
-            $tenantId = \Aero\Sites\Models\Tenant::where('backend_user_id', $user->id)->value('id');
-        }
-
-        if (!$tenantId) {
-            $tenantId = \Aero\Sites\Models\TenantUser::where('user_id', $user->id)->value('tenant_id');
+            $tenantId = \Aero\Sites\Models\Tenant::resolveForBackendUser($user)?->id;
         }
 
         return $tenantId ?: null;
@@ -343,6 +364,14 @@ class Plugin extends PluginBase
             'aero.crm.manage_teams' => [
                 'tab'   => 'CRM',
                 'label' => 'Gestionar equipos',
+            ],
+            'aero.crm.manage_tickets' => [
+                'tab'   => 'CRM',
+                'label' => 'Gestionar tickets',
+            ],
+            'aero.crm.manage_departments' => [
+                'tab'   => 'CRM',
+                'label' => 'Gestionar departamentos',
             ],
             'aero.crm.manage_settings' => [
                 'tab'   => 'CRM',

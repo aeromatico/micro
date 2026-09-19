@@ -1,0 +1,54 @@
+columns:
+    number:
+        label: N°
+        sortable: false
+        width: 80px
+
+    subject:
+        label: Asunto
+        searchable: true
+
+    requester_name:
+        label: Solicitante
+        searchable: true
+
+    department:
+        label: Departamento
+        relation: department
+        select: name
+
+    assignee:
+        label: Asignado a
+        relation: assignee
+        select: first_name
+
+    priority:
+        label: Prioridad
+        type: selectable
+        options:
+            low: Baja
+            normal: Normal
+            high: Alta
+            urgent: Urgente
+        width: 110px
+
+    status:
+        label: Estado
+        type: selectable
+        options:
+            open: Abierto
+            pending: En espera
+            resolved: Resuelto
+            closed: Cerrado
+        width: 110px
+
+    replies_count:
+        label: Resp.
+        type: number
+        sortable: false
+        width: 70px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 150px

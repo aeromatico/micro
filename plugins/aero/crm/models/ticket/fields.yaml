@@ -1,0 +1,83 @@
+fields:
+    subject:
+        label: Asunto
+        type: text
+        span: full
+        required: true
+
+    department_id:
+        label: Departamento
+        type: dropdown
+        span: auto
+        required: true
+        emptyOption: — elegí —
+
+    assigned_to:
+        label: Asignado a
+        type: dropdown
+        span: auto
+        emptyOption: Sin asignar
+        dependsOn: department_id
+        comment: Solo integrantes del departamento.
+
+    priority:
+        label: Prioridad
+        type: dropdown
+        span: auto
+
+    status:
+        label: Estado
+        type: dropdown
+        span: auto
+
+    description:
+        label: Descripción
+        type: textarea
+        size: large
+        span: full
+
+    requester_name:
+        label: Solicitante
+        type: text
+        span: auto
+        tab: Solicitante
+
+    requester_email:
+        label: Correo
+        type: text
+        span: auto
+        tab: Solicitante
+
+    requester_phone:
+        label: Teléfono / WhatsApp
+        type: text
+        span: auto
+        tab: Solicitante
+
+    contact_id:
+        label: Contacto del CRM
+        type: dropdown
+        span: auto
+        emptyOption: Ninguno
+        tab: Solicitante
+
+    conversation:
+        label: Conversación
+        type: partial
+        path: $/aero/crm/models/ticket/_conversation.php
+        span: full
+        context: update
+        tab: Respuestas
+
+    new_reply:
+        label: Nueva respuesta
+        type: textarea
+        size: small
+        span: full
+        tab: Respuestas
+
+    reply_internal:
+        label: Nota interna (el solicitante no la ve)
+        type: checkbox
+        span: full
+        tab: Respuestas

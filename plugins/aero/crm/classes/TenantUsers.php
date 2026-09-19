@@ -27,8 +27,7 @@ class TenantUsers
             return null;
         }
 
-        $id = Tenant::where('backend_user_id', $user->id)->value('id')
-            ?? TenantUser::where('user_id', $user->id)->value('tenant_id');
+        $id = Tenant::resolveForBackendUser($user)?->id;
 
         return $id ? (int) $id : null;
     }

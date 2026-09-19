@@ -1,14 +1,14 @@
 columns:
-    user[email]:
+    user_email:
         label: Correo
-        relation: user
-        select: email
-        searchable: true
+        searchable: false
 
-    user[first_name]:
+    user_name:
         label: Nombre
-        relation: user
-        select: first_name
+
+    departments:
+        label: Departamentos
+        sortable: false
 
     role:
         label: Rol

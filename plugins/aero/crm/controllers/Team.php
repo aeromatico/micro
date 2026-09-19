@@ -1,5 +1,6 @@
 <?php namespace Aero\Crm\Controllers;
 
+use Aero\Crm\Models\Department;
 use Aero\Sites\Models\TenantInvite;
 use Aero\Sites\Models\TenantUser;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
@@ -7,6 +8,7 @@ use Backend\Classes\Controller;
 use BackendAuth;
 use BackendMenu;
 use Flash;
+use Db;
 use Validator;
 
 /**
@@ -43,6 +45,73 @@ class Team extends Controller
     public function listExtendQuery($query): void
     {
         $query->where('tenant_id', $this->requireTenant()->id);
+    }
+
+    /** Departamentos por usuario del tenant, en una sola consulta para la lista. */
+    protected ?array $departmentsByUser = null;
+
+    protected function departmentsOf(int $userId): array
+    {
+        if ($this->departmentsByUser === null) {
+            $this->departmentsByUser = [];
+            $rows = Db::table('aero_crm_department_user as du')
+                ->join('aero_crm_departments as d', 'd.id', '=', 'du.department_id')
+                ->where('d.tenant_id', $this->requireTenant()->id)
+                ->get(['du.user_id', 'd.id', 'd.name', 'd.color']);
+
+            foreach ($rows as $r) {
+                $this->departmentsByUser[$r->user_id][] = $r;
+            }
+        }
+
+        return $this->departmentsByUser[$userId] ?? [];
+    }
+
+    public function listOverrideColumnValue($record, $columnName)
+    {
+        if ($columnName !== 'departments') {
+            return null;
+        }
+
+        return $this->makePartial('departments_column', [
+            'record'      => $record,
+            'departments' => $this->departmentsOf((int) $record->user_id),
+        ]);
+    }
+
+    public function onLoadDepartments()
+    {
+        $tenant     = $this->requireTenant();
+        $tenantUser = TenantUser::where('tenant_id', $tenant->id)->findOrFail(post('id'));
+
+        return $this->makePartial('departments_form', [
+            'tenantUser'  => $tenantUser,
+            'departments' => Department::inScope($tenant->id)->active()->orderBy('name')->get(),
+            'selected'    => collect($this->departmentsOf((int) $tenantUser->user_id))->pluck('id')->all(),
+        ]);
+    }
+
+    public function onSaveDepartments()
+    {
+        $tenant     = $this->requireTenant();
+        $tenantUser = TenantUser::where('tenant_id', $tenant->id)->findOrFail(post('id'));
+
+        // Solo departamentos de este tenant: nunca se toca lo de otros ámbitos.
+        $allowed = Department::inScope($tenant->id)->pluck('id')->all();
+        $chosen  = array_values(array_intersect($allowed, array_map('intval', (array) post('departments'))));
+
+        Db::table('aero_crm_department_user')
+            ->where('user_id', $tenantUser->user_id)
+            ->whereIn('department_id', $allowed)
+            ->delete();
+
+        foreach ($chosen as $id) {
+            Db::table('aero_crm_department_user')->insert(['department_id' => $id, 'user_id' => $tenantUser->user_id]);
+        }
+
+        Flash::success('Departamentos actualizados.');
+
+        return $this->listRefresh();
     }
 
     public function onLoadInviteForm()
