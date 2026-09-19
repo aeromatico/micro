@@ -102,7 +102,7 @@ trait HasBrandingForm
                 // (SiteSettings o ContentEditor, ambos usan este trait).
                 'path'    => '$/aero/sites/controllers/sitesettings/_theme_gallery',
                 'span'    => 'full',
-                'comment' => 'Elegí un tema como punto de partida. Los temas son de solo lectura — para personalizar colores o tipografía usá los campos de abajo.',
+                'comment' => 'Elige un tema como punto de partida. Los temas son de solo lectura — para personalizar colores o tipografía usa los campos de abajo.',
             ],
             'override_primary' => [
                 'label'       => 'Personalizar color primario (opcional)',

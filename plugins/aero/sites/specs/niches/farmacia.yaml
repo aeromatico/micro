@@ -14,7 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Tu salud es nuestra prioridad. Consultá disponibilidad y hacé tu pedido.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Tu salud es nuestra prioridad. Consulta disponibilidad y haz tu pedido.</p>"
   - title: "Productos y Servicios"
     slug: "productos"
     layout: default

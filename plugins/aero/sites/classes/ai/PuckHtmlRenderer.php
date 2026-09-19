@@ -1463,6 +1463,191 @@ class PuckHtmlRenderer
             . '</div></section>';
     }
 
+    protected function footerAllLinksHtml(array $cols): string
+    {
+        $html = '';
+        foreach ($cols as $c) {
+            foreach ($this->parseFaqLinks($this->attr(is_array($c) ? $c : [], 'links', '')) as $l) {
+                $html .= '<a href="' . $this->e($l['url']) . '" class="text-sm opacity-80 hover:opacity-100">' . $this->e($l['label']) . '</a>';
+            }
+        }
+        return $html;
+    }
+
+    protected function footerColumnsHtml(array $cols): string
+    {
+        $html = '';
+        foreach ($cols as $c) {
+            $c = is_array($c) ? $c : [];
+            $lis = '';
+            foreach ($this->parseFaqLinks($this->attr($c, 'links', '')) as $l) {
+                $lis .= '<li><a href="' . $this->e($l['url']) . '" class="text-sm opacity-80 hover:opacity-100">' . $this->e($l['label']) . '</a></li>';
+            }
+            $html .= '<div><div class="text-sm font-semibold uppercase tracking-wide mb-3">' . $this->e($this->attr($c, 'title', '')) . '</div>'
+                . '<ul class="space-y-2 ">' . $lis . '</ul></div>';
+        }
+        return $html;
+    }
+
+    protected function renderFooter(array $p): string
+    {
+        $variant   = $this->attr($p, 'variant', 'columnas');
+        $brand     = $this->attr($p, 'brand', '');
+        $tagline   = $this->attr($p, 'tagline', '');
+        $cols      = $this->attr($p, 'columns', []);
+        $contact   = $this->attr($p, 'contact', '');
+        $copyright = $this->attr($p, 'copyright', '');
+        $background = $this->attr($p, 'background', 'surface');
+
+        $autoText = $background === 'brand' ? 'text-white' : 'text-ink';
+        $resolved = $this->resolveSectionStyle($background, $autoText, [
+            'customBgColor' => $this->attr($p, 'customBgColor', ''),
+            'textColor' => $this->attr($p, 'textColor', 'auto'),
+            'customTextColor' => $this->attr($p, 'customTextColor', ''),
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $cls = $resolved['class'];
+
+        $brandEl   = '<div class="font-heading2 text-xl font-bold">' . $this->e($brand) . '</div>';
+        $taglineEl = $tagline !== '' ? '<p class="text-sm opacity-75 mt-3 max-w-xs">' . $this->e($tagline) . '</p>' : '';
+        $copyEl    = $copyright !== '' ? '<p class="text-sm opacity-75">' . $this->e($copyright) . '</p>' : '';
+        $colBlocks = $this->footerColumnsHtml($cols);
+
+        if ($variant === 'minimalista') {
+            return '<footer class="' . trim('py-12 px-4 ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto text-center">' . $brandEl
+                . '<div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-5">' . $this->footerAllLinksHtml($cols) . '</div>'
+                . '<div class="mt-6">' . $copyEl . '</div></div></footer>';
+        }
+
+        if ($variant === 'contacto') {
+            $lis = '';
+            foreach (array_filter(array_map('trim', explode("\n", $contact))) as $l) {
+                $lis .= '<li class="text-sm opacity-90">' . $this->e($l) . '</li>';
+            }
+            return '<footer class="' . trim('py-14 px-4 ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10"><div>' . $brandEl . $taglineEl
+                . '<ul class="mt-5 space-y-1">' . $lis . '</ul></div>'
+                . '<div class="grid grid-cols-2 sm:grid-cols-3 gap-8">' . $colBlocks . '</div></div>'
+                . '<div class="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">' . $copyEl . '</div></footer>';
+        }
+
+        if ($variant === 'barra-doble') {
+            return '<footer class="' . $cls . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">' . $brandEl
+                . '<div class="flex flex-wrap gap-x-6 gap-y-2">' . $this->footerAllLinksHtml($cols) . '</div></div>'
+                . '<div class="bg-brand-primary text-white py-4 px-4 text-center">'
+                . ($copyright !== '' ? '<p class="text-sm">' . $this->e($copyright) . '</p>' : '') . '</div></footer>';
+        }
+
+        if ($variant === 'centrado-columnas') {
+            return '<footer class="' . trim('py-14 px-4 ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-5xl mx-auto text-center">' . $brandEl
+                . ($tagline !== '' ? '<p class="text-sm opacity-75 mt-3 max-w-md mx-auto">' . $this->e($tagline) . '</p>' : '')
+                . '<div class="grid grid-cols-2 sm:grid-cols-3 gap-8 mt-10 text-center">' . $colBlocks . '</div>'
+                . '<div class="mt-10 pt-6 border-t border-surface-border">' . $copyEl . '</div></div></footer>';
+        }
+
+        // ---- columnas: layout clásico (default) ---------------------------------
+        return '<footer class="' . trim('py-14 px-4 ' . $cls) . '"' . $style . '>'
+            . '<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10"><div>' . $brandEl . $taglineEl . '</div>' . $colBlocks . '</div>'
+            . '<div class="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">' . $copyEl . '</div></footer>';
+    }
+
+    protected function headerBrandHtml(string $brand, string $logo): string
+    {
+        $inner = $logo !== ''
+            ? '<img src="' . $this->e($logo) . '" alt="' . $this->e($brand) . '" class="h-8 w-auto">'
+            : '<span class="text-lg font-bold tracking-tight">' . $this->e($brand) . '</span>';
+        return '<a href="/" class="flex items-center gap-2.5 shrink-0">' . $inner . '</a>';
+    }
+
+    protected function headerCtaHtml(string $label, string $url, bool $solid = false): string
+    {
+        if ($label === '') {
+            return '';
+        }
+        $cls = $solid ? 'bg-white text-brand-primary' : 'bg-brand-primary text-white';
+        return '<a href="' . $this->e($url !== '' ? $url : '#') . '" class="hidden sm:inline-flex px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 ' . $cls . '">' . $this->e($label) . '</a>';
+    }
+
+    protected function headerLinksHtml(string $links, string $extra = ''): string
+    {
+        $html = '';
+        foreach ($this->parseFaqLinks($links) as $l) {
+            $html .= '<a href="' . $this->e($l['url']) . '" class="px-3 py-2 text-sm font-medium opacity-80 hover:opacity-100 rounded-lg transition-all">' . $this->e($l['label']) . '</a>';
+        }
+        return '<div class="hidden md:flex items-center gap-1 ' . $extra . '">' . $html . '</div>';
+    }
+
+    protected function headerMobileHtml(string $links, string $ctaLabel, string $ctaUrl): string
+    {
+        $items = '';
+        foreach ($this->parseFaqLinks($links) as $l) {
+            $items .= '<a href="' . $this->e($l['url']) . '" class="block px-3 py-2.5 text-sm font-medium hover:bg-surface-alt rounded-lg">' . $this->e($l['label']) . '</a>';
+        }
+        if ($ctaLabel !== '') {
+            $items .= '<a href="' . $this->e($ctaUrl !== '' ? $ctaUrl : '#') . '" class="block mt-1 px-3 py-2.5 text-sm font-semibold text-center bg-brand-primary text-white rounded-lg">' . $this->e($ctaLabel) . '</a>';
+        }
+        return '<details class="md:hidden relative"><summary class="list-none cursor-pointer p-2 rounded-lg" aria-label="Menú">'
+            . '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></summary>'
+            . '<div class="absolute right-0 top-full mt-2 w-56 bg-surface text-ink border border-surface-border rounded-xl shadow-lg p-2 z-50">' . $items . '</div></details>';
+    }
+
+    protected function renderHeader(array $p): string
+    {
+        $variant  = $this->attr($p, 'variant', 'clasico');
+        $brand    = $this->attr($p, 'brand', '');
+        $logo     = $this->attr($p, 'logo', '');
+        $links    = $this->attr($p, 'links', '');
+        $ctaLabel = $this->attr($p, 'ctaLabel', '');
+        $ctaUrl   = $this->attr($p, 'ctaUrl', '');
+        $topText  = $this->attr($p, 'topText', '');
+        $background = $this->attr($p, 'background', 'surface');
+
+        $autoText = $background === 'brand' ? 'text-white' : 'text-ink';
+        $resolved = $this->resolveSectionStyle($background, $autoText, [
+            'customBgColor' => $this->attr($p, 'customBgColor', ''),
+            'textColor' => $this->attr($p, 'textColor', 'auto'),
+            'customTextColor' => $this->attr($p, 'customTextColor', ''),
+        ]);
+        $style = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+        $cls = $resolved['class'];
+
+        $brandEl = $this->headerBrandHtml($brand, $logo);
+        $linksEl = $this->headerLinksHtml($links);
+        $mobile  = $this->headerMobileHtml($links, $ctaLabel, $ctaUrl);
+        $navInner = 'mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4';
+
+        if ($variant === 'centrado') {
+            return '<header class="' . trim('relative z-40 border-b border-surface-border ' . $cls) . '"' . $style . '>'
+                . '<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center gap-2">'
+                . '<div class="w-full flex items-center justify-between md:justify-center">' . $brandEl . $mobile . '</div>'
+                . $linksEl . '</div></header>';
+        }
+
+        if ($variant === 'barra-marca') {
+            return '<header class="relative z-40 bg-brand-primary text-white"><nav class="' . $navInner . '">'
+                . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl, true) . $mobile . '</div></nav></header>';
+        }
+
+        if ($variant === 'dos-niveles') {
+            $top = $topText !== '' ? '<div class="bg-brand-primary text-white text-xs text-center py-2 px-4">' . $this->e($topText) . '</div>' : '';
+            return '<header class="' . trim('relative z-40 ' . $cls) . '"' . $style . '>' . $top
+                . '<nav class="' . $navInner . ' border-b border-surface-border">'
+                . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl) . $mobile . '</div></nav></header>';
+        }
+
+        if ($variant === 'flotante') {
+            return '<header class="relative z-40 px-4 pt-4"><nav class="' . trim('mx-auto max-w-5xl flex h-14 items-center justify-between gap-4 px-5 rounded-full shadow-lg border border-surface-border ' . $cls) . '"' . $style . '>'
+                . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl) . $mobile . '</div></nav></header>';
+        }
+
+        // ---- clasico (default) ----------------------------------------------------
+        return '<header class="' . trim('relative z-40 border-b border-surface-border ' . $cls) . '"' . $style . '><nav class="' . $navInner . '">'
+            . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl) . $mobile . '</div></nav></header>';
+    }
+
     protected function renderRating(array $p): string
     {
         $score = (int) ($p['score'] ?? 5);

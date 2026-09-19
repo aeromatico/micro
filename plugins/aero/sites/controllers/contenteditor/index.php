@@ -10,12 +10,13 @@ if (!empty($this->vars['noTenant'])): ?>
 
 $indexPageWidget     = $this->indexPageWidget;
 $brandingWidget      = $this->brandingWidget;
+$layoutWidget        = $this->layoutWidget;
 $indexPage           = $this->vars['indexPage'];
-$tenant              = $this->vars['tenant'];
+$layout              = $this->vars['layout'];
 $paletteVars         = $this->vars['paletteVars'] ?? [];
-$archetypes          = $this->vars['archetypes'];
-$aiConnectors        = $this->vars['aiConnectors'];
-$lastGeneration      = $this->vars['lastGeneration'];
+$defaultBaseHtml     = $this->vars['defaultBaseHtml'] ?? '';
+$defaultHeaderHtml   = $this->vars['defaultHeaderHtml'] ?? '';
+$defaultFooterHtml   = $this->vars['defaultFooterHtml'] ?? '';
 
 $paletteSwatchKeys = [
     '--color-primary'   => 'Primario',
@@ -32,14 +33,11 @@ $paletteSwatchKeys = [
 // regenera la página completa desde cero, no hay modo "actualizar parcial").
 $hasExistingDesign = $indexPage && !empty($indexPage->puck_data);
 
-// Prompt de arranque para quien no elige ningún arquetipo — sale del nicho
-// del propio tenant (specs/niches/{handle}.yaml vía NicheManager), no de un
-// registro de Archetype, para que ya venga afín al rubro del negocio en vez
-// de un texto genérico sin relación con el nicho.
-$genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
-    ->make($tenant->niche_type)
-    ->getBasePrompt();
-
+// Con plantilla propia (HTML completo) no hay editor visual: el tenant pegó
+// su propio documento, así que la galería de bloques Puck no aplica — se
+// deshabilita la pestaña en vez de dejarla ahí mostrando algo que no se
+// puede usar. Se re-habilita apenas vuelve a modo "Plataforma".
+$isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
 ?>
 <div class="layout-row">
     <div class="layout-cell">
@@ -52,17 +50,99 @@ $genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
                         <i class="icon-home"></i> Inicio
                     </a>
                 </li>
-                <li>
+                <li id="tab-nav-branding" style="<?= $isCustomLayout ? 'display:none' : '' ?>">
                     <a href="#tab-branding" data-toggle="tab">
                         <i class="icon-image"></i> Branding
                     </a>
                 </li>
-                <li>
+                <li id="tab-nav-bloques" style="<?= $isCustomLayout ? 'display:none' : '' ?>">
                     <a href="#tab-componentes" data-toggle="tab">
-                        <i class="icon-th-large"></i> Componentes
+                        <i class="icon-th-large"></i> Bloques
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-plantilla" data-toggle="tab">
+                        <i class="icon-code"></i> Plantilla
                     </a>
                 </li>
             </ul>
+
+            <script>
+            (function () {
+                // El modo de "Plantilla" (Layout.mode) se cambia en vivo desde el
+                // balloon-selector de la pestaña Plantilla, sin recargar la
+                // página — así que Branding/Bloques (que no aplican con plantilla
+                // propia) tienen que esconderse/mostrarse al toque, no solo al
+                // recargar después de guardar.
+                //
+                // balloon-selector.js hace $field.val(value).trigger('change') —
+                // ese 'change' es un evento sintético de jQuery, NO uno nativo
+                // del DOM (verificado con Playwright: dispara los handlers
+                // .on('change', ...) de jQuery pero jamás llega a un
+                // document.addEventListener('change', ...) nativo). Por eso
+                // esto tiene que engancharse con jQuery, delegado en document
+                // porque el campo vive más abajo en el DOM (dentro del <form>
+                // de la pestaña Plantilla) y este script corre antes de que
+                // exista.
+                function setHidden(id, hidden) {
+                    var el = document.getElementById(id);
+                    if (el) el.style.display = hidden ? 'none' : '';
+                }
+
+                function onModeChange(value) {
+                    var isCustom = value === 'custom';
+
+                    setHidden('tab-nav-branding', isCustom);
+                    setHidden('tab-nav-bloques', isCustom);
+                    setHidden('tab-branding', isCustom);
+                    setHidden('tab-componentes', isCustom);
+
+                    // Con plantilla propia tampoco tiene sentido el editor
+                    // visual (ni la IA que lo alimenta) en el tab Inicio: se
+                    // esconde el selector "Tipo de contenido" y el panel de
+                    // IA, y se fuerza el valor a "Código" — no queda otra
+                    // opción visible, así que no tiene sentido dejar el campo
+                    // en un valor que ya no se puede elegir. El "Código" en sí
+                    // (content_raw) ya se muestra/oculta solo, vía su propio
+                    // trigger nativo de October atado a "Tipo de contenido".
+                    setHidden('Form-indexPageForm-field-IndexPage-content_mode-group', isCustom);
+                    setHidden('Form-indexPageForm-field-IndexPage-ai_panel-group', isCustom);
+                    if (isCustom && window.oc && oc.Events) {
+                        var contentModeEl = document.getElementById('Form-indexPageForm-field-IndexPage-content_mode');
+                        if (contentModeEl) {
+                            oc.Events.dispatch('trigger:fill', { target: contentModeEl, detail: { fillValue: 'code' } });
+                        }
+                    }
+
+                    // Si Branding o Bloques estaban activas cuando se ocultan,
+                    // hay que volver a Inicio — si no, queda un tab activo sin
+                    // nav visible y sin forma de salir de ahí con un clic.
+                    if (isCustom) {
+                        var activePane = document.querySelector('#tab-branding.active, #tab-componentes.active');
+                        if (activePane) {
+                            var inicioLink = document.querySelector('a[href="#tab-inicio"]');
+                            if (inicioLink) inicioLink.click();
+                        }
+                    }
+                }
+
+                if (window.jQuery) {
+                    jQuery(document).on('change', '[name="Layout[mode]"]', function () {
+                        onModeChange(this.value);
+                    });
+
+                    // Pasada inicial: si la plantilla ya está guardada como
+                    // "custom" pero la página de inicio todavía tiene guardado
+                    // content_mode=puck de antes (se guardan por separado, en
+                    // pestañas distintas), sin esto el selector quedaría oculto
+                    // pero el editor visual seguiría mostrándose, sin forma de
+                    // llegar al campo de código.
+                    <?php if ($isCustomLayout): ?>
+                    jQuery(function () { onModeChange('custom'); });
+                    <?php endif ?>
+                }
+            })();
+            </script>
 
             <div class="tab-content">
 
@@ -72,152 +152,18 @@ $genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
                 <div id="tab-inicio" class="tab-pane active">
                     <div class="layout padded-container">
 
-                        <!-- ====================================================
-                             AI GENERATION PANEL
-                             ==================================================== -->
-                        <?php if (!$hasExistingDesign): ?>
-                        <div id="ai-panel" style="margin-bottom:28px">
-                            <h4 style="margin-top:0">Generá tu primer diseño con Inteligencia Artificial</h4>
-                            <p class="text-muted">Describe tu negocio en detalle y la IA generará automáticamente la página de inicio usando los bloques disponibles. Cuanta más información des, mejor será el resultado.</p>
-                            <?= $this->makePartial('ai_form', [
-                                'archetypes'         => $archetypes,
-                                'tenant'             => $tenant,
-                                'aiConnectors'       => $aiConnectors,
-                                'genericBasePrompt'  => $genericBasePrompt,
-                                'buttonLabel'        => 'Generar mi diseño con IA',
-                                'confirm'            => null,
-                            ]) ?>
-                        </div>
-                        <?php else: ?>
-                        <div id="ai-panel" style="margin-bottom:28px">
-                            <h4 style="margin-top:0; cursor:pointer" data-ai-toggle>
-                                Reconstruir sitio con Inteligencia Artificial
-                                <i class="icon-chevron-down"></i>
-                            </h4>
-                            <div data-ai-body style="display:none">
-                                <p class="text-muted">
-                                    Esto <strong>reemplaza por completo</strong> la página de inicio actual (bloques y contenido) por un nuevo diseño generado por IA. No es un ajuste parcial: cualquier edición manual hecha en el editor visual se perderá.
-                                </p>
-                                <?= $this->makePartial('ai_form', [
-                                    'archetypes'         => $archetypes,
-                                    'tenant'             => $tenant,
-                                    'aiConnectors'       => $aiConnectors,
-                                    'genericBasePrompt'  => $genericBasePrompt,
-                                    'buttonLabel'        => 'Reconstruir con IA',
-                                    'confirm'            => '¿Reconstruir la página de inicio? Se perderá el diseño y las ediciones actuales.',
-                                    // "Rehacer con IA" (botón de acceso rápido junto a
-                                    // Guardar) precarga esto y dispara el submit directo,
-                                    // sin que el usuario tenga que reescribir el prompt.
-                                    'lastPrompt'         => $lastGeneration->prompt ?? '',
-                                    'lastArchetypeHandle'=> $lastGeneration->archetype_handle ?? '',
-                                    'lastConnectorId'    => $lastGeneration->connector_id ?? null,
-                                ]) ?>
-                            </div>
-                        </div>
-                        <?php endif ?>
-
-                        <script>
-                        (function () {
-                            var POLL_INTERVAL_MS = 2500;
-
-                            function setGenerating(isGenerating) {
-                                var btn = document.getElementById('ai-generate-btn');
-                                if (btn) btn.disabled = isGenerating;
-                            }
-
-                            function poll(logId) {
-                                oc.request('#ai-panel', 'onCheckAiStatus', {
-                                    data: { log_id: logId },
-                                    success: function (data) {
-                                        if (data.status === 'pending' || data.status === 'processing') {
-                                            setTimeout(function () { poll(logId); }, POLL_INTERVAL_MS);
-                                        } else if (data.status === 'done') {
-                                            // El widget del editor Puck de abajo quedó con los datos
-                                            // viejos (se renderizó server-side al cargar la página).
-                                            // Recargamos para que muestre el diseño recién generado;
-                                            // si no, un "Guardar" posterior pisaría el resultado de la IA.
-                                            setTimeout(function () { window.location.reload(); }, 1200);
-                                        } else {
-                                            setGenerating(false);
-                                        }
-                                    },
-                                    error: function () {
-                                        setGenerating(false);
-                                    },
-                                });
-                            }
-
-                            window.aeroAiOnGenerateStarted = function (data) {
-                                if (!data || !data.aiLogId) return;
-                                setGenerating(true);
-                                poll(data.aiLogId);
-                            };
-
-                            document.querySelectorAll('[data-ai-toggle]').forEach(function (toggle) {
-                                toggle.addEventListener('click', function () {
-                                    var panel = toggle.closest('#ai-panel');
-                                    var body = panel ? panel.querySelector('[data-ai-body]') : null;
-                                    if (body) body.style.display = (body.style.display === 'none') ? '' : 'none';
-                                });
-                            });
-
-                            var archetypeSelect = document.getElementById('ai-archetype-select');
-                            var archetypeDescription = document.getElementById('ai-archetype-description');
-                            var promptTextarea = document.getElementById('ai-prompt-textarea');
-                            // Aplica el prompt base asociado a la opción elegida.
-                            // - force=true (el usuario cambió de arquetipo): reemplaza
-                            //   siempre, para que el campo refleje al instante el prompt
-                            //   realmente asociado a esa opción.
-                            // - force=false (carga inicial): sólo autocompleta si el campo
-                            //   viene vacío, así no pisa el último prompt usado en
-                            //   "Rehacer con IA".
-                            function applyArchetypePrompt(force) {
-                                var opt = archetypeSelect.options[archetypeSelect.selectedIndex];
-                                archetypeDescription.textContent = (opt && opt.dataset.description) || '';
-
-                                if (!promptTextarea) return;
-                                var basePrompt = (opt && opt.dataset.basePrompt) || '';
-                                if (force || promptTextarea.value.trim() === '') {
-                                    promptTextarea.value = basePrompt;
-                                }
-                            }
-                            if (archetypeSelect && archetypeDescription) {
-                                archetypeSelect.addEventListener('change', function () {
-                                    applyArchetypePrompt(true);
-                                });
-                                // Precarga desde el inicio: la opción seleccionada por defecto
-                                // ("Sin arquetipo") también trae un prompt genérico del nicho.
-                                applyArchetypePrompt(false);
-                            }
-
-                            // Delegado en document: el botón vive más abajo en el DOM
-                            // (dentro del form de "Guardar página de inicio"), y este
-                            // script corre antes de que exista — no se puede hacer
-                            // getElementById acá arriba.
-                            document.addEventListener('click', function (e) {
-                                if (!e.target.closest('#ai-redo-btn')) return;
-
-                                var panel = document.getElementById('ai-panel');
-                                var body = panel ? panel.querySelector('[data-ai-body]') : null;
-                                if (body) body.style.display = '';
-                                if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                                // El form ya viene precargado con el último prompt/arquetipo
-                                // usado (ver ContentEditor::index() → $lastGeneration), así
-                                // que "Rehacer con IA" dispara el submit directo — el usuario
-                                // solo confirma el diálogo de "esto reemplaza el diseño
-                                // actual", no tiene que reescribir nada.
-                                var generateBtn = document.getElementById('ai-generate-btn');
-                                if (generateBtn) generateBtn.click();
-                            });
-                        })();
-                        </script>
-
                         <?php if ($indexPage): ?>
                         <form data-request="onSaveIndex" data-request-flash>
                             <?= $indexPageWidget->render() ?>
+                            <div
+                                id="ai-generating-notice"
+                                style="display:none; align-items:center; gap:10px; padding:10px 14px; margin-bottom:10px; border-radius:8px; border:1px solid rgba(99,102,241,.35); background:rgba(99,102,241,.08)"
+                            >
+                                <i class="icon-spinner icon-spin" style="color:#6366f1"></i>
+                                <span>Generando con IA — "Guardar" queda bloqueado hasta que termine, para no pisar el resultado con lo que había antes.</span>
+                            </div>
                             <div class="form-buttons">
-                                <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
+                                <button type="submit" id="save-index-btn" class="btn btn-primary" data-load-indicator="Guardando...">
                                     <i class="icon-check"></i> Guardar página de inicio
                                 </button>
                                 <?php if ($hasExistingDesign): ?>
@@ -235,9 +181,12 @@ $genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
 
                 <!-- ============================================================
                      TAB: BRANDING (identidad visual — al lado del diseño para
-                     poder ajustar paleta/tipografía y ver el resultado ahí mismo)
+                     poder ajustar paleta/tipografía y ver el resultado ahí
+                     mismo). Oculta por completo con plantilla propia (HTML
+                     completo): esa paleta solo la consume el editor visual
+                     y el theme por defecto, ninguno de los dos aplica.
                      ============================================================ -->
-                <div id="tab-branding" class="tab-pane">
+                <div id="tab-branding" class="tab-pane" style="<?= $isCustomLayout ? 'display:none' : '' ?>">
                     <div class="layout padded-container">
                         <?php if ($paletteVars): ?>
                         <div style="margin-bottom:20px">
@@ -267,11 +216,13 @@ $genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
                 </div><!-- /#tab-branding -->
 
                 <!-- ============================================================
-                     TAB: COMPONENTES (galería de referencia de bloques Puck,
+                     TAB: BLOQUES (galería de referencia de bloques Puck,
                      embebida de aero/sites/componentgallery — ver
-                     componentgallery/_gallery.php)
+                     componentgallery/_gallery.php). Oculta por completo con
+                     plantilla propia (HTML completo): no hay editor visual
+                     sobre el que aplicar bloques.
                      ============================================================ -->
-                <div id="tab-componentes" class="tab-pane">
+                <div id="tab-componentes" class="tab-pane" style="<?= $isCustomLayout ? 'display:none' : '' ?>">
                     <?php
                     $blocks       = $this->vars['blocks'];
                     $themes       = $this->vars['themes'];
@@ -281,6 +232,101 @@ $genericBasePrompt = app(\Aero\Sites\Classes\Niches\NicheManager::class)
                     include __DIR__ . '/../componentgallery/_gallery.php';
                     ?>
                 </div><!-- /#tab-componentes -->
+
+                <!-- ============================================================
+                     TAB: PLANTILLA (gestor de layouts — Aero\Sites\Models\Layout)
+                     ============================================================ -->
+                <div id="tab-plantilla" class="tab-pane">
+                    <div class="layout padded-container">
+
+                        <div style="margin-bottom:20px">
+                            <h4 style="margin-top:0; cursor:pointer" data-toggle-ref>
+                                Referencia: lo que se sirve hoy por defecto
+                                <i class="icon-chevron-down"></i>
+                            </h4>
+                            <div data-ref-body style="display:none">
+                                <p class="text-muted">
+                                    Esto es exactamente lo que corre hoy cuando el modo es "Plataforma" y no escribiste header/footer propio. <code>base.htm</code> es una plantilla Twig (no se puede pegar tal cual en "Documento HTML completo" — ese campo es HTML puro); <code>header.htm</code> y <code>footer.htm</code> mezclan HTML con datos del tenant (nombre, logo, páginas, contacto), así que si escribes tu propio header/footer pierdes esa parte dinámica salvo que la repliques tú mismo.
+                                </p>
+                                <div class="control-tabs" data-control="tab">
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#ref-base" data-toggle="tab">layouts/base.htm</a></li>
+                                        <li><a href="#ref-header" data-toggle="tab">partials/site/header.htm</a></li>
+                                        <li><a href="#ref-footer" data-toggle="tab">partials/site/footer.htm</a></li>
+                                    </ul>
+                                    <div class="tab-content">
+                                        <div id="ref-base" class="tab-pane active"><pre style="max-height:360px; overflow:auto; font-size:12px"><?= e($defaultBaseHtml) ?></pre></div>
+                                        <div id="ref-header" class="tab-pane"><pre style="max-height:360px; overflow:auto; font-size:12px"><?= e($defaultHeaderHtml) ?></pre></div>
+                                        <div id="ref-footer" class="tab-pane"><pre style="max-height:360px; overflow:auto; font-size:12px"><?= e($defaultFooterHtml) ?></pre></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                        document.querySelectorAll('[data-toggle-ref]').forEach(function (toggle) {
+                            toggle.addEventListener('click', function () {
+                                var body = toggle.parentElement.querySelector('[data-ref-body]');
+                                if (body) body.style.display = (body.style.display === 'none') ? '' : 'none';
+                            });
+                        });
+                        </script>
+
+                        <?php if ($layout): ?>
+                        <?php if (!$layout->header_html && !$layout->footer_html): ?>
+                        <p class="text-muted" style="margin-bottom:14px">
+                            <i class="icon-info-circle"></i>
+                            "Header / navbar propio" y "Footer propio" están vacíos: eso significa que ahora mismo se está usando el navbar y el footer <strong>por defecto</strong> (los de arriba, en "Referencia"), no que falte algo. Si quieres partir de ese mismo diseño para tocarlo, usa los botones "Cargar el actual" de cada campo — te traen el HTML tal como se ve hoy, ya con tu nombre/logo/páginas.
+                        </p>
+                        <?php endif ?>
+                        <form data-request="onSaveLayout" data-request-flash>
+                            <?= $layoutWidget->render() ?>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
+                                    <i class="icon-check"></i> Guardar plantilla
+                                </button>
+                                <button type="button" id="load-default-header-btn" class="btn btn-default">
+                                    <i class="icon-download"></i> Cargar el navbar actual
+                                </button>
+                                <button type="button" id="load-default-footer-btn" class="btn btn-default">
+                                    <i class="icon-download"></i> Cargar el footer actual
+                                </button>
+                            </div>
+                        </form>
+
+                        <script>
+                        (function () {
+                            function setCodeEditorContent(fieldSuffix, html) {
+                                var el = document.querySelector('[id$="-' + fieldSuffix + '"][data-control="codeeditor"]');
+                                var instance = el && window.jQuery && jQuery(el).data('oc.codeEditor');
+                                if (instance) {
+                                    instance.setContent(html);
+                                } else if (el) {
+                                    // Fallback si el editor visual todavía no inicializó (campo
+                                    // oculto por el trigger de "Modo"): el textarea real sigue
+                                    // ahí debajo, ace lo relee al mostrarse.
+                                    var textarea = el.querySelector('textarea');
+                                    if (textarea) textarea.value = html;
+                                }
+                            }
+
+                            document.addEventListener('click', function (e) {
+                                var btn = e.target.closest('#load-default-header-btn, #load-default-footer-btn');
+                                if (!btn) return;
+                                e.preventDefault();
+
+                                var isHeader = btn.id === 'load-default-header-btn';
+                                oc.request(btn, isHeader ? 'onLoadDefaultHeader' : 'onLoadDefaultFooter', {
+                                    success: function (data) {
+                                        setCodeEditorContent(isHeader ? 'header_html' : 'footer_html', data.html || '');
+                                    },
+                                });
+                            });
+                        })();
+                        </script>
+                        <?php endif ?>
+                    </div>
+                </div><!-- /#tab-plantilla -->
 
             </div><!-- /.tab-content (main) -->
         </div><!-- /.control-tabs (main) -->

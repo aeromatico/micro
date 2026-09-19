@@ -14,7 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Tecnología y electrónica al mejor precio. Consultá nuestro catálogo.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Tecnología y electrónica al mejor precio. Consulta nuestro catálogo.</p>"
   - title: "Productos"
     slug: "productos"
     layout: default
@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Electrónica y tecnología. Conocé nuestro catálogo de productos."
+  default_description: "{name} — Electrónica y tecnología. Conoce nuestro catálogo de productos."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

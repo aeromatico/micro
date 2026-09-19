@@ -14,7 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Cuidamos a tu mascota como si fuera nuestra. Agendá tu consulta.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Cuidamos a tu mascota como si fuera nuestra. Agenda tu consulta.</p>"
   - title: "Servicios"
     slug: "servicios"
     layout: default
@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Veterinaria y cuidado de mascotas. Agendá tu consulta hoy."
+  default_description: "{name} — Veterinaria y cuidado de mascotas. Agenda tu consulta hoy."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

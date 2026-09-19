@@ -11,7 +11,7 @@ class Page extends Model
     public $table = 'aero_sites_pages';
 
     public $fillable = [
-        'tenant_id', 'title', 'slug', 'content', 'content_mode', 'puck_data',
+        'tenant_id', 'title', 'slug', 'content', 'content_mode', 'puck_data', 'is_placeholder',
         'meta_title', 'meta_description', 'layout',
         'is_published', 'sort_order',
     ];

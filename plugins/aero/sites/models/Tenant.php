@@ -41,6 +41,7 @@ class Tenant extends Model
     public $hasOne = [
         'seoConfig'     => [SeoConfig::class],
         'contactConfig' => [ContactConfig::class],
+        'layout'        => [Layout::class],
     ];
 
     public $hasMany = [
@@ -86,6 +87,17 @@ class Tenant extends Model
             return $primary->domain;
         }
         return $this->handle . '.' . ($this->rootDomain?->domain ?? 'localhost');
+    }
+
+    /**
+     * true mientras el admin no haya generado su primer landing con IA ni
+     * guardado contenido propio — ver Page::is_placeholder y home.htm. El
+     * layout base la usa para ocultar navbar/footer del sitio público
+     * mientras dura ese estado inicial.
+     */
+    public function isUnderConstruction(): bool
+    {
+        return (bool) $this->pages()->where('slug', '')->value('is_placeholder');
     }
 
     public function addUser(\Backend\Models\User $user, string $role = 'admin'): void

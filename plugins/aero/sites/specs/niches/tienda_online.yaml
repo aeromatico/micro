@@ -4,7 +4,7 @@ icon: icon-shopping-bag
 
 # Usa el mismo Aero.Shop que "Tienda Rápida WhatsApp" (carrito, checkout y
 # pagos QR — ver ShopSettings.is_enabled) — la diferencia entre ambos nichos
-# es de posicionamiento/copy: acá el cliente navega el catálogo y compra
+# es de posicionamiento/copy: aquí el cliente navega el catálogo y compra
 # directo con carrito y pago online, en vez de coordinar el pedido por chat.
 features:
   pages: true

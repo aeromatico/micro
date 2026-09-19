@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Gimnasio y entrenamiento personalizado. Conocé nuestros planes."
+  default_description: "{name} — Gimnasio y entrenamiento personalizado. Conoce nuestros planes."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

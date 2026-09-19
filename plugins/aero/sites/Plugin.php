@@ -1,9 +1,16 @@
 <?php namespace Aero\Sites;
 
+use Aero\Sites\Classes\Mail\ZeptomailTransport;
+use Aero\Sites\Classes\TenantAwareDashManager;
+use Aero\Sites\Classes\TenantAwareSiteManager;
 use Aero\Sites\Models\Tenant;
+use Aero\Sites\Models\TenantUser;
+use App;
 use Backend;
 use BackendAuth;
+use Config;
 use Event;
+use Mail;
 use Route;
 use System\Classes\PluginBase;
 use System\Models\SiteDefinition;
@@ -37,6 +44,8 @@ class Plugin extends PluginBase
     {
         $this->registerApiRoutes();
         $this->bootSiteContext();
+        $this->bootDashboardIndicators();
+        $this->bootSiteSwitcherVisibility();
         $this->bootRainLabIntegration();
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
@@ -44,6 +53,43 @@ class Plugin extends PluginBase
         $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
+        $this->bootZeptomailMailer();
+    }
+
+    /**
+     * SMTP quedó rechazado por Zoho (535 Authentication Failed, tanto con
+     * el token de API como con la password SMTP dedicada del dashboard),
+     * mientras la misma cuenta sí envía por su API HTTP. Este driver evita
+     * SMTP por completo — ver conversación 2026-09-16.
+     */
+    protected function bootZeptomailMailer(): void
+    {
+        // Deben registrarse ANTES de Mail::extend(): esa llamada resuelve
+        // 'mail.manager' por primera vez, lo que dispara de inmediato el
+        // evento system.mail.applyConfigValues — si el listener llega
+        // después, esa primera resolución queda sin el mailer configurado.
+        Event::listen('system.mail.getSendModeOptions', function (&$options) {
+            $options['zeptomail'] = 'Zeptomail (API)';
+        });
+
+        Event::listen('system.mail.applyConfigValues', function ($settings) {
+            if ($settings->send_mode !== 'zeptomail') {
+                return;
+            }
+
+            Config::set('mail.mailers.zeptomail', [
+                'transport' => 'zeptomail',
+                'token' => config('services.zeptomail.token'),
+                'endpoint' => config('services.zeptomail.endpoint'),
+            ]);
+        });
+
+        Mail::extend('zeptomail', function (array $config) {
+            return new ZeptomailTransport(
+                $config['token'] ?? config('services.zeptomail.token'),
+                $config['endpoint'] ?? config('services.zeptomail.endpoint')
+            );
+        });
     }
 
     public function registerSchedule($schedule): void
@@ -65,7 +111,7 @@ class Plugin extends PluginBase
      * definition, dominio, páginas del niche) — el usuario administrador se
      * crea aparte, cuando el propio dueño completa el formulario final del
      * wizard (ver SignupWizard::onCreateAdmin). Nunca deja escapar una
-     * excepción: si algo falla acá, el webhook de aero/pay igual debe
+     * excepción: si algo falla aquí, el webhook de aero/pay igual debe
      * terminar de procesarse y el pago quedar registrado.
      */
     protected function bootPaySignupBridge(): void
@@ -287,13 +333,75 @@ class Plugin extends PluginBase
                 return null; // let OctoberCMS handle it natively
             }
 
+            // Admin primario del tenant (creado automáticamente en el provisioning)
             $tenant = Tenant::where('backend_user_id', $user->id)->first();
+
+            // Admin adicional asignado manualmente vía TenantUser — mismo
+            // criterio que Aero\Sites\Traits\ResolvesCurrentTenant, que este
+            // listener debe igualar o los admins no primarios caen al
+            // fallback (Primary Site) y ven datos de toda la plataforma.
+            if (!$tenant) {
+                $tenantUser = TenantUser::where('user_id', $user->id)->first();
+                if ($tenantUser) {
+                    $tenant = Tenant::find($tenantUser->tenant_id);
+                }
+            }
+
             if ($tenant?->site_id) {
                 return SiteDefinition::find($tenant->site_id);
             }
 
             return null;
         });
+    }
+
+    /**
+     * Oculta del panel "Indicators" del dashboard las fuentes de datos que
+     * describen infraestructura global (no scopeable por sitio) cuando quien
+     * mira el dashboard es un tenant_admin. Se resuelve de forma perezosa
+     * (App::extend solo corre al primer App::make('dashboard.dashboards')
+     * de la request) para no consultar BackendAuth antes de que el usuario
+     * de backend esté disponible — mismo motivo que bootSiteContext().
+     */
+    protected function bootDashboardIndicators(): void
+    {
+        App::extend('dashboard.dashboards', function ($manager) {
+            $user = BackendAuth::getUser();
+            if (!$user || $user->is_superuser) {
+                return $manager;
+            }
+
+            $proxy = new TenantAwareDashManager();
+
+            $dataSources = new \ReflectionProperty(\Dashboard\Classes\DashManager::class, 'dataSources');
+            $dataSources->setAccessible(true);
+            $dataSources->setValue($proxy, $dataSources->getValue($manager));
+
+            return $proxy;
+        });
+    }
+
+    /**
+     * Reemplaza el SiteManager del contenedor para que hasMultiEditSite()
+     * devuelva false a cualquier backend user que no sea superadmin, y así
+     * Backend\Widgets\SiteSwitcher no dibuje el selector de sitios — ver
+     * TenantAwareSiteManager. No se copia estado por reflection porque, a
+     * diferencia de DashManager, SiteManager no acumula nada entre boot() y
+     * la primera resolución de esta request.
+     */
+    protected function bootSiteSwitcherVisibility(): void
+    {
+        App::extend('system.sites', function () {
+            return new TenantAwareSiteManager();
+        });
+
+        // A diferencia de 'dashboard.dashboards', 'system.sites' ya está
+        // resuelto por el core antes de que los plugins terminen de bootear
+        // (verificado: app()->resolved('system.sites') es true desde el
+        // arranque). El Facade Site:: cachea su propia instancia aparte del
+        // contenedor y no se entera del extend() si ya resolvió antes —
+        // sin este forget, tenant_admin seguiría viendo el selector.
+        \Illuminate\Support\Facades\Facade::clearResolvedInstance('system.sites');
     }
 
     /**

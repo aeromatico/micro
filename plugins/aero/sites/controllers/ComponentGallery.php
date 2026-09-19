@@ -13,7 +13,7 @@ use Response;
  * con el CSS/tipografía/paleta reales del tema `microsites` — no una maqueta
  * separada. `preview()` sirve el mismo par components.jsx/PuckHtmlRenderer.php
  * que usan el editor visual y el generador con IA, así que cualquier
- * variante que se vea acá es automáticamente una opción real y sincronizada
+ * variante que se vea aquí es automáticamente una opción real y sincronizada
  * en ambos. Abierta también a tenant admins (manage_pages) — les sirve como
  * inspiración/referencia mientras diseñan, junto a Contenidos.
  */
@@ -22,6 +22,61 @@ class ComponentGallery extends Controller
     use ResolvesCurrentTenant;
 
     public $requiredPermissions = ['aero.sites.superadmin', 'aero.sites.manage_pages'];
+
+    public const FOOTER_VARIANTS = [
+        'columnas'           => 'Columnas (clásico)',
+        'minimalista'        => 'Minimalista (centrado)',
+        'contacto'           => 'Con contacto',
+        'barra-doble'        => 'Barra doble',
+        'centrado-columnas'  => 'Centrado con columnas',
+    ];
+
+    /**
+     * Espejo del defaultProps de Footer en components.jsx — mantener
+     * sincronizado a mano junto a renderFooter().
+     */
+    public const FOOTER_DEFAULT_PROPS = [
+        'variant' => 'columnas',
+        'brand'   => 'Mi Negocio',
+        'tagline' => 'Soluciones simples para hacer crecer tu negocio.',
+        'columns' => [
+            ['title' => 'Empresa', 'links' => "Nosotros | /nosotros\nServicios | /servicios\nBlog | /blog"],
+            ['title' => 'Soporte', 'links' => "Preguntas frecuentes | /faq\nContacto | /contacto"],
+            ['title' => 'Legal', 'links' => "Términos | /terminos\nPrivacidad | /privacidad"],
+        ],
+        'contact'   => "hola@minegocio.com\n+591 700 00000\nLa Paz, Bolivia",
+        'copyright' => '© 2026 Mi Negocio. Todos los derechos reservados.',
+        'background'      => 'surface',
+        'customBgColor'   => '',
+        'textColor'       => 'auto',
+        'customTextColor' => '',
+    ];
+
+    public const HEADER_VARIANTS = [
+        'clasico'      => 'Clásico (logo + enlaces + botón)',
+        'centrado'     => 'Centrado',
+        'barra-marca'  => 'Barra de marca (sólida)',
+        'dos-niveles'  => 'Dos niveles (aviso arriba)',
+        'flotante'     => 'Flotante (píldora)',
+    ];
+
+    /**
+     * Espejo del defaultProps de Header en components.jsx — mantener
+     * sincronizado a mano junto a renderHeader().
+     */
+    public const HEADER_DEFAULT_PROPS = [
+        'variant'  => 'clasico',
+        'brand'    => 'Mi Negocio',
+        'logo'     => '',
+        'links'    => "Inicio | /\nServicios | /servicios\nNosotros | /nosotros\nContacto | /contacto",
+        'ctaLabel' => 'Empezar',
+        'ctaUrl'   => '/contacto',
+        'topText'  => 'Envíos gratis en compras sobre Bs 200',
+        'background'      => 'surface',
+        'customBgColor'   => '',
+        'textColor'       => 'auto',
+        'customTextColor' => '',
+    ];
 
     /**
      * Catálogo de bloques con galería de variantes real. El resto de
@@ -184,7 +239,7 @@ class ComponentGallery extends Controller
         'items' => [
             [
                 'icon' => 'tabler:credit-card', 'question' => '¿Cómo funciona el servicio?',
-                'answer' => '<p>Te registrás, elegís un plan y en minutos tenés tu sitio publicado.</p>',
+                'answer' => '<p>Te registras, eliges un plan y en minutos tienes tu sitio publicado.</p>',
                 'links' => 'Ver guía de inicio | /guia',
             ],
             [
@@ -287,7 +342,7 @@ class ComponentGallery extends Controller
     ];
 
     /**
-     * Catálogo de bloques con galería — una entrada acá alcanza para que
+     * Catálogo de bloques con galería — una entrada aquí alcanza para que
      * aparezcan en el selector de la vista y en preview()/autoResolveImages().
      * `columns` controla el grid de tarjetas de la propia galería (no el
      * `columns` interno de FeatureGrid, que es una prop del bloque) y
@@ -350,11 +405,25 @@ class ComponentGallery extends Controller
             'columns'       => 1,
             'previewHeight' => 420,
         ],
+        'Header' => [
+            'label'         => 'Header (Navbar)',
+            'variants'      => self::HEADER_VARIANTS,
+            'defaultProps'  => self::HEADER_DEFAULT_PROPS,
+            'columns'       => 1,
+            'previewHeight' => 260,
+        ],
+        'Footer' => [
+            'label'         => 'Footer',
+            'variants'      => self::FOOTER_VARIANTS,
+            'defaultProps'  => self::FOOTER_DEFAULT_PROPS,
+            'columns'       => 1,
+            'previewHeight' => 380,
+        ],
     ];
 
     /**
      * defaultProps por bloque, usados por preview(). Agregar bloques nuevos
-     * en self::BLOCKS, no acá.
+     * en self::BLOCKS, no aquí.
      */
     protected static function defaultPropsFor(string $block): array
     {

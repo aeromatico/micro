@@ -75,19 +75,21 @@ class GenerateAiSiteJob implements ShouldQueue
             $page = Page::forTenant($tenant->id)->where('slug', '')->first();
 
             if ($page) {
-                $page->puck_data = $result['puck_data'];
-                $page->content   = $result['html'];
+                $page->puck_data      = $result['puck_data'];
+                $page->content        = $result['html'];
+                $page->is_placeholder = false;
                 $page->save();
             } else {
                 $page = Page::create([
-                    'tenant_id'    => $tenant->id,
-                    'title'        => $tenant->name,
-                    'slug'         => '',
-                    'layout'       => 'home',
-                    'is_published' => true,
-                    'sort_order'   => 1,
-                    'puck_data'    => $result['puck_data'],
-                    'content'      => $result['html'],
+                    'tenant_id'      => $tenant->id,
+                    'title'          => $tenant->name,
+                    'slug'           => '',
+                    'layout'         => 'home',
+                    'is_published'   => true,
+                    'sort_order'     => 1,
+                    'puck_data'      => $result['puck_data'],
+                    'content'        => $result['html'],
+                    'is_placeholder' => false,
                 ]);
             }
 

@@ -1532,5 +1532,210 @@
         "label": "Texto (opcional)"
       }
     }
+  },
+  "Footer": {
+    "label": "Footer (Pie de página)",
+    "desc": "Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 5 variantes: columnas clásico, minimalista, con contacto, barra doble y centrado con columnas.",
+    "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "Columnas (clásico)",
+            "value": "columnas"
+          },
+          {
+            "label": "Minimalista (centrado)",
+            "value": "minimalista"
+          },
+          {
+            "label": "Con contacto",
+            "value": "contacto"
+          },
+          {
+            "label": "Barra doble",
+            "value": "barra-doble"
+          },
+          {
+            "label": "Centrado con columnas",
+            "value": "centrado-columnas"
+          }
+        ]
+      },
+      "brand": {
+        "type": "text",
+        "label": "Nombre de marca"
+      },
+      "tagline": {
+        "type": "textarea",
+        "label": "Descripción breve (opcional)"
+      },
+      "columns": {
+        "type": "array",
+        "label": "Columnas de enlaces",
+        "arrayFields": {
+          "title": {
+            "type": "text",
+            "label": "Título de columna"
+          },
+          "links": {
+            "type": "textarea",
+            "label": "Enlaces (uno por línea: Texto | URL)"
+          }
+        },
+        "defaultItemProps": {
+          "title": "Enlaces",
+          "links": "Inicio | /\nContacto | /contacto"
+        }
+      },
+      "contact": {
+        "type": "textarea",
+        "label": "Contacto (una línea por dato)"
+      },
+      "copyright": {
+        "type": "text",
+        "label": "Copyright"
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "custom"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "custom"
+      }
+    }
+  },
+  "Header": {
+    "label": "Header (Navbar)",
+    "desc": "Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 5 variantes: clásico, centrado, barra de marca sólida, dos niveles con aviso superior y flotante en píldora.",
+    "fields": {
+      "variant": {
+        "type": "select",
+        "label": "Variante",
+        "options": [
+          {
+            "label": "Clásico (logo + enlaces + botón)",
+            "value": "clasico"
+          },
+          {
+            "label": "Centrado",
+            "value": "centrado"
+          },
+          {
+            "label": "Barra de marca (sólida)",
+            "value": "barra-marca"
+          },
+          {
+            "label": "Dos niveles (aviso arriba)",
+            "value": "dos-niveles"
+          },
+          {
+            "label": "Flotante (píldora)",
+            "value": "flotante"
+          }
+        ]
+      },
+      "brand": {
+        "type": "text",
+        "label": "Nombre de marca"
+      },
+      "logo": {
+        "type": "custom"
+      },
+      "links": {
+        "type": "textarea",
+        "label": "Enlaces (uno por línea: Texto | URL)"
+      },
+      "ctaLabel": {
+        "type": "text",
+        "label": "Botón — texto (opcional)"
+      },
+      "ctaUrl": {
+        "type": "text",
+        "label": "Botón — URL"
+      },
+      "topText": {
+        "type": "text",
+        "label": "Aviso superior (variante \"Dos niveles\")"
+      },
+      "background": {
+        "type": "radio",
+        "label": "Fondo",
+        "options": [
+          {
+            "label": "Transparente",
+            "value": "transparent"
+          },
+          {
+            "label": "Superficie (neutro)",
+            "value": "surface"
+          },
+          {
+            "label": "Color de marca (sólido)",
+            "value": "brand"
+          }
+        ]
+      },
+      "customBgColor": {
+        "type": "custom"
+      },
+      "textColor": {
+        "type": "radio",
+        "label": "Color de texto",
+        "options": [
+          {
+            "label": "Automático",
+            "value": "auto"
+          },
+          {
+            "label": "Claro",
+            "value": "light"
+          },
+          {
+            "label": "Oscuro",
+            "value": "dark"
+          }
+        ]
+      },
+      "customTextColor": {
+        "type": "custom"
+      }
+    }
   }
 }

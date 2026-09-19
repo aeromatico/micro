@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Muebles y artículos para el hogar. Conocé nuestro catálogo."
+  default_description: "{name} — Muebles y artículos para el hogar. Conoce nuestro catálogo."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

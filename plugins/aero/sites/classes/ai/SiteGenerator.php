@@ -37,7 +37,7 @@ class SiteGenerator
     // Catálogo de componentes — leído de dist/catalog.json (exportado desde
     // components.jsx por scripts/export-catalog.mjs, ver `npm run build` en
     // assets/puck-editor/). Única fuente de verdad para label/desc/fields;
-    // acá solo se traduce al formato de "hint" plano que usa el prompt.
+    // aquí solo se traduce al formato de "hint" plano que usa el prompt.
     // -----------------------------------------------------------------------
 
     protected ?array $catalogCache = null;
@@ -237,7 +237,7 @@ PROMPT;
 
     /**
      * Describe la paleta/tema visual YA asignado al tenant (resuelto por
-     * resolveTheme() antes de llamar acá) para que la IA elija props de
+     * resolveTheme() antes de llamar aquí) para que la IA elija props de
      * bloque (background/style/textColor, etc.) que luzcan bien con ella,
      * en vez de ignorarla — el objetivo es mantener homogeneidad visual
      * entre lo que genera la IA y el resto del sitio/tema del tenant.
@@ -248,8 +248,8 @@ PROMPT;
     protected function buildPaletteGuidance(Tenant $tenant, ?DesignTheme $theme): string
     {
         if (!$theme) {
-            return "\nNo hay un tema visual asignado todavía — usá los valores por defecto de cada componente "
-                . 'y evitá abusar de fondos de color fuerte.';
+            return "\nNo hay un tema visual asignado todavía — usa los valores por defecto de cada componente "
+                . 'y evita abusar de fondos de color fuerte.';
         }
 
         $colors = $tenant->getEffectiveCssVars()['light'] ?? [];
@@ -264,7 +264,7 @@ PROMPT;
         $toneLabel = $toneLabels[$theme->tone] ?? $theme->tone;
 
         $imageMoods = [
-            'corporate' => 'profesionales, luz natural, colores neutros — evitá fotos muy saturadas o llamativas',
+            'corporate' => 'profesionales, luz natural, colores neutros — evita fotos muy saturadas o llamativas',
             'playful'   => 'luminosas, coloridas, con gente sonriendo',
             'minimal'   => 'con poco recargo visual y espacio negativo, tonos neutros',
             'elegant'   => 'con buena iluminación, tonos suaves y sobrios, poco contraste',
@@ -275,7 +275,7 @@ PROMPT;
 
         return <<<GUIDANCE
 
-Paleta y tema visual (ya asignado a este sitio, NO lo elegís vos):
+Paleta y tema visual (ya asignado a este sitio, NO lo eliges tú):
 - Tema: {$theme->name} (tono {$toneLabel})
 - Primario: {$colors['--color-primary']} · Secundario: {$colors['--color-secondary']} · Acento: {$colors['--color-accent']}
 - Fondo de página: {$colors['--color-surface-bg']} · Fondo de tarjetas: {$colors['--color-surface-alt']}

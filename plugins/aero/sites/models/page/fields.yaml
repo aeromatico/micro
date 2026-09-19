@@ -1,5 +1,17 @@
 tabs:
     fields:
+        content_mode:
+            label: Tipo de contenido
+            type: balloon-selector
+            span: full
+            default: puck
+            options:
+                puck: Editor Visual
+                richeditor: Editor HTML
+                code: Código
+            comment: "Editor Visual = bloques arrastrables, con generación por IA. Editor HTML = redactor de texto enriquecido. Código = pega tu propio HTML (sin IA)."
+            tab: Contenido
+
         title:
             label: Título
             type: text
@@ -27,18 +39,6 @@ tabs:
                 full: Pantalla completa
                 landing: Landing page
                 contact: Contacto
-            tab: Contenido
-
-        content_mode:
-            label: Tipo de contenido
-            type: balloon-selector
-            span: full
-            default: puck
-            options:
-                puck: Editor Visual
-                richeditor: Editor HTML
-                code: Código
-            comment: "Editor Visual = bloques arrastrables. Editor HTML = redactor de texto enriquecido. Código = pegá tu propio HTML."
             tab: Contenido
 
         puck_data:

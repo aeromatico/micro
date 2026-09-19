@@ -30,7 +30,7 @@ class Pages extends Controller
         $this->scopeQueryToTenant($query);
 
         // Inicio (slug vacío) tiene su propio flujo especializado de diseño +
-        // generación con IA en Contenidos — no se edita desde acá, para no
+        // generación con IA en Contenidos — no se edita desde aquí, para no
         // duplicar el punto de entrada.
         $query->where('slug', '!=', '');
     }

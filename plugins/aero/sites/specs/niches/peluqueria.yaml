@@ -14,7 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Tu mejor versión te espera. Reservá tu turno hoy mismo.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Tu mejor versión te espera. Reserva tu turno hoy mismo.</p>"
   - title: "Servicios"
     slug: "servicios"
     layout: default
@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Peluquería y salón de belleza. Reservá tu turno."
+  default_description: "{name} — Peluquería y salón de belleza. Reserva tu turno."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

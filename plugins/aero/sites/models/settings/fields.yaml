@@ -30,7 +30,7 @@ fields:
     section_signup:
         label: Alta pública de tenants (/alta)
         type: section
-        comment: Configuración del formulario público de alta en el tema master — el cobro del plan se emite como QR contra la cuenta bancaria elegida acá (plugin aero/qrbo).
+        comment: Configuración del formulario público de alta en el tema master — el cobro del plan se emite como QR contra la cuenta bancaria elegida aquí (plugin aero/qrbo).
 
     signup_bank_account_id:
         label: Cuenta bancaria receptora

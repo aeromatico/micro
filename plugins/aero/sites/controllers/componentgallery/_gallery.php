@@ -14,8 +14,8 @@
             <i class="icon-info-circle"></i>
             <h4>Galería interna de variantes</h4>
             <p>Cada preview usa el CSS real de <code>themes/microsites</code> y el mismo renderizador
-            (<code>PuckHtmlRenderer.php</code>) que el editor visual y el generador con IA — lo que ves acá
-            es exactamente lo que verá el cliente. Elegí un bloque abajo: solo se cargan los iframes del
+            (<code>PuckHtmlRenderer.php</code>) que el editor visual y el generador con IA — lo que ves aquí
+            es exactamente lo que verá el cliente. Elige un bloque abajo: solo se cargan los iframes del
             bloque activo para no saturar la página.</p>
         </div>
     </div>

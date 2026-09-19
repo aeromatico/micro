@@ -14,7 +14,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Celulares, accesorios y servicio técnico. Consultá disponibilidad.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Celulares, accesorios y servicio técnico. Consulta disponibilidad.</p>"
   - title: "Productos y Servicios"
     slug: "productos"
     layout: default
@@ -33,7 +33,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Celulares, accesorios y servicio técnico. Consultá disponibilidad."
+  default_description: "{name} — Celulares, accesorios y servicio técnico. Consulta disponibilidad."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

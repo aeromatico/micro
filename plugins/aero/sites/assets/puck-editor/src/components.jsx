@@ -2584,6 +2584,330 @@ export const Rating = {
 };
 
 // ---------------------------------------------------------------------------
+// Footer — pie de página, 5 variantes
+// ---------------------------------------------------------------------------
+
+const FOOTER_VARIANT_OPTIONS = [
+  { label: 'Columnas (clásico)', value: 'columnas' },
+  { label: 'Minimalista (centrado)', value: 'minimalista' },
+  { label: 'Con contacto', value: 'contacto' },
+  { label: 'Barra doble', value: 'barra-doble' },
+  { label: 'Centrado con columnas', value: 'centrado-columnas' },
+];
+
+function footerLinkList(links, className = '') {
+  return (
+    <ul className={`space-y-2 ${className}`}>
+      {parseFaqLinks(links).map((l, i) => (
+        <li key={i}><a href={l.url} className="text-sm opacity-80 hover:opacity-100">{l.label}</a></li>
+      ))}
+    </ul>
+  );
+}
+
+function footerAllLinks(columns) {
+  return (columns || []).flatMap((c) => parseFaqLinks(c.links));
+}
+
+export const Footer = {
+  label: 'Footer (Pie de página)',
+  desc: 'Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 5 variantes: columnas clásico, minimalista, con contacto, barra doble y centrado con columnas.',
+  fields: {
+    variant: { type: 'select', label: 'Variante', options: FOOTER_VARIANT_OPTIONS },
+    brand: { type: 'text', label: 'Nombre de marca' },
+    tagline: { type: 'textarea', label: 'Descripción breve (opcional)' },
+    columns: {
+      type: 'array',
+      label: 'Columnas de enlaces',
+      arrayFields: {
+        title: { type: 'text', label: 'Título de columna' },
+        links: { type: 'textarea', label: 'Enlaces (uno por línea: Texto | URL)' },
+      },
+      getItemSummary: (item) => item.title || 'Columna',
+      defaultItemProps: { title: 'Enlaces', links: 'Inicio | /\nContacto | /contacto' },
+    },
+    contact: { type: 'textarea', label: 'Contacto (una línea por dato)' },
+    copyright: { type: 'text', label: 'Copyright' },
+    background: { type: 'radio', label: 'Fondo', options: BACKGROUND_OPTIONS },
+    ...CUSTOM_COLOR_FIELDS,
+  },
+  defaultProps: {
+    variant: 'columnas',
+    brand: 'Mi Negocio',
+    tagline: 'Soluciones simples para hacer crecer tu negocio.',
+    columns: [
+      { title: 'Empresa', links: 'Nosotros | /nosotros\nServicios | /servicios\nBlog | /blog' },
+      { title: 'Soporte', links: 'Preguntas frecuentes | /faq\nContacto | /contacto' },
+      { title: 'Legal', links: 'Términos | /terminos\nPrivacidad | /privacidad' },
+    ],
+    contact: 'hola@minegocio.com\n+591 700 00000\nLa Paz, Bolivia',
+    copyright: '© 2026 Mi Negocio. Todos los derechos reservados.',
+    background: 'surface',
+    ...CUSTOM_COLOR_DEFAULTS,
+  },
+  render: ({ variant, brand, tagline, columns, contact, copyright, background, customBgColor, textColor, customTextColor }) => {
+    const autoText = background === 'brand' ? 'text-white' : 'text-ink';
+    const { className: styleClass, style: colorStyle } = resolveSectionStyle(background, autoText, {
+      customBgColor,
+      textColor,
+      customTextColor,
+    });
+    const cols = columns || [];
+    const contactLines = (contact || '').split('\n').map((s) => s.trim()).filter(Boolean);
+    const brandEl = <div className="font-heading2 text-xl font-bold">{brand}</div>;
+    const taglineEl = tagline && <p className="text-sm opacity-75 mt-3 max-w-xs">{tagline}</p>;
+    const copyEl = copyright && <p className="text-sm opacity-75">{copyright}</p>;
+    const colBlocks = cols.map((c, i) => (
+      <div key={i}>
+        <div className="text-sm font-semibold uppercase tracking-wide mb-3">{c.title}</div>
+        {footerLinkList(c.links)}
+      </div>
+    ));
+
+    if (variant === 'minimalista') {
+      return (
+        <footer className={`py-12 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto text-center">
+            {brandEl}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-5">
+              {footerAllLinks(cols).map((l, i) => (
+                <a key={i} href={l.url} className="text-sm opacity-80 hover:opacity-100">{l.label}</a>
+              ))}
+            </div>
+            <div className="mt-6">{copyEl}</div>
+          </div>
+        </footer>
+      );
+    }
+
+    if (variant === 'contacto') {
+      return (
+        <footer className={`py-14 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div>
+              {brandEl}
+              {taglineEl}
+              <ul className="mt-5 space-y-1">
+                {contactLines.map((l, i) => <li key={i} className="text-sm opacity-90">{l}</li>)}
+              </ul>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">{colBlocks}</div>
+          </div>
+          <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">{copyEl}</div>
+        </footer>
+      );
+    }
+
+    if (variant === 'barra-doble') {
+      return (
+        <footer className={styleClass} style={colorStyle}>
+          <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {brandEl}
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {footerAllLinks(cols).map((l, i) => (
+                <a key={i} href={l.url} className="text-sm opacity-80 hover:opacity-100">{l.label}</a>
+              ))}
+            </div>
+          </div>
+          <div className="bg-brand-primary text-white py-4 px-4 text-center">
+            {copyright && <p className="text-sm">{copyright}</p>}
+          </div>
+        </footer>
+      );
+    }
+
+    if (variant === 'centrado-columnas') {
+      return (
+        <footer className={`py-14 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-5xl mx-auto text-center">
+            {brandEl}
+            {tagline && <p className="text-sm opacity-75 mt-3 max-w-md mx-auto">{tagline}</p>}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 mt-10 text-center">{colBlocks}</div>
+            <div className="mt-10 pt-6 border-t border-surface-border">{copyEl}</div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ---- columnas: layout clásico (default) ---------------------------------
+    return (
+      <footer className={`py-14 px-4 ${styleClass}`} style={colorStyle}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div>
+            {brandEl}
+            {taglineEl}
+          </div>
+          {colBlocks}
+        </div>
+        <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">{copyEl}</div>
+      </footer>
+    );
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Header — navbar, 5 variantes (menú móvil con <details>, sin JS propio)
+// ---------------------------------------------------------------------------
+
+const HEADER_VARIANT_OPTIONS = [
+  { label: 'Clásico (logo + enlaces + botón)', value: 'clasico' },
+  { label: 'Centrado', value: 'centrado' },
+  { label: 'Barra de marca (sólida)', value: 'barra-marca' },
+  { label: 'Dos niveles (aviso arriba)', value: 'dos-niveles' },
+  { label: 'Flotante (píldora)', value: 'flotante' },
+];
+
+const NAV_LINK_CLS = 'px-3 py-2 text-sm font-medium opacity-80 hover:opacity-100 rounded-lg transition-all';
+
+function HeaderBrand({ brand, logo }) {
+  return (
+    <a href="/" className="flex items-center gap-2.5 shrink-0">
+      {logo ? <img src={logo} alt={brand} className="h-8 w-auto" /> : <span className="text-lg font-bold tracking-tight">{brand}</span>}
+    </a>
+  );
+}
+
+function HeaderCta({ label, url, solid = false }) {
+  if (!label) return null;
+  const cls = solid
+    ? 'bg-white text-brand-primary'
+    : 'bg-brand-primary text-white';
+  return <a href={url || '#'} className={`hidden sm:inline-flex px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 ${cls}`}>{label}</a>;
+}
+
+function HeaderMobileMenu({ links, ctaLabel, ctaUrl }) {
+  return (
+    <details className="md:hidden relative">
+      <summary className="list-none cursor-pointer p-2 rounded-lg" aria-label="Menú">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+      </summary>
+      <div className="absolute right-0 top-full mt-2 w-56 bg-surface text-ink border border-surface-border rounded-xl shadow-lg p-2 z-50">
+        {parseFaqLinks(links).map((l, i) => <a key={i} href={l.url} className="block px-3 py-2.5 text-sm font-medium hover:bg-surface-alt rounded-lg">{l.label}</a>)}
+        {ctaLabel && <a href={ctaUrl || '#'} className="block mt-1 px-3 py-2.5 text-sm font-semibold text-center bg-brand-primary text-white rounded-lg">{ctaLabel}</a>}
+      </div>
+    </details>
+  );
+}
+
+function HeaderLinks({ links, className = '' }) {
+  return (
+    <div className={`hidden md:flex items-center gap-1 ${className}`}>
+      {parseFaqLinks(links).map((l, i) => <a key={i} href={l.url} className={NAV_LINK_CLS}>{l.label}</a>)}
+    </div>
+  );
+}
+
+export const Header = {
+  label: 'Header (Navbar)',
+  desc: 'Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 5 variantes: clásico, centrado, barra de marca sólida, dos niveles con aviso superior y flotante en píldora.',
+  fields: {
+    variant: { type: 'select', label: 'Variante', options: HEADER_VARIANT_OPTIONS },
+    brand: { type: 'text', label: 'Nombre de marca' },
+    logo: imageField('Logo (opcional, reemplaza al nombre)'),
+    links: { type: 'textarea', label: 'Enlaces (uno por línea: Texto | URL)' },
+    ctaLabel: { type: 'text', label: 'Botón — texto (opcional)' },
+    ctaUrl: { type: 'text', label: 'Botón — URL' },
+    topText: { type: 'text', label: 'Aviso superior (variante "Dos niveles")' },
+    background: { type: 'radio', label: 'Fondo', options: BACKGROUND_OPTIONS },
+    ...CUSTOM_COLOR_FIELDS,
+  },
+  defaultProps: {
+    variant: 'clasico',
+    brand: 'Mi Negocio',
+    logo: '',
+    links: 'Inicio | /\nServicios | /servicios\nNosotros | /nosotros\nContacto | /contacto',
+    ctaLabel: 'Empezar',
+    ctaUrl: '/contacto',
+    topText: 'Envíos gratis en compras sobre Bs 200',
+    background: 'surface',
+    ...CUSTOM_COLOR_DEFAULTS,
+  },
+  render: ({ variant, brand, logo, links, ctaLabel, ctaUrl, topText, background, customBgColor, textColor, customTextColor }) => {
+    const autoText = background === 'brand' ? 'text-white' : 'text-ink';
+    const { className: styleClass, style: colorStyle } = resolveSectionStyle(background, autoText, {
+      customBgColor,
+      textColor,
+      customTextColor,
+    });
+    const mobile = <HeaderMobileMenu links={links} ctaLabel={ctaLabel} ctaUrl={ctaUrl} />;
+
+    if (variant === 'centrado') {
+      return (
+        <header className={`relative z-40 border-b border-surface-border ${styleClass}`} style={colorStyle}>
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col items-center gap-2">
+            <div className="w-full flex items-center justify-between md:justify-center">
+              <HeaderBrand brand={brand} logo={logo} />
+              {mobile}
+            </div>
+            <HeaderLinks links={links} />
+          </div>
+        </header>
+      );
+    }
+
+    if (variant === 'barra-marca') {
+      return (
+        <header className="relative z-40 bg-brand-primary text-white">
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            <div className="flex items-center gap-2">
+              <HeaderCta label={ctaLabel} url={ctaUrl} solid />
+              {mobile}
+            </div>
+          </nav>
+        </header>
+      );
+    }
+
+    if (variant === 'dos-niveles') {
+      return (
+        <header className={`relative z-40 ${styleClass}`} style={colorStyle}>
+          {topText && <div className="bg-brand-primary text-white text-xs text-center py-2 px-4">{topText}</div>}
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4 border-b border-surface-border">
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            <div className="flex items-center gap-2">
+              <HeaderCta label={ctaLabel} url={ctaUrl} />
+              {mobile}
+            </div>
+          </nav>
+        </header>
+      );
+    }
+
+    if (variant === 'flotante') {
+      return (
+        <header className="relative z-40 px-4 pt-4">
+          <nav className={`mx-auto max-w-5xl flex h-14 items-center justify-between gap-4 px-5 rounded-full shadow-lg border border-surface-border ${styleClass}`} style={colorStyle}>
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            <div className="flex items-center gap-2">
+              <HeaderCta label={ctaLabel} url={ctaUrl} />
+              {mobile}
+            </div>
+          </nav>
+        </header>
+      );
+    }
+
+    // ---- clasico: logo izquierda, enlaces, botón (default) -------------------
+    return (
+      <header className={`relative z-40 border-b border-surface-border ${styleClass}`} style={colorStyle}>
+        <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
+          <HeaderBrand brand={brand} logo={logo} />
+          <HeaderLinks links={links} />
+          <div className="flex items-center gap-2">
+            <HeaderCta label={ctaLabel} url={ctaUrl} />
+            {mobile}
+          </div>
+        </nav>
+      </header>
+    );
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Config exportada
 // ---------------------------------------------------------------------------
 
@@ -2608,6 +2932,8 @@ export const components = {
   LogoCloud,
   Stats,
   Rating,
+  Footer,
+  Header,
 };
 
 export const categories = {
@@ -2617,7 +2943,7 @@ export const categories = {
   },
   sections: {
     title: 'Secciones',
-    components: ['Hero', 'CTASection', 'Pricing', 'Banner', 'FeatureGrid', 'Stats', 'Divider'],
+    components: ['Header', 'Hero', 'CTASection', 'Pricing', 'Banner', 'FeatureGrid', 'Stats', 'Footer', 'Divider'],
   },
   content: {
     title: 'Contenido',

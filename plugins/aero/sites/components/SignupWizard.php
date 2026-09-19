@@ -123,7 +123,7 @@ class SignupWizard extends ComponentBase
 
         // Dominio propio solo en el plan Pro, de dos formas:
         // - 'register': lo elige de la búsqueda en vivo contra la API de
-        //   clouds.com.bo (ver signup.js searchDomains()) — acá solo se
+        //   clouds.com.bo (ver signup.js searchDomains()) — aquí solo se
         //   valida formato, no se vuelve a consultar la API (el registro
         //   real es un paso manual del equipo después del pago, una
         //   segunda verificación no evita nada). Cobra
@@ -222,7 +222,7 @@ class SignupWizard extends ComponentBase
             // Momento exacto (no solo la fecha de due_date, que es de día
             // completo) en que Console\ReleaseExpiredSignups va a anular
             // este QR y liberar el handle — el temporizador de signup.js
-            // cuenta regresivo hasta acá, no hasta due_date.
+            // cuenta regresivo hasta aquí, no hasta due_date.
             'expires_at'   => $tenant->created_at->addMinutes(Settings::getSignupPaymentTtlMinutes())->toIso8601String(),
             'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
         ];

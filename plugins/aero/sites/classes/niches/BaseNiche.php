@@ -109,18 +109,35 @@ abstract class BaseNiche implements NicheManagerInterface
         ]);
     }
 
+    /**
+     * Solo se provisionan la home y contacto: son las dos únicas rutas fijas
+     * del theme (contacto.htm apunta a sitesPageDetail slug="contacto" y
+     * hace 404 si no existe el Page). Las demás entradas de default_pages
+     * (servicios, portafolio, nosotros, etc.) son solo texto de relleno del
+     * nicho — antes se creaban igual, dejando páginas vacías no pedidas por
+     * nadie; ahora el admin las agrega él mismo, o las genera la IA.
+     */
     protected function provisionPages(Tenant $tenant): void
     {
         foreach ($this->getDefaultPages() as $pageSpec) {
+            if (!in_array($pageSpec['slug'], ['', 'contacto'], true)) {
+                continue;
+            }
+
             $rawContent = $pageSpec['content'] ?? '';
             Page::create([
-                'tenant_id'    => $tenant->id,
-                'title'        => str_replace('{name}', $tenant->name, $pageSpec['title']),
-                'slug'         => $pageSpec['slug'],
-                'layout'       => $pageSpec['layout'] ?? 'default',
-                'is_published' => $pageSpec['is_published'] ?? true,
-                'sort_order'   => $pageSpec['sort_order'] ?? 0,
-                'content'      => str_replace('{name}', $tenant->name, $rawContent),
+                'tenant_id'      => $tenant->id,
+                'title'          => str_replace('{name}', $tenant->name, $pageSpec['title']),
+                'slug'           => $pageSpec['slug'],
+                'layout'         => $pageSpec['layout'] ?? 'default',
+                'is_published'   => $pageSpec['is_published'] ?? true,
+                'sort_order'     => $pageSpec['sort_order'] ?? 0,
+                'content'        => str_replace('{name}', $tenant->name, $rawContent),
+                // La home queda marcada como placeholder hasta que el admin
+                // genere su primer landing con IA o guarde contenido propio —
+                // ver home.htm. Las demás páginas (contacto, etc.) no aplican:
+                // ni GenerateAiSiteJob ni ContentEditor las tocan.
+                'is_placeholder' => $pageSpec['slug'] === '',
             ]);
         }
     }

@@ -13,7 +13,7 @@ default_pages:
     layout: home
     is_published: true
     sort_order: 1
-    content: "<h1>Bienvenidos a {name}</h1><p>Servicios de limpieza y lavandería confiables. Solicitá tu servicio hoy.</p>"
+    content: "<h1>Bienvenidos a {name}</h1><p>Servicios de limpieza y lavandería confiables. Solicita tu servicio hoy.</p>"
   - title: "Servicios"
     slug: "servicios"
     layout: default
@@ -32,7 +32,7 @@ default_pages:
 
 seo_defaults:
   title_format: "%s | {name}"
-  default_description: "{name} — Servicios de limpieza y lavandería. Solicitá tu servicio hoy."
+  default_description: "{name} — Servicios de limpieza y lavandería. Solicita tu servicio hoy."
   sitemap_enabled: true
   robots_txt: "User-agent: *\nAllow: /"
 

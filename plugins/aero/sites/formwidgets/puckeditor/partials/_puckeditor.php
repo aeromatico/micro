@@ -46,8 +46,8 @@ $safeJson = $puckJson
                 <i class="icon-desktop" style="font-size:34px; opacity:.5; display:block; margin-bottom:14px"></i>
                 <h4 style="margin:0 0 8px">El Editor Visual funciona mejor en computadora</h4>
                 <p class="text-muted" style="margin:0">
-                    Abrí esta página desde una PC o notebook para armar tu diseño con bloques.
-                    Desde el celular podés usar <strong>Editor HTML</strong> o <strong>Código</strong> mientras tanto.
+                    Abre esta página desde una PC o notebook para armar tu diseño con bloques.
+                    Desde el celular puedes usar <strong>Editor HTML</strong> o <strong>Código</strong> mientras tanto.
                 </p>
             </div>
         </div>

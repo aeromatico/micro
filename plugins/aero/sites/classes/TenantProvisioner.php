@@ -96,6 +96,14 @@ class TenantProvisioner
      * backend (Tenants::onCreate -> provisionTenant) como el alta pública
      * (SignupWizard). Aero.Sites no requiere Aero.Notify — se guarda con
      * class_exists(), mismo patrón que TenantInvite::notify().
+     *
+     * Dispara DOS eventos porque tienen audiencias y contenido distintos:
+     * sites.tenant.created es el aviso interno al superadmin (texto técnico),
+     * sites.tenant.welcome es el correo real que recibe el cliente que acaba
+     * de comprar (audience tenant_admin, que ya resuelve a $adminEmail porque
+     * tenant.backend_user_id se asignó unas líneas arriba). Notify no permite
+     * variar el contenido por audiencia dentro de un mismo evento (un solo
+     * Template por evento+canal+locale), de ahí la separación.
      */
     protected function notifyTenantCreated(Tenant $tenant, string $adminEmail): void
     {
@@ -114,6 +122,20 @@ class TenantProvisioner
             ]);
         } catch (\Throwable $e) {
             \Log::error('Aero.Sites: fallo notificando sites.tenant.created: ' . $e->getMessage());
+        }
+
+        try {
+            \Aero\Notify\Classes\Notify::fire('sites.tenant.welcome', [
+                'tenant_name'    => $tenant->name,
+                'handle'         => $tenant->handle,
+                'primary_domain' => $tenant->primary_domain,
+                'admin_email'    => $adminEmail,
+                'backend_url'    => Backend::baseUrl(),
+            ], [
+                'tenant_id' => $tenant->id,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Aero.Sites: fallo notificando sites.tenant.welcome: ' . $e->getMessage());
         }
     }
 
@@ -157,6 +179,20 @@ class TenantProvisioner
         $site->is_enabled_edit    = true; // visible en admin/system/sites selector
 
         $site->save();
+
+        // SiteManager cachea la lista de sitios en Manifest (sites.all) y no
+        // se autoinvalida al crear un SiteDefinition fuera de su propio
+        // controller — sin este reset, el sitio recién creado queda
+        // invisible en /system/sites/ y en cualquier listSites()/listEnabled()
+        // hasta que el cache expire o se limpie manualmente. El manifest solo
+        // se escribe a disco en el callback app()->after() de una request
+        // HTTP normal (System\ServiceProvider::registerManifest()); si el
+        // provisioning corre desde un comando de consola o un job en cola
+        // (p. ej. tras confirmar el pago), ese callback nunca se dispara —
+        // por eso forzamos build() aquí en vez de confiar en él.
+        \System\Classes\SiteManager::instance()->resetCache();
+        app('system.manifest')->build();
+
         return $site;
     }
 
