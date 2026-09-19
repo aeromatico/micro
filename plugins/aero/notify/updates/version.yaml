@@ -93,3 +93,13 @@
       facturación SaaS ya eliminado de aero/pay en 1.12.0-1.13.0 — no se
       limpian acá, solo se renombran junto con el resto."
     - migrate_qrbo_event_codes_to_pay.php
+
+1.3.4:
+    - "Nuevo evento sites.tenant.welcome (audience tenant_admin, solo email)
+      + plantilla global: el correo real de confirmación de compra que
+      recibe el cliente al terminar comprar.htm. sites.tenant.created sigue
+      existiendo tal cual, pero su audience es 'superadmin' — es un aviso
+      interno, nunca llegó al comprador. Disparado junto a él desde
+      TenantProvisioner::notifyTenantCreated() (aero/sites, cambio de
+      código sin migración nueva)."
+    - seed_tenant_welcome_template.php
