@@ -1,0 +1,14 @@
+name: Respuesta rápida
+form: $/aero/crm/models/quickreply/fields.yaml
+modelClass: Aero\Crm\Models\QuickReply
+defaultRedirect: aero/crm/quickreplies
+
+create:
+    title: Nueva respuesta
+    redirect: aero/crm/quickreplies/update/:id
+    redirectClose: aero/crm/quickreplies
+
+update:
+    title: Editar respuesta
+    redirect: aero/crm/quickreplies
+    redirectClose: aero/crm/quickreplies

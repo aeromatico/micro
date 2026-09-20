@@ -211,6 +211,12 @@ class Plugin extends PluginBase
                     'url'         => Backend::url('aero/crm/activities'),
                     'permissions' => ['aero.crm.manage_activities'],
                 ],
+                'crm-respuestas' => [
+                    'label'       => 'Respuestas',
+                    'icon'        => 'icon-comment-o',
+                    'url'         => Backend::url('aero/crm/quickreplies'),
+                    'permissions' => ['aero.crm.manage_quick_replies'],
+                ],
                 'crm-equipo' => [
                     'label'       => 'Equipo',
                     'icon'        => 'icon-users',
@@ -229,7 +235,7 @@ class Plugin extends PluginBase
                     'aero.crm.manage_companies', 'aero.crm.manage_contacts', 'aero.crm.manage_leads',
                     'aero.crm.manage_deals', 'aero.crm.manage_activities', 'aero.crm.manage_teams',
                     'aero.crm.manage_settings', 'aero.crm.manage_collections',
-                    'aero.crm.manage_tickets', 'aero.crm.manage_departments',
+                    'aero.crm.manage_tickets', 'aero.crm.manage_departments', 'aero.crm.manage_quick_replies',
                 ],
                 'order'       => 160,
                 'sideMenu'    => $sideMenu,
@@ -372,6 +378,10 @@ class Plugin extends PluginBase
             'aero.crm.manage_departments' => [
                 'tab'   => 'CRM',
                 'label' => 'Gestionar departamentos',
+            ],
+            'aero.crm.manage_quick_replies' => [
+                'tab'   => 'CRM',
+                'label' => 'Gestionar respuestas rápidas',
             ],
             'aero.crm.manage_settings' => [
                 'tab'   => 'CRM',

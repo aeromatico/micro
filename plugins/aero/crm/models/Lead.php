@@ -12,7 +12,6 @@ class Lead extends Model
     public $fillable = [
         'tenant_id', 'name', 'email', 'phone', 'company_name', 'source',
         'status', 'owner_id', 'converted_contact_id', 'converted_deal_id',
-        'in_pipeline',
     ];
 
     public $rules = [
@@ -23,7 +22,6 @@ class Lead extends Model
     ];
 
     public $attributes = [
-        'in_pipeline' => true,
     ];
 
     public $belongsTo = [
@@ -36,20 +34,6 @@ class Lead extends Model
     public function scopeForTenant($query, int $tenantId)
     {
         return $query->where('tenant_id', $tenantId);
-    }
-
-    /**
-     * Mantiene sincronizado el switch "En el pipeline" con el deal ya
-     * generado: si se edita un lead convertido, su tarjeta se muestra u oculta
-     * del tablero según el valor elegido.
-     */
-    public function beforeSave()
-    {
-        if ($this->converted_deal_id && $this->isDirty('in_pipeline')) {
-            Deal::where('id', $this->converted_deal_id)->update([
-                'in_pipeline' => (bool) $this->in_pipeline,
-            ]);
-        }
     }
 
     /**
@@ -92,7 +76,6 @@ class Lead extends Model
             'company_id'  => $company?->id,
             'title'       => $this->name,
             'owner_id'    => $this->owner_id,
-            'in_pipeline' => (bool) $this->in_pipeline,
         ]);
 
         $this->converted_contact_id = $contact->id;

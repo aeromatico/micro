@@ -1,0 +1,16 @@
+title: Respuestas
+list: $/aero/crm/models/quickreply/columns.yaml
+modelClass: Aero\Crm\Models\QuickReply
+recordUrl: aero/crm/quickreplies/update/:id
+noRecordsMessage: Todavía no hay respuestas rápidas.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar por atajo, título o mensaje
+
+defaultSort:
+    column: sort_order
+    direction: asc

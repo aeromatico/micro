@@ -1,0 +1,37 @@
+columns:
+    shortcut:
+        label: Atajo
+        type: partial
+        path: ~/plugins/aero/crm/models/quickreply/_shortcut.htm
+        searchable: true
+        width: 160px
+
+    title:
+        label: Título
+        searchable: true
+
+    area:
+        label: Área
+        type: partial
+        path: ~/plugins/aero/crm/models/quickreply/_area.htm
+        width: 140px
+
+    body:
+        label: Mensaje
+        searchable: true
+        limit: 80
+
+    sort_order:
+        label: Orden
+        type: number
+        width: 80px
+
+    uses_count:
+        label: Usos
+        type: number
+        width: 80px
+
+    is_active:
+        label: Activa
+        type: switch
+        width: 90px

@@ -1,0 +1,47 @@
+fields:
+    title:
+        label: Título
+        type: text
+        span: auto
+        required: true
+        comment: Nombre interno para reconocerla en la lista.
+
+    shortcut:
+        label: Atajo
+        type: text
+        span: auto
+        required: true
+        placeholder: catalogo
+        comment: Se invoca escribiendo /atajo (ej. /catalogo). Minúsculas, sin espacios.
+
+    area:
+        label: Área
+        type: dropdown
+        span: auto
+
+    sort_order:
+        label: Orden
+        type: number
+        span: auto
+        default: 10
+        comment: Menor va primero al listar (por defecto 10).
+
+    uses_count:
+        label: Veces usada
+        type: number
+        span: auto
+        disabled: true
+        context: update
+        comment: Sube cada vez que se invoca desde el chat.
+
+    is_active:
+        label: Activa
+        type: switch
+        span: auto
+
+    body:
+        label: Mensaje
+        type: textarea
+        size: large
+        span: full
+        required: true

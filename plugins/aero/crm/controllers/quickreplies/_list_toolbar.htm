@@ -1,0 +1,10 @@
+<div data-control="toolbar">
+    <?= Ui::button("Nueva respuesta", 'aero/crm/quickreplies/create')->icon('icon-plus')->primary() ?>
+
+    <?= Ui::ajaxButton("Eliminar", 'onDelete')
+        ->listCheckedTrigger()
+        ->listCheckedRequest()
+        ->icon('icon-trash-o')
+        ->secondary()
+        ->confirmMessage("¿Eliminar las respuestas seleccionadas?") ?>
+</div>

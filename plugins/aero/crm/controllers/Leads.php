@@ -108,7 +108,6 @@ class Leads extends Controller
             'owner_id'             => $model->owner_id,
             'converted_contact_id' => $model->contact_id,
             'converted_deal_id'    => $model->id,
-            'in_pipeline'          => (bool) $model->in_pipeline,
         ]);
     }
 

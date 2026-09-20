@@ -128,3 +128,10 @@
     - "Tickets y departamentos: mesa de ayuda con el mismo esquema para el sitio principal (superadmin, sin tenant) y para cada tenant. Departamentos con integrantes (se asignan desde CRM > Equipo o desde el propio departamento), tickets numerados por ambito con prioridad, estado, asignacion a un integrante del departamento, respuestas y notas internas. Un usuario sin rol admin solo ve los tickets de sus departamentos o asignados a el."
     - create_ticketing_tables.php
     - grant_ticket_permissions.php
+1.6.0:
+    - "Respuestas rapidas: nuevo menu CRM > Respuestas para registrar textos reutilizables por area (general, ventas, soporte, cobranzas, postventa), cada uno con un atajo unico por ambito que se invoca con / (ej. /catalogo)."
+    - create_quick_replies_table.php
+    - grant_quick_reply_permission.php
+1.6.1:
+    - "Respuestas rapidas: campo Orden (por defecto 10) y contador de usos (uses_count) que sube cada vez que un agente invoca la respuesta desde el chat."
+    - add_order_and_uses_to_quick_replies.php

@@ -12,6 +12,9 @@ if (!empty($this->vars['noTenant'])): ?>
 $pipeline = $this->vars['pipeline'];
 ?>
 <div class="padded-container" id="crmBoard">
+    <div data-control="toolbar" style="margin-bottom:12px">
+        <?= Ui::button("Nuevo negocio", 'aero/crm/deals/create')->icon('icon-plus')->primary() ?>
+    </div>
     <style>
         .crm-board { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; align-items: flex-start; }
         .crm-board-column { flex: 0 0 260px; background: rgba(127,127,127,.06); border-radius: 8px; padding: 10px; min-height: 120px; }

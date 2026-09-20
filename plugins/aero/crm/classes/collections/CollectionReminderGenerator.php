@@ -154,8 +154,8 @@ class CollectionReminderGenerator
     }
 
     /**
-     * Envía el recordatorio de un CollectionItem puntual vía Aero\Hello
-     * (mismo circuito que Contacts::onSendMessage) al contacto principal y a
+     * Envía el recordatorio de un CollectionItem puntual vía Aero.Notify
+     * (evento crm.collection.reminder, canal WhatsApp sobre Aero.Hello) al contacto principal y a
      * los contactos adicionales cargados a mano (ver la relación
      * `recipients`), registrando una Activity por cada uno. Devuelve la
      * cantidad de contactos notificados; los que no tienen canal de WhatsApp
@@ -167,7 +167,7 @@ class CollectionReminderGenerator
      */
     public function sendReminder(CollectionItem $item, ?CrmSettings $settings = null, ?CollectionReminderRule $rule = null, ?string $scheduledDate = null): int
     {
-        if (!class_exists(\Aero\Hello\Models\Contact::class)) {
+        if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
             return 0;
         }
 
@@ -194,42 +194,53 @@ class CollectionReminderGenerator
             }
         }
 
-        $sendOptions = [
-            'platform'  => 'whatsapp',
-            'tenant_id' => $item->tenant_id,
-        ];
-
-        // Si hay una cuenta de cobranzas configurada en QRBO, cada
-        // recordatorio lleva el QR de pago adjunto — reutiliza el mismo QR
-        // mientras siga vigente (ver CollectionQrIssuer) en vez de generar
-        // uno nuevo en cada envío.
+        // El QR de pago (si hay cuenta de cobranzas en Aero.Pay) viaja como
+        // adjunto; se reutiliza mientras siga vigente (ver CollectionQrIssuer).
+        $media = [];
         if (class_exists(\Aero\Crm\Classes\Collections\CollectionQrIssuer::class)) {
             $qrCode = (new \Aero\Crm\Classes\Collections\CollectionQrIssuer())->issueFor($item);
             if ($qrCode && $qrCode->qr_image) {
-                $sendOptions['media_url'] = url('/api/v1/pay/public/qr/' . $qrCode->internal_reference . '/image');
-                $sendOptions['media_type'] = 'image';
+                $media = [
+                    'media_url'  => url('/api/v1/pay/public/qr/' . $qrCode->internal_reference . '/image'),
+                    'media_type' => 'image',
+                ];
             }
         }
 
         $sent = 0;
         foreach ($recipients as $contact) {
-            if (!$contact->hello_contact_id) {
-                continue;
-            }
+            $helloContact = $contact->hello_contact_id && class_exists(\Aero\Hello\Models\Contact::class)
+                ? \Aero\Hello\Models\Contact::with('identities')->find($contact->hello_contact_id)
+                : null;
 
-            $helloContact = \Aero\Hello\Models\Contact::with('identities')->find($contact->hello_contact_id);
-            if (!$helloContact) {
+            $phone = $helloContact?->identities->firstWhere('platform', 'whatsapp')?->external_id ?: $contact->phone;
+            if (!$phone) {
                 continue;
             }
 
             $body = $this->renderTemplate($template, $contact, $item);
 
-            try {
-                \Aero\Hello\Classes\Hello::sendToContact($helloContact, $body, $sendOptions);
-            }
-            catch (\Throwable $ex) {
-                // Un contacto sin cuenta o sin identidad de WhatsApp no debe
-                // cortar el resto de los destinatarios.
+            // El texto (personalizable por regla/tenant) va como `mensaje`; la
+            // plantilla global del evento lo usa tal cual. Envío síncrono: el
+            // resultado decide si se revierte el log de la cascada.
+            $overdue = $item->due_date && $item->due_date->lt(now()->startOfDay());
+
+            $deliveries = \Aero\Notify\Classes\Notify::fire($overdue ? 'crm.collection.overdue' : 'crm.collection.reminder', [
+                'contacto'    => $contact->full_name,
+                'monto'       => number_format((float) $item->amount, 2),
+                'moneda'      => $item->currency,
+                'concepto'    => $item->concept,
+                'vencimiento' => optional($item->due_date)->format('d/m/Y'),
+                'mensaje'     => $body,
+                'dias_atraso' => $overdue ? $item->due_date->diffInDays(now()->startOfDay(), true) : 0,
+            ] + $media, [
+                'tenant_id' => (int) $item->tenant_id,
+                'actor'     => ['name' => $contact->full_name, 'phone' => $phone],
+                'sync'      => true,
+                'dedup_key' => "collection:{$item->id}:{$contact->id}:" . ($scheduledDate ?: now()->toDateString()),
+            ]);
+
+            if (!collect($deliveries)->contains(fn ($d) => $d->channel === 'whatsapp' && $d->status === 'sent')) {
                 continue;
             }
 
