@@ -33,6 +33,10 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('notify.seed-events', \Aero\Notify\Console\SeedNotifyEvents::class);
+        $this->registerConsoleCommand('notify.vapid', \Aero\Notify\Console\GenerateVapidKeys::class);
+        $this->registerConsoleCommand('notify.test', \Aero\Notify\Console\TestNotify::class);
+        $this->registerConsoleCommand('notify.watch', \Aero\Notify\Console\WatchFailures::class);
+        $this->registerConsoleCommand('notify.audit', \Aero\Notify\Console\AuditDirectSends::class);
         $this->registerConsoleCommand('notify.events', \Aero\Notify\Console\ListNotifyEvents::class);
     }
 
@@ -43,12 +47,21 @@ class Plugin extends PluginBase
      */
     public function boot(): void
     {
+        \Aero\Notify\Classes\Bridges::register();
+
         \Event::listen('aero.notify.registerChannelDrivers', function ($manager) {
             $manager->register('email', \Aero\Notify\Classes\Drivers\EmailDriver::class);
             $manager->register('whatsapp', \Aero\Notify\Classes\Drivers\WhatsAppDriver::class);
             $manager->register('telegram', \Aero\Notify\Classes\Drivers\TelegramDriver::class);
             $manager->register('sms', \Aero\Notify\Classes\Drivers\SmsDriver::class);
+            $manager->register('inapp', \Aero\Notify\Classes\Drivers\InappDriver::class);
+            $manager->register('push', \Aero\Notify\Classes\Drivers\PushDriver::class);
         });
+    }
+
+    public function registerSchedule($schedule): void
+    {
+        $schedule->command('notify:watch')->everyFifteenMinutes();
     }
 
     public function registerNavigation(): array
@@ -59,6 +72,7 @@ class Plugin extends PluginBase
                 'url'         => Backend::url('aero/notify/events'),
                 'icon'        => 'icon-bell',
                 'permissions' => [
+                    'aero.notify.view_inbox',
                     'aero.notify.view_events', 'aero.notify.view_deliveries',
                     'aero.notify.manage_rules', 'aero.notify.manage_global_rules', 'aero.notify.manage_templates',
                     'aero.notify.manage_channels',
@@ -66,6 +80,12 @@ class Plugin extends PluginBase
                 'order'       => 220,
 
                 'sideMenu' => [
+                    'notify-inbox' => [
+                        'label'       => 'Mis notificaciones',
+                        'icon'        => 'icon-inbox',
+                        'url'         => Backend::url('aero/notify/inbox'),
+                        'permissions' => ['aero.notify.view_inbox'],
+                    ],
                     'notify-events' => [
                         'label'       => 'Eventos',
                         'icon'        => 'icon-list-ul',
@@ -119,6 +139,10 @@ class Plugin extends PluginBase
                 'label' => 'Administrar las reglas globales de la plataforma',
             ],
 
+            'aero.notify.view_inbox' => [
+                'tab'   => 'Notificaciones',
+                'label' => 'Ver la bandeja de notificaciones propia',
+            ],
             'aero.notify.view_events' => [
                 'tab'   => 'Notificaciones',
                 'label' => 'Ver el catálogo de eventos',

@@ -1,0 +1,15 @@
+fields:
+    subject:
+        label: Contacto VAPID (mailto: o URL)
+        type: text
+        span: full
+    vapid_public:
+        label: Clave pública VAPID
+        type: text
+        span: full
+        readOnly: true
+    vapid_private:
+        label: Clave privada VAPID
+        type: text
+        span: full
+        readOnly: true

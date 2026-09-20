@@ -61,7 +61,7 @@ class EventCatalog
                 // un Channel propio (ver Models\Channel); sin uno, la Rule
                 // global existe pero se salta como no_address, igual que
                 // pasaba con el canal deshabilitado en el sistema legacy.
-                'default_channels' => ['email', 'inapp', 'whatsapp', 'telegram', 'sms'],
+                'default_channels' => ['email', 'inapp', 'push', 'whatsapp', 'telegram', 'sms'],
                 'variables_schema' => [
                     'name'    => ['type' => 'string', 'required' => true,  'label' => 'Nombre de quien escribe'],
                     'email'   => ['type' => 'string', 'required' => false, 'label' => 'Email de contacto'],
@@ -83,7 +83,7 @@ class EventCatalog
                 'description' => 'Se aprovisionó un micrositio nuevo.',
                 'priority' => 4,
                 'default_audiences' => ['superadmin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => [
                     'tenant_name' => ['type' => 'string', 'required' => true, 'label' => 'Nombre del tenant'],
                     'handle'      => ['type' => 'string', 'required' => true, 'label' => 'Handle'],
@@ -141,7 +141,7 @@ class EventCatalog
                 'description' => 'Un dominio personalizado quedó apuntando correctamente.',
                 'priority' => 5,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => [
                     'domain' => ['type' => 'string', 'required' => true, 'label' => 'Dominio'],
                 ] + self::TENANT_VARS,
@@ -223,7 +223,7 @@ class EventCatalog
                 'description' => 'El banco confirmó un pago sobre un QR generado.',
                 'priority' => 2,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp', 'email'],
+                'default_channels' => ['inapp', 'push', 'email'],
                 'variables_schema' => $money + [
                     'payer_name' => ['type' => 'string', 'required' => false, 'label' => 'Pagador'],
                     'reference'  => ['type' => 'string', 'required' => false, 'label' => 'Referencia'],
@@ -244,7 +244,7 @@ class EventCatalog
                 'description' => 'El procesamiento de un pago falló o fue rechazado.',
                 'priority' => 2,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => $money + [
                     'reference' => ['type' => 'string', 'required' => false, 'label' => 'Referencia'],
                     'reason'    => ['type' => 'string', 'required' => false, 'label' => 'Motivo'],
@@ -262,7 +262,7 @@ class EventCatalog
                 'description' => 'Un QR llegó a su fecha límite sin recibir pago.',
                 'priority' => 6,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => $money + [
                     'reference' => ['type' => 'string', 'required' => false, 'label' => 'Referencia'],
                 ] + self::TENANT_VARS,
@@ -279,7 +279,7 @@ class EventCatalog
                 'description' => 'La facturación mensual generó un cargo para el tenant.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $money + [
                     'period_start' => ['type' => 'date', 'required' => true, 'label' => 'Inicio del periodo'],
                     'period_end'   => ['type' => 'date', 'required' => true, 'label' => 'Fin del periodo'],
@@ -353,7 +353,7 @@ class EventCatalog
                 'description' => 'El tenant intentó una operación por encima de su plan.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp', 'email'],
+                'default_channels' => ['inapp', 'push', 'email'],
                 'variables_schema' => [
                     'quota'     => ['type' => 'string', 'required' => true,  'label' => 'Límite alcanzado'],
                     'limit'     => ['type' => 'number', 'required' => false, 'label' => 'Valor del límite'],
@@ -436,7 +436,7 @@ class EventCatalog
                 'description' => 'Entró un lead nuevo al pipeline.',
                 'priority' => 5,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'lead_name' => ['type' => 'string', 'required' => true,  'label' => 'Nombre del lead'],
                     'source'    => ['type' => 'string', 'required' => false, 'label' => 'Origen'],
@@ -455,7 +455,7 @@ class EventCatalog
                 'description' => 'Una oportunidad se movió en el kanban.',
                 'priority' => 6,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'deal_name'  => ['type' => 'string', 'required' => true,  'label' => 'Oportunidad'],
                     'from_stage' => ['type' => 'string', 'required' => false, 'label' => 'Etapa anterior'],
@@ -474,7 +474,7 @@ class EventCatalog
                 'description' => 'Se cerró una oportunidad con éxito.',
                 'priority' => 4,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp', 'email'],
+                'default_channels' => ['inapp', 'push', 'email'],
                 'variables_schema' => [
                     'deal_name' => ['type' => 'string', 'required' => true,  'label' => 'Oportunidad'],
                     'amount'    => ['type' => 'number', 'required' => false, 'label' => 'Monto'],
@@ -493,7 +493,7 @@ class EventCatalog
                 'description' => 'Se cerró una oportunidad sin venta.',
                 'priority' => 6,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'deal_name' => ['type' => 'string', 'required' => true,  'label' => 'Oportunidad'],
                     'reason'    => ['type' => 'string', 'required' => false, 'label' => 'Motivo'],
@@ -511,7 +511,7 @@ class EventCatalog
                 'description' => 'Una actividad del CRM vence hoy.',
                 'priority' => 5,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'subject'  => ['type' => 'string',   'required' => true,  'label' => 'Asunto'],
                     'due_at'   => ['type' => 'datetime', 'required' => true,  'label' => 'Vence'],
@@ -554,7 +554,7 @@ class EventCatalog
                 'description' => 'Un cliente completó el checkout.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin', 'actor'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $orderVars + self::TENANT_VARS,
                 'sample_context' => $orderSample,
             ],
@@ -566,7 +566,7 @@ class EventCatalog
                 'description' => 'Se confirmó el pago de un pedido.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin', 'actor'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $orderVars + [
                     'payment_method' => ['type' => 'string', 'required' => false, 'label' => 'Medio de pago'],
                 ] + self::TENANT_VARS,
@@ -608,7 +608,7 @@ class EventCatalog
                 'description' => 'Un producto bajó del umbral de stock configurado.',
                 'priority' => 5,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'product_name' => ['type' => 'string', 'required' => true,  'label' => 'Producto'],
                     'stock'        => ['type' => 'number', 'required' => true,  'label' => 'Stock actual'],
@@ -667,7 +667,7 @@ class EventCatalog
                 'description' => 'Llegó un mensaje a una cuenta conectada en Hello.',
                 'priority' => 4,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'contact_name' => ['type' => 'string', 'required' => true,  'label' => 'Contacto'],
                     'platform'     => ['type' => 'string', 'required' => true,  'label' => 'Plataforma'],
@@ -686,7 +686,7 @@ class EventCatalog
                 'description' => 'Una llamada entrante de WhatsApp no fue atendida.',
                 'priority' => 3,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp', 'email'],
+                'default_channels' => ['inapp', 'push', 'email'],
                 'variables_schema' => [
                     'from_number' => ['type' => 'string',   'required' => true,  'label' => 'Número'],
                     'contact_name'=> ['type' => 'string',   'required' => false, 'label' => 'Contacto'],
@@ -705,7 +705,7 @@ class EventCatalog
                 'description' => 'Una cuenta conectada perdió la sesión con el proveedor.',
                 'priority' => 2,
                 'default_audiences' => ['tenant_admin', 'superadmin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => [
                     'account_label' => ['type' => 'string', 'required' => true,  'label' => 'Cuenta'],
                     'platform'      => ['type' => 'string', 'required' => true,  'label' => 'Plataforma'],
@@ -723,7 +723,7 @@ class EventCatalog
                 'description' => 'Una campaña de mensajería terminó de procesarse.',
                 'priority' => 6,
                 'default_audiences' => ['tenant_admin'],
-                'default_channels' => ['inapp'],
+                'default_channels' => ['inapp', 'push'],
                 'variables_schema' => [
                     'campaign_name' => ['type' => 'string', 'required' => true,  'label' => 'Campaña'],
                     'sent_count'    => ['type' => 'number', 'required' => false, 'label' => 'Enviados'],
@@ -760,7 +760,7 @@ class EventCatalog
                 'description' => 'El saldo de un tenant en un color de crédito cruzó su umbral de alerta.',
                 'priority' => 4,
                 'default_audiences' => ['tenant_admin', 'superadmin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $creditVars + self::TENANT_VARS,
                 'sample_context' => $creditSample + ['tenant_name' => 'Panadería Delicia'],
             ],
@@ -772,7 +772,7 @@ class EventCatalog
                 'description' => 'Un tenant se quedó sin saldo en un color de crédito: las acciones que lo usan quedan bloqueadas.',
                 'priority' => 2,
                 'default_audiences' => ['tenant_admin', 'superadmin'],
-                'default_channels' => ['email', 'inapp'],
+                'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $creditVars + self::TENANT_VARS,
                 'sample_context' => ['credit_type' => 'Azul', 'credit_color' => 'azul', 'balance' => 0, 'threshold' => 50, 'tenant_name' => 'Panadería Delicia'],
             ],

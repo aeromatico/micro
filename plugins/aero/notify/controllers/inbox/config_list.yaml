@@ -1,0 +1,15 @@
+title: Mis notificaciones
+list: $/aero/notify/models/inboxmessage/columns.yaml
+modelClass: Aero\Notify\Models\InboxMessage
+noRecordsMessage: No tienes notificaciones.
+recordsPerPage: 50
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
+
+defaultSort:
+    column: created_at
+    direction: desc

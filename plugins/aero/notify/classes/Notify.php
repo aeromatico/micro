@@ -1,6 +1,8 @@
 <?php namespace Aero\Notify\Classes;
 
 use Aero\Notify\Classes\Drivers\DriverManager;
+use Aero\Notify\Classes\Drivers\SkipDelivery;
+use Aero\Notify\Jobs\DeliverNotification;
 use Aero\Notify\Classes\Support\Channels;
 use Aero\Notify\Models\Channel;
 use Aero\Notify\Models\Delivery;
@@ -24,16 +26,18 @@ use October\Rain\Parse\Twig;
  * opt-in: sin Channel configurado, todo funciona igual que antes de que
  * existiera esa tabla.
  *
- * Pendiente de fases posteriores (documentado, no implementado todavía):
- * dedup_window_min, digest_window_min, delay_seconds y max_per_hour de Rule
- * se guardan pero no se aplican aún; toda entrega es inmediata y sin
- * deduplicar.
+ * La entrega real va en cola (Jobs\DeliverNotification, Redis, 3 intentos con
+ * backoff). Rule aplica conditions, delay_seconds, dedup_window_min,
+ * digest_window_min (colapsa, no resume) y max_per_hour. Un contexto con
+ * `attachment_binary` o $options['sync'] fuerza el envío inmediato.
  *
  * $options:
  *   - tenant_id: int, tenant que dispara el evento (0/omitido = global)
  *   - actor: ['name'=>?, 'email'=>?, 'phone'=>?] — destinatario de audience=actor
  *   - adhoc: array de esos mismos arrays — destinatarios de audience=adhoc
  *   - locale: string, default 'es'
+ *   - sync: bool, envía en el acto en vez de encolar
+ *   - dedup_key: string, sustituye al hash del contexto para dedup_window_min
  */
 class Notify
 {
@@ -55,20 +59,46 @@ class Notify
         $tenantId = (int) ($options['tenant_id'] ?? 0);
         $locale   = $options['locale'] ?? 'es';
 
+        // Adjuntos binarios no caben en JSON ni en la cola: viajan solo en
+        // memoria y fuerzan el envío síncrono.
+        $transient = array_intersect_key($context, array_flip(['attachment_binary']));
+        $context   = array_diff_key($context, $transient);
+        $sync      = !empty($options['sync']) || $transient !== [];
+
         $deliveries = [];
 
         foreach (Rule::effectiveFor($event, $tenantId) as $rule) {
+            if (!static::conditionsPass((array) $rule->conditions, $context)) {
+                continue;
+            }
+
             $recipients = AudienceResolver::resolve($rule->audience, $tenantId, $options);
 
             foreach ($recipients as $recipient) {
-                $deliveries[] = static::deliverOne($event, $rule, $recipient, $tenantId, $locale, $context);
+                $delivery = static::deliverOne($event, $rule, $recipient, $tenantId, $locale, $context, $options);
+
+                if ($delivery->status === 'queued') {
+                    if ($sync) {
+                        static::transmit($delivery, $transient);
+                    } else {
+                        $job = DeliverNotification::dispatch($delivery->id);
+                        if ($rule->delay_seconds > 0) {
+                            $job->delay($rule->delay_seconds);
+                            $delivery->scheduled_at = now()->addSeconds($rule->delay_seconds);
+                            $delivery->save();
+                        }
+                    }
+                }
+
+                $deliveries[] = $delivery;
             }
         }
 
         return $deliveries;
     }
 
-    protected static function deliverOne(Event $event, Rule $rule, array $recipient, int $tenantId, string $locale, array $context): Delivery
+    /** Prepara la entrega: dirección, plantilla, guardas y render. Deja 'queued' o 'skipped'. */
+    protected static function deliverOne(Event $event, Rule $rule, array $recipient, int $tenantId, string $locale, array $context, array $options = []): Delivery
     {
         $delivery = new Delivery([
             'event_id'  => $event->id,
@@ -84,8 +114,7 @@ class Notify
 
         // Un canal propio del tenant (SMTP, bot de Telegram, cuenta Twilio,
         // WhatsApp explícito — ver Models\Channel) puede reemplazar la
-        // dirección resuelta por audiencia. Es opt-in: sin fila configurada,
-        // el comportamiento es exactamente el de antes.
+        // dirección resuelta por audiencia. Es opt-in.
         $channel = Channel::activeFor($tenantId, $rule->channel);
         $address = $channel?->destinationAddress() ?: $address;
 
@@ -109,35 +138,124 @@ class Notify
         $vars = $context + ['to_name' => $recipient['name']];
         $twig = new Twig();
 
-        $subject = $template->hasSubject() && $template->subject ? $twig->parse($template->subject, $vars) : null;
-        $body    = $twig->parse($template->body, $vars);
+        $delivery->dedup_key = sha1($rule->id . '|' . $address . '|' . ($options['dedup_key'] ?? json_encode($context)));
 
-        $delivery->subject = $subject;
-        $delivery->body     = $body;
-        $delivery->save();
+        $delivery->digest_key = $rule->digest_key_expr ? sha1(trim($twig->parse($rule->digest_key_expr, $vars))) : '';
+
+        if ($reason = static::guardReason($rule, $address, $delivery->dedup_key, $delivery->digest_key)) {
+            $delivery->save();
+            $delivery->markSkipped($reason);
+            return $delivery;
+        }
+
+        $delivery->subject = $template->hasSubject() && $template->subject ? $twig->parse($template->subject, $vars) : null;
+        $delivery->body    = $twig->parse($template->body, $vars);
 
         $drivers = new DriverManager();
 
         if (!$drivers->has($rule->channel)) {
+            $delivery->save();
             $delivery->markSkipped('no_driver');
             return $delivery;
         }
 
-        try {
-            $driverContext = $context + ['tenant_id' => $tenantId];
+        $delivery->status = 'queued';
+        $delivery->save();
 
+        return $delivery;
+    }
+
+    /**
+     * dedup_window_min (misma regla+dirección+contexto), digest_window_min
+     * (colapsa: solo pasa el primero de la ventana, por regla+dirección o por
+     * digest_key_expr) y max_per_hour (tope por regla y tenant).
+     */
+    protected static function guardReason(Rule $rule, string $address, string $dedupKey, string $digestKey): ?string
+    {
+        $live = fn () => Delivery::where('rule_id', $rule->id)->whereIn('status', ['queued', 'sent']);
+
+        if ($rule->dedup_window_min > 0
+            && $live()->where('dedup_key', $dedupKey)->where('created_at', '>=', now()->subMinutes($rule->dedup_window_min))->exists()) {
+            return 'deduplicated';
+        }
+
+        if ($rule->digest_window_min > 0
+            && $live()->where('address', $address)->where('digest_key', $digestKey)
+                ->where('created_at', '>=', now()->subMinutes($rule->digest_window_min))->exists()) {
+            return 'digested';
+        }
+
+        if ($rule->max_per_hour
+            && $live()->where('tenant_id', $rule->tenant_id)->where('created_at', '>=', now()->subHour())->count() >= $rule->max_per_hour) {
+            return 'rate_limited';
+        }
+
+        return null;
+    }
+
+    /** Condiciones AND: [{"var":"amount","op":">=","value":100}]. */
+    protected static function conditionsPass(array $conditions, array $context): bool
+    {
+        foreach ($conditions as $c) {
+            $actual = $context[$c['var'] ?? ''] ?? null;
+            $value  = $c['value'] ?? null;
+
+            $ok = match ($c['op'] ?? '=') {
+                '=', '==' => $actual == $value,
+                '!='      => $actual != $value,
+                '>'       => $actual > $value,
+                '>='      => $actual >= $value,
+                '<'       => $actual < $value,
+                '<='      => $actual <= $value,
+                'in'      => in_array($actual, (array) $value, false),
+                'contains' => is_string($actual) && str_contains($actual, (string) $value),
+                default   => true,
+            };
+
+            if (!$ok) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Envía una entrega 'queued'. Con $throwOnError (cola) relanza para que
+     * el Job reintente; sin él (síncrono) marca 'failed' y sigue.
+     */
+    public static function transmit(Delivery $delivery, array $transient = [], bool $throwOnError = false): void
+    {
+        $delivery->attempts++;
+        $delivery->save();
+
+        try {
+            $driverContext = ((array) $delivery->context) + $transient + [
+                'tenant_id'   => (int) $delivery->tenant_id,
+                'delivery_id' => $delivery->id,
+                'event_code'  => $delivery->event?->code,
+            ];
+
+            $channel = Channel::activeFor((int) $delivery->tenant_id, $delivery->channel);
             if ($channel) {
                 $driverContext['channel_config'] = $channel->config;
             }
 
-            $externalId = $drivers->make($rule->channel)->send($address, $subject, $body, $driverContext);
+            $externalId = (new DriverManager())->make($delivery->channel)
+                ->send($delivery->address, $delivery->subject, (string) $delivery->body, $driverContext);
             $delivery->markSent($externalId);
+        } catch (SkipDelivery $e) {
+            $delivery->markSkipped($e->getMessage());
         } catch (\Throwable $e) {
-            $delivery->markFailed($e->getMessage());
-            \Log::error("Aero.Notify: fallo entregando '{$event->code}' por {$rule->channel} a {$address}: " . $e->getMessage());
-        }
+            if ($throwOnError) {
+                $delivery->error = $e->getMessage();
+                $delivery->save();
+                throw $e;
+            }
 
-        return $delivery;
+            $delivery->markFailed($e->getMessage());
+            \Log::error("Aero.Notify: fallo entregando '{$delivery->event?->code}' por {$delivery->channel} a {$delivery->address}: " . $e->getMessage());
+        }
     }
 
     protected static function addressFor(string $channel, array $recipient): ?string
@@ -145,6 +263,7 @@ class Notify
         return match ($channel) {
             Channels::EMAIL => $recipient['email'] ?? null,
             Channels::WHATSAPP, Channels::SMS, Channels::TELEGRAM => $recipient['phone'] ?? null,
+            Channels::INAPP, Channels::PUSH => !empty($recipient['user_id']) ? 'user:' . $recipient['user_id'] : null,
             default => null,
         };
     }

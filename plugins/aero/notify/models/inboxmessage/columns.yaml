@@ -1,0 +1,15 @@
+columns:
+    title:
+        label: Título
+        searchable: true
+    body:
+        label: Mensaje
+        searchable: true
+    event_code:
+        label: Evento
+    created_at:
+        label: Recibida
+        type: datetime
+    read_at:
+        label: Leída
+        type: datetime

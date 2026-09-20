@@ -12,6 +12,7 @@ class Channels
     public const WHATSAPP = 'whatsapp';
     public const SMS      = 'sms';
     public const TELEGRAM = 'telegram';
+    public const PUSH     = 'push';
     public const WEBHOOK  = 'webhook';
 
     public static function options(): array
@@ -22,6 +23,7 @@ class Channels
             self::WHATSAPP => 'WhatsApp',
             self::SMS      => 'SMS',
             self::TELEGRAM => 'Telegram',
+            self::PUSH     => 'Push (navegador/PWA)',
             self::WEBHOOK  => 'Webhook',
         ];
     }
@@ -34,7 +36,7 @@ class Channels
     /** Canales cuyo mensaje lleva asunto además de cuerpo. */
     public static function withSubject(): array
     {
-        return [self::EMAIL, self::INAPP];
+        return [self::EMAIL, self::INAPP, self::PUSH];
     }
 
     public static function exists(string $code): bool
