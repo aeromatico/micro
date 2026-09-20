@@ -40,7 +40,7 @@ class ShopController extends Controller
             return $err;
         }
 
-        return $this->ok($this->state($request, $conv));
+        return $this->ok($this->state($request, $conv) + ['locations' => \Aero\Chat\Classes\SharedLocations::for($conv)]);
     }
 
     /**
@@ -62,7 +62,7 @@ class ShopController extends Controller
         $data = $this->check($request, [
             'items' => 'required|array|min:1|max:50', 'items.*.product_id' => 'required|integer', 'items.*.variant_id' => 'nullable|integer',
             'items.*.quantity' => 'required|integer|min:1|max:999', 'payment_gateway_id' => 'nullable|integer', 'notes' => 'nullable|string|max:1000',
-            'shipping' => 'nullable|array', 'customer' => 'nullable|array', 'customer.name' => 'nullable|string|max:150',
+            'shipping' => 'nullable|array', 'shipping.latitude' => 'nullable|numeric|between:-90,90', 'shipping.longitude' => 'nullable|numeric|between:-180,180', 'shipping.location_label' => 'nullable|string|max:120', 'customer' => 'nullable|array', 'customer.name' => 'nullable|string|max:150',
             'customer.phone' => 'nullable|string|max:30', 'customer.email' => 'nullable|email|max:255', 'notify_on_paid' => 'nullable|boolean',
         ]);
 
@@ -99,6 +99,59 @@ class ShopController extends Controller
         }
 
         return $this->ok($this->state($request, $conv), 201);
+    }
+
+    /**
+     * POST conversations/{id}/shop/products/{productId}/card
+     * Presenta un producto en el chat: foto, precio, resumen y enlace a su página en la tienda.
+     */
+    public function card(Request $request, $id, $productId)
+    {
+        [$conv, $err] = $this->conversation($request, $id);
+        if ($err) {
+            return $err;
+        }
+
+        $tenantId = $this->tenantId($request);
+        if (!$this->available($tenantId)) {
+            return $this->fail('shop_unavailable', 'La tienda no está activada para este espacio.', 422);
+        }
+
+        $product = (new \Aero\Shop\Classes\CatalogService())->find($tenantId, (int) $productId);
+        $tenant = \Aero\Sites\Models\Tenant::find($tenantId);
+        if (!$product || !$tenant) {
+            return $this->fail('not_found', 'Producto no encontrado.', 404);
+        }
+
+        $p = \Aero\Shop\Classes\CatalogService::present($product);
+        $code = \Aero\Shop\Models\ShopSettings::where('tenant_id', $tenantId)->first()?->base_currency?->code;
+        $url = 'https://' . $tenant->primary_domain . '/tienda/producto/' . $p['slug'];
+
+        $lines = ['*' . $p['name'] . '*', ($p['has_price_range'] ? 'Desde ' : '') . ChargeSettler::money($p['price'], $code)
+            . (!$p['in_stock'] ? ' · Agotado' : '')];
+        if ($p['description']) {
+            $lines[] = trim(mb_substr($p['description'], 0, 200)) . (mb_strlen($p['description']) > 200 ? '…' : '');
+        }
+        $lines[] = "\nVer en la tienda: " . $url;
+
+        $options = [];
+        if ($p['image_url'] && $conv->account->can('media')) {
+            $image = $p['image_url'];
+            $options = ['media_url' => str_starts_with($image, '/') ? url($image) : $image, 'media_type' => 'image'];
+        }
+
+        try {
+            $tx = ApiCredits::charge($tenantId);
+            MessageComposer::sendToContact($conv->account, $conv->contact_id, implode("\n", $lines), $options + ['credit_transaction_id' => $tx]);
+        } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
+            return $this->fail('insufficient_credits', $e->getMessage(), 402);
+        } catch (\Throwable $e) {
+            return $this->fail('send_failed', $e->getMessage(), 422);
+        }
+
+        $this->log($request, $conv, 'product', 'Tarjeta de producto enviada: ' . $p['name'], ['product_id' => $p['id']]);
+
+        return $this->ok(['sent' => true, 'url' => $url], 202);
     }
 
     /** POST conversations/{id}/shop/orders/{orderId}/resend */

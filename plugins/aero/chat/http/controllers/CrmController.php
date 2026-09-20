@@ -71,7 +71,7 @@ class CrmController extends Controller
 
         $ticket = \Aero\Crm\Models\Ticket::create([
             'tenant_id'       => $tenantId,
-            'subject'         => $data['subject'] ?? 'Chat con ' . $contact->full_name,
+            'subject'         => (trim((string) ($data['subject'] ?? '')) ?: 'Chat con ' . $contact->full_name),
             'description'     => $last,
             'department_id'   => $dept->id,
             'contact_id'      => $contact->id,
@@ -152,7 +152,7 @@ class CrmController extends Controller
             $deal = \Aero\Crm\Models\Deal::create([
                 'tenant_id' => $lead->tenant_id, 'pipeline_id' => $pipeline->id, 'stage_id' => $first->id,
                 'contact_id' => $contact->id, 'company_id' => $contact->company_id, 'title' => $lead->name,
-                'owner_id' => $lead->owner_id ?: $request->attributes->get('chat_user')->id, 'in_pipeline' => (bool) $lead->in_pipeline,
+                'owner_id' => $lead->owner_id ?: $request->attributes->get('chat_user')->id, 'in_pipeline' => true,
             ]);
             $lead->update(['converted_contact_id' => $contact->id, 'converted_deal_id' => $deal->id, 'status' => 'qualified']);
         }
@@ -160,6 +160,42 @@ class CrmController extends Controller
         $this->log($request, $conv, 'lead', 'Lead convertido en negocio', ['lead_id' => $lead->id]);
 
         return $this->ok($this->panel($request, $conv, $contact));
+    }
+
+    /** POST conversations/{id}/crm/deal/create {title?} — negocio directo, sin pasar por lead. */
+    public function createDeal(Request $request, $id)
+    {
+        [$conv, $err, $contact] = $this->ready($request, $id);
+        if ($err) {
+            return $err;
+        }
+
+        $data = $this->check($request, ['title' => 'nullable|string|max:255']);
+        $tenantId = $this->tenantId($request);
+        $me = $request->attributes->get('chat_user');
+
+        $open = \Aero\Crm\Models\Deal::forTenant($tenantId)->where('contact_id', $contact->id)->where('status', 'open')->exists();
+        if ($open) {
+            return $this->fail('deal_exists', 'Este contacto ya tiene un negocio abierto.', 422);
+        }
+
+        $pipeline = \Aero\Crm\Models\Pipeline::seedDefaultForTenant($tenantId);
+        $first = $pipeline->stages()->orderBy('sort_order')->first();
+        $deal = \Aero\Crm\Models\Deal::create([
+            'tenant_id' => $tenantId, 'pipeline_id' => $pipeline->id, 'stage_id' => $first->id,
+            'contact_id' => $contact->id, 'company_id' => $contact->company_id,
+            'title' => trim((string) ($data['title'] ?? '')) ?: $contact->full_name,
+            'owner_id' => $me->id,
+        ]);
+
+        // Si el contacto tenía un lead sin convertir, queda enlazado a este negocio.
+        if (($lead = $this->findLead($request, $contact)) && !$lead->converted_deal_id) {
+            $lead->update(['converted_contact_id' => $contact->id, 'converted_deal_id' => $deal->id, 'status' => 'qualified']);
+        }
+
+        $this->log($request, $conv, 'deal', 'Negocio creado desde el chat', ['deal_id' => $deal->id]);
+
+        return $this->ok($this->panel($request, $conv, $contact), 201);
     }
 
     /** POST conversations/{id}/crm/deal {stage_id} */

@@ -11,7 +11,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public $require = ['Aero.Hello', 'Aero.Sites'];
+    public $require = ['Aero.Hello', 'Aero.Sites', 'Aero.Notify'];
 
     public function pluginDetails(): array
     {
