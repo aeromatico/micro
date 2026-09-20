@@ -83,6 +83,18 @@ class WapiInstances
      * conectada. Genera el webhook secret una sola vez si todavía no existe
      * uno guardado — todas las instancias comparten el mismo secreto.
      */
+    public const WEBHOOK_EVENTS = [
+        // message_ack = entregado/leído; disconnected/authenticated = estado de la cuenta;
+        // message_create = lo que el dueño escribe desde otro dispositivo (fromMe): sin
+        // este evento esos mensajes nunca llegan a Hello y el chat no los muestra.
+        'message', 'message_create', 'message_ack', 'disconnected', 'authenticated',
+    ];
+
+    /**
+     * Idempotente: si la instancia ya tiene un webhook hacia nuestra URL lo
+     * actualiza (nuevos eventos, mismo secreto) en vez de crear otro — POST
+     * /webhooks siempre inserta, y un duplicado entregaría cada evento dos veces.
+     */
     public function registerMessageWebhook(string $instanceId): void
     {
         $secret = Settings::getWebhookSecret();
@@ -92,12 +104,20 @@ class WapiInstances
             Settings::set(['webhook_secret' => $secret]);
         }
 
+        $url = Settings::webhookUrl($instanceId);
+        $existing = collect($this->client->get('/webhooks')['data'] ?? [])
+            ->first(fn ($w) => ($w['instanceId'] ?? null) === $instanceId && ($w['url'] ?? null) === $url);
+
+        if ($existing) {
+            $this->client->put('/webhooks/' . $existing['id'], ['events' => self::WEBHOOK_EVENTS, 'secret' => $secret, 'isActive' => true]);
+            return;
+        }
+
         $this->client->post('/webhooks', [
-            'url'        => Settings::webhookUrl($instanceId),
+            'url'        => $url,
             'instanceId' => $instanceId,
             'secret'     => $secret,
-            // message_ack = entregado/leído; disconnected/authenticated = estado de la cuenta.
-            'events'     => ['message', 'message_ack', 'disconnected', 'authenticated'],
+            'events'     => self::WEBHOOK_EVENTS,
         ]);
     }
 }

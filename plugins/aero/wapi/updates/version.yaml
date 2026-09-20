@@ -30,3 +30,6 @@
       y de guardar multimedia (desactivado por defecto) se editan en Configuracion,
       wapi (solo superadmin), se envian a wapi al guardar y la pantalla muestra lo
       que hay almacenado.
+1.5.0:
+    - "Mensajes enviados desde otro dispositivo (celular, WhatsApp Web): el webhook se suscribe también a message_create y un job los registra como salientes en Hello, conciliando con lo que Hello mismo envió para no duplicar. El registro del webhook pasa a ser idempotente y las cuentas ya conectadas se re-suscriben."
+    - resubscribe_message_create_webhooks.php

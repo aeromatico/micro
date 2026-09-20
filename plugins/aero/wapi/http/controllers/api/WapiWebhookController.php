@@ -37,6 +37,13 @@ class WapiWebhookController extends Controller
         // Vocabulario que entiende ProcessWebhookEventJob (el de Zernio para los
         // mensajes; message.status y account.status son propios de los drivers
         // sin API oficial).
+        // Lo que el dueño envía desde otro dispositivo (celular, WhatsApp Web).
+        // También llega el eco de lo que Hello mismo envió por la API, así que
+        // no va por el flujo de mensajes entrantes: un job propio lo concilia.
+        if ($eventType === 'message_create') {
+            return $this->handleEcho($account, $instanceId, $payload);
+        }
+
         $canonical = match ($eventType) {
             'message'                      => 'message.received',
             'message_ack'                  => 'message.status',
@@ -65,6 +72,27 @@ class WapiWebhookController extends Controller
             ])->save();
 
             ProcessWebhookEventJob::dispatch($event->id);
+        }
+
+        return response()->json(['received' => true]);
+    }
+
+    protected function handleEcho(Account $account, string $instanceId, array $payload): JsonResponse
+    {
+        $data = $payload['data'] ?? [];
+
+        if (empty($data['fromMe']) || empty($data['id'])) {
+            return response()->json(['received' => true]);
+        }
+
+        $event = WebhookEvent::firstOrNew(['event_id' => sprintf('wapi:%s:message_create:%s', $instanceId, $data['id'])]);
+
+        if (!$event->exists) {
+            $event->fill(['event_type' => 'message.echo', 'account_id' => $account->id, 'payload' => $payload])->save();
+
+            // Unos segundos de margen: si lo envió Hello, SendMessageJob debe
+            // alcanzar a guardar el id externo antes de que se concilie.
+            \Aero\Wapi\Jobs\ProcessOutboundEchoJob::dispatch($event->id)->delay(now()->addSeconds(8));
         }
 
         return response()->json(['received' => true]);
