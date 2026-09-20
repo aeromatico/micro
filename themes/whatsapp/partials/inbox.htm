@@ -25,6 +25,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 <div class="title" x-text="listTitle"></div>
                 <div class="sub" x-text="listSub"></div>
             </div>
+            <button type="button" class="icon-btn" @click="openNew()" aria-label="Nuevo chat" title="Nuevo chat"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor"><path d="M12 5v14M5 12h14"/></svg></button>
             <button type="button" class="icon-btn" @click="sheet = 'menu'" aria-label="Menú"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
         </header>
         <div class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -84,11 +85,17 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                 <div class="event" x-text="eventText(m)"></div>
                             </template>
                             <template x-if="m.kind !== 'event'">
-                                <div class="bubble">
+                                <div class="bubble" :class="{ sticker: mediaKind(m) === 'sticker' }">
                                     <div class="note-label" x-show="m.kind === 'note'" x-text="'Nota interna · ' + (m.by ? m.by.name : '')"></div>
-                                    <a class="media" x-show="m.media_url" :href="m.media_url" target="_blank" rel="noopener">Ver adjunto</a>
-                                    <div class="body" x-text="m.body"></div>
-                                    <div class="meta"><time x-text="fmtTime(m.at)"></time><span x-show="m.status === 'sending'"> · enviando…</span><span class="fail" x-show="m.status === 'failed'" x-text="' · ' + (m.failed_reason || 'no se envió')"></span></div>
+                                    <template x-if="mediaKind(m) === 'image'"><a class="media-img" :href="m.media_url" target="_blank" rel="noopener noreferrer"><img referrerpolicy="no-referrer" :src="m.media_url" alt="Imagen adjunta" loading="lazy" @load="scrollDown(false)"></a></template>
+                                    <template x-if="mediaKind(m) === 'sticker'"><img referrerpolicy="no-referrer" class="media-sticker" :src="m.media_url" alt="Sticker" loading="lazy" @load="scrollDown(false)"></template>
+                                    <template x-if="mediaKind(m) === 'video'"><video referrerpolicy="no-referrer" class="media-vid" :src="m.media_url" controls preload="metadata" playsinline></video></template>
+                                    <template x-if="mediaKind(m) === 'audio'"><audio referrerpolicy="no-referrer" class="media-aud" :src="m.media_url" controls preload="none"></audio></template>
+                                    <a class="media" x-show="mediaKind(m) === 'file'" :href="m.media_url" target="_blank" rel="noopener noreferrer" x-text="'📄 ' + (m.file_name || 'Ver adjunto')"></a>
+                                    <div class="quote" x-show="m.quote" x-text="m.quote ? quoteLabel(m.quote) : ''"></div>
+                                    <div class="body" x-show="m.body" x-html="rich(m.body)"></div>
+                                    <a class="media" x-show="mapLink(m)" :href="mapLink(m)" target="_blank" rel="noopener">Abrir en el mapa</a>
+                                    <div class="meta"><button type="button" class="reply-btn" x-show="canQuote && m.kind === 'message' && String(m.id).indexOf('tmp') !== 0" @click="setReply(m)" aria-label="Responder a este mensaje" title="Responder a este mensaje">↩</button><time x-text="fmtTime(m.at)"></time><span x-show="m.status === 'sending'"> · enviando…</span><span class="fail" x-show="m.status === 'failed'" x-text="' · ' + (m.failed_reason || 'no se envió')"></span></div>
                                 </div>
                             </template>
                         </div>
@@ -96,12 +103,38 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </div>
 
                 <form class="composer" @submit.prevent="send()" :class="{ note: mode === 'note' }">
-                    <div class="modes">
+                    <div class="modes" x-show="!recording">
                         <button type="button" class="chip" :class="{ on: mode === 'reply' }" @click="mode = 'reply'">Responder</button>
-                        <button type="button" class="chip" :class="{ on: mode === 'note' }" @click="mode = 'note'">Nota interna</button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="$refs.file.click()" title="Adjuntar imagen o archivo" aria-label="Adjuntar archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.500 3.500 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L15 7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
+                        <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
+                        <template x-if="topQuick.length"><span class="modes-sep" aria-hidden="true"></span></template>
+                        <template x-for="q in topQuick" :key="q.id">
+                            <button type="button" class="chip quick" :title="q.title" @click="pickQuick(q)" x-text="q.shortcut"></button>
+                        </template>
                     </div>
-                    <div class="input-row">
-                        <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown.enter.prevent="if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target)"></textarea>
+                    <ul class="slash-menu" role="listbox" aria-label="Respuestas rápidas" x-show="slashOpen" x-cloak>
+                        <template x-for="(q, i) in slashItems" :key="q.id">
+                            <li role="option" :aria-selected="i === slashIdx" :class="{ on: i === slashIdx }" @mousedown.prevent="pickQuick(q)" @mouseenter="slashIdx = i">
+                                <b>/<span x-text="q.shortcut"></span></b> <em x-text="q.area_label"></em>
+                                <small x-text="q.title + ' — ' + q.body"></small>
+                            </li>
+                        </template>
+                    </ul>
+                    <input type="file" x-ref="file" hidden @change="pickFile($event)" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip">
+                    <div class="rec-bar" x-show="recording" x-cloak>
+                        <button type="button" class="icon-btn" @click="stopRec(false)" aria-label="Descartar grabación" title="Descartar"><svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+                        <span class="rec-dot" aria-hidden="true"></span><b class="rec-time" x-text="recTime()"></b><span class="muted grow">Grabando…</span>
+                        <button type="button" class="send" @click="stopRec(true)" aria-label="Enviar audio"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+                    </div>
+                    <div class="quote-bar" x-show="activeQuote && !recording" x-cloak>
+                        <span class="grow" x-text="activeQuote ? quoteLabel(activeQuote) : ''"></span>
+                        <button type="button" class="icon-btn" @click="replyTo = null" aria-label="Cancelar cita">✕</button>
+                    </div>
+                    <div class="input-row" x-show="!recording">
+                        <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
                         <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
                     </div>
                 </form>
@@ -110,7 +143,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
     </main>
 
     <!-- Hojas -->
-    <div class="scrim" x-show="sheet" x-transition.opacity @click="sheet = ''"></div>
+    <div class="scrim" x-show="sheet" x-transition.opacity @click="sheet === 'attach' ? cancelAttach() : sheet = ''"></div>
 
     <div class="sheet" x-show="sheet === 'delegate'" x-transition role="dialog" aria-label="Delegar conversación">
         <h2>Delegar conversación a</h2>
@@ -124,6 +157,45 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         <label class="field"><span>Nota para quien lo recibe (opcional)</span><input type="text" x-model="delegateNote" maxlength="500"></label>
     </div>
 
+
+    <form class="sheet" x-show="sheet === 'attach'" x-transition role="dialog" aria-label="Enviar archivo" @submit.prevent="sendAttachment()">
+        <h2>Enviar archivo</h2>
+        <template x-if="attach">
+            <div class="attach-prev">
+                <img x-show="attach.kind === 'image'" :src="attach.url" alt="Vista previa">
+                <video x-show="attach.kind === 'video'" :src="attach.url" controls playsinline></video>
+                <div class="attach-file" x-show="attach.kind === 'document' || attach.kind === 'audio'"><span aria-hidden="true">📄</span><b x-text="attach.name"></b></div>
+            </div>
+        </template>
+        <label class="field"><span>Mensaje (opcional)</span><input type="text" x-model="attachCaption" maxlength="1024" placeholder="Escribe un texto para acompañarlo"></label>
+        <button type="submit" class="btn primary">Enviar</button>
+        <button type="button" class="btn" @click="cancelAttach()">Cancelar</button>
+    </form>
+
+    <form class="sheet" x-show="sheet === 'poll'" x-transition role="dialog" aria-label="Nueva encuesta" @submit.prevent="sendPoll()">
+        <h2>Nueva encuesta</h2>
+        <label class="field"><span>Pregunta</span><input type="text" x-model="pollForm.question" maxlength="255" placeholder="¿Qué día te conviene?" required></label>
+        <template x-for="(o, i) in pollForm.options" :key="i">
+            <div class="poll-opt">
+                <input type="text" x-model="pollForm.options[i]" maxlength="100" :placeholder="'Opción ' + (i + 1)" :aria-label="'Opción ' + (i + 1)">
+                <button type="button" class="icon-btn" x-show="pollForm.options.length > 2" @click="removePollOption(i)" aria-label="Quitar opción"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            </div>
+        </template>
+        <button type="button" class="chip" x-show="pollForm.options.length < 12" @click="addPollOption()">+ Agregar opción</button>
+        <label class="check"><input type="checkbox" x-model="pollForm.multiple"><span>Permitir elegir varias opciones</span></label>
+        <button type="submit" class="btn primary" :disabled="pollBusy" x-text="pollBusy ? 'Enviando…' : 'Enviar encuesta'"></button>
+    </form>
+
+    <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
+        <h2>Nuevo chat</h2>
+        <p class="muted" x-show="!accounts.length">No hay números conectados.</p>
+        <label class="field" x-show="accounts.length > 1"><span>Enviar desde</span>
+            <select x-model.number="newForm.account"><template x-for="a in accounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
+        <label class="field"><span>Número (con código de país)</span><input type="tel" inputmode="tel" x-model="newForm.phone" placeholder="591 7xxxxxxx" autocomplete="off" required></label>
+        <label class="field"><span>Nombre (opcional)</span><input type="text" x-model="newForm.name" maxlength="120"></label>
+        <label class="field"><span>Mensaje</span><textarea x-model="newForm.body" rows="3" maxlength="4096" placeholder="Escribe el primer mensaje" required></textarea></label>
+        <button type="submit" class="btn primary" :disabled="newBusy || !accounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
+    </form>
 
     <div class="sheet drawer" x-show="sheet === 'crm'" x-transition role="dialog" aria-label="Contacto y CRM">
         <div class="drawer-head">
@@ -176,6 +248,8 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                             <p class="muted" x-show="!crm.departments.length">No hay departamentos. Créalos en el CRM (Tickets).</p>
                             <label class="field" x-show="crm.departments.length"><span>Departamento</span>
                                 <select x-model="deptId"><template x-for="d in crm.departments" :key="d.id"><option :value="d.id" x-text="d.name"></option></template></select></label>
+                            <label class="field" x-show="crm.departments.length"><span>Asunto (opcional)</span>
+                                <input type="text" x-model="ticketSubject" maxlength="255" :placeholder="'Chat con ' + (current ? cname(current) : '')"></label>
                             <button type="button" class="btn primary" :disabled="!crm.departments.length || crmBusy" @click="createTicket()">Crear ticket desde este chat</button>
                         </div>
                     </template>
@@ -184,8 +258,9 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </template>
                 <template x-if="crmOk"><div x-show="crmTab === 'lead'" class="pane">
                     <template x-if="!crm.lead">
-                        <div class="card-in"><small class="muted">Este contacto todavía no es un lead.</small>
-                            <button type="button" class="btn primary" :disabled="crmBusy" @click="setLead(null)">Crear lead</button></div>
+                        <div class="card-in"><small class="muted" x-text="crm.deal ? 'Este contacto no es un lead.' : 'Elige cómo registrar a este contacto:'"></small>
+                            <button type="button" class="btn primary" :disabled="crmBusy" @click="setLead(null)">Convertir en lead</button>
+                            <button type="button" class="btn" x-show="!crm.deal || crm.deal.status !== 'open'" :disabled="crmBusy" @click="createDeal()">Convertir en negocio (deal)</button></div>
                     </template>
                     <template x-if="crm.lead">
                         <div class="card-in">
@@ -195,7 +270,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                     <button type="button" class="chip" :class="{ on: crm.lead.status === st.id }" @click="setLead(st.id)" x-text="st.label"></button>
                                 </template>
                             </div>
-                            <button type="button" class="btn" x-show="!crm.lead.converted" :disabled="crmBusy" @click="convertLead()">Convertir en negocio</button>
+                            <button type="button" class="btn" x-show="!crm.lead.converted" :disabled="crmBusy" @click="convertLead()">Convertir en negocio (deal)</button>
                         </div>
                     </template>
                     <template x-if="crm.deal">
@@ -229,7 +304,10 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                             <template x-for="v in p.variants" :key="v.id"><option :value="v.id" :disabled="!v.in_stock" x-text="v.label + ' · ' + money(v.price, shop.currency.code) + (v.in_stock ? '' : ' (agotado)')"></option></template>
                                         </select>
                                     </div>
-                                    <button type="button" class="btn sm" :disabled="!p.in_stock || (p.has_variants && !p._variant)" @click="addToCart(p)" x-text="p.in_stock ? 'Agregar' : 'Agotado'"></button>
+                                    <div class="prod-actions">
+                                        <button type="button" class="btn sm" :disabled="!p.in_stock || (p.has_variants && !p._variant)" @click="addToCart(p)" x-text="p.in_stock ? 'Agregar' : 'Agotado'"></button>
+                                        <button type="button" class="btn sm" :disabled="cardBusy === p.id" @click="sendCard(p)" title="Enviar foto, precio y enlace de este producto al chat" x-text="cardBusy === p.id ? 'Enviando…' : 'Tarjeta'"></button>
+                                    </div>
                                 </div>
                             </template>
 
@@ -248,6 +326,15 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                     <div class="pane-in">
                                         <label class="field"><span>Dirección de envío</span><input type="text" x-model="shopForm.addr1" placeholder="Calle, número, zona"></label>
                                         <label class="field"><span>Ciudad</span><input type="text" x-model="shopForm.city"></label>
+                                        <template x-if="shop.locations && shop.locations.length">
+                                            <label class="field"><span>Ubicación compartida por el cliente</span>
+                                                <select x-model="shopForm.loc">
+                                                    <option value="">Sin ubicación</option>
+                                                    <template x-for="l in shop.locations" :key="l.id"><option :value="l.id" x-text="locLabel(l)"></option></template>
+                                                </select>
+                                                <a class="media" x-show="chosenLoc" :href="chosenLoc ? chosenLoc.url : '#'" target="_blank" rel="noopener">Ver en el mapa</a>
+                                            </label>
+                                        </template>
                                     </div>
                                 </template>
                                 <label class="field"><span>Método de pago</span>
@@ -328,6 +415,9 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
     <div class="sheet" x-show="sheet === 'menu'" x-transition role="dialog" aria-label="Menú">
         <div class="me"><span class="mini big" x-text="user ? user.initials : ''"></span><span class="grow"><b x-text="user ? user.name : ''"></b><small x-text="tenant ? tenant.name : ''"></small></span></div>
         <button type="button" class="pick" @click="cycleTheme()"><span class="grow"><b>Tema</b><small x-text="themeLabel"></small></span></button>
+        <button type="button" class="pick" x-show="pushState !== 'unsupported'" @click="pushState === 'denied' ? notify('Bloqueadas en el navegador: actívalas en los ajustes del sitio.') : togglePush()"><span class="grow"><b>Notificaciones push</b><small x-text="pushState === 'on' ? 'Activadas en este dispositivo' : (pushState === 'denied' ? 'Bloqueadas por el navegador' : 'Desactivadas — toca para activar')"></small></span></button>
+        <button type="button" class="pick" @click="askGeo()"><span class="grow"><b>Ubicación</b><small x-text="geoState === 'granted' ? 'Permitida — se usa al enviar tu ubicación' : (geoState === 'denied' ? 'Bloqueada por el navegador' : 'Toca para dar permiso')"></small></span></button>
+        <button type="button" class="pick" x-show="pushState === 'on'" @click="sheet = ''; testPush()"><span class="grow"><b>Probar notificación</b><small>Envía una prueba a tus dispositivos y confirma si llega</small></span></button>
         <button type="button" class="pick" x-show="installPrompt" @click="install()"><span class="grow"><b>Instalar app</b><small>Agregar a la pantalla de inicio</small></span></button>
         <button type="button" class="pick danger" @click="logout(true)"><span class="grow"><b>Cerrar sesión</b></span></button>
     </div>

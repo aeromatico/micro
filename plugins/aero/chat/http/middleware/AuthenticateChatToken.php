@@ -31,7 +31,7 @@ class AuthenticateChatToken
         }
 
         if (!$token->last_used_at || $token->last_used_at->lt(now()->subMinute())) {
-            $token->forceFill(['last_used_at' => now()])->save();
+            $token->forceFill(['last_used_at' => now(), 'expires_at' => now()->addDays(ChatToken::TTL_DAYS)])->save();
         }
 
         $request->attributes->set('chat_token', $token);
