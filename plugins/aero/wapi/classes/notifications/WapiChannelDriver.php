@@ -44,6 +44,8 @@ class WapiChannelDriver implements ChannelDriverInterface
             'location'   => true,
             'contact'    => true,
             'poll'       => true,
+            // replyToMessageId cita el mensaje original (Baileys, solo si sigue en su msgCache).
+            'quote_reply' => true,
         ];
     }
 
@@ -140,7 +142,7 @@ class WapiChannelDriver implements ChannelDriverInterface
             'conversation_id' => null,
             'from'            => $this->stripChatSuffix($data['from'] ?? ''),
             'type'            => $this->normalizeInboundType($data['type'] ?? null),
-            'body'            => $data['body'] ?? null,
+            'body'            => $this->inboundBody($data),
             'name'            => $data['pushName'] ?? null,
             'media_url'       => (!empty($data['hasMedia']) && $externalId)
                 ? $this->downloadMedia($account, $externalId)
@@ -214,6 +216,26 @@ class WapiChannelDriver implements ChannelDriverInterface
     protected function stripChatSuffix(string $chatId): string
     {
         return explode('@', $chatId)[0];
+    }
+
+    /**
+     * Las ubicaciones llegan con `data.location` {latitude, longitude, name?,
+     * address?}; se guardan con el mismo formato que las que enviamos
+     * ("📍 (lat, lng)") más el nombre/dirección en la línea siguiente, para
+     * que la PWA las lea con un único patrón. Un wapi anterior a este campo
+     * solo manda el nombre: en ese caso queda tal cual (sin coordenadas).
+     */
+    protected function inboundBody(array $data): ?string
+    {
+        $loc = $data['location'] ?? null;
+
+        if (!is_array($loc) || !isset($loc['latitude'], $loc['longitude'])) {
+            return $data['body'] ?? null;
+        }
+
+        $label = trim((string) ($loc['name'] ?? '') . ' ' . (string) ($loc['address'] ?? ''));
+
+        return "📍 ({$loc['latitude']}, {$loc['longitude']})" . ($label !== '' ? "\n{$label}" : '');
     }
 
     protected function normalizeInboundType(?string $wapiType): string
