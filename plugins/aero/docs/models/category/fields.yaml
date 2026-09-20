@@ -1,0 +1,32 @@
+fields:
+    name:
+        label: Nombre
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: name
+            type: slug
+    parent_id:
+        label: Categoría padre
+        comment: Elige una para anidar esta categoría; déjalo vacío para que sea de primer nivel.
+        type: dropdown
+        showSearch: true
+        emptyOption: '— Primer nivel —'
+        span: left
+    icon:
+        label: Icono
+        comment: Un emoji o símbolo corto (📦, 🚀, ⚙️).
+        span: right
+        attributes:
+            maxlength: 8
+    description:
+        label: Descripción
+        type: textarea
+        size: small
+    is_active:
+        label: Activa
+        type: switch
+        default: true

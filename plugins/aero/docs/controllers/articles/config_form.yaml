@@ -1,0 +1,10 @@
+name: Artículos
+form: $/aero/docs/models/article/fields.yaml
+modelClass: Aero\Docs\Models\Article
+defaultRedirect: aero/docs/articles
+create:
+    redirect: aero/docs/articles/update/:id
+    redirectClose: aero/docs/articles
+update:
+    redirect: aero/docs/articles/update/:id
+    redirectClose: aero/docs/articles

@@ -1,0 +1,14 @@
+title: Artículos
+list: $/aero/docs/models/article/columns.yaml
+modelClass: Aero\Docs\Models\Article
+recordUrl: aero/docs/articles/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 50
+showSorting: true
+defaultSort:
+    column: updated_at
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

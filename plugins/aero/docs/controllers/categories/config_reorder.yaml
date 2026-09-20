@@ -1,0 +1,4 @@
+title: Ordenar categorías
+modelClass: Aero\Docs\Models\Category
+toolbar:
+    buttons: reorder_toolbar

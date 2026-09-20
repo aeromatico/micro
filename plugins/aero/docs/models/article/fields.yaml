@@ -1,0 +1,47 @@
+fields:
+    title:
+        label: Título
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: title
+            type: slug
+    category_id:
+        label: Categoría
+        type: dropdown
+        showSearch: true
+        emptyOption: '— Sin categoría —'
+        span: left
+    sort_order:
+        label: Orden
+        comment: Menor número aparece primero dentro de su categoría.
+        type: number
+        default: 0
+        span: right
+    excerpt:
+        label: Resumen
+        comment: Opcional; si lo dejas vacío se genera del contenido.
+        type: textarea
+        size: small
+    content:
+        label: Contenido (Markdown)
+        type: markdown
+        mode: split
+        size: giant
+    is_published:
+        label: Publicado
+        type: switch
+        default: true
+        span: left
+    is_featured:
+        label: Destacado en portada
+        type: switch
+        span: right
+    published_at:
+        label: Fecha de publicación
+        type: datepicker
+        mode: datetime
+        span: left

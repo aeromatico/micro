@@ -1,0 +1,20 @@
+columns:
+    title:
+        label: Título
+        searchable: true
+    category:
+        label: Categoría
+        relation: category
+        select: name
+    is_published:
+        label: Publicado
+        type: switch
+    is_featured:
+        label: Destacado
+        type: switch
+    views:
+        label: Vistas
+        type: number
+    updated_at:
+        label: Actualizado
+        type: datetime

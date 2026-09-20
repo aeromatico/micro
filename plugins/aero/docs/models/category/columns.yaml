@@ -1,0 +1,21 @@
+columns:
+    icon:
+        label: ' '
+        type: text
+    name:
+        label: Nombre
+        searchable: true
+    parent:
+        label: Padre
+        relation: parent
+        select: name
+    slug:
+        label: Slug
+    articles_count:
+        label: Artículos
+        relationCount: articles
+        type: number
+        sortable: false
+    is_active:
+        label: Activa
+        type: switch

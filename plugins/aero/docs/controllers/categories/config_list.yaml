@@ -1,0 +1,14 @@
+title: Categorías
+list: $/aero/docs/models/category/columns.yaml
+modelClass: Aero\Docs\Models\Category
+recordUrl: aero/docs/categories/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 50
+showSorting: true
+defaultSort:
+    column: nest_left
+    direction: asc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

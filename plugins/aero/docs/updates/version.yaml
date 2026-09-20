@@ -1,0 +1,6 @@
+1.0.1:
+    - "Primera versión: categorías multinivel y artículos en Markdown."
+    - create_docs_tables.php
+1.0.2:
+    - "Contenido de ejemplo."
+    - seed_docs_demo.php
