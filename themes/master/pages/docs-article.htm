@@ -1,0 +1,77 @@
+url = "/documentacion/:slug"
+layout = "base"
+title = "Documentación — Market"
+
+[docs]
+mode = "article"
+slug = "{{ :slug }}"
+==
+{% put head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+{% endput %}
+
+{% partial 'docs/shell-open' %}
+
+<div class="xl:grid xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-12">
+    <article class="min-w-0">
+        {% partial 'docs/crumbs' %}
+
+        <header class="mb-8">
+            <h1 class="text-4xl sm:text-[42px] font-bold text-pretty">{{ docs.article.title }}</h1>
+            <p class="text-sm text-ink-dim mt-3">{{ docs.article.reading_minutes }} min de lectura · Actualizado {{ docs.article.updated_at|date('d/m/Y') }}</p>
+        </header>
+
+        <div class="docs-prose" id="docs-body">{{ docs.article.content_html|raw }}</div>
+
+        <nav class="grid sm:grid-cols-2 gap-4 mt-16 pt-8 border-t border-edge">
+            {% if docs.prev %}
+                <a href="{{ docs.prev.url }}" class="p-4 border border-edge rounded-xl hover:border-accent transition-colors">
+                    <span class="text-xs text-ink-dim">← Anterior</span>
+                    <span class="block font-semibold mt-0.5">{{ docs.prev.title }}</span>
+                </a>
+            {% else %}<span></span>{% endif %}
+            {% if docs.next %}
+                <a href="{{ docs.next.url }}" class="p-4 border border-edge rounded-xl hover:border-accent transition-colors sm:text-right">
+                    <span class="text-xs text-ink-dim">Siguiente →</span>
+                    <span class="block font-semibold mt-0.5">{{ docs.next.title }}</span>
+                </a>
+            {% endif %}
+        </nav>
+    </article>
+
+    {% if docs.article.toc|length > 1 %}
+    <aside class="hidden xl:block">
+        <div class="sticky top-6" x-data="{ active: '' }">
+            <p class="text-xs uppercase tracking-wide text-ink-dim mb-3">En esta página</p>
+            <ul class="flex flex-col gap-1.5 border-l border-edge text-sm">
+                {% for h in docs.article.toc %}
+                    <li><a href="#{{ h.id }}" class="block -ml-px border-l-2 border-transparent hover:border-accent hover:text-ink text-ink-dim {{ h.level == 3 ? 'pl-6' : 'pl-3' }}">{{ h.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </aside>
+    {% endif %}
+</div>
+
+{% partial 'docs/shell-close' %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('#docs-body pre').forEach(function (pre) {
+        var code = pre.querySelector('code');
+        if (window.hljs && code) { try { hljs.highlightElement(code); } catch (e) {} }
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'docs-copy'; btn.textContent = 'Copiar';
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+                btn.textContent = '¡Copiado!'; setTimeout(function () { btn.textContent = 'Copiar'; }, 1500);
+            });
+        });
+        pre.appendChild(btn);
+    });
+});
+window.addEventListener('load', function () {
+    if (window.hljs) document.querySelectorAll('#docs-body pre code:not(.hljs)').forEach(function (c) { hljs.highlightElement(c); });
+});
+</script>

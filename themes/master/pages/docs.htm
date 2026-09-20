@@ -1,0 +1,59 @@
+url = "/documentacion"
+layout = "base"
+title = "Documentación — Market"
+description = "Guías, referencias y tutoriales para sacar el máximo de Market."
+
+[docs]
+mode = "home"
+==
+{% partial 'docs/shell-open' %}
+
+{% if docs.q %}
+    <h1 class="text-3xl font-bold mb-1">Resultados</h1>
+    <p class="text-ink-dim mb-8">{{ docs.results|length }} resultado(s) para «{{ docs.q }}»</p>
+    <div class="flex flex-col gap-3">
+        {% for r in docs.results %}
+            <a href="{{ r.url }}" class="block p-5 bg-canvas-elev border border-edge rounded-xl hover:border-accent transition-colors">
+                {% if r.path %}<div class="text-xs text-ink-dim mb-1">{{ r.path }}</div>{% endif %}
+                <div class="font-display font-semibold text-lg">{{ r.title }}</div>
+                {% if r.excerpt %}<p class="text-sm text-ink-dim mt-1 line-clamp-2">{{ r.excerpt }}</p>{% endif %}
+            </a>
+        {% else %}
+            <p class="text-ink-dim">No encontramos nada. Prueba con otras palabras.</p>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="text-xs tracking-wide text-ink-dim uppercase">Documentación</span>
+        </div>
+        <h1 class="text-4xl sm:text-5xl font-bold text-pretty">¿En qué te ayudamos hoy?</h1>
+        <p class="text-lg text-ink-dim mt-3 max-w-xl">Guías paso a paso, referencias de la API y respuestas a las dudas más comunes.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4 mb-14">
+        {% for node in docs.tree %}
+            <a href="{{ node.url }}" class="group p-6 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                <div class="text-3xl mb-3">{{ node.icon ?: '📄' }}</div>
+                <div class="font-display font-semibold text-xl group-hover:text-accent transition-colors">{{ node.name }}</div>
+                {% if node.description %}<p class="text-sm text-ink-dim mt-1.5">{{ node.description }}</p>{% endif %}
+                <div class="text-xs text-ink-dim mt-4">{{ node.count }} artículo{{ node.count == 1 ? '' : 's' }}{% if node.children %} · {{ node.children|length }} subcategoría{{ node.children|length == 1 ? '' : 's' }}{% endif %}</div>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% if docs.featured %}
+        <h2 class="text-xl font-bold mb-4">Empieza por aquí</h2>
+        <div class="grid sm:grid-cols-2 gap-3">
+            {% for a in docs.featured %}
+                <a href="{{ a.url }}" class="flex items-start gap-3 p-4 border border-edge rounded-xl hover:bg-canvas-elev transition-colors">
+                    <span class="mt-1 w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
+                    <span><span class="font-semibold block">{{ a.title }}</span>{% if a.excerpt %}<span class="text-sm text-ink-dim line-clamp-2">{{ a.excerpt }}</span>{% endif %}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endif %}
+
+{% partial 'docs/shell-close' %}

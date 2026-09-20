@@ -1,0 +1,6 @@
+<nav class="flex flex-wrap items-center gap-1.5 text-sm text-ink-dim mb-6" aria-label="Migas de pan">
+    {% for c in docs.breadcrumbs %}
+        {% if not loop.last or docs.article %}<a href="{{ c.url }}" class="hover:text-ink">{{ c.name }}</a>{% else %}<span class="text-ink">{{ c.name }}</span>{% endif %}
+        {% if not loop.last %}<span>›</span>{% endif %}
+    {% endfor %}
+</nav>

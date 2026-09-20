@@ -1,0 +1,20 @@
+<div x-data="{ nav: false }" class="max-w-7xl mx-auto px-6 sm:px-10 py-8 lg:grid lg:grid-cols-[272px_minmax(0,1fr)] lg:gap-12">
+    <button type="button" @click="nav = true" class="lg:hidden mb-6 inline-flex items-center gap-2 text-sm font-semibold border border-edge rounded-lg px-3.5 py-2 hover:border-ink-dim">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h16"/></svg> Índice
+    </button>
+
+    <div x-show="nav" x-cloak class="fixed inset-0 z-40 lg:hidden" @keydown.escape.window="nav = false">
+        <div class="absolute inset-0 bg-black/60" @click="nav = false"></div>
+        <aside class="absolute left-0 top-0 h-full w-[85%] max-w-[320px] bg-canvas border-r border-edge p-5 overflow-y-auto">
+            <button type="button" @click="nav = false" class="mb-4 text-sm text-ink-dim">✕ Cerrar</button>
+            {% partial 'docs/sidebar' %}
+        </aside>
+    </div>
+
+    <aside class="hidden lg:block">
+        <div class="sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto pr-2 pb-8">
+            {% partial 'docs/sidebar' %}
+        </div>
+    </aside>
+
+    <div class="min-w-0">

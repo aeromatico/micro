@@ -1,0 +1,40 @@
+url = "/documentacion/categoria/:slug"
+layout = "base"
+title = "Documentación — Market"
+
+[docs]
+mode = "category"
+slug = "{{ :slug }}"
+==
+{% partial 'docs/shell-open' %}
+
+{% partial 'docs/crumbs' %}
+
+<header class="mb-10">
+    <div class="text-4xl mb-3">{{ docs.category.icon }}</div>
+    <h1 class="text-4xl font-bold">{{ docs.category.name }}</h1>
+    {% if docs.category.description %}<p class="text-lg text-ink-dim mt-2 max-w-2xl">{{ docs.category.description }}</p>{% endif %}
+</header>
+
+{% if docs.category.children %}
+    <div class="grid sm:grid-cols-2 gap-4 mb-10">
+        {% for c in docs.category.children %}
+            <a href="{{ c.url }}" class="group p-5 bg-canvas-elev border border-edge rounded-xl hover:border-accent transition-colors">
+                <div class="font-display font-semibold text-lg group-hover:text-accent">{{ c.icon }} {{ c.name }}</div>
+                {% if c.description %}<p class="text-sm text-ink-dim mt-1">{{ c.description }}</p>{% endif %}
+                <div class="text-xs text-ink-dim mt-3">{{ c.count }} artículo{{ c.count == 1 ? '' : 's' }}</div>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="flex flex-col gap-2">
+    {% for a in docs.category.articles %}
+        <a href="{{ a.url }}" class="block p-4 border border-edge rounded-xl hover:bg-canvas-elev transition-colors">
+            <div class="font-semibold">{{ a.title }}</div>
+            {% if a.excerpt %}<p class="text-sm text-ink-dim mt-0.5 line-clamp-2">{{ a.excerpt }}</p>{% endif %}
+        </a>
+    {% endfor %}
+</div>
+
+{% partial 'docs/shell-close' %}
