@@ -27,6 +27,15 @@ class Presenter
                 'reference' => $o->payment_reference, 'qr_status' => $qr?->status,
                 'qr_image_url' => $qr && $qr->qr_image ? url('/api/v1/pay/public/qr/' . $qr->internal_reference . '/image') : null,
             ],
+            'shipping_address' => $o->shipping_address ? [
+                'name' => $o->shipping_address->full_name, 'phone' => $o->shipping_address->phone,
+                'address_line1' => $o->shipping_address->address_line1, 'address_line2' => $o->shipping_address->address_line2,
+                'city' => $o->shipping_address->city, 'state_province' => $o->shipping_address->state_province,
+                'country_code' => $o->shipping_address->country_code,
+                'latitude' => $o->shipping_address->latitude !== null ? (float) $o->shipping_address->latitude : null,
+                'longitude' => $o->shipping_address->longitude !== null ? (float) $o->shipping_address->longitude : null,
+                'location_label' => $o->shipping_address->location_label,
+            ] : null,
             'order_url' => OrderService::publicUrl($o),
             'paid_at' => optional($o->paid_at)->toIso8601String(), 'created_at' => optional($o->created_at)->toIso8601String(),
         ];

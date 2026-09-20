@@ -63,3 +63,16 @@
       lo que rompía si elegías una de QR fijo). Se quita el switch
       'Requiere confirmación manual', que no controlaba nada."
     - drop_requires_manual_confirmation_column.php
+
+1.0.8:
+    - "Direcciones de envío con ubicación opcional (latitude/longitude/
+      location_label). OrderService las guarda y deja el enlace al mapa en
+      address_line2. Primer uso: la PWA de chat adjunta la ubicación que el
+      cliente compartió por WhatsApp."
+    - add_location_to_addresses.php
+
+1.0.9:
+    - "La ubicación de envío se integra: el pedido en el backend muestra la
+      dirección de envío con enlace al mapa (antes no mostraba ninguna), la
+      API REST acepta y devuelve shipping.latitude/longitude/location_label y
+      la confirmación pública del pedido enlaza el mapa."

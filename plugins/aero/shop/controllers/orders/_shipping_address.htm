@@ -1,0 +1,26 @@
+<?php
+    $order = $this->formGetModel();
+    $addr = $order->shipping_address;
+?>
+<?php if ($addr): ?>
+<div class="padded-container">
+    <h4>Envío a</h4>
+    <p>
+        <strong><?= e($addr->full_name) ?></strong><?php if ($addr->phone): ?> — <?= e($addr->phone) ?><?php endif ?><br>
+        <?= e($addr->address_line1) ?><br>
+        <?= e($addr->city) ?><?= $addr->state_province ? ', ' . e($addr->state_province) : '' ?>
+        <?php if ($addr->address_line2 && $addr->latitude === null): ?><br><?= e($addr->address_line2) ?><?php endif ?>
+    </p>
+    <?php if ($addr->latitude !== null && $addr->longitude !== null): ?>
+        <p>
+            <a href="https://www.google.com/maps?q=<?= e($addr->latitude) ?>,<?= e($addr->longitude) ?>" target="_blank" rel="noopener" class="btn btn-default btn-sm">
+                <i class="icon-map-marker"></i> Ver ubicación en el mapa
+            </a>
+            <span class="text-muted">
+                <?= e(rtrim(rtrim((string) $addr->latitude, '0'), '.')) ?>, <?= e(rtrim(rtrim((string) $addr->longitude, '0'), '.')) ?>
+                <?= $addr->location_label ? ' — ' . e($addr->location_label) : '' ?>
+            </span>
+        </p>
+    <?php endif ?>
+</div>
+<?php endif ?>

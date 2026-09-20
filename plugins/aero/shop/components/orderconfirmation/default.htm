@@ -41,9 +41,14 @@
         <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Envío a</h2>
         <p class="text-sm text-ink-muted">
             {{ order.shipping_address.full_name }}<br>
-            {{ order.shipping_address.address_line1 }}{% if order.shipping_address.address_line2 %}, {{ order.shipping_address.address_line2 }}{% endif %}<br>
+            {{ order.shipping_address.address_line1 }}{% if order.shipping_address.address_line2 and not order.shipping_address.latitude %}, {{ order.shipping_address.address_line2 }}{% endif %}<br>
             {{ order.shipping_address.city }}{% if order.shipping_address.state_province %}, {{ order.shipping_address.state_province }}{% endif %}
         </p>
+        {% if order.shipping_address.latitude %}
+        <p class="text-sm mt-2">
+            <a class="underline" href="https://www.google.com/maps?q={{ order.shipping_address.latitude }},{{ order.shipping_address.longitude }}" target="_blank" rel="noopener">📍 Ver ubicación en el mapa</a>
+        </p>
+        {% endif %}
     </div>
     {% endif %}
 

@@ -50,6 +50,13 @@ tabs:
             span: full
             context: update
 
+        _shipping_address:
+            tab: Pedido
+            type: partial
+            path: shipping_address
+            span: full
+            context: update
+
         currency:
             tab: Pedido
             label: Moneda

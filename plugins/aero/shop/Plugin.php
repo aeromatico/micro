@@ -164,6 +164,8 @@ class Plugin extends PluginBase
                 'from_status' => 'awaiting_payment',
                 'to_status'   => 'paid',
             ]);
+
+            \Aero\Shop\Classes\OrderNotifier::fire($order, 'paid');
         });
     }
 

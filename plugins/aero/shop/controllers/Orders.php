@@ -61,6 +61,11 @@ class Orders extends Controller
             ]);
         });
 
+        $event = ['paid' => 'paid', 'fulfilled' => 'shipped', 'cancelled' => 'cancelled'][$toStatus] ?? null;
+        if ($event) {
+            \Aero\Shop\Classes\OrderNotifier::fire($order->fresh(), $event);
+        }
+
         return $order;
     }
 

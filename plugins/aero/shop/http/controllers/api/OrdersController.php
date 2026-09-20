@@ -35,7 +35,7 @@ class OrdersController extends ApiController
     /**
      * POST /api/v1/shop/orders
      * {customer:{first_name,last_name?,phone?,email?}, items:[{product_id,variant_id?,quantity}],
-     *  payment_gateway_id?, shipping?:{address_line1,city,...}, notes?}
+     *  payment_gateway_id?, shipping?:{address_line1,city,latitude?,longitude?,location_label?,...}, notes?}
      */
     public function store(Request $request)
     {
@@ -51,6 +51,9 @@ class OrdersController extends ApiController
             'items.*.quantity'          => 'required|integer|min:1|max:999',
             'payment_gateway_id'        => 'nullable|integer',
             'shipping'                  => 'nullable|array',
+            'shipping.latitude'         => 'nullable|numeric|between:-90,90',
+            'shipping.longitude'        => 'nullable|numeric|between:-180,180',
+            'shipping.location_label'   => 'nullable|string|max:120',
             'notes'                     => 'nullable|string|max:1000',
         ]);
         if (!is_array($data)) {

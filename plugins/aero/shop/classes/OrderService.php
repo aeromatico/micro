@@ -64,7 +64,13 @@ class OrderService
                 $addressId = Address::create([
                     'tenant_id' => $tenantId, 'customer_id' => $customerModel->id, 'type' => 'shipping',
                     'full_name' => $customerModel->full_name, 'phone' => $customerModel->phone,
-                    'address_line1' => $shipping['address_line1'], 'address_line2' => $shipping['address_line2'] ?? null,
+                    'address_line1' => $shipping['address_line1'],
+                    // Con coordenadas, el enlace al mapa queda a la vista dondequiera que se muestre la dirección.
+                    'address_line2' => $shipping['address_line2']
+                        ?? (isset($shipping['latitude'], $shipping['longitude'])
+                            ? "📍 https://www.google.com/maps?q={$shipping['latitude']},{$shipping['longitude']}" : null),
+                    'latitude' => $shipping['latitude'] ?? null, 'longitude' => $shipping['longitude'] ?? null,
+                    'location_label' => $shipping['location_label'] ?? null,
                     'city' => $shipping['city'], 'state_province' => $shipping['state_province'] ?? null,
                     'postal_code' => $shipping['postal_code'] ?? null, 'country_code' => strtoupper($shipping['country_code'] ?? 'BO'),
                 ])->id;
@@ -104,7 +110,10 @@ class OrderService
             return $order;
         });
 
-        return $order->fresh(['items', 'customer', 'currency', 'payment_gateway']);
+        $order = $order->fresh(['items', 'customer', 'currency', 'payment_gateway']);
+        OrderNotifier::fire($order, 'placed');
+
+        return $order;
     }
 
     /** Cancela un pedido sin pagar y devuelve el stock reservado. */
@@ -125,7 +134,10 @@ class OrderService
             (new InventoryService())->releaseForOrder($order->load('items'));
         });
 
-        return $order->fresh();
+        $order = $order->fresh();
+        OrderNotifier::fire($order, 'cancelled');
+
+        return $order;
     }
 
     /** URL pública del pedido en la tienda del tenant (con el token, sin sesión). */

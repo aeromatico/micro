@@ -11,6 +11,7 @@ class Address extends Model
     public $fillable = [
         'tenant_id', 'customer_id', 'type', 'full_name', 'phone', 'address_line1',
         'address_line2', 'city', 'state_province', 'postal_code', 'country_code', 'is_default',
+        'latitude', 'longitude', 'location_label',
     ];
 
     public $rules = [
