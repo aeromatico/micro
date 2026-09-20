@@ -10,6 +10,5 @@ defaultSort:
 showSetup: true
 filter: $/aero/sms/models/message/filters.yaml
 toolbar:
-    buttons: false
     search:
         prompt: Buscar número, referencia o texto

@@ -4,3 +4,6 @@
 1.0.2:
     - "Acción facturable sms.segment en Aero.Credits (si está instalado)."
     - seed_sms_credit_action.php
+1.1.0:
+    - "El tenant usa SMS desde el panel: permiso aero.sms.use, plantillas propias por tenant y aislamiento de mensajes, lotes y consumo."
+    - add_tenant_to_templates_table.php

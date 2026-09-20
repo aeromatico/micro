@@ -1,5 +1,6 @@
 columns:
     name: {label: Nombre, searchable: true}
     slug: {label: Código, searchable: true}
+    scope_label: {label: Ámbito, sortable: false}
     body: {label: Texto, searchable: true}
     is_active: {label: Activa, type: switch}

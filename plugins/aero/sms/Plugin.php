@@ -50,9 +50,13 @@ class Plugin extends PluginBase
     public function registerPermissions(): array
     {
         return [
+            'aero.sms.use' => [
+                'tab'   => 'SMS',
+                'label' => 'Usar SMS: enviar, ver sus mensajes y lotes, plantillas propias y consumo',
+            ],
             'aero.sms.superadmin' => [
                 'tab'   => 'SMS',
-                'label' => 'Administrar SMS: configuración, mensajes, lotes, plantillas y bajas',
+                'label' => 'Administrar SMS: configuración, bajas globales y datos de todos los tenants',
             ],
         ];
     }
@@ -65,13 +69,14 @@ class Plugin extends PluginBase
                 'url'         => Backend::url('aero/sms/messages'),
                 'icon'        => 'icon-commenting',
                 'iconSvg'     => null,
-                'permissions' => ['aero.sms.superadmin'],
+                'permissions' => ['aero.sms.use', 'aero.sms.superadmin'],
                 'order'       => 520,
                 'sideMenu'    => [
-                    'messages'  => ['label' => 'Mensajes', 'icon' => 'icon-envelope', 'url' => Backend::url('aero/sms/messages'), 'permissions' => ['aero.sms.superadmin']],
-                    'batches'   => ['label' => 'Lotes', 'icon' => 'icon-list', 'url' => Backend::url('aero/sms/batches'), 'permissions' => ['aero.sms.superadmin']],
-                    'usage'     => ['label' => 'Consumo por tenant', 'icon' => 'icon-bar-chart', 'url' => Backend::url('aero/sms/usage'), 'permissions' => ['aero.sms.superadmin']],
-                    'templates' => ['label' => 'Plantillas', 'icon' => 'icon-file-text-o', 'url' => Backend::url('aero/sms/templates'), 'permissions' => ['aero.sms.superadmin']],
+                    'compose'   => ['label' => 'Enviar', 'icon' => 'icon-paper-plane', 'url' => Backend::url('aero/sms/compose'), 'permissions' => ['aero.sms.use', 'aero.sms.superadmin']],
+                    'messages'  => ['label' => 'Mensajes', 'icon' => 'icon-envelope', 'url' => Backend::url('aero/sms/messages'), 'permissions' => ['aero.sms.use', 'aero.sms.superadmin']],
+                    'batches'   => ['label' => 'Lotes', 'icon' => 'icon-list', 'url' => Backend::url('aero/sms/batches'), 'permissions' => ['aero.sms.use', 'aero.sms.superadmin']],
+                    'usage'     => ['label' => 'Consumo', 'icon' => 'icon-bar-chart', 'url' => Backend::url('aero/sms/usage'), 'permissions' => ['aero.sms.use', 'aero.sms.superadmin']],
+                    'templates' => ['label' => 'Plantillas', 'icon' => 'icon-file-text-o', 'url' => Backend::url('aero/sms/templates'), 'permissions' => ['aero.sms.use', 'aero.sms.superadmin']],
                     'optouts'   => ['label' => 'Bajas', 'icon' => 'icon-ban', 'url' => Backend::url('aero/sms/optouts'), 'permissions' => ['aero.sms.superadmin']],
                 ],
             ],

@@ -7,5 +7,3 @@ recordsPerPage: 30
 defaultSort:
     column: id
     direction: desc
-toolbar:
-    buttons: false

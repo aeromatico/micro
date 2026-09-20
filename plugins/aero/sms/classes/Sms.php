@@ -214,7 +214,7 @@ class Sms
             throw new InvalidArgumentException("Número de destino inválido: '" . ($data['to'] ?? '') . "'.");
         }
 
-        $body = static::resolveBody($data);
+        $body = static::resolveBody($data, $consumer['tenant_id'] ?? null);
         $count = Segments::count($body);
 
         if ($count['segments'] > 10) {
@@ -250,10 +250,10 @@ class Sms
         return $message;
     }
 
-    protected static function resolveBody(array $data): string
+    protected static function resolveBody(array $data, ?int $tenantId = null): string
     {
         if (!empty($data['template'])) {
-            $template = Template::where('slug', $data['template'])->where('is_active', true)->first();
+            $template = Template::findForTenant($data['template'], $tenantId);
 
             if (!$template) {
                 throw new InvalidArgumentException("La plantilla '{$data['template']}' no existe o está inactiva.");

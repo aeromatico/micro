@@ -8,13 +8,35 @@ class Template extends Model
 
     public $table = 'aero_sms_templates';
 
-    public $fillable = ['name', 'slug', 'body', 'is_active'];
+    public $fillable = ['tenant_id', 'name', 'slug', 'body', 'is_active'];
 
     public $rules = [
         'name' => 'required',
-        'slug' => 'required|alpha_dash|unique:aero_sms_templates,slug',
+        'slug' => 'required|alpha_dash',
         'body' => 'required',
     ];
+
+    /** El slug es único por tenant (las globales, tenant_id NULL, forman su propio grupo). */
+    public function beforeValidate(): void
+    {
+        $this->rules['slug'] = 'required|alpha_dash|unique:aero_sms_templates,slug,'
+            . ($this->id ?: 'NULL') . ',id,tenant_id,' . ($this->tenant_id ?: 'NULL');
+    }
+
+    public function getScopeLabelAttribute(): string
+    {
+        return $this->tenant_id ? 'Propia' : 'Global';
+    }
+
+    /** La del propio tenant gana sobre una global con el mismo código. */
+    public static function findForTenant(string $slug, ?int $tenantId): ?self
+    {
+        return static::where('slug', $slug)
+            ->where('is_active', true)
+            ->where(fn ($q) => $q->whereNull('tenant_id')->when($tenantId, fn ($q) => $q->orWhere('tenant_id', $tenantId)))
+            ->orderByRaw('tenant_id IS NULL')
+            ->first();
+    }
 
     protected $casts = ['is_active' => 'boolean'];
 
