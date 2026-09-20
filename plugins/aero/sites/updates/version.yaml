@@ -293,3 +293,7 @@
 1.38.0:
     - "Otorga al rol tenant_admin aero.hello.manage_settings: cada tenant elige su canal de WhatsApp por defecto (WhatsApp Web o Cloud API) desde Configuración → Mensajería."
     - grant_hello_settings_to_tenant_admin.php
+
+1.39.0:
+    - "Otorga al rol tenant_admin aero.sms.use: cada tenant envía SMS y ve su consumo desde el panel."
+    - grant_sms_to_tenant_admin.php
