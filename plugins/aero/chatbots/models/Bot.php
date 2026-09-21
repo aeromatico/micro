@@ -77,6 +77,20 @@ class Bot extends Model
         // is_active (Bot::active()), así que esto es lo único que hace falta
         // para que "Desactivar" corte las respuestas automáticas del todo.
         $this->is_active = $this->reply_mode !== 'disabled';
+
+        // Super Chatbot IA puede ser PRO (Settings → Sites). El bloqueo del
+        // form es solo visual: acá se rechaza al guardar. Solo si el modo
+        // cambió, para no romper bots existentes de un tenant que bajó de plan.
+        if (
+            $this->reply_mode === 'super_ai'
+            && $this->isDirty('reply_mode')
+            && class_exists(\Aero\Sites\Classes\ProFeatures::class)
+            && \Aero\Sites\Classes\ProFeatures::blocks(\BackendAuth::getUser(), 'aero/chatbots/bots#reply_mode.super_ai')
+        ) {
+            throw new \October\Rain\Exception\ValidationException([
+                'reply_mode' => 'Super Chatbot IA es parte del plan PRO. Mejorá tu plan para activarlo.',
+            ]);
+        }
     }
 
     public function scopeForTenant($query, int $tenantId)

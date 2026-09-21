@@ -23,6 +23,16 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // Elemento PRO seleccionable en Settings → Sites (Funciones PRO).
+        Event::listen('aero.sites.registerProFeatures', function () {
+            return [
+                'aero/chatbots/bots#reply_mode.super_ai' => [
+                    'plugin' => 'Aero.Chatbots',
+                    'label'  => 'Chatbots › Modo "Super Chatbot IA"',
+                ],
+            ];
+        });
+
         Event::listen('aero.hello.messageReceived', function ($message, $payload) {
             ChatbotEngine::handle($message, $payload);
         });
