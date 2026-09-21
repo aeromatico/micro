@@ -18,6 +18,14 @@ columns:
         label: Solicitante
         searchable: true
 
+    source:
+        label: Canal
+        type: selectable
+        options:
+            manual: Panel
+            web: Micrositio
+        width: 100px
+
     department:
         label: Departamento
         relation: department

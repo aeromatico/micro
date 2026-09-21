@@ -104,7 +104,7 @@ class CrmSettings extends Controller
                 'type'        => 'dropdown',
                 'span'        => 'full',
                 'emptyOption' => '-- Ninguna (solo texto) --',
-                'comment'     => 'Se configura en: Pagos QR → Cuentas. Si la elegís, cada recordatorio de cobranza incluye el QR de pago — con una cuenta con API de banco el cobro se marca pagado solo; con una estática (sin API), queda para confirmar a mano.',
+                'comment'     => 'Se configura en: Bolivia Pay → Cuentas. Si la elegís, cada recordatorio de cobranza incluye el QR de pago — con una cuenta con API de banco el cobro se marca pagado solo; con una estática (sin API), queda para confirmar a mano.',
             ];
         }
 

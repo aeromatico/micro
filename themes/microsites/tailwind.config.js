@@ -7,6 +7,8 @@ module.exports = {
         './partials/**/*.htm',
         '../../plugins/aero/sites/components/**/*.htm',
         '../../plugins/aero/shop/components/**/*.htm',
+        '../../plugins/aero/crm/components/**/*.htm',
+        '../../plugins/aero/docs/components/**/*.htm',
     ],
     theme: {
         extend: {
@@ -96,6 +98,9 @@ module.exports = {
         'bg-green-100', 'text-green-800',
         'bg-red-100', 'text-red-800',
         'bg-gray-100', 'text-gray-800',
+        'bg-yellow-100', 'text-yellow-800',
+        'whitespace-pre-line', 'ml-0', 'sm:ml-10',
+        'border-brand-primary/30', 'bg-brand-primary/10',
         // Texto sobre fondos claros/oscuros
         'text-gray-300', 'text-gray-500', 'text-gray-600', 'text-gray-700',
         'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'md:text-2xl', 'md:text-4xl', 'md:text-6xl',

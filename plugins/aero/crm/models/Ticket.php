@@ -43,7 +43,7 @@ class Ticket extends Model
     /** Campos de formulario que no son columnas (respuesta nueva). */
     protected $purgeable = ['new_reply', 'reply_internal'];
 
-    protected $dates = ['first_response_at', 'closed_at'];
+    protected $dates = ['first_response_at', 'closed_at', 'last_customer_reply_at'];
 
     public $belongsTo = [
         'tenant'       => [Tenant::class],
@@ -70,7 +70,7 @@ class Ticket extends Model
         });
 
         static::saving(function (self $t) {
-            foreach (['assigned_to', 'contact_id'] as $col) {
+            foreach (['assigned_to', 'contact_id', 'frontend_user_id'] as $col) {
                 if ($t->{$col} === '' || $t->{$col} === '0') {
                     $t->{$col} = null;
                 }
@@ -91,8 +91,14 @@ class Ticket extends Model
         return ['low' => 'Baja', 'normal' => 'Normal', 'high' => 'Alta', 'urgent' => 'Urgente'];
     }
 
-    public function getStatusOptions(): array { return static::statusOptions(); }
-    public function getPriorityOptions(): array { return static::priorityOptions(); }
+    public function getStatusOptions(): array
+    {
+        return static::statusOptions();
+    }
+    public function getPriorityOptions(): array
+    {
+        return static::priorityOptions();
+    }
 
     public function getNumberAttribute(): string
     {
@@ -160,5 +166,47 @@ class Ticket extends Model
 
         return (int) Tenant::where('id', $tenantId)->value('backend_user_id') === (int) $user->id
             || TenantUser::where('tenant_id', $tenantId)->where('user_id', $user->id)->where('role', 'admin')->exists();
+    }
+
+    /**
+     * Tickets visibles para un cliente del portal (rainlab:user): los suyos,
+     * más los que dejó como invitado con su mismo correo y todavía no reclama.
+     */
+    public function scopeForFrontendUser($query, \RainLab\User\Models\User $user)
+    {
+        return $query->where(fn ($q) => $q
+            ->where('frontend_user_id', $user->id)
+            ->orWhere(fn ($w) => $w
+                ->whereNull('frontend_user_id')
+                ->where('requester_email', $user->email)));
+    }
+
+    /** ¿Este ticket pertenece al usuario (o al correo) indicado? */
+    public function isAccessibleBy(?\RainLab\User\Models\User $user, ?string $token = null): bool
+    {
+        if ($user && ((int) $this->frontend_user_id === (int) $user->id
+                || ($this->frontend_user_id === null && $this->requester_email
+                    && strcasecmp($this->requester_email, (string) $user->email) === 0))) {
+            return true;
+        }
+
+        return $token !== null && $token !== '' && hash_equals((string) $this->access_token, $token);
+    }
+
+    /** Nombre a mostrar del solicitante. */
+    public function getAuthorLabelAttribute(): string
+    {
+        if ($this->frontendUser) {
+            return $this->frontendUser->full_name ?: $this->frontendUser->email;
+        }
+
+        return $this->requester_name
+            ?: ($this->requester_email ?: 'Invitado');
+    }
+
+    /** Token opaco para el enlace privado de un invitado. */
+    public function generateAccessToken(): string
+    {
+        return $this->access_token ?: \Str::random(48);
     }
 }

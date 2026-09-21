@@ -1,0 +1,7 @@
+{% if __SELF__.mode == 'create' %}
+    {% partial '@form' %}
+{% elseif __SELF__.mode == 'show' %}
+    {% partial '@ticket' %}
+{% else %}
+    {% partial '@index' %}
+{% endif %}

@@ -1,0 +1,21 @@
+url = "/soporte/ticket/:id"
+layout = "base"
+title = "Ticket"
+description = "Detalle del ticket."
+
+[sitesSeo]
+pageTitle = "Ticket"
+
+[sitesPageList]
+excludeHome = 1
+
+[shopCart]
+
+[session]
+
+[supportPortal]
+mode = "show"
+base = "soporte"
+slug = "{{ :id }}"
+==
+{% component 'supportPortal' %}

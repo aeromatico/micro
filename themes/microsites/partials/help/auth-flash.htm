@@ -1,0 +1,27 @@
+<div id="auth-feedback" class="mb-4"></div>
+<script>
+(function () {
+    if (window.__aeroAuthFlash) { return; }
+    window.__aeroAuthFlash = true;
+
+    function paint(detail) {
+        var box = document.getElementById('auth-feedback');
+        if (!box || !detail) { return; }
+        box.innerHTML = '';
+        ['error', 'success', 'warning'].forEach(function (key) {
+            var msg = detail[key];
+            if (!msg) { return; }
+            var div = document.createElement('div');
+            div.className = 'mb-2 rounded-brand border px-4 py-3 text-sm '
+                + (key === 'success'
+                    ? 'border-green-500/40 bg-green-500/10 text-green-400'
+                    : 'border-red-500/40 bg-red-500/10 text-red-400');
+            div.textContent = msg;
+            box.appendChild(div);
+        });
+    }
+
+    document.addEventListener('ajax:flash', function (e) { paint(e.detail); });
+    document.addEventListener('ajax:error', function (e) { paint(e.detail); });
+})();
+</script>

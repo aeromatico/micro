@@ -1,0 +1,31 @@
+<div id="docs-feedback" class="mt-12 rounded-brand border border-surface-border bg-surface-alt p-5">
+    {% if __SELF__.hasVoted %}
+        <div class="flex items-start gap-3">
+            <span class="text-xl leading-none">{% if __SELF__.userVote == 'yes' %}👍{% else %}👎{% endif %}</span>
+            <div>
+                <p class="font-semibold text-ink">Gracias por tu opinión.</p>
+                <p class="text-sm text-ink-muted mt-1">
+                    {{ __SELF__.helpfulYes }} de {{ __SELF__.helpfulYes + __SELF__.helpfulNo }} lectores encontraron útil este artículo.
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="font-semibold text-ink">¿Te resultó útil este artículo?</p>
+            <div class="flex gap-3">
+                <button type="button"
+                        data-request="{{ __SELF__ }}::onHelpful"
+                        data-request-data="id: {{ __SELF__.article.id }}, vote: 'yes'"
+                        class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary transition-colors">
+                    👍 Sí
+                </button>
+                <button type="button"
+                        data-request="{{ __SELF__ }}::onHelpful"
+                        data-request-data="id: {{ __SELF__.article.id }}, vote: 'no'"
+                        class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 text-sm font-semibold hover:border-brand-primary hover:text-brand-primary transition-colors">
+                    👎 No
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>

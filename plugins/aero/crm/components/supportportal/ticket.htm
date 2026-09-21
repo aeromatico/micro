@@ -1,0 +1,56 @@
+<div id="support-thread" class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <a href="/soporte" class="text-sm text-ink-muted hover:text-ink transition-colors">← Volver a mis tickets</a>
+
+    <header class="mt-4 mb-6">
+        <p class="text-xs font-mono text-ink-muted">{{ __SELF__.ticket.number }}</p>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mt-1">{{ __SELF__.ticket.subject }}</h1>
+        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-ink-muted">Abierto {{ __SELF__.ticket.created_at|date('d/m/Y H:i') }}</span>
+            <span class="font-semibold px-2.5 py-1 rounded-full
+                {% if __SELF__.ticket.status == 'open' %}bg-green-100 text-green-800
+                {% elseif __SELF__.ticket.status == 'pending' %}bg-yellow-100 text-yellow-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ __SELF__.statusLabel }}
+            </span>
+        </div>
+    </header>
+
+    <div class="flex flex-col gap-4">
+        <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
+            <p class="text-xs text-ink-muted mb-2">
+                <strong class="text-ink">{{ __SELF__.ticket.author_label }}</strong>
+                · {{ __SELF__.ticket.created_at|date('d/m/Y H:i') }}
+            </p>
+            <div class="text-sm text-ink whitespace-pre-line">{{ __SELF__.ticket.description }}</div>
+        </div>
+
+        {% for r in __SELF__.replies %}
+        <div class="rounded-brand border p-5 {{ r.is_customer ? 'border-surface-border bg-surface' : 'border-brand-primary/30 bg-brand-primary/10 ml-0 sm:ml-10' }}">
+            <p class="text-xs text-ink-muted mb-2">
+                <strong class="text-ink">{{ r.author }}</strong>
+                {% if not r.is_customer %}· Soporte{% endif %}
+                · {{ r.created_at|date('d/m/Y H:i') }}
+            </p>
+            <div class="text-sm text-ink whitespace-pre-line">{{ r.body }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-8 pt-6 border-t border-surface-border">
+        <h2 class="text-sm font-semibold text-ink mb-3">Responder</h2>
+        <div id="support-reply-error"></div>
+        <form data-request="{{ __SELF__ }}::onReply" class="flex flex-col gap-3">
+            <input type="hidden" name="token" value="{{ __SELF__.guestToken }}">
+            <textarea name="body" rows="4" required maxlength="5000"
+                class="w-full rounded-brand border border-surface-border bg-surface-alt text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary placeholder-ink-muted"
+                placeholder="Escribí tu respuesta..."></textarea>
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-2.5 rounded-brand text-sm transition-all">
+                    Enviar respuesta
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>

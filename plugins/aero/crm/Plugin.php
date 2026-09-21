@@ -23,6 +23,13 @@ class Plugin extends PluginBase
             ->name('aero-crm-cobranza-reminders');
     }
 
+    public function registerComponents(): array
+    {
+        return [
+            \Aero\Crm\Components\SupportPortal::class => 'supportPortal',
+        ];
+    }
+
     public function pluginDetails(): array
     {
         return [
@@ -41,6 +48,7 @@ class Plugin extends PluginBase
         $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
         $this->bootHelloSync();
+        $this->bootSupportToolbarItem();
     }
 
     /**
@@ -48,14 +56,6 @@ class Plugin extends PluginBase
      * se enlaza en el CRM del tenant, y los cambios de nombre en Hello se
      * copian al CRM (el otro sentido vive en Contact::syncHelloContact()).
      */
-        $this->bootSupportToolbarItem();
-    protected function bootHelloSync(): void
-    {
-        if (!class_exists(\Aero\Hello\Models\ContactIdentity::class)) {
-            return;
-        }
-
-        \Aero\Hello\Models\ContactIdentity::extend(function ($model) {
     /**
      * «Soporte» en el menú inferior del panel: los tenants abren tickets en la
      * mesa de ayuda de la PLATAFORMA. No confundir con CRM → Tickets (el
@@ -73,6 +73,13 @@ class Plugin extends PluginBase
         });
     }
 
+    protected function bootHelloSync(): void
+    {
+        if (!class_exists(\Aero\Hello\Models\ContactIdentity::class)) {
+            return;
+        }
+
+        \Aero\Hello\Models\ContactIdentity::extend(function ($model) {
             $model->bindEvent('model.afterCreate', function () use ($model) {
                 if ($model->platform === 'whatsapp') {
                     try {
