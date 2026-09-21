@@ -13,6 +13,8 @@
         --color-edge: #ddd9e6;
         --color-accent: #b7bd3f;
         --color-accent-fg: #15131c;
+        --color-warm: #b9822f;
+        --color-violet: #7c6be0;
     }
     html.dark {
         color-scheme: dark;
@@ -24,6 +26,8 @@
         --color-edge: #332f40;
         --color-accent: #b7bd3f;
         --color-accent-fg: #15131c;
+        --color-warm: #e9b872;
+        --color-violet: #8b7cf6;
     }
 
     html {
@@ -77,3 +81,83 @@
 .docs-prose .callout-important { --callout: #a371f7; }
 .docs-prose .callout-warning { --callout: #d29922; }
 .docs-prose .callout-caution { --callout: #f85149; }
+
+/* ── Página de servicio (aero/services): HTML generado, se viste desde aquí ── */
+.service-page { position: relative; }
+.service-page > section { padding-block: 3.5rem; }
+.service-page > section:first-child { position: relative; padding-block: 4.5rem 5rem; isolation: isolate; }
+.service-page > section:first-child::before {
+    content: ''; position: absolute; inset: -4rem -6vw auto -6vw; height: 34rem; z-index: -1; pointer-events: none;
+    background:
+        radial-gradient(45% 55% at 12% 20%, color-mix(in srgb, var(--color-warm) 20%, transparent), transparent 70%),
+        radial-gradient(40% 50% at 88% 10%, color-mix(in srgb, var(--color-violet) 22%, transparent), transparent 70%),
+        radial-gradient(30% 40% at 55% 90%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+}
+.service-page h1 {
+    font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.06; font-weight: 700; text-wrap: balance;
+    background: linear-gradient(115deg, var(--color-ink) 35%, var(--color-warm) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.service-page > section:first-child p { font-size: 1.15rem; line-height: 1.7; color: var(--color-ink-dim); margin-top: 1.5rem; max-width: 40rem; }
+.service-page h2 { position: relative; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; padding-left: 1rem; }
+.service-page h2::before {
+    content: ''; position: absolute; left: 0; top: .2em; bottom: .2em; width: 3px; border-radius: 3px;
+    background: linear-gradient(var(--color-accent), var(--color-warm));
+}
+.service-page h3 { color: var(--color-ink); }
+
+/* Tarjetas: superficie cálida sutil, elevación y brillo al pasar el cursor */
+.service-page .grid > div, .service-page li[data-usecase] {
+    position: relative; overflow: hidden; border-radius: 1rem; padding: 1.4rem;
+    background: linear-gradient(160deg, var(--color-canvas-elev), color-mix(in srgb, var(--color-canvas-elev) 88%, var(--color-warm)));
+    border: 1px solid var(--color-edge);
+    transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;
+}
+.service-page .grid > div::after, .service-page li[data-usecase]::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(60% 80% at 0% 0%, color-mix(in srgb, var(--color-warm) 16%, transparent), transparent 70%);
+}
+.service-page .grid > div:hover, .service-page li[data-usecase]:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-warm) 55%, var(--color-edge));
+    box-shadow: 0 18px 40px -22px rgb(0 0 0 / .55);
+}
+.service-page .grid > div:hover::after, .service-page li[data-usecase]:hover::after { opacity: 1; }
+.service-page .grid > div > h3::before {
+    content: ''; display: block; width: 1.75rem; height: .25rem; border-radius: 2px; margin-bottom: .9rem;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-warm));
+}
+
+/* Casos de uso numerados 01–10 */
+.service-page ul:has(> li[data-usecase]) { counter-reset: uc; list-style: none; padding: 0; }
+.service-page li[data-usecase] { counter-increment: uc; padding-top: 2.6rem; }
+.service-page li[data-usecase]::before {
+    content: counter(uc, decimal-leading-zero); position: absolute; top: 1rem; left: 1.4rem;
+    font-family: 'Space Grotesk', ui-sans-serif; font-weight: 700; font-size: .8rem; letter-spacing: .08em;
+    color: var(--color-warm);
+}
+
+/* Preguntas frecuentes */
+.service-page details { border-radius: 1rem; border: 1px solid var(--color-edge); background: var(--color-canvas-elev); padding: 0; transition: border-color .3s, background .3s; }
+.service-page details summary { list-style: none; cursor: pointer; padding: 1.1rem 3rem 1.1rem 1.25rem; position: relative; font-weight: 600; }
+.service-page details summary::-webkit-details-marker { display: none; }
+.service-page details summary::after {
+    content: '+'; position: absolute; right: 1.25rem; top: 50%; translate: 0 -50%; font-size: 1.4rem; line-height: 1; color: var(--color-warm); transition: rotate .3s;
+}
+.service-page details[open] { border-color: color-mix(in srgb, var(--color-warm) 50%, var(--color-edge)); background: color-mix(in srgb, var(--color-canvas-elev) 90%, var(--color-warm)); }
+.service-page details[open] summary::after { rotate: 45deg; }
+.service-page details > p { padding: 0 1.25rem 1.25rem; line-height: 1.7; }
+
+/* Documentación */
+.service-page a { transition: color .2s; }
+.service-page li > a.text-accent { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent); text-underline-offset: 3px; }
+
+/* Aparición al desplazarse (solo si el JS marcó la página) */
+.js-reveal .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 60ms); }
+.js-reveal .reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+    .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
+    .service-page .grid > div, .service-page li[data-usecase] { transition: none; }
+}
