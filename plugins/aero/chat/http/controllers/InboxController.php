@@ -55,6 +55,10 @@ class InboxController extends Controller
         match ($request->query('filter')) {
             'mine' => $query->where('assigned_to', $me->id),
             'free' => $query->whereNull('assigned_to'),
+            // Pendientes: con no leídos y cuyo último mensaje lo escribió el cliente (igual que la insignia de la lista).
+            'unread' => $query->where('unread_count', '>', 0)->whereRaw(
+                "(select m.direction from aero_hello_messages m where m.conversation_id = {$query->getModel()->getTable()}.id order by m.id desc limit 1) = 'inbound'"
+            ),
             default => null,
         };
 
@@ -71,6 +75,19 @@ class InboxController extends Controller
         $rows = collect($page->items())->map(fn (Conversation $c) => $this->row($c, $agents->get($c->assigned_to), $lastByConv->get($c->id)))->all();
 
         return $this->data($rows, 200, ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'total' => $page->total()]);
+    }
+
+    /** GET conversations/code/{code} — recupera una conversación por su código público. */
+    public function byCode(Request $request, $code)
+    {
+        $c = $this->scoped($request)->with(['contact.identities', 'account'])->where('code', $code)->first();
+        if (!$c) {
+            return $this->error('not_found', 'No encontrado.', 404);
+        }
+
+        $agent = $c->assigned_to ? User::find($c->assigned_to) : null;
+
+        return $this->data($this->row($c, $agent, $this->lastMessages(collect([$c->id]))->get($c->id)));
     }
 
     /** POST conversations/new {account_id, phone, body, name?} — abre una conversación con un número nuevo. */
@@ -457,6 +474,7 @@ class InboxController extends Controller
     {
         return [
             'id'              => $c->id,
+            'code'            => $c->code,
             'account_id'      => $c->account_id,
             'status'          => $c->status,
             'unread_count'    => $last && $last->direction === 'outbound' ? 0 : (int) $c->unread_count,
