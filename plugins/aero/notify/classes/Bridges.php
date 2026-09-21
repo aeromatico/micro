@@ -14,6 +14,13 @@ class Bridges
     public static function register(): void
     {
         Event::listen('aero.pay.paymentReceived', fn ($payment, $qr) => static::safe(function () use ($payment, $qr) {
+            // Las recargas de monedas cobran en la cuenta de la PLATAFORMA (pertenece a un tenant):
+            // avisarle "pago recibido" (con el nombre del pagador) a los admins de ese tenant sería
+            // filtrar ventas ajenas. Aero.Credits avisa por su cuenta (credits.purchase.paid).
+            if (($qr->origin ?? null) === 'credits') {
+                return;
+            }
+
             Notify::fire('pay.payment.received', [
                 'amount'      => number_format((float) $payment->amount, 2),
                 'currency'    => $payment->currency,

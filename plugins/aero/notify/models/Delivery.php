@@ -1,6 +1,8 @@
 <?php namespace Aero\Notify\Models;
 
 use Model;
+use Aero\Notify\Classes\Support\Audiences;
+use Aero\Notify\Classes\Support\Channels;
 
 /**
  * Registro de cada intento de entrega individual (un destinatario, un canal).
@@ -30,6 +32,27 @@ class Delivery extends Model
         'template' => [Template::class],
         'tenant'   => [\Aero\Sites\Models\Tenant::class],
     ];
+
+    /** Opciones de los campos 'selectable' de la lista de entregas (Notify → Entregas). */
+    public function getStatusOptions(): array
+    {
+        return [
+            'queued'  => 'En cola',
+            'sent'    => 'Enviado',
+            'failed'  => 'Fallido',
+            'skipped' => 'Omitido',
+        ];
+    }
+
+    public function getChannelOptions(): array
+    {
+        return Channels::options();
+    }
+
+    public function getAudienceOptions(): array
+    {
+        return Audiences::options();
+    }
 
     public function scopeForTenant($query, int $tenantId)
     {
