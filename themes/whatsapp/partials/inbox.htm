@@ -37,7 +37,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         </div>
         <div class="banner" x-show="!online">Sin conexión. Mostrando lo último cargado.</div>
         <ul class="rows">
-            <template x-for="c in convs" :key="c.id">
+            <template x-for="c in sortedConvs" :key="c.id">
                 <li>
                     <button type="button" class="row" :class="{ on: current && current.id === c.id }" @click="openConv(c)">
                         <span class="avatar" x-text="initials(cname(c))"></span>

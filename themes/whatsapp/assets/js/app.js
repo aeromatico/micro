@@ -205,6 +205,11 @@
             // Solo se muestran los números conectados (rail, lista de chats y "Nuevo chat").
             isOffline: function (a) { return !!a.status && ['connected', 'active'].indexOf(a.status) < 0; },
             isHidden: function (accountId) { var a = this.accounts.find(function (x) { return x.id === accountId; }); return !!a && this.isOffline(a); },
+            // Lo más reciente arriba, entrante o saliente; se recalcula solo al enviar o llegar un mensaje.
+            get sortedConvs() {
+                var t = function (c) { return c.last_message_at ? Date.parse(c.last_message_at) || 0 : 0; };
+                return this.convs.slice().sort(function (a, b) { return t(b) - t(a) || b.id - a.id; });
+            },
             get visibleAccounts() { return this.accounts.filter(function (a) { return !this.isOffline(a); }, this); },
             pickAccount: function (id) { this.accountId = id; this.loading = true; this.loadConvs(); },
             setFilter: function (id) { this.filter = id; this.loading = true; this.loadConvs(); },
