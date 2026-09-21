@@ -210,7 +210,7 @@ class Plugin extends PluginBase
                     ],
                     'metaaccounts' => [
                         'label'       => 'aero.masterads::lang.nav.meta_accounts',
-                        'icon'        => 'icon-facebook',
+                        'icon'        => 'icon-bullhorn',
                         'url'         => \Backend::url('aero/masterads/metaaccounts'),
                         'permissions' => ['aero.masterads.manage_meta_accounts'],
                     ],
