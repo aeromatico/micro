@@ -1,6 +1,6 @@
 ---
 name: docs-plugin
-description: Documenta las funciones de un plugin de Aero en el plugin Docs (solo panel del tenant), genera su seeder, actualiza la versión del plugin, y publica en local y producción. Úsala cuando el usuario pida "documentar el plugin X", "documentación de aero/pay", "agregar funcionalidades de notify a la documentación", o continuar el flujo de documentación plugin por plugin.
+description: Documenta las funciones de un plugin de Aero en el plugin Docs (solo panel del tenant), genera su seeder, actualiza la versión del plugin, y publica en local. Úsala cuando el usuario pida "documentar el plugin X", "documentación de aero/pay", "agregar funcionalidades de notify a la documentación", o continuar el flujo de documentación plugin por plugin.
 ---
 
 # Workflow: documentar un plugin en Aero.Docs
@@ -30,14 +30,13 @@ de superadmin/plataforma salvo que el usuario lo pida explícitamente.
 
 ## Entorno (rutas y comandos)
 
-- **Dev/repo:** `/root/projects/micro.clouds.com.bo`.
-  - `artisan` necesita `REDIS_PASSWORD=` vacío para evitar
-    `PhpRedisConnector AUTH ...`:
-    `REDIS_PASSWORD= php artisan tinker --execute="..."`
-- **Producción:** `root@89.117.150.163:/www/wwwroot/micro.clouds.com.bo`, PHP en
-  `/www/server/php/84/bin/php`.
-  - El código se **sincroniza solo** de dev → prod. Antes de sembrar, verifica
-    con `ssh` que los archivos nuevos existan en prod.
+- **Proyecto (único):** `/www/wwwroot/micro.clouds.com.bo`. Este servidor es local y fuente de verdad.
+  - `artisan` SIEMPRE como el usuario web y con el entorno intacto:
+    `sudo -u www /www/server/php/84/bin/php artisan tinker --execute="..."`.
+    **Nunca** `REDIS_PASSWORD=` vacío (rompe con `NOAUTH`) ni artisan como root
+    (crea archivos en `storage/` que rompen el sitio).
+- **Producción:** no se toca desde aquí. El código y los seeders viajan con el flujo normal
+  (`git push` → allá `git pull` + `git submodule update` + `october:migrate`, con respaldo de BD).
 - **Sitio público:** `https://market.com.bo/documentacion`.
   - Categoría: `/documentacion/categoria/<slug>`
   - Artículo: `/documentacion/<slug>`
@@ -151,28 +150,16 @@ seeder: vuelve a correr `seed_oferta_docs.php`.
 
 ```bash
 # correr el seeder (repite por plugin y por seed_oferta_docs)
-REDIS_PASSWORD= php artisan tinker --execute="\$s = require base_path('plugins/aero/docs/updates/seed_<plugin>_docs.php'); \$s->run();"
+sudo -u www /www/server/php/84/bin/php artisan tinker --execute="\$s = require base_path('plugins/aero/docs/updates/seed_<plugin>_docs.php'); \$s->run();"
 ```
 
-Verifica en BD: `plugin_version` seteado y `version` (revisión) incrementado.
+Verifica en BD: `plugin_version` seteado y `version` (revisión) incrementado. Si el `version.yaml`
+de Docs tiene versiones pendientes que no son tuyas, no subas `system_plugin_versions`: repórtalo.
 
-### 7. Publicar en producción
+### 7. Producción
 
-```bash
-# 1) confirmar que el código nuevo esté sincronizado
-ssh root@89.117.150.163 'ls /www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/updates/seed_<plugin>_docs.php'
-
-# 2) sembrar + registrar versión de Docs + limpiar caché
-ssh root@89.117.150.163 'cd /www/wwwroot/micro.clouds.com.bo && /www/server/php/84/bin/php artisan tinker --execute="
-\$s = require base_path(\"plugins/aero/docs/updates/seed_<plugin>_docs.php\");
-\$s->run();
-DB::table(\"system_plugin_versions\")->where(\"code\",\"Aero.Docs\")->update([\"version\"=>\"<docs_version>\"]);
-" && /www/server/php/84/bin/php artisan cache:clear'
-```
-
-Si el plugin Docs tenía migraciones pendientes (columnas/tablas nuevas), córrelas
-con `require base_path('...').up();` antes del seeder, y sube también el
-`system_plugin_versions` de Docs.
+No se hace aquí. Los seeders están en `version.yaml`, así que `october:migrate` los siembra al
+desplegar. Deja el paso anotado en el reporte para que lo haga una persona.
 
 ### 8. Verificar en vivo
 
@@ -187,29 +174,25 @@ Comprueba con `curl` que la categoría y **cada** artículo devuelven `200` en
 - [ ] Seeder fija `plugin_version` (nunca `version`), `tenant_id = null` e `is_global = true`.
 - [ ] `version.yaml` de Docs con nueva versión y seeder.
 - [ ] Documento general de la oferta actualizado.
-- [ ] Local y producción sembrados; `system_plugin_versions` de Docs actualizado.
+- [ ] Sembrado en local (producción llega con el despliegue normal).
 - [ ] Links verificados (200).
 
-## Automatización (agente `docs-sync`)
+## Automatización (vigilante + agente `docs-sync`)
 
-La documentación tenant se mantiene sola ante commits nuevos:
-
-- **Agente:** `.opencode/agent/docs-sync.md` (`opencode run --agent docs-sync`).
-  Detecta plugins tocados por un commit, compara la `plugin_version` documentada
-  con la actual y documenta (nuevo) o actualiza (existente) siguiendo esta skill.
-- **Comando manual:** `/docs-sync [commit|rango|plugins]`.
-- **Disparador:** hook `post-commit` (`.opencode/hooks/post-commit`) que corre el
-  agente en segundo plano con lock cuando el commit toca `plugins/aero/*`
-  (excluye `plugins/aero/docs/`, evita bucles). Se instala con
-  `bin/docs-sync-install.sh` y se desinstala con `--remove`.
+- **Vigilante determinista:** `.opencode/docs-sync-watch.py` (cron cada 30 min). Compara la
+  `plugin_version` documentada con la última de `updates/version.yaml`; **solo llama al modelo si
+  hay algo desactualizado**. Guardas: no corre si `plugins/aero/docs/` tiene cambios sin commitear
+  o editados hace poco, si hay lock, tope diario, backoff por fallos; se pausa solo si algo se
+  escribe fuera de docs. Config: `.opencode/docs-sync.json` (`dry_run` true = simulación).
+- **Agente:** `.opencode/agent/docs-sync.md`, permisos mínimos (escribe solo en `plugins/aero/docs/`,
+  sin git de escritura ni ssh). Lo invoca el vigilante con un brief ya calculado.
+- **Comandos:** `docs-sync-watch.py status | run | bootstrap <plugins> | pause | resume | reset <plugin>`
+  y `/docs-sync <plugins>` a mano. Plugins sin documentar: `bootstrap` manual.
+- **Commits:** los hace `git-agent`; espera mientras el lock del vigilante esté vivo.
+- **Hook post-commit:** opcional, solo avisa al vigilante (`bin/docs-sync-install.sh --with-hook`).
 - **Log:** `.opencode/docs-sync.log`.
 
-Reglas del modo automático:
-
-- No re-documentar si el diff no cambia funciones visibles del panel.
-- Idempotente: seeders con `firstOrNew` (actualizan, no duplican).
-- No disparar si el commit solo toca docs.
-- Respetar el lock para no solapar procesos.
+Reglas: idempotente (`firstOrNew`), no re-documentar si nada cambia para el tenant, un solo proceso a la vez.
 
 > [!NOTE]
 > **Docs internas (futuro):** la documentación interna/operativa se automatizará

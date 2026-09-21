@@ -11,6 +11,7 @@ Entrada: `$ARGUMENTS`
 - Si es una lista de plugins (`aero/notify aero/shop`), documenta/actualiza esos.
 - Si está vacío, usa el **último commit** (`HEAD`) y deduce los plugins del diff.
 
-Recuerda: **solo funciones del panel tenant**, nunca superadmin. Publica en local
-y producción y verifica los links. Al final, reporta artículos creados/actualizados
+Recuerda: **solo funciones del panel tenant**, nunca superadmin. Publica **solo en local**
+(producción no se toca; artisan como `sudo -u www`) y verifica los links. El vigilante
+`.opencode/docs-sync-watch.py status` muestra qué está desactualizado. Al final, reporta artículos creados/actualizados
 y la versión documentada.
