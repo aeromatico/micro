@@ -16,6 +16,8 @@ use System\Classes\PluginManager;
  */
 class OfferBuilder
 {
+    public const USE_CASES = 10;
+
     protected const RELATION_MEANING = [
         'built_with'  => 'el servicio está CONSTRUIDO CON este plugin (es su base técnica)',
         'integrates'  => 'el servicio SE INTEGRA CON este plugin (se conecta, pero funciona sin él)',
@@ -188,6 +190,11 @@ class OfferBuilder
             throw new \RuntimeException('La oferta no es un JSON válido con summary y code: ' . mb_substr($json, 0, 300));
         }
 
+        $useCases = substr_count((string) $data['code'], 'data-usecase');
+        if ($useCases !== self::USE_CASES) {
+            throw new \RuntimeException('Los casos de uso deben ser exactamente ' . self::USE_CASES . " (<li data-usecase>); la oferta trae {$useCases}.");
+        }
+
         $validDocs = collect($evidence)->pluck('docs')->flatten(1)->pluck('id')->all();
         $docIds = array_values(array_intersect((array) ($data['docs_article_ids'] ?? []), $validDocs));
 
@@ -257,7 +264,7 @@ Devuelve ÚNICAMENTE un objeto JSON (sin texto antes ni después, sin ```), con 
 «code» es un fragmento HTML (sin <html>/<head>/<body>, sin <script>, sin estilos en línea) con clases Tailwind CSS 3 y SOLO los colores del tema (modo oscuro por defecto): texto text-ink y text-ink-dim, tarjetas bg-canvas-elev con border border-edge, acento text-accent / bg-accent text-accent-fg. NUNCA uses gray-*, white, black ni colores fijos. Listo para incrustar. Secciones, en este orden, cada una en <section> con <h2>:
 1. Hero: <h1> con el nombre del servicio + promesa en un párrafo.
 2. Características: rejilla de tarjetas (título + 1-2 líneas), basadas en capacidades reales.
-3. Casos de uso: 3-5 escenarios concretos (quién, qué problema, cómo lo resuelve).
+3. Casos de uso: SIEMPRE exactamente 10 escenarios concretos y distintos entre sí (quién, qué problema, cómo lo resuelve), cada uno un <li data-usecase> dentro de un <ul>. Si la evidencia da menos de 10 situaciones, completa con variantes reales por tipo de negocio o de equipo, sin inventar funciones.
 4. Cómo se conecta con tu plataforma: solo si hay plugins «se integra con»/«recomendado para»; qué gana el cliente en cada caso.
 5. Preguntas frecuentes: 5-7 preguntas con <details><summary>…</summary><p>…</p></details>, respuestas respaldadas por la evidencia.
 No incluyas sección de documentación: la agrega el sistema.
