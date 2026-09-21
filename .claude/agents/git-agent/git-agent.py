@@ -74,6 +74,9 @@ DEFAULT_CONFIG = {
     },
     "cron": {"commit_every_minutes": 10},
     "web_user": "www",
+    # Áreas que otro proceso puede estar escribiendo: mientras el lock exista y su pid viva, NO se commitean
+    # (ni siquiera con --now). docs-sync-watch crea el lock mientras el agente de documentación trabaja.
+    "busy_locks": {"plugins/aero/docs": ".opencode/.docs-sync.lock"},
 }
 
 
@@ -132,6 +135,21 @@ def submodule_paths():
     if not gm.exists():
         return []
     return re.findall(r"^\s*path\s*=\s*(.+)$", gm.read_text(), re.M)
+
+
+def busy_lock(area):
+    """True si un proceso declarado en busy_locks está escribiendo esta área ahora mismo."""
+    rel = CFG.get("busy_locks", {}).get(area)
+    if not rel:
+        return False
+    lock = ROOT / rel
+    if not lock.exists():
+        return False
+    try:
+        pid = int(json.loads(lock.read_text()).get("pid", 0))
+    except (ValueError, OSError):
+        pid = 0
+    return pid > 0 and Path(f"/proc/{pid}").exists() and (time.time() - lock.stat().st_mtime) < 3 * 3600
 
 
 def denied(path):
@@ -410,6 +428,8 @@ def plan_repo(repo, sub_name=None, only=None, ignore_quiet=False, skip_prefixes=
                 "denied": skipped, "state": "listo", "detail": ""}
         if not usable:
             item.update(state="ignorado", detail=f"solo archivos prohibidos ({len(skipped)})")
+        elif not sub_name and busy_lock(area):
+            item.update(state="espera", detail="otro proceso (docs-sync) está escribiendo esta área; se commitea al terminar")
         else:
             oldest, newest = mtimes(repo, usable)
             age_new, age_old = now - newest, now - oldest
