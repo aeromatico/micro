@@ -1,0 +1,14 @@
+list: $/aero/services/models/category/columns.yaml
+modelClass: Aero\Services\Models\Category
+title: Categorías
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: name
+    direction: asc
+recordUrl: aero/services/categories/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

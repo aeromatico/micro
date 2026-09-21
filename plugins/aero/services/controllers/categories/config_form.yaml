@@ -1,0 +1,10 @@
+name: Categorías
+form: $/aero/services/models/category/fields.yaml
+modelClass: Aero\Services\Models\Category
+defaultRedirect: aero/services/categories
+create:
+    redirect: aero/services/categories/update/:id
+    redirectClose: aero/services/categories
+update:
+    redirect: aero/services/categories
+    redirectClose: aero/services/categories

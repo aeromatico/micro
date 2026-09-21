@@ -1,0 +1,40 @@
+columns:
+    name:
+        label: Servicio
+        searchable: true
+    category:
+        label: Categoría
+        relation: category
+        select: name
+    type:
+        label: Modalidad
+        type: selectable
+    pricing_mode:
+        label: Cobro
+        type: selectable
+    price:
+        label: Precio
+        type: number
+    currency:
+        label: Moneda
+    credit_price:
+        label: Créditos
+        type: number
+    has_pro:
+        label: PRO
+        type: switch
+    plugin_links:
+        label: Plugins
+        type: partial
+        path: ~/plugins/aero/services/models/service/_plugins_column.php
+        sortable: false
+    is_featured:
+        label: Destacado
+        type: switch
+    is_active:
+        label: Activo
+        type: switch
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

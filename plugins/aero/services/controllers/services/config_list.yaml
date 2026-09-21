@@ -1,0 +1,14 @@
+list: $/aero/services/models/service/columns.yaml
+modelClass: Aero\Services\Models\Service
+title: Servicios
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: updated_at
+    direction: desc
+recordUrl: aero/services/services/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

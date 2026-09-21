@@ -1,0 +1,10 @@
+1.0.0:
+    - "Primera version: catalogo de servicios con categorias, modalidad de cobro y vinculo opcional a plugins."
+    - create_services_tables.php
+    - grant_services_to_superadmin.php
+1.1.0:
+    - "Precio en dinero, en creditos (Aero.Credits) o ambos, e indicador de funciones PRO con su lista."
+    - add_pricing_modes_and_pro_to_services.php
+1.2.0:
+    - "Pestana Documentacion: enlaza uno o mas articulos de Aero.Docs a cada servicio."
+    - create_service_article_table.php

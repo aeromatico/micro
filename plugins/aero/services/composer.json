@@ -1,0 +1,11 @@
+{
+    "name": "aero/services",
+    "description": "Catálogo de servicios de tecnología (ecommerce y marketing), con vínculo opcional a los plugins de la plataforma",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\Services\\": ""
+        }
+    }
+}
