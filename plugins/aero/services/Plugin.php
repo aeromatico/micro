@@ -19,6 +19,11 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('services.build-offer', \Aero\Services\Console\BuildOffer::class);
+    }
+
     public function registerPermissions(): array
     {
         return [

@@ -46,6 +46,14 @@ tabs:
                     text:
                         label: Requisito
                         type: text
+        code:
+            tab: Página
+            label: Página de la oferta (HTML)
+            commentAbove: Contenido HTML de la página del servicio. Lo genera «Generar oferta con IA» (php artisan services:build-offer) y se puede editar a mano.
+            type: codeeditor
+            language: html
+            size: giant
+            stretch: true
         cover:
             tab: Descripción
             label: Imagen de portada
