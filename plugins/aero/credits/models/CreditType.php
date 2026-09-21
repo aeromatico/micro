@@ -15,7 +15,7 @@ class CreditType extends Model
     public $table = 'aero_credits_types';
 
     public $fillable = [
-        'code', 'label', 'color', 'usd_value', 'price_bob', 'is_exchangeable', 'low_balance_threshold', 'is_active', 'sort_order',
+        'code', 'label', 'color', 'usd_value', 'price_bob', 'is_exchangeable', 'is_money', 'low_balance_threshold', 'is_active', 'sort_order',
     ];
 
     public $rules = [
@@ -37,6 +37,7 @@ class CreditType extends Model
         'usd_value'             => 'float',
         'price_bob'             => 'float',
         'is_exchangeable'       => 'boolean',
+        'is_money'              => 'boolean',
         'low_balance_threshold' => 'integer',
         'is_active'             => 'boolean',
         'sort_order'            => 'integer',
@@ -49,7 +50,26 @@ class CreditType extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)->orderBy('sort_order');
+        return $query->where('is_active', true)->where('is_money', false)->orderBy('id');
+    }
+
+    /** La "moneda" que representa el dinero (Bs) de la billetera; no es una moneda de consumo. */
+    public static function money(): ?self
+    {
+        return static::where('is_money', true)->first();
+    }
+
+    /** Precio por unidad en unidades de dinero (diezmilésimas de Bs). */
+    public function priceUnits(): int
+    {
+        return \Aero\Credits\Classes\Money::units($this->price_bob);
+    }
+
+    public function beforeDelete()
+    {
+        if ($this->is_money) {
+            throw new \ApplicationException('La moneda de dinero (Bs) es parte del sistema y no se puede eliminar.');
+        }
     }
 
     public static function findByCode(string $code): ?self

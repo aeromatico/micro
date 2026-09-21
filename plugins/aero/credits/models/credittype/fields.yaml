@@ -41,11 +41,6 @@ fields:
         type: number
         span: left
 
-    sort_order:
-        label: aero.credits::lang.type.sort_order
-        type: number
-        span: right
-
     is_active:
         label: aero.credits::lang.type.is_active
         type: switch

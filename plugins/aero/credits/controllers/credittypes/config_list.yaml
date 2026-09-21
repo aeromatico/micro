@@ -4,7 +4,7 @@ title: aero.credits::lang.menu.credittypes
 showSetup: true
 recordsPerPage: 20
 defaultSort:
-    column: sort_order
+    column: id
     direction: asc
 recordUrl: aero/credits/credittypes/update/:id
 toolbar:

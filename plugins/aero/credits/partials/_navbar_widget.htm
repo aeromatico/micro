@@ -12,7 +12,7 @@ $short = function ($n) {
             <?php foreach ($rows as $row): ?>
                 <span title="<?= e($row['title']) ?>" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#8492a6;white-space:nowrap">
                     <span style="width:7px;height:7px;border-radius:50%;background:<?= e($row['color']) ?>;display:inline-block;flex:0 0 auto"></span>
-                    <?= $short($row['value']) ?>
+                    <?= isset($row['text']) ? e($row['text']) : $short($row['value']) ?>
                 </span>
             <?php endforeach ?>
         </a>

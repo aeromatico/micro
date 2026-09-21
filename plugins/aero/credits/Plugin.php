@@ -72,13 +72,23 @@ class Plugin extends PluginBase
                         return [
                             'color' => $s['color'],
                             'value' => $s['active'],
-                            'title' => "{$s['label']}\nActivas: " . number_format($s['active'])
-                                . "\nVendidas: " . number_format($s['sold'])
-                                . "\nRegaladas: " . number_format($s['gifted'] + $s['plan_grant'])
-                                . "\nConsumidas hoy: " . number_format($s['consumed_today']),
+                            'title' => "{$s['label']}\nActivas: " . number_format($s['active'], 0, ',', '.')
+                                . "\nVendidas: " . number_format($s['sold'], 0, ',', '.')
+                                . "\nRegaladas: " . number_format($s['gifted'] + $s['plan_grant'], 0, ',', '.')
+                                . "\nConsumidas hoy: " . number_format($s['consumed_today'], 0, ',', '.'),
                         ];
                     })->values()->all();
                 });
+
+                $money = Cache::remember('aero.credits.navbar_money', 30, fn () => Credits::moneySummary());
+                $rows[] = [
+                    'color' => '#22c55e',
+                    'value' => 0,
+                    'text'  => 'Bs ' . number_format($money['active'], 2, ',', '.'),
+                    'title' => "Saldo en Bs de todos los tenants\nEn billeteras hoy: Bs " . number_format($money['active'], 2, ',', '.')
+                        . "\nDepositado: Bs " . number_format($money['deposited'], 2, ',', '.')
+                        . "\nGastado en monedas: Bs " . number_format($money['spent'], 2, ',', '.'),
+                ];
 
                 return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
                     'rows'      => $rows,
@@ -100,8 +110,16 @@ class Plugin extends PluginBase
             $rows = \Aero\Credits\Models\CreditType::active()->get()->map(fn ($t) => [
                 'color' => $t->color,
                 'value' => $balances[$t->code] ?? 0,
-                'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0),
+                'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0, 0, ',', '.'),
             ])->all();
+
+            $walletUnits = Credits::walletUnits($tenantId);
+            $rows[] = [
+                'color' => '#22c55e',
+                'value' => 0,
+                'text'  => 'Bs ' . \Aero\Credits\Classes\Money::format($walletUnits),
+                'title' => 'Saldo en Bs: ' . \Aero\Credits\Classes\Money::format($walletUnits) . ' — cámbialo por cualquier moneda',
+            ];
 
             return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
                 'rows'      => $rows,

@@ -24,6 +24,7 @@ class Summary extends Controller
     public function index()
     {
         $this->vars['summary'] = Credits::summary();
+        $this->vars['money'] = Credits::moneySummary();
         $this->vars['problems'] = Credits::verify();
         $this->vars['revenue'] = (float) CreditPurchase::where('status', CreditPurchase::PAID)->sum('amount_bob');
         $this->vars['revenueMonth'] = (float) CreditPurchase::where('status', CreditPurchase::PAID)

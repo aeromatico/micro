@@ -24,69 +24,136 @@ class Recharges
     }
 
     /**
-     * Cotización exacta (la misma que ve el cliente en tiempo real):
-     * monedas = floor(Bs / precio). El sobrante por redondeo se informa.
+     * Cotización exacta (la misma que ve el cliente en tiempo real), con
+     * aritmética entera en unidades de dinero (0,0001 Bs): nunca se pierde nada.
+     * Una recarga es CERRADA: se gasta el monto completo en UNA sola moneda
+     * (no se combinan). Recibe floor(monto / precio) unidades enteras y lo que
+     * sobra va a la billetera de Bs. Con $coin = null todo el monto va a la billetera.
      *
-     * @param array<string,int|float> $allocations code => Bs asignados a esa moneda
      * @throws \InvalidArgumentException
      */
-    public static function quote(int $amount, array $allocations): array
+    public static function quote(int $amount, ?string $coin = null): array
     {
         if (!in_array($amount, Settings::rechargeAmounts(), true)) {
             throw new \InvalidArgumentException('Elige uno de los montos de recarga disponibles.');
         }
 
-        $types = CreditType::active()->get()->keyBy('code');
+        $amountUnits = Money::units($amount);
         $lines = [];
-        $sum = 0.0;
+        $costUnits = 0;
 
-        foreach ($allocations as $code => $bob) {
-            $bob = round((float) $bob, 2);
-
-            if ($bob <= 0) {
-                continue;
+        if ($coin) {
+            $type = CreditType::active()->where('code', $coin)->first();
+            if (!$type || $type->priceUnits() <= 0) {
+                throw new \InvalidArgumentException("La moneda '{$coin}' no está disponible para recarga.");
             }
 
-            $type = $types[$code] ?? null;
-            if (!$type || (float) $type->price_bob <= 0) {
-                throw new \InvalidArgumentException("La moneda '{$code}' no está disponible para recarga.");
-            }
-
-            $coins = (int) floor($bob / (float) $type->price_bob + 1e-9);
+            $coins = intdiv($amountUnits, $type->priceUnits());
             if ($coins < 1) {
-                throw new \InvalidArgumentException("Bs {$bob} no alcanzan para 1 moneda de {$type->label} (cuesta Bs {$type->price_bob}).");
+                throw new \InvalidArgumentException("Bs {$amount} no alcanzan para 1 moneda de {$type->label} (cuesta " . Money::price($type->priceUnits()) . "). Elige otra moneda, un monto mayor o carga el monto a tu saldo en Bs.");
             }
 
+            $costUnits = $coins * $type->priceUnits();
             $lines[] = [
                 'credit_type_id' => $type->id,
                 'code'           => $type->code,
                 'label'          => $type->label,
-                'bob'            => $bob,
+                'bob'            => (float) $amount,
                 'price_bob'      => (float) $type->price_bob,
                 'coins'          => $coins,
-                'rounding_bob'   => round($bob - $coins * (float) $type->price_bob, 4),
+                'cost_units'     => $costUnits,
             ];
-            $sum += $bob;
         }
 
-        if (!$lines) {
-            throw new \InvalidArgumentException('Elige al menos una moneda.');
+        return [
+            'amount'       => $amount,
+            'lines'        => $lines,
+            'coins'        => array_sum(array_column($lines, 'coins')),
+            'wallet_units' => $amountUnits - $costUnits, // el cambio → billetera
+        ];
+    }
+
+    /** Monto mínimo de una recarga: el menor de los montos ofrecidos (nunca se permite menos). */
+    public static function minimumAmount(): int
+    {
+        return min(Settings::rechargeAmounts());
+    }
+
+    /** Tope de cordura de una cantidad libre: 10 veces el mayor monto ofrecido. */
+    public static function maximumAmount(): int
+    {
+        return max(Settings::rechargeAmounts()) * 10;
+    }
+
+    /**
+     * Compra de una cantidad EXACTA de monedas (una sola moneda). El costo es
+     * monedas × precio (exacto, 4 decimales); como el QR solo admite centavos,
+     * se cobra ese costo redondeado hacia ARRIBA al centavo y la diferencia
+     * (siempre menos de Bs 0,01) va a la billetera, contada al 0,0001: nada se
+     * pierde. Nunca se permite un pago inferior al monto mínimo de recarga.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function quoteExact(string $coin, int $coins): array
+    {
+        $type = CreditType::active()->where('code', $coin)->first();
+        if (!$type || $type->priceUnits() <= 0) {
+            throw new \InvalidArgumentException("La moneda '{$coin}' no está disponible para recarga.");
         }
 
-        if (abs($sum - $amount) > 0.001) {
-            throw new \InvalidArgumentException("El reparto suma Bs {$sum} y debe sumar exactamente Bs {$amount}.");
+        if ($coins < 1) {
+            throw new \InvalidArgumentException('Indica cuántas monedas quieres.');
         }
 
-        return ['amount' => $amount, 'lines' => $lines, 'coins' => array_sum(array_column($lines, 'coins'))];
+        $costUnits = $coins * $type->priceUnits();
+        $cents = intdiv($costUnits + 99, 100);            // ceil(costUnits / 100) sin flotantes
+        $amountUnits = $cents * 100;
+        $min = static::minimumAmount();
+        $max = static::maximumAmount();
+
+        if ($amountUnits < Money::units($min)) {
+            $needed = intdiv(Money::units($min) + $type->priceUnits() - 1, $type->priceUnits());
+            throw new \InvalidArgumentException("El mínimo de recarga es Bs {$min}: de {$type->label} necesitas al menos " . number_format($needed, 0, ',', '.') . ' monedas.');
+        }
+
+        if ($amountUnits > Money::units($max)) {
+            throw new \InvalidArgumentException("El máximo por recarga es Bs {$max}. Divide tu compra en varias.");
+        }
+
+        return [
+            'amount'       => $cents / 100,
+            'lines'        => [[
+                'credit_type_id' => $type->id,
+                'code'           => $type->code,
+                'label'          => $type->label,
+                'bob'            => $cents / 100,
+                'price_bob'      => (float) $type->price_bob,
+                'coins'          => $coins,
+                'cost_units'     => $costUnits,
+            ]],
+            'coins'        => $coins,
+            'wallet_units' => $amountUnits - $costUnits, // redondeo al centavo (< Bs 0,01)
+        ];
     }
 
     /**
      * Crea la compra y emite el QR. Solo queda una compra viva por tenant:
      * al crear otra se cancela la anterior (si esa se pagara igual, se acredita igual).
      */
-    public static function create(int $tenantId, int $amount, array $allocations, ?int $userId = null): CreditPurchase
+    public static function create(int $tenantId, int $amount, ?string $coin, ?int $userId = null): CreditPurchase
     {
-        $quote = static::quote($amount, $allocations);
+        return static::issue($tenantId, static::quote($amount, $coin), $userId);
+    }
+
+    /** Compra de una cantidad exacta de monedas de UNA moneda (ver quoteExact). */
+    public static function createExact(int $tenantId, string $coin, int $coins, ?int $userId = null): CreditPurchase
+    {
+        return static::issue($tenantId, static::quoteExact($coin, $coins), $userId);
+    }
+
+    protected static function issue(int $tenantId, array $quote, ?int $userId): CreditPurchase
+    {
+        $amount = $quote['amount'];
 
         $bank = Settings::purchaseBankAccount();
         if (!$bank || !class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
@@ -100,6 +167,7 @@ class Recharges
         $purchase = CreditPurchase::create([
             'tenant_id'          => $tenantId,
             'amount_bob'         => $amount,
+            'wallet_units'       => $quote['wallet_units'],
             'status'             => CreditPurchase::PENDING,
             'lines'              => $quote['lines'],
             'expires_at'         => now()->addMinutes(Settings::purchaseTtlMinutes()),
@@ -151,7 +219,15 @@ class Recharges
                     $p->tenant_id, $line['code'], (int) $line['coins'],
                     "Recarga #{$p->id} — Bs {$line['bob']}", $p->created_by_user_id,
                     "purchase:{$p->id}:{$line['credit_type_id']}", 'purchase',
-                    ['purchase_id' => $p->id, 'bob' => $line['bob'], 'price_bob' => $line['price_bob'], 'rounding_bob' => $line['rounding_bob'] ?? 0],
+                    ['purchase_id' => $p->id, 'bob' => $line['bob'], 'price_bob' => $line['price_bob']],
+                );
+            }
+
+            // Lo que no se convirtió en monedas (sobrante + no asignado) va a la billetera de Bs.
+            if ((int) $p->wallet_units > 0) {
+                Credits::deposit(
+                    $p->tenant_id, (int) $p->wallet_units, "Recarga #{$p->id} — sobrante a tu billetera",
+                    "purchase:{$p->id}:wallet", ['purchase_id' => $p->id], $p->created_by_user_id,
                 );
             }
 
@@ -171,7 +247,13 @@ class Recharges
         }
 
         try {
-            $detail = collect($p->lines)->map(fn ($l) => number_format($l['coins'], 0, ',', '.') . ' ' . str_replace('Monedas de ', '', $l['label']))->implode(' · ');
+            $detail = collect($p->lines)->map(fn ($l) => number_format($l['coins'], 0, ',', '.') . ' ' . str_replace('Monedas de ', '', $l['label']))->all();
+
+            if ((int) $p->wallet_units > 0) {
+                $detail[] = Money::label((int) $p->wallet_units) . ' a tu billetera';
+            }
+
+            $detail = implode(' · ', $detail);
 
             \Aero\Notify\Classes\Notify::fire($event, $extra + [
                 'purchase_id'  => $p->id,

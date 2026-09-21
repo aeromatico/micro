@@ -13,8 +13,8 @@ use DB;
  */
 class LedgerGuard
 {
-    public const POSITIVE_KINDS = ['purchase', 'gift', 'plan_grant', 'adjust_in', 'refund', 'exchange_in'];
-    public const NEGATIVE_KINDS = ['charge', 'exchange_out', 'exchange_fee', 'adjust_out', 'expiry'];
+    public const POSITIVE_KINDS = ['purchase', 'gift', 'plan_grant', 'adjust_in', 'refund', 'exchange_in', 'wallet_deposit'];
+    public const NEGATIVE_KINDS = ['charge', 'exchange_out', 'exchange_fee', 'adjust_out', 'expiry', 'wallet_spend'];
 
     protected const TRIGGERS = [
         'aero_credits_tx_bi', 'aero_credits_tx_ai', 'aero_credits_tx_bu', 'aero_credits_tx_bd',

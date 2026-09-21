@@ -17,8 +17,12 @@ columns:
         searchable: true
     delta:
         label: aero.credits::lang.transaction.delta
+        type: partial
+        path: ~/plugins/aero/credits/partials/_ledger_amount.htm
     balance_after:
         label: aero.credits::lang.transaction.balance_after
+        type: partial
+        path: ~/plugins/aero/credits/partials/_ledger_amount.htm
     reason:
         label: aero.credits::lang.transaction.reason
         searchable: true

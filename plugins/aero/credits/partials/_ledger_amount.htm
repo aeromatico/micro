@@ -1,0 +1,9 @@
+<?php
+$type = $record->creditType ?? null;
+$isMoney = $type && $type->is_money;
+$v = (int) $value;
+if ($isMoney) {
+    echo ($v < 0 ? '−' : '') . 'Bs ' . \Aero\Credits\Classes\Money::format(abs($v), 4);
+} else {
+    echo number_format($v, 0, ',', '.');
+}

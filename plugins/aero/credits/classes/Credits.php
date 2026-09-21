@@ -369,10 +369,12 @@ class Credits
             throw new \InvalidArgumentException('Indica cuántas monedas quieres intercambiar.');
         }
 
+        // Aritmética entera (puntos básicos y unidades de precio): la pantalla calcula EXACTAMENTE lo mismo.
         $pct = Settings::exchangeFeePercent();
-        $fee = (int) ceil($amount * $pct / 100);
+        $bp = (int) round($pct * 100);
+        $fee = intdiv($amount * $bp + 9999, 10000);                       // ceil(amount × pct%)
         $net = $amount - $fee;
-        $received = (int) floor($net * (float) $from->price_bob / (float) $to->price_bob);
+        $received = intdiv($net * $from->priceUnits(), $to->priceUnits()); // floor(net × precio_from / precio_to)
 
         return [
             'fee'         => $fee,
@@ -417,6 +419,98 @@ class Credits
 
             return ['journal_id' => $journal, 'out' => $out, 'fee' => $fee, 'in' => $in, 'quote' => $quote];
         });
+    }
+
+    // -------------------------------------------------------------------
+    // Billetera de dinero (Bs). Es una moneda más del libro (is_money), en
+    // diezmilésimas de Bs (ver Money): mismas garantías de la BD.
+    // -------------------------------------------------------------------
+
+    /** Saldo de la billetera del tenant, en unidades (Money::bob() lo pasa a Bs). */
+    public static function walletUnits(int $tenantId): int
+    {
+        $money = CreditType::money();
+
+        return $money ? (int) CreditAccount::where('tenant_id', $tenantId)->where('credit_type_id', $money->id)->value('balance') : 0;
+    }
+
+    /**
+     * Entrada de dinero a la billetera (sobrante de una recarga, o ajuste del
+     * superadmin). Idempotente con $idempotencyKey.
+     */
+    public static function deposit(int $tenantId, int $units, string $reason, ?string $idempotencyKey = null, array $meta = [], ?int $byUserId = null): CreditTransaction
+    {
+        if ($units <= 0) {
+            throw new \InvalidArgumentException("Aero.Credits: depósito inválido ({$units}).");
+        }
+
+        if ($idempotencyKey && $existing = CreditTransaction::where('idempotency_key', $idempotencyKey)->first()) {
+            return $existing;
+        }
+
+        $money = CreditType::money() ?? throw new \RuntimeException('Aero.Credits: falta la moneda de dinero (Bs).');
+
+        try {
+            return static::post($tenantId, $money, $units, 'wallet_deposit', [
+                'source_plugin'      => 'Aero.Credits',
+                'reason'             => $reason,
+                'meta'               => $meta ?: null,
+                'idempotency_key'    => $idempotencyKey,
+                'created_by_user_id' => $byUserId,
+            ]);
+        }
+        catch (QueryException $e) {
+            if ($idempotencyKey && $existing = CreditTransaction::where('idempotency_key', $idempotencyKey)->first()) {
+                return $existing;
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Compra $coins monedas con el saldo en Bs al precio de lista. Costo exacto
+     * (monedas × precio, sin redondeo). Dos movimientos con el mismo journal_id
+     * (salida de Bs + entrada de monedas) en una sola transacción.
+     *
+     * @return array{journal_id:string, spend:CreditTransaction, coins:CreditTransaction, cost_units:int}
+     */
+    public static function buyWithWallet(int $tenantId, string $coinCode, int $coins, ?int $byUserId = null): array
+    {
+        $type = CreditType::active()->where('code', $coinCode)->first();
+
+        if (!$type || $type->priceUnits() <= 0) {
+            throw new \InvalidArgumentException('Esa moneda no está disponible para compra.');
+        }
+
+        if ($coins < 1) {
+            throw new \InvalidArgumentException('Indica cuántas monedas quieres.');
+        }
+
+        $money = CreditType::money() ?? throw new \RuntimeException('Aero.Credits: falta la moneda de dinero (Bs).');
+        $cost = $coins * $type->priceUnits();
+        $have = static::walletUnits($tenantId);
+
+        if ($have < $cost) {
+            throw new \InvalidArgumentException('Tu saldo (Bs ' . Money::format($have) . ') no alcanza: '
+                . $coins . ' × ' . $type->label . ' cuestan Bs ' . Money::format($cost, 2, 'ceil') . '.');
+        }
+
+        $journal = (string) Str::uuid();
+        $meta = ['journal' => $journal, 'coin' => $type->code, 'coins' => $coins, 'price_units' => $type->priceUnits(), 'cost_units' => $cost];
+        $common = ['source_plugin' => 'Aero.Credits', 'journal_id' => $journal, 'created_by_user_id' => $byUserId, 'meta' => $meta];
+
+        try {
+            return DB::transaction(function () use ($tenantId, $money, $type, $coins, $cost, $common, $journal) {
+                $spend = static::post($tenantId, $money, -$cost, 'wallet_spend', $common + ['reason' => "Compra de {$coins} × {$type->label} con saldo en Bs"]);
+                $in = static::post($tenantId, $type, $coins, 'purchase', $common + ['reason' => "Compra con saldo en Bs (Bs " . Money::format($cost, 2, 'ceil') . ')']);
+
+                return ['journal_id' => $journal, 'spend' => $spend, 'coins' => $in, 'cost_units' => $cost];
+            });
+        }
+        catch (InsufficientCreditsException) {
+            throw new \InvalidArgumentException('Tu saldo en Bs cambió y ya no alcanza. Actualiza la página.');
+        }
     }
 
     // -------------------------------------------------------------------
@@ -498,7 +592,7 @@ class Credits
 
         $out = [];
 
-        foreach (CreditType::orderBy('sort_order')->get() as $type) {
+        foreach (CreditType::active()->get() as $type) {
             $k = ($byKind[$type->id] ?? collect())->pluck('total', 'kind');
 
             $out[$type->code] = [
@@ -521,6 +615,30 @@ class Credits
         }
 
         return $out;
+    }
+
+    /**
+     * Resumen del dinero en billeteras (Bs, unidades ya convertidas a Bs):
+     * cuánto hay hoy en billeteras (pasivo con los clientes), cuánto entró y
+     * cuánto se gastó comprando monedas.
+     */
+    public static function moneySummary(?int $tenantId = null): array
+    {
+        $money = CreditType::money();
+
+        if (!$money) {
+            return ['active' => 0.0, 'deposited' => 0.0, 'spent' => 0.0];
+        }
+
+        $active = (int) CreditAccount::where('credit_type_id', $money->id)->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId))->sum('balance');
+        $k = DB::table('aero_credits_daily')->where('credit_type_id', $money->id)->when($tenantId, fn ($q) => $q->where('tenant_id', $tenantId))
+            ->groupBy('kind')->selectRaw('kind, SUM(amount) as total')->pluck('total', 'kind');
+
+        return [
+            'active'    => Money::bob($active),
+            'deposited' => Money::bob((int) ($k['wallet_deposit'] ?? 0)),
+            'spent'     => Money::bob(abs((int) ($k['wallet_spend'] ?? 0))),
+        ];
     }
 
     /**
@@ -604,10 +722,44 @@ class Credits
             $problems[] = "{$neg} cuenta(s) con saldo negativo.";
         }
 
-        $badJournals = DB::select("SELECT journal_id FROM aero_credits_transactions WHERE journal_id IS NOT NULL
-            GROUP BY journal_id HAVING SUM(kind = 'exchange_out') <> 1 OR SUM(kind = 'exchange_fee') <> 1 OR SUM(kind = 'exchange_in') <> 1 OR COUNT(*) <> 3");
-        foreach ($badJournals as $j) {
+        $badExchanges = DB::select("SELECT journal_id FROM aero_credits_transactions
+            WHERE journal_id IS NOT NULL GROUP BY journal_id
+            HAVING SUM(kind LIKE 'exchange\\_%') > 0 AND (SUM(kind = 'exchange_out') <> 1 OR SUM(kind = 'exchange_fee') <> 1 OR SUM(kind = 'exchange_in') <> 1 OR COUNT(*) <> 3)");
+        foreach ($badExchanges as $j) {
             $problems[] = "Intercambio {$j->journal_id} incompleto (no tiene exactamente salida + comisión + entrada).";
+        }
+
+        // Compra con saldo en Bs: 1 salida de Bs + 1 entrada de monedas, y los Bs gastados = monedas × precio (exacto).
+        $walletBuys = DB::select("SELECT j.journal_id,
+                SUM(j.kind = 'wallet_spend') spends, SUM(j.kind = 'purchase') buys, COUNT(*) n,
+                COALESCE(SUM(CASE WHEN j.kind = 'wallet_spend' THEN -j.delta END), 0) spent,
+                COALESCE(SUM(CASE WHEN j.kind = 'purchase' THEN j.delta * JSON_VALUE(j.meta, '$.price_units') END), 0) worth
+            FROM aero_credits_transactions j WHERE j.journal_id IS NOT NULL
+            GROUP BY j.journal_id HAVING SUM(j.kind = 'wallet_spend') > 0");
+        foreach ($walletBuys as $w) {
+            if ((int) $w->spends !== 1 || (int) $w->buys !== 1 || (int) $w->n !== 2) {
+                $problems[] = "Compra con saldo {$w->journal_id} incompleta (debe tener 1 salida de Bs y 1 entrada de monedas).";
+            }
+            elseif ((int) $w->spent !== (int) $w->worth) {
+                $problems[] = "Compra con saldo {$w->journal_id}: se descontaron {$w->spent} unidades pero las monedas valen {$w->worth}.";
+            }
+        }
+
+        // Conservación del dinero por recarga pagada: Bs cobrado = Bs en monedas + Bs a la billetera,
+        // y los movimientos acreditados coinciden con lo que dice la recarga.
+        foreach (\Aero\Credits\Models\CreditPurchase::where('status', \Aero\Credits\Models\CreditPurchase::PAID)->cursor() as $p) {
+            $coinsValue = 0;
+            foreach ($p->lines as $line) {
+                $coinsValue += (int) $line['coins'] * Money::units($line['price_bob']);
+                $got = (int) CreditTransaction::where('idempotency_key', "purchase:{$p->id}:{$line['credit_type_id']}")->value('delta');
+                if ($got !== (int) $line['coins']) {
+                    $problems[] = "Recarga #{$p->id}: acreditó {$got} de {$line['code']} y la recarga dice {$line['coins']}.";
+                }
+            }
+            $wallet = (int) CreditTransaction::where('idempotency_key', "purchase:{$p->id}:wallet")->value('delta');
+            if (Money::units($p->amount_bob) !== $coinsValue + $wallet || $wallet !== (int) $p->wallet_units) {
+                $problems[] = 'Recarga #' . $p->id . ': Bs cobrado (' . Money::units($p->amount_bob) . ") ≠ monedas ({$coinsValue}) + billetera ({$wallet}).";
+            }
         }
 
         $badRefunds = DB::selectOne("SELECT COUNT(*) c FROM aero_credits_transactions r

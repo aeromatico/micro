@@ -1,6 +1,7 @@
 <?php namespace Aero\Credits\Controllers;
 
 use Aero\Credits\Classes\Credits;
+use Aero\Credits\Classes\Money;
 use Aero\Credits\Classes\Recharges;
 use Aero\Credits\Models\CreditPurchase;
 use Aero\Credits\Models\CreditTransaction;
@@ -26,6 +27,7 @@ class Wallet extends Controller
         'adjust_in' => 'Ajuste (+)', 'refund' => 'Reembolso', 'exchange_in' => 'Intercambio (entrada)',
         'charge' => 'Consumo', 'exchange_out' => 'Intercambio (salida)', 'exchange_fee' => 'Comisión de intercambio',
         'adjust_out' => 'Ajuste (−)', 'expiry' => 'Vencimiento',
+        'wallet_deposit' => 'Saldo en Bs (sobrante de recarga)', 'wallet_spend' => 'Compra con saldo en Bs',
     ];
 
     public function __construct()
@@ -56,7 +58,13 @@ class Wallet extends Controller
             'buyable' => $catalog->has($t->code), 'exchangeable' => (bool) $t->is_exchangeable && (float) $t->price_bob > 0,
         ])->all();
 
+        $walletUnits = Credits::walletUnits($tenantId);
+        $this->vars['walletUnits'] = $walletUnits;
+        $this->vars['walletBs'] = Money::format($walletUnits);
+        $this->vars['buyable'] = collect($this->vars['types'])->filter(fn ($t) => $t['buyable'])->map(fn ($t) => $t + ['priceUnits' => Money::units($t['price'])])->values()->all();
         $this->vars['amounts'] = Settings::rechargeAmounts();
+        $this->vars['minAmount'] = Recharges::minimumAmount();
+        $this->vars['maxAmount'] = Recharges::maximumAmount();
         $this->vars['feePercent'] = Settings::exchangeFeePercent();
         $this->vars['ttlMinutes'] = Settings::purchaseTtlMinutes();
         $this->vars['kindLabels'] = self::KIND_LABELS;
@@ -80,11 +88,18 @@ class Wallet extends Controller
     public function onCreatePurchase(): array
     {
         $tenantId = $this->tenantIdOrFail();
+        $coin = post('coin');
+
+        // Una recarga es de UNA sola moneda: cualquier otra forma (varias, arreglos) se rechaza.
+        if ($coin !== null && $coin !== '' && !is_string($coin)) {
+            throw new ApplicationException('Una recarga es de una sola moneda. Elige una.');
+        }
 
         try {
-            $purchase = Recharges::create(
-                $tenantId, (int) post('amount'), (array) post('alloc', []), BackendAuth::getUser()?->id
-            );
+            // Cantidad libre de UNA moneda (sin cambio) o monto cerrado de la lista.
+            $purchase = post('coins') !== null && post('coins') !== ''
+                ? Recharges::createExact($tenantId, (string) $coin, (int) post('coins'), BackendAuth::getUser()?->id)
+                : Recharges::create($tenantId, (int) post('amount'), $coin ?: null, BackendAuth::getUser()?->id);
         }
         catch (\InvalidArgumentException|\RuntimeException $e) {
             throw new ApplicationException($e->getMessage());
@@ -96,6 +111,8 @@ class Wallet extends Controller
             'id'         => $purchase->id,
             'amount'     => $purchase->amount_bob,
             'coins'      => $purchase->totalCoins(),
+            'wallet_bs'  => Money::label((int) $purchase->wallet_units),
+            'wallet_units' => (int) $purchase->wallet_units,
             'lines'      => $purchase->lines,
             'qr_image'   => $qr?->qr_image ? 'data:image/png;base64,' . $qr->qr_image : null,
             'expires_at' => $purchase->expires_at->toIso8601String(),
@@ -116,6 +133,22 @@ class Wallet extends Controller
         }
 
         return ['ok' => true];
+    }
+
+    // ---- Comprar monedas con el saldo en Bs ----
+
+    public function onBuyWithWallet(): array
+    {
+        $tenantId = $this->tenantIdOrFail();
+
+        try {
+            $r = Credits::buyWithWallet($tenantId, (string) post('coin'), (int) post('coins'), BackendAuth::getUser()?->id);
+        }
+        catch (\InvalidArgumentException|\RuntimeException $e) {
+            throw new ApplicationException($e->getMessage());
+        }
+
+        return ['coins' => $r['coins']->delta, 'cost' => Money::format($r['cost_units'], 2, 'ceil'), 'wallet' => Money::format(Credits::walletUnits($tenantId))];
     }
 
     // ---- Intercambio ----

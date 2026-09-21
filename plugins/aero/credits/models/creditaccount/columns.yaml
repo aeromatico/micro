@@ -8,6 +8,8 @@ columns:
         sortable: false
     balance:
         label: aero.credits::lang.account.balance
+        type: partial
+        path: ~/plugins/aero/credits/partials/_ledger_amount.htm
     updated_at:
         label: aero.credits::lang.account.updated_at
         type: datetime

@@ -18,7 +18,7 @@ class CreditPurchase extends Model
     public $table = 'aero_credits_purchases';
 
     public $fillable = [
-        'tenant_id', 'amount_bob', 'status', 'lines', 'qr_code_id', 'payment_reference',
+        'tenant_id', 'amount_bob', 'wallet_units', 'status', 'lines', 'qr_code_id', 'payment_reference',
         'expires_at', 'paid_at', 'created_by_user_id',
     ];
 
