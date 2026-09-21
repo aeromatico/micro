@@ -49,16 +49,21 @@ return new class extends Migration
         ];
 
         foreach ($seed as [$code, $name, $defaultPrice, $isPro, $order, $features]) {
-            Plan::create([
-                'code'       => $code,
-                'name'       => $name,
-                'price'      => (float) Settings::get("signup_price_{$code}", $defaultPrice),
-                'is_pro'     => $isPro,
-                'is_featured'=> $isPro,
-                'sort_order' => $order,
-                'plugins'    => $plugins,
-                'features'   => array_map(fn ($t) => ['text' => $t], $features),
-                'credits'    => [],
+            // Insert directo y no Plan::create(): el modelo ya conoce columnas de
+            // migraciones posteriores (price_annual, trial_days) y al reaplicar el
+            // plugin desde cero fallaría porque todavía no existen.
+            DB::table('aero_sites_plans')->insert([
+                'code'        => $code,
+                'name'        => $name,
+                'price'       => (float) Settings::get("signup_price_{$code}", $defaultPrice),
+                'is_pro'      => $isPro,
+                'is_featured' => $isPro,
+                'sort_order'  => $order,
+                'plugins'     => $plugins === null ? null : json_encode($plugins),
+                'features'    => json_encode(array_map(fn ($t) => ['text' => $t], $features)),
+                'credits'     => json_encode([]),
+                'created_at'  => now(),
+                'updated_at'  => now(),
             ]);
         }
     }

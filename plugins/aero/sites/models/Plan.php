@@ -136,7 +136,7 @@ class Plan extends Model
             return [];
         }
 
-        return \Aero\Credits\Models\CreditType::active()->orderBy('sort_order')->pluck('label', 'code')->all();
+        return \Aero\Credits\Models\CreditType::active()->pluck('label', 'code')->all();
     }
 
     /** Plugins que puede activar un plan, con su nombre legible. */
