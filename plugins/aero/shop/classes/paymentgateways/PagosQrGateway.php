@@ -17,7 +17,7 @@ class PagosQrGateway
 {
     public static function label(): string
     {
-        return 'Pagos QR (aero/qrbo)';
+        return 'Bolivia Pay (aero/qrbo)';
     }
 
     /**
@@ -30,7 +30,7 @@ class PagosQrGateway
     public static function issueForOrder(PaymentGateway $gateway, Order $order): void
     {
         if (!class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
-            throw new \RuntimeException('El plugin de Pagos QR no está disponible en este momento.');
+            throw new \RuntimeException('El plugin de Bolivia Pay no está disponible en este momento.');
         }
 
         $bankAccount = \Aero\Pay\Models\BankAccount::active()
@@ -38,7 +38,7 @@ class PagosQrGateway
             ->find($gateway->qrbo_bank_account_id);
 
         if (!$bankAccount) {
-            throw new \RuntimeException('La cuenta configurada para Pagos QR ya no está disponible.');
+            throw new \RuntimeException('La cuenta configurada para Bolivia Pay ya no está disponible.');
         }
 
         // Página de confirmación del pedido — a dónde vuelve el pagador tras

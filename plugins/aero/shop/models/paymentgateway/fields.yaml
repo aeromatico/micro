@@ -13,8 +13,8 @@ fields:
         default: manual
         options:
             manual: "Pagos offline"
-            pagos_qr: "Pagos QR"
-        comment: "'Pagos QR' usa un código QR de forma dinámica. 'Pagos offline' incluye información de pagos fuera de línea, como una cuenta bancaria o pagos contra entrega."
+            pagos_qr: "Bolivia Pay"
+        comment: "'Bolivia Pay' usa un código QR de forma dinámica. 'Pagos offline' incluye información de pagos fuera de línea, como una cuenta bancaria o pagos contra entrega."
 
     qrbo_bank_account_id:
         label: Cuenta bancaria (QRBO)
@@ -24,7 +24,7 @@ fields:
             action: show
             field: driver
             condition: value[pagos_qr]
-        comment: "Se configura en: Pagos QR → Cuentas"
+        comment: "Se configura en: Bolivia Pay → Cuentas"
 
     is_active:
         label: Activo
