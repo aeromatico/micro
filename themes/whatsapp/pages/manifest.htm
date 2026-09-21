@@ -9,7 +9,7 @@ function onStart()
     $h = strtolower((string) request()->query('h'));
     $h = preg_match('/^[a-z0-9][a-z0-9-]{0,62}$/', $h) ? $h : '';
     $start = $h ? '/' . $h : '/';
-    $theme = fn ($p) => $this->controller->themeUrl($p) . '?v=2';
+    $theme = fn ($p) => $this->controller->themeUrl($p) . '?v=3';
 
     return response()->json([
         'id' => $start,

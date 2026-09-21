@@ -11,6 +11,9 @@
         try { if (v === undefined) return localStorage.getItem(KEY + k); if (v === null) localStorage.removeItem(KEY + k); else localStorage.setItem(KEY + k, v); } catch (e) { return null; }
     }
 
+    // Pide almacenamiento persistente para que el navegador no borre el token por falta de espacio.
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* sin soporte */ }
+
     function jget(k) { try { return JSON.parse(store(k)); } catch (e) { return null; } }
     function jset(k, v) { try { store(k, JSON.stringify(v)); } catch (e) { /* cuota llena: se ignora */ } }
 
@@ -71,7 +74,7 @@
                     jset('snap.' + handle + '.me', { user: me.user, tenant: me.tenant });
                     this.startInbox();
                 } catch (e) {
-                    if (e.status === 401) return;
+                    if (e.status === 401 || e.status === 403) return;
                     // Sin red o servidor caído: la sesión sigue vigente, se abre con lo último guardado.
                     var snap = jget('snap.' + handle + '.me');
                     if (snap) { this.user = snap.user; this.tenant = snap.tenant; this.loadSnapshot(); this.startInbox(); }
@@ -92,6 +95,7 @@
                         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(this.loginForm),
                     });
                     var body = await res.json().catch(function () { return {}; });
+                    if (res.status === 403 && body.error === 'pro_required') { this.screen = 'upgrade'; return; }
                     if (!res.ok) throw new Error(res.status === 429 ? 'Demasiados intentos. Espera un minuto.' : (body.message || 'No se pudo iniciar sesión.'));
                     this.token = body.data.token; this.user = body.data.user; this.tenant = body.data.tenant;
                     store('token.' + this.handle, this.token);
@@ -125,6 +129,7 @@
                 this.online = true;
                 if (res.status === 401) { this.logout(false); throw { status: 401, message: 'Sesión vencida.' }; }
                 var body = await res.json().catch(function () { return {}; });
+                if (res.status === 403 && body.error === 'pro_required') { this.stopTimers(); this.screen = 'upgrade'; throw { status: 403, message: body.message }; }
                 if (!res.ok) throw { status: res.status, message: body.message || 'Error inesperado.' };
                 return body.data !== undefined && body.meta === undefined ? body.data : body;
             },

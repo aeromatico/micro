@@ -48,6 +48,10 @@ class AuthController extends Controller
             return $denied;
         }
 
+        if (\Aero\Sites\Classes\ProFeatures::blocks($user, 'aero/chat/pwa')) {
+            return response()->json(['error' => 'pro_required', 'message' => 'El chat es parte del plan PRO.'], 403);
+        }
+
         $token = ChatToken::issue($tenant->id, $user->id, $request->userAgent());
 
         return response()->json(['data' => [

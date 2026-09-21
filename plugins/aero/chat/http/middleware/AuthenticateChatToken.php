@@ -30,6 +30,10 @@ class AuthenticateChatToken
             return $this->fail('unauthenticated', 'Tu acceso a este tenant ya no está vigente.');
         }
 
+        if (\Aero\Sites\Classes\ProFeatures::blocks($user, 'aero/chat/pwa')) {
+            return $this->proRequired();
+        }
+
         if (!$token->last_used_at || $token->last_used_at->lt(now()->subMinute())) {
             $token->forceFill(['last_used_at' => now(), 'expires_at' => now()->addDays(ChatToken::TTL_DAYS)])->save();
         }
@@ -40,6 +44,11 @@ class AuthenticateChatToken
         $request->attributes->set('tenant_id', $tenant->id);
 
         return $next($request);
+    }
+
+    protected function proRequired()
+    {
+        return response()->json(['error' => 'pro_required', 'message' => 'El chat es parte del plan PRO.'], 403);
     }
 
     protected function fail(string $code, string $message)

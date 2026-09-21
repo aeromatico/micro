@@ -10,7 +10,7 @@ class ChatToken extends Model
 
     protected $dates = ['last_used_at', 'expires_at'];
 
-    public const TTL_DAYS = 365; // deslizante: cada uso lo renueva, así la sesión dura hasta cerrar sesión
+    public const TTL_DAYS = 3650; // deslizante: cada uso lo renueva, así la sesión dura hasta cerrar sesión
 
     public static function hash(string $plain): string
     {

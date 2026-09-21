@@ -25,7 +25,7 @@ class Plugin extends PluginBase
             'name'        => 'aero.wapi::lang.plugin.name',
             'description' => 'aero.wapi::lang.plugin.description',
             'author'      => 'Aero',
-            'icon'        => 'icon-whatsapp',
+            'icon'        => 'icon-commenting',
             'homepage'    => 'https://github.com/aeromatico/wapi',
         ];
     }
@@ -119,7 +119,7 @@ class Plugin extends PluginBase
                 'label'       => 'aero.wapi::lang.settings.label',
                 'description' => 'aero.wapi::lang.settings.description',
                 'category'    => 'Sistema',
-                'icon'        => 'icon-whatsapp',
+                'icon'        => 'icon-commenting',
                 'class'       => \Aero\Wapi\Models\Settings::class,
                 'order'       => 521,
                 'permissions' => ['aero.hello.superadmin'],
@@ -140,7 +140,7 @@ class Plugin extends PluginBase
             'wapi' => [
                 'label'       => 'aero.wapi::lang.menu.wapi',
                 'url'         => Backend::url('aero/wapi/instances'),
-                'icon'        => 'icon-mobile-phone',
+                'icon'        => 'icon-mobile',
                 'permissions' => ['aero.hello.superadmin'],
                 'order'       => 211,
                 'sideMenu'    => [

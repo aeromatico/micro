@@ -1,0 +1,11 @@
+description = "Invitación a mejorar al plan PRO (el chat es una función PRO)"
+==
+<section class="center" x-show="screen === 'upgrade'">
+    <div class="card">
+        <div class="logo" aria-hidden="true">ae</div>
+        <h1>El chat es parte del plan PRO</h1>
+        <p class="muted">Atiende a tus clientes por WhatsApp desde el celular, con tu equipo, respuestas rápidas, pedidos y cobros por QR — todo en un solo lugar.</p>
+        <p class="muted">Contacta a soporte para activar el plan PRO en <strong x-text="tenant ? tenant.name : handle"></strong>.</p>
+        <button class="btn" type="button" @click="logout(true)">Salir</button>
+    </div>
+</section>

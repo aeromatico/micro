@@ -25,6 +25,13 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // Elemento PRO seleccionable en Settings → Sites (Funciones PRO).
+        \Event::listen('aero.sites.registerProFeatures', function () {
+            return [
+                'aero/chat/pwa' => ['plugin' => 'Aero.Chat', 'label' => 'Chat PWA (whatsapp.market.com.bo)'],
+            ];
+        });
+
         $this->app['router']->group([], function () {
             require __DIR__ . '/routes.php';
         });

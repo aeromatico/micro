@@ -1,5 +1,5 @@
 /* Service worker de la PWA de chat. La API nunca se cachea: los datos son de una sola sesión. */
-var VERSION = 'aero-chat-v20';
+var VERSION = 'aero-chat-v22';
 var ASSETS = __ASSETS__;
 
 self.addEventListener('install', function (e) {

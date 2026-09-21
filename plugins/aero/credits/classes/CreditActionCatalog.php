@@ -40,7 +40,7 @@ class CreditActionCatalog
                 'code'         => 'hello.message_send',
                 'label'        => 'Mensaje de WhatsApp enviado por API',
                 'plugin'       => 'Aero.Hello',
-                'type'         => 'naranja',
+                'type'         => 'bronce',
                 'default_cost' => 1,
             ],
         ];

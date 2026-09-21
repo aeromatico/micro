@@ -13,7 +13,7 @@ return new class extends Seeder
 {
     public function run(): void
     {
-        $type = CreditType::where('code', 'naranja')->first() ?: CreditType::orderBy('sort_order')->first();
+        $type = CreditType::where('code', 'bronce')->first() ?: CreditType::orderBy('sort_order')->first();
 
         if (!$type) {
             return;

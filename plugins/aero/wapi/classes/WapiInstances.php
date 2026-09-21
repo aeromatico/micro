@@ -106,10 +106,12 @@ class WapiInstances
 
         $url = Settings::webhookUrl($instanceId);
         $existing = collect($this->client->get('/webhooks')['data'] ?? [])
-            ->first(fn ($w) => ($w['instanceId'] ?? null) === $instanceId && ($w['url'] ?? null) === $url);
+            ->first(fn ($w) => ($w['instanceId'] ?? null) === $instanceId);
 
+        // Por instancia, no por URL: si cambia el dominio del panel se actualiza
+        // la URL del webhook existente en vez de crear un duplicado.
         if ($existing) {
-            $this->client->put('/webhooks/' . $existing['id'], ['events' => self::WEBHOOK_EVENTS, 'secret' => $secret, 'isActive' => true]);
+            $this->client->put('/webhooks/' . $existing['id'], ['url' => $url, 'events' => self::WEBHOOK_EVENTS, 'secret' => $secret, 'isActive' => true]);
             return;
         }
 
