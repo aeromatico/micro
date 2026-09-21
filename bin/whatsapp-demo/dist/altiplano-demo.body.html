@@ -373,7 +373,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             <span class="acct-name">Todas</span>
             <i class="dot" x-show="totalUnread > 0" x-text="totalUnread > 99 ? '99+' : totalUnread"></i>
         </button>
-        <template x-for="a in accounts" :key="a.id">
+        <template x-for="a in visibleAccounts" :key="a.id">
             <button type="button" class="acct" :class="{ on: accountId === a.id }" @click="pickAccount(a.id)" :aria-label="a.label" :title="a.label">
                 <span class="acct-badge" :style="'background:' + acctColor(a)" x-text="initials(a.label)"></span>
                 <span class="acct-name" x-text="a.label"></span>
@@ -552,13 +552,13 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 
     <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
         <h2>Nuevo chat</h2>
-        <p class="muted" x-show="!accounts.length">No hay números conectados.</p>
-        <label class="field" x-show="accounts.length > 1"><span>Enviar desde</span>
-            <select x-model.number="newForm.account"><template x-for="a in accounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
+        <p class="muted" x-show="!visibleAccounts.length">No hay números conectados.</p>
+        <label class="field" x-show="visibleAccounts.length > 1"><span>Enviar desde</span>
+            <select x-model.number="newForm.account"><template x-for="a in visibleAccounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
         <label class="field"><span>Número (con código de país)</span><input type="tel" inputmode="tel" x-model="newForm.phone" placeholder="591 7xxxxxxx" autocomplete="off" required></label>
         <label class="field"><span>Nombre (opcional)</span><input type="text" x-model="newForm.name" maxlength="120"></label>
         <label class="field"><span>Mensaje</span><textarea x-model="newForm.body" rows="3" maxlength="4096" placeholder="Escribe el primer mensaje" required></textarea></label>
-        <button type="submit" class="btn primary" :disabled="newBusy || !accounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
+        <button type="submit" class="btn primary" :disabled="newBusy || !visibleAccounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
     </form>
 
     <div class="sheet drawer" x-show="sheet === 'crm'" x-transition role="dialog" aria-label="Contacto y CRM">
@@ -874,9 +874,9 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
     var ACCOUNTS = [
-        { id: 1, label: 'Ventas', platform: 'whatsapp', phone_number: '+591 71234567', capabilities: CAPS },
-        { id: 2, label: 'Soporte', platform: 'whatsapp', phone_number: '+591 72345678', capabilities: CAPS },
-        { id: 3, label: 'Instagram', platform: 'instagram', phone_number: null, capabilities: {} },
+        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
+        { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
+        { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
     ];
     function acct(id) { return ACCOUNTS.filter(function (a) { return a.id === id; })[0]; }
 
@@ -1458,7 +1458,9 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             async refresh(first) {
                 try {
                     var r = await Promise.all([this.api('/accounts'), this.api('/agents'), this.fetchConvs()]);
-                    this.accounts = r[0]; this.agents = r[1]; this.applyConvs(r[2]);
+                    this.accounts = r[0]; this.agents = r[1];
+                    if (this.accountId && this.isHidden(this.accountId)) this.accountId = null;   // el número se desconectó
+                    this.applyConvs(r[2]);
                     if (!this.accountId && this.filter === 'all' && !this.q.trim()) jset('snap.' + this.handle + '.inbox', { accounts: r[0], agents: r[1], convs: r[2] });
                 } catch (e) { /* el banner de conexión ya avisa */ }
                 this.loading = false;
@@ -1484,12 +1486,16 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                 return this.api('/conversations?' + p.toString());
             },
             applyConvs: function (res) {
-                this.convs = res.data || [];
+                this.convs = (res.data || []).filter(function (c) { return !this.isHidden(c.account_id); }, this);
                 if (this.current) {
                     var fresh = this.convs.find(function (c) { return c.id === this.current.id; }, this);
                     if (fresh) this.current = Object.assign(this.current, fresh, { unread_count: 0 });
                 }
             },
+            // Solo se muestran los números conectados (rail, lista de chats y "Nuevo chat").
+            isOffline: function (a) { return !!a.status && ['connected', 'active'].indexOf(a.status) < 0; },
+            isHidden: function (accountId) { var a = this.accounts.find(function (x) { return x.id === accountId; }); return !!a && this.isOffline(a); },
+            get visibleAccounts() { return this.accounts.filter(function (a) { return !this.isOffline(a); }, this); },
             pickAccount: function (id) { this.accountId = id; this.loading = true; this.loadConvs(); },
             setFilter: function (id) { this.filter = id; this.loading = true; this.loadConvs(); },
 
@@ -1547,7 +1553,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 
             // ---------- nuevo chat ----------
             openNew: function () {
-                var acc = this.accounts.find(function (a) { return a.id === this.accountId; }, this) || this.accounts[0];
+                var acc = this.visibleAccounts.find(function (a) { return a.id === this.accountId; }, this) || this.visibleAccounts[0];
                 this.newForm = { account: acc ? acc.id : null, phone: '', name: '', body: '' };
                 this.sheet = 'new';
             },
@@ -1943,7 +1949,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             chargeLabel: function (st) { return { pending: 'Pendiente', paid: 'Pagado', expired: 'Vencido', cancelled: 'Cancelado' }[st] || st; },
 
             // ---------- presentación ----------
-            get totalUnread() { return this.accounts.reduce(function (t, a) { return t + (a.unread || 0); }, 0); },
+            get totalUnread() { return this.visibleAccounts.reduce(function (t, a) { return t + (a.unread || 0); }, 0); },
             get listTitle() { var a = this.accountId && this.accounts.find(function (x) { return x.id === this.accountId; }, this); return a ? a.label : (this.tenant ? this.tenant.name : 'Chats'); },
             get listSub() { var a = this.accountId && this.accounts.find(function (x) { return x.id === this.accountId; }, this); return a ? (PLATFORMS[a.platform] || a.platform) + (a.phone_number ? ' · ' + a.phone_number : '') : 'Todas las cuentas'; },
             get themeLabel() { return { auto: 'Automático (según tu dispositivo)', light: 'Claro', dark: 'Oscuro' }[this.theme]; },

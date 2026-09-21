@@ -62,9 +62,9 @@
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
     var ACCOUNTS = [
-        { id: 1, label: 'Ventas', platform: 'whatsapp', phone_number: '+591 71234567', capabilities: CAPS },
-        { id: 2, label: 'Soporte', platform: 'whatsapp', phone_number: '+591 72345678', capabilities: CAPS },
-        { id: 3, label: 'Instagram', platform: 'instagram', phone_number: null, capabilities: {} },
+        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
+        { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
+        { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
     ];
     function acct(id) { return ACCOUNTS.filter(function (a) { return a.id === id; })[0]; }
 
