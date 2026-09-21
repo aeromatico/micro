@@ -1,5 +1,5 @@
 {
-  "dry_run": true,
+  "dry_run": false,
   "docs_quiet_minutes": 15,
   "source_quiet_minutes": 30,
   "max_plugins_per_run": 3,
