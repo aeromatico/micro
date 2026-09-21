@@ -4,7 +4,7 @@ fields:
         type: text
         span: left
         required: true
-        placeholder: micro.clouds.com.bo
+        placeholder: market.com.bo
         comment: Sin protocolo (http/https), sin barra final.
 
     label:

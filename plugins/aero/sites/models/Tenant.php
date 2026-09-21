@@ -24,7 +24,7 @@ class Tenant extends Model
 
     public $rules = [
         'name'           => 'required|min:2|max:100',
-        'handle'         => 'required|alpha_dash|unique:aero_sites_tenants,handle',
+        'handle'         => 'required|alpha_dash|unique:aero_sites_tenants,handle|not_in:panel,www,api,admin,app',
         'root_domain_id' => 'required|exists:aero_sites_root_domains,id',
         'niche_type'     => 'required',
         'status'         => 'in:active,inactive,suspended,pending_payment',

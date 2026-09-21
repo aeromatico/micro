@@ -30,7 +30,7 @@ class Plugin extends PluginBase
             'description' => 'CRM minimalista por tenant — contactos, empresas, leads, pipeline y actividades',
             'author'      => 'Aero',
             'icon'        => 'icon-address-book',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

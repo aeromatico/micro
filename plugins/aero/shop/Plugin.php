@@ -15,7 +15,7 @@ class Plugin extends PluginBase
             'description' => 'Tienda en línea por tenant — catálogo con variantes, inventario, monedas y pedidos',
             'author'      => 'Aero',
             'icon'        => 'icon-shopping-cart',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

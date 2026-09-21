@@ -29,7 +29,7 @@ class Plugin extends PluginBase
             'description' => 'SaaS multitenant para micrositios web por nichos',
             'author'      => 'Aero',
             'icon'        => 'icon-globe',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

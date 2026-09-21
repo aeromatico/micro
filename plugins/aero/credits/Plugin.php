@@ -22,7 +22,7 @@ class Plugin extends PluginBase
             'description' => 'aero.credits::lang.plugin.description',
             'author'      => 'Aero',
             'icon'        => 'icon-diamond',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

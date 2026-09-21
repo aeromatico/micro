@@ -26,7 +26,7 @@ class Plugin extends PluginBase
             'description' => 'Gateway omnicanal de notificaciones transaccionales',
             'author'      => 'Aero',
             'icon'        => 'icon-bell',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

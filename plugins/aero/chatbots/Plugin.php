@@ -17,7 +17,7 @@ class Plugin extends PluginBase
             'description' => 'Chatbots de autorespuesta por tenant sobre Aero.Hello',
             'author'      => 'Aero',
             'icon'        => 'icon-android',
-            'homepage'    => 'https://micro.clouds.com.bo',
+            'homepage'    => 'https://panel.market.com.bo',
         ];
     }
 

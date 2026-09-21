@@ -115,7 +115,7 @@ class EventCatalog
                     'tenant_name' => 'Panadería Delicia', 'handle' => 'delicia',
                     'primary_domain' => 'delicia.market.com.bo',
                     'admin_email' => 'delicia@market.com.bo',
-                    'backend_url' => 'https://micro.clouds.com.bo/backend',
+                    'backend_url' => 'https://panel.market.com.bo/backend',
                 ],
             ],
             [
@@ -182,7 +182,7 @@ class EventCatalog
                 ] + self::TENANT_VARS,
                 'sample_context' => [
                     'invitee_name' => 'Carlos Rojas', 'role' => 'admin',
-                    'invite_url' => 'https://micro.clouds.com.bo/invite/abc123',
+                    'invite_url' => 'https://panel.market.com.bo/invite/abc123',
                     'tenant_name' => 'Panadería Delicia',
                 ],
             ],
@@ -798,7 +798,7 @@ class EventCatalog
                 ],
                 'sample_context' => [
                     'user_name' => 'Carlos Rojas',
-                    'login_url' => 'https://micro.clouds.com.bo/backend',
+                    'login_url' => 'https://panel.market.com.bo/backend',
                 ],
             ],
             [
@@ -817,7 +817,7 @@ class EventCatalog
                 ],
                 'sample_context' => [
                     'user_name' => 'Carlos Rojas',
-                    'reset_url' => 'https://micro.clouds.com.bo/backend/reset/abc123',
+                    'reset_url' => 'https://panel.market.com.bo/backend/reset/abc123',
                 ],
             ],
             [
