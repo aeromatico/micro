@@ -19,16 +19,16 @@
 
     window.chatApp = function () {
         return {
-            screen: 'boot', handle: '', tenant: null, user: null, token: null,
+            screen: 'boot', pendingCode: '', handle: '', tenant: null, user: null, token: null,
             gateInput: '', gateError: '', loginForm: { login: '', password: '' }, loginError: '', busy: false,
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '',
-            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', crmLoading: false, crmError: '', crmBusy: false, deptId: null,
+            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
             newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
-            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }],
+            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }],
             _timers: [], _toastTimer: null, _seq: 0,
 
             // ---------- arranque ----------
@@ -41,11 +41,21 @@
                 window.addEventListener('popstate', function () { self.current = null; self.sheet = ''; });
                 document.addEventListener('visibilitychange', function () { if (!document.hidden) self.refresh(); });
 
-                if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js').catch(function () {});
+                    // Clic en un aviso push con la app ya abierta: abre el chat indicado (/{espacio}/{codigo}).
+                    navigator.serviceWorker.addEventListener('message', function (e) {
+                        var d = e.data || {}; if (d.type !== 'open-url' || !self.token) return;
+                        var m = new URL(d.url, location.origin).pathname.split('/');
+                        if ((m[1] || '').toLowerCase() === self.handle && m[2]) { self.pendingCode = m[2].toLowerCase(); self.openPending(); }
+                    });
+                }
                 // Pide almacenamiento persistente: evita que el navegador borre la sesión y la caché por falta de espacio.
                 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
 
-                var handle = (location.pathname.split('/')[1] || '').toLowerCase();
+                var parts = location.pathname.split('/');
+                var handle = (parts[1] || '').toLowerCase();
+                this.pendingCode = (parts[2] || '').toLowerCase();
                 if (!handle) {
                     this.gateInput = store('last') || '';
                     this.screen = 'gate';
@@ -139,10 +149,19 @@
                 var self = this;
                 this.screen = 'inbox';
                 this.refresh(true);
+                this.openPending();
                 this.pushInit(); this.geoInit();
                 this.stopTimers();
                 this._timers.push(setInterval(function () { if (!document.hidden) self.refresh(); }, 8000));
                 this._timers.push(setInterval(function () { if (!document.hidden && self.current) self.loadMsgs(false); }, 4000));
+            },
+            // Enlace directo /{espacio}/{codigo}: abre esa conversación al entrar.
+            async openPending() {
+                var code = this.pendingCode; this.pendingCode = '';
+                if (!code) return;
+                if (!this.current) history.replaceState(null, '', '/' + this.handle);   // así "atrás" desde el chat vuelve a la lista
+                try { await this.openConv(await this.api('/conversations/code/' + encodeURIComponent(code))); }
+                catch (e) { if (e.status === 404) { this.notify('No encontramos esa conversación.'); history.replaceState(null, '', '/' + this.handle); } }
             },
             stopTimers: function () { this._timers.forEach(clearInterval); this._timers = []; },
 
@@ -190,7 +209,10 @@
                 this.current = c; this.msgs = []; this.draft = ''; this.mode = 'reply'; this.crm = null; this.ticketSubject = '';
                 this.pay = null; this.shop = null; this.shopCart = []; this.shopResults = [];
                 if (this.sheet === 'crm') { this.loadCrm(); this.loadPay(); this.loadShop(); }
-                if (!wasOpen) history.pushState({ chat: c.id }, '');
+                var url = c.code ? '/' + this.handle + '/' + c.code : location.pathname;
+                if (!wasOpen && history.state && history.state.chat) history.replaceState({ chat: c.id }, '', url);
+                else if (!wasOpen) history.pushState({ chat: c.id }, '', url);
+                else history.replaceState({ chat: c.id }, '', url);
                 this.loadQuick();
                 await this.loadMsgs(true);
                 if (c.unread_count > 0) {
@@ -202,7 +224,7 @@
                 var self = this; this.sheet = '';
                 if (this.recording) this.stopRec(false);
                 if (history.state && history.state.chat) { history.back(); setTimeout(function () { if (self.current) self.current = null; }, 200); }
-                else this.current = null;
+                else { this.current = null; if (location.pathname !== '/' + this.handle) history.replaceState(null, '', '/' + this.handle); }
             },
             // ---------- respuestas rápidas ("/") ----------
             async loadQuick() { try { this.quick = await this.api('/quick-replies'); } catch (e) {} },
@@ -490,7 +512,10 @@
                 this.crmLoading = false;
             },
             setCrm: function (data) {
+                var keep = this.contactDirty && this.crm && data && data.contact && this.crm.contact.id === data.contact.id;
                 this.crm = data;
+                var ct = data && data.contact;
+                if (!keep) this.cform = { first_name: (ct && ct.first_name) || '', last_name: (ct && ct.last_name) || '', email: (ct && ct.email) || '' };
                 if (!this.crmOk && this.crmTab !== 'sale') this.crmTab = 'pay';
                 if (data.departments && data.departments.length && !data.departments.some(function (d) { return d.id == this.deptId; }, this)) this.deptId = data.departments[0].id;
             },
@@ -502,6 +527,11 @@
                     this.setCrm(res.panel || res); this.loadMsgs(false); return res;
                 } catch (e) { this.notify(e.message); return null; }
                 finally { this.crmBusy = false; }
+            },
+            async saveContact() { if (await this.crmCall('/contact', this.cform)) this.notify('Contacto actualizado'); },
+            get contactDirty() {
+                var ct = this.crm && this.crm.contact; if (!ct) return false;
+                return (ct.first_name || '') !== this.cform.first_name.trim() || (ct.last_name || '') !== this.cform.last_name.trim() || (ct.email || '') !== this.cform.email.trim();
             },
             toggleList: function (l) { this.crmCall('/lists', { list_id: l.id, on: !(this.crm.list_ids || []).includes(l.id) }); },
             async createTicket() {

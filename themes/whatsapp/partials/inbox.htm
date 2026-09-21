@@ -213,6 +213,16 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </div>
 
                 <template x-if="crmOk"><div x-show="crmTab === 'contact'" class="pane">
+                    <h3>Datos del contacto</h3>
+                    <template x-if="crm.contact">
+                        <form class="card-in" @submit.prevent="saveContact()">
+                            <label class="field"><span>Nombre</span><input type="text" x-model="cform.first_name" autocomplete="off"></label>
+                            <label class="field"><span>Apellido</span><input type="text" x-model="cform.last_name" autocomplete="off"></label>
+                            <label class="field"><span>Correo</span><input type="email" x-model="cform.email" inputmode="email" autocomplete="off"></label>
+                            <label class="field"><span>Teléfono</span><input type="text" :value="crm.contact.phone" disabled></label>
+                            <button type="submit" class="btn primary" :disabled="crmBusy || !contactDirty">Guardar datos</button>
+                        </form>
+                    </template>
                     <h3>Listas de contactos</h3>
                     <div class="chips-wrap">
                         <template x-for="l in crm.all_lists" :key="l.id">

@@ -1,5 +1,5 @@
 /* Service worker de la PWA de chat. La API nunca se cachea: los datos son de una sola sesión. */
-var VERSION = 'aero-chat-v22';
+var VERSION = 'aero-chat-v23';
 var ASSETS = __ASSETS__;
 
 self.addEventListener('install', function (e) {
@@ -54,7 +54,11 @@ self.addEventListener('notificationclick', function (e) {
     var target = new URL((e.notification.data && e.notification.data.url) || '/', self.location.origin).href;
     e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].url.indexOf(self.location.origin) === 0 && 'focus' in list[i]) return list[i].focus();
+            if (list[i].url.indexOf(self.location.origin) === 0 && 'focus' in list[i]) {
+                // Ventana ya abierta: se le pide abrir el chat en vez de solo enfocarla.
+                list[i].postMessage({ type: 'open-url', url: target });
+                return list[i].focus();
+            }
         }
         return clients.openWindow(target);
     }));
