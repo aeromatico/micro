@@ -6,14 +6,30 @@ columns:
         label: Categoría
         relation: category
         select: name
+    plugin_version:
+        label: Versión plugin
+        type: text
+        width: 90px
     is_published:
         label: Publicado
         type: switch
     is_featured:
         label: Destacado
         type: switch
+    is_global:
+        label: Global
+        type: switch
+    version:
+        label: Versión
+        type: number
     views:
         label: Vistas
+        type: number
+    helpful_yes:
+        label: 'Útil (Sí)'
+        type: number
+    helpful_no:
+        label: 'Útil (No)'
         type: number
     updated_at:
         label: Actualizado

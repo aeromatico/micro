@@ -3,6 +3,7 @@
 use Aero\Docs\Models\Article;
 use Aero\Docs\Models\Category;
 use Cms\Classes\ComponentBase;
+use Illuminate\Support\Facades\RateLimiter;
 
 /**
  * Sirve el sitio público de documentación. Una sola pasada arma el árbol
@@ -24,6 +25,13 @@ class Docs extends ComponentBase
     public ?array $prev = null;
     public ?array $next = null;
     public array $featured = [];
+    public array $versions = [];
+
+    /** Estado del bloque "¿te resultó útil?". */
+    public int $helpfulYes = 0;
+    public int $helpfulNo = 0;
+    public bool $hasVoted = false;
+    public ?string $userVote = null;
 
     /** Mapa id => nodo por referencia, para subir por ancestros. */
     protected array $nodes = [];
@@ -41,7 +49,21 @@ class Docs extends ComponentBase
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'home',
                 'options' => ['home' => 'Portada', 'category' => 'Categoría', 'article' => 'Artículo']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
+            'base' => ['title' => 'Ruta base', 'type' => 'string', 'default' => 'documentacion',
+                'description' => 'Prefijo de las URLs (ej. "documentacion" o "ayuda").'],
         ];
+    }
+
+    /** Ámbito del sitio que atiende la petición: un tenant o la plataforma (null). */
+    protected function tenantId(): ?int
+    {
+        return \Aero\Docs\Classes\DocsScope::currentTenantId();
+    }
+
+    /** Prefijo de las URLs del centro de ayuda. */
+    protected function base(): string
+    {
+        return trim((string) $this->property('base'), '/') ?: 'documentacion';
     }
 
     public function onRun()
@@ -61,16 +83,18 @@ class Docs extends ComponentBase
 
     protected function buildTree(): void
     {
-        $cats = Category::active()->orderBy('nest_left')->get();
-        $arts = Article::published()->orderBy('sort_order')->orderBy('title')
+        $cats = $this->resolveTreeRoots(
+            Category::visibleIn($this->tenantId())->active()->orderBy('nest_left')->get()
+        );
+        $arts = Article::visibleIn($this->tenantId())->published()->orderBy('sort_order')->orderBy('title')
             ->get(['id', 'category_id', 'title', 'slug', 'excerpt', 'is_featured', 'reading_minutes'])
             ->groupBy('category_id');
 
         foreach ($cats as $c) {
             $this->nodes[$c->id] = [
                 'id' => $c->id, 'parent_id' => $c->parent_id, 'name' => $c->name, 'slug' => $c->slug,
-                'icon' => $c->icon, 'description' => $c->description,
-                'url' => url('documentacion/categoria/' . $c->slug), 'depth' => (int) $c->nest_depth,
+                'icon' => $c->icon, 'description' => $c->description, 'tenant_id' => $c->tenant_id,
+                'url' => url($this->base() . '/categoria/' . $c->slug), 'depth' => (int) $c->nest_depth,
                 'articles' => ($arts[$c->id] ?? collect())->map(fn ($a) => $this->articleRow($a, $c->id))->all(),
                 'children' => [], 'count' => 0,
             ];
@@ -102,6 +126,24 @@ class Docs extends ComponentBase
         $this->tree = $roots;
     }
 
+    /**
+     * Una categoría global puede colgar de un padre que no es global y que, por
+     * tanto, no se muestra en este sitio. En vez de exponer ese padre (de otro
+     * ámbito) o perder la categoría, la promovemos a raíz del árbol público.
+     */
+    protected function resolveTreeRoots($cats)
+    {
+        $ids = array_map('intval', $cats->pluck('id')->all());
+
+        foreach ($cats as $c) {
+            if ($c->parent_id && !in_array((int) $c->parent_id, $ids, true)) {
+                $c->parent_id = null;
+            }
+        }
+
+        return $cats->sortBy('nest_left')->values();
+    }
+
     /** Cuenta artículos del subárbol, descarta ramas vacías y llena el orden de lectura. */
     protected function finalize(array &$node): int
     {
@@ -126,7 +168,7 @@ class Docs extends ComponentBase
     {
         return [
             'id' => $a->id, 'title' => $a->title, 'slug' => $a->slug, 'excerpt' => $a->excerpt,
-            'url' => url('documentacion/' . $a->slug), 'category_id' => $catId,
+            'url' => url($this->base() . '/' . $a->slug), 'category_id' => $catId,
             'featured' => (bool) $a->is_featured, 'minutes' => $a->reading_minutes,
         ];
     }
@@ -144,7 +186,7 @@ class Docs extends ComponentBase
 
     protected function crumbs(array $chain): array
     {
-        $out = [['name' => 'Documentación', 'url' => url('documentacion')]];
+        $out = [['name' => 'Documentación', 'url' => url($this->base())]];
         foreach ($chain as $n) {
             $out[] = ['name' => $n['name'], 'url' => $n['url']];
         }
@@ -159,7 +201,7 @@ class Docs extends ComponentBase
 
         if ($this->q !== '') {
             $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $this->q) . '%';
-            $this->results = Article::published()
+            $this->results = Article::visibleIn($this->tenantId())->published()
                 ->where(fn ($w) => $w->where('title', 'like', $like)->orWhere('excerpt', 'like', $like)->orWhere('content', 'like', $like))
                 ->orderByRaw('title like ? desc', [$like])->limit(30)
                 ->get(['id', 'title', 'slug', 'excerpt', 'category_id'])
@@ -171,12 +213,22 @@ class Docs extends ComponentBase
 
     protected function loadCategory()
     {
+        // Si un slug existe en el tenant y también como global, gana el propio.
         $id = null;
+        $fallback = null;
         foreach ($this->nodes as $n) {
-            if ($n['slug'] === $this->property('slug')) {
+            if ($n['slug'] !== $this->property('slug')) {
+                continue;
+            }
+            if ($n['tenant_id'] !== null) {
                 $id = $n['id'];
             }
+            elseif ($fallback === null) {
+                $fallback = $n['id'];
+            }
         }
+        $id = $id ?: $fallback;
+
         if (!$id) {
             return $this->controller->run('404');
         }
@@ -188,17 +240,39 @@ class Docs extends ComponentBase
 
     protected function loadArticle()
     {
-        $article = Article::published()->where('slug', $this->property('slug'))->first();
+        // Ante un slug compartido con un artículo global, gana el del tenant.
+        $article = Article::visibleIn($this->tenantId())->published()
+            ->where('slug', $this->property('slug'))
+            ->orderByRaw('tenant_id is null')
+            ->first();
         if (!$article) {
             return $this->controller->run('404');
         }
+
+        // El contador arranca en 1000 y suma una visita por cada carga.
         Article::where('id', $article->id)->increment('views');
+        $article->refresh();
 
         $this->article = $article;
         $chain = $this->ancestry($article->category_id);
         $this->openIds = array_column($chain, 'id');
         $this->category = $chain ? end($chain) : null;
         $this->breadcrumbs = $this->crumbs($chain);
+
+        $this->helpfulYes = (int) $article->helpful_yes;
+        $this->helpfulNo = (int) $article->helpful_no;
+
+        $votes = (array) session()->get('aero_docs_feedback', []);
+        if (isset($votes[$article->id])) {
+            $this->hasVoted = true;
+            $this->userVote = $votes[$article->id];
+        }
+
+        $this->versions = $article->versions()
+            ->orderByDesc('version')
+            ->get(['version', 'created_at'])
+            ->map(fn ($v) => ['version' => (int) $v->version, 'date' => $v->created_at])
+            ->all();
 
         foreach ($this->flat as $i => $a) {
             if ($a['id'] === $article->id) {
@@ -208,5 +282,49 @@ class Docs extends ComponentBase
         }
         $this->page->title = $article->title . ' — Documentación';
         $this->page->description = $article->excerpt;
+    }
+
+    /**
+     * Registra el voto "¿te resultó útil?" una sola vez por sesión y artículo,
+     * con límite de intentos por IP.
+     */
+    public function onHelpful(): array
+    {
+        $article = Article::visibleIn($this->tenantId())->published()->find((int) post('id'));
+        if (!$article) {
+            return ['#docs-feedback' => '<div id="docs-feedback" class="mt-10 text-sm text-ink-dim">Artículo no encontrado.</div>'];
+        }
+
+        $this->helpfulYes = (int) $article->helpful_yes;
+        $this->helpfulNo = (int) $article->helpful_no;
+
+        $votes = (array) session()->get('aero_docs_feedback', []);
+        $this->userVote = $votes[$article->id] ?? null;
+        $this->hasVoted = $this->userVote !== null;
+
+        if (!$this->hasVoted) {
+            $key = 'aero_docs_feedback:' . request()->ip() . ':' . $article->id;
+            if (RateLimiter::tooManyAttempts($key, 5)) {
+                return ['#docs-feedback' => '<div id="docs-feedback" class="mt-10 text-sm text-ink-dim">Demasiados intentos. Intenta de nuevo más tarde.</div>'];
+            }
+            RateLimiter::hit($key, 86400);
+
+            $this->userVote = post('vote') === 'no' ? 'no' : 'yes';
+            $this->hasVoted = true;
+
+            Article::where('id', $article->id)
+                ->increment($this->userVote === 'yes' ? 'helpful_yes' : 'helpful_no');
+
+            $votes[$article->id] = $this->userVote;
+            session()->put('aero_docs_feedback', $votes);
+
+            $article->refresh();
+            $this->helpfulYes = (int) $article->helpful_yes;
+            $this->helpfulNo = (int) $article->helpful_no;
+        }
+
+        $this->article = $article;
+
+        return ['#docs-feedback' => $this->renderPartial('@feedback')];
     }
 }

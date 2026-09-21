@@ -30,3 +30,8 @@ fields:
         label: Activa
         type: switch
         default: true
+
+    is_global:
+        label: Global (todos los sitios)
+        comment: Visible en el centro de ayuda de todos los tenants.
+        type: switch

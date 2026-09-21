@@ -18,4 +18,27 @@ class Categories extends Controller
         parent::__construct();
         BackendMenu::setContext('Aero.Docs', 'docs', 'categories');
     }
+
+    public function listExtendQuery($query): void
+    {
+        $query->inCurrentScope();
+    }
+
+    /** Sin esto se podría abrir por URL un registro de otro sitio. */
+    public function formExtendQuery($query): void
+    {
+        $query->inCurrentScope();
+    }
+
+    public function formExtendModel($model): void
+    {
+        if (!$model->exists) {
+            $model->tenant_id = \Aero\Docs\Classes\DocsScope::currentTenantId();
+        }
+    }
+
+    public function reorderExtendQuery($query): void
+    {
+        $query->inCurrentScope();
+    }
 }

@@ -1,0 +1,33 @@
+<?php
+$versions = $formModel->exists
+    ? $formModel->versions()->orderByDesc('version')->limit(50)->get()
+    : collect();
+?>
+<?php if (!$formModel->exists): ?>
+    <p class="text-muted">Guarda el artículo para empezar a registrar versiones.</p>
+<?php elseif ($versions->isEmpty()): ?>
+    <p class="text-muted">Aún no hay versiones registradas.</p>
+<?php else: ?>
+    <table class="table" style="margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Versión</th>
+                <th>Autor</th>
+                <th>Fecha</th>
+                <th>Título</th>
+                <th>Minutos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($versions as $v): ?>
+                <tr>
+                    <td><strong>v<?= (int) $v->version ?></strong></td>
+                    <td><?= e($v->user?->full_name ?: 'Sistema') ?></td>
+                    <td><?= e($v->created_at) ?></td>
+                    <td><?= e($v->title) ?></td>
+                    <td><?= (int) $v->reading_minutes ?></td>
+                </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>

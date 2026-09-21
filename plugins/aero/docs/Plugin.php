@@ -45,7 +45,7 @@ class Plugin extends PluginBase
                 'sideMenu'    => [
                     'articles'   => ['label' => 'Artículos', 'icon' => 'icon-file-text-o', 'url' => Backend::url('aero/docs/articles'), 'permissions' => ['aero.docs.manage']],
                     'categories' => ['label' => 'Categorías', 'icon' => 'icon-sitemap', 'url' => Backend::url('aero/docs/categories'), 'permissions' => ['aero.docs.manage']],
-                    'reorder'    => ['label' => 'Ordenar árbol', 'icon' => 'icon-arrows', 'url' => Backend::url('aero/docs/categories/reorder'), 'permissions' => ['aero.docs.manage']],
+                    'reorder'    => ['label' => 'Ordenar árbol', 'icon' => 'icon-arrows-v', 'url' => Backend::url('aero/docs/categories/reorder'), 'permissions' => ['aero.docs.manage']],
                 ],
             ],
         ];

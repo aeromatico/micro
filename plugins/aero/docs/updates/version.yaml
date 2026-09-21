@@ -4,3 +4,39 @@
 1.0.2:
     - "Contenido de ejemplo."
     - seed_docs_demo.php
+1.0.3:
+    - "Documentación de los formularios del panel Sitio Web (tenant) de Aero.Sites."
+    - seed_sites_docs.php
+1.0.4:
+    - "Documentación de las funciones del panel (tenant) de Aero.Pay."
+    - seed_pay_docs.php
+1.0.5:
+    - "Documentación de las funciones del panel (tenant) de Aero.Crm."
+    - seed_crm_docs.php
+1.0.6:
+    - "Contador de visitas con base 1000, feedback «¿fue útil?» y versionado automático de cada actualización."
+    - add_engagement_and_versions.php
+1.0.7:
+    - "Campo 'versión del plugin' (plugin_version) en artículos y documento general de funcionalidades."
+    - add_plugin_version_to_aero_docs_articles.php
+    - seed_oferta_docs.php
+1.0.8:
+    - "Documentación de las funciones del panel (tenant) de Aero.Chatbots."
+    - seed_chatbots_docs.php
+1.0.9:
+    - "Documentación de las funciones del panel (tenant) de Aero.Shop."
+    - seed_shop_docs.php
+1.0.10:
+    - "Documentación de las funciones del panel (tenant) de Aero.Hello."
+    - seed_hello_docs.php
+1.1.0:
+    - "Docs multi-sitio: tenant_id en categorias y articulos (NULL = plataforma), slug unico por ambito, panel y sitio publico filtrados por sitio/tenant; los tenants administran su propia documentacion."
+    - add_tenant_id_to_docs_tables.php
+    - grant_docs_to_tenant_admin.php
+1.1.1:
+    - "Docs globales: is_global en categorias y articulos; el superadmin puede marcar documentacion de uso general para que aparezca en el centro de ayuda de todos los tenants. El componente Docs acepta 'base' para cambiar la ruta (ej. /ayuda)."
+    - add_global_flag_to_docs_tables.php
+1.1.2:
+    - "Documentación de las funciones del panel (tenant) de Aero.Docs y Aero.Sms."
+    - seed_docs_docs.php
+    - seed_sms_docs.php

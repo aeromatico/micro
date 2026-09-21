@@ -31,17 +31,36 @@ return new class extends Migration
             $table->longText('content_html')->nullable();
             $table->text('toc')->nullable();
             $table->unsignedInteger('reading_minutes')->default(1);
+            $table->unsignedInteger('version')->default(1);
             $table->unsignedInteger('sort_order')->default(0);
-            $table->unsignedBigInteger('views')->default(0);
+            $table->unsignedBigInteger('views')->default(1000);
+            $table->unsignedBigInteger('helpful_yes')->default(0);
+            $table->unsignedBigInteger('helpful_no')->default(0);
             $table->boolean('is_published')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('aero_docs_article_versions', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('article_id')->index();
+            $table->unsignedInteger('version')->default(1);
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('title');
+            $table->text('excerpt')->nullable();
+            $table->longText('content')->nullable()->comment('Markdown');
+            $table->longText('content_html')->nullable();
+            $table->text('toc')->nullable();
+            $table->unsignedInteger('reading_minutes')->default(1);
+            $table->timestamps();
+            $table->unique(['article_id', 'version']);
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('aero_docs_article_versions');
         Schema::dropIfExists('aero_docs_articles');
         Schema::dropIfExists('aero_docs_categories');
     }

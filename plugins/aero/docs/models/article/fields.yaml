@@ -21,6 +21,16 @@ fields:
         type: number
         default: 0
         span: right
+    plugin_version:
+        label: Versión del plugin
+        comment: Versión del plugin que se documentó (ej. 1.40.0). Sirve para detectar docs desactualizadas.
+        span: left
+        placeholder: '1.40.0'
+    is_global:
+        label: Global (todos los sitios)
+        comment: Se muestra tal cual en el centro de ayuda de todos los tenants.
+        type: switch
+        span: right
     excerpt:
         label: Resumen
         comment: Opcional; si lo dejas vacío se genera del contenido.
@@ -45,3 +55,39 @@ fields:
         type: datepicker
         mode: datetime
         span: left
+
+    _activity_section:
+        tab: Actividad
+        type: section
+        label: Actividad
+    version:
+        tab: Actividad
+        label: Versión actual
+        comment: Se incrementa automáticamente en cada actualización.
+        type: number
+        disabled: true
+        span: left
+    views:
+        tab: Actividad
+        label: Visitas
+        comment: Arranca en 1000.
+        type: number
+        disabled: true
+        span: right
+    helpful_yes:
+        tab: Actividad
+        label: '¿Fue útil? (Sí)'
+        type: number
+        disabled: true
+        span: left
+    helpful_no:
+        tab: Actividad
+        label: '¿Fue útil? (No)'
+        type: number
+        disabled: true
+        span: right
+    _versions:
+        tab: Actividad
+        type: partial
+        path: $/aero/docs/models/article/_versions.htm
+        span: full
