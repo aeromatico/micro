@@ -35,7 +35,14 @@ class Bridges
             $message->loadMissing(['contact', 'account']);
             $tenantId = (int) $message->account?->tenant_id;
 
+            // Enlace directo al chat en la PWA (/{espacio}/{codigo}); sin él, el push abre solo la lista.
+            $conv = \Aero\Hello\Models\Conversation::find($message->conversation_id, ['id', 'tenant_id', 'code']);
+            $urlTenant = $tenantId ?: (int) $conv?->tenant_id;
+            $handle = $urlTenant ? \Aero\Sites\Models\Tenant::find($urlTenant)?->handle : null;
+            $code = $conv?->code;
+
             Notify::fire('hello.message.received', [
+                'url'          => $handle && $code ? 'https://whatsapp.market.com.bo/' . $handle . '/' . $code : null,
                 'contact_name' => $message->contact?->name ?: 'Contacto',
                 'platform'     => $message->account?->platform ?? 'chat',
                 'preview'      => mb_strimwidth((string) $message->body, 0, 140, '…') ?: '[' . ($message->type ?? 'adjunto') . ']',
