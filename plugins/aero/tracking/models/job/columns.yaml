@@ -1,0 +1,8 @@
+columns:
+    id: {label: ID}
+    title: {label: Título, searchable: true}
+    reference: {label: Referencia, searchable: true}
+    status_label: {label: Estado, sortable: false}
+    asset: {label: Activo, relation: asset, select: name}
+    scheduled_at: {label: Programado, type: datetime}
+    created_at: {label: Creado, type: timetense}

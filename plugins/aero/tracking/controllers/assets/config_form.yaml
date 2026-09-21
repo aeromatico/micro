@@ -1,0 +1,10 @@
+name: Activos
+form: $/aero/tracking/models/asset/fields.yaml
+modelClass: Aero\Tracking\Models\Asset
+defaultRedirect: aero/tracking/assets
+create:
+    redirect: aero/tracking/assets/update/:id
+    redirectClose: aero/tracking/assets
+update:
+    redirect: aero/tracking/assets
+    redirectClose: aero/tracking/assets

@@ -1,0 +1,10 @@
+title: Trabajos
+list: $/aero/tracking/models/job/columns.yaml
+modelClass: Aero\Tracking\Models\Job
+recordUrl: aero/tracking/jobs/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

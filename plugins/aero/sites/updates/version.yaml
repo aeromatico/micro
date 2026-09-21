@@ -313,3 +313,7 @@
 1.43.0:
     - "Precio por periodo: prueba gratis de N días, mensual y anual por plan. El alta permite elegir periodo; la prueba activa el sitio sin pago (sin créditos del plan) y vence sola (aero.sites:expire-trials); mensual/anual registran su vencimiento al pagarse."
     - add_billing_periods.php
+
+1.44.0:
+    - "El rol tenant_admin recibe el permiso de Tracking (aero.tracking.use)."
+    - grant_tracking_to_tenant_admin.php

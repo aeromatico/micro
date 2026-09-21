@@ -1,0 +1,10 @@
+title: Activos
+list: $/aero/tracking/models/asset/columns.yaml
+modelClass: Aero\Tracking\Models\Asset
+recordUrl: aero/tracking/assets/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

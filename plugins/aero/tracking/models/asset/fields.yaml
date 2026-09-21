@@ -1,0 +1,17 @@
+fields:
+    name: {label: Nombre, span: left, required: true}
+    type: {label: Tipo, span: right, required: true, default: vehicle, comment: "Libre: motorcycle, truck, bus, person..."}
+    code: {label: Placa / código, span: left}
+    is_active: {label: Activo, type: switch, span: right, default: true}
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        emptyOption: '— Sin tenant —'
+        permissions: [aero.tracking.superadmin]
+    ingest_url:
+        label: URL para OwnTracks
+        type: text
+        readOnly: true
+        context: update
+        comment: "En OwnTracks: Ajustes → Conexión → Modo HTTP → pegar esta URL. Es secreta: quien la tenga puede enviar posiciones de este activo."

@@ -1,0 +1,27 @@
+fields:
+    title: {label: Título, span: left, comment: "Ej: Pedido #1042, Traslado a Santa Cruz"}
+    reference: {label: Referencia, span: right}
+    status: {label: Estado, type: dropdown, span: left, default: pending}
+    asset_id: {label: Activo asignado, type: dropdown, span: right, emptyOption: '— Sin asignar —'}
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        emptyOption: '— Sin tenant —'
+        permissions: [aero.tracking.superadmin]
+    scheduled_at: {label: Programado para, type: datepicker, mode: datetime, span: right}
+    notes: {label: Notas, type: textarea, size: small}
+    stops_input:
+        label: Paradas
+        type: repeater
+        prompt: Agregar parada
+        form:
+            fields:
+                type: {label: Tipo, type: dropdown, span: left, options: {pickup: Recojo, delivery: Entrega, service: Servicio}, default: delivery}
+                name: {label: Nombre, span: right}
+                address: {label: Dirección}
+                lat: {label: Latitud, span: left}
+                lng: {label: Longitud, span: right}
+                contact_name: {label: Contacto, span: left}
+                contact_phone: {label: Teléfono, span: right}
+                notes: {label: Notas, type: textarea, size: tiny}

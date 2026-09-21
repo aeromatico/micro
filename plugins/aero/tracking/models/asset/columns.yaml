@@ -1,0 +1,8 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    type: {label: Tipo, searchable: true}
+    code: {label: Placa / código, searchable: true}
+    status_label: {label: Estado, sortable: false}
+    last_seen_at: {label: Última señal, type: timetense}
+    last_battery: {label: Batería, type: number}
+    is_active: {label: Activo, type: switch}

@@ -1,0 +1,10 @@
+name: Trabajos
+form: $/aero/tracking/models/job/fields.yaml
+modelClass: Aero\Tracking\Models\Job
+defaultRedirect: aero/tracking/jobs
+create:
+    redirect: aero/tracking/jobs/update/:id
+    redirectClose: aero/tracking/jobs
+update:
+    redirect: aero/tracking/jobs
+    redirectClose: aero/tracking/jobs
