@@ -36,8 +36,7 @@ class Settings extends Model
 
     public static function getSignupPlanPrice(string $plan): float
     {
-        $default = $plan === 'pro' ? 99 : 49;
-        return (float) self::get("signup_price_{$plan}", $default);
+        return (float) (\Aero\Sites\Models\Plan::findByCode($plan)?->price ?? 0);
     }
 
     public static function getSignupBankAccountId(): ?int
@@ -110,6 +109,16 @@ class Settings extends Model
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    /** Catálogo agrupado por plugin: 'aero/hello/accounts' => 'Aero.Hello — Mensajería › Conectar'. */
+    public function getProFeaturesOptions(): array
+    {
+        $options = [];
+        foreach (\Aero\Sites\Classes\ProFeatures::catalog() as $key => $info) {
+            $options[$key] = $info['plugin'] . ' — ' . $info['label'];
+        }
+        return $options;
     }
 
     public function getSignupBankAccountIdOptions(): array

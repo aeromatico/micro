@@ -39,17 +39,11 @@ fields:
         comment: Cuenta de aero/qrbo contra la que se emite el QR de cobro de cada alta nueva. Sin una cuenta elegida, /alta no puede cobrar y queda deshabilitado.
         span: full
 
-    signup_price_negocio:
-        label: 'Precio plan Negocio (Bs/mes)'
-        type: number
-        default: 49
-        span: left
-
-    signup_price_pro:
-        label: 'Precio plan Pro (Bs/mes)'
-        type: number
-        default: 99
-        span: right
+    signup_plans_note:
+        label: Planes y precios
+        type: section
+        comment: Los planes (precio, créditos, plugins y características) se gestionan en Sites → Planes.
+        span: full
 
     signup_payment_ttl_minutes:
         label: Minutos para pagar el QR de alta
@@ -71,3 +65,18 @@ fields:
         default: 30
         comment: 'Se suma al costo mayorista de renovación (en USD, informado por clouds.com.bo) antes de mostrárselo al cliente en Bs junto a cada resultado de búsqueda — solo informativo, se cobra recién al renovar.'
         span: left
+
+    # ===================================
+    # Funciones PRO del panel
+    # ===================================
+
+    section_pro:
+        label: Funciones PRO del panel
+        type: section
+        comment: Marcá qué pantallas de cada plugin son PRO. El menú se sigue mostrando a todos los tenants, pero los del rol "Tenant Admin" (plan regular) verán una invitación a mejorar su plan al entrar. Los del rol "Tenant Admin PRO" acceden normalmente.
+
+    pro_features:
+        label: Pantallas PRO
+        type: checkboxlist
+        options: getProFeaturesOptions
+        span: full

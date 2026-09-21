@@ -1,0 +1,102 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+
+    code:
+        label: Código
+        type: text
+        span: right
+        required: true
+        comment: Identificador interno (minúsculas, sin espacios). Es lo que guarda cada tenant en su campo Plan — no lo cambies si ya hay tenants en este plan.
+
+    price:
+        label: 'Precio mensual (Bs)'
+        type: number
+        span: left
+        required: true
+
+    price_annual:
+        label: 'Precio anual (Bs)'
+        type: number
+        span: right
+        comment: Vacío = no se ofrece plan anual.
+
+    trial_days:
+        label: Días de prueba gratis
+        type: number
+        span: left
+        default: 0
+        comment: 0 = sin prueba. La prueba activa el sitio sin pago (sin los créditos del plan) y se suspende sola al vencer.
+
+    sort_order:
+        label: Orden
+        type: number
+        span: right
+        default: 0
+
+    is_active:
+        label: Activo (se ofrece en /alta)
+        type: switch
+        span: left
+        default: true
+
+    is_featured:
+        label: Destacado (recomendado)
+        type: switch
+        span: right
+
+    is_pro:
+        label: Plan PRO
+        type: switch
+        span: full
+        comment: El administrador del tenant recibe el rol Tenant Admin PRO (accede a las pantallas marcadas como PRO) y puede usar dominio propio.
+
+    description:
+        label: Descripción corta
+        type: textarea
+        size: tiny
+        span: full
+
+tabs:
+    fields:
+        credits:
+            tab: Créditos
+            label: Créditos incluidos por color
+            type: repeater
+            prompt: Agregar color
+            comment: Se otorgan al tenant una sola vez al activar este plan (o al cambiarse a él). Un monto por color.
+            form:
+                fields:
+                    credit_type:
+                        label: Color
+                        type: dropdown
+                        span: left
+                        options: getCreditTypeOptions
+                        required: true
+                    amount:
+                        label: Créditos
+                        type: number
+                        span: right
+                        required: true
+
+        plugins:
+            tab: Plugins
+            label: Plugins incluidos en el plan
+            type: checkboxlist
+            quickselect: true
+            options: getPluginsOptions
+            comment: Un tenant solo accede a las pantallas de los plugins marcados; las de plugins desmarcados le muestran la invitación a mejorar su plan. El superadmin nunca se ve afectado.
+
+        features:
+            tab: Características
+            label: Características que se muestran
+            type: repeater
+            prompt: Agregar característica
+            form:
+                fields:
+                    text:
+                        label: Texto
+                        type: text

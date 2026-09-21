@@ -55,7 +55,7 @@ class SignupWizard extends ComponentBase
         $usdToBobRate = Settings::getUsdToBobRate();
 
         $requestedPlan = (string) $this->param('plan');
-        $initialPlan = SignupPlans::exists($requestedPlan) ? $requestedPlan : 'negocio';
+        $initialPlan = SignupPlans::exists($requestedPlan) ? $requestedPlan : (array_key_first($plans) ?? '');
 
         $this->page['niches'] = $niches;
         $this->page['plans'] = $plans;
@@ -115,6 +115,7 @@ class SignupWizard extends ComponentBase
         $handle = $this->normalizeHandle(post('handle', ''));
         $niche  = post('niche', '');
         $plan   = post('plan', '');
+        $period = (string) post('period', 'monthly');
 
         $formatError = $this->validateHandleFormat($handle);
         if ($formatError) {
@@ -151,8 +152,18 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => 'Elige un plan válido.'];
         }
 
+        $planData = SignupPlans::find($plan);
+        if (!isset($planData['periods'][$period])) {
+            return ['success' => false, 'message' => 'Ese plan no ofrece el periodo elegido.'];
+        }
+
+        $isTrial = $period === 'trial';
+        if ($isTrial && $domainMode === 'register') {
+            return ['success' => false, 'message' => 'El registro de dominio no está disponible en la prueba gratis.'];
+        }
+
         $bankAccount = Settings::getSignupBankAccount();
-        if (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
+        if (!$isTrial && (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class))) {
             return ['success' => false, 'message' => 'El cobro no está disponible en este momento. Intenta más tarde.'];
         }
 
@@ -167,11 +178,11 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => 'No hay un dominio raíz activo configurado.'];
         }
 
-        $planData = SignupPlans::find($plan);
         // Un dominio existente es gratis (ya es del cliente, no hay nada
         // que registrar) — solo 'register' suma el cargo.
         $domainPrice = $domainMode === 'register' ? Settings::getDomainRegistrationPrice() : 0.0;
-        $amount = (float) $planData['price'] + $domainPrice;
+        $planPrice = (float) $planData['periods'][$period];
+        $amount = $planPrice + $domainPrice;
 
         try {
             $tenant = Tenant::create([
@@ -179,8 +190,9 @@ class SignupWizard extends ComponentBase
                 'handle'               => $handle,
                 'root_domain_id'       => $rootDomain->id,
                 'niche_type'           => $niche,
-                'plan'                 => $plan,
-                'plan_price'           => $planData['price'],
+                'plan_id'              => $planData['id'],
+                'plan_price'           => $planPrice,
+                'billing_period'       => $period,
                 'signup_domain'        => $domainMode !== '' ? $domain : null,
                 'signup_domain_source' => $domainMode !== '' ? $domainMode : null,
                 'status'               => 'pending_payment',
@@ -188,6 +200,10 @@ class SignupWizard extends ComponentBase
         } catch (\Illuminate\Database\QueryException $e) {
             // Carrera: alguien más tomó el mismo handle entre el chequeo y el create.
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
+        }
+
+        if ($isTrial) {
+            return $this->activateTrial($tenant, $planData, $rootDomain, $niche, $domainMode, $domain);
         }
 
         $description = "Alta Market — {$handle} (plan {$planData['label']})";
@@ -216,6 +232,7 @@ class SignupWizard extends ComponentBase
             'domain'       => $tenant->handle . '.' . $rootDomain->domain,
             'niche_label'  => app(NicheManager::class)->options()[$niche] ?? $niche,
             'plan_label'   => $planData['label'],
+            'period'       => $period,
             'amount'       => $amount,
             'own_domain'   => $domainMode !== '' ? $domain : null,
             'due_date'     => $qrCode->due_date?->toFormattedDateString(),
@@ -225,6 +242,45 @@ class SignupWizard extends ComponentBase
             // cuenta regresivo hasta aquí, no hasta due_date.
             'expires_at'   => $tenant->created_at->addMinutes(Settings::getSignupPaymentTtlMinutes())->toIso8601String(),
             'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
+        ];
+    }
+
+    /**
+     * Prueba gratis: sin QR ni pago. Aprovisiona el sitio y lo activa al
+     * instante (el paso 2 del front salta directo a crear el administrador).
+     * Vence sola: aero.sites:expire-trials.
+     */
+    protected function activateTrial(Tenant $tenant, array $planData, RootDomain $rootDomain, string $niche, string $domainMode, string $domain): array
+    {
+        $tenant->signup_payment_reference = (string) Str::uuid();
+        $tenant->save();
+
+        try {
+            app(\Aero\Sites\Classes\TenantProvisioner::class)->provisionSite($tenant);
+            $tenant->status = 'active';
+            $tenant->plan_expires_at = now()->addDays((int) $planData['trial_days']);
+            $tenant->save();
+        } catch (\Exception $e) {
+            \Log::error("Aero\\Sites: fallo al aprovisionar la prueba del tenant {$tenant->id}: " . $e->getMessage());
+            $tenant->purge();
+
+            return ['success' => false, 'message' => 'No pudimos crear tu sitio. Intenta de nuevo en unos minutos.'];
+        }
+
+        return [
+            'success'     => true,
+            'trial'       => true,
+            'tenant_id'   => $tenant->id,
+            'reference'   => $tenant->signup_payment_reference,
+            'domain'      => $tenant->handle . '.' . $rootDomain->domain,
+            'niche_label' => app(NicheManager::class)->options()[$niche] ?? $niche,
+            'plan_label'  => $planData['label'],
+            'period'      => 'trial',
+            'amount'      => 0,
+            'own_domain'  => $domainMode !== '' ? $domain : null,
+            'trial_ends_at' => $tenant->plan_expires_at->toFormattedDateString(),
+            'expires_at'  => null,
+            'qr_image'    => null,
         ];
     }
 
@@ -352,7 +408,7 @@ class SignupWizard extends ComponentBase
      */
     protected function validateDomainFormat(string $domain, string $plan): ?string
     {
-        if ($plan !== 'pro') {
+        if (!(SignupPlans::find($plan)['is_pro'] ?? false)) {
             return 'El dominio propio solo está disponible en el plan Pro.';
         }
 

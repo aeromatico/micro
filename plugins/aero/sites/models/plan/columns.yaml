@@ -1,0 +1,36 @@
+columns:
+    sort_order:
+        label: '#'
+        type: number
+        width: 50px
+
+    name:
+        label: Plan
+        type: text
+        searchable: true
+
+    code:
+        label: Código
+        type: text
+
+    price:
+        label: Mensual (Bs)
+        type: number
+
+    price_annual:
+        label: Anual (Bs)
+        type: number
+
+    trial_days:
+        label: Prueba (días)
+        type: number
+
+    is_pro:
+        label: PRO
+        type: switch
+        width: 70px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 80px

@@ -73,7 +73,8 @@ class TenantProvisioner
             'password_confirmation' => $password,
         ]);
 
-        $role = \Backend\Models\UserRole::where('code', 'tenant_admin')->first();
+        $role = \Backend\Models\UserRole::where('code', ProFeatures::roleCodeForPlan($tenant->plan))->first()
+            ?? \Backend\Models\UserRole::where('code', 'tenant_admin')->first();
         if ($role) {
             $user->role_id = $role->id;
         }

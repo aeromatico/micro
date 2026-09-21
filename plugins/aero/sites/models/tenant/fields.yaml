@@ -41,12 +41,12 @@ tabs:
                 pending_payment: 'Pendiente de pago (alta reservada)'
             tab: General
 
-        plan:
+        plan_id:
             label: Plan contratado
             type: dropdown
             span: right
             emptyOption: '— Sin plan (creado desde el backend) —'
-            options: getPlanOptions
+            options: getPlanIdOptions
             tab: General
 
         plan_price:
@@ -54,6 +54,25 @@ tabs:
             type: number
             span: left
             disabled: true
+            tab: General
+
+        billing_period:
+            label: Periodo contratado
+            type: dropdown
+            span: right
+            emptyOption: '—'
+            options:
+                trial: Prueba gratis
+                monthly: Mensual
+                annual: Anual
+            tab: General
+
+        plan_expires_at:
+            label: Vence el
+            type: datepicker
+            mode: datetime
+            span: left
+            comment: Las pruebas vencidas se suspenden solas (diario). Mensual/anual solo registran el vencimiento; edítalo para extender.
             tab: General
 
         signup_domain:

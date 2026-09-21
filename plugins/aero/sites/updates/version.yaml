@@ -297,3 +297,19 @@
 1.39.0:
     - "Otorga al rol tenant_admin aero.sms.use: cada tenant envía SMS y ve su consumo desde el panel."
     - grant_sms_to_tenant_admin.php
+
+1.40.0:
+    - "Rol Tenant Admin PRO y funciones PRO: el superadmin marca en Settings → Sites qué pantallas de cada plugin son PRO; el menú se ve para todos y el tenant regular que entra ve una invitación estática a mejorar su plan. El rol del admin sigue al plan del tenant."
+    - create_tenant_admin_pro_role.php
+
+1.41.0:
+    - "Planes de plataforma gestionables (Sites → Planes): precio, créditos por color, plugins activos por plan y características manuales. Reemplaza el catálogo fijo de SignupPlans y los precios de Settings; otorga los créditos al activar/cambiar de plan."
+    - create_plans_table.php
+
+1.42.0:
+    - "Los tenants se vinculan a su plan por id (plan_id), no por código: renombrar el código de un plan ya no deja huérfanos a sus tenants; un plan con tenants no se puede borrar."
+    - link_tenants_to_plans_by_id.php
+
+1.43.0:
+    - "Precio por periodo: prueba gratis de N días, mensual y anual por plan. El alta permite elegir periodo; la prueba activa el sitio sin pago (sin créditos del plan) y vence sola (aero.sites:expire-trials); mensual/anual registran su vencimiento al pagarse."
+    - add_billing_periods.php

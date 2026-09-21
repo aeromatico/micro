@@ -38,6 +38,7 @@ class Plugin extends PluginBase
         $this->registerNiches();
         $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
         $this->registerConsoleCommand('aero.sites:release-expired-signups', \Aero\Sites\Console\ReleaseExpiredSignups::class);
+        $this->registerConsoleCommand('aero.sites:expire-trials', \Aero\Sites\Console\ExpireTrials::class);
     }
 
     public function boot(): void
@@ -54,6 +55,48 @@ class Plugin extends PluginBase
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
         $this->bootZeptomailMailer();
+        $this->bootProFeaturesGate();
+    }
+
+    /**
+     * Pantallas PRO (Settings → Sites): el tenant_admin regular ve la
+     * invitación a mejorar el plan en lugar de la pantalla. Además, el rol
+     * tenant_admin_pro replica siempre los permisos de tenant_admin.
+     */
+    protected function bootProFeaturesGate(): void
+    {
+        Event::listen('backend.page.beforeDisplay', function ($controller, $action, $params) {
+            if ($controller instanceof \Aero\Sites\Controllers\Upgrade) {
+                return;
+            }
+            $key = \Aero\Sites\Classes\ProFeatures::keyForController($controller);
+            $user = \BackendAuth::getUser();
+            if (!\Aero\Sites\Classes\ProFeatures::blocks($user, $key)
+                && !\Aero\Sites\Classes\ProFeatures::blocksByPlan($user, $controller)) {
+                return;
+            }
+            if (request()->ajax()) {
+                throw new \ApplicationException('Esta función es parte del plan PRO.');
+            }
+            return \Backend::redirect('aero/sites/upgrade?from=' . urlencode($key));
+        });
+
+        Event::listen('backend.form.extendFields', function ($widget) {
+            $controller = $widget->getController();
+            if ($controller) {
+                \Aero\Sites\Classes\ProFeatures::lockFormElements($widget, $controller);
+            }
+        });
+
+        \Backend\Models\UserRole::extend(function ($model) {
+            $model->bindEvent('model.afterSave', function () use ($model) {
+                if ($model->code !== \Aero\Sites\Classes\ProFeatures::ROLE_REGULAR) {
+                    return;
+                }
+                \Backend\Models\UserRole::where('code', \Aero\Sites\Classes\ProFeatures::ROLE_PRO)
+                    ->update(['permissions' => json_encode($model->permissions ?? [])]);
+            });
+        });
     }
 
     /**
@@ -94,6 +137,7 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
+        $schedule->command('aero.sites:expire-trials')->dailyAt('03:40');
         // Cada minuto, no cada hora: la ventana real
         // (Settings::getSignupPaymentTtlMinutes(), default 3 min) es corta
         // a propósito — con un cron horario, un alta expirada podría
@@ -132,6 +176,7 @@ class Plugin extends PluginBase
             try {
                 app(\Aero\Sites\Classes\TenantProvisioner::class)->provisionSite($tenant);
                 $tenant->status = 'active';
+                $tenant->plan_expires_at = $tenant->billing_period === 'annual' ? now()->addYear() : now()->addMonth();
                 $tenant->save();
             } catch (\Exception $e) {
                 \Log::error("Aero\\Sites: fallo al aprovisionar el sitio del tenant {$tenant->id} tras pago confirmado: " . $e->getMessage());
@@ -505,6 +550,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/sites/tenants'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
+                    'plans' => [
+                        'label'       => 'Planes',
+                        'icon'        => 'icon-th-list',
+                        'url'         => Backend::url('aero/sites/plans'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
                     'rootdomains' => [
                         'label'       => 'aero.sites::lang.menu.root_domains',
                         'icon'        => 'icon-server',
@@ -559,6 +610,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/sites/designthemes'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
+                    'profeatures' => [
+                        'label'       => 'Funciones PRO',
+                        'icon'        => 'icon-star',
+                        'url'         => Backend::url('system/settings/update/aero/sites/settings'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
                     'componentgallery' => [
                         'label'       => 'aero.sites::lang.menu.component_gallery',
                         'icon'        => 'icon-th-large',
@@ -574,7 +631,7 @@ class Plugin extends PluginBase
     {
         return [
             'settings' => [
-                'label'       => 'Sites — Banco de imágenes',
+                'label'       => 'Sites',
                 'description' => 'API key del banco de imágenes usado por el generador de sitios con IA.',
                 'category'    => 'Sistema',
                 'icon'        => 'icon-image',

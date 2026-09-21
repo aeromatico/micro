@@ -51,7 +51,10 @@ function signupWizard(config) {
         step: 1,
         handle: '',
         niche: '',
-        plan: config.initialPlan && config.plans[config.initialPlan] ? config.initialPlan : 'negocio',
+        plan: config.initialPlan && config.plans[config.initialPlan] ? config.initialPlan : Object.keys(config.plans || {})[0] || '',
+
+        // Periodo de cobro: 'trial' | 'monthly' | 'annual' (los que ofrezca el plan).
+        period: 'monthly',
 
         checking: false,
         available: null,
@@ -91,28 +94,67 @@ function signupWizard(config) {
         adminError: '',
         done: null,
 
+        // Plan con dominio propio: viene del plan (is_pro), no de un id fijo.
+        init() {
+            this.ensurePeriod();
+        },
+
+        get isPro() {
+            return !!(this.plans[this.plan] && this.plans[this.plan].is_pro);
+        },
+
+        // Periodos que ofrece el plan elegido, con su precio y etiqueta.
+        get periodOptions() {
+            const p = this.plans[this.plan];
+            if (!p || !p.periods) return [];
+            const labels = {
+                trial: 'Prueba gratis ' + (p.trial_days || 0) + ' días',
+                monthly: 'Mensual',
+                annual: 'Anual',
+            };
+            return Object.keys(p.periods).map((id) => ({ id, label: labels[id] || id, price: p.periods[id] }));
+        },
+
+        get isTrial() {
+            return this.period === 'trial';
+        },
+
+        // Si el plan cambia y no ofrece el periodo actual, cae al primero disponible
+        // (mensual si existe).
+        ensurePeriod() {
+            const ids = this.periodOptions.map((o) => o.id);
+            if (!ids.includes(this.period)) {
+                this.period = ids.includes('monthly') ? 'monthly' : (ids[0] || 'monthly');
+            }
+            if (this.isTrial && this.domainMode === 'register') {
+                this.setDomainMode('');
+            }
+        },
+
         get canContinue() {
             if (!this.signupEnabled || this.available !== true || !this.niche || !this.plan || this.creating) {
                 return false;
             }
-            if (this.plan === 'pro' && this.domainMode === 'register' && !this.selectedDomain) return false;
-            if (this.plan === 'pro' && this.domainMode === 'existing' && !this.existingDomain.trim()) return false;
+            if (this.isPro && this.domainMode === 'register' && !this.selectedDomain) return false;
+            if (this.isPro && this.domainMode === 'existing' && !this.existingDomain.trim()) return false;
             return true;
         },
 
         get totalPrice() {
-            const base = (this.plans[this.plan] && this.plans[this.plan].price) || 0;
+            const periods = (this.plans[this.plan] && this.plans[this.plan].periods) || {};
+            const base = periods[this.period] || 0;
             // Se suma apenas elige "Registrar un dominio propio" — no hace
             // falta que ya haya buscado/elegido el nombre puntual, el cargo
             // es por el servicio de registro en sí, no por un dominio
             // específico.
-            const addsFee = this.plan === 'pro' && this.domainMode === 'register';
+            const addsFee = this.isPro && !this.isTrial && this.domainMode === 'register';
             return addsFee ? base + this.domainRegistrationPrice : base;
         },
 
         selectPlan(id) {
             this.plan = id;
-            if (id !== 'pro') {
+            this.ensurePeriod();
+            if (!this.isPro) {
                 this.setDomainMode('');
             }
         },
@@ -282,7 +324,7 @@ function signupWizard(config) {
             if (!this.canContinue) return;
             this.creating = true;
             this.createError = '';
-            const domainMode = this.plan === 'pro' ? this.domainMode : '';
+            const domainMode = this.isPro ? this.domainMode : '';
             const domainValue = domainMode === 'register'
                 ? (this.selectedDomain || '')
                 : (domainMode === 'existing' ? this.existingDomain.trim() : '');
@@ -292,6 +334,7 @@ function signupWizard(config) {
                     handle: this.handle,
                     niche: this.niche,
                     plan: this.plan,
+                    period: this.period,
                     domain_mode: domainMode,
                     domain: domainValue,
                 },
@@ -303,8 +346,13 @@ function signupWizard(config) {
                         return;
                     }
                     this.payment = data;
-                    this.paymentStatus = 'pending';
                     this.step = 2;
+                    if (data.trial) {
+                        // Prueba gratis: el sitio ya está activo, sin QR ni polling.
+                        this.paymentStatus = 'paid';
+                        return;
+                    }
+                    this.paymentStatus = 'pending';
                     this.startPolling();
                     this.startCountdown();
                 })

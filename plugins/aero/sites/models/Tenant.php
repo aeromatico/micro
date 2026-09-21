@@ -15,12 +15,12 @@ class Tenant extends Model
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
         'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
         'design_theme_id', 'theme_overrides',
-        'plan', 'plan_price', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain', 'signup_domain_source',
+        'plan_id', 'plan_price', 'billing_period', 'plan_expires_at', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain', 'signup_domain_source',
     ];
 
     protected $jsonable = ['theme_overrides'];
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'plan_expires_at'];
 
     public $rules = [
         'name'           => 'required|min:2|max:100',
@@ -36,6 +36,7 @@ class Tenant extends Model
         'backendUser'  => [\Backend\Models\User::class, 'key' => 'backend_user_id'],
         'siteDefinition' => [SiteDefinition::class, 'key' => 'site_id'],
         'designTheme'  => [DesignTheme::class, 'key' => 'design_theme_id'],
+        'plan'         => [Plan::class, 'key' => 'plan_id'],
     ];
 
     public $hasOne = [
@@ -108,11 +109,44 @@ class Tenant extends Model
         );
     }
 
+    /**
+     * Rol de panel que corresponde al plan (is_pro → tenant_admin_pro, cualquier
+     * otro → tenant_admin. Solo toca a los usuarios que ya tienen uno de esos
+     * dos roles (no pisa roles a medida ni al superadmin).
+     */
+    public function syncAdminRoles(): void
+    {
+        $target = \Aero\Sites\Classes\ProFeatures::roleCodeForPlan($this->plan);
+        $roles = \Backend\Models\UserRole::whereIn('code', [
+            \Aero\Sites\Classes\ProFeatures::ROLE_REGULAR,
+            \Aero\Sites\Classes\ProFeatures::ROLE_PRO,
+        ])->pluck('id', 'code');
+
+        if (!isset($roles[$target])) {
+            return;
+        }
+
+        $userIds = TenantUser::where('tenant_id', $this->id)->pluck('user_id')->push($this->backend_user_id)->filter()->unique();
+        \Backend\Models\User::whereIn('id', $userIds)
+            ->whereIn('role_id', $roles->values())
+            ->update(['role_id' => $roles[$target]]);
+    }
+
     public function afterSave(): void
     {
         static::forgetResolvedHosts();
 
         $dirty = $this->getDirty();
+
+        if (array_key_exists('plan_id', $dirty)) {
+            $this->syncAdminRoles();
+        }
+
+        // Créditos del plan: al activarse o al cambiar de plan estando activo.
+        // Idempotente por tenant+plan+color, así que reintentos no duplican.
+        if ($this->status === 'active' && (array_key_exists('plan_id', $dirty) || array_key_exists('status', $dirty))) {
+            \Aero\Sites\Classes\PlanCredits::grant($this);
+        }
 
         if (array_key_exists('status', $dirty) && $this->status === 'suspended') {
             $this->notifyTenantSuspended();
@@ -182,9 +216,9 @@ class Tenant extends Model
         ];
     }
 
-    public function getPlanOptions(): array
+    public function getPlanIdOptions(): array
     {
-        return \Aero\Sites\Classes\SignupPlans::labels();
+        return \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'code')->all();
     }
 
     public function getDesignThemeIdOptions(): array

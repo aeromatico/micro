@@ -1,0 +1,14 @@
+name: Plan
+form: $/aero/sites/models/plan/fields.yaml
+modelClass: Aero\Sites\Models\Plan
+defaultRedirect: aero/sites/plans
+
+create:
+    title: Nuevo Plan
+    redirect: aero/sites/plans/update/:id
+    redirectClose: aero/sites/plans
+
+update:
+    title: Editar Plan
+    redirect: aero/sites/plans
+    redirectClose: aero/sites/plans

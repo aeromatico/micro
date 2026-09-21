@@ -25,8 +25,23 @@ columns:
 
     plan:
         label: Plan
-        type: text
+        relation: plan
+        select: name
         width: 90px
+
+    billing_period:
+        label: Periodo
+        type: selectable
+        options:
+            trial: Prueba
+            monthly: Mensual
+            annual: Anual
+        width: 90px
+
+    plan_expires_at:
+        label: Vence
+        type: date
+        width: 110px
 
     signup_domain_source:
         label: Dominio propio
