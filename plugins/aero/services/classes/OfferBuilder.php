@@ -69,7 +69,8 @@ class OfferBuilder
         $ev['http'] = $this->basenames($dir . '/http/controllers', '*.php');
         $ev['routes'] = $this->routeLines($dir);
         $ev['changelog'] = $this->changelog($dir . '/updates/version.yaml');
-        $ev['docs'] = $this->docs($short);
+        // La categoría de docs puede llevar el nombre corto, el del plugin o el de su menú (p. ej. Pay → «Bolivia Pay»).
+        $ev['docs'] = $this->docs(array_filter([$short, $ev['name'], $ev['menu'][0] ?? null]));
 
         return $ev;
     }
@@ -130,10 +131,10 @@ class OfferBuilder
         return array_slice($notes, -30);
     }
 
-    /** Artículos publicados de la categoría de docs que lleva el nombre del plugin (y sus hijas). */
-    protected function docs(string $shortName): array
+    /** Artículos publicados de la categoría de docs que lleva el nombre del plugin (o alguno de sus nombres) (y sus hijas). */
+    protected function docs(array $names): array
     {
-        $root = DocCategory::withoutGlobalScopes()->whereRaw('LOWER(name) = ?', [mb_strtolower($shortName)])->pluck('id')->all();
+        $root = DocCategory::withoutGlobalScopes()->whereIn(\DB::raw('LOWER(name)'), array_map('mb_strtolower', $names))->pluck('id')->all();
         if (!$root) {
             return [];
         }
