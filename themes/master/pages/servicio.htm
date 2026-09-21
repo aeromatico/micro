@@ -1,0 +1,24 @@
+url = "/servicio/:slug"
+layout = "base"
+title = "Servicio — Market"
+
+[services]
+mode = "detail"
+slug = "{{ :slug }}"
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        {% if service.category %}<span>{{ service.category.name }}</span><span class="mx-2">/</span>{% endif %}
+        <span class="text-ink">{{ service.name }}</span>
+    </nav>
+
+    {% if service.code %}
+        <div class="service-page">{{ service.code|raw }}</div>
+    {% else %}
+        <h1 class="text-4xl font-bold text-pretty">{{ service.name }}</h1>
+        {% if service.summary %}<p class="mt-4 text-lg text-ink-dim">{{ service.summary }}</p>{% endif %}
+        {% if service.description %}<div class="docs-prose mt-8">{{ service.description|md }}</div>{% endif %}
+    {% endif %}
+</div>
