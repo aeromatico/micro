@@ -14,7 +14,7 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
         <p class="text-lg text-ink-dim max-w-[520px]">Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectados entre sí y potenciados con inteligencia artificial. Sin plugins sueltos, sin integraciones rotas.</p>
         <div class="flex items-center gap-3.5 flex-wrap pt-2">
             <a href="/comprar" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Crear mi cuenta</a>
-            <a href="#como-funciona" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-6 py-3.5 rounded-lg border border-edge hover:bg-canvas-elev2 hover:border-ink-dim transition-colors">Ver una demo</a>
+            <a href="#demo" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-6 py-3.5 rounded-lg border border-edge hover:bg-canvas-elev2 hover:border-ink-dim transition-colors">Ver una demo</a>
         </div>
         <p class="text-xs text-ink-dim pt-1">[Sin tarjeta de crédito requerida]</p>
     </div>
@@ -114,6 +114,18 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
             <h3 class="font-bold">Automatización con IA</h3>
             <p class="text-sm text-ink-dim">Chatbots y respuestas automáticas que atienden a tus clientes las 24 horas.</p>
         </div>
+    </div>
+</section>
+
+{# Demo interactiva — bandeja multiagente (bin/whatsapp-demo/build.py) #}
+<section id="demo" class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
+    <div class="max-w-[640px] mb-10">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Pruébalo tú mismo</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Vende, cobra y atiende desde un solo chat.</h2>
+        <p class="text-base text-ink-dim mt-3">Esta es la bandeja de WhatsApp de <strong>Altiplano Café</strong>, una tienda ficticia. Arma un pedido, envía un QR de cobro, asigna un ticket o delega una conversación: todo responde en vivo con datos de ejemplo.</p>
+    </div>
+    <div class="border border-edge rounded-2xl overflow-hidden shadow-2xl bg-canvas-elev">
+        <iframe src="{{ 'assets/demo/altiplano-demo.html' | theme }}?v=2" title="Demo interactivo de la bandeja de chat" loading="lazy" sandbox="allow-scripts" style="display:block;width:100%;height:min(760px,85vh);min-height:560px;border:0"></iframe>
     </div>
 </section>
 
