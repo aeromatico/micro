@@ -168,7 +168,9 @@
             async refresh(first) {
                 try {
                     var r = await Promise.all([this.api('/accounts'), this.api('/agents'), this.fetchConvs()]);
-                    this.accounts = r[0]; this.agents = r[1]; this.applyConvs(r[2]);
+                    this.accounts = r[0]; this.agents = r[1];
+                    if (this.accountId && this.isHidden(this.accountId)) this.accountId = null;   // el número se desconectó
+                    this.applyConvs(r[2]);
                     if (!this.accountId && this.filter === 'all' && !this.q.trim()) jset('snap.' + this.handle + '.inbox', { accounts: r[0], agents: r[1], convs: r[2] });
                 } catch (e) { /* el banner de conexión ya avisa */ }
                 this.loading = false;
@@ -194,12 +196,16 @@
                 return this.api('/conversations?' + p.toString());
             },
             applyConvs: function (res) {
-                this.convs = res.data || [];
+                this.convs = (res.data || []).filter(function (c) { return !this.isHidden(c.account_id); }, this);
                 if (this.current) {
                     var fresh = this.convs.find(function (c) { return c.id === this.current.id; }, this);
                     if (fresh) this.current = Object.assign(this.current, fresh, { unread_count: 0 });
                 }
             },
+            // Solo se muestran los números conectados (rail, lista de chats y "Nuevo chat").
+            isOffline: function (a) { return !!a.status && ['connected', 'active'].indexOf(a.status) < 0; },
+            isHidden: function (accountId) { var a = this.accounts.find(function (x) { return x.id === accountId; }); return !!a && this.isOffline(a); },
+            get visibleAccounts() { return this.accounts.filter(function (a) { return !this.isOffline(a); }, this); },
             pickAccount: function (id) { this.accountId = id; this.loading = true; this.loadConvs(); },
             setFilter: function (id) { this.filter = id; this.loading = true; this.loadConvs(); },
 
@@ -257,7 +263,7 @@
 
             // ---------- nuevo chat ----------
             openNew: function () {
-                var acc = this.accounts.find(function (a) { return a.id === this.accountId; }, this) || this.accounts[0];
+                var acc = this.visibleAccounts.find(function (a) { return a.id === this.accountId; }, this) || this.visibleAccounts[0];
                 this.newForm = { account: acc ? acc.id : null, phone: '', name: '', body: '' };
                 this.sheet = 'new';
             },
@@ -653,7 +659,7 @@
             chargeLabel: function (st) { return { pending: 'Pendiente', paid: 'Pagado', expired: 'Vencido', cancelled: 'Cancelado' }[st] || st; },
 
             // ---------- presentación ----------
-            get totalUnread() { return this.accounts.reduce(function (t, a) { return t + (a.unread || 0); }, 0); },
+            get totalUnread() { return this.visibleAccounts.reduce(function (t, a) { return t + (a.unread || 0); }, 0); },
             get listTitle() { var a = this.accountId && this.accounts.find(function (x) { return x.id === this.accountId; }, this); return a ? a.label : (this.tenant ? this.tenant.name : 'Chats'); },
             get listSub() { var a = this.accountId && this.accounts.find(function (x) { return x.id === this.accountId; }, this); return a ? (PLATFORMS[a.platform] || a.platform) + (a.phone_number ? ' · ' + a.phone_number : '') : 'Todas las cuentas'; },
             get themeLabel() { return { auto: 'Automático (según tu dispositivo)', light: 'Claro', dark: 'Oscuro' }[this.theme]; },
