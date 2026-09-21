@@ -19,10 +19,32 @@ slug = "{{ :slug }}"
 
         <header class="mb-8">
             <h1 class="text-4xl sm:text-[42px] font-bold text-pretty">{{ docs.article.title }}</h1>
-            <p class="text-sm text-ink-dim mt-3">{{ docs.article.reading_minutes }} min de lectura · Actualizado {{ docs.article.updated_at|date('d/m/Y') }}</p>
+            <p class="text-sm text-ink-dim mt-3">
+                {{ docs.article.reading_minutes }} min de lectura · v{{ docs.article.version }} · Actualizado {{ docs.article.updated_at|date('d/m/Y') }} · {{ docs.article.views|number_format(0, ',', '.') }} visitas
+            </p>
         </header>
 
         <div class="docs-prose" id="docs-body">{{ docs.article.content_html|raw }}</div>
+
+        {% partial '@feedback' %}
+
+        {% if docs.versions|length > 1 %}
+        <section class="mt-10" x-data="{ open: false }">
+            <button type="button" @click="open = !open" class="inline-flex items-center gap-2 text-sm font-semibold text-ink-dim hover:text-ink">
+                <svg class="w-4 h-4 transition-transform" :class="open && 'rotate-90'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+                Historial de versiones ({{ docs.versions|length }})
+            </button>
+            <ul x-show="open" x-cloak class="mt-4 border-l border-edge">
+                {% for v in docs.versions %}
+                    <li class="-ml-px border-l-2 {{ loop.first ? 'border-accent' : 'border-transparent' }} pl-4 py-1.5 text-sm">
+                        <span class="font-semibold text-ink">v{{ v.version }}</span>
+                        <span class="text-ink-dim">· {{ v.date|date('d/m/Y H:i') }}</span>
+                        {% if loop.first %}<span class="ml-1 text-xs text-accent">actual</span>{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
 
         <nav class="grid sm:grid-cols-2 gap-4 mt-16 pt-8 border-t border-edge">
             {% if docs.prev %}

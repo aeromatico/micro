@@ -5,6 +5,7 @@ module.exports = {
         './layouts/**/*.htm',
         './pages/**/*.htm',
         './partials/**/*.htm',
+        '../../plugins/aero/docs/components/**/*.htm',
     ],
     theme: {
         extend: {
