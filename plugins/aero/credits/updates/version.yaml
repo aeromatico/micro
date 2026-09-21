@@ -42,3 +42,7 @@
 1.9.0:
     - "Billetera de dinero (Bs): el sobrante de las recargas va a una billetera que se cambia por cualquier moneda. Misma garantía contable del libro mayor; unidad 0,0001 Bs para que nunca se pierda un céntimo."
     - add_money_wallet.php
+
+1.10.0:
+    - "Aviso de recarga acreditada: se dispara desde el listener del pago (fuera de la transacción), con tenant_name y registro en el log; plantillas de bandeja y push para los avisos de recarga."
+    - seed_purchase_inapp_push_templates.php

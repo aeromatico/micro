@@ -188,7 +188,17 @@ class Plugin extends PluginBase
             }
 
             try {
-                \Aero\Credits\Classes\Recharges::settle($purchase, (float) $payment->amount);
+                $wasReview = $purchase->status === \Aero\Credits\Models\CreditPurchase::REVIEW;
+                $settled = \Aero\Credits\Classes\Recharges::settle($purchase, (float) $payment->amount);
+                $purchase->refresh();
+
+                // El aviso sale acá, con la acreditación ya confirmada y fuera de la transacción.
+                if ($settled) {
+                    \Aero\Credits\Classes\Recharges::announce('credits.purchase.paid', $purchase);
+                }
+                elseif ($purchase->status === \Aero\Credits\Models\CreditPurchase::REVIEW && !$wasReview) {
+                    \Aero\Credits\Classes\Recharges::announce('credits.purchase.review', $purchase, ['paid_bob' => (float) $payment->amount]);
+                }
             }
             catch (\Throwable $e) {
                 \Log::error("Aero.Credits: fallo al acreditar la recarga #{$purchase->id} tras pago confirmado: " . $e->getMessage());

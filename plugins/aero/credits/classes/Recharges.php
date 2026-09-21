@@ -210,7 +210,6 @@ class Recharges
             if ($paidAmount !== null && $paidAmount + 0.005 < (float) $p->amount_bob) {
                 $p->update(['status' => CreditPurchase::REVIEW]);
                 \Log::error("Aero.Credits: pago de Bs {$paidAmount} menor al monto de la recarga #{$p->id} (Bs {$p->amount_bob}); requiere revisión manual.");
-                DB::afterCommit(fn () => static::notify('credits.purchase.review', $p, ['paid_bob' => $paidAmount]));
                 return false;
             }
 
@@ -233,14 +232,19 @@ class Recharges
 
             $p->update(['status' => CreditPurchase::PAID, 'paid_at' => now()]);
 
-            DB::afterCommit(fn () => static::notify('credits.purchase.paid', $p));
-
             return true;
         });
     }
 
-    /** Aviso vía Aero.Notify (dependencia blanda). Nunca rompe la acreditación si el aviso falla. */
-    protected static function notify(string $event, CreditPurchase $p, array $extra = []): void
+    /**
+     * Avisa vía Aero.Notify (dependencia blanda) de una recarga acreditada o con
+     * pago incompleto. Lo llama el listener del pago DESPUÉS de settle(), fuera
+     * de cualquier transacción, y deja rastro en el log. Nunca rompe la
+     * acreditación: si el aviso falla, solo se registra.
+     *
+     * @param string $event 'credits.purchase.paid' | 'credits.purchase.review'
+     */
+    public static function announce(string $event, CreditPurchase $p, array $extra = []): void
     {
         if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
             return;
@@ -253,14 +257,19 @@ class Recharges
                 $detail[] = Money::label((int) $p->wallet_units) . ' a tu billetera';
             }
 
-            $detail = implode(' · ', $detail);
+            $tenantName = class_exists(\Aero\Sites\Models\Tenant::class)
+                ? \Aero\Sites\Models\Tenant::find($p->tenant_id)?->name
+                : null;
 
-            \Aero\Notify\Classes\Notify::fire($event, $extra + [
+            $deliveries = \Aero\Notify\Classes\Notify::fire($event, $extra + [
                 'purchase_id'  => $p->id,
                 'amount_bob'   => $p->amount_bob,
-                'coins_detail' => $detail,
+                'coins_detail' => implode(' · ', $detail),
                 'coins_total'  => $p->totalCoins(),
+                'tenant_name'  => $tenantName,
             ], ['tenant_id' => $p->tenant_id, 'dedup_key' => "{$event}:{$p->id}"]);
+
+            \Log::info("Aero.Credits: aviso {$event} de la recarga #{$p->id} → " . count($deliveries) . ' entrega(s)');
         }
         catch (\Throwable $e) {
             \Log::error("Aero.Credits: no se pudo enviar el aviso {$event} de la recarga #{$p->id}: " . $e->getMessage());
