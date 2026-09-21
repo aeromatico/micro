@@ -21,7 +21,8 @@ class Ticket extends Model
     public $table = 'aero_crm_tickets';
 
     public $fillable = [
-        'tenant_id', 'subject', 'description', 'department_id', 'contact_id',
+        'tenant_id', 'origin_tenant_id', 'subject', 'description', 'department_id', 'contact_id',
+        'frontend_user_id', 'access_token', 'unread_for_agent', 'last_customer_reply_at',
         'requester_name', 'requester_email', 'requester_phone',
         'assigned_to', 'status', 'priority', 'source', 'new_reply', 'reply_internal',
     ];
@@ -45,10 +46,12 @@ class Ticket extends Model
     protected $dates = ['first_response_at', 'closed_at'];
 
     public $belongsTo = [
-        'tenant'     => [Tenant::class],
-        'department' => [Department::class],
-        'contact'    => [Contact::class],
-        'assignee'   => [User::class, 'key' => 'assigned_to'],
+        'tenant'       => [Tenant::class],
+        'originTenant' => [Tenant::class, 'key' => 'origin_tenant_id'],
+        'department'   => [Department::class],
+        'contact'      => [Contact::class],
+        'assignee'     => [User::class, 'key' => 'assigned_to'],
+        'frontendUser' => [\RainLab\User\Models\User::class, 'key' => 'frontend_user_id'],
     ];
 
     public $hasMany = [

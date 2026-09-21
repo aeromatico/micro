@@ -9,7 +9,7 @@ fields:
     purchase_ttl_minutes:
         label: Minutos para pagar el QR de una recarga
         type: number
-        default: 15
+        default: 3
         span: right
 
     recharge_amounts:

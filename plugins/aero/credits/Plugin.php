@@ -38,7 +38,7 @@ class Plugin extends PluginBase
     public function registerSchedule($schedule): void
     {
         $schedule->command('credits:sweep-holds')->everyFiveMinutes();
-        $schedule->command('credits:expire-purchases')->everyFiveMinutes();
+        $schedule->command('credits:expire-purchases')->everyMinute();
         $schedule->command('credits:verify')->dailyAt('04:10');
     }
 
@@ -80,16 +80,6 @@ class Plugin extends PluginBase
                     })->values()->all();
                 });
 
-                $money = Cache::remember('aero.credits.navbar_money', 30, fn () => Credits::moneySummary());
-                $rows[] = [
-                    'color' => '#22c55e',
-                    'value' => 0,
-                    'text'  => 'Bs ' . number_format($money['active'], 2, ',', '.'),
-                    'title' => "Saldo en Bs de todos los tenants\nEn billeteras hoy: Bs " . number_format($money['active'], 2, ',', '.')
-                        . "\nDepositado: Bs " . number_format($money['deposited'], 2, ',', '.')
-                        . "\nGastado en monedas: Bs " . number_format($money['spent'], 2, ',', '.'),
-                ];
-
                 return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
                     'rows'      => $rows,
                     'link'      => Backend::url('aero/credits/summary'),
@@ -113,13 +103,8 @@ class Plugin extends PluginBase
                 'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0, 0, ',', '.'),
             ])->all();
 
-            $walletUnits = Credits::walletUnits($tenantId);
-            $rows[] = [
-                'color' => '#22c55e',
-                'value' => 0,
-                'text'  => 'Bs ' . \Aero\Credits\Classes\Money::format($walletUnits),
-                'title' => 'Saldo en Bs: ' . \Aero\Credits\Classes\Money::format($walletUnits) . ' — cámbialo por cualquier moneda',
-            ];
+            // "Wallet" vive en el menú inferior (antes era «Mis monedas» en el menú lateral).
+            $walletItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Wallet"><a href="' . e(Backend::url('aero/credits/wallet')) . '"><span class="nav-icon"><i class="icon-money"></i></span><span class="nav-label">Wallet</span></a></li></ul></div>';
 
             return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
                 'rows'      => $rows,
@@ -127,7 +112,7 @@ class Plugin extends PluginBase
                 'plusUrl'   => Backend::url('aero/credits/wallet'),
                 'plusTitle' => 'Recargar monedas',
                 'title'     => 'Tu saldo de monedas',
-            ]);
+            ]) . $walletItem;
         });
     }
 
@@ -240,12 +225,6 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         return [
-            'wallet' => [
-                'label'       => 'Mis monedas',
-                'url'         => Backend::url('aero/credits/wallet'),
-                'icon'        => 'icon-money',
-                'order'       => 569,
-            ],
             'credits' => [
                 'label'       => 'aero.credits::lang.menu.credits',
                 'url'         => Backend::url('aero/credits/creditaccounts'),

@@ -7,16 +7,32 @@ $short = function ($n) {
 };
 ?>
 <?php if ($rows): ?>
-    <li class="mainmenu-item hidden-xs" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 0" title="<?= e($title) ?>">
-        <a href="<?= e($link) ?>" style="display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none">
-            <?php foreach ($rows as $row): ?>
-                <span title="<?= e($row['title']) ?>" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#8492a6;white-space:nowrap">
-                    <span style="width:7px;height:7px;border-radius:50%;background:<?= e($row['color']) ?>;display:inline-block;flex:0 0 auto"></span>
-                    <?= isset($row['text']) ? e($row['text']) : $short($row['value']) ?>
-                </span>
+    <style>
+        .cw-item { display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:6px 0 6px 8px; }
+        .cw-item a.cw-link { display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-decoration:none; }
+        .cw-row { display:inline-flex; align-items:center; gap:4px; font-size:10px; color:#8492a6; white-space:nowrap; }
+        .cw-dot { width:7px; height:7px; border-radius:50%; display:inline-block; flex:0 0 auto; }
+        .cw-coins { display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+        /* Menú expandido: las monedas en una sola línea; Bs debajo. */
+        body.reveal-left-side-menu .cw-coins { flex-direction:row; flex-wrap:nowrap; gap:10px; }
+        body.reveal-left-side-menu .cw-row { font-size:11px; }
+    </style>
+    <?php
+        $coins = array_filter($rows, fn ($r) => !isset($r['text']));
+        $bs    = array_filter($rows, fn ($r) => isset($r['text']));
+    ?>
+    <li class="mainmenu-item hidden-xs cw-item" title="<?= e($title) ?>">
+        <a href="<?= e($link) ?>" class="cw-link">
+            <span class="cw-coins">
+                <?php foreach ($coins as $row): ?>
+                    <span class="cw-row" title="<?= e($row['title']) ?>">
+                        <span class="cw-dot" style="background:<?= e($row['color']) ?>"></span><?= $short($row['value']) ?>
+                    </span>
+                <?php endforeach ?>
+            </span>
+            <?php foreach ($bs as $row): ?>
+                <span class="cw-row" title="<?= e($row['title']) ?>"><?= e($row['text']) ?></span>
             <?php endforeach ?>
         </a>
-        <a href="<?= e($plusUrl) ?>" title="<?= e($plusTitle) ?>"
-           style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#3b82f6;color:#fff;font-size:14px;line-height:1;font-weight:700;text-decoration:none;margin-top:2px">+</a>
     </li>
 <?php endif ?>

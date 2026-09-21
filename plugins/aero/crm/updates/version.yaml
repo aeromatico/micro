@@ -135,3 +135,9 @@
 1.6.1:
     - "Respuestas rapidas: campo Orden (por defecto 10) y contador de usos (uses_count) que sube cada vez que un agente invoca la respuesta desde el chat."
     - add_order_and_uses_to_quick_replies.php
+1.7.0:
+    - "Portal de soporte del micrositio: los clientes (rainlab:user o invitados) abren y siguen sus tickets; autor frontend/solicitante distinguido en el panel, enlace privado por token para invitados y aviso de respuestas sin leer para el agente."
+    - add_frontend_portal_to_ticket_tables.php
+1.8.0:
+    - "Soporte de plataforma para tenants: los tenants abren y siguen tickets en la mesa de ayuda de la plataforma (origin_tenant_id), separado del CRM propio del tenant."
+    - add_origin_tenant_to_tickets.php

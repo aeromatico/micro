@@ -8,6 +8,12 @@ columns:
         label: Asunto
         searchable: true
 
+    originTenant:
+        label: Tenant
+        relation: originTenant
+        select: name
+        width: 140px
+
     requester_name:
         label: Solicitante
         searchable: true

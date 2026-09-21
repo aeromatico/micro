@@ -35,7 +35,7 @@ class Settings extends Model
     /** Minutos que el tenant tiene para pagar el QR de una recarga. */
     public static function purchaseTtlMinutes(): int
     {
-        return max(1, (int) self::get('purchase_ttl_minutes', 15));
+        return max(1, (int) self::get('purchase_ttl_minutes', 3));
     }
 
     /** Cuenta bancaria que recibe las recargas; sin elegir, usa la del alta pública de Aero.Sites. */
