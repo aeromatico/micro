@@ -1,0 +1,11 @@
+{
+  "branch": "main",
+  "quiet_minutes": 8,
+  "max_file_mb": 2,
+  "push": {
+    "auto": false
+  },
+  "cron": {
+    "commit_every_minutes": 10
+  }
+}
