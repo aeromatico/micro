@@ -142,7 +142,7 @@ tabs:
         plugin_links:
             tab: Plataforma
             label: Plugins ligados
-            commentAbove: Opcional. Deja vacío si el servicio es genérico; agrega uno o varios si depende de la plataforma.
+            commentAbove: 'Opcional; vacío = servicio genérico. Se lee siempre desde el servicio: «Este servicio está CONSTRUIDO CON el plugin X» (es su base) · «se INTEGRA CON el plugin X» (se conecta, pero funciona sin él) · «es RECOMENDADO PARA quienes usan el plugin X» (le conviene a esos clientes).'
             type: repeater
             prompt: Ligar un plugin
             form:
@@ -161,7 +161,7 @@ tabs:
                         span: right
                     note:
                         label: Nota
-                        comment: Cómo se relaciona (opcional).
+                        comment: Detalle opcional, p. ej. qué parte se integra.
                         type: text
 
         articles:
