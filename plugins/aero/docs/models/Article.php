@@ -113,6 +113,19 @@ class Article extends Model
         ]);
     }
 
+    /** «Nivel › Categoría › Título», recorriendo toda la cadena de padres. */
+    public function getSelectLabelAttribute(): string
+    {
+        $parts = [];
+        $cat = $this->category;
+        for ($i = 0; $cat && $i < 10; $i++) {
+            array_unshift($parts, $cat->name);
+            $cat = $cat->parent_id ? Category::find($cat->parent_id) : null;
+        }
+        $parts[] = (string) $this->title;
+        return implode(' › ', $parts);
+    }
+
     /** Solo documentación de la plataforma (tenant_id NULL), para enlazarla desde otros plugins. */
     public function scopePlatform($query)
     {
