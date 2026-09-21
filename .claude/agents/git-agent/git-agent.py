@@ -243,7 +243,7 @@ def scope_of(area, sub_name=None):
         return area.split("/")[2]
     if area.startswith("themes/"):
         return area.split("/")[1]
-    return area.strip("()").replace("raíz", "root") or "root"
+    return area.strip("()").lstrip(".").replace("raíz", "root") or "root"
 
 
 # ─────────────────────────── validaciones ───────────────────────────
