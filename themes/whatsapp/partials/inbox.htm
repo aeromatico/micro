@@ -95,7 +95,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                     <div class="quote" x-show="m.quote" x-text="m.quote ? quoteLabel(m.quote) : ''"></div>
                                     <div class="body" x-show="m.body" x-html="rich(m.body)"></div>
                                     <a class="media" x-show="mapLink(m)" :href="mapLink(m)" target="_blank" rel="noopener">Abrir en el mapa</a>
-                                    <div class="meta"><button type="button" class="reply-btn" x-show="canQuote && m.kind === 'message' && String(m.id).indexOf('tmp') !== 0" @click="setReply(m)" aria-label="Responder a este mensaje" title="Responder a este mensaje">↩</button><time x-text="fmtTime(m.at)"></time><span x-show="m.status === 'sending'"> · enviando…</span><span class="fail" x-show="m.status === 'failed'" x-text="' · ' + (m.failed_reason || 'no se envió')"></span></div>
+                                    <div class="meta"><button type="button" class="reply-btn" x-show="canQuote && m.kind === 'message' && String(m.id).indexOf('tmp') !== 0" @click="setReply(m)" aria-label="Responder a este mensaje" title="Responder a este mensaje">↩</button><time x-text="fmtTime(m.at)"></time><span x-show="m.status === 'sending'"> · enviando…</span><span class="ticks" :class="'t-' + m.status" x-show="m.direction === 'outbound' && ['queued','sent','delivered','read'].indexOf(m.status) >= 0" :title="tickTitle(m)" x-text="tickOf(m)"></span><span class="fail" x-show="m.status === 'failed'" x-text="' · ' + (m.failed_reason || 'no se envió')"></span></div>
                                 </div>
                             </template>
                         </div>

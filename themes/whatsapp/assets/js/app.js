@@ -401,18 +401,24 @@
 
             async refreshAccounts() { try { this.accounts = await this.api('/accounts'); } catch (e) {} },
 
+            tickOf(m) { return m.status === 'queued' ? ' 🕓' : m.status === 'sent' ? ' ✓' : ' ✓✓'; },
+            tickTitle(m) { return { queued: 'En cola', sent: 'Enviado', delivered: 'Entregado', read: 'Leído' }[m.status] || ''; },
             async loadMsgs(initial) {
                 var c = this.current; if (!c) return;
                 var path = '/conversations/' + c.id + '/messages';
+                var pending = false;
                 if (!initial) {
+                    // Mientras haya salientes sin leer/fallar se relee la ventana reciente para refrescar sus ticks.
+                    pending = this.msgs.some(function (m) { return m.direction === 'outbound' && ['queued', 'sent', 'delivered'].indexOf(m.status) >= 0; });
                     var last = this.msgs.filter(function (m) { return !String(m.id).startsWith('tmp'); }).pop();
-                    if (last) path += '?after=' + encodeURIComponent(last.at);
+                    if (last && !pending) path += '?after=' + encodeURIComponent(last.at);
                 }
                 try {
                     var rows = await this.api(path);
                     if (!this.current || this.current.id !== c.id) return;
                     if (initial) { this.msgs = rows; this.cacheMsgs(c.id, rows); this.scrollDown(true); return; }
-                    var known = {}; this.msgs.forEach(function (m) { known[m.id] = 1; });
+                    var known = {}; this.msgs.forEach(function (m) { known[m.id] = m; });
+                    if (pending) rows.forEach(function (r) { var k = known[r.id]; if (k && (k.status !== r.status || k.failed_reason !== r.failed_reason)) { k.status = r.status; k.failed_reason = r.failed_reason; } });
                     var fresh = rows.filter(function (m) { return !known[m.id]; });
                     if (fresh.length) {
                         this.msgs = this.msgs.concat(fresh); this.scrollDown(false);

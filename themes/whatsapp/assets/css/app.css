@@ -257,3 +257,5 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 .reply-btn { border: 0; background: transparent; color: var(--muted); font-size: 14px; line-height: 1; padding: 0 6px 0 0; cursor: pointer; }
 .quote-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); border-left: 3px solid var(--brand, #25a06d); background: rgba(127,127,127,.12); border-radius: 8px; padding: 6px 8px; margin: 0 0 6px; }
 .quote-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticks { margin-left: 4px; letter-spacing: -2px; font-weight: 600; }
+.ticks.t-read { color: #34b7f1; }
