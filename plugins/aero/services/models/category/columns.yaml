@@ -6,8 +6,8 @@ columns:
         label: Slug
     services_count:
         label: Servicios
-        relation: services
-        select: count(*)
+        type: number
+        relationCount: services
     sort_order:
         label: Orden
         sortable: true

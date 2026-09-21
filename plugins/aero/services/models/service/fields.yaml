@@ -169,7 +169,7 @@ tabs:
             label: Documentos del servicio
             commentAbove: Artículos de Aero.Docs que explican o acompañan este servicio. Se pueden elegir varios.
             type: relation
-            nameFrom: title
+            nameFrom: select_label
             scope: platform
 
         is_active:
