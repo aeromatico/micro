@@ -67,7 +67,10 @@ class InboxController extends Controller
                 ->orWhereHas('identities', fn ($i) => $i->where('external_id', 'like', '%' . $q . '%')));
         }
 
-        $page = $query->orderByDesc('last_message_at')->paginate(30);
+        // Manda el último mensaje real (entrante o saliente), no last_message_at: varios envíos no lo actualizan.
+        $table = $query->getModel()->getTable();
+        $page = $query->orderByRaw("coalesce((select max(m.created_at) from aero_hello_messages m where m.conversation_id = {$table}.id), {$table}.last_message_at) desc")
+            ->orderByDesc("{$table}.id")->paginate(30);
         $agents = User::whereIn('id', collect($page->items())->pluck('assigned_to')->filter()->unique())->get()->keyBy('id');
 
         $lastByConv = $this->lastMessages(collect($page->items())->pluck('id'));
@@ -478,7 +481,7 @@ class InboxController extends Controller
             'account_id'      => $c->account_id,
             'status'          => $c->status,
             'unread_count'    => $last && $last->direction === 'outbound' ? 0 : (int) $c->unread_count,
-            'last_message_at' => optional($c->last_message_at)->toIso8601String(),
+            'last_message_at' => optional($last?->created_at ?? $c->last_message_at)->toIso8601String(),
             'contact'         => [
                 'id'    => $c->contact_id,
                 'name'  => $c->contact?->name,
