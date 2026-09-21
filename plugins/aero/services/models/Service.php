@@ -13,7 +13,7 @@ class Service extends Model
     public $fillable = [
         'category_id', 'name', 'slug', 'summary', 'description', 'code', 'type', 'pricing_mode', 'credit_price', 'credit_type', 'has_pro', 'pro_features', 'price', 'price_from', 'setup_fee',
         'currency', 'billing_period', 'delivery_days', 'features', 'requirements', 'plugin_links',
-        'sort_order', 'is_active', 'is_featured',
+        'sort_order', 'is_active', 'is_featured', 'in_megamenu',
     ];
 
     public $slugs = ['slug' => 'name'];
@@ -42,6 +42,7 @@ class Service extends Model
         'has_pro'     => 'boolean',
         'is_active'   => 'boolean',
         'is_featured' => 'boolean',
+        'in_megamenu' => 'boolean',
     ];
 
     public $belongsTo = [
@@ -137,6 +138,12 @@ class Service extends Model
     public function scopePro($query)
     {
         return $query->where('has_pro', true);
+    }
+
+    /** Públicos y marcados para el megamenú. */
+    public function scopeInMegamenu($query)
+    {
+        return $query->where('is_active', true)->where('in_megamenu', true);
     }
 
     public function scopeFeatured($query)

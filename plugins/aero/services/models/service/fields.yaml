@@ -182,10 +182,17 @@ tabs:
 
         is_active:
             tab: Publicación
-            label: Activo
+            label: Público
+            comment: Visible en el sitio, en /servicio/{slug}. Apagado = borrador.
             type: switch
             default: true
             span: left
+        in_megamenu:
+            tab: Publicación
+            label: Mostrar en el megamenú
+            comment: Aparece en el menú «Servicios» del sitio (solo si es público).
+            type: switch
+            span: right
         has_pro:
             tab: Publicación
             label: Tiene funciones PRO
@@ -210,7 +217,7 @@ tabs:
             tab: Publicación
             label: Destacado
             type: switch
-            span: right
+            span: left
         sort_order:
             tab: Publicación
             label: Orden

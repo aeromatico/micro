@@ -175,22 +175,28 @@ class OfferBuilder
             throw new \RuntimeException('La IA no devolvió texto: ' . ($response->error ?? 'respuesta vacía'));
         }
 
-        $data = json_decode($this->stripFences($text), true);
+        return $this->fromJson($text, $evidence);
+    }
+
+    /** Convierte el JSON de la oferta (de la API o escrito en sesión) en el resultado validado. */
+    public function fromJson(string $json, ?array $evidence = null, ?Service $service = null): array
+    {
+        $evidence ??= $this->evidence($service);
+
+        $data = json_decode($this->stripFences($json), true);
         if (!is_array($data) || empty($data['summary']) || empty($data['code'])) {
-            throw new \RuntimeException('La respuesta de la IA no es un JSON válido con summary y code: ' . mb_substr($text, 0, 300));
+            throw new \RuntimeException('La oferta no es un JSON válido con summary y code: ' . mb_substr($json, 0, 300));
         }
 
         $validDocs = collect($evidence)->pluck('docs')->flatten(1)->pluck('id')->all();
         $docIds = array_values(array_intersect((array) ($data['docs_article_ids'] ?? []), $validDocs));
-
-        $code = $this->sanitize((string) $data['code']) . $this->docsSection($docIds);
 
         return [
             'summary'      => mb_substr(trim((string) $data['summary']), 0, 255),
             'description'  => trim((string) ($data['description'] ?? '')),
             'features'     => $this->items($data['features'] ?? []),
             'requirements' => $this->items($data['requirements'] ?? []),
-            'code'         => $code,
+            'code'         => $this->sanitize((string) $data['code']) . $this->docsSection($docIds),
             'docs'         => $docIds,
             'raw'          => $data,
         ];
@@ -212,10 +218,19 @@ class OfferBuilder
         }
 
         $service->save();
+        $this->dumpForTailwind($service);
 
         if ($offer['docs']) {
             $service->articles()->syncWithoutDetaching($offer['docs']);
         }
+    }
+
+    /** Las clases Tailwind de `code` viven en la BD: se vuelca a un archivo que el build del tema escanea. */
+    public function dumpForTailwind(Service $service): void
+    {
+        $dir = storage_path('app/service-offers');
+        @mkdir($dir, 0775, true);
+        file_put_contents("{$dir}/{$service->slug}.html", (string) $service->code);
     }
 
     protected function systemPrompt(): string
@@ -239,7 +254,7 @@ Devuelve ÚNICAMENTE un objeto JSON (sin texto antes ni después, sin ```), con 
   "docs_article_ids": [ids]                   // SOLO ids de la lista de documentos entregada, los más útiles
 }
 
-«code» es un fragmento HTML (sin <html>/<head>/<body>, sin <script>, sin estilos en línea) con clases Tailwind CSS 3, listo para incrustar. Secciones, en este orden, cada una en <section> con <h2>:
+«code» es un fragmento HTML (sin <html>/<head>/<body>, sin <script>, sin estilos en línea) con clases Tailwind CSS 3 y SOLO los colores del tema (modo oscuro por defecto): texto text-ink y text-ink-dim, tarjetas bg-canvas-elev con border border-edge, acento text-accent / bg-accent text-accent-fg. NUNCA uses gray-*, white, black ni colores fijos. Listo para incrustar. Secciones, en este orden, cada una en <section> con <h2>:
 1. Hero: <h1> con el nombre del servicio + promesa en un párrafo.
 2. Características: rejilla de tarjetas (título + 1-2 líneas), basadas en capacidades reales.
 3. Casos de uso: 3-5 escenarios concretos (quién, qué problema, cómo lo resuelve).
@@ -288,8 +303,8 @@ P;
 
         $items = '';
         foreach (Article::withoutGlobalScopes()->whereIn('id', $ids)->orderBy('sort_order')->get() as $a) {
-            $items .= '<li><a class="font-medium text-blue-600 hover:underline" href="' . e($a->url) . '">' . e($a->title) . '</a>'
-                . ($a->excerpt ? '<span class="text-gray-600"> — ' . e($a->excerpt) . '</span>' : '') . '</li>';
+            $items .= '<li><a class="font-medium text-accent hover:underline" href="' . e($a->url) . '">' . e($a->title) . '</a>'
+                . ($a->excerpt ? '<span class="text-ink-dim"> — ' . e($a->excerpt) . '</span>' : '') . '</li>';
         }
 
         return "\n<section class=\"py-12\"><h2 class=\"text-2xl font-bold\">Documentación</h2><ul class=\"mt-4 space-y-2\">{$items}</ul></section>\n";

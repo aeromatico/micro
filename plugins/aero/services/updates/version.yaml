@@ -14,3 +14,6 @@
 1.4.0:
     - "Campo code (HTML de la pagina de la oferta) y generador de ofertas con IA a partir de los plugins ligados."
     - add_code_to_services.php
+1.5.0:
+    - "Switch Publico (is_active) y En el megamenu (in_megamenu); componente Services para el megamenu y la pagina /servicio/{slug}."
+    - add_in_megamenu_to_services.php

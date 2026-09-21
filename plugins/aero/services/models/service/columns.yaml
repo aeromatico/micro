@@ -32,7 +32,10 @@ columns:
         label: Destacado
         type: switch
     is_active:
-        label: Activo
+        label: Público
+        type: switch
+    in_megamenu:
+        label: Megamenú
         type: switch
     updated_at:
         label: Actualizado

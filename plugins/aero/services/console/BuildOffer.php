@@ -12,6 +12,7 @@ class BuildOffer extends Command
         {--connector= : ID del conector de IA (por defecto, el primer ai_anthropic)}
         {--category=Panel : Categoría de servicios a asignar}
         {--dry-run : Muestra la oferta sin guardarla}
+        {--from-json= : Aplica una oferta ya redactada (JSON) en vez de llamar a la API de IA}
         {--evidence : Solo muestra la evidencia que se le entregaría a la IA}';
 
     protected $description = 'Arma la oferta del servicio (resumen, descripción, página HTML) analizando los plugins ligados.';
@@ -34,10 +35,14 @@ class BuildOffer extends Command
             return self::SUCCESS;
         }
 
-        $this->info("Analizando plugins ligados de «{$service->name}»…");
-
         try {
-            $offer = $builder->build($service);
+            if ($file = $this->option('from-json')) {
+                $offer = $builder->fromJson((string) file_get_contents($file), null, $service);
+            }
+            else {
+                $this->info("Analizando plugins ligados de «{$service->name}»…");
+                $offer = $builder->build($service);
+            }
         }
         catch (\Throwable $e) {
             $this->error($e->getMessage());

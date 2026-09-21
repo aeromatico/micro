@@ -24,6 +24,11 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('services.build-offer', \Aero\Services\Console\BuildOffer::class);
     }
 
+    public function registerComponents(): array
+    {
+        return [\Aero\Services\Components\Services::class => 'services'];
+    }
+
     public function registerPermissions(): array
     {
         return [
