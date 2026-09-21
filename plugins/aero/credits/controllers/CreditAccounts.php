@@ -43,7 +43,22 @@ class CreditAccounts extends Controller
             return;
         }
 
-        Credits::topUp($tenantId, $typeCode, $amount, $reason, BackendAuth::getUser()->id);
+        $kind = (string) post('kind', 'gift');
+
+        try {
+            if ($kind === 'adjust') {
+                Credits::adjust($tenantId, $typeCode, $amount, $reason, BackendAuth::getUser()->id);
+            }
+            elseif (in_array($kind, ['gift', 'purchase'], true)) {
+                Credits::topUp($tenantId, $typeCode, abs($amount), $reason, BackendAuth::getUser()->id, null, $kind);
+            }
+            else {
+                throw new \ApplicationException('Tipo de movimiento no válido.');
+            }
+        }
+        catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
 
         Flash::success('Saldo actualizado.');
 

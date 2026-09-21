@@ -17,7 +17,8 @@ class CreditTransaction extends Model
     public $fillable = [
         'tenant_id', 'credit_type_id', 'delta', 'balance_after',
         'action_code', 'source_plugin', 'reason', 'meta',
-        'created_by_user_id', 'created_at',
+        'created_by_user_id', 'created_at', 'idempotency_key', 'refund_of_id',
+        'kind', 'journal_id', 'account_id',
     ];
 
     public $jsonable = ['meta'];
@@ -45,6 +46,11 @@ class CreditTransaction extends Model
     public function getIsChargeAttribute(): bool
     {
         return $this->delta < 0;
+    }
+
+    public function getKindOptions(): array
+    {
+        return \Aero\Credits\Controllers\Wallet::KIND_LABELS;
     }
 
     public function getCreditTypeOptions(): array

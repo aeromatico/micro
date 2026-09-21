@@ -17,6 +17,7 @@ class GlobalCredits extends ReportWidgetBase
     {
         $this->vars['types'] = CreditType::active()->get()->map(function (CreditType $type) {
             $consumedMonth = abs((int) CreditTransaction::where('credit_type_id', $type->id)
+                ->where('kind', 'charge')
                 ->where('delta', '<', 0)
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
@@ -31,6 +32,7 @@ class GlobalCredits extends ReportWidgetBase
         })->all();
 
         $this->vars['topTenants'] = CreditTransaction::selectRaw('tenant_id, SUM(-delta) as total')
+            ->where('kind', 'charge')
             ->where('delta', '<', 0)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)

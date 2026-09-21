@@ -1,7 +1,26 @@
 fields:
-    block_on_insufficient_balance:
-        label: aero.credits::lang.settings.block_on_insufficient_balance
-        comment: aero.credits::lang.settings.block_on_insufficient_balance_comment
-        type: switch
-        default: true
+    exchange_fee_percent:
+        label: Comisión por intercambio de monedas (%)
+        type: number
+        default: 10
+        span: left
+        comment: Se descuenta de las monedas que salen. El oro (u otra moneda marcada como no intercambiable) nunca se intercambia.
+
+    purchase_ttl_minutes:
+        label: Minutos para pagar el QR de una recarga
+        type: number
+        default: 15
+        span: right
+
+    recharge_amounts:
+        label: Montos de recarga (Bs, separados por coma)
+        type: text
+        default: '20,50,100,200,1000'
         span: full
+
+    purchase_bank_account_id:
+        label: Cuenta bancaria que recibe las recargas
+        type: dropdown
+        emptyOption: '— La misma del alta pública —'
+        span: full
+        comment: Sin elegir, se usa la cuenta configurada en Sites → Configuración (alta pública).

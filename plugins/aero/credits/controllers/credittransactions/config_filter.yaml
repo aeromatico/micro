@@ -5,6 +5,12 @@ scopes:
         conditions: credit_type_id = :value
         options: getCreditTypeOptions
 
+    kind:
+        label: Tipo
+        type: dropdown
+        conditions: kind = :value
+        options: getKindOptions
+
     action_code:
         label: aero.credits::lang.transaction.action_code
         type: dropdown

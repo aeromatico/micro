@@ -8,6 +8,10 @@ columns:
         label: aero.credits::lang.transaction.credit_type
         relation: creditType
         sortable: false
+    kind:
+        label: Tipo
+        type: partial
+        path: ~/plugins/aero/credits/models/credittransaction/_kind.htm
     action_code:
         label: aero.credits::lang.transaction.action_code
         searchable: true

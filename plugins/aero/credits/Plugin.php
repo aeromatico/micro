@@ -26,10 +26,27 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('credits:reconcile', \Aero\Credits\Console\Reconcile::class);
+        $this->registerConsoleCommand('credits:sweep-holds', \Aero\Credits\Console\SweepHolds::class);
+        $this->registerConsoleCommand('credits:expire-purchases', \Aero\Credits\Console\ExpirePurchases::class);
+        $this->registerConsoleCommand('credits:verify', \Aero\Credits\Console\Verify::class);
+        $this->registerConsoleCommand('credits:reset-ledger', \Aero\Credits\Console\ResetLedger::class);
+    }
+
+    public function registerSchedule($schedule): void
+    {
+        $schedule->command('credits:sweep-holds')->everyFiveMinutes();
+        $schedule->command('credits:expire-purchases')->everyFiveMinutes();
+        $schedule->command('credits:verify')->dailyAt('04:10');
+    }
+
     public function boot(): void
     {
         $this->bootNavbarWidget();
         $this->bootConnectorIntegration();
+        $this->bootPurchaseIntegration();
     }
 
     /**
@@ -43,37 +60,66 @@ class Plugin extends PluginBase
         Event::listen('backend.layout.extendMainMenuToolbar', function () {
             $user = BackendAuth::getUser();
 
-            if (!$user || !$user->is_superuser) {
+            if (!$user) {
                 return '';
             }
 
-            $totals = Cache::remember('aero.credits.navbar_totals', 60, function () {
-                return \Aero\Credits\Models\CreditType::active()->get()->map(function ($type) {
-                    $consumed = \Aero\Credits\Models\CreditTransaction::where('credit_type_id', $type->id)
-                        ->where('delta', '<', 0)
-                        ->whereDate('created_at', today())
-                        ->sum('delta');
+            if ($user->is_superuser) {
+                // Vista de plataforma: monedas ACTIVAS entre todos los tenants
+                // (lo que hoy está en circulación) + detalle de lo otorgado.
+                $rows = Cache::remember('aero.credits.navbar_summary', 30, function () {
+                    return collect(Credits::summary())->map(function ($s) {
+                        return [
+                            'color' => $s['color'],
+                            'value' => $s['active'],
+                            'title' => "{$s['label']}\nActivas: " . number_format($s['active'])
+                                . "\nVendidas: " . number_format($s['sold'])
+                                . "\nRegaladas: " . number_format($s['gifted'] + $s['plan_grant'])
+                                . "\nConsumidas hoy: " . number_format($s['consumed_today']),
+                        ];
+                    })->values()->all();
+                });
 
-                    return [
-                        'label'    => $type->label,
-                        'color'    => $type->color,
-                        'consumed' => abs($consumed),
-                    ];
-                })->all();
-            });
+                return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
+                    'rows'      => $rows,
+                    'link'      => Backend::url('aero/credits/summary'),
+                    'plusUrl'   => Backend::url('aero/credits/creditaccounts'),
+                    'plusTitle' => 'Otorgar monedas',
+                    'title'     => 'Monedas activas entre todos los tenants',
+                ]);
+            }
 
-            return (new \Backend\Classes\Controller)->makePartial(
-                '$/aero/credits/partials/_navbar_widget.htm',
-                ['totals' => $totals]
-            );
+            // Vista del tenant: su saldo exacto, siempre en vivo (sin caché).
+            $tenantId = Credits::resolveCurrentTenantId();
+
+            if (!$tenantId) {
+                return '';
+            }
+
+            $balances = Credits::balances($tenantId);
+            $rows = \Aero\Credits\Models\CreditType::active()->get()->map(fn ($t) => [
+                'color' => $t->color,
+                'value' => $balances[$t->code] ?? 0,
+                'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0),
+            ])->all();
+
+            return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
+                'rows'      => $rows,
+                'link'      => Backend::url('aero/credits/wallet'),
+                'plusUrl'   => Backend::url('aero/credits/wallet'),
+                'plusTitle' => 'Recargar monedas',
+                'title'     => 'Tu saldo de monedas',
+            ]);
         });
     }
 
     /**
-     * Aero.Connector no sabe nada de créditos: solo dispara
-     * 'aero.connector.afterRun' (evento genérico) con el Connector y su log.
-     * Acá se escucha y, si el connector tiene `credit_cost` configurado, se
-     * cobra al tenant resuelto del contexto backend actual.
+     * Aero.Connector no sabe nada de créditos: solo dispara dos eventos
+     * genéricos con un ArrayObject de contexto compartido.
+     *  - beforeRun: acá se cobra con hold; si no hay saldo se llena
+     *    $ctx['veto'] y ConnectorClient no ejecuta la llamada (no cobra gratis).
+     *  - afterRun: la llamada exitosa liquida el hold; la fallida lo reembolsa.
+     * Solo cobra si el connector tiene `credit_cost` y hay tenant resoluble.
      */
     protected function bootConnectorIntegration(): void
     {
@@ -81,16 +127,10 @@ class Plugin extends PluginBase
             return;
         }
 
-        Event::listen('aero.connector.afterRun', function ($connector, $response) {
+        Event::listen('aero.connector.beforeRun', function ($connector, $ctx) {
             $cost = (int) ($connector->credit_cost ?? 0);
 
-            if ($cost <= 0 || !($response->successful ?? true)) {
-                return;
-            }
-
-            $tenantId = Credits::resolveCurrentTenantId();
-
-            if (!$tenantId) {
+            if ($cost <= 0 || !($tenantId = Credits::resolveCurrentTenantId())) {
                 return;
             }
 
@@ -103,16 +143,52 @@ class Plugin extends PluginBase
             }
 
             try {
-                Credits::chargeRaw($tenantId, $type, $cost, "connector.{$connector->id}", [
+                $ctx['credit_tx'] = Credits::chargeRaw($tenantId, $type, $cost, "connector.{$connector->id}", [
                     'source_plugin' => 'Aero.Connector',
                     'reason'        => "Llamada a conector: {$connector->name}",
+                    'hold_ttl'      => Credits::DEFAULT_HOLD_TTL,
                 ]);
             }
             catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
-                // No se puede deshacer una llamada saliente ya ejecutada: solo se
-                // deja registro de que el tenant se quedó sin saldo para este
-                // conector, para que el superadmin lo revise. No relanza.
-                \Log::warning("Aero.Credits: {$e->getMessage()} (connector #{$connector->id}, tenant {$tenantId})");
+                $ctx['veto'] = $e->getMessage();
+            }
+        });
+
+        Event::listen('aero.connector.afterRun', function ($connector, $response, $ctx = null) {
+            $tx = $ctx['credit_tx'] ?? null;
+
+            if (!$tx) {
+                return;
+            }
+
+            if ($response->successful ?? true) {
+                Credits::settle($tx);
+            }
+            else {
+                Credits::refund($tx, 'Llamada a conector fallida: ' . $connector->name);
+            }
+        });
+    }
+
+    /**
+     * Pago confirmado por aero/pay (webhook o conciliación): acredita las
+     * monedas de la recarga cuyo QR es este. Nunca deja escapar una excepción
+     * para no romper el procesamiento del pago en aero/pay.
+     */
+    protected function bootPurchaseIntegration(): void
+    {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
+            $purchase = \Aero\Credits\Models\CreditPurchase::where('payment_reference', $qrCode->internal_reference)->first();
+
+            if (!$purchase) {
+                return;
+            }
+
+            try {
+                \Aero\Credits\Classes\Recharges::settle($purchase, (float) $payment->amount);
+            }
+            catch (\Throwable $e) {
+                \Log::error("Aero.Credits: fallo al acreditar la recarga #{$purchase->id} tras pago confirmado: " . $e->getMessage());
             }
         });
     }
@@ -146,6 +222,12 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         return [
+            'wallet' => [
+                'label'       => 'Mis monedas',
+                'url'         => Backend::url('aero/credits/wallet'),
+                'icon'        => 'icon-money',
+                'order'       => 569,
+            ],
             'credits' => [
                 'label'       => 'aero.credits::lang.menu.credits',
                 'url'         => Backend::url('aero/credits/creditaccounts'),
@@ -153,6 +235,12 @@ class Plugin extends PluginBase
                 'permissions' => ['aero.credits.superadmin'],
                 'order'       => 570,
                 'sideMenu'    => [
+                    'summary' => [
+                        'label'       => 'Resumen contable',
+                        'icon'        => 'icon-bar-chart',
+                        'url'         => Backend::url('aero/credits/summary'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
                     'creditaccounts' => [
                         'label'       => 'aero.credits::lang.menu.creditaccounts',
                         'icon'        => 'icon-university',

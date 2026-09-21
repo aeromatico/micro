@@ -15,7 +15,7 @@ class CreditType extends Model
     public $table = 'aero_credits_types';
 
     public $fillable = [
-        'code', 'label', 'color', 'usd_value', 'low_balance_threshold', 'is_active', 'sort_order',
+        'code', 'label', 'color', 'usd_value', 'price_bob', 'is_exchangeable', 'low_balance_threshold', 'is_active', 'sort_order',
     ];
 
     public $rules = [
@@ -26,6 +26,8 @@ class CreditType extends Model
     public $attributes = [
         'color'                 => '#3b82f6',
         'usd_value'             => 0.0100,
+        'price_bob'             => 0,
+        'is_exchangeable'       => true,
         'low_balance_threshold' => 50,
         'is_active'             => true,
         'sort_order'            => 0,
@@ -33,6 +35,8 @@ class CreditType extends Model
 
     protected $casts = [
         'usd_value'             => 'float',
+        'price_bob'             => 'float',
+        'is_exchangeable'       => 'boolean',
         'low_balance_threshold' => 'integer',
         'is_active'             => 'boolean',
         'sort_order'            => 'integer',

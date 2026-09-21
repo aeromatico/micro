@@ -747,7 +747,7 @@ class EventCatalog
         ];
 
         $creditSample = [
-            'credit_type' => 'Azul', 'credit_color' => 'azul',
+            'credit_type' => 'Monedas de bronce', 'credit_color' => 'bronce',
             'balance' => 30, 'threshold' => 50,
         ];
 
@@ -774,7 +774,40 @@ class EventCatalog
                 'default_audiences' => ['tenant_admin', 'superadmin'],
                 'default_channels' => ['email', 'inapp', 'push'],
                 'variables_schema' => $creditVars + self::TENANT_VARS,
-                'sample_context' => ['credit_type' => 'Azul', 'credit_color' => 'azul', 'balance' => 0, 'threshold' => 50, 'tenant_name' => 'Panadería Delicia'],
+                'sample_context' => ['credit_type' => 'Monedas de bronce', 'credit_color' => 'bronce', 'balance' => 0, 'threshold' => 50, 'tenant_name' => 'Panadería Delicia'],
+            ],
+            [
+                'code' => 'credits.purchase.paid',
+                'source_plugin' => 'Aero.Credits',
+                'category' => 'billing',
+                'name' => 'Recarga de monedas acreditada',
+                'description' => 'Se confirmó el pago de una recarga por QR y las monedas ya están en la cuenta del tenant.',
+                'priority' => 3,
+                'default_audiences' => ['tenant_admin', 'superadmin'],
+                'default_channels' => ['email', 'inapp', 'push'],
+                'variables_schema' => [
+                    'purchase_id'  => ['type' => 'number', 'required' => true, 'label' => 'N° de recarga'],
+                    'amount_bob'   => ['type' => 'number', 'required' => true, 'label' => 'Monto pagado (Bs)'],
+                    'coins_detail' => ['type' => 'string', 'required' => true, 'label' => 'Monedas recibidas (detalle)'],
+                    'coins_total'  => ['type' => 'number', 'required' => false, 'label' => 'Total de monedas'],
+                ] + self::TENANT_VARS,
+                'sample_context' => ['purchase_id' => 12, 'amount_bob' => 100, 'coins_detail' => '1.084 bronce · 36 plata', 'coins_total' => 1120, 'tenant_name' => 'Panadería Delicia'],
+            ],
+            [
+                'code' => 'credits.purchase.review',
+                'source_plugin' => 'Aero.Credits',
+                'category' => 'billing',
+                'name' => 'Recarga con pago incompleto (revisión manual)',
+                'description' => 'Llegó un pago por menos del monto de la recarga: no se acreditó nada y requiere revisión manual.',
+                'priority' => 2,
+                'default_audiences' => ['superadmin'],
+                'default_channels' => ['email', 'inapp'],
+                'variables_schema' => [
+                    'purchase_id' => ['type' => 'number', 'required' => true, 'label' => 'N° de recarga'],
+                    'amount_bob'  => ['type' => 'number', 'required' => true, 'label' => 'Monto esperado (Bs)'],
+                    'paid_bob'    => ['type' => 'number', 'required' => true, 'label' => 'Monto recibido (Bs)'],
+                ] + self::TENANT_VARS,
+                'sample_context' => ['purchase_id' => 12, 'amount_bob' => 100, 'paid_bob' => 50, 'tenant_name' => 'Panadería Delicia'],
             ],
         ];
     }

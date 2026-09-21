@@ -20,6 +20,14 @@
             <?php endif ?>
         </div>
         <div class="form-group">
+            <label>Tipo de movimiento</label>
+            <select name="kind" class="form-control custom-select" required>
+                <option value="gift">Regalo (monedas sin costo para el cliente)</option>
+                <option value="purchase">Venta manual (cobrada fuera del sistema)</option>
+                <option value="adjust">Ajuste (positivo suma, negativo resta)</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label><?= e(trans('aero.credits::lang.account.credit_type')) ?></label>
             <select name="credit_type_code" class="form-control custom-select" required>
                 <option value=""></option>

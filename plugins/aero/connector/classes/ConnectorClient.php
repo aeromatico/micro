@@ -23,9 +23,20 @@ class ConnectorClient
 
     protected function run(Connector $connector, array $payload, bool $isTest): ConnectorResponse
     {
+        // Contexto compartido entre beforeRun/afterRun. Un listener (ej. créditos)
+        // puede dejar $ctx['veto'] = "motivo" para impedir la llamada.
+        $ctx = new \ArrayObject();
+
+        if (!$isTest) {
+            Event::fire('aero.connector.beforeRun', [$connector, $ctx]);
+        }
+
         $driver = TypeRegistry::driverFor($connector->type);
 
-        if (!$driver) {
+        if (isset($ctx['veto'])) {
+            $response = ConnectorResponse::fromError((string) $ctx['veto']);
+        }
+        elseif (!$driver) {
             $response = ConnectorResponse::fromError("Tipo de conector desconocido: {$connector->type}");
         }
         else {
@@ -47,7 +58,7 @@ class ConnectorClient
         // Evento genérico, reutilizable más allá de créditos (métricas,
         // billing propio, etc.) — no se dispara en pruebas del tester.
         if (!$isTest) {
-            Event::fire('aero.connector.afterRun', [$connector, $response]);
+            Event::fire('aero.connector.afterRun', [$connector, $response, $ctx]);
         }
 
         return $response;

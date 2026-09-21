@@ -23,6 +23,19 @@ fields:
         span: right
         comment: aero.credits::lang.type.usd_value_comment
 
+    price_bob:
+        label: Precio de venta (Bs por unidad)
+        type: number
+        step: 0.0001
+        span: left
+        comment: Lo que paga el cliente por cada moneda al recargar, y la base del intercambio entre monedas.
+
+    is_exchangeable:
+        label: Intercambiable con otras monedas
+        type: switch
+        span: right
+        default: true
+
     low_balance_threshold:
         label: aero.credits::lang.type.low_balance_threshold
         type: number
