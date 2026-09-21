@@ -13,17 +13,18 @@
 - [Flujos de Trabajo](workflows.md)
 - [Plan: llamadas WhatsApp con IA](voice-agent-plan.md)
 - [Convenciones](convenciones.md)
+- [Agentes automáticos (git-agent y docs-sync)](agentes.md)
 
 ## Git
 
 Flujo Antigravity: este servidor es la fuente, nunca hace pull.
 
-```bash
-# Commit automático con git-agent
-.claude/agents/git-agent/git-agent.sh
+Los commits los hace `git-agent` por cron (cada 10 min) y la documentación del tenant la mantiene
+`docs-sync` (cada 30 min). Push manual: `git-agent push`. Detalle en [Agentes automáticos](agentes.md).
 
-# Dry-run (ver qué commitearía)
-.claude/agents/git-agent/git-agent.sh --dry-run --verbose
+```bash
+git-agent status          # qué hay pendiente por área
+git-agent commit --now    # commitear ahora
 ```
 
 > **Nota:** `.claude/` está en `.gitignore` — los skills son herramientas locales de desarrollo.
