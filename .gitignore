@@ -39,3 +39,10 @@ plugins/aero/sites/assets/puck-editor/node_modules
 
 # Archivos de trabajo temporales
 /tmp
+
+# Docs Sync (automatización de documentación)
+/.opencode/docs-sync.log
+/.opencode/.docs-sync.lock
+
+# Certificados SSL (desafío ACME de aaPanel): efímero, no se versiona
+/.well-known/acme-challenge/
