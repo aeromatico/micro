@@ -38,17 +38,25 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         <div class="banner" x-show="!online">Sin conexión. Mostrando lo último cargado.</div>
         <ul class="rows">
             <template x-for="c in sortedConvs" :key="c.id">
-                <li>
+                <li class="row-li">
                     <button type="button" class="row" :class="{ on: current && current.id === c.id }" @click="openConv(c)">
                         <span class="avatar" x-text="initials(cname(c))"></span>
                         <span class="row-main">
-                            <span class="row-top"><b x-text="cname(c)"></b><time x-text="fmtTime(c.last_message_at)"></time></span>
+                            <span class="row-top">
+                                <b x-text="cname(c)"></b>
+                                <svg class="row-flag" x-show="c.is_muted" aria-hidden="true" viewBox="0 0 24 24" style="fill:none;stroke:currentColor"><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V6a3 3 0 0 0-5.94-.6M5 5l14 14M19 11a7 7 0 0 1-1.28 4.02M5 11a7 7 0 0 0 8.24 6.9M12 18v3"/></svg>
+                                <svg class="row-flag" x-show="c.is_archived" aria-hidden="true" viewBox="0 0 24 24" style="fill:none;stroke:currentColor"><path d="M3 7h18M5 7v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M10 11h4"/></svg>
+                                <time x-text="fmtTime(c.last_message_at)"></time>
+                            </span>
                             <span class="row-mid"><span class="preview" x-text="preview(c)"></span><i class="dot" x-show="c.unread_count > 0" x-text="c.unread_count"></i></span>
                             <span class="row-bot">
                                 <span class="agent" :class="{ free: !c.assigned_to }"><span class="mini" x-text="c.assigned_to ? c.assigned_to.initials : '?'"></span><span x-text="c.assigned_to ? (c.assigned_to.id === user.id ? 'Tú' : c.assigned_to.name) : 'Sin asignar'"></span></span>
                                 <span class="plat" x-show="accountId === null" x-text="acctLabel(c.account_id)"></span>
                             </span>
                         </span>
+                    </button>
+                    <button type="button" class="row-more" @click.stop="openRowMenu(c)" aria-label="Más opciones del chat" title="Más opciones">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
                     </button>
                 </li>
             </template>
@@ -420,6 +428,20 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </div>
             </div>
         </template>
+    </div>
+
+    <div class="sheet" x-show="sheet === 'rowMenu'" x-transition role="dialog" aria-label="Opciones del chat">
+        <div class="me"><span class="mini big" x-text="rowMenuConv ? initials(cname(rowMenuConv)) : ''"></span><span class="grow"><b x-text="rowMenuConv ? cname(rowMenuConv) : ''"></b></span></div>
+        <button type="button" class="pick" x-show="rowMenuConv && !rowMenuConv.is_archived" @click="toggleMute(rowMenuConv)">
+            <span class="grow"><b x-text="rowMenuConv && rowMenuConv.is_muted ? 'Reactivar notificaciones' : 'Silenciar chat'"></b></span>
+        </button>
+        <button type="button" class="pick" @click="toggleArchive(rowMenuConv)">
+            <span class="grow">
+                <b x-text="rowMenuConv && rowMenuConv.is_archived ? 'Desarchivar chat' : 'Archivar chat'"></b>
+                <small x-show="!rowMenuConv || !rowMenuConv.is_archived">Se silencia automáticamente</small>
+                <small x-show="rowMenuConv && rowMenuConv.is_archived">Reactiva las notificaciones</small>
+            </span>
+        </button>
     </div>
 
     <div class="sheet" x-show="sheet === 'menu'" x-transition role="dialog" aria-label="Menú">

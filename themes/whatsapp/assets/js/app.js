@@ -22,13 +22,13 @@
             screen: 'boot', pendingCode: '', handle: '', tenant: null, user: null, token: null,
             gateInput: '', gateError: '', loginForm: { login: '', password: '' }, loginError: '', busy: false,
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
-            current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '',
+            current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
             crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
             newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
-            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }],
+            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }, { id: 'archived', label: 'Archivados' }],
             _timers: [], _toastTimer: null, _seq: 0,
 
             // ---------- arranque ----------
@@ -511,6 +511,30 @@
                 } catch (e) { this.notify(e.message); }
             },
             async refreshAgents() { try { this.agents = await this.api('/agents'); } catch (e) {} },
+
+            // ---------- archivar y silenciar ----------
+            openRowMenu: function (c) { this.rowMenuConv = c; this.sheet = 'rowMenu'; },
+            async toggleArchive(c) {
+                if (!c) return;
+                var archived = !c.is_archived;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/archive', { method: 'POST', body: { archived: archived } });
+                    c.is_archived = res.is_archived; c.is_muted = res.is_muted;
+                    this.sheet = ''; this.rowMenuConv = null;
+                    if ((this.filter === 'archived') === !c.is_archived) this.convs = this.convs.filter(function (x) { return x.id !== c.id; });
+                    this.notify(archived ? 'Chat archivado y silenciado' : 'Chat desarchivado');
+                } catch (e) { this.notify(e.message); }
+            },
+            async toggleMute(c) {
+                if (!c || c.is_archived) return;
+                var muted = !c.is_muted;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/mute', { method: 'POST', body: { muted: muted } });
+                    c.is_muted = res.is_muted;
+                    this.sheet = ''; this.rowMenuConv = null;
+                    this.notify(muted ? 'Chat silenciado' : 'Notificaciones reactivadas');
+                } catch (e) { this.notify(e.message); }
+            },
 
 
             // ---------- CRM y cobros ----------
