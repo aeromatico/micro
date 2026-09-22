@@ -815,4 +815,41 @@
     };
 
     function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }
+
+    // ---------- deslizar con mouse en escritorio (los chips de filtros y modos solo tienen scroll táctil) ----------
+    (function () {
+        var SEL = '.filters, .modes';
+
+        // rueda vertical del mouse -> scroll horizontal
+        document.addEventListener('wheel', function (e) {
+            var el = e.target.closest && e.target.closest(SEL);
+            if (!el || el.scrollWidth <= el.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+            el.scrollLeft += e.deltaY;
+            e.preventDefault();
+        }, { passive: false });
+
+        // clic y arrastre con el mouse
+        var drag = null;
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'mouse') return;
+            var el = e.target.closest && e.target.closest(SEL);
+            if (!el) return;
+            drag = { el: el, x: e.clientX, left: el.scrollLeft, moved: false };
+        });
+        document.addEventListener('pointermove', function (e) {
+            if (!drag) return;
+            var dx = e.clientX - drag.x;
+            if (Math.abs(dx) > 3) drag.moved = true;
+            drag.el.scrollLeft = drag.left - dx;
+        });
+        document.addEventListener('pointerup', function () {
+            if (drag && drag.moved) {
+                // evita que el arrastre dispare el clic del chip que quedó debajo del cursor
+                var el = drag.el;
+                var block = function (e) { e.stopPropagation(); e.preventDefault(); el.removeEventListener('click', block, true); };
+                el.addEventListener('click', block, true);
+            }
+            drag = null;
+        });
+    })();
 })();
