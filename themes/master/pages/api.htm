@@ -1,0 +1,337 @@
+url = "/api"
+layout = "base"
+title = "API — Market"
+description = "Referencia de la API de Market: todos los endpoints, sus permisos y un probador para llamarlos en vivo desde el navegador."
+
+[apiExplorer]
+==
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
+
+    <div class="mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="text-xs tracking-wide text-ink-dim uppercase">API</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-pretty">Referencia y pruebas de la API</h1>
+        <p class="text-ink-dim mt-3 max-w-2xl">
+            Todos los endpoints de la plataforma, agrupados por área, con el permiso que necesitan y un probador que
+            llama al endpoint real desde tu navegador — sin instalar nada.
+        </p>
+    </div>
+
+    <noscript>
+        <div class="p-4 bg-canvas-elev border border-edge rounded-xl text-sm text-ink-dim">
+            Esta página necesita JavaScript para mostrar el catálogo y probar los endpoints.
+        </div>
+    </noscript>
+
+    <div
+        x-data="apiTester(window.__aeroApiGroups || [])"
+        x-init="init()"
+        x-cloak
+        class="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8 items-start"
+    >
+        <!-- Sidebar: buscador + árbol de endpoints -->
+        <aside class="mb-6 lg:mb-0 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+            <div class="relative mb-4">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-dim pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input type="search" x-model="search" placeholder="Buscar endpoint…"
+                    class="w-full bg-canvas-elev border border-edge rounded-lg pl-9 pr-3 py-2.5 text-sm placeholder:text-ink-dim focus:outline-none focus:border-accent">
+            </div>
+
+            <template x-for="(group, gi) in filteredGroups" :key="group.label + gi">
+                <div class="mb-5">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-ink-dim mb-2" x-text="group.label"></p>
+                    <nav class="flex flex-col gap-0.5">
+                        <template x-for="(ep, ei) in group.endpoints" :key="ep.method + ep.path">
+                            <button type="button"
+                                @click="select(realGroupIndex(group), ei)"
+                                class="text-left rounded-lg px-2.5 py-2 text-sm flex items-center gap-2 transition-colors"
+                                :class="isActive(group, ep) ? 'bg-canvas-elev2 text-ink' : 'text-ink-dim hover:bg-canvas-elev hover:text-ink'"
+                            >
+                                <span class="shrink-0 w-14 text-[10px] font-bold tracking-wide uppercase text-center py-0.5 rounded"
+                                    :class="methodClass(ep.method)" x-text="ep.method"></span>
+                                <span class="truncate font-mono text-xs" x-text="ep.path"></span>
+                            </button>
+                        </template>
+                    </nav>
+                </div>
+            </template>
+
+            <p x-show="!filteredGroups.length" class="text-sm text-ink-dim">Sin resultados para «<span x-text="search"></span>».</p>
+        </aside>
+
+        <!-- Panel principal: llave, detalle del endpoint y probador -->
+        <div class="min-w-0" id="api-panel">
+            <div class="p-4 mb-6 bg-canvas-elev border border-edge rounded-xl">
+                <label class="block text-xs font-semibold uppercase tracking-wide text-ink-dim mb-2">Tu API key</label>
+                <div class="flex gap-2">
+                    <input :type="showKey ? 'text' : 'password'" x-model="apiKey" @input="saveKey()"
+                        placeholder="ak_..."
+                        class="flex-1 bg-canvas border border-edge rounded-lg px-3 py-2 text-sm font-mono placeholder:text-ink-dim focus:outline-none focus:border-accent">
+                    <button type="button" @click="showKey = !showKey" class="px-3 rounded-lg border border-edge text-ink-dim hover:text-ink text-xs">
+                        <span x-text="showKey ? 'Ocultar' : 'Ver'"></span>
+                    </button>
+                </div>
+                <p class="text-xs text-ink-dim mt-2">
+                    Se guarda solo en tu navegador (localStorage) y se manda directo a este servidor en cada prueba —
+                    nunca pasa por nuestros ojos. Se genera en Configuración → API keys dentro del panel.
+                </p>
+            </div>
+
+            <template x-if="endpoint">
+                <div class="bg-canvas-elev border border-edge rounded-2xl p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <span class="text-xs font-bold tracking-wide uppercase px-2.5 py-1 rounded" :class="methodClass(endpoint.method)" x-text="endpoint.method"></span>
+                        <code class="text-sm sm:text-base font-mono break-all" x-text="endpoint.path"></code>
+                    </div>
+
+                    <p class="text-ink-dim text-sm mb-4" x-text="endpoint.summary"></p>
+
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <template x-if="endpoint.scope">
+                            <span class="inline-flex items-center gap-1.5 text-xs bg-canvas border border-edge rounded-full px-3 py-1">
+                                <svg class="w-3 h-3 text-ink-dim" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                                Permiso: <code class="font-mono" x-text="endpoint.scope"></code>
+                            </span>
+                        </template>
+                    </div>
+
+                    <!-- Parámetros de ruta -->
+                    <template x-if="(endpoint.path_params || []).length">
+                        <div class="mb-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-ink-dim mb-2">Parámetros de ruta</p>
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <template x-for="p in endpoint.path_params" :key="p.name">
+                                    <label class="block">
+                                        <span class="block text-xs text-ink-dim mb-1">
+                                            <code x-text="p.name"></code><span x-show="p.required" class="text-red-400"> *</span>
+                                        </span>
+                                        <input type="text" x-model="form.path[p.name]" :placeholder="p.help || p.type"
+                                            class="w-full bg-canvas border border-edge rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent">
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Parámetros de query -->
+                    <template x-if="(endpoint.query || []).length">
+                        <div class="mb-5">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-ink-dim mb-2">Parámetros de consulta</p>
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <template x-for="p in endpoint.query" :key="p.name">
+                                    <label class="block">
+                                        <span class="block text-xs text-ink-dim mb-1">
+                                            <code x-text="p.name"></code><span x-show="p.required" class="text-red-400"> *</span>
+                                            <span x-show="p.help" class="block text-[11px] mt-0.5" x-text="p.help"></span>
+                                        </span>
+                                        <input type="text" x-model="form.query[p.name]" :placeholder="p.default !== undefined ? String(p.default) : p.type"
+                                            class="w-full bg-canvas border border-edge rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent">
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Cuerpo JSON -->
+                    <template x-if="hasBody()">
+                        <div class="mb-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-xs font-semibold uppercase tracking-wide text-ink-dim">Cuerpo (JSON)</p>
+                                <button type="button" @click="resetBody()" class="text-xs text-ink-dim hover:text-ink">Restaurar ejemplo</button>
+                            </div>
+                            <textarea x-model="form.body" rows="8" spellcheck="false"
+                                class="w-full bg-canvas border border-edge rounded-lg px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-accent"></textarea>
+                        </div>
+                    </template>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" @click="run()" :disabled="loading"
+                            class="inline-flex items-center gap-2 bg-accent text-accent-fg font-bold text-sm px-5 py-2.5 rounded-lg hover:-translate-y-px transition-transform disabled:opacity-60 disabled:pointer-events-none">
+                            <svg x-show="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                            <span x-text="loading ? 'Enviando…' : 'Probar'"></span>
+                        </button>
+                        <button type="button" @click="copyCurl()" class="text-sm text-ink-dim hover:text-ink border border-edge rounded-lg px-4 py-2.5">
+                            Copiar como curl
+                        </button>
+                        <code class="text-xs text-ink-dim break-all" x-text="buildUrl()"></code>
+                    </div>
+
+                    <!-- Respuesta -->
+                    <template x-if="response">
+                        <div class="mt-6 border-t border-edge pt-5">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded"
+                                    :class="response.ok ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'"
+                                    x-text="response.status || 'ERROR'"></span>
+                                <span class="text-xs text-ink-dim" x-text="response.ms + ' ms'"></span>
+                            </div>
+                            <pre class="bg-canvas border border-edge rounded-xl p-4 text-xs overflow-x-auto max-h-96"><code x-text="response.body"></code></pre>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+
+<script id="aero-api-groups" type="application/json">{{ apiExplorer.groupsJson|raw }}</script>
+<script>
+    window.__aeroApiGroups = JSON.parse(document.getElementById('aero-api-groups').textContent);
+
+    function apiTester(groups) {
+        return {
+            groups: groups,
+            search: '',
+            apiKey: '',
+            showKey: false,
+            activeGroup: 0,
+            activeEndpoint: 0,
+            form: { path: {}, query: {}, body: '' },
+            loading: false,
+            response: null,
+
+            init() {
+                try { this.apiKey = localStorage.getItem('aero_api_explorer_key') || ''; } catch (e) {}
+                if (this.groups.length && this.groups[0].endpoints.length) {
+                    this.select(0, 0);
+                }
+            },
+
+            get filteredGroups() {
+                if (!this.search.trim()) return this.groups;
+                const q = this.search.toLowerCase();
+                return this.groups
+                    .map(g => ({ ...g, endpoints: g.endpoints.filter(e => (e.method + ' ' + e.path + ' ' + e.summary).toLowerCase().includes(q)) }))
+                    .filter(g => g.endpoints.length);
+            },
+
+            get endpoint() {
+                return (this.groups[this.activeGroup] || {}).endpoints?.[this.activeEndpoint] || null;
+            },
+
+            realGroupIndex(group) {
+                return this.groups.findIndex(g => g.label === group.label);
+            },
+
+            isActive(group, ep) {
+                const current = this.endpoint;
+                return current && current.method === ep.method && current.path === ep.path;
+            },
+
+            select(gi, ei) {
+                this.activeGroup = gi;
+                this.activeEndpoint = ei;
+                this.response = null;
+                const ep = this.groups[gi].endpoints[ei];
+                const path = {};
+                (ep.path_params || []).forEach(p => { path[p.name] = ''; });
+                const query = {};
+                (ep.query || []).forEach(p => { query[p.name] = p.default !== undefined ? String(p.default) : ''; });
+                this.form = { path, query, body: ep.body_example || '' };
+
+                // En mobile el panel queda debajo de la lista larga de endpoints;
+                // sin esto, elegir uno no muestra ningún cambio visible.
+                if (window.innerWidth < 1024) {
+                    this.$nextTick(() => {
+                        document.getElementById('api-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                }
+            },
+
+            saveKey() {
+                try { localStorage.setItem('aero_api_explorer_key', this.apiKey); } catch (e) {}
+            },
+
+            methodClass(m) {
+                return {
+                    GET: 'bg-emerald-500/15 text-emerald-400',
+                    POST: 'bg-accent/15 text-accent',
+                    PUT: 'bg-amber-500/15 text-amber-400',
+                    PATCH: 'bg-amber-500/15 text-amber-400',
+                    DELETE: 'bg-red-500/15 text-red-400',
+                }[m] || 'bg-ink-dim/15 text-ink-dim';
+            },
+
+            hasBody() {
+                const ep = this.endpoint;
+                return !!ep && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(ep.method) && ep.body_example !== undefined && ep.body_example !== null && ep.body_example !== '';
+            },
+
+            resetBody() {
+                this.form.body = this.endpoint.body_example || '';
+            },
+
+            buildUrl() {
+                const ep = this.endpoint;
+                if (!ep) return '';
+                let path = ep.path;
+                Object.entries(this.form.path).forEach(([k, v]) => {
+                    path = path.replace('{' + k + '}', encodeURIComponent(v || ''));
+                });
+                const qs = Object.entries(this.form.query)
+                    .filter(([, v]) => v !== '' && v !== null && v !== undefined)
+                    .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+                    .join('&');
+                return window.location.origin + path + (qs ? '?' + qs : '');
+            },
+
+            curl() {
+                const ep = this.endpoint;
+                let cmd = 'curl -X ' + ep.method + ' "' + this.buildUrl() + '" \\\n  -H "Authorization: Bearer ' + (this.apiKey || 'ak_xxx') + '"';
+                if (this.hasBody()) {
+                    cmd += ' \\\n  -H "Content-Type: application/json" \\\n  -d \'' + this.form.body.replace(/'/g, "'\\''") + '\'';
+                }
+                return cmd;
+            },
+
+            copyCurl() {
+                navigator.clipboard.writeText(this.curl());
+            },
+
+            async run() {
+                const ep = this.endpoint;
+                if (!ep) return;
+
+                if (!this.apiKey) {
+                    this.response = { status: 0, ok: false, ms: 0, body: 'Pega tu API key arriba antes de probar.' };
+                    return;
+                }
+
+                this.saveKey();
+                const started = performance.now();
+                this.loading = true;
+                this.response = null;
+
+                try {
+                    const opts = {
+                        method: ep.method,
+                        headers: {
+                            'Authorization': 'Bearer ' + this.apiKey,
+                            'Accept': 'application/json',
+                        },
+                    };
+                    if (this.hasBody()) {
+                        opts.headers['Content-Type'] = 'application/json';
+                        opts.body = this.form.body;
+                    }
+
+                    const res = await fetch(this.buildUrl(), opts);
+                    const ms = Math.round(performance.now() - started);
+                    const text = await res.text();
+                    let body = text;
+                    try { body = JSON.stringify(JSON.parse(text), null, 2); } catch (e) {}
+
+                    this.response = { status: res.status, ok: res.ok, ms, body: body || '(sin contenido)' };
+                }
+                catch (e) {
+                    this.response = { status: 0, ok: false, ms: Math.round(performance.now() - started), body: 'Error de red: ' + e.message };
+                }
+                finally {
+                    this.loading = false;
+                }
+            },
+        };
+    }
+</script>
