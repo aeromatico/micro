@@ -63,6 +63,63 @@ class Plugin extends PluginBase
         Event::listen('aero.api.registerScopes', function () {
             return ['shop' => ['label' => 'Tienda', 'scopes' => \Aero\Shop\Classes\Api\Scopes::all()]];
         });
+
+        if (!class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
+            return;
+        }
+
+        Event::listen('aero.api.registerEndpoints', function () {
+            $scopes = \Aero\Shop\Classes\Api\Scopes::class;
+
+            return ['shop' => [
+                'label' => 'Tienda',
+                'endpoints' => [
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/products', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Buscar productos del catálogo.',
+                        'query' => [
+                            ['name' => 'q', 'type' => 'string', 'help' => 'Texto libre sobre nombre/descripción.'],
+                            ['name' => 'collection_id', 'type' => 'integer', 'help' => 'Filtra por colección.'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 20, 'help' => 'Resultados por página.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/products/{id}', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Detalle de un producto.',
+                        'path_params' => [['name' => 'id', 'type' => 'integer', 'required' => true, 'help' => 'ID del producto.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/payment-methods', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Métodos de pago activos de la tienda.',
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/orders', 'scope' => $scopes::ORDERS_READ,
+                        'summary' => 'Lista de pedidos.',
+                        'query' => [
+                            ['name' => 'status', 'type' => 'string', 'help' => 'Ej: pending, paid, cancelled.'],
+                            ['name' => 'phone', 'type' => 'string', 'help' => 'Teléfono del cliente.'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 20, 'help' => 'Máx. 100.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/orders/{ref}', 'scope' => $scopes::ORDERS_READ,
+                        'summary' => 'Detalle de un pedido, por ID o número.',
+                        'path_params' => [['name' => 'ref', 'type' => 'string', 'required' => true, 'help' => 'ID o número de pedido (ej. #1024).']],
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/shop/orders', 'scope' => $scopes::ORDERS_WRITE,
+                        'summary' => 'Crea un pedido nuevo.',
+                        'body_example' => "{\n    \"customer\": {\n        \"first_name\": \"Ana\",\n        \"phone\": \"70000000\"\n    },\n    \"items\": [\n        {\"product_id\": 1, \"quantity\": 2}\n    ],\n    \"notes\": \"Entregar en la tarde\"\n}",
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/shop/orders/{ref}/cancel', 'scope' => $scopes::ORDERS_WRITE,
+                        'summary' => 'Cancela un pedido.',
+                        'path_params' => [['name' => 'ref', 'type' => 'string', 'required' => true, 'help' => 'ID o número de pedido.']],
+                        'body_example' => "{\n    \"reason\": \"El cliente lo pidió\"\n}",
+                    ],
+                ],
+            ]];
+        });
     }
 
     /**
