@@ -32,6 +32,8 @@ Route::prefix('api/v1/chat')->middleware(['api', ForceJson::class])->group(funct
         Route::post('conversations/{id}/location', [InboxController::class, 'location']);
         Route::post('conversations/{id}/note', [InboxController::class, 'note']);
         Route::post('conversations/{id}/read', [InboxController::class, 'markRead']);
+        Route::post('conversations/{id}/archive', [InboxController::class, 'archive']);
+        Route::post('conversations/{id}/mute', [InboxController::class, 'mute']);
         Route::post('conversations/{id}/delegate', [InboxController::class, 'delegate']);
 
         Route::get('push/key', [PushController::class, 'key']);

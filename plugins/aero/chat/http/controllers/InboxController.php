@@ -52,6 +52,9 @@ class InboxController extends Controller
             $query->where('account_id', $accountId);
         }
 
+        // Los chats archivados solo aparecen en filter=archived; el resto de vistas los oculta.
+        $query->where('is_archived', $request->query('filter') === 'archived');
+
         match ($request->query('filter')) {
             'mine' => $query->where('assigned_to', $me->id),
             'free' => $query->whereNull('assigned_to'),
@@ -430,6 +433,38 @@ class InboxController extends Controller
         return $this->data(['ok' => true]);
     }
 
+    /** POST conversations/{id}/archive {archived: bool} — archivar silencia; desarchivar reactiva. */
+    public function archive(Request $request, $id)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        $data = $this->check($request, ['archived' => 'required|boolean']);
+        $conversation->update(['is_archived' => $data['archived'], 'is_muted' => $data['archived']]);
+
+        return $this->data(['is_archived' => (bool) $conversation->is_archived, 'is_muted' => (bool) $conversation->is_muted]);
+    }
+
+    /** POST conversations/{id}/mute {muted: bool} — no aplica si el chat está archivado (ya está silenciado). */
+    public function mute(Request $request, $id)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        if ($conversation->is_archived) {
+            return $this->error('archived', 'Este chat está archivado: se reactiva al desarchivarlo.', 422);
+        }
+
+        $data = $this->check($request, ['muted' => 'required|boolean']);
+        $conversation->update(['is_muted' => $data['muted']]);
+
+        return $this->data(['is_muted' => (bool) $conversation->is_muted]);
+    }
+
     /** POST conversations/{id}/delegate {agent_id|null, note?} — null la deja sin asignar. */
     public function delegate(Request $request, $id)
     {
@@ -480,6 +515,8 @@ class InboxController extends Controller
             'code'            => $c->code,
             'account_id'      => $c->account_id,
             'status'          => $c->status,
+            'is_archived'     => (bool) $c->is_archived,
+            'is_muted'        => (bool) $c->is_muted,
             'unread_count'    => $last && $last->direction === 'outbound' ? 0 : (int) $c->unread_count,
             'last_message_at' => optional($last?->created_at ?? $c->last_message_at)->toIso8601String(),
             'contact'         => [
