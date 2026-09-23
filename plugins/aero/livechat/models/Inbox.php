@@ -55,10 +55,15 @@ class Inbox extends Model
     public function getEmbedSnippetAttribute(): string
     {
         $base = rtrim(\Config::get('app.url'), '/');
+        // Cloudflare cachea el asset 7 días (immutable en la práctica): sin
+        // ?v= un cambio en widget.js queda invisible para todos los tenants
+        // hasta que expire el cache. Ver feedback_cloudflare_asset_cache_busting.
+        $version = filemtime(base_path('plugins/aero/livechat/assets/js/widget.js')) ?: time();
 
         return sprintf(
-            '<script src="%s/plugins/aero/livechat/assets/js/widget.js" data-livechat-key="%s" data-livechat-base="%s" async></script>',
+            '<script src="%s/plugins/aero/livechat/assets/js/widget.js?v=%s" data-livechat-key="%s" data-livechat-base="%s" async></script>',
             $base,
+            $version,
             $this->widget_key,
             $base
         );

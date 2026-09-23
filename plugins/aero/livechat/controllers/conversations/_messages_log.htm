@@ -1,0 +1,21 @@
+<?php $messages = $model->messages()->orderBy('id')->get(); ?>
+<div style="display:flex;flex-direction:column;gap:8px;">
+    <?php foreach ($messages as $message): ?>
+        <?php
+            $mine = $message->sender_type === \Aero\Livechat\Models\Message::AGENT;
+            $system = $message->sender_type === \Aero\Livechat\Models\Message::SYSTEM;
+            $align = $system ? 'center' : ($mine ? 'flex-end' : 'flex-start');
+            $bg = $system ? '#f3f4f6' : ($mine ? '#4f46e5' : '#e5e7eb');
+            $color = $system ? '#6b7280' : ($mine ? '#fff' : '#111827');
+        ?>
+        <div style="display:flex;justify-content:<?= $align ?>;">
+            <div style="max-width:70%;padding:8px 12px;border-radius:12px;background:<?= $bg ?>;color:<?= $color ?>;font-size:13px;">
+                <div><?= nl2br(e($message->body)) ?></div>
+                <div style="font-size:10px;opacity:.7;margin-top:4px;"><?= $message->created_at?->format('d/m H:i') ?></div>
+            </div>
+        </div>
+    <?php endforeach ?>
+    <?php if ($messages->isEmpty()): ?>
+        <div class="text-muted">Todavía no hay mensajes.</div>
+    <?php endif ?>
+</div>

@@ -1,0 +1,10 @@
+title: Bandeja de conversaciones
+list: $/aero/livechat/models/conversation/columns.yaml
+modelClass: Aero\Livechat\Models\Conversation
+recordUrl: aero/livechat/conversations/update/:id
+noRecordsMessage: No hay conversaciones todavía. Llegan automáticamente cuando alguien escribe desde el widget.
+recordsPerPage: 30
+
+defaultSort:
+    column: last_message_at
+    direction: desc

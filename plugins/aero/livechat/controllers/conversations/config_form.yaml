@@ -1,0 +1,9 @@
+name: Conversación
+form: $/aero/livechat/models/conversation/fields.yaml
+modelClass: Aero\Livechat\Models\Conversation
+defaultRedirect: aero/livechat/conversations
+
+update:
+    title: Conversación
+    redirect: aero/livechat/conversations
+    redirectClose: aero/livechat/conversations

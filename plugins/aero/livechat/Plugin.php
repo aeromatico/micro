@@ -1,0 +1,95 @@
+<?php namespace Aero\Livechat;
+
+use Backend;
+use Event;
+use System\Classes\PluginBase;
+
+/**
+ * Chat en vivo para visitantes de un sitio web: widget embebible (script
+ * público) + bandeja de agentes en el backend. Independiente de aero/chat
+ * (que es el inbox multiagente de WhatsApp) y de aero/crm — fase 1 aislada,
+ * sin integración con esos plugins todavía.
+ */
+class Plugin extends PluginBase
+{
+    public $require = ['Aero.Sites'];
+
+    public function pluginDetails(): array
+    {
+        return [
+            'name'        => 'Livechat',
+            'description' => 'Chat en vivo embebible para sitios web: widget público + bandeja de agentes, multi-tenant.',
+            'author'      => 'Aero',
+            'icon'        => 'icon-comment-o',
+        ];
+    }
+
+    public function boot(): void
+    {
+        $this->app['router']->group([], function () {
+            require __DIR__ . '/routes.php';
+        });
+
+        $this->bootTenantPurgeCleanup();
+    }
+
+    /**
+     * Al purgar un tenant (Aero\Sites\Models\Tenant::purge()), borra en
+     * cascada sus inboxes/contactos/conversaciones/mensajes.
+     */
+    protected function bootTenantPurgeCleanup(): void
+    {
+        Event::listen('aero.sites.tenant.purging', function ($tenant) {
+            $tenantId = $tenant->id;
+
+            \Aero\Livechat\Models\Message::whereIn('conversation_id', function ($q) use ($tenantId) {
+                $q->select('id')->from('aero_livechat_conversations')->where('tenant_id', $tenantId);
+            })->delete();
+
+            \Aero\Livechat\Models\Conversation::where('tenant_id', $tenantId)->delete();
+            \Aero\Livechat\Models\Contact::where('tenant_id', $tenantId)->delete();
+            \Aero\Livechat\Models\Inbox::where('tenant_id', $tenantId)->delete();
+        });
+    }
+
+    public function registerNavigation(): array
+    {
+        return [
+            'livechat' => [
+                'label'       => 'Livechat',
+                'url'         => Backend::url('aero/livechat/conversations'),
+                'icon'        => 'icon-comment-o',
+                'permissions' => ['aero.livechat.manage_conversations', 'aero.livechat.manage_inboxes'],
+                'order'       => 170,
+                'sideMenu'    => [
+                    'livechat-conversations' => [
+                        'label'       => 'Bandeja',
+                        'icon'        => 'icon-comments',
+                        'url'         => Backend::url('aero/livechat/conversations'),
+                        'permissions' => ['aero.livechat.manage_conversations'],
+                    ],
+                    'livechat-inboxes' => [
+                        'label'       => 'Inboxes',
+                        'icon'        => 'icon-inbox',
+                        'url'         => Backend::url('aero/livechat/inboxes'),
+                        'permissions' => ['aero.livechat.manage_inboxes'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function registerPermissions(): array
+    {
+        return [
+            'aero.livechat.manage_inboxes' => [
+                'tab'   => 'Livechat',
+                'label' => 'Gestionar inboxes',
+            ],
+            'aero.livechat.manage_conversations' => [
+                'tab'   => 'Livechat',
+                'label' => 'Gestionar conversaciones',
+            ],
+        ];
+    }
+}
