@@ -36,6 +36,24 @@ class TelegramDriver implements ConnectorDriver
         return $this->call($connector, 'getMe', [], 'GET');
     }
 
+    /**
+     * Adjunto por URL: Telegram lo baja él mismo (no hace falta reenviar
+     * bytes desde acá). `kind` 'photo' muestra preview inline; cualquier otro
+     * valor usa sendDocument (PDF, doc, zip, etc.).
+     */
+    public function sendMedia(Connector $connector, string $chatId, string $url, string $kind, ?string $caption = null, ?int $replyToMessageId = null): ConnectorResponse
+    {
+        $method = $kind === 'photo' ? 'sendPhoto' : 'sendDocument';
+        $field = $kind === 'photo' ? 'photo' : 'document';
+
+        return $this->call($connector, $method, array_filter([
+            'chat_id'              => $chatId,
+            $field                 => $url,
+            'caption'              => $caption,
+            'reply_to_message_id'  => $replyToMessageId,
+        ], fn ($v) => $v !== null && $v !== ''));
+    }
+
     /** Últimas entregas pendientes del bot (solo sirve mientras NO tenga webhook activo). */
     public function getUpdates(Connector $connector): ConnectorResponse
     {
