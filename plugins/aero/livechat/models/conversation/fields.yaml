@@ -1,8 +1,7 @@
 fields:
-    contact:
+    contact_label:
         label: Visitante
-        type: relation
-        select: display_name
+        type: text
         disabled: true
         span: left
 

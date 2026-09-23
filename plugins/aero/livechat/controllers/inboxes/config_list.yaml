@@ -7,7 +7,7 @@ recordsPerPage: 30
 showCheckboxes: true
 
 toolbar:
-    buttons: _list_toolbar
+    buttons: list_toolbar
     search:
         prompt: Buscar inboxes
 

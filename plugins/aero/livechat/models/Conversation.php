@@ -63,6 +63,16 @@ class Conversation extends Model
         );
     }
 
+    /**
+     * El widget de relación resuelve `select` como columna SQL real, no como
+     * accessor — display_name (name ?: email ?: "Visitante #n") no existe en
+     * la tabla. Se expone como campo de texto aparte en vez de relation.
+     */
+    public function getContactLabelAttribute(): string
+    {
+        return $this->contact?->display_name ?? '—';
+    }
+
     /** Último mensaje, para la vista previa en el listado. */
     public function getLastMessageAttribute(): ?Message
     {

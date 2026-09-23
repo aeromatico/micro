@@ -1,8 +1,7 @@
 columns:
-    contact:
+    contact_label:
         label: Visitante
-        relation: contact
-        select: name
+        type: text
 
     inbox:
         label: Inbox
