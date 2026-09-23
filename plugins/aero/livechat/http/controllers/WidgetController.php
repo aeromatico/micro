@@ -25,6 +25,7 @@ class WidgetController extends Controller
             'visitor_token' => 'nullable|string|max:40',
             'name'          => 'nullable|string|max:255',
             'email'         => 'nullable|email|max:255',
+            'phone'         => 'nullable|string|max:40',
             'page_url'      => 'nullable|string|max:255',
         ]);
 
@@ -40,17 +41,28 @@ class WidgetController extends Controller
                 ->first();
         }
 
+        // Contacto nuevo (sin token todavía): el pre-chat form del widget ya
+        // pide estos tres datos antes de llamar acá — se exigen también del
+        // lado del servidor para no depender solo de la validación del JS.
         if (!$contact) {
+            $data = $this->check($request, [
+                'name'  => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'required|string|max:40',
+            ]) + $data;
+
             $contact = Contact::create([
                 'tenant_id' => $inbox->tenant_id,
-                'name'      => $data['name'] ?? null,
-                'email'     => $data['email'] ?? null,
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'phone'     => $data['phone'],
             ]);
         }
         else {
             $contact->fill(array_filter([
                 'name'  => $data['name'] ?? null,
                 'email' => $data['email'] ?? null,
+                'phone' => $data['phone'] ?? null,
             ]));
         }
         $contact->last_seen_at = now();

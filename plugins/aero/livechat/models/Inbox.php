@@ -12,6 +12,7 @@ use Str;
 class Inbox extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+    use \October\Rain\Database\Traits\Purgeable;
 
     public $table = 'aero_livechat_inboxes';
 
@@ -19,6 +20,14 @@ class Inbox extends Model
         'tenant_id', 'name', 'welcome_message', 'color', 'is_active',
         'telegram_connector_id', 'telegram_chat_id',
     ];
+
+    /**
+     * `embed_snippet` es un accessor puro (sin columna): el Form widget
+     * asigna cada campo del form como atributo directo del modelo, sin
+     * respetar $fillable (eso solo aplica a fill()/create()) — sin purgarlo,
+     * Eloquent intenta insertarlo como columna real y el UPDATE explota.
+     */
+    protected $purgeable = ['embed_snippet'];
 
     public $attributes = ['color' => '#4f46e5', 'is_active' => true];
 
@@ -77,8 +86,11 @@ class Inbox extends Model
         // hasta que expire el cache. Ver feedback_cloudflare_asset_cache_busting.
         $version = filemtime(base_path('plugins/aero/livechat/assets/js/widget.js')) ?: time();
 
+        // charset explícito: el navegador si no, decodifica widget.js con el
+        // charset de la página del tenant — si esa página no declara UTF-8,
+        // los acentos del widget salen con mojibake.
         return sprintf(
-            '<script src="%s/plugins/aero/livechat/assets/js/widget.js?v=%s" data-livechat-key="%s" data-livechat-base="%s" async></script>',
+            '<script src="%s/plugins/aero/livechat/assets/js/widget.js?v=%s" charset="utf-8" data-livechat-key="%s" data-livechat-base="%s" async></script>',
             $base,
             $version,
             $this->widget_key,

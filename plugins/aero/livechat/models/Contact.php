@@ -9,7 +9,7 @@ class Contact extends Model
 {
     public $table = 'aero_livechat_contacts';
 
-    public $fillable = ['tenant_id', 'name', 'email', 'visitor_token', 'last_seen_at'];
+    public $fillable = ['tenant_id', 'name', 'email', 'phone', 'visitor_token', 'last_seen_at'];
 
     public $belongsTo = [
         'tenant' => [Tenant::class],

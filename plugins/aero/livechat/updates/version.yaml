@@ -5,3 +5,6 @@
     - "Puente con Telegram (Aero.Connector): responder conversaciones citando mensajes desde un chat/grupo de Telegram, ida y vuelta."
     - add_telegram_bridge.php
     - seed_telegram_webhook_endpoint.php
+1.2.0:
+    - "Formulario previo del widget: pide nombre, correo y celular antes de habilitar el chat."
+    - add_phone_to_contacts.php

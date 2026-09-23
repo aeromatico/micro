@@ -70,7 +70,14 @@ class Conversation extends Model
      */
     public function getContactLabelAttribute(): string
     {
-        return $this->contact?->display_name ?? '—';
+        $contact = $this->contact;
+        if (!$contact) {
+            return '—';
+        }
+
+        $extra = implode(' · ', array_filter([$contact->email, $contact->phone]));
+
+        return $extra ? "{$contact->display_name} ({$extra})" : $contact->display_name;
     }
 
     /** Último mensaje, para la vista previa en el listado. */
