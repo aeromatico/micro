@@ -26,13 +26,31 @@
         unreadTimer: null,
     };
 
+    /**
+     * Nunca rechaza la promesa — siempre resuelve con un objeto (con
+     * `.error` si algo salió mal). Sin esto, una respuesta que no es JSON
+     * (ej. la página HTML de error 429 de "demasiadas peticiones", o un
+     * corte de red) hacía que el `.then()` de quien llamó nunca se
+     * ejecutara, dejando el botón trabado en "Enviando..." para siempre.
+     */
     function api(path, opts) {
         opts = opts || {};
         return fetch(base + '/api/v1/livechat/' + path, {
             method: opts.method || 'GET',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: opts.body ? JSON.stringify(opts.body) : undefined,
-        }).then(function (r) { return r.json(); });
+        }).then(function (r) {
+            return r.json().catch(function () {
+                return {
+                    error: 'server_error',
+                    message: r.status === 429
+                        ? 'Demasiados intentos. Esperá un momento y probá de nuevo.'
+                        : 'El servidor no respondió correctamente. Probá de nuevo.',
+                };
+            });
+        }).catch(function () {
+            return { error: 'network_error', message: 'No se pudo conectar. Revisá tu conexión.' };
+        });
     }
 
     function getToken() {
@@ -337,7 +355,11 @@
         formData.append('file', file);
 
         fetch(base + '/api/v1/livechat/attachment', { method: 'POST', body: formData })
-            .then(function (r) { return r.json(); })
+            .then(function (r) {
+                return r.json().catch(function () {
+                    return { error: 'server_error', message: r.status === 429 ? 'Demasiados intentos. Esperá un momento.' : 'El servidor no respondió correctamente.' };
+                });
+            })
             .then(function (res) {
                 if (res.error) {
                     setToolbarMsg(res.message || 'No se pudo subir el archivo.');
@@ -348,6 +370,9 @@
                     if (m.id > state.lastMessageId) { handleIncoming(m); }
                     state.lastMessageId = Math.max(state.lastMessageId, m.id);
                 });
+            })
+            .catch(function () {
+                setToolbarMsg('No se pudo conectar. Probá de nuevo.');
             });
     }
 

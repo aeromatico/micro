@@ -16,6 +16,6 @@ Route::prefix('api/v1/livechat')->middleware(['api', ForceJson::class, Cors::cla
     Route::get('unread', [WidgetController::class, 'unread'])->middleware('throttle:60,1');
     Route::post('attachment', [WidgetController::class, 'attachment'])->middleware('throttle:20,1');
     Route::get('attachments/{token}', [WidgetController::class, 'attachmentDownload'])->middleware('throttle:120,1')->where('token', '[A-Za-z0-9]{40}');
-    Route::post('transcript', [WidgetController::class, 'transcript'])->middleware('throttle:5,1');
+    Route::post('transcript', [WidgetController::class, 'transcript'])->middleware('throttle:10,1');
     Route::post('end', [WidgetController::class, 'end'])->middleware('throttle:20,1');
 });
