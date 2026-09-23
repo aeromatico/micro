@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Response;
  * Servicios en el sitio público.
  *   mode = "menu"       → $groups: servicios del megamenú agrupados por categoría.
  *   mode = "detail"     → $service: el servicio público de :slug (404 si no existe o es borrador).
- *   mode = "collection" → $collection: la colección de :slug con sus servicios (404 si no existe).
+ *   mode = "collection" → $collection: la colección de :slug con sus servicios (404 si no existe, salvo requireCollection=0
+ *                          para usarlo como sección embebida en otra página, donde simplemente queda null).
  */
 class Services extends ComponentBase
 {
@@ -32,6 +33,8 @@ class Services extends ComponentBase
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'menu',
                 'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'collection' => 'Colección']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
+            'requireCollection' => ['title' => 'Exigir colección (404 si falta)', 'type' => 'checkbox', 'default' => true,
+                'description' => 'Desactívalo cuando el componente es una sección embebida en otra página: si la colección no existe, simplemente no se renderiza.'],
         ];
     }
 
@@ -52,16 +55,23 @@ class Services extends ComponentBase
         }
 
         if ($this->property('mode') === 'collection') {
+            $requireCollection = !in_array((string) $this->property('requireCollection', '1'), ['0', 'false', ''], true);
+
             $this->collection = Collection::with(['services' => fn ($q) => $q->orderBy('sort_order')->orderBy('name')])
                 ->where('slug', $this->property('slug'))->first();
 
             if (!$this->collection) {
-                return Response::make($this->controller->run('404'), 404);
+                return $requireCollection ? Response::make($this->controller->run('404'), 404) : null;
             }
 
             $this->page['collection'] = $this->collection;
-            $this->page->title = $this->collection->name . ' — Market';
-            $this->page->description = $this->collection->summary;
+
+            // Solo pisa el título/descripción de la página cuando la colección es el contenido principal
+            // (página dedicada), no cuando se embebe como sección dentro de otra página (ej. el landing).
+            if ($requireCollection) {
+                $this->page->title = $this->collection->name . ' — Market';
+                $this->page->description = $this->collection->summary;
+            }
 
             return null;
         }
