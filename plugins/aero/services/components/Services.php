@@ -1,14 +1,16 @@
 <?php namespace Aero\Services\Components;
 
 use Aero\Services\Models\Category;
+use Aero\Services\Models\Collection;
 use Aero\Services\Models\Service;
 use Cms\Classes\ComponentBase;
 use Illuminate\Support\Facades\Response;
 
 /**
  * Servicios en el sitio público.
- *   mode = "menu"   → $groups: servicios del megamenú agrupados por categoría.
- *   mode = "detail" → $service: el servicio público de :slug (404 si no existe o es borrador).
+ *   mode = "menu"       → $groups: servicios del megamenú agrupados por categoría.
+ *   mode = "detail"     → $service: el servicio público de :slug (404 si no existe o es borrador).
+ *   mode = "collection" → $collection: la colección de :slug con sus servicios (404 si no existe).
  */
 class Services extends ComponentBase
 {
@@ -16,6 +18,8 @@ class Services extends ComponentBase
     public array $groups = [];
 
     public ?Service $service = null;
+
+    public ?Collection $collection = null;
 
     public function componentDetails(): array
     {
@@ -26,7 +30,7 @@ class Services extends ComponentBase
     {
         return [
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'menu',
-                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle']],
+                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'collection' => 'Colección']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
         ];
     }
@@ -43,6 +47,21 @@ class Services extends ComponentBase
             $this->page['service'] = $this->service;
             $this->page->title = $this->service->name . ' — Market';
             $this->page->description = $this->service->summary;
+
+            return null;
+        }
+
+        if ($this->property('mode') === 'collection') {
+            $this->collection = Collection::with(['services' => fn ($q) => $q->orderBy('sort_order')->orderBy('name')])
+                ->where('slug', $this->property('slug'))->first();
+
+            if (!$this->collection) {
+                return Response::make($this->controller->run('404'), 404);
+            }
+
+            $this->page['collection'] = $this->collection;
+            $this->page->title = $this->collection->name . ' — Market';
+            $this->page->description = $this->collection->summary;
 
             return null;
         }
