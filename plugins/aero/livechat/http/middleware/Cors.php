@@ -1,7 +1,9 @@
 <?php namespace Aero\Livechat\Http\Middleware;
 
 use Closure;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
+use Throwable;
 
 /**
  * El widget se embebe en dominios de terceros (el sitio de cada tenant), no
@@ -17,7 +19,17 @@ class Cors
             return response('', 204)->withHeaders($this->headers());
         }
 
-        $response = $next($request);
+        try {
+            $response = $next($request);
+        }
+        catch (Throwable $e) {
+            // `throttle` (u otro middleware más adentro) corta con una
+            // excepción (ej. 429) ANTES de volver hasta acá — sin este
+            // catch, esa respuesta sale sin headers de CORS y el navegador
+            // la bloquea entera: el widget ve un error de red genérico en
+            // vez del mensaje real ("demasiados intentos").
+            $response = app(ExceptionHandler::class)->render($request, $e);
+        }
 
         foreach ($this->headers() as $key => $value) {
             $response->headers->set($key, $value);

@@ -16,6 +16,9 @@
 
     var storageKey = 'aero_livechat_token_' + widgetKey;
     var contactStorageKey = 'aero_livechat_contact_' + widgetKey;
+    // sessionStorage (no localStorage): "abierto" es un estado de esta
+    // pestaña, no algo que deba sobrevivir a cerrar el navegador.
+    var openStorageKey = 'aero_livechat_open_' + widgetKey;
     var state = {
         visitorToken: null,
         lastMessageId: 0,
@@ -220,11 +223,18 @@
         document.getElementById('aero-livechat-form').style.display = 'flex';
     }
 
-    function togglePanel() {
-        state.open = !state.open;
-        document.getElementById('aero-livechat-panel').style.display = state.open ? 'flex' : 'none';
-        if (!state.open) { stopPolling(); return; }
+    /** Recuerda si el panel quedó abierto/cerrado en esta pestaña, para heredar el estado al navegar a otra página del sitio. */
+    function setOpenFlag(open) {
+        try {
+            if (open) { sessionStorage.setItem(openStorageKey, '1'); }
+            else { sessionStorage.removeItem(openStorageKey); }
+        } catch (e) {}
+    }
 
+    function openPanel() {
+        state.open = true;
+        document.getElementById('aero-livechat-panel').style.display = 'flex';
+        setOpenFlag(true);
         hideBadge();
 
         if (state.started || getToken()) {
@@ -234,6 +244,17 @@
         } else {
             showPreChat();
         }
+    }
+
+    function closePanel() {
+        state.open = false;
+        document.getElementById('aero-livechat-panel').style.display = 'none';
+        setOpenFlag(false);
+        stopPolling();
+    }
+
+    function togglePanel() {
+        if (state.open) { closePanel(); } else { openPanel(); }
     }
 
     function submitPreChat() {
@@ -564,6 +585,13 @@
         // pre-chat de nuevo.
         state.unreadTimer = setInterval(pollUnread, 15000);
         pollUnread();
+
+        // El visitante tenía el panel abierto (o solo minimizado/cerrado) al
+        // cambiar de página — hereda ese mismo estado en la nueva, en vez de
+        // arrancar siempre cerrado.
+        try {
+            if (sessionStorage.getItem(openStorageKey) === '1') { openPanel(); }
+        } catch (e) {}
     }
 
     if (document.readyState === 'loading') {
