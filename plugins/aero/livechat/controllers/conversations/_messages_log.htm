@@ -10,7 +10,20 @@
         ?>
         <div style="display:flex;justify-content:<?= $align ?>;">
             <div style="max-width:70%;padding:8px 12px;border-radius:12px;background:<?= $bg ?>;color:<?= $color ?>;font-size:13px;">
-                <div><?= nl2br(e($message->body)) ?></div>
+                <?php if ($message->hasAttachment()): ?>
+                    <?php if ($message->isImageAttachment()): ?>
+                        <a href="<?= e($message->attachment_url) ?>" target="_blank" rel="noopener">
+                            <img src="<?= e($message->attachment_url) ?>" alt="<?= e($message->attachment_name) ?>" style="max-width:100%;border-radius:8px;display:block;">
+                        </a>
+                    <?php else: ?>
+                        <a href="<?= e($message->attachment_url) ?>" target="_blank" rel="noopener" style="color:inherit;">
+                            📎 <?= e($message->attachment_name) ?>
+                        </a>
+                    <?php endif ?>
+                <?php endif ?>
+                <?php if ($message->body): ?>
+                    <div<?= $message->hasAttachment() ? ' style="margin-top:4px;"' : '' ?>><?= nl2br(e($message->body)) ?></div>
+                <?php endif ?>
                 <div style="font-size:10px;opacity:.7;margin-top:4px;"><?= $message->created_at?->format('d/m H:i') ?></div>
             </div>
         </div>

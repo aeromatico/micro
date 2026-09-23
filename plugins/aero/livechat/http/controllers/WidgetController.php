@@ -1,6 +1,8 @@
 <?php namespace Aero\Livechat\Http\Controllers;
 
+use Aero\Livechat\Classes\AttachmentStorage;
 use Aero\Livechat\Classes\TelegramBridge;
+use Aero\Livechat\Classes\TranscriptMailer;
 use Aero\Livechat\Classes\ValidatesJson;
 use Aero\Livechat\Models\Contact;
 use Aero\Livechat\Models\Conversation;
@@ -8,6 +10,7 @@ use Aero\Livechat\Models\Inbox;
 use Aero\Livechat\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Storage;
 
 /**
  * API pública y anónima que consume `assets/js/widget.js` desde el dominio
@@ -135,6 +138,111 @@ class WidgetController extends Controller
         return response()->json(['ok' => true, 'messages' => $this->serializeMessages($conversation)]);
     }
 
+    public function attachment(Request $request)
+    {
+        $data = $this->check($request, [
+            'widget_key'    => 'required|uuid',
+            'visitor_token' => 'required|string|max:40',
+            'file'          => 'required|file',
+        ]);
+
+        [$inbox, $contact, $conversation] = $this->resolveConversation($data['widget_key'], $data['visitor_token']);
+        if (!$conversation) {
+            return response()->json(['error' => 'conversation_not_found'], 404);
+        }
+
+        $stored = AttachmentStorage::store($request->file('file'));
+        if (isset($stored['error'])) {
+            return response()->json(['error' => 'attachment_rejected', 'message' => $stored['error']], 422);
+        }
+
+        $message = Message::create([
+            'conversation_id'  => $conversation->id,
+            'sender_type'      => Message::CONTACT,
+            'body'             => '',
+            'attachment_path'  => $stored['path'],
+            'attachment_name'  => $stored['name'],
+            'attachment_mime'  => $stored['mime'],
+            'attachment_size'  => $stored['size'],
+            'attachment_token' => $stored['token'],
+        ]);
+
+        $conversation->last_message_at = now();
+        $conversation->agent_unread_count++;
+        $conversation->status = Conversation::OPEN;
+        $conversation->save();
+
+        TelegramBridge::relayAttachment($conversation, $message, "👤 {$contact->display_name}:");
+
+        return response()->json(['ok' => true, 'messages' => $this->serializeMessages($conversation)]);
+    }
+
+    /** Público por diseño: el token de 40 caracteres es la única llave, no hay endpoint que los liste. */
+    public function attachmentDownload(string $token)
+    {
+        $message = Message::where('attachment_token', $token)->first();
+        if (!$message || !Storage::disk('local')->exists($message->attachment_path)) {
+            abort(404);
+        }
+
+        return AttachmentStorage::stream($message->attachment_path, $message->attachment_mime, $message->attachment_name);
+    }
+
+    public function transcript(Request $request)
+    {
+        $data = $this->check($request, [
+            'widget_key'    => 'required|uuid',
+            'visitor_token' => 'required|string|max:40',
+        ]);
+
+        [$inbox, $contact, $conversation] = $this->resolveConversation($data['widget_key'], $data['visitor_token']);
+        if (!$conversation) {
+            return response()->json(['error' => 'conversation_not_found'], 404);
+        }
+
+        if (!$contact->email) {
+            return response()->json(['error' => 'no_email', 'message' => 'No hay un correo registrado para este chat.'], 422);
+        }
+
+        TranscriptMailer::send($conversation, $contact, $inbox);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * El visitante termina la sesión desde el widget: la conversación queda
+     * resuelta y el widget borra su token local — la próxima vez que abra el
+     * chat empieza de cero (contacto y conversación nuevos), como si nunca
+     * hubiera chateado. Si vuelve a escribir sin haber "finalizado", la
+     * misma conversación se reabre sola (ver `message()`).
+     */
+    public function end(Request $request)
+    {
+        $data = $this->check($request, [
+            'widget_key'    => 'required|uuid',
+            'visitor_token' => 'required|string|max:40',
+        ]);
+
+        [$inbox, $contact, $conversation] = $this->resolveConversation($data['widget_key'], $data['visitor_token']);
+        if (!$conversation) {
+            return response()->json(['error' => 'conversation_not_found'], 404);
+        }
+
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_type'     => Message::SYSTEM,
+            'body'            => 'El visitante finalizó el chat.',
+        ]);
+
+        $conversation->status = Conversation::RESOLVED;
+        $conversation->agent_unread_count++;
+        $conversation->save();
+
+        TelegramBridge::relay($conversation, $message, 'ℹ️');
+
+        return response()->json(['ok' => true]);
+    }
+
     public function messages(Request $request)
     {
         $data = $this->check($request, [
@@ -196,6 +304,12 @@ class WidgetController extends Controller
                 'from'       => $m->sender_type,
                 'body'       => $m->body,
                 'created_at' => $m->created_at->toIso8601String(),
+                'attachment' => $m->hasAttachment() ? [
+                    'url'   => $m->attachment_url,
+                    'name'  => $m->attachment_name,
+                    'mime'  => $m->attachment_mime,
+                    'image' => $m->isImageAttachment(),
+                ] : null,
             ])
             ->all();
     }

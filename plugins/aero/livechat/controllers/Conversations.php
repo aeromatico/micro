@@ -1,5 +1,6 @@
 <?php namespace Aero\Livechat\Controllers;
 
+use Aero\Livechat\Classes\AttachmentStorage;
 use Aero\Livechat\Classes\TelegramBridge;
 use Aero\Livechat\Classes\TenantScope;
 use Aero\Livechat\Models\Conversation;
@@ -9,6 +10,7 @@ use BackendAuth;
 use BackendMenu;
 use Flash;
 use Input;
+use Request;
 
 class Conversations extends Controller
 {
@@ -75,6 +77,66 @@ class Conversations extends Controller
         // Mensajes que llegaron VÍA Telegram nunca pasan por acá (los crea
         // TelegramBridge::handleInbound directo) — sin riesgo de eco.
         TelegramBridge::relay($conversation, $message, '👨‍💻 Agente (panel):');
+
+        return $this->onLoadMessages($recordId);
+    }
+
+    public function onAttach($recordId = null)
+    {
+        $conversation = Conversation::inScope(TenantScope::currentTenantId())->findOrFail($recordId ?: post('record_id'));
+        $file = Request::file('attachment');
+
+        if (!$file) {
+            Flash::error('Elegí un archivo primero.');
+            return $this->onLoadMessages($recordId);
+        }
+
+        $stored = AttachmentStorage::store($file);
+        if (isset($stored['error'])) {
+            Flash::error($stored['error']);
+            return $this->onLoadMessages($recordId);
+        }
+
+        $message = Message::create([
+            'conversation_id'  => $conversation->id,
+            'sender_type'      => Message::AGENT,
+            'sender_id'        => BackendAuth::getUser()->id,
+            'body'             => '',
+            'attachment_path'  => $stored['path'],
+            'attachment_name'  => $stored['name'],
+            'attachment_mime'  => $stored['mime'],
+            'attachment_size'  => $stored['size'],
+            'attachment_token' => $stored['token'],
+        ]);
+
+        $conversation->last_message_at = now();
+        $conversation->agent_unread_count = 0;
+        $conversation->visitor_unread_count++;
+        $conversation->save();
+
+        TelegramBridge::relayAttachment($conversation, $message, '👨‍💻 Agente (panel):');
+
+        return $this->onLoadMessages($recordId);
+    }
+
+    /** El agente da por terminada la conversación. El visitante puede reabrirla escribiendo de nuevo (ver WidgetController::message). */
+    public function onFinish($recordId = null)
+    {
+        $conversation = Conversation::inScope(TenantScope::currentTenantId())->findOrFail($recordId ?: post('record_id'));
+
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_type'     => Message::SYSTEM,
+            'body'            => 'El agente finalizó el chat.',
+        ]);
+
+        $conversation->status = Conversation::RESOLVED;
+        $conversation->agent_unread_count = 0;
+        $conversation->save();
+
+        TelegramBridge::relay($conversation, $message, 'ℹ️');
+
+        Flash::success('Conversación finalizada.');
 
         return $this->onLoadMessages($recordId);
     }

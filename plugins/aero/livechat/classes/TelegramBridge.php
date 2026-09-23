@@ -54,6 +54,45 @@ class TelegramBridge
         }
     }
 
+    /**
+     * Igual que `relay()` pero para un mensaje con adjunto: Telegram baja el
+     * archivo solo, a partir de la URL pública (no se reenvían bytes desde
+     * acá) — sendPhoto para imágenes (con preview), sendDocument para el resto.
+     */
+    public static function relayAttachment(Conversation $conversation, Message $message, string $prefix): void
+    {
+        $inbox = $conversation->inbox;
+        if (!$inbox || !$inbox->telegram_connector_id || !$inbox->telegram_chat_id || !$message->hasAttachment()) {
+            return;
+        }
+
+        $connector = Connector::find($inbox->telegram_connector_id);
+        $driver = TypeRegistry::driverFor('telegram');
+        if (!$connector || !$driver instanceof \Aero\Connector\Drivers\TelegramDriver) {
+            return;
+        }
+
+        $anchor = Message::where('conversation_id', $conversation->id)
+            ->whereNotNull('telegram_message_id')
+            ->where('id', '!=', $message->id)
+            ->orderByDesc('id')
+            ->value('telegram_message_id');
+
+        $response = $driver->sendMedia(
+            $connector,
+            (string) $inbox->telegram_chat_id,
+            $message->attachment_url,
+            $message->isImageAttachment() ? 'photo' : 'document',
+            trim($prefix . "\n" . $message->attachment_name),
+            $anchor
+        );
+
+        $sentId = $response->body['result']['message_id'] ?? null;
+        if ($response->successful && $sentId) {
+            $message->newQuery()->where('id', $message->id)->update(['telegram_message_id' => $sentId]);
+        }
+    }
+
     /** Handler del evento `aero.livechat.telegram_inbound` — un update de Telegram. */
     public static function handleInbound(array $payload): void
     {

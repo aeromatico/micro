@@ -57,10 +57,16 @@
         + '.aero-livechat-msg.agent{align-self:flex-end;background:' + '__COLOR__' + ';color:#fff;}'
         + '.aero-livechat-msg.contact{align-self:flex-start;background:#e5e7eb;color:#111827;}'
         + '.aero-livechat-msg.system{align-self:center;background:transparent;color:#6b7280;font-size:12px;font-style:italic;}'
-        + '#aero-livechat-form{display:flex;border-top:1px solid #e5e7eb;padding:8px;gap:6px;}'
+        + '#aero-livechat-toolbar{display:flex;align-items:center;gap:10px;padding:6px 10px 0;border-top:1px solid #e5e7eb;}'
+        + '#aero-livechat-toolbar button{background:none;border:none;color:#6b7280;font-size:12px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:4px;}'
+        + '#aero-livechat-toolbar button:hover{color:' + '__COLOR__' + ';}'
+        + '#aero-livechat-toolbar-msg{font-size:11px;color:#6b7280;margin-left:auto;}'
+        + '#aero-livechat-form{display:flex;padding:8px;gap:6px;}'
         + '#aero-livechat-input{flex:1;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:13px;resize:none;color:#111827;background:#fff;}'
         + '#aero-livechat-send{background:' + '__COLOR__' + ';color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:13px;cursor:pointer;}'
         + '#aero-livechat-close{background:transparent;border:none;color:#fff;float:right;cursor:pointer;font-size:16px;line-height:1;}'
+        + '.aero-livechat-attachment-img{max-width:100%;border-radius:8px;display:block;}'
+        + '.aero-livechat-attachment-file{color:inherit;text-decoration:underline;font-size:13px;}'
         + '#aero-livechat-prechat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff;}'
         + '#aero-livechat-prechat p{margin:0 0 4px;font-size:13px;color:#374151;}'
         + '.aero-livechat-pc-input{border:1px solid #d1d5db;border-radius:8px;padding:9px 11px;font-size:13px;width:100%;'
@@ -98,6 +104,13 @@
             + '<button id="aero-livechat-pc-submit">Iniciar chat</button>'
             + '</div>'
             + '<div id="aero-livechat-log" style="display:none;"></div>'
+            + '<div id="aero-livechat-toolbar" style="display:none;">'
+            + '<button id="aero-livechat-attach-btn" type="button" title="Adjuntar un archivo">📎 Adjuntar</button>'
+            + '<input type="file" id="aero-livechat-file-input" style="display:none" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip">'
+            + '<button id="aero-livechat-transcript-btn" type="button" title="Enviar la conversación a tu correo">✉️ Enviar transcripción</button>'
+            + '<button id="aero-livechat-end-btn" type="button" title="Finalizar chat">🔒 Finalizar</button>'
+            + '<span id="aero-livechat-toolbar-msg"></span>'
+            + '</div>'
             + '<div id="aero-livechat-form" style="display:none;">'
             + '<textarea id="aero-livechat-input" rows="1" placeholder="Escribe un mensaje..."></textarea>'
             + '<button id="aero-livechat-send">Enviar</button>'
@@ -116,17 +129,28 @@
                 if (e.key === 'Enter') { e.preventDefault(); submitPreChat(); }
             });
         });
+        document.getElementById('aero-livechat-attach-btn').addEventListener('click', function () {
+            document.getElementById('aero-livechat-file-input').click();
+        });
+        document.getElementById('aero-livechat-file-input').addEventListener('change', function () {
+            if (this.files[0]) { uploadAttachment(this.files[0]); }
+            this.value = '';
+        });
+        document.getElementById('aero-livechat-transcript-btn').addEventListener('click', sendTranscript);
+        document.getElementById('aero-livechat-end-btn').addEventListener('click', endChat);
     }
 
     function showPreChat() {
         document.getElementById('aero-livechat-prechat').style.display = 'flex';
         document.getElementById('aero-livechat-log').style.display = 'none';
+        document.getElementById('aero-livechat-toolbar').style.display = 'none';
         document.getElementById('aero-livechat-form').style.display = 'none';
     }
 
     function showChat() {
         document.getElementById('aero-livechat-prechat').style.display = 'none';
         document.getElementById('aero-livechat-log').style.display = 'flex';
+        document.getElementById('aero-livechat-toolbar').style.display = 'flex';
         document.getElementById('aero-livechat-form').style.display = 'flex';
     }
 
@@ -194,9 +218,95 @@
 
     function renderMessage(m) {
         var log = document.getElementById('aero-livechat-log');
-        var div = el('div', { class: 'aero-livechat-msg ' + m.from }, escapeHtml(m.body));
+        var div = el('div', { class: 'aero-livechat-msg ' + m.from });
+
+        if (m.attachment) {
+            if (m.attachment.image) {
+                div.appendChild(el('a', { href: m.attachment.url, target: '_blank', rel: 'noopener' },
+                    '<img class="aero-livechat-attachment-img" src="' + m.attachment.url + '" alt="' + escapeHtml(m.attachment.name) + '">'));
+            } else {
+                div.appendChild(el('a', { href: m.attachment.url, target: '_blank', rel: 'noopener', class: 'aero-livechat-attachment-file' },
+                    '📎 ' + escapeHtml(m.attachment.name)));
+            }
+        }
+        if (m.body) {
+            var bodyDiv = el('div', {}, escapeHtml(m.body));
+            if (m.attachment) { bodyDiv.style.marginTop = '4px'; }
+            div.appendChild(bodyDiv);
+        }
+
         log.appendChild(div);
         log.scrollTop = log.scrollHeight;
+    }
+
+    function uploadAttachment(file) {
+        if (!state.visitorToken) return;
+        if (file.size > 8 * 1024 * 1024) {
+            setToolbarMsg('El archivo supera los 8 MB.');
+            return;
+        }
+
+        setToolbarMsg('Subiendo...');
+
+        var formData = new FormData();
+        formData.append('widget_key', widgetKey);
+        formData.append('visitor_token', state.visitorToken);
+        formData.append('file', file);
+
+        fetch(base + '/api/v1/livechat/attachment', { method: 'POST', body: formData })
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+                if (res.error) {
+                    setToolbarMsg(res.message || 'No se pudo subir el archivo.');
+                    return;
+                }
+                setToolbarMsg('');
+                (res.messages || []).forEach(function (m) {
+                    if (m.id > state.lastMessageId) { renderMessage(m); }
+                    state.lastMessageId = Math.max(state.lastMessageId, m.id);
+                });
+            });
+    }
+
+    function sendTranscript() {
+        if (!state.visitorToken) return;
+        setToolbarMsg('Enviando...');
+
+        api('transcript', {
+            method: 'POST',
+            body: { widget_key: widgetKey, visitor_token: state.visitorToken },
+        }).then(function (res) {
+            setToolbarMsg(res.error ? (res.message || 'No se pudo enviar.') : '¡Enviado! Revisá tu correo.');
+        });
+    }
+
+    function endChat() {
+        if (!state.visitorToken) return;
+        if (!window.confirm('¿Finalizar esta conversación? Se cierra el chat actual; si volvés a escribir, empieza uno nuevo.')) return;
+
+        api('end', {
+            method: 'POST',
+            body: { widget_key: widgetKey, visitor_token: state.visitorToken },
+        }).then(function () {
+            try { localStorage.removeItem(storageKey); } catch (e) {}
+            state.visitorToken = null;
+            state.started = false;
+            state.lastMessageId = 0;
+            stopPolling();
+
+            document.getElementById('aero-livechat-log').innerHTML = '';
+            document.getElementById('aero-livechat-title').textContent = 'Chat';
+            document.getElementById('aero-livechat-pc-name').value = '';
+            document.getElementById('aero-livechat-pc-email').value = '';
+            document.getElementById('aero-livechat-pc-phone').value = '';
+            document.getElementById('aero-livechat-pc-error').textContent = '';
+            showPreChat();
+        });
+    }
+
+    function setToolbarMsg(text) {
+        var el = document.getElementById('aero-livechat-toolbar-msg');
+        if (el) { el.textContent = text; }
     }
 
     function escapeHtml(s) {
