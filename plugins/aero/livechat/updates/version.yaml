@@ -1,0 +1,3 @@
+1.0.0:
+    - "Primera versión: inboxes, widget embebible, conversaciones y mensajes. Fase 1 aislada, sin integración con CRM/Notify."
+    - create_livechat_tables.php

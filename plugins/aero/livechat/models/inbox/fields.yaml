@@ -1,0 +1,40 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: auto
+        required: true
+
+    color:
+        label: Color
+        type: colorpicker
+        span: auto
+        availableColors: ['#4f46e5', '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#ec4899']
+
+    is_active:
+        label: Activo
+        type: switch
+        span: auto
+        comment: Un inbox inactivo deja de aceptar mensajes nuevos del widget.
+
+    welcome_message:
+        label: Mensaje de bienvenida
+        type: textarea
+        size: small
+        span: full
+        comment: Se envía automáticamente al abrir una conversación nueva. Dejalo vacío para no enviar nada.
+
+    widget_key:
+        label: Widget key
+        type: text
+        span: full
+        readOnly: true
+        comment: Público, va en el snippet. No es secreto.
+
+    embed_snippet:
+        label: Código para el sitio
+        type: textarea
+        size: small
+        span: full
+        readOnly: true
+        comment: Pegalo antes de "</head>" en el sitio donde quieras el chat.

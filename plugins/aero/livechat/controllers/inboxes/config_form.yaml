@@ -1,0 +1,14 @@
+name: Inbox
+form: $/aero/livechat/models/inbox/fields.yaml
+modelClass: Aero\Livechat\Models\Inbox
+defaultRedirect: aero/livechat/inboxes
+
+create:
+    title: Nuevo inbox
+    redirect: aero/livechat/inboxes/update/:id
+    redirectClose: aero/livechat/inboxes
+
+update:
+    title: Editar inbox
+    redirect: aero/livechat/inboxes
+    redirectClose: aero/livechat/inboxes

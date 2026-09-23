@@ -1,0 +1,16 @@
+title: Inboxes
+list: $/aero/livechat/models/inbox/columns.yaml
+modelClass: Aero\Livechat\Models\Inbox
+recordUrl: aero/livechat/inboxes/update/:id
+noRecordsMessage: Todavía no hay inboxes.
+recordsPerPage: 30
+showCheckboxes: true
+
+toolbar:
+    buttons: _list_toolbar
+    search:
+        prompt: Buscar inboxes
+
+defaultSort:
+    column: created_at
+    direction: desc
