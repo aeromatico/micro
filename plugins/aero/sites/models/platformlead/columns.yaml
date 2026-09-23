@@ -1,0 +1,50 @@
+columns:
+    id:
+        label: '#'
+        type: number
+        width: 60px
+
+    plan:
+        label: Plan
+        type: text
+        width: 100px
+
+    name:
+        label: Nombre
+        type: text
+        searchable: true
+
+    email:
+        label: Correo
+        type: text
+        searchable: true
+
+    phone:
+        label: Celular
+        type: text
+        width: 130px
+
+    is_corporate_email:
+        label: Corporativo
+        type: switch
+        width: 100px
+
+    verification_url:
+        label: Verificación
+        type: text
+        width: 200px
+
+    message:
+        label: Qué pretende resolver
+        type: text
+        width: 320px
+
+    status:
+        label: Estado
+        type: text
+        width: 100px
+
+    created_at:
+        label: Recibido
+        type: datetime
+        width: 160px

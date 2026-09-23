@@ -492,6 +492,7 @@ class Plugin extends PluginBase
             \Aero\Sites\Components\PageDetail::class    => 'sitesPageDetail',
             \Aero\Sites\Components\ContactSection::class => 'sitesContact',
             \Aero\Sites\Components\SignupWizard::class   => 'signupWizard',
+            \Aero\Sites\Components\PlatformLeadForm::class => 'platformLeadForm',
         ];
     }
 
@@ -584,6 +585,12 @@ class Plugin extends PluginBase
                         'label'       => 'aero.sites::lang.menu.submissions',
                         'icon'        => 'icon-envelope',
                         'url'         => Backend::url('aero/sites/contactsubmissions'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
+                    'platformleads' => [
+                        'label'       => 'Leads (Trial / Empresa)',
+                        'icon'        => 'icon-bullhorn',
+                        'url'         => Backend::url('aero/sites/platformleads'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                     'apitokens' => [

@@ -1,0 +1,16 @@
+scopes:
+    plan:
+        label: Plan
+        type: dropdown
+        options:
+            trial: Trial
+            enterprise: Gran Empresa
+
+    status:
+        label: Estado
+        type: dropdown
+        options:
+            new: Nuevo
+            contacted: Contactado
+            converted: Convertido
+            discarded: Descartado

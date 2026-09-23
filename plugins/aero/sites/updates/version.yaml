@@ -317,3 +317,7 @@
 1.44.0:
     - "El rol tenant_admin recibe el permiso de Tracking (aero.tracking.use)."
     - grant_tracking_to_tenant_admin.php
+
+1.45.0:
+    - "Lead de plataforma (no de tenant): componente platformLeadForm — modal de Trial / Gran Empresa del landing (themes/master), con verificación de correo corporativo y notificación a superadmins vía Aero.Notify (sites.platform_lead.created)."
+    - create_platform_leads_table.php

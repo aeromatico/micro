@@ -1,0 +1,15 @@
+title: Leads de la plataforma
+list: $/aero/sites/models/platformlead/columns.yaml
+modelClass: Aero\Sites\Models\PlatformLead
+noRecordsMessage: Aún no llegan solicitudes de Trial o Gran Empresa.
+recordsPerPage: 30
+
+toolbar:
+    search:
+        prompt: Buscar...
+
+filter: $/aero/sites/models/platformlead/scopes.yaml
+
+defaultSort:
+    column: created_at
+    direction: desc
