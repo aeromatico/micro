@@ -26,7 +26,7 @@ mode = "menu"
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Urbanist:wght@300;600;700;800;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v=26">
+    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v=28">
 
     <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=3.16.3"></script>
 
@@ -43,6 +43,9 @@ mode = "menu"
     </main>
 
     {% partial 'site/footer' %}
+
+    {# Livechat de soporte (aero/livechat) — fase 1, plataforma. Inbox "Soporte plataforma". #}
+    <script src="https://panel.market.com.bo/plugins/aero/livechat/assets/js/widget.js?v=1790167550" data-livechat-key="24cec4b9-43e5-4381-834c-5b5b8e0430d2" data-livechat-base="https://panel.market.com.bo" async></script>
 
 </body>
 </html>
