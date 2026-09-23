@@ -186,6 +186,29 @@ class EventCatalog
                     'tenant_name' => 'Panadería Delicia',
                 ],
             ],
+            [
+                'code' => 'sites.platform_lead.created',
+                'source_plugin' => 'Aero.Sites',
+                'category' => 'sales',
+                'name' => 'Lead de plataforma (Trial / Gran Empresa)',
+                'description' => 'Alguien completó el formulario de Trial o Gran Empresa del landing de la plataforma (no es un tenant).',
+                'priority' => 2,
+                'default_audiences' => ['superadmin'],
+                'default_channels' => ['email', 'inapp'],
+                'variables_schema' => [
+                    'plan'             => ['type' => 'string', 'required' => true,  'label' => 'Plan solicitado (trial/enterprise)'],
+                    'name'             => ['type' => 'string', 'required' => true,  'label' => 'Nombre'],
+                    'email'            => ['type' => 'string', 'required' => true,  'label' => 'Correo'],
+                    'phone'            => ['type' => 'string', 'required' => true,  'label' => 'Celular'],
+                    'message'          => ['type' => 'string', 'required' => true,  'label' => 'Qué pretende resolver'],
+                    'verification_url' => ['type' => 'string', 'required' => false, 'label' => 'URL de verificación del negocio'],
+                ],
+                'sample_context' => [
+                    'plan' => 'enterprise', 'name' => 'María Quispe', 'email' => 'maria@suempresa.com',
+                    'phone' => '+59170000000', 'message' => 'Necesitamos CRM y pagos QR para 5 sucursales.',
+                    'verification_url' => null,
+                ],
+            ],
         ];
     }
 

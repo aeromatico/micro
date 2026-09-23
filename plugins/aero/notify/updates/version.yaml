@@ -154,3 +154,9 @@
       enlace al mapa cuando el cliente compartió su ubicación (OrderNotifier
       manda shipping_address y location_url)."
     - order_placed_templates_include_location.php
+
+1.5.4:
+    - "Evento nuevo sites.platform_lead.created: leads de Trial / Gran Empresa
+      del landing de la plataforma (no de un tenant), a superadmin por email
+      e inapp. Disparado por Aero.Sites\\Jobs\\DispatchPlatformLeadNotification."
+    - seed_platform_lead_templates.php
