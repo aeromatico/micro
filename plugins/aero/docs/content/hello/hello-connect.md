@@ -7,6 +7,9 @@
 Vincula un número de WhatsApp a tu sitio. Hay **dos caminos**, según cómo
 quieras conectar el número.
 
+> [!TIP]
+> ¿No sabes cuál te conviene? Ver la [comparación completa](hello-comparativa).
+
 ## WhatsApp Web (por QR)
 
 Conexión **self-service** e inmediata:
