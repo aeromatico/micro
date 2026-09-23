@@ -11,3 +11,6 @@
 1.3.0:
     - "Adjuntar un archivo por mensaje (widget y panel) y enviar la transcripción por correo al visitante."
     - add_attachments_to_messages.php
+1.4.0:
+    - "Finalizar chat (widget y panel) y Topics de Telegram: cada conversación abre su propio hilo dentro del mismo grupo, para manejar varios chats simultáneos sin mezclarlos."
+    - add_telegram_thread.php

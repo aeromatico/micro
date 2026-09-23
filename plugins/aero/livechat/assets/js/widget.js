@@ -15,11 +15,13 @@
     }
 
     var storageKey = 'aero_livechat_token_' + widgetKey;
+    var contactStorageKey = 'aero_livechat_contact_' + widgetKey;
     var state = {
         visitorToken: null,
         lastMessageId: 0,
         open: false,
         started: false,
+        themeColorDetected: false,
         pollTimer: null,
         unreadTimer: null,
     };
@@ -38,6 +40,29 @@
     }
     function setToken(token) {
         try { localStorage.setItem(storageKey, token); } catch (e) {}
+    }
+
+    /**
+     * Nombre/correo/celular del pre-chat, recordados en este navegador (no
+     * atados a la conversación) para no volver a pedirlos en el mismo
+     * equipo — a diferencia del token de sesión, esto sobrevive a
+     * "Finalizar" y al cierre automático por inactividad.
+     */
+    function saveContactInfo(name, email, phone) {
+        try { localStorage.setItem(contactStorageKey, JSON.stringify({ name: name, email: email, phone: phone })); } catch (e) {}
+    }
+    function getContactInfo() {
+        try { return JSON.parse(localStorage.getItem(contactStorageKey)) || null; } catch (e) { return null; }
+    }
+    function prefillContactForm() {
+        var info = getContactInfo();
+        if (!info) return;
+        var nameEl = document.getElementById('aero-livechat-pc-name');
+        var emailEl = document.getElementById('aero-livechat-pc-email');
+        var phoneEl = document.getElementById('aero-livechat-pc-phone');
+        if (nameEl && !nameEl.value) { nameEl.value = info.name || ''; }
+        if (emailEl && !emailEl.value) { emailEl.value = info.email || ''; }
+        if (phoneEl && !phoneEl.value) { phoneEl.value = info.phone || ''; }
     }
 
     // ---- UI ----
@@ -74,10 +99,31 @@
         + '#aero-livechat-pc-error{color:#dc2626;font-size:12px;min-height:14px;}'
         + '#aero-livechat-pc-submit{background:' + '__COLOR__' + ';color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;cursor:pointer;font-weight:600;}';
 
+    var styleEl = null;
     function injectStyle(color) {
-        var style = document.createElement('style');
-        style.textContent = css.split('__COLOR__').join(color);
-        document.head.appendChild(style);
+        var text = css.split('__COLOR__').join(color);
+        if (styleEl) { styleEl.textContent = text; return; }
+        styleEl = document.createElement('style');
+        styleEl.textContent = text;
+        document.head.appendChild(styleEl);
+    }
+
+    /**
+     * Toma el color de acento que ya usa el sitio donde se embebe el widget,
+     * en vez de un azul fijo — cada theme del proyecto usa su propio nombre
+     * de variable (master: --color-accent, microsites: --color-primary,
+     * whatsapp: --brand), así que se prueban los más comunes en orden.
+     */
+    function detectThemeColor() {
+        var candidates = ['--color-accent', '--color-primary', '--brand', '--accent-color', '--primary-color', '--brand-color'];
+        try {
+            var styles = getComputedStyle(document.documentElement);
+            for (var i = 0; i < candidates.length; i++) {
+                var val = styles.getPropertyValue(candidates[i]).trim();
+                if (val) { return val; }
+            }
+        } catch (e) {}
+        return null;
     }
 
     function el(tag, attrs, html) {
@@ -138,6 +184,8 @@
         });
         document.getElementById('aero-livechat-transcript-btn').addEventListener('click', sendTranscript);
         document.getElementById('aero-livechat-end-btn').addEventListener('click', endChat);
+
+        prefillContactForm();
     }
 
     function showPreChat() {
@@ -163,7 +211,7 @@
 
         if (state.started || getToken()) {
             showChat();
-            ensureStarted().then(loadMessages);
+            ensureStarted().then(loadMessages).catch(function () { stopPolling(); });
             startPolling();
         } else {
             showPreChat();
@@ -204,6 +252,7 @@
                 return;
             }
 
+            saveContactInfo(name, email, phone);
             applyStartResult(res);
             showChat();
             startPolling();
@@ -216,7 +265,18 @@
         badge.textContent = '0';
     }
 
+    /**
+     * El mismo mensaje puede llegar por dos caminos casi al mismo tiempo —
+     * la respuesta de enviar/subir y el poll de cada 4s que ya lo trajo de
+     * vuelta — sin este control se pintaba dos veces.
+     */
+    var renderedIds = {};
     function renderMessage(m) {
+        if (m.id) {
+            if (renderedIds[m.id]) { return; }
+            renderedIds[m.id] = true;
+        }
+
         var log = document.getElementById('aero-livechat-log');
         var div = el('div', { class: 'aero-livechat-msg ' + m.from });
 
@@ -237,6 +297,29 @@
 
         log.appendChild(div);
         log.scrollTop = log.scrollHeight;
+    }
+
+    /**
+     * Mensajes propios pintados al toque (optimistas, sin id todavía) que
+     * esperan su confirmación del servidor. La confirmación puede llegar por
+     * DOS caminos que corren en paralelo — la respuesta del propio envío, o
+     * el poll de cada 4s, lo que responda primero — así que ambos pasan por
+     * acá antes de pintar, para no duplicar el que ya se ve.
+     */
+    var pendingOwn = [];
+    function handleIncoming(m) {
+        if (m.id && renderedIds[m.id]) { return; }
+
+        if (m.from === 'contact' && !m.attachment && pendingOwn.length) {
+            var idx = pendingOwn.indexOf(m.body);
+            if (idx !== -1) {
+                pendingOwn.splice(idx, 1);
+                if (m.id) { renderedIds[m.id] = true; }
+                return;
+            }
+        }
+
+        renderMessage(m);
     }
 
     function uploadAttachment(file) {
@@ -262,7 +345,7 @@
                 }
                 setToolbarMsg('');
                 (res.messages || []).forEach(function (m) {
-                    if (m.id > state.lastMessageId) { renderMessage(m); }
+                    if (m.id > state.lastMessageId) { handleIncoming(m); }
                     state.lastMessageId = Math.max(state.lastMessageId, m.id);
                 });
             });
@@ -288,20 +371,43 @@
             method: 'POST',
             body: { widget_key: widgetKey, visitor_token: state.visitorToken },
         }).then(function () {
-            try { localStorage.removeItem(storageKey); } catch (e) {}
-            state.visitorToken = null;
-            state.started = false;
-            state.lastMessageId = 0;
-            stopPolling();
-
-            document.getElementById('aero-livechat-log').innerHTML = '';
-            document.getElementById('aero-livechat-title').textContent = 'Chat';
-            document.getElementById('aero-livechat-pc-name').value = '';
-            document.getElementById('aero-livechat-pc-email').value = '';
-            document.getElementById('aero-livechat-pc-phone').value = '';
-            document.getElementById('aero-livechat-pc-error').textContent = '';
+            resetLocalSession();
             showPreChat();
         });
+    }
+
+    /**
+     * Borra la sesión guardada (token local) y limpia la UI — sin llamar a
+     * /end, porque la conversación ya está resuelta del lado del servidor
+     * (el visitante la cerró, el agente la finalizó desde el panel, o se
+     * cerró sola por inactividad). Se usa cada vez que un poll detecta
+     * status "resolved", así el widget reacciona sin importar quién cerró.
+     */
+    function resetLocalSession() {
+        try { localStorage.removeItem(storageKey); } catch (e) {}
+        state.visitorToken = null;
+        state.started = false;
+        state.lastMessageId = 0;
+        stopPolling();
+
+        document.getElementById('aero-livechat-log').innerHTML = ''; renderedIds = {}; pendingOwn = [];
+        document.getElementById('aero-livechat-title').textContent = 'Chat';
+        document.getElementById('aero-livechat-pc-error').textContent = '';
+        // Los campos NO se borran acá a propósito: nombre/correo/celular
+        // quedan recordados en este equipo (ver saveContactInfo) para no
+        // volver a pedirlos en el próximo chat.
+        prefillContactForm();
+    }
+
+    /** El chat se finalizó (desde el panel, o solo por inactividad) mientras el visitante lo tenía abierto/cerrado. */
+    function handleResolvedElsewhere() {
+        var wasOpen = state.open;
+        resetLocalSession();
+
+        if (wasOpen) {
+            showPreChat();
+            document.getElementById('aero-livechat-pc-error').textContent = 'Esta conversación se cerró. Completá tus datos para iniciar una nueva.';
+        }
     }
 
     function setToolbarMsg(text) {
@@ -320,8 +426,13 @@
         setToken(res.visitor_token);
         if (res.inbox) {
             document.getElementById('aero-livechat-title').textContent = res.inbox.name || 'Chat';
+            // El color del theme del sitio manda; el color configurado en el
+            // inbox queda como respaldo solo si no se detectó ninguno acá.
+            if (!state.themeColorDetected && res.inbox.color) {
+                injectStyle(res.inbox.color);
+            }
         }
-        document.getElementById('aero-livechat-log').innerHTML = '';
+        document.getElementById('aero-livechat-log').innerHTML = ''; renderedIds = {}; pendingOwn = [];
         (res.messages || []).forEach(function (m) {
             renderMessage(m);
             state.lastMessageId = Math.max(state.lastMessageId, m.id);
@@ -332,11 +443,27 @@
     function ensureStarted() {
         if (state.visitorToken) { return Promise.resolve(); }
 
+        var savedToken = getToken();
+        if (!savedToken) {
+            // No hay token ni local ni recién obtenido: pedile los datos, no
+            // sigas al chat vacío. (togglePanel ya debería haber mostrado el
+            // pre-chat en este caso, esto es un respaldo.)
+            showPreChat();
+            return Promise.reject(new Error('no_token'));
+        }
+
         return api('start', {
             method: 'POST',
-            body: { widget_key: widgetKey, visitor_token: getToken(), page_url: location.href },
+            body: { widget_key: widgetKey, visitor_token: savedToken, page_url: location.href },
         }).then(function (res) {
-            if (res.error) { return; }
+            if (res.error) {
+                // El token guardado ya no existe del lado del servidor (ej. se
+                // limpió la base para pruebas): arrancar de cero pidiendo los
+                // datos de nuevo, en vez de dejar el chat en blanco.
+                resetLocalSession();
+                showPreChat();
+                return Promise.reject(res);
+            }
             applyStartResult(res);
         });
     }
@@ -346,9 +473,12 @@
         api('messages?widget_key=' + widgetKey + '&visitor_token=' + state.visitorToken + '&after_id=' + state.lastMessageId)
             .then(function (res) {
                 (res.messages || []).forEach(function (m) {
-                    renderMessage(m);
+                    handleIncoming(m);
                     state.lastMessageId = Math.max(state.lastMessageId, m.id);
                 });
+                // Se cerró desde el otro lado (panel) o por inactividad —
+                // reacciona igual que si el visitante hubiera tocado "Finalizar".
+                if (res.status === 'resolved') { handleResolvedElsewhere(); }
             });
     }
 
@@ -358,12 +488,16 @@
         if (!body || !state.visitorToken) return;
         input.value = '';
 
+        // Optimista: se pinta al toque, sin esperar la ida y vuelta al servidor.
         renderMessage({ from: 'contact', body: body });
+        pendingOwn.push(body);
+
         api('message', {
             method: 'POST',
             body: { widget_key: widgetKey, visitor_token: state.visitorToken, body: body },
         }).then(function (res) {
             (res.messages || []).forEach(function (m) {
+                if (m.id > state.lastMessageId) { handleIncoming(m); }
                 state.lastMessageId = Math.max(state.lastMessageId, m.id);
             });
         });
@@ -381,6 +515,8 @@
         var token = getToken();
         if (!token || state.open) return;
         api('unread?widget_key=' + widgetKey + '&visitor_token=' + token).then(function (res) {
+            if (res.status === 'resolved') { handleResolvedElsewhere(); return; }
+
             var badge = document.getElementById('aero-livechat-badge');
             if (res.unread > 0) {
                 badge.textContent = res.unread;
@@ -392,9 +528,15 @@
     }
 
     function init() {
-        injectStyle('#4f46e5');
+        var themeColor = detectThemeColor();
+        state.themeColorDetected = !!themeColor;
+        injectStyle(themeColor || '#4f46e5');
         buildUI();
-        state.visitorToken = getToken();
+        // OJO: no copiar getToken() a state.visitorToken acá — recién se
+        // valida contra el servidor en ensureStarted()/submitPreChat(). Si
+        // el token local quedó huérfano (ej. se limpió la base de prueba),
+        // esto evitaba que ensureStarted() detectara el error y mostrara el
+        // pre-chat de nuevo.
         state.unreadTimer = setInterval(pollUnread, 15000);
         pollUnread();
     }

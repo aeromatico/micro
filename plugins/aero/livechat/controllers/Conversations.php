@@ -1,6 +1,7 @@
 <?php namespace Aero\Livechat\Controllers;
 
 use Aero\Livechat\Classes\AttachmentStorage;
+use Aero\Livechat\Classes\ConversationLifecycle;
 use Aero\Livechat\Classes\TelegramBridge;
 use Aero\Livechat\Classes\TenantScope;
 use Aero\Livechat\Models\Conversation;
@@ -124,17 +125,10 @@ class Conversations extends Controller
     {
         $conversation = Conversation::inScope(TenantScope::currentTenantId())->findOrFail($recordId ?: post('record_id'));
 
-        $message = Message::create([
-            'conversation_id' => $conversation->id,
-            'sender_type'     => Message::SYSTEM,
-            'body'            => 'El agente finalizó el chat.',
-        ]);
-
-        $conversation->status = Conversation::RESOLVED;
         $conversation->agent_unread_count = 0;
         $conversation->save();
 
-        TelegramBridge::relay($conversation, $message, 'ℹ️');
+        ConversationLifecycle::finish($conversation, 'El agente finalizó el chat.');
 
         Flash::success('Conversación finalizada.');
 

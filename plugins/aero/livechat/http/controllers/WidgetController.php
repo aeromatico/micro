@@ -1,6 +1,7 @@
 <?php namespace Aero\Livechat\Http\Controllers;
 
 use Aero\Livechat\Classes\AttachmentStorage;
+use Aero\Livechat\Classes\ConversationLifecycle;
 use Aero\Livechat\Classes\TelegramBridge;
 use Aero\Livechat\Classes\TranscriptMailer;
 use Aero\Livechat\Classes\ValidatesJson;
@@ -228,17 +229,10 @@ class WidgetController extends Controller
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
 
-        $message = Message::create([
-            'conversation_id' => $conversation->id,
-            'sender_type'     => Message::SYSTEM,
-            'body'            => 'El visitante finalizó el chat.',
-        ]);
-
-        $conversation->status = Conversation::RESOLVED;
         $conversation->agent_unread_count++;
         $conversation->save();
 
-        TelegramBridge::relay($conversation, $message, 'ℹ️');
+        ConversationLifecycle::finish($conversation, 'El visitante finalizó el chat.');
 
         return response()->json(['ok' => true]);
     }
@@ -260,7 +254,10 @@ class WidgetController extends Controller
         $conversation->visitor_unread_count = 0;
         $conversation->save();
 
-        return response()->json(['messages' => $this->serializeMessages($conversation, $data['after_id'] ?? null)]);
+        return response()->json([
+            'messages' => $this->serializeMessages($conversation, $data['after_id'] ?? null),
+            'status'   => $conversation->status,
+        ]);
     }
 
     public function unread(Request $request)
@@ -272,7 +269,10 @@ class WidgetController extends Controller
 
         [$inbox, $contact, $conversation] = $this->resolveConversation($data['widget_key'], $data['visitor_token']);
 
-        return response()->json(['unread' => $conversation?->visitor_unread_count ?? 0]);
+        return response()->json([
+            'unread' => $conversation?->visitor_unread_count ?? 0,
+            'status' => $conversation?->status,
+        ]);
     }
 
     /** @return array{0: ?Inbox, 1: ?Contact, 2: ?Conversation} */

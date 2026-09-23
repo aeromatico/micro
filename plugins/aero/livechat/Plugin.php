@@ -24,6 +24,20 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('livechat:auto-finish', \Aero\Livechat\Console\AutoFinishInactiveConversations::class);
+    }
+
+    public function registerSchedule($schedule): void
+    {
+        $schedule->command('livechat:auto-finish')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->onOneServer()
+            ->name('aero-livechat-auto-finish');
+    }
+
     public function boot(): void
     {
         $this->app['router']->group([], function () {
