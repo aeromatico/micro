@@ -1,5 +1,6 @@
 <?php namespace Aero\Livechat\Http\Controllers;
 
+use Aero\Livechat\Classes\TelegramBridge;
 use Aero\Livechat\Classes\ValidatesJson;
 use Aero\Livechat\Models\Contact;
 use Aero\Livechat\Models\Conversation;
@@ -106,7 +107,7 @@ class WidgetController extends Controller
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
 
-        Message::create([
+        $message = Message::create([
             'conversation_id' => $conversation->id,
             'sender_type'     => Message::CONTACT,
             'body'            => $data['body'],
@@ -116,6 +117,8 @@ class WidgetController extends Controller
         $conversation->agent_unread_count++;
         $conversation->status = Conversation::OPEN;
         $conversation->save();
+
+        TelegramBridge::relay($conversation, $message, "👤 {$contact->display_name}:");
 
         return response()->json(['ok' => true, 'messages' => $this->serializeMessages($conversation)]);
     }

@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public $require = ['Aero.Sites'];
+    public $require = ['Aero.Sites', 'Aero.Connector'];
 
     public function pluginDetails(): array
     {
@@ -31,6 +31,20 @@ class Plugin extends PluginBase
         });
 
         $this->bootTenantPurgeCleanup();
+        $this->bootTelegramBridge();
+    }
+
+    /**
+     * Un solo WebhookEndpoint ("livechat-telegram", ver
+     * seed_telegram_webhook_endpoint.php) recibe las entregas de TODOS los
+     * bots/inboxes — TelegramBridge resuelve a qué inbox pertenece por
+     * chat_id, no por el endpoint.
+     */
+    protected function bootTelegramBridge(): void
+    {
+        Event::listen('aero.livechat.telegram_inbound', function ($endpoint, array $payload, $request) {
+            \Aero\Livechat\Classes\TelegramBridge::handleInbound($payload);
+        });
     }
 
     /**

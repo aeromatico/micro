@@ -15,17 +15,22 @@ class Inbox extends Model
 
     public $table = 'aero_livechat_inboxes';
 
-    public $fillable = ['tenant_id', 'name', 'welcome_message', 'color', 'is_active'];
+    public $fillable = [
+        'tenant_id', 'name', 'welcome_message', 'color', 'is_active',
+        'telegram_connector_id', 'telegram_chat_id',
+    ];
 
     public $attributes = ['color' => '#4f46e5', 'is_active' => true];
 
     public $rules = [
-        'tenant_id' => 'nullable|exists:aero_sites_tenants,id',
-        'name'      => 'required|max:255',
+        'tenant_id'              => 'nullable|exists:aero_sites_tenants,id',
+        'name'                   => 'required|max:255',
+        'telegram_connector_id'  => 'nullable|exists:aero_connector_connectors,id',
     ];
 
     public $belongsTo = [
-        'tenant' => [Tenant::class],
+        'tenant'            => [Tenant::class],
+        'telegramConnector' => [\Aero\Connector\Models\Connector::class, 'key' => 'telegram_connector_id'],
     ];
 
     public $hasMany = [
@@ -39,6 +44,18 @@ class Inbox extends Model
         static::creating(function (self $inbox) {
             $inbox->widget_key = $inbox->widget_key ?: (string) Str::uuid();
         });
+
+        static::saving(function (self $inbox) {
+            if ($inbox->telegram_connector_id === '' || $inbox->telegram_connector_id === '0') {
+                $inbox->telegram_connector_id = null;
+            }
+        });
+    }
+
+    public function getTelegramConnectorIdOptions(): array
+    {
+        return \Aero\Connector\Models\Connector::where('type', 'telegram')
+            ->orderBy('name')->pluck('name', 'id')->all();
     }
 
     public function scopeInScope($query, ?int $tenantId)

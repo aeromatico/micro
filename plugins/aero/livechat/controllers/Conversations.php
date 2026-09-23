@@ -1,5 +1,6 @@
 <?php namespace Aero\Livechat\Controllers;
 
+use Aero\Livechat\Classes\TelegramBridge;
 use Aero\Livechat\Classes\TenantScope;
 use Aero\Livechat\Models\Conversation;
 use Aero\Livechat\Models\Message;
@@ -59,7 +60,7 @@ class Conversations extends Controller
             return $this->onLoadMessages($recordId);
         }
 
-        Message::create([
+        $message = Message::create([
             'conversation_id' => $conversation->id,
             'sender_type'     => Message::AGENT,
             'sender_id'       => BackendAuth::getUser()->id,
@@ -70,6 +71,10 @@ class Conversations extends Controller
         $conversation->agent_unread_count = 0;
         $conversation->visitor_unread_count++;
         $conversation->save();
+
+        // Mensajes que llegaron VÍA Telegram nunca pasan por acá (los crea
+        // TelegramBridge::handleInbound directo) — sin riesgo de eco.
+        TelegramBridge::relay($conversation, $message, '👨‍💻 Agente (panel):');
 
         return $this->onLoadMessages($recordId);
     }

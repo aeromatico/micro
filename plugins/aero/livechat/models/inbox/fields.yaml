@@ -38,3 +38,26 @@ fields:
         span: full
         readOnly: true
         comment: Pegalo antes de "</head>" en el sitio donde quieras el chat.
+
+secondaryTabs:
+    fields:
+        telegram_connector_id:
+            label: Bot de Telegram
+            type: dropdown
+            tab: Telegram
+            span: left
+            emptyOption: Sin conectar
+            comment: Creá el bot en "Conectores → Conectores" (tipo Telegram, con el token de @BotFather) y elegilo acá.
+
+        telegram_chat_id:
+            label: Chat ID
+            type: text
+            tab: Telegram
+            span: right
+            comment: ID del chat o grupo donde querés recibir los mensajes. Agregá el bot a ese chat y escribí cualquier mensaje para poder obtenerlo.
+
+        _telegram_connect:
+            type: partial
+            path: telegram_connect
+            tab: Telegram
+            context: update

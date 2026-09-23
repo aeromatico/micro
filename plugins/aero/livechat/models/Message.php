@@ -9,7 +9,7 @@ class Message extends Model
 
     public $table = 'aero_livechat_messages';
 
-    public $fillable = ['conversation_id', 'sender_type', 'sender_id', 'body'];
+    public $fillable = ['conversation_id', 'sender_type', 'sender_id', 'body', 'telegram_message_id'];
 
     public $belongsTo = [
         'conversation' => [Conversation::class],

@@ -1,3 +1,7 @@
 1.0.0:
     - "Primera versión: inboxes, widget embebible, conversaciones y mensajes. Fase 1 aislada, sin integración con CRM/Notify."
     - create_livechat_tables.php
+1.1.0:
+    - "Puente con Telegram (Aero.Connector): responder conversaciones citando mensajes desde un chat/grupo de Telegram, ida y vuelta."
+    - add_telegram_bridge.php
+    - seed_telegram_webhook_endpoint.php
