@@ -61,6 +61,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/services/categories'),
                         'permissions' => ['aero.services.manage'],
                     ],
+                    'collections' => [
+                        'label'       => 'aero.services::lang.menu.collections',
+                        'icon'        => 'icon-th-large',
+                        'url'         => Backend::url('aero/services/collections'),
+                        'permissions' => ['aero.services.manage'],
+                    ],
                 ],
             ],
         ];

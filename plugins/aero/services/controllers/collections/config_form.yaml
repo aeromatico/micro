@@ -1,0 +1,10 @@
+name: Colección
+form: $/aero/services/models/collection/fields.yaml
+modelClass: Aero\Services\Models\Collection
+defaultRedirect: aero/services/collections
+create:
+    redirect: aero/services/collections/update/:id
+    redirectClose: aero/services/collections
+update:
+    redirect: aero/services/collections
+    redirectClose: aero/services/collections

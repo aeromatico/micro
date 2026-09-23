@@ -58,6 +58,13 @@ class Service extends Model
             'scope'    => 'platform',
             'order'    => 'title',
         ],
+        'collections' => [
+            Collection::class,
+            'table'    => 'aero_services_collection_service',
+            'key'      => 'service_id',
+            'otherKey' => 'collection_id',
+            'order'    => 'name',
+        ],
     ];
 
     public $attachOne = [
@@ -163,5 +170,13 @@ class Service extends Model
     public function scopeGeneric($query)
     {
         return $query->whereNull('plugin_links');
+    }
+
+    /** Servicios de una colección, por slug o id. */
+    public function scopeInCollection($query, string|int $collection)
+    {
+        return $query->whereHas('collections', fn ($q) => is_numeric($collection)
+            ? $q->where('aero_services_collections.id', $collection)
+            : $q->where('aero_services_collections.slug', $collection));
     }
 }

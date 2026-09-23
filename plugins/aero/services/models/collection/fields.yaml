@@ -1,0 +1,37 @@
+fields:
+    name:
+        label: Nombre
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: name
+            type: slug
+    icon:
+        label: Icono
+        comment: Clase de icono opcional (ej. icon-th-large).
+        span: left
+    sort_order:
+        label: Orden
+        type: number
+        default: 0
+        span: right
+    summary:
+        label: Resumen
+        comment: Una línea para tarjetas y listados.
+        type: text
+    description:
+        label: Descripción
+        type: textarea
+        size: small
+    services:
+        label: Servicios
+        commentAbove: Servicios incluidos en esta colección.
+        type: relation
+        nameFrom: name
+    is_active:
+        label: Activa
+        type: switch
+        default: true

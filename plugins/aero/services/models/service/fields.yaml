@@ -172,6 +172,14 @@ tabs:
                         comment: Detalle opcional, p. ej. qué parte se integra.
                         type: text
 
+        collections:
+            tab: Plataforma
+            label: Colecciones
+            commentAbove: Colecciones en las que aparece este servicio (opcional).
+            type: relation
+            nameFrom: name
+            scope: active
+
         articles:
             tab: Documentación
             label: Documentos del servicio

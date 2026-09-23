@@ -17,3 +17,6 @@
 1.5.0:
     - "Switch Publico (is_active) y En el megamenu (in_megamenu); componente Services para el megamenu y la pagina /servicio/{slug}."
     - add_in_megamenu_to_services.php
+1.6.0:
+    - "Colecciones de servicios: agrupan servicios afines (un servicio puede estar en varias), con su propia seccion en el menu."
+    - create_service_collections_table.php

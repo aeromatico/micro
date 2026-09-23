@@ -1,0 +1,16 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+    slug:
+        label: Slug
+    services_count:
+        label: Servicios
+        type: number
+        relationCount: services
+    sort_order:
+        label: Orden
+        sortable: true
+    is_active:
+        label: Activa
+        type: switch
