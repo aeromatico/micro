@@ -13,13 +13,17 @@ use Aero\Connector\Models\Connector;
  */
 class TelegramDriver implements ConnectorDriver
 {
-    /** payload: chat_id, text, reply_to_message_id? (para responder en hilo). */
+    /**
+     * payload: chat_id, text, reply_to_message_id? (para responder en hilo,
+     * grupos sin Topics), message_thread_id? (Topic del grupo, si lo tiene).
+     */
     public function send(Connector $connector, array $payload = []): ConnectorResponse
     {
         return $this->call($connector, 'sendMessage', array_filter([
             'chat_id'              => $payload['chat_id'] ?? null,
             'text'                 => $payload['text'] ?? '',
             'reply_to_message_id'  => $payload['reply_to_message_id'] ?? null,
+            'message_thread_id'    => $payload['message_thread_id'] ?? null,
             'parse_mode'           => $payload['parse_mode'] ?? null,
         ], fn ($v) => $v !== null && $v !== ''));
     }
@@ -41,7 +45,7 @@ class TelegramDriver implements ConnectorDriver
      * bytes desde acá). `kind` 'photo' muestra preview inline; cualquier otro
      * valor usa sendDocument (PDF, doc, zip, etc.).
      */
-    public function sendMedia(Connector $connector, string $chatId, string $url, string $kind, ?string $caption = null, ?int $replyToMessageId = null): ConnectorResponse
+    public function sendMedia(Connector $connector, string $chatId, string $url, string $kind, ?string $caption = null, ?int $replyToMessageId = null, ?int $messageThreadId = null): ConnectorResponse
     {
         $method = $kind === 'photo' ? 'sendPhoto' : 'sendDocument';
         $field = $kind === 'photo' ? 'photo' : 'document';
@@ -51,7 +55,31 @@ class TelegramDriver implements ConnectorDriver
             $field                 => $url,
             'caption'              => $caption,
             'reply_to_message_id'  => $replyToMessageId,
+            'message_thread_id'    => $messageThreadId,
         ], fn ($v) => $v !== null && $v !== ''));
+    }
+
+    /**
+     * Crea un Topic (hilo) nuevo dentro de un grupo "Foro" — falla si el
+     * grupo no tiene Topics habilitados (Ajustes del grupo → Topics) o si el
+     * bot no es admin ahí. `message_thread_id` del resultado identifica el
+     * hilo para las siguientes llamadas.
+     */
+    public function createForumTopic(Connector $connector, string $chatId, string $name): ConnectorResponse
+    {
+        return $this->call($connector, 'createForumTopic', [
+            'chat_id' => $chatId,
+            'name'    => mb_substr($name, 0, 128),
+        ]);
+    }
+
+    /** Cierra el Topic (queda gris/archivado en Telegram, se puede reabrir a mano). */
+    public function closeForumTopic(Connector $connector, string $chatId, int $threadId): ConnectorResponse
+    {
+        return $this->call($connector, 'closeForumTopic', [
+            'chat_id'           => $chatId,
+            'message_thread_id' => $threadId,
+        ]);
     }
 
     /** Últimas entregas pendientes del bot (solo sirve mientras NO tenga webhook activo). */
