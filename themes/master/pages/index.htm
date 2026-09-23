@@ -4,6 +4,11 @@ title = "Market — el sistema operativo de tu negocio digital"
 description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectados entre sí y potenciados con inteligencia artificial."
 
 [platformLeadForm]
+
+[services servicesRubro]
+mode = "collection"
+slug = "plugins-especializados-por-rubro"
+requireCollection = 0
 ==
 <div x-data="{ init() {
     const el = this.$root;
@@ -466,12 +471,18 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
             </div>
         </div>
 
+        {% if not collection %}
         <div class="mt-6 flex flex-wrap items-center gap-4 p-6 border border-dashed border-edge rounded-2xl">
             <span class="text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Muy pronto</span>
             <p class="text-sm text-ink-dim flex-1 min-w-[240px]">En unos días llegan módulos especializados para Inmobiliarias, Consultorios, Radioemisoras, Flotas y transporte, Mascotas, Sitios deportivos y más.</p>
         </div>
+        {% endif %}
     </div>
 </section>
+
+{% if collection %}
+    {% partial 'site/_services_collection' collection=collection id='por-rubro' %}
+{% endif %}
 
 {# Plataforma abierta — API + Docs #}
 <section>
