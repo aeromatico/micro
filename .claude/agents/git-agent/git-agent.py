@@ -285,6 +285,44 @@ def scan_secrets(repo, files):
     return hits
 
 
+_VERSION_YAML_PHP = r'''
+require %r;
+try {
+    $d = Symfony\Component\Yaml\Yaml::parseFile($argv[1]);
+    $refs = [];
+    foreach ((array) $d as $notes) {
+        foreach ((array) $notes as $n) {
+            if (is_string($n) && preg_match('/\.php$/', trim($n))) {
+                $refs[] = trim($n);
+            }
+        }
+    }
+    echo json_encode(['ok' => true, 'refs' => array_values(array_unique($refs))]);
+} catch (Throwable $e) {
+    echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+}
+'''
+
+
+def parse_version_yaml(path):
+    """Valida un version.yaml con el MISMO parser que usa October (Symfony Yaml),
+    no PyYAML: evita falsos "inválido" en YAML que October sí acepta (caso hello 2026-09-21).
+    Devuelve (ok, [migraciones .php referenciadas como VALORES, no texto de notas], error)."""
+    autoload = ROOT / "vendor" / "autoload.php"
+    if not autoload.exists():
+        # sin vendor/autoload no podemos usar el parser real; no bloqueamos por esto
+        return True, [], ""
+    code = _VERSION_YAML_PHP % str(autoload)
+    r = run([PHP_BIN, "-r", code, "--", str(path)], check=False)
+    try:
+        data = json.loads(r.stdout.strip())
+    except ValueError:
+        return False, [], (r.stdout + r.stderr).strip()[:200]
+    if not data.get("ok"):
+        return False, [], data.get("error", "error desconocido")
+    return True, data.get("refs", []), ""
+
+
 def validate_area(repo, files, area_root):
     """Devuelve lista de problemas que BLOQUEAN el commit del área."""
     problems = []
@@ -305,19 +343,20 @@ def validate_area(repo, files, area_root):
             except ValueError as e:
                 problems.append(f"JSON inválido en {f}: {str(e)[:80]}")
         elif f.endswith("version.yaml"):
-            try:
-                import yaml
-                yaml.safe_load(p.read_text())
-            except Exception as e:  # noqa: BLE001
-                problems.append(f"version.yaml inválido en {f}: {str(e)[:80]}")
+            ok, _refs, err = parse_version_yaml(p)
+            if not ok:
+                problems.append(f"version.yaml inválido en {f}: {err[:80]}")
     # version.yaml ↔ migraciones (evita commitear una versión sin su migración)
     vy = Path(repo) / area_root / "updates" / "version.yaml" if area_root != "." else Path(repo) / "updates" / "version.yaml"
     if vy.exists() and any(f.endswith("version.yaml") or "/updates/" in f or f.startswith("updates/") for f in files):
         updates = vy.parent
-        referenced = set(re.findall(r"([A-Za-z0-9_]+\.php)", vy.read_text()))
-        missing = sorted(n for n in referenced if not (updates / n).exists())
-        if missing:
-            problems.append(f"version.yaml referencia migraciones que no existen: {', '.join(missing[:4])}")
+        ok, referenced, err = parse_version_yaml(vy)
+        if not ok:
+            problems.append(f"version.yaml inválido en {vy}: {err[:80]}")
+        else:
+            missing = sorted(n for n in referenced if not (updates / n).exists())
+            if missing:
+                problems.append(f"version.yaml referencia migraciones que no existen: {', '.join(missing[:4])}")
     secrets = scan_secrets(repo, [f for f in files if (Path(repo) / f).is_file()])
     if secrets:
         problems.append(f"posible secreto/credencial en: {', '.join(secrets[:3])}")
