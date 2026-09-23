@@ -166,6 +166,87 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
     </div>
 </section>
 
+{# WhatsApp Web vs Cloud API — comparación, ver docs/hello/hello-comparativa.md #}
+<section id="whatsapp-web-vs-api" class="max-w-6xl mx-auto px-6 sm:px-10 py-24 scroll-mt-14">
+    <div class="max-w-[640px] mb-12">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Conecta tu WhatsApp</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Dos formas de conectar, elige la tuya.</h2>
+        <p class="text-base text-ink-dim mt-3">Con Hello puedes vincular tu número por WhatsApp Web o por WhatsApp Cloud API — incluso las dos a la vez, cada una en su propio número.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {# WhatsApp Web #}
+        <div class="flex flex-col gap-6 p-7 border border-edge rounded-2xl bg-canvas">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold">WhatsApp Web</h3>
+                    <p class="text-[13px] text-ink-dim mt-1">Tu número de siempre, conectado al instante.</p>
+                </div>
+                <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Disponible ya</span>
+            </div>
+
+            <dl class="flex flex-col divide-y divide-edge">
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Cómo se conecta</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Con un QR, desde tu celular</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Disponibilidad</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Inmediata, en minutos</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Requisito</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Ninguno — cualquier número de WhatsApp</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Escribir a un contacto nuevo</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Libre, sin restricción</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Llamadas con recepcionista IA</dt>
+                    <dd class="text-sm font-semibold text-ink-dim text-right">No disponible</dd>
+                </div>
+            </dl>
+        </div>
+
+        {# WhatsApp Cloud API #}
+        <div class="flex flex-col gap-6 p-7 border border-accent rounded-2xl bg-canvas">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold">WhatsApp Cloud API</h3>
+                    <p class="text-[13px] text-ink-dim mt-1">El canal oficial de Meta, conectado vía Business Suite.</p>
+                </div>
+                <span class="shrink-0 text-[11px] font-bold text-ink-dim border border-edge px-3 py-1 rounded-full whitespace-nowrap">Canal oficial</span>
+            </div>
+
+            <dl class="flex flex-col divide-y divide-edge">
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Cómo se conecta</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Desde Meta Business Suite (conector externo)</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Disponibilidad</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Sujeta a configuración y aprobación de Meta</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Requisito</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Negocio verificado por Meta</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Escribir a un contacto nuevo</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Requiere plantilla aprobada</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Llamadas con recepcionista IA</dt>
+                    <dd class="text-sm font-semibold text-accent text-right">Sí, único canal que las soporta</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <p class="text-sm text-ink-dim mt-6 text-center sm:text-left">¿No estás seguro cuál te conviene? <a href="/documentacion/hello-comparativa" class="text-ink font-semibold underline decoration-edge hover:decoration-ink underline-offset-4">Mira la comparación completa →</a></p>
+</section>
+
 {# Modules — configuración #}
 <section id="configuracion" class="bg-canvas-elev scroll-mt-14">
     <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
