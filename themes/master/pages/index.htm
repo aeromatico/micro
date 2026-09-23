@@ -2,6 +2,8 @@ url = "/"
 layout = "base"
 title = "Market — el sistema operativo de tu negocio digital"
 description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectados entre sí y potenciados con inteligencia artificial."
+
+[platformLeadForm]
 ==
 <div x-data="{ init() {
     const el = this.$root;
@@ -543,22 +545,22 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
                 <div class="flex items-center justify-between gap-4 p-5 border border-dashed border-edge rounded-2xl">
                     <div>
                         <div class="flex items-center gap-2.5">
-                            <h3 class="text-[15px] font-bold">Gratis</h3>
+                            <h3 class="text-[15px] font-bold">Trial</h3>
                             <span class="text-[11px] text-ink-dim">/ $0</span>
                         </div>
                         <p class="text-[13px] text-ink-dim mt-1">Un sitio simple con IA para probar Market, sin compromiso.</p>
                     </div>
-                    <a href="#" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar acceso</a>
+                    <button type="button" @click="$dispatch('open-lead-modal', { plan: 'trial' })" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar acceso</button>
                 </div>
                 <div class="flex items-center justify-between gap-4 p-5 border border-dashed border-edge rounded-2xl">
                     <div>
                         <div class="flex items-center gap-2.5">
-                            <h3 class="text-[15px] font-bold">Empresa</h3>
+                            <h3 class="text-[15px] font-bold">Gran Empresa</h3>
                             <span class="text-[11px] text-ink-dim">/ a medida</span>
                         </div>
                         <p class="text-[13px] text-ink-dim mt-1">Para operaciones grandes con necesidades especiales.</p>
                     </div>
-                    <a href="#" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar propuesta</a>
+                    <button type="button" @click="$dispatch('open-lead-modal', { plan: 'enterprise' })" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar propuesta</button>
                 </div>
             </div>
         </div>
@@ -576,4 +578,6 @@ description = "Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectado
         </div>
     </div>
 </section>
+
+{% component 'platformLeadForm' %}
 </div>

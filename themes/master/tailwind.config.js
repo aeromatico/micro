@@ -6,6 +6,7 @@ module.exports = {
         './pages/**/*.htm',
         './partials/**/*.htm',
         '../../plugins/aero/docs/components/**/*.htm',
+        '../../plugins/aero/sites/components/platformleadform/**/*.htm',
         // Páginas de servicios generadas (aero/services): las clases viven en la BD, se vuelcan aquí al guardar.
         '../../storage/app/service-offers/*.html',
     ],
