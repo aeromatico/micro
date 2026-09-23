@@ -61,6 +61,11 @@ DEFAULTS = {
     "cron_every_minutes": 30,
 }
 ALLOWED_WRITE_PREFIXES = ("plugins/aero/docs/", ".opencode/")
+# Zona de riesgo real: código de plugins (incluida la propia BD/lógica de otros plugins). Fuera de
+# "plugins/" (temas, bin, .claude, config…) el agente ya no tiene permiso de bash/edit para escribir
+# (ver agent/docs-sync.md); si algo cambia ahí durante la corrida, casi siempre es OTRA sesión
+# editando en paralelo por coincidencia de horario, no el agente. Se audita mas no se pausa el mundo.
+RISK_PREFIX = "plugins/"
 QUIET = False
 
 
@@ -311,11 +316,19 @@ def execute(c, st, plan, bootstrap=False, dry=False):
         fh.write(f"=== salida del agente ({names}) rc={rc} ===\n{out[-6000:]}\n")
     new = pending_paths() - before
     unexpected = sorted(p for p in new if not p.startswith(ALLOWED_WRITE_PREFIXES))
+    # Solo pausa por escrituras en zona de riesgo real (código de plugins). Fuera de "plugins/" el
+    # agente ya no tiene permiso de escritura (bash/edit deny); un cambio ahí durante la corrida casi
+    # siempre es otra sesión trabajando en paralelo, no el agente — se audita, no se detiene todo
+    # (caso real 2026-09-21: themes/master/... de otra sesión pausó el vigilante 2 días sin motivo).
+    risky = [p for p in unexpected if p.startswith(RISK_PREFIX)]
+    noise = [p for p in unexpected if not p.startswith(RISK_PREFIX)]
+    if noise:
+        log(f"aviso: cambiaron rutas ajenas fuera de plugins/ durante la corrida (probable otra sesión, no se pausa): {', '.join(noise[:5])}", "WARN")
     today = dt.date.today().isoformat()
     st["runs"][today] = st["runs"].get(today, 0) + 1
-    if unexpected:
+    if risky:
         st["paused"] = True
-        st["alert"] = {"why": f"el agente modificó rutas fuera de docs: {', '.join(unexpected[:5])}", "ts": dt.datetime.now().isoformat(timespec="seconds")}
+        st["alert"] = {"why": f"el agente modificó rutas de plugins fuera de docs: {', '.join(risky[:5])}", "ts": dt.datetime.now().isoformat(timespec="seconds")}
         log(st["alert"]["why"] + " — vigilante PAUSADO; revisa `git status` (no se revirtió nada)", "ERROR")
         return
     for it in items:
