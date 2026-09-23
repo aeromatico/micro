@@ -1,0 +1,9 @@
+url = "/servicios/coleccion/:slug"
+layout = "base"
+title = "Colección de servicios — Market"
+
+[services]
+mode = "collection"
+slug = "{{ :slug }}"
+==
+{% partial 'site/_services_collection' collection=collection %}
