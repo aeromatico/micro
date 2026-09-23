@@ -43,6 +43,49 @@ class Inboxes extends Controller
         }
     }
 
+    /**
+     * El dropdown de "Bot de Telegram" lista TODOS los connectors de la
+     * plataforma (Aero.Connector no tiene tenant_id) — un tenant no debe
+     * verlo nunca, ni el de otros tenants ni el de plataforma. Un tenant
+     * conecta su propio bot pegando el token directo (ver formBeforeSave,
+     * que crea/actualiza su Connector detrás de escena); la plataforma
+     * sigue usando el dropdown como siempre.
+     */
+    public function formExtendFields($form): void
+    {
+        if (TenantScope::currentTenantId()) {
+            $form->removeField('telegram_connector_id');
+        }
+        else {
+            $form->removeField('telegram_bot_token');
+        }
+    }
+
+    public function formBeforeSave($model): void
+    {
+        $token = trim((string) post('Inbox.telegram_bot_token'));
+        if ($token === '') {
+            return;
+        }
+
+        $connector = $model->telegram_connector_id
+            ? \Aero\Connector\Models\Connector::find($model->telegram_connector_id)
+            : new \Aero\Connector\Models\Connector();
+
+        /**
+         * formBeforeSave corre antes de performSaveOnModel (ver
+         * FormController::create_onSave/update_onSave) — $model->name
+         * todavía no tiene el valor recién tipeado, hay que leerlo del post.
+         */
+        $name = trim((string) post('Inbox.name')) ?: $model->name;
+        $connector->name = 'Telegram – ' . ($name ?: 'Inbox sin nombre');
+        $connector->provider_hint = 'telegram';
+        $connector->credentials = ['api_key' => $token];
+        $connector->save();
+
+        $model->telegram_connector_id = $connector->id;
+    }
+
     public function onConnectTelegram($recordId = null)
     {
         $inbox = Inbox::inScope(TenantScope::currentTenantId())->findOrFail($recordId ?: post('record_id'));

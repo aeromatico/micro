@@ -27,7 +27,7 @@ class Inbox extends Model
      * respetar $fillable (eso solo aplica a fill()/create()) — sin purgarlo,
      * Eloquent intenta insertarlo como columna real y el UPDATE explota.
      */
-    protected $purgeable = ['embed_snippet'];
+    protected $purgeable = ['embed_snippet', 'telegram_bot_token'];
 
     public $attributes = ['color' => '#4f46e5', 'is_active' => true];
 

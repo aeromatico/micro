@@ -39,6 +39,11 @@ fields:
         readOnly: true
         comment: Pegalo antes de "</head>" en el sitio donde quieras el chat.
 
+    _embed_instructions:
+        type: partial
+        path: embed_instructions
+        span: full
+
 secondaryTabs:
     fields:
         telegram_connector_id:
@@ -48,6 +53,13 @@ secondaryTabs:
             span: left
             emptyOption: Sin conectar
             comment: Creá el bot en "Conectores → Conectores" (tipo Telegram, con el token de @BotFather) y elegilo acá.
+
+        telegram_bot_token:
+            label: Token del bot
+            type: text
+            tab: Telegram
+            span: left
+            comment: Pegá el token que te dio @BotFather. Se guarda cifrado; dejalo vacío para no cambiar el que ya está conectado.
 
         telegram_chat_id:
             label: Chat ID
