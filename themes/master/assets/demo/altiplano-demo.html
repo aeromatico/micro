@@ -99,18 +99,23 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .search input { flex: 1; min-width: 0; border: 0; background: transparent; height: 100%; font-size: 16px; color: var(--ink); }
 .search input:focus-visible { outline: 0; }
 .filters, .modes { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; scrollbar-width: none; }
+@media (hover: hover) { .filters, .modes { cursor: grab; } .filters:active, .modes:active { cursor: grabbing; } }
 .chip { flex-shrink: 0; height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--panel); font-size: 13px; font-weight: 500; }
 .chip.on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
 .banner { margin: 0 12px 6px; padding: 8px 12px; border-radius: 10px; background: var(--note); color: var(--note-ink); font-size: 13px; }
 
 .rows { list-style: none; margin: 0; padding: 0; flex: 1; overflow-y: auto; border-top: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
-.row { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; min-height: 72px; }
+.row-li { position: relative; }
+.row { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 12px 34px 12px 16px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; min-height: 72px; }
 .row.on { background: var(--panel-2); }
+.row-more { position: absolute; top: 38px; right: 8px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: none; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+.row-more svg { width: 16px; height: 16px; fill: currentColor; }
 .avatar { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: var(--panel-2); color: var(--muted); font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); }
 .row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .row-top, .row-mid, .row-bot { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .row-top b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
 .row-top time { font-size: 12px; color: var(--muted); }
+.row-flag { width: 15px; height: 15px; flex-shrink: 0; color: var(--muted); stroke-width: 2; }
 .preview { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .agent { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
 .agent.free { color: var(--warn); }
@@ -410,17 +415,25 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         <div class="banner" x-show="!online">Sin conexión. Mostrando lo último cargado.</div>
         <ul class="rows">
             <template x-for="c in sortedConvs" :key="c.id">
-                <li>
+                <li class="row-li">
                     <button type="button" class="row" :class="{ on: current && current.id === c.id }" @click="openConv(c)">
                         <span class="avatar" x-text="initials(cname(c))"></span>
                         <span class="row-main">
-                            <span class="row-top"><b x-text="cname(c)"></b><time x-text="fmtTime(c.last_message_at)"></time></span>
+                            <span class="row-top">
+                                <b x-text="cname(c)"></b>
+                                <svg class="row-flag" x-show="c.is_muted" aria-hidden="true" viewBox="0 0 24 24" style="fill:none;stroke:currentColor"><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V6a3 3 0 0 0-5.94-.6M5 5l14 14M19 11a7 7 0 0 1-1.28 4.02M5 11a7 7 0 0 0 8.24 6.9M12 18v3"/></svg>
+                                <svg class="row-flag" x-show="c.is_archived" aria-hidden="true" viewBox="0 0 24 24" style="fill:none;stroke:currentColor"><path d="M3 7h18M5 7v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7M10 11h4"/></svg>
+                                <time x-text="fmtTime(c.last_message_at)"></time>
+                            </span>
                             <span class="row-mid"><span class="preview" x-text="preview(c)"></span><i class="dot" x-show="c.unread_count > 0" x-text="c.unread_count"></i></span>
                             <span class="row-bot">
                                 <span class="agent" :class="{ free: !c.assigned_to }"><span class="mini" x-text="c.assigned_to ? c.assigned_to.initials : '?'"></span><span x-text="c.assigned_to ? (c.assigned_to.id === user.id ? 'Tú' : c.assigned_to.name) : 'Sin asignar'"></span></span>
                                 <span class="plat" x-show="accountId === null" x-text="acctLabel(c.account_id)"></span>
                             </span>
                         </span>
+                    </button>
+                    <button type="button" class="row-more" @click.stop="openRowMenu(c)" aria-label="Más opciones del chat" title="Más opciones">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
                     </button>
                 </li>
             </template>
@@ -794,6 +807,20 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         </template>
     </div>
 
+    <div class="sheet" x-show="sheet === 'rowMenu'" x-transition role="dialog" aria-label="Opciones del chat">
+        <div class="me"><span class="mini big" x-text="rowMenuConv ? initials(cname(rowMenuConv)) : ''"></span><span class="grow"><b x-text="rowMenuConv ? cname(rowMenuConv) : ''"></b></span></div>
+        <button type="button" class="pick" x-show="rowMenuConv && !rowMenuConv.is_archived" @click="toggleMute(rowMenuConv)">
+            <span class="grow"><b x-text="rowMenuConv && rowMenuConv.is_muted ? 'Reactivar notificaciones' : 'Silenciar chat'"></b></span>
+        </button>
+        <button type="button" class="pick" @click="toggleArchive(rowMenuConv)">
+            <span class="grow">
+                <b x-text="rowMenuConv && rowMenuConv.is_archived ? 'Desarchivar chat' : 'Archivar chat'"></b>
+                <small x-show="!rowMenuConv || !rowMenuConv.is_archived">Se silencia automáticamente</small>
+                <small x-show="rowMenuConv && rowMenuConv.is_archived">Reactiva las notificaciones</small>
+            </span>
+        </button>
+    </div>
+
     <div class="sheet" x-show="sheet === 'menu'" x-transition role="dialog" aria-label="Menú">
         <div class="me"><span class="mini big" x-text="user ? user.initials : ''"></span><span class="grow"><b x-text="user ? user.name : ''"></b><small x-text="tenant ? tenant.name : ''"></small></span></div>
         <button type="button" class="pick" @click="cycleTheme()"><span class="grow"><b>Tema</b><small x-text="themeLabel"></small></span></button>
@@ -974,9 +1001,9 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             M('outbound', 'Le reenviamos hoy, sin costo, el pedido en grano. Lo recibe mañana antes del mediodía. Disculpe la molestia.', ago(160)),
             M('inbound', 'Gracias, quedo atento 👍', ago(20)),
           ] },
-        { id: 104, code: 'lmama4', account_id: 1, contact: { id: 504, name: 'Lucía Mamani', phone: '+591 68899001' }, assigned_to: null, unread: 1,
+        { id: 104, code: 'lmama4', account_id: 1, contact: { id: 504, name: 'Lucía Flores', phone: '+591 68899001' }, assigned_to: null, unread: 1,
           script: ['Gracias! ¿Y aceptan pago con QR?', 'Perfecto, lo quiero. ¿Cómo coordinamos la entrega?'], locations: [], orders: [], charges: [],
-          crm: crm({ id: 904, first: 'Lucía', last: 'Mamani' }),
+          crm: crm({ id: 904, first: 'Lucía', last: 'Flores' }),
           items: [M('inbound', 'Hola! ¿Tienen café descafeinado? Es para mi mamá, no puede tomar cafeína', ago(6))] },
         { id: 105, code: 'hsola5', account_id: 1, contact: { id: 505, name: 'Gabriela Antezana · Hotel Sol de los Andes', phone: '+591 72200456' }, assigned_to: 1, unread: 0,
           script: [], locations: [], orders: [], charges: [],
@@ -1030,6 +1057,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             contact: { id: c.contact.id, name: c.contact.name, phone: c.contact.phone, avatar_url: null },
             last_message: l ? { body: l.body, direction: l.direction, media_type: l.media_type, type: l.type } : null,
             assigned_to: c.assigned_to ? agent(c.assigned_to) : null,
+            is_archived: !!c.is_archived, is_muted: !!c.is_muted,
         };
     }
     function progress(m) {
@@ -1101,6 +1129,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     });
     on('GET', '/conversations', function (r) {
         var q = (r.q.q || '').toLowerCase(), list = CONVS.filter(function (c) {
+            if (!!c.is_archived !== (r.q.filter === 'archived')) return false;
             if (r.q.account_id && c.account_id !== +r.q.account_id) return false;
             if (r.q.filter === 'mine' && c.assigned_to !== ME.id) return false;
             if (r.q.filter === 'free' && c.assigned_to) return false;
@@ -1122,6 +1151,16 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         return ok(c.items.filter(function (i) { return !after || Date.parse(i.at) > after; }).slice(-100));
     });
     on('POST', '/conversations/(\\d+)/read', function (r) { var c = conv(r.p[1]); if (c) c.unread = 0; return ok({}); });
+    on('POST', '/conversations/(\\d+)/archive', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        c.is_archived = !!r.body.archived; c.is_muted = c.is_archived;
+        return ok({ is_archived: c.is_archived, is_muted: c.is_muted });
+    });
+    on('POST', '/conversations/(\\d+)/mute', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        if (!c.is_archived) c.is_muted = !!r.body.muted;
+        return ok({ is_muted: c.is_muted });
+    });
     on('POST', '/conversations/(\\d+)/reply', function (r) {
         var c = conv(r.p[1]); if (!c) return NOT_FOUND;
         var quote = null;
@@ -1320,13 +1359,13 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             screen: 'boot', pendingCode: '', handle: '', tenant: null, user: null, token: null,
             gateInput: '', gateError: '', loginForm: { login: '', password: '' }, loginError: '', busy: false,
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
-            current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '',
+            current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
             crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
             newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
-            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }],
+            filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }, { id: 'archived', label: 'Archivados' }],
             _timers: [], _toastTimer: null, _seq: 0,
 
             // ---------- arranque ----------
@@ -1810,6 +1849,30 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             },
             async refreshAgents() { try { this.agents = await this.api('/agents'); } catch (e) {} },
 
+            // ---------- archivar y silenciar ----------
+            openRowMenu: function (c) { this.rowMenuConv = c; this.sheet = 'rowMenu'; },
+            async toggleArchive(c) {
+                if (!c) return;
+                var archived = !c.is_archived;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/archive', { method: 'POST', body: { archived: archived } });
+                    c.is_archived = res.is_archived; c.is_muted = res.is_muted;
+                    this.sheet = ''; this.rowMenuConv = null;
+                    if ((this.filter === 'archived') === !c.is_archived) this.convs = this.convs.filter(function (x) { return x.id !== c.id; });
+                    this.notify(archived ? 'Chat archivado y silenciado' : 'Chat desarchivado');
+                } catch (e) { this.notify(e.message); }
+            },
+            async toggleMute(c) {
+                if (!c || c.is_archived) return;
+                var muted = !c.is_muted;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/mute', { method: 'POST', body: { muted: muted } });
+                    c.is_muted = res.is_muted;
+                    this.sheet = ''; this.rowMenuConv = null;
+                    this.notify(muted ? 'Chat silenciado' : 'Notificaciones reactivadas');
+                } catch (e) { this.notify(e.message); }
+            },
+
 
             // ---------- CRM y cobros ----------
             openCrm: function () { this.sheet = 'crm'; this.loadCrm(); this.loadPay(); this.loadShop(); },
@@ -2089,6 +2152,43 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     };
 
     function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }
+
+    // ---------- deslizar con mouse en escritorio (los chips de filtros y modos solo tienen scroll táctil) ----------
+    (function () {
+        var SEL = '.filters, .modes';
+
+        // rueda vertical del mouse -> scroll horizontal
+        document.addEventListener('wheel', function (e) {
+            var el = e.target.closest && e.target.closest(SEL);
+            if (!el || el.scrollWidth <= el.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+            el.scrollLeft += e.deltaY;
+            e.preventDefault();
+        }, { passive: false });
+
+        // clic y arrastre con el mouse
+        var drag = null;
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType !== 'mouse') return;
+            var el = e.target.closest && e.target.closest(SEL);
+            if (!el) return;
+            drag = { el: el, x: e.clientX, left: el.scrollLeft, moved: false };
+        });
+        document.addEventListener('pointermove', function (e) {
+            if (!drag) return;
+            var dx = e.clientX - drag.x;
+            if (Math.abs(dx) > 3) drag.moved = true;
+            drag.el.scrollLeft = drag.left - dx;
+        });
+        document.addEventListener('pointerup', function () {
+            if (drag && drag.moved) {
+                // evita que el arrastre dispare el clic del chip que quedó debajo del cursor
+                var el = drag.el;
+                var block = function (e) { e.stopPropagation(); e.preventDefault(); el.removeEventListener('click', block, true); };
+                el.addEventListener('click', block, true);
+            }
+            drag = null;
+        });
+    })();
 })();
 </script>
 <script>
