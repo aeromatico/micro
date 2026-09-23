@@ -123,6 +123,9 @@ class Connector extends Model
         if (!$this->base_url && isset(static::PROVIDER_DEFAULT_BASE_URLS[$this->provider_hint])) {
             $this->base_url = static::PROVIDER_DEFAULT_BASE_URLS[$this->provider_hint];
         }
+        elseif (!$this->base_url && $this->provider_hint) {
+            $this->base_url = TypeRegistry::defaultBaseUrlFor($this->provider_hint) ?: $this->base_url;
+        }
 
         $this->type = $this->resolveType();
     }
@@ -137,6 +140,12 @@ class Connector extends Model
         }
         if ($this->provider_hint === 'http') {
             return 'http';
+        }
+
+        // Proveedores registrados dinámicamente por otros plugins (ej.
+        // Telegram desde aero/livechat) — ver TypeRegistry::typeForProviderHint.
+        if ($this->provider_hint && ($registered = TypeRegistry::typeForProviderHint($this->provider_hint))) {
+            return $registered;
         }
 
         $host = (string) parse_url((string) $this->base_url, PHP_URL_HOST);
@@ -213,6 +222,29 @@ class Connector extends Model
     public function getTypeOptions(): array
     {
         return TypeRegistry::options();
+    }
+
+    /**
+     * Base fija (proveedores de fábrica) + los que un plugin registró
+     * dinámicamente con `provider_hint` (ver TypeRegistry::providerHintOptions).
+     * Reemplaza al `options:` estático de fields.yaml — así un tipo nuevo
+     * aparece en el selector sin tocar este plugin.
+     */
+    public function getProviderHintOptions(): array
+    {
+        $base = [
+            ''             => trans('aero.connector::lang.connector.provider_auto'),
+            'openrouter'   => trans('aero.connector::lang.connector.provider_openrouter'),
+            'opencode_zen' => trans('aero.connector::lang.connector.provider_opencode_zen'),
+            'kilocode'     => trans('aero.connector::lang.connector.provider_kilocode'),
+            'openai'       => trans('aero.connector::lang.connector.provider_openai'),
+            'anthropic'    => trans('aero.connector::lang.connector.provider_anthropic'),
+            'deepseek'     => trans('aero.connector::lang.connector.provider_deepseek'),
+            'ai_custom'    => trans('aero.connector::lang.connector.provider_ai_custom'),
+            'http'         => trans('aero.connector::lang.connector.provider_http'),
+        ];
+
+        return $base + TypeRegistry::providerHintOptions();
     }
 
     /**

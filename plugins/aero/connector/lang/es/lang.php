@@ -17,6 +17,7 @@
         'http'                  => 'HTTP / REST genérico',
         'ai_openai_compatible'  => 'IA — compatible con OpenAI',
         'ai_anthropic'          => 'IA — Anthropic (Claude)',
+        'telegram'              => 'Telegram (bot)',
     ],
     'connector' => [
         'name'            => 'Nombre',

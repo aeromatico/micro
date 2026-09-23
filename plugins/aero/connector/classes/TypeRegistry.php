@@ -68,6 +68,47 @@ class TypeRegistry
         return app($type['driver']);
     }
 
+    /**
+     * Un tipo puede declarar `provider_hint` (string) para aparecer como
+     * opción del selector "Proveedor" del form sin que Connector.php tenga
+     * que conocerlo de antemano — así cualquier plugin (ej. aero/livechat con
+     * Telegram) suma un proveedor nuevo solo con el evento de registro.
+     */
+    public static function typeForProviderHint(string $hint): ?string
+    {
+        foreach (static::all() as $code => $type) {
+            if (($type['provider_hint'] ?? null) === $hint) {
+                return $code;
+            }
+        }
+
+        return null;
+    }
+
+    public static function providerHintOptions(): array
+    {
+        $options = [];
+
+        foreach (static::all() as $type) {
+            if (!empty($type['provider_hint'])) {
+                $options[$type['provider_hint']] = $type['label'] ?? $type['provider_hint'];
+            }
+        }
+
+        return $options;
+    }
+
+    public static function defaultBaseUrlFor(string $hint): ?string
+    {
+        foreach (static::all() as $type) {
+            if (($type['provider_hint'] ?? null) === $hint) {
+                return $type['default_base_url'] ?? null;
+            }
+        }
+
+        return null;
+    }
+
     public static function flush(): void
     {
         static::$types = null;

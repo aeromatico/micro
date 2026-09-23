@@ -9,16 +9,6 @@ fields:
         type: balloon-selector
         span: full
         default: ''
-        options:
-            '':            aero.connector::lang.connector.provider_auto
-            openrouter:    aero.connector::lang.connector.provider_openrouter
-            opencode_zen:  aero.connector::lang.connector.provider_opencode_zen
-            kilocode:      aero.connector::lang.connector.provider_kilocode
-            openai:        aero.connector::lang.connector.provider_openai
-            anthropic:     aero.connector::lang.connector.provider_anthropic
-            deepseek:      aero.connector::lang.connector.provider_deepseek
-            ai_custom:     aero.connector::lang.connector.provider_ai_custom
-            http:          aero.connector::lang.connector.provider_http
         comment: aero.connector::lang.connector.provider_hint_comment
 
     base_url:
