@@ -154,9 +154,9 @@
             M('outbound', 'Le reenviamos hoy, sin costo, el pedido en grano. Lo recibe mañana antes del mediodía. Disculpe la molestia.', ago(160)),
             M('inbound', 'Gracias, quedo atento 👍', ago(20)),
           ] },
-        { id: 104, code: 'lmama4', account_id: 1, contact: { id: 504, name: 'Lucía Mamani', phone: '+591 68899001' }, assigned_to: null, unread: 1,
+        { id: 104, code: 'lmama4', account_id: 1, contact: { id: 504, name: 'Lucía Flores', phone: '+591 68899001' }, assigned_to: null, unread: 1,
           script: ['Gracias! ¿Y aceptan pago con QR?', 'Perfecto, lo quiero. ¿Cómo coordinamos la entrega?'], locations: [], orders: [], charges: [],
-          crm: crm({ id: 904, first: 'Lucía', last: 'Mamani' }),
+          crm: crm({ id: 904, first: 'Lucía', last: 'Flores' }),
           items: [M('inbound', 'Hola! ¿Tienen café descafeinado? Es para mi mamá, no puede tomar cafeína', ago(6))] },
         { id: 105, code: 'hsola5', account_id: 1, contact: { id: 505, name: 'Gabriela Antezana · Hotel Sol de los Andes', phone: '+591 72200456' }, assigned_to: 1, unread: 0,
           script: [], locations: [], orders: [], charges: [],
@@ -210,6 +210,7 @@
             contact: { id: c.contact.id, name: c.contact.name, phone: c.contact.phone, avatar_url: null },
             last_message: l ? { body: l.body, direction: l.direction, media_type: l.media_type, type: l.type } : null,
             assigned_to: c.assigned_to ? agent(c.assigned_to) : null,
+            is_archived: !!c.is_archived, is_muted: !!c.is_muted,
         };
     }
     function progress(m) {
@@ -281,6 +282,7 @@
     });
     on('GET', '/conversations', function (r) {
         var q = (r.q.q || '').toLowerCase(), list = CONVS.filter(function (c) {
+            if (!!c.is_archived !== (r.q.filter === 'archived')) return false;
             if (r.q.account_id && c.account_id !== +r.q.account_id) return false;
             if (r.q.filter === 'mine' && c.assigned_to !== ME.id) return false;
             if (r.q.filter === 'free' && c.assigned_to) return false;
@@ -302,6 +304,16 @@
         return ok(c.items.filter(function (i) { return !after || Date.parse(i.at) > after; }).slice(-100));
     });
     on('POST', '/conversations/(\\d+)/read', function (r) { var c = conv(r.p[1]); if (c) c.unread = 0; return ok({}); });
+    on('POST', '/conversations/(\\d+)/archive', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        c.is_archived = !!r.body.archived; c.is_muted = c.is_archived;
+        return ok({ is_archived: c.is_archived, is_muted: c.is_muted });
+    });
+    on('POST', '/conversations/(\\d+)/mute', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        if (!c.is_archived) c.is_muted = !!r.body.muted;
+        return ok({ is_muted: c.is_muted });
+    });
     on('POST', '/conversations/(\\d+)/reply', function (r) {
         var c = conv(r.p[1]); if (!c) return NOT_FOUND;
         var quote = null;
