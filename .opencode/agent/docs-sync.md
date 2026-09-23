@@ -1,5 +1,6 @@
 ---
 description: Sincroniza la documentación del TENANT en Aero.Docs para los plugins que le indica el vigilante docs-sync-watch (ya documentados y desactualizados, o `bootstrap`). Solo local, sin git ni producción. Se invoca vía docs-sync-watch o con /docs-sync.
+model: deepseek/deepseek-flash
 mode: all
 color: info
 steps: 60
