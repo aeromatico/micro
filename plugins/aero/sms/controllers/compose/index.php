@@ -18,12 +18,13 @@
     </div>
     <?php else: ?>
     <div class="form-group span-left">
-        <label>Saldo disponible</label>
+        <label>Tarifa</label>
         <p class="form-control-static">
-            <strong><?= number_format((int) $balance) ?></strong> créditos
-            <?php if ($perSegment): ?>
-                · <?= $perSegment ?> por segmento (≈ <?= number_format(intdiv((int) $balance, max(1, $perSegment))) ?> SMS de un segmento)
-            <?php endif ?>
+            <?= $this->makePartial('$/aero/credits/partials/_credit_cost_hint.htm', [
+                'actionCode' => \Aero\Sms\Classes\Billing::ACTION,
+                'tenantId'   => $tenantId,
+            ]) ?>
+            <br><small class="text-muted">por segmento (un SMS puede usar varios)</small>
         </p>
     </div>
     <?php endif ?>

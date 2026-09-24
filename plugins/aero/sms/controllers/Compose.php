@@ -34,10 +34,7 @@ class Compose extends Controller
             ->where(fn ($q) => $q->whereNull('tenant_id')->when($tenantId, fn ($q) => $q->orWhere('tenant_id', $tenantId)))
             ->orderBy('name')->get();
         $this->vars['tenants'] = $this->tenantOptions();
-        $this->vars['balance'] = $tenantId && Billing::enabled()
-            ? \Aero\Credits\Classes\Credits::balance($tenantId, \Aero\Credits\Classes\Credits::cost(Billing::ACTION)['type']->code ?? 'azul')
-            : null;
-        $this->vars['perSegment'] = Billing::quote(1);
+        $this->vars['tenantId'] = $tenantId;
         $this->vars['driver'] = Settings::driverCode();
         $this->vars['maxBatch'] = Settings::maxBatchSize();
     }
