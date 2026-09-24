@@ -95,6 +95,12 @@ description = "Referencia de la API de Market: todos los endpoints, sus permisos
                                 Permiso: <code class="font-mono" x-text="endpoint.scope"></code>
                             </span>
                         </template>
+                        <template x-if="endpoint.credit">
+                            <span class="inline-flex items-center gap-1.5 text-xs bg-canvas border border-edge rounded-full px-3 py-1" :title="endpoint.credit_note || ''">
+                                <span class="w-2 h-2 rounded-full shrink-0" :style="`background:${endpoint.credit.color}`"></span>
+                                Cobra <span x-text="endpoint.credit.label"></span><span x-show="endpoint.credit_note" x-text="' · ' + endpoint.credit_note"></span>
+                            </span>
+                        </template>
                     </div>
 
                     <!-- Parámetros de ruta -->
