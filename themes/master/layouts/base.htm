@@ -22,6 +22,9 @@ mode = "menu"
     <title>{{ this.page.title ?: 'Market — el sistema operativo de tu negocio digital' }}</title>
     {% if this.page.description %}<meta name="description" content="{{ this.page.description }}">{% endif %}
 
+    <link rel="icon" type="image/png" href="{{ 'assets/images/favicon.png' | theme }}?v=1">
+    <link rel="apple-touch-icon" href="{{ 'assets/images/favicon.png' | theme }}?v=1">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Urbanist:wght@300;600;700;800;900&display=swap" rel="stylesheet">
