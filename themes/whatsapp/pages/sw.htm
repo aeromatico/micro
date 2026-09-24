@@ -9,7 +9,7 @@ function onStart()
     $dir = themes_path('whatsapp/assets/js/');
     $js = file_get_contents($dir . 'sw.js');
     // Las versiones deben coincidir con las del layout, o el precaché no sirve sin conexión.
-    $ver = ['assets/css/app.css' => 18, 'assets/js/app.js' => 26, 'assets/js/alpine.min.js' => '11.16.3', 'assets/img/pwa-192.png' => 12];
+    $ver = ['assets/css/app.css' => 22, 'assets/js/app.js' => 38, 'assets/js/alpine.min.js' => '11.16.3', 'assets/img/pwa-192.png' => 12];
     $assets = array_map(fn ($p, $v) => $this->controller->themeUrl($p) . '?v=' . $v, array_keys($ver), $ver);
     $js = str_replace('__ASSETS__', json_encode($assets, JSON_UNESCAPED_SLASHES), $js);
     $js = str_replace('__ICON__', json_encode($assets[3], JSON_UNESCAPED_SLASHES), $js);

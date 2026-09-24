@@ -504,9 +504,16 @@
                 }
             },
 
-            /** Descuenta 1 del contador visible tras un envío que cobra. Nada más: el saldo real lo lleva el servidor. */
+            /**
+             * Descuenta 1 del contador visible tras un envío que cobra. Nada más: el
+             * saldo real lo lleva el servidor. Reasigna el objeto (en vez de mutar
+             * `.reaches` en el objeto anidado) para que Alpine SIEMPRE detecte el
+             * cambio, sin depender de cómo haya quedado envuelto el objeto que vino
+             * del JSON de /me o /login.
+             */
             spendCredit() {
-                if (this.tenant && this.tenant.credits && this.tenant.credits.reaches > 0) this.tenant.credits.reaches--;
+                var c = this.tenant && this.tenant.credits;
+                if (c && c.reaches > 0) this.tenant.credits = Object.assign({}, c, { reaches: c.reaches - 1 });
             },
 
             async delegate(agentId) {
