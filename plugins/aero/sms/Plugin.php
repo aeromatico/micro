@@ -52,6 +52,8 @@ class Plugin extends PluginBase
                         'method' => 'POST', 'path' => '/api/v1/sms/messages', 'scope' => $scopes::SEND,
                         'summary' => 'Envía un SMS simple.',
                         'body_example' => "{\n    \"to\": \"+59170000000\",\n    \"body\": \"Hola, este es un SMS de prueba.\"\n}",
+                        'credit_action' => \Aero\Sms\Classes\Billing::ACTION,
+                        'credit_note'   => 'por segmento — un SMS puede usar varios',
                     ],
                     [
                         'method' => 'POST', 'path' => '/api/v1/sms/messages/{uuid}/cancel', 'scope' => $scopes::SEND,
@@ -62,6 +64,8 @@ class Plugin extends PluginBase
                         'method' => 'POST', 'path' => '/api/v1/sms/batches', 'scope' => $scopes::SEND,
                         'summary' => 'Envía un lote de SMS a varios destinatarios.',
                         'body_example' => "{\n    \"name\": \"Campaña de prueba\",\n    \"body\": \"Hola {{nombre}}\",\n    \"recipients\": [\n        {\"to\": \"+59170000000\", \"vars\": {\"nombre\": \"Ana\"}}\n    ]\n}",
+                        'credit_action' => \Aero\Sms\Classes\Billing::ACTION,
+                        'credit_note'   => 'por segmento, por destinatario — un SMS puede usar varios segmentos',
                     ],
                     [
                         'method' => 'POST', 'path' => '/api/v1/sms/batches/{uuid}/cancel', 'scope' => $scopes::SEND,
