@@ -332,6 +332,7 @@
                     if (i >= 0) this.msgs.splice(i, 1, Object.assign(json.data, { local_url: localUrl }));
                     c.last_message = { body: caption, direction: 'outbound', media_type: kind }; c.last_message_at = new Date().toISOString();
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { item.status = 'failed'; item.failed_reason = e.message; this.notify('No se envió: ' + e.message, 8000); }
             },
             async startRec() {
@@ -394,6 +395,7 @@
                     this.msgs.push(res); this.scrollDown(true);
                     c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { this.notify(e && e.status ? e.message : this.geoError(e), 7000); }
                 finally { this.geoBusy = false; }
             },
@@ -433,6 +435,7 @@
                     this.msgs.push(res); this.sheet = ''; this.scrollDown(true);
                     c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { this.notify(e.message, 8000); }
                 finally { this.pollBusy = false; }
             },
@@ -492,12 +495,18 @@
                     if (!isNote) {
                         c.last_message = { body: text, direction: 'outbound' }; c.last_message_at = new Date().toISOString();
                         if (!c.assigned_to) c.assigned_to = this.user;
+                        this.spendCredit();
                     }
                 } catch (e) {
                     if (isNote) { this.msgs = this.msgs.filter(function (m) { return m.id !== tmp; }); this.draft = text; }
                     else { item.status = 'failed'; item.failed_reason = e.message; }
                     this.notify('No se envió: ' + e.message, 8000);
                 }
+            },
+
+            /** Descuenta 1 del contador visible tras un envío que cobra. Nada más: el saldo real lo lleva el servidor. */
+            spendCredit() {
+                if (this.tenant && this.tenant.credits && this.tenant.credits.reaches > 0) this.tenant.credits.reaches--;
             },
 
             async delegate(agentId) {

@@ -141,12 +141,11 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                         <span class="grow" x-text="activeQuote ? quoteLabel(activeQuote) : ''"></span>
                         <button type="button" class="icon-btn" @click="replyTo = null" aria-label="Cancelar cita">✕</button>
                     </div>
-                    <div class="tariff" x-show="mode === 'reply' && !recording && tenant && tenant.credits" :title="tenant && tenant.credits ? 'Saldo: ' + tenant.credits.balance : ''">
-                        <span class="tariff-dot" :style="'background:' + (tenant && tenant.credits ? tenant.credits.color : '')"></span>
-                        <span x-text="tenant && tenant.credits ? tenant.credits.label + ' por mensaje · alcanza para ' + tenant.credits.reaches : ''"></span>
-                    </div>
                     <div class="input-row" x-show="!recording">
                         <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
+                        <span class="credit-mini" x-show="mode === 'reply' && tenant && tenant.credits" :title="'Mensajes disponibles: ' + (tenant && tenant.credits ? tenant.credits.reaches : '')">
+                            <i class="credit-dot" :style="'background:' + (tenant && tenant.credits ? tenant.credits.color : '')"></i><b x-text="tenant && tenant.credits ? tenant.credits.reaches : ''"></b>
+                        </span>
                         <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
                     </div>
                 </form>
