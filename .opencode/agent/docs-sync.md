@@ -26,9 +26,8 @@ permission:
     "sort *": allow
     "awk *": allow
     "date*": allow
+    "echo *": allow
     "mkdir -p plugins/aero/docs/*": allow
-    "sudo -u www /www/server/php/84/bin/php artisan tinker*": allow
-    "sudo -u www /www/server/php/84/bin/php artisan cache:clear*": allow
     "curl -sk -o /dev/null -w *market.com.bo*": allow
     "*>*": deny
     "find *-delete*": deny
@@ -44,6 +43,14 @@ permission:
     "git restore*": deny
     "git stash*": deny
     "git clean*": deny
+    # Van AL FINAL a propósito: "última regla que hace match gana", y el código PHP de
+    # --execute="..." usa -> y => (operadores de PHP), que "*>*" de arriba interpreta como
+    # redirección de shell y deniega. Puestas después, estas dos ganan para cualquier comando
+    # que empiece exactamente con este prefijo — sin abrir la puerta a otros comandos con ">".
+    # (Bug real 2026-09-25: docs-sync no pudo leer NINGUNA consulta a la BD con -> desde que
+    # existe; por eso divagaba explorando plugins fuera de alcance en vez de consultar Aero.Docs.)
+    "sudo -u www /www/server/php/84/bin/php artisan tinker*": allow
+    "sudo -u www /www/server/php/84/bin/php artisan cache:clear*": allow
   webfetch: deny
 ---
 
