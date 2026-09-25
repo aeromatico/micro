@@ -1,0 +1,54 @@
+<form
+    data-request="onSaveQuota"
+    data-request-success="$('.control-popup').popup('hide')">
+    <div class="modal-header">
+        <h4 class="modal-title">Asignar cuota de invitación</h4>
+        <button type="button" class="btn-close" data-dismiss="popup"></button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>Tenant</label>
+            <select name="tenant_id" class="form-control custom-select" required <?= $quota->tenant_id ? 'disabled' : '' ?>>
+                <option value=""></option>
+                <?php foreach ($tenants as $id => $name): ?>
+                    <option value="<?= $id ?>" <?= (int) $quota->tenant_id === (int) $id ? 'selected' : '' ?>><?= e($name) ?></option>
+                <?php endforeach ?>
+            </select>
+            <?php if ($quota->tenant_id): ?>
+                <input type="hidden" name="tenant_id" value="<?= $quota->tenant_id ?>">
+            <?php endif ?>
+        </div>
+        <div class="form-group">
+            <label>Invitaciones permitidas</label>
+            <input type="number" name="invites_allowed" class="form-control" value="<?= $quota->invites_allowed ?: 3 ?>" min="0" required>
+        </div>
+        <div class="form-group">
+            <label>Plan gratis para sus invitados</label>
+            <select name="grant_plan_id" class="form-control custom-select">
+                <?php foreach ($quota->getGrantPlanIdOptions() as $id => $label): ?>
+                    <option value="<?= e($id) ?>" <?= (string) $quota->grant_plan_id === (string) $id ? 'selected' : '' ?>><?= e($label) ?></option>
+                <?php endforeach ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Periodo gratis</label>
+            <div class="row">
+                <div class="col-xs-6">
+                    <select name="grant_period_unit" class="form-control custom-select">
+                        <?php foreach ($quota->getGrantPeriodUnitOptions() as $val => $label): ?>
+                            <option value="<?= e($val) ?>" <?= (string) $quota->grant_period_unit === (string) $val ? 'selected' : '' ?>><?= e($label) ?></option>
+                        <?php endforeach ?>
+                    </select>
+                </div>
+                <div class="col-xs-6">
+                    <input type="number" name="grant_period_count" class="form-control" min="1" value="<?= $quota->grant_period_count ?: '' ?>" placeholder="Cantidad">
+                </div>
+            </div>
+            <p class="help-block">Vacío en cualquiera de los dos = usa el valor por defecto de Créditos → Ajustes.</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="popup">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+</form>

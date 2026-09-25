@@ -60,4 +60,39 @@ class Settings extends Model
 
         return \Aero\Pay\Models\BankAccount::active()->pluck('label', 'id')->all();
     }
+
+    /** Cuota de invitaciones que recibe cualquier tenant al primer uso (setup normal o invitado). */
+    public static function defaultInviteQuota(): int
+    {
+        return max(0, (int) self::get('default_invite_quota', 3));
+    }
+
+    public static function defaultInvitePlanId()
+    {
+        return self::get('default_invite_plan_id') ?: null;
+    }
+
+    public static function defaultInvitePeriodUnit(): string
+    {
+        $unit = (string) self::get('default_invite_period_unit', 'monthly');
+
+        return $unit === 'annual' ? 'annual' : 'monthly';
+    }
+
+    public static function defaultInvitePeriodCount(): int
+    {
+        return max(1, (int) self::get('default_invite_period_count', 1));
+    }
+
+    public function getDefaultInvitePlanIdOptions(): array
+    {
+        return class_exists(\Aero\Sites\Models\Plan::class)
+            ? \Aero\Sites\Models\Plan::active()->orderBy('sort_order')->pluck('name', 'id')->all()
+            : [];
+    }
+
+    public function getDefaultInvitePeriodUnitOptions(): array
+    {
+        return ['monthly' => 'Meses', 'annual' => 'Años'];
+    }
 }

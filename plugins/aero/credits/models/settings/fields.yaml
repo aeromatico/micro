@@ -24,3 +24,28 @@ fields:
         emptyOption: '— La misma del alta pública —'
         span: full
         comment: Sin elegir, se usa la cuenta configurada en Sites → Configuración (alta pública).
+
+    default_invite_quota:
+        label: Invitaciones por tenant (por defecto)
+        type: number
+        default: 3
+        span: left
+        comment: Cuántas invitaciones puede enviar cualquier tenant tras su alta, salvo que se le asigne otra cuota en Créditos → Cuotas de invitación.
+
+    default_invite_plan_id:
+        label: Plan gratis de las invitaciones (por defecto)
+        type: dropdown
+        emptyOption: '— Ninguno (sin regalo por defecto) —'
+        span: right
+
+    default_invite_period_unit:
+        label: Unidad del periodo gratis
+        type: dropdown
+        default: monthly
+        span: left
+
+    default_invite_period_count:
+        label: Cantidad de periodos gratis
+        type: number
+        default: 1
+        span: right

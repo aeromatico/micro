@@ -1,0 +1,13 @@
+list: $/aero/credits/models/creditinvitationquota/columns.yaml
+modelClass: Aero\Credits\Models\CreditInvitationQuota
+title: aero.credits::lang.menu.creditinvitationquotas
+showSetup: true
+recordsPerPage: 30
+defaultSort:
+    column: updated_at
+    direction: desc
+noRecordsMessage: Ningún tenant tiene una cuota asignada todavía. Se crea automáticamente (con el valor por defecto) la primera vez que un tenant invita.
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

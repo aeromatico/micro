@@ -9,6 +9,9 @@
         'credittransactions'  => 'Transactions',
         'creditactions'       => 'Billable actions',
         'credittypes'         => 'Credit types',
+        'creditcoupons'       => 'Coupons',
+        'creditinvitationquotas' => 'Invitation quotas',
+        'creditinvitations'   => 'Invitations',
     ],
     'permissions' => [
         'superadmin' => 'Manage the credits system',

@@ -1,0 +1,23 @@
+columns:
+    code:
+        label: Código
+    tenant_name:
+        label: Invitó
+        searchable: false
+    channel:
+        label: Canal
+        sortable: false
+    recipient:
+        label: Destinatario
+    status:
+        label: Estado
+        type: partial
+        path: ~/plugins/aero/credits/controllers/creditinvitations/_status_column.htm
+        sortable: false
+    redeemed_by_tenant_name:
+        label: Canjeada por
+        searchable: false
+    created_at:
+        label: Creada
+        type: datetime
+        invisible: true

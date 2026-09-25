@@ -83,10 +83,12 @@ class Plugin extends PluginBase
                 return $html . $this->navbarPollScript();
             }
 
-            // "Wallet" vive en el menú inferior (antes era «Mis monedas» en el menú lateral).
+            // "Wallet" e "Invitaciones" viven en el menú inferior (antes «Mis
+            // monedas» estaba en el menú lateral).
             $walletItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Wallet"><a href="' . e(Backend::url('aero/credits/wallet')) . '"><span class="nav-icon"><i class="icon-money"></i></span><span class="nav-label">Wallet</span></a></li></ul></div>';
+            $inviteItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Invitaciones"><a href="' . e(Backend::url('aero/credits/myinvitations')) . '"><span class="nav-icon"><i class="icon-user-plus"></i></span><span class="nav-label">Invitar</span></a></li></ul></div>';
 
-            return $html . $walletItem . $this->navbarPollScript();
+            return $html . $walletItem . $inviteItem . $this->navbarPollScript();
         });
     }
 
@@ -341,6 +343,24 @@ HTML;
                         'label'       => 'aero.credits::lang.menu.credittypes',
                         'icon'        => 'icon-paint-brush',
                         'url'         => Backend::url('aero/credits/credittypes'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditcoupons' => [
+                        'label'       => 'aero.credits::lang.menu.creditcoupons',
+                        'icon'        => 'icon-ticket',
+                        'url'         => Backend::url('aero/credits/creditcoupons'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditinvitationquotas' => [
+                        'label'       => 'aero.credits::lang.menu.creditinvitationquotas',
+                        'icon'        => 'icon-user-plus',
+                        'url'         => Backend::url('aero/credits/creditinvitationquotas'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditinvitations' => [
+                        'label'       => 'aero.credits::lang.menu.creditinvitations',
+                        'icon'        => 'icon-envelope-open',
+                        'url'         => Backend::url('aero/credits/creditinvitations'),
                         'permissions' => ['aero.credits.superadmin'],
                     ],
                 ],

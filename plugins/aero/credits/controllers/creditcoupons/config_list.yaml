@@ -1,0 +1,13 @@
+list: $/aero/credits/models/creditcoupon/columns.yaml
+modelClass: Aero\Credits\Models\CreditCoupon
+title: aero.credits::lang.menu.creditcoupons
+showSetup: true
+recordsPerPage: 20
+defaultSort:
+    column: created_at
+    direction: desc
+recordUrl: aero/credits/creditcoupons/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt
