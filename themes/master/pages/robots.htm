@@ -1,0 +1,21 @@
+url = "/robots.txt"
+layout = "base"
+title = "robots.txt"
+==
+<?php
+
+use Illuminate\Support\Facades\Response;
+
+function onStart()
+{
+    $host = request()->getSchemeAndHttpHost();
+
+    $body = "User-agent: *\n";
+    $body .= "Disallow: /backend\n";
+    $body .= "Disallow: /comprar/exito\n";
+    $body .= "Allow: /\n\n";
+    $body .= "Sitemap: {$host}/sitemap.xml\n";
+
+    return Response::make($body, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+}
+==

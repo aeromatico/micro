@@ -236,6 +236,11 @@ class Docs extends ComponentBase
         $chain = $this->ancestry($id);
         $this->openIds = array_column($chain, 'id');
         $this->breadcrumbs = $this->crumbs($chain);
+
+        $this->page->title = $this->category['name'] . ' — Documentación — Market';
+        if ($this->category['description']) {
+            $this->page->description = $this->category['description'];
+        }
     }
 
     protected function loadArticle()

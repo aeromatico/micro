@@ -280,7 +280,7 @@ function onStart()
 
                         <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-5 items-center">
                             <div class="bg-white rounded-2xl p-3 w-40 h-40 flex items-center justify-center border border-edge">
-                                <img :src="payment.qr_image" alt="QR de cobro" class="w-full h-full object-contain" />
+                                <img :src="payment.qr_image" alt="QR de cobro" width="160" height="160" decoding="async" class="w-full h-full object-contain" />
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <div class="font-display text-3xl font-bold">Bs <span x-text="payment.amount"></span><span class="text-sm font-semibold text-ink-dim" x-text="payment.period === 'annual' ? ' / primer año' : ' / primer mes'"></span></div>
