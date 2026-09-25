@@ -1,0 +1,84 @@
+{# Pagos (Bolivia Pay) — dos formas de verificación de QR bancario + PayPal/cripto, ver docs/pay #}
+<section id="pagos" class="max-w-6xl mx-auto px-6 sm:px-10 py-24 scroll-mt-14">
+    <div class="max-w-[640px] mb-12">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Pagos</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Cobra con QR bancario, confirmado solo.</h2>
+        <p class="text-base text-ink-dim mt-3">Bolivia Pay genera el QR, confirma el pago y avisa a tu sistema — sin que tengas que revisar el banco a mano. Hay dos formas de verificar el cobro, según lo que tu banco te habilite.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {# Verificación por API bancaria #}
+        <div class="flex flex-col gap-6 p-7 border border-edge rounded-2xl bg-canvas">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold">API bancaria oficial</h3>
+                    <p class="text-[13px] text-ink-dim mt-1">Conexión directa con el banco, la más robusta.</p>
+                </div>
+                <span class="shrink-0 text-[11px] font-bold text-ink-dim border border-edge px-3 py-1 rounded-full whitespace-nowrap">Requiere trámite</span>
+            </div>
+
+            <dl class="flex flex-col divide-y divide-edge">
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Bancos disponibles hoy</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Económico, BISA, BNB, BCP, BMSC</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Cómo se activa</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Solicitas el acceso API a tu banco y lo conectas en tu cuenta</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Confirmación</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Automática, directo del banco</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">¿Otro banco?</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Sumamos cualquier API bancaria adicional</dd>
+                </div>
+            </dl>
+        </div>
+
+        {# Métodos alternativos inmediatos #}
+        <div class="flex flex-col gap-6 p-7 border border-accent rounded-2xl bg-canvas">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-lg font-bold">Métodos alternativos</h3>
+                    <p class="text-[13px] text-ink-dim mt-1">Para empezar a cobrar hoy mismo, sin esperar al banco.</p>
+                </div>
+                <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Disponible ya</span>
+            </div>
+
+            <dl class="flex flex-col divide-y divide-edge">
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Bancos compatibles</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Casi cualquier banco boliviano</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Cómo se activa</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Sin trámite con el banco — se configura desde tu cuenta</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Confirmación</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Automática, apenas llega el aviso del banco</dd>
+                </div>
+                <div class="flex items-start justify-between gap-4 py-3.5">
+                    <dt class="text-sm text-ink-dim">Requisito</dt>
+                    <dd class="text-sm font-semibold text-ink text-right">Ninguno — empiezas a cobrar de inmediato</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    {# PayPal + cripto, aparte a propósito #}
+    <div class="border border-edge rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8 justify-between mt-10">
+        <div class="flex items-center gap-5">
+            <div class="hidden sm:flex w-12 h-12 rounded-xl bg-canvas-elev2 items-center justify-center shrink-0">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><circle cx="7" cy="14.5" r="1"/></svg>
+            </div>
+            <div class="flex flex-col gap-1.5">
+                <h3 class="text-lg font-bold">¿Cobras también del exterior?</h3>
+                <p class="text-sm text-ink-dim max-w-[440px]">Además del QR boliviano, aceptas <strong class="text-ink font-semibold">PayPal</strong> y stablecoins (<strong class="text-ink font-semibold">USDT/USDC</strong>) desde el mismo panel — ideal para clientes que pagan en dólares.</p>
+            </div>
+        </div>
+        <a href="/documentacion/categoria/pay-funciones" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors shrink-0">Ver todas las funciones</a>
+    </div>
+</section>
