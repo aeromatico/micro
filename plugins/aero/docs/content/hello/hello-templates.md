@@ -16,7 +16,7 @@ aprobada por Meta).
 | **Nombre** | requerido | Nombre interno de la plantilla. |
 | **Canal** | — | Solo WhatsApp (el menú maneja únicamente plantillas de WhatsApp). |
 | **Mensaje** | requerido | Cuerpo del mensaje. Usa variables entre llaves dobles, ej. `{{name}}`. |
-| **Nombre de plantilla aprobada (proveedor)** | — | Para cuentas Zernio + WhatsApp Cloud API, que exigen una plantilla aprobada por Meta. Las cuentas de WhatsApp Web la ignoran. |
+| **Nombre de plantilla aprobada (proveedor)** | — | Para cuentas Hello + WhatsApp Cloud API, que exigen una plantilla aprobada por Meta. Las cuentas de WhatsApp Web la ignoran. |
 | **Idioma de la plantilla** | — | Código de idioma, ej. `es`. |
 | **Variables disponibles** | — | Lista informativa de las variables usadas. |
 

@@ -33,7 +33,7 @@ escribe; aquí las lees y respondes.
 Escribe el texto y envía. La respuesta sale por la misma cuenta.
 
 > [!WARNING]
-> En cuentas con **ventana de 24 h** (Cloud API/Zernio), si el contacto no
+> En cuentas con **ventana de 24 h** (Cloud API/Hello), si el contacto no
 > escribió en las últimas 24 h, WhatsApp solo permite una **plantilla
 > aprobada**. La bandeja lo avisa y te sugiere usar Redactar con plantilla.
 

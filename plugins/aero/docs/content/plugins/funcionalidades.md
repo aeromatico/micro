@@ -80,7 +80,7 @@ descripción comercial general.
 
 ## Hello
 
-**Qué es:** Centro de mensajes y notificaciones multicanal sobre Zernio.
+**Qué es:** Centro de mensajes y notificaciones multicanal sobre Hello.
 **Versión documentada:** 1.21.0
 
 | Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |

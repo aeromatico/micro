@@ -16,7 +16,7 @@ propio número) y elegir un canal por defecto en `Configuración → WhatsApp`.
 | **Responder dentro de las 24 h de su último mensaje** | Libre, sin límite. | Libre, sin plantilla — es la llamada "ventana de 24 h". |
 | **Responder después de 24 h sin mensaje entrante** | Libre, como siempre. | Bloqueado: necesitas una plantilla aprobada. Redactar avisa en pantalla cuando estás fuera de ventana. |
 | **Plantillas aprobadas por Meta** | No hacen falta (se ignoran si las cargas). | Obligatorias para reabrir conversación. Se gestionan en `Hello → Plantillas`. |
-| **Acuses de envío** | Enviado, entregado y leído, con el id real de WhatsApp. | Enviado, entregado y leído, por webhook de Meta/Zernio. |
+| **Acuses de envío** | Enviado, entregado y leído, con el id real de WhatsApp. | Enviado, entregado y leído, por webhook de Meta/Hello. |
 | **Ubicación, tarjeta de contacto y encuestas** | Sí, disponibles al redactar. | No — Meta las rechaza; Redactar muestra un aviso claro si lo intentas. |
 | **Adjuntos** (imagen, video, audio, documento) | Sí, mismos límites de tamaño que Cloud API. | Sí, mismos límites de tamaño que WhatsApp Web. |
 | **Nombre de perfil autocompletado en Contactos** | Sí: toma el nombre de WhatsApp de quien te escribe. | Aún no: el nombre hay que ponerlo a mano. |

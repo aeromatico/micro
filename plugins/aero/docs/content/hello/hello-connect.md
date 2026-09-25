@@ -24,7 +24,7 @@ Conexión **self-service** e inmediata:
 > Este camino requiere el plugin **aero/wapi** (WhatsApp Web). Sin él, solo se
 > muestra la opción de Cloud API.
 
-## WhatsApp Cloud API (Zernio/Meta)
+## WhatsApp Cloud API (Hello/Meta)
 
 Alta **asistida**: agrega al correo del equipo
 (`social@market.com.bo`) como administrador de tu portafolio comercial de Meta
