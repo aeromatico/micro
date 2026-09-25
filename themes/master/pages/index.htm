@@ -10,6 +10,17 @@ mode = "collection"
 slug = "plugins-especializados-por-rubro"
 requireCollection = 0
 ==
+<?php
+
+function onStart()
+{
+    $this['domainConfig'] = [
+        'domainRegistrationPrice'    => \Aero\Sites\Models\Settings::getDomainRegistrationPrice(),
+        'domainRenewalMarkupPercent' => \Aero\Sites\Models\Settings::getDomainRenewalMarkupPercent(),
+        'usdToBobRate'               => \Aero\Sites\Models\Settings::getUsdToBobRate(),
+    ];
+}
+==
 <div x-data="{ init() {
     const el = this.$root;
     const items = el.querySelectorAll(':scope > section');
@@ -49,6 +60,8 @@ requireCollection = 0
 {% partial 'site/landing/wordpress-woocommerce' %}
 
 {% partial 'site/landing/pricing' %}
+
+{% partial 'site/landing/dominios' domainConfig=domainConfig %}
 
 {% partial 'site/landing/developer-friendly' %}
 

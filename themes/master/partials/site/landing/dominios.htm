@@ -1,0 +1,109 @@
+{# Dominio propio — carrusel de precios de renovación por extensión.
+   Mismo endpoint público que usa el wizard de /comprar (signup.js), llamado
+   directo desde el navegador — ver comentario ahí sobre CORS ya habilitado
+   para subdominios de market.com.bo. Comparten el mismo cache de
+   localStorage (signup_domain_catalog_v1) para no duplicar la consulta. #}
+<section id="dominios" class="max-w-6xl mx-auto px-6 sm:px-10 py-20 scroll-mt-14">
+    <div class="max-w-[600px] mx-auto mb-10 text-center">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Dominio propio</span>
+        <h2 class="text-2xl sm:text-3xl font-bold mt-3">Registra tu dominio por Bs {{ domainConfig.domainRegistrationPrice }} adicionales</h2>
+        <p class="text-sm text-ink-dim mt-3">Disponible con el plan Pro: en vez de tunegocio.market.com.bo, usa tunegocio.com (u otra extensión). El primer año se cobra junto a tu alta; desde el segundo, cada extensión se renueva a su propio precio.</p>
+    </div>
+
+    <div x-data='domainCarousel({{ domainConfig | json_encode | raw }})' x-init="load()">
+        <div x-show="loading" x-cloak class="flex items-center justify-center gap-2 py-8 text-sm text-ink-dim">
+            <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 00-9-9"/></svg>
+            Cargando precios de renovación…
+        </div>
+
+        <div x-show="!loading && items.length" x-cloak class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none]">
+            <template x-for="item in items" :key="item.tld">
+                <div class="snap-start shrink-0 w-36 flex flex-col items-center gap-1.5 p-4 border border-edge rounded-xl bg-canvas-elev text-center">
+                    <span class="font-display text-lg font-bold" x-text="'.' + item.tld"></span>
+                    <span class="text-[11px] text-ink-dim">Renovación / año</span>
+                    <span class="text-sm font-semibold" x-text="item.label"></span>
+                </div>
+            </template>
+        </div>
+
+        <p x-show="!loading && !items.length" x-cloak class="text-sm text-ink-dim text-center py-6">No pudimos cargar los precios en este momento — puedes verlos igual al elegir el plan Pro en <a href="/comprar/pro" class="underline underline-offset-2 hover:text-ink">/comprar</a>.</p>
+    </div>
+</section>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    const CATALOG_CACHE_KEY = 'signup_domain_catalog_v1';
+    const CATALOG_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    const DOMAIN_SEARCH_API = 'https://clouds.com.bo/api/v1/domains/check-availability';
+    const DOMAIN_EXTENSIONS = [
+        'com', 'net', 'org', 'store', 'shop', 'pro', 'club', 'info', 'online',
+        'tienda', 'one', 'promo', 'doctor', 'cafe', 'me', 'click', 'tech', 'link',
+        'social', 'red', 'stream', 'pizza', 'group',
+    ];
+
+    Alpine.data('domainCarousel', (config) => ({
+        items: [],
+        loading: false,
+
+        load() {
+            const cached = this.readCache();
+            if (cached) {
+                this.items = this.withLabels(cached, config);
+                return;
+            }
+
+            this.loading = true;
+            fetch(DOMAIN_SEARCH_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ domain: 'tunegocio', extensions: DOMAIN_EXTENSIONS, type: 'register' }),
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    this.loading = false;
+                    const results = (data && data.data && data.data.results) || [];
+                    const raw = results
+                        .filter((r) => parseFloat(r.renewal_price))
+                        .map((r) => ({ tld: r.tld, renewal_price: r.renewal_price }));
+
+                    this.writeCache(raw);
+                    this.items = this.withLabels(raw, config).sort((a, b) => a.tld.localeCompare(b.tld));
+                })
+                .catch(() => {
+                    this.loading = false;
+                });
+        },
+
+        withLabels(raw, config) {
+            return raw.map((r) => {
+                const usd = parseFloat(r.renewal_price) * (1 + (config.domainRenewalMarkupPercent || 0) / 100);
+                const label = config.usdToBobRate
+                    ? ('Bs ' + Math.round(usd * config.usdToBobRate))
+                    : ('USD ' + usd.toFixed(2));
+                return { tld: r.tld, label };
+            });
+        },
+
+        readCache() {
+            try {
+                const raw = localStorage.getItem(CATALOG_CACHE_KEY);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                if (!parsed || !Array.isArray(parsed.items) || !parsed.savedAt) return null;
+                if (Date.now() - parsed.savedAt > CATALOG_CACHE_TTL_MS) return null;
+                return parsed.items;
+            } catch {
+                return null;
+            }
+        },
+
+        writeCache(items) {
+            try {
+                localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), items }));
+            } catch {
+                // Privado/bloqueado/lleno — sin cache, se vuelve a consultar la próxima vez.
+            }
+        },
+    }));
+});
+</script>

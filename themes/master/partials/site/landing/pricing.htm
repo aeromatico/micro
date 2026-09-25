@@ -6,16 +6,27 @@
             <p class="text-base text-ink-dim mt-3">Elige el plan según lo que tu negocio necesita hoy. Cambia cuando quieras.</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch max-w-[760px] mx-auto">
+        <div x-data="{ period: 'monthly' }" class="flex flex-col items-center gap-8">
+            <div class="inline-flex items-center gap-1 p-1 border border-edge rounded-full bg-canvas">
+                <button type="button" @click="period = 'monthly'"
+                        :class="period === 'monthly' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
+                        class="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Mensual</button>
+                <button type="button" @click="period = 'annual'"
+                        :class="period === 'annual' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
+                        class="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Anual</button>
+            </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch max-w-[760px] mx-auto w-full">
             <div class="relative flex flex-col gap-5 p-8 border border-edge rounded-2xl bg-canvas">
                 <div class="flex flex-col gap-1.5">
                     <h3 class="text-lg font-bold uppercase">Negocio</h3>
                     <p class="text-[13px] text-ink-dim">Para vender y cobrar sin fricción.</p>
                 </div>
                 <div class="flex items-baseline gap-1.5">
-                    <span class="font-display text-4xl font-bold">Bs 49</span>
-                    <span class="text-[13px] text-ink-dim">/ mes</span>
+                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 499' : 'Bs 49'">Bs 49</span>
+                    <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
                 </div>
+                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 89 al año pagando anual</p>
                 <div class="h-px bg-edge"></div>
                 <div class="flex flex-col gap-3">
                     <p class="text-sm text-ink-dim">Sitio web con generador de IA</p>
@@ -44,9 +55,10 @@
                     <p class="text-[13px] text-ink-dim">Para negocios en crecimiento.</p>
                 </div>
                 <div class="flex items-baseline gap-1.5">
-                    <span class="font-display text-4xl font-bold">Bs 99</span>
-                    <span class="text-[13px] text-ink-dim">/ mes</span>
+                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 999' : 'Bs 99'">Bs 99</span>
+                    <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
                 </div>
+                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 189 al año pagando anual</p>
                 <div class="h-px bg-edge"></div>
                 <div class="flex flex-col gap-3">
                     <p class="text-sm text-ink-dim">Todo lo de Negocio</p>
@@ -67,6 +79,7 @@
                 </div>
                 <a href="/comprar/pro" class="mt-auto inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg">Elegir Pro</a>
             </div>
+        </div>
         </div>
 
         <div class="max-w-5xl mx-auto mt-16">
