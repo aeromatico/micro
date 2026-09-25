@@ -17,29 +17,18 @@
         </p>
     </div>
 
-    <div class="relative h-[420px] sm:h-[460px]">
+    <div class="relative h-[420px] sm:h-[460px] flex items-center justify-center">
         <div class="absolute inset-0 rounded-3xl" style="background:radial-gradient(60% 60% at 70% 20%, rgba(139,124,246,0.16), transparent)"></div>
-        <div class="absolute top-0 left-0 w-[78%] bg-canvas-elev border border-edge rounded-2xl p-5 flex flex-col gap-3 shadow-2xl shadow-black/60">
-            <div class="flex gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-edge"></span>
-                <span class="w-2 h-2 rounded-full bg-edge"></span>
-                <span class="w-2 h-2 rounded-full bg-edge"></span>
-            </div>
-            <div class="h-3 w-3/5 bg-canvas-elev2 rounded"></div>
-            <div class="h-[70px] w-full bg-canvas-elev2 rounded-xl"></div>
-            <div class="flex gap-2.5">
-                <div class="h-11 flex-1 bg-canvas-elev2 rounded-lg"></div>
-                <div class="h-11 flex-1 bg-canvas-elev2 rounded-lg"></div>
-            </div>
-        </div>
-        <div class="absolute bottom-2 right-0 w-[64%] bg-canvas-elev border border-edge rounded-2xl p-5 flex flex-col gap-2.5 shadow-2xl shadow-black/60">
-            <div class="flex items-center gap-2">
-                <div class="w-5.5 h-5.5 rounded-md bg-accent"></div>
-                <div class="h-2.5 w-1/2 bg-canvas-elev2 rounded"></div>
-            </div>
-            <div class="h-2 w-[90%] bg-canvas-elev2 rounded"></div>
-            <div class="h-2 w-[70%] bg-canvas-elev2 rounded"></div>
-            <div class="self-end mt-1.5 px-3 py-1.5 rounded-full bg-accent text-[11px] font-bold text-accent-fg">QR</div>
-        </div>
+        <picture>
+            <source type="image/avif" srcset="{{ 'assets/images/hero/dashboard-768.avif' | theme }} 768w, {{ 'assets/images/hero/dashboard.avif' | theme }} 1536w" sizes="(min-width: 768px) 50vw, 90vw">
+            <source type="image/webp" srcset="{{ 'assets/images/hero/dashboard-768.webp' | theme }} 768w, {{ 'assets/images/hero/dashboard.webp' | theme }} 1536w" sizes="(min-width: 768px) 50vw, 90vw">
+            <img
+                src="{{ 'assets/images/hero/dashboard.png' | theme }}"
+                width="1536" height="1024"
+                alt="Panel de Market: sitio, tienda, CRM y cobros en un solo lugar"
+                fetchpriority="high" decoding="async"
+                class="relative w-full h-full object-contain drop-shadow-2xl"
+            >
+        </picture>
     </div>
 </section>
