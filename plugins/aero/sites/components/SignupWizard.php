@@ -158,12 +158,31 @@ class SignupWizard extends ComponentBase
         }
 
         $isTrial = $period === 'trial';
-        if ($isTrial && $domainMode === 'register') {
-            return ['success' => false, 'message' => 'El registro de dominio no está disponible en la prueba gratis.'];
+
+        // Código de cupón/invitación de Aero.Credits (opcional): si es válido,
+        // el alta se activa gratis con el plan/periodo que trae el código, sin
+        // pasar por el QR de cobro — soft dependency, mismo patrón que
+        // SignupPlans::creditBadges().
+        $promoCode = trim((string) post('promo_code', ''));
+        $redemption = null;
+        if ($promoCode !== '') {
+            if (class_exists(\Aero\Credits\Classes\Invitations::class)) {
+                $redemption = \Aero\Credits\Classes\Invitations::preview($promoCode);
+            }
+            if (!$redemption && class_exists(\Aero\Credits\Classes\Coupons::class)) {
+                $redemption = \Aero\Credits\Classes\Coupons::preview($promoCode);
+            }
+            if (!$redemption) {
+                return ['success' => false, 'message' => 'Ese código no es válido o ya venció.'];
+            }
+        }
+
+        if (($isTrial || $redemption) && $domainMode === 'register') {
+            return ['success' => false, 'message' => 'El registro de dominio no está disponible en el alta gratis.'];
         }
 
         $bankAccount = Settings::getSignupBankAccount();
-        if (!$isTrial && (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class))) {
+        if (!$isTrial && !$redemption && (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class))) {
             return ['success' => false, 'message' => 'El cobro no está disponible en este momento. Intenta más tarde.'];
         }
 
@@ -202,8 +221,8 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
         }
 
-        if ($isTrial) {
-            return $this->activateTrial($tenant, $planData, $rootDomain, $niche, $domainMode, $domain);
+        if ($isTrial || $redemption) {
+            return $this->activateFree($tenant, $planData, $rootDomain, $niche, $domainMode, $domain, $redemption);
         }
 
         $description = "Alta Market — {$handle} (plan {$planData['label']})";
@@ -246,11 +265,15 @@ class SignupWizard extends ComponentBase
     }
 
     /**
-     * Prueba gratis: sin QR ni pago. Aprovisiona el sitio y lo activa al
-     * instante (el paso 2 del front salta directo a crear el administrador).
-     * Vence sola: aero.sites:expire-trials.
+     * Prueba gratis (sin código) o canje de cupón/invitación de Aero.Credits
+     * (con código): en ambos casos sin QR ni pago, aprovisiona el sitio y lo
+     * activa al instante (el paso 2 del front salta directo a crear el
+     * administrador). La prueba normal vence sola: aero.sites:expire-trials.
+     * Un canje con código pisa el plan/periodo con el del regalo
+     * (Aero\Credits\Classes\Grants::apply(), llamado desde
+     * Invitations::consume()/Coupons::consume()).
      */
-    protected function activateTrial(Tenant $tenant, array $planData, RootDomain $rootDomain, string $niche, string $domainMode, string $domain): array
+    protected function activateFree(Tenant $tenant, array $planData, RootDomain $rootDomain, string $niche, string $domainMode, string $domain, ?array $redemption = null): array
     {
         $tenant->signup_payment_reference = (string) Str::uuid();
         $tenant->save();
@@ -258,10 +281,23 @@ class SignupWizard extends ComponentBase
         try {
             app(\Aero\Sites\Classes\TenantProvisioner::class)->provisionSite($tenant);
             $tenant->status = 'active';
-            $tenant->plan_expires_at = now()->addDays((int) $planData['trial_days']);
+
+            if (!$redemption) {
+                $tenant->plan_expires_at = now()->addDays((int) $planData['trial_days']);
+            }
+
             $tenant->save();
+
+            if ($redemption) {
+                if ($redemption['type'] === 'invitation') {
+                    \Aero\Credits\Classes\Invitations::consume($redemption['model'], $tenant);
+                } else {
+                    \Aero\Credits\Classes\Coupons::consume($redemption['model'], $tenant);
+                }
+                $tenant->refresh();
+            }
         } catch (\Exception $e) {
-            \Log::error("Aero\\Sites: fallo al aprovisionar la prueba del tenant {$tenant->id}: " . $e->getMessage());
+            \Log::error("Aero\\Sites: fallo al aprovisionar el alta gratis del tenant {$tenant->id}: " . $e->getMessage());
             $tenant->purge();
 
             return ['success' => false, 'message' => 'No pudimos crear tu sitio. Intenta de nuevo en unos minutos.'];
@@ -269,13 +305,13 @@ class SignupWizard extends ComponentBase
 
         return [
             'success'     => true,
-            'trial'       => true,
+            'trial'       => !$redemption,
             'tenant_id'   => $tenant->id,
             'reference'   => $tenant->signup_payment_reference,
             'domain'      => $tenant->handle . '.' . $rootDomain->domain,
             'niche_label' => app(NicheManager::class)->options()[$niche] ?? $niche,
-            'plan_label'  => $planData['label'],
-            'period'      => 'trial',
+            'plan_label'  => $redemption ? $redemption['plan']->name : $planData['label'],
+            'period'      => $redemption ? 'promo' : 'trial',
             'amount'      => 0,
             'own_domain'  => $domainMode !== '' ? $domain : null,
             'trial_ends_at' => $tenant->plan_expires_at->toFormattedDateString(),
