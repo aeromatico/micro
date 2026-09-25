@@ -452,3 +452,7 @@ function signupWizard(config) {
         },
     };
 }
+
+// Vite bundlea esto como módulo (scope propio); x-data='signupWizard(...)' en
+// el Twig de la página lo necesita en window, igual que con el <script> plano de antes.
+window.signupWizard = signupWizard;

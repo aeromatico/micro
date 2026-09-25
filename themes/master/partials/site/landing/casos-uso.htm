@@ -1,0 +1,38 @@
+{# Use cases #}
+<section>
+    <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
+        <div class="max-w-[600px] mb-12">
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Casos de uso</span>
+            <h2 class="text-3xl sm:text-4xl font-bold mt-3">Un mismo sistema, para cualquier tipo de negocio.</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="flex flex-col gap-3.5 p-6 border border-edge rounded-2xl hover:border-ink-dim hover:bg-canvas-elev2 transition-colors">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+                <h3 class="text-[15px] font-bold">Tiendas y ventas por WhatsApp</h3>
+                <p class="text-sm text-ink-dim">Catálogo, checkout y cobros QR conectados a tus conversaciones de WhatsApp.</p>
+            </div>
+            <div class="flex flex-col gap-3.5 p-6 border border-edge rounded-2xl hover:border-ink-dim hover:bg-canvas-elev2 transition-colors">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 10v10"/></svg>
+                <h3 class="text-[15px] font-bold">Profesionales y consultorios</h3>
+                <p class="text-sm text-ink-dim">Sitio con datos de contacto y cobros a pacientes, sin depender de terceros.</p>
+            </div>
+            <div class="flex flex-col gap-3.5 p-6 border border-edge rounded-2xl hover:border-ink-dim hover:bg-canvas-elev2 transition-colors">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 21V10l8-6 8 6v11"/><path d="M9 21v-7h6v7"/></svg>
+                <h3 class="text-[15px] font-bold">Inmobiliarias</h3>
+                <p class="text-sm text-ink-dim">Publica propiedades y gestiona interesados con un CRM propio, sin planillas.</p>
+            </div>
+            <div class="flex flex-col gap-3.5 p-6 border border-edge rounded-2xl hover:border-ink-dim hover:bg-canvas-elev2 transition-colors">
+                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 3v7a2 2 0 002 2h0a2 2 0 002-2V3M8 12v9M17 3c-1.7 0-3 2.2-3 5s1.3 5 3 5v9"/></svg>
+                <h3 class="text-[15px] font-bold">Restaurantes y delivery</h3>
+                <p class="text-sm text-ink-dim">Menú digital, pedidos y pagos QR en mesa o para llevar.</p>
+            </div>
+        </div>
+
+        {% if not collection %}
+        <div class="mt-6 flex flex-wrap items-center gap-4 p-6 border border-dashed border-edge rounded-2xl">
+            <span class="text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Muy pronto</span>
+            <p class="text-sm text-ink-dim flex-1 min-w-[240px]">En unos días llegan módulos especializados para Inmobiliarias, Consultorios, Radioemisoras, Flotas y transporte, Mascotas, Sitios deportivos y más.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>

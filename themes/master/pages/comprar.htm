@@ -5,7 +5,17 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
 [signupWizard]
 ==
-<script src="{{ 'assets/js/signup.js' | theme }}?v=10"></script>
+<?php
+
+function onStart()
+{
+    $manifestPath = themes_path('master/assets/dist/.vite/manifest.json');
+    $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
+
+    $this['signupJs'] = $manifest['assets/src/signup.js']['file'] ?? null;
+}
+==
+{% if signupJs %}<script type="module" src="{{ ('assets/dist/' ~ signupJs) | theme }}"></script>{% endif %}
 
 <section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
 
