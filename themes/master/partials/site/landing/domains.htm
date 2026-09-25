@@ -3,34 +3,79 @@
    availability-check API used by the /comprar wizard — that endpoint checks
    real registration status per TLD and takes ~10s for this many extensions,
    which made the carousel feel broken while it renders nothing. #}
-<section id="domains" class="max-w-6xl mx-auto px-6 sm:px-10 py-20 scroll-mt-14">
-    <div class="max-w-[600px] mx-auto mb-10 text-center">
+<section id="domains" class="py-20 scroll-mt-14">
+    <div class="max-w-[600px] mx-auto mb-10 px-6 sm:px-10 text-center">
         <span class="text-xs tracking-wide text-accent uppercase font-bold">Dominio propio</span>
         <h2 class="text-2xl sm:text-3xl font-bold mt-3">Registra tu dominio por Bs {{ domainConfig.domainRegistrationPrice }} adicionales</h2>
         <p class="text-xs text-ink-dim mt-3">Disponible con el plan Pro: en vez de tunegocio.market.com.bo, usa tunegocio.com (u otra extensión).</p>
     </div>
 
-    <div x-data="{ scroll(dir) { this.$refs.track.scrollBy({ left: dir * 240, behavior: 'smooth' }) } }" class="relative">
-        <button type="button" @click="scroll(-1)" aria-label="Anterior" class="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full border border-edge bg-canvas-elev hover:bg-canvas-elev2 transition-colors">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-
-        <div x-ref="track" class="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none]">
-            {% set extensions = ['cafe', 'click', 'club', 'com', 'doctor', 'group', 'info', 'link', 'me', 'net', 'one', 'online', 'org', 'pizza', 'promo', 'pro', 'red', 'shop', 'social', 'store', 'stream', 'tech', 'tienda'] %}
-            {% for ext in extensions %}
-                <div class="snap-start shrink-0 w-28 flex items-center justify-center gap-0.5 p-4 border border-edge rounded-xl bg-canvas-elev text-center">
-                    <span class="text-accent text-3xl font-bold leading-none">.</span>
+    {% set extensions = ['cafe', 'click', 'club', 'com', 'doctor', 'group', 'info', 'link', 'me', 'net', 'one', 'online', 'org', 'pizza', 'promo', 'pro', 'red', 'shop', 'social', 'store', 'stream', 'tech', 'tienda'] %}
+    <div
+        x-data="{
+            paused: false,
+            dragging: false,
+            startX: 0,
+            startScroll: 0,
+            setWidth: 0,
+            resumeTimer: null,
+            init() {
+                this.setWidth = this.$refs.track.scrollWidth / 3;
+                this.$refs.track.scrollLeft = this.setWidth;
+                requestAnimationFrame(() => this.tick());
+            },
+            tick() {
+                if (!this.paused) this.$refs.track.scrollLeft -= 0.6;
+                this.wrap();
+                requestAnimationFrame(() => this.tick());
+            },
+            wrap() {
+                const t = this.$refs.track;
+                if (t.scrollLeft <= this.setWidth * 0.4) t.scrollLeft += this.setWidth;
+                else if (t.scrollLeft >= this.setWidth * 1.6) t.scrollLeft -= this.setWidth;
+            },
+            dragStart(e) {
+                this.dragging = true;
+                this.paused = true;
+                clearTimeout(this.resumeTimer);
+                this.startX = e.clientX;
+                this.startScroll = this.$refs.track.scrollLeft;
+                this.$refs.track.setPointerCapture(e.pointerId);
+            },
+            dragMove(e) {
+                if (!this.dragging) return;
+                this.$refs.track.scrollLeft = this.startScroll - (e.clientX - this.startX);
+            },
+            dragEnd() {
+                if (!this.dragging) return;
+                this.dragging = false;
+                this.resumeTimer = setTimeout(() => this.paused = false, 1500);
+            }
+        }"
+        class="relative w-screen left-1/2 -translate-x-1/2"
+    >
+        <div
+            x-ref="track"
+            @pointerdown="dragStart($event)"
+            @pointermove="dragMove($event)"
+            @pointerup="dragEnd()"
+            @pointercancel="dragEnd()"
+            @mouseenter="paused = true"
+            @mouseleave="!dragging && (paused = false)"
+            class="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [touch-action:pan-y] cursor-grab active:cursor-grabbing select-none px-6 sm:px-[max(1.5rem,calc((100vw-72rem)/2+2.5rem))]"
+        >
+            {% for n in 1..3 %}
+                {% for ext in extensions %}
+                <div {% if n > 1 %}aria-hidden="true"{% endif %} class="shrink-0 w-28 flex items-baseline justify-center gap-1 p-4 border border-edge rounded-xl bg-canvas-elev text-center">
+                    <span class="text-accent text-5xl font-bold leading-none">.</span>
                     <span class="font-display text-2xl font-bold leading-none">{{ ext }}</span>
                 </div>
+                {% endfor %}
             {% endfor %}
         </div>
-
-        <button type="button" @click="scroll(1)" aria-label="Siguiente" class="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center rounded-full border border-edge bg-canvas-elev hover:bg-canvas-elev2 transition-colors">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
     </div>
 
-    <div class="flex items-center justify-center gap-2 mt-6 text-sm text-ink-dim">
+    <div class="flex items-center justify-center gap-2 mt-6 px-6 sm:px-10 text-sm text-ink-dim">
         <svg class="w-5 h-5 text-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
         <span>Incluye una cuenta de correo empresarial con tu dominio y 10GB de almacenamiento de regalo.</span>
     </div>

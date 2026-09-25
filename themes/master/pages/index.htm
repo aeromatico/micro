@@ -49,11 +49,11 @@ function onStart()
 
 {% partial 'site/landing/spotlight' %}
 
-{% partial 'site/landing/casos-uso' collection=collection %}
-
 {% if collection %}
     {% partial 'site/_services_collection' collection=collection id='por-rubro' %}
 {% endif %}
+
+{% partial 'site/landing/casos-uso' collection=collection %}
 
 {% partial 'site/landing/pagos' %}
 
