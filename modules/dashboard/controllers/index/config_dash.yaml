@@ -3,7 +3,7 @@
 # ===================================
 
 system:
-    name: System Dashboard
+    name: Dashboard
     icon: ph ph-globe
     # canCreateAndEdit: true
     # showInterval: false
@@ -17,8 +17,8 @@ system:
             width: 4
             type: indicator
             icon: ph ph-power
-            title: Manage Status
-            linkText: Manage Status
+            title: Gestionar Estado
+            linkText: Gestionar Estado
             dimension: indicator@cms_information
             dataSource: Dashboard\Classes\CmsStatusDataSource
 
@@ -38,7 +38,7 @@ system:
             type: indicator
             icon: ph ph-gear-fine
             title: Configuration
-            linkText: View Issues
+            linkText: Ver Problemas
             dimension: indicator@system_issues
             dataSource: Dashboard\Classes\SystemReportDataSource
 
@@ -48,7 +48,7 @@ system:
             type: indicator
             icon: ph ph-bell-ringing
             title: Event Log
-            linkText: View Event Log
+            linkText: Ver Registro de Eventos
             dimension: indicator@event_log
             dataSource: Dashboard\Classes\SystemReportDataSource
 
@@ -66,7 +66,7 @@ system:
             row: 1
             width: 20
             type: section-title
-            title: Traffic
+            title: Tráfico
             showInterval: true
 
         visitor_chart:
@@ -90,7 +90,7 @@ system:
             row: 4
             width: 10
             type: table
-            title: Top Pages
+            title: Páginas Más Vistas
             limit: 10
             dimension: page_path
             sortOrder: desc
@@ -110,7 +110,7 @@ system:
             row: 4
             width: 10
             type: table
-            title: Top Referral Domains
+            title: Dominios de Referencia Principales
             limit: 10
             dimension: referral_domain
             sortOrder: desc
