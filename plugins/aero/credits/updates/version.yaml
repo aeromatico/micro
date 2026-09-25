@@ -46,3 +46,7 @@
 1.10.0:
     - "Aviso de recarga acreditada: se dispara desde el listener del pago (fuera de la transacción), con tenant_name y registro en el log; plantillas de bandeja y push para los avisos de recarga."
     - seed_purchase_inapp_push_templates.php
+
+1.11.0:
+    - "Créditos de regalo de plan con vencimiento (Aero.Sites Plan.credits mode=expiring): topUp() admite $expiresAt y crea un CreditPlanGrantLot; chargeRaw() descuenta primero del lote más próximo a vencer (solo contabilidad auxiliar, el saldo real no cambia); credits:expire-plan-grants postea kind=expiry por lo que quede sin usar al vencer el ciclo. No cambia nada para los colores en modo acumulable (el default de siempre)."
+    - create_credit_plan_grant_lots_table.php

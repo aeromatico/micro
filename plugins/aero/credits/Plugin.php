@@ -34,6 +34,7 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('credits:expire-purchases', \Aero\Credits\Console\ExpirePurchases::class);
         $this->registerConsoleCommand('credits:verify', \Aero\Credits\Console\Verify::class);
         $this->registerConsoleCommand('credits:reset-ledger', \Aero\Credits\Console\ResetLedger::class);
+        $this->registerConsoleCommand('credits:expire-plan-grants', \Aero\Credits\Console\ExpirePlanGrants::class);
     }
 
     public function registerSchedule($schedule): void
@@ -41,6 +42,7 @@ class Plugin extends PluginBase
         $schedule->command('credits:sweep-holds')->everyFiveMinutes();
         $schedule->command('credits:expire-purchases')->everyMinute();
         $schedule->command('credits:verify')->dailyAt('04:10');
+        $schedule->command('credits:expire-plan-grants')->dailyAt('04:05')->withoutOverlapping()->onOneServer();
     }
 
     public function boot(): void
