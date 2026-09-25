@@ -39,6 +39,8 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
         $this->registerConsoleCommand('aero.sites:release-expired-signups', \Aero\Sites\Console\ReleaseExpiredSignups::class);
         $this->registerConsoleCommand('aero.sites:expire-trials', \Aero\Sites\Console\ExpireTrials::class);
+        $this->registerConsoleCommand('aero.sites:generate-renewals', \Aero\Sites\Console\GenerateRenewals::class);
+        $this->registerConsoleCommand('aero.sites:expire-renewals', \Aero\Sites\Console\ExpireRenewals::class);
     }
 
     public function boot(): void
@@ -54,6 +56,7 @@ class Plugin extends PluginBase
         $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
+        $this->bootPayRenewalBridge();
         $this->bootZeptomailMailer();
         $this->bootProFeaturesGate();
     }
@@ -146,6 +149,14 @@ class Plugin extends PluginBase
             ->everyMinute()
             ->withoutOverlapping()
             ->onOneServer();
+        $schedule->command('aero.sites:generate-renewals')
+            ->dailyAt('03:50')
+            ->withoutOverlapping()
+            ->onOneServer();
+        $schedule->command('aero.sites:expire-renewals')
+            ->dailyAt('03:55')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**
@@ -180,6 +191,63 @@ class Plugin extends PluginBase
                 $tenant->save();
             } catch (\Exception $e) {
                 \Log::error("Aero\\Sites: fallo al aprovisionar el sitio del tenant {$tenant->id} tras pago confirmado: " . $e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Espejo de bootPaySignupBridge() para renovaciones: cuando se confirma
+     * el pago de un QR generado por Console\GenerateRenewals, marca la
+     * PlanRenewal como pagada, extiende plan_expires_at del tenant desde su
+     * fecha anterior (no desde now(), para no perder/regalar días según
+     * cuándo exactamente pague dentro de la ventana de 5 días) y otorga los
+     * créditos del ciclo. Mismo evento que el puente de alta —cada uno
+     * revisa si la referencia le pertenece, sin pisarse— y nunca deja
+     * escapar una excepción por el mismo motivo que el otro puente.
+     */
+    protected function bootPayRenewalBridge(): void
+    {
+        if (!class_exists(\Aero\Pay\Models\QrCode::class)) {
+            return;
+        }
+
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
+            $renewal = \Aero\Sites\Models\PlanRenewal::where('payment_reference', $qrCode->internal_reference)
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$renewal) {
+                return;
+            }
+
+            try {
+                $tenant = $renewal->tenant;
+                if (!$tenant) {
+                    return;
+                }
+
+                $renewal->status = 'paid';
+                $renewal->paid_at = now();
+                $renewal->save();
+
+                $base = ($tenant->plan_expires_at && $tenant->plan_expires_at->gt(now())) ? $tenant->plan_expires_at : now();
+                $tenant->plan_expires_at = $renewal->period === 'annual' ? $base->copy()->addYear() : $base->copy()->addMonth();
+                $tenant->save();
+
+                \Aero\Sites\Classes\PlanCredits::grant($tenant, "renewal:{$renewal->id}");
+
+                if (class_exists(\Aero\Notify\Classes\Notify::class)) {
+                    try {
+                        \Aero\Notify\Classes\Notify::fire('sites.tenant.plan_renewed', [
+                            'tenant_name'     => $tenant->name,
+                            'plan_expires_at' => $tenant->plan_expires_at->toFormattedDateString(),
+                        ], ['tenant_id' => $tenant->id]);
+                    } catch (\Throwable $e) {
+                        \Log::error('Aero.Sites: fallo notificando sites.tenant.plan_renewed: ' . $e->getMessage());
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::error("Aero\\Sites: fallo procesando renovación pagada (tenant {$renewal->tenant_id}): " . $e->getMessage());
             }
         });
     }
@@ -555,6 +623,12 @@ class Plugin extends PluginBase
                         'label'       => 'Planes',
                         'icon'        => 'icon-th-list',
                         'url'         => Backend::url('aero/sites/plans'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
+                    'planrenewals' => [
+                        'label'       => 'Renovaciones',
+                        'icon'        => 'icon-refresh',
+                        'url'         => Backend::url('aero/sites/planrenewals'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                     'rootdomains' => [

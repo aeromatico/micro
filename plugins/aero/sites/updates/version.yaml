@@ -329,3 +329,11 @@
 1.47.0:
     - "Precio de renovación por plan (price_renewal / price_renewal_annual), separado del precio de alta — vacío usa el mismo precio. Los créditos por color ahora admiten un modo (acumulable o vencible al renovar). Solo esquema y formulario: el cobro recurrente que los use todavía no existe."
     - add_plan_renewal_pricing.php
+
+1.48.0:
+    - "Motor de renovación de planes mensual/anual: aero.sites:generate-renewals genera el cobro QR unos días antes del vencimiento (reutiliza la cuenta bancaria del alta), el pago confirmado extiende plan_expires_at y regala los créditos del ciclo, y aero.sites:expire-renewals suspende al tenant tras 5 días de gracia sin pagar. Nueva pantalla Sites → Renovaciones (solo lectura)."
+    - create_plan_renewals_table.php
+
+1.49.0:
+    - "Otorga a tenant_admin el tab Webhooks del gateway Aero.Api (suscripciones salientes a eventos aero.*, ver Aero.Api 1.2.0)."
+    - grant_api_webhooks_to_tenant_admin.php
