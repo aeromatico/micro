@@ -6,10 +6,15 @@ use System\Classes\PluginManager;
 
 /**
  * Plan de plataforma. `code` es el valor que guarda Tenant.plan.
- *  - credits:  [{credit_type: 'azul', amount: 500}] — se otorga al activar el plan (una vez por tenant+plan).
+ *  - credits:  [{credit_type: 'azul', amount: 500, mode: 'accumulate'|'expiring'}] — se otorga al
+ *              activar el plan (una vez por tenant+plan). `mode` distingue créditos acumulables
+ *              (suman al saldo fungible, no vencen) de vencibles (se pierden al renovar si no se
+ *              usan) — hoy solo se guarda: el motor de renovación que le da efecto aún no existe.
  *  - plugins:  códigos de plugin ('Aero.Hello') accesibles con este plan; null = sin restricción.
  *  - features: [{text}] — lista libre que se muestra en /alta y en la invitación a mejorar.
  *  - is_pro:   el admin del tenant recibe el rol tenant_admin_pro y puede usar dominio propio.
+ *  - price_renewal / price_renewal_annual: precio de renovación si difiere del de alta (price /
+ *    price_annual); null = mismo precio. Sin efecto todavía (no hay cobro recurrente).
  */
 class Plan extends Model
 {
@@ -19,8 +24,8 @@ class Plan extends Model
     public $table = 'aero_sites_plans';
 
     public $fillable = [
-        'code', 'name', 'description', 'price', 'price_annual', 'trial_days', 'is_active', 'is_featured', 'is_pro',
-        'sort_order', 'credits', 'plugins', 'features',
+        'code', 'name', 'description', 'price', 'price_renewal', 'price_annual', 'price_renewal_annual',
+        'trial_days', 'is_active', 'is_featured', 'is_pro', 'sort_order', 'credits', 'plugins', 'features',
     ];
 
     public $hasMany = [
@@ -33,7 +38,9 @@ class Plan extends Model
         'code'  => 'required|alpha_dash|max:40|unique:aero_sites_plans,code',
         'name'  => 'required',
         'price' => 'required|numeric|min:0',
+        'price_renewal' => 'nullable|numeric|min:0',
         'price_annual' => 'nullable|numeric|min:0',
+        'price_renewal_annual' => 'nullable|numeric|min:0',
         'trial_days' => 'nullable|integer|min:0',
     ];
 
@@ -80,10 +87,22 @@ class Plan extends Model
 
     public function beforeValidate()
     {
-        if ($this->price_annual === '' || $this->price_annual === null) {
-            $this->price_annual = null;
+        foreach (['price_annual', 'price_renewal', 'price_renewal_annual'] as $field) {
+            if ($this->$field === '') {
+                $this->$field = null;
+            }
         }
         $this->trial_days = (int) $this->trial_days;
+    }
+
+    /** Precio de renovación del periodo, o el de alta si no se definió uno propio. */
+    public function renewalPrice(string $period): float
+    {
+        $value = $period === 'annual'
+            ? ($this->price_renewal_annual ?? $this->price_annual)
+            : ($this->price_renewal ?? $this->price);
+
+        return (float) $value;
     }
 
     public function beforeDelete()
@@ -93,6 +112,8 @@ class Plan extends Model
         }
     }
 
+    public const CREDIT_MODES = ['accumulate', 'expiring'];
+
     public function beforeSave()
     {
         // Un solo monto por color (gana el último) y sin montos vacíos.
@@ -100,7 +121,8 @@ class Plan extends Model
         foreach ((array) $this->credits as $row) {
             $amount = (int) ($row['amount'] ?? 0);
             if (!empty($row['credit_type']) && $amount > 0) {
-                $byType[$row['credit_type']] = ['credit_type' => $row['credit_type'], 'amount' => $amount];
+                $mode = in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'accumulate';
+                $byType[$row['credit_type']] = ['credit_type' => $row['credit_type'], 'amount' => $amount, 'mode' => $mode];
             }
         }
         $this->credits = array_values($byType);
@@ -110,6 +132,16 @@ class Plan extends Model
     public function creditsByType(): array
     {
         return collect((array) $this->credits)->pluck('amount', 'credit_type')->map(fn ($n) => (int) $n)->all();
+    }
+
+    /** Filas completas [{credit_type, amount, mode}], para cuando el motor de renovación exista. */
+    public function creditsConfig(): array
+    {
+        return collect((array) $this->credits)->map(fn ($row) => [
+            'credit_type' => $row['credit_type'] ?? null,
+            'amount' => (int) ($row['amount'] ?? 0),
+            'mode' => in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'accumulate',
+        ])->all();
     }
 
     /** Lista de textos de características, sin filas vacías. */

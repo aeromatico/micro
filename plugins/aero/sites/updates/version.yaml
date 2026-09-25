@@ -325,3 +325,7 @@
 1.46.0:
     - "El rol tenant_admin recibe los permisos de Livechat (aero.livechat.manage_inboxes/manage_conversations): cada tenant puede crear su propio inbox de chat en vivo."
     - grant_livechat_to_tenant_admin.php
+
+1.47.0:
+    - "Precio de renovación por plan (price_renewal / price_renewal_annual), separado del precio de alta — vacío usa el mismo precio. Los créditos por color ahora admiten un modo (acumulable o vencible al renovar). Solo esquema y formulario: el cobro recurrente que los use todavía no existe."
+    - add_plan_renewal_pricing.php
