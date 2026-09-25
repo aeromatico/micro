@@ -494,7 +494,18 @@ def commit_item(item, dry):
     item["subject"] = msg.splitlines()[0]
     if dry:
         return None
-    git(repo, "add", "-A", "--", *files)
+    # "git add -A -- <ruta>" falla con "pathspec did not match any files" cuando <ruta> fue
+    # borrada Y su directorio padre entero ya no existe (típico al mover/renombrar una carpeta
+    # completa, p. ej. themes/master/assets/css/ → assets/src/): git ni siquiera puede recorrer
+    # ese directorio para confirmar el borrado. Bug real 2026-09-25: bloqueó themes/master 83 h.
+    # Se separa por existencia real en disco: lo que sigue existiendo se agrega normal; lo que
+    # ya no existe se quita del índice con --ignore-unmatch (no falla si ya no estaba rastreado).
+    existing = [f for f in files if (Path(repo) / f).exists()]
+    gone = [f for f in files if f not in existing]
+    if existing:
+        git(repo, "add", "-A", "--", *existing)
+    if gone:
+        git(repo, "rm", "--cached", "-q", "--ignore-unmatch", "--", *gone, check=False)
     p = git(repo, "commit", "-o", "-q", "-F", "-", "--", *files, stdin=msg, check=False)
     if p.returncode != 0:
         raise GitError(f"commit falló: {(p.stderr + p.stdout).strip()[:300]}")
