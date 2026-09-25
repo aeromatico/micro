@@ -24,10 +24,10 @@ Cuando se necesita lógica de negocio propia:
 
 ```bash
 # 1. Scaffold del plugin
-/october-plugin Micro Ecommerce "Tienda online"
+/market-plugin Ecommerce "Tienda online"
 
 # 2. CRUD completo de un golpe (Model + Controller + YAMLs)
-/october-crud Micro/Ecommerce Product \
+/october-crud Aero/Ecommerce Product \
   name:string slug:string price:decimal \
   stock:number description:richtext \
   image:fileupload is_active:checkbox

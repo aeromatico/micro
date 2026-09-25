@@ -4,35 +4,37 @@ Stack: **OctoberCMS 4 + Laravel 12 + PHP 8.4 + MySQL + Redis**
 
 ---
 
-## /october-plugin
+## /market-plugin
 
-Crea el scaffold completo de un nuevo plugin.
+Crea el scaffold completo de un nuevo plugin `Aero.*`, coherente con el resto del marketplace: integración débil (`class_exists()` + Event) con plugins hermanos, `$require` solo si es una dependencia dura real (como `Aero.Notify` → `Aero.Sites`), tenant scoping cuando aplica, y checklist de los bugs de October/Laravel ya conocidos en este proyecto (carpetas en minúscula, formato de `version.yaml`, `Dispatchable`, `hasAccess()` vs `hasPermission()`, `rollbackPlugin`/`plugin:refresh` prohibidos, etc.).
 
-**Archivo:** `.claude/commands/october-plugin.md`
+**Archivo:** `.claude/commands/market-plugin.md`
 
 ### Sintaxis
 ```
-/october-plugin <Vendor> <PluginName> [descripción]
+/market-plugin <PluginName> [descripción] [--requires Sites,Other] [--submodule]
 ```
+El vendor siempre es `Aero` (`plugins/aero/{plugin}`, namespace `Aero\{Plugin}`) — no se pregunta.
 
 ### Ejemplos
 ```
-/october-plugin Micro Blog "Blog con posts, categorías y tags"
-/october-plugin Micro Ecommerce "Tienda online con carrito y pedidos"
-/october-plugin Micro Crm "CRM básico para gestión de clientes"
+/market-plugin Invoicing "Facturación electrónica por tenant"
+/market-plugin Reviews "Reseñas de clientes en micrositios" --requires Sites
+/market-plugin Forms "Constructor de formularios standalone" --submodule
 ```
 
 ### Qué crea
 ```
-plugins/{vendor}/{plugin}/
-├── Plugin.php          — Clase principal (registros, hooks, schedule)
+plugins/aero/{plugin}/
+├── Plugin.php          — pluginDetails, permisos, navegación, boot() con patrón de integración
 ├── updates/
-│   └── version.yaml    — Registro de migraciones
-└── lang/en/lang.php    — Traducciones base
+│   └── version.yaml    — Registro de migraciones (formato lista, no string)
+└── lang/en/lang.php    — Traducciones base (aero.{plugin}::lang.*)
 ```
+Antes de crear, revisa si la funcionalidad ya cabe en un plugin existente (`ls plugins/aero/`) en vez de sumar uno nuevo.
 
 ### Post-creación
-Inmediatamente después usa `/october-crud` para agregar modelos o `/october-tailor` si el contenido es gestionado por el cliente.
+Corre `october:migrate`, confirma que el menú aparece (si no, borra `storage/cms/manifest.php`), y luego usa `/october-crud` para modelos o `/october-tailor` si el contenido lo gestiona el cliente.
 
 ---
 

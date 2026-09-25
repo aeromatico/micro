@@ -74,10 +74,10 @@
 
 ## Estructura de un Plugin
 
-Cuando se crea un plugin con `/october-plugin Micro Blog`:
+Cuando se crea un plugin con `/market-plugin Blog`:
 
 ```
-plugins/micro/blog/
+plugins/aero/blog/
 ├── Plugin.php                  # Registro: componentes, menú, permisos, eventos
 ├── routes.php                  # Rutas HTTP/API del plugin
 ├── composer.json               # Dependencias propias del plugin

@@ -19,7 +19,7 @@ Los archivos están en `.claude/commands/` en la raíz del proyecto y son cargad
 
 | Skill | Descripción breve |
 |-------|------------------|
-| [`/october-plugin`](backend.md#october-plugin) | Scaffold de plugin completo |
+| [`/market-plugin`](backend.md#market-plugin) | Scaffold de plugin `Aero.*` consistente con la plataforma |
 | [`/october-crud`](backend.md#october-crud) | CRUD completo: Model + Controller + YAMLs |
 | [`/october-model`](backend.md#october-model) | Solo Model + Migration + Controller base |
 | [`/october-component`](backend.md#october-component) | Componente CMS (PHP + template Twig) |
