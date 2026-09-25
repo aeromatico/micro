@@ -42,12 +42,24 @@
                     <div class="h-2 w-[35%] bg-canvas-elev2 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center gap-3 py-5 px-4 bg-canvas-elev2 rounded-xl">
-                    <div class="w-28 h-28 rounded-lg bg-canvas border border-edge grid grid-cols-4 grid-rows-4 gap-1 p-2">
-                        <span class="bg-ink rounded-[2px]"></span><span class="rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span>
-                        <span class="rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span><span class="rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span>
-                        <span class="bg-ink rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span><span class="rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span>
-                        <span class="rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span><span class="bg-ink rounded-[2px]"></span><span class="rounded-[2px]"></span>
-                    </div>
+                    {# QR decorativo: no codifica nada, solo simula uno con los tres "ojos" característicos #}
+                    <svg class="w-28 h-28 rounded-lg bg-canvas border border-edge p-2" viewBox="0 0 21 21" shape-rendering="crispEdges">
+                        {% for eye in [[0,0], [14,0], [0,14]] %}
+                        <rect x="{{ eye[0] }}" y="{{ eye[1] }}" width="7" height="7" class="fill-ink"/>
+                        <rect x="{{ eye[0] + 1 }}" y="{{ eye[1] + 1 }}" width="5" height="5" class="fill-canvas"/>
+                        <rect x="{{ eye[0] + 2 }}" y="{{ eye[1] + 2 }}" width="3" height="3" class="fill-ink"/>
+                        {% endfor %}
+                        {% for m in [
+                            [9,0],[11,1],[9,2],[12,3],[9,4],[10,5],[12,6],
+                            [16,2],[18,3],[16,5],[19,6],
+                            [2,9],[4,9],[6,10],[9,9],[11,9],[9,10],[13,9],[15,10],[17,9],[19,10],
+                            [2,11],[5,11],[9,11],[12,11],[16,11],[19,12],
+                            [9,13],[11,13],[13,13],[16,13],[18,13],
+                            [2,16],[4,17],[6,16],[9,16],[11,17],[13,16],[16,16],[18,17],[9,19],[12,18],[16,19]
+                        ] %}
+                        <rect x="{{ m[0] }}" y="{{ m[1] }}" width="1" height="1" class="fill-ink"/>
+                        {% endfor %}
+                    </svg>
                     <span class="text-lg font-bold">Bs 150.00</span>
                     <span class="text-[12px] text-ink-dim flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
