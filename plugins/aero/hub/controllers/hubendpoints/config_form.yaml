@@ -1,0 +1,7 @@
+name: aero.hub::lang.menu.hub
+form: $/aero/hub/models/hubendpoint/fields.yaml
+modelClass: Aero\Hub\Models\HubEndpoint
+defaultRedirect: aero/hub/hubendpoints
+update:
+    redirect: aero/hub/hubendpoints
+    redirectClose: aero/hub/hubendpoints

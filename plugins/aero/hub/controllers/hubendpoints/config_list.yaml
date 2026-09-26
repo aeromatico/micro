@@ -1,0 +1,13 @@
+list: $/aero/hub/models/hubendpoint/columns.yaml
+modelClass: Aero\Hub\Models\HubEndpoint
+title: aero.hub::lang.menu.hub
+showSetup: true
+recordsPerPage: 50
+defaultSort:
+    column: category
+    direction: asc
+recordUrl: aero/hub/hubendpoints/update/:id
+toolbar:
+    search:
+        prompt: backend::lang.list.search_prompt
+filter: config_filter.yaml

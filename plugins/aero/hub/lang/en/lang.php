@@ -1,0 +1,42 @@
+<?php return [
+    'plugin' => [
+        'name'           => 'Hub',
+        'description'    => 'Proxy of YepAPI (AI models + data APIs) billed in Aero.Credits through tenant API keys.',
+        'connector_type' => 'YepAPI',
+    ],
+    'menu' => [
+        'hub'       => 'Hub',
+        'ai_models' => 'AI Models',
+        'apis'      => 'APIs',
+    ],
+    'permissions' => [
+        'manage_catalog' => 'Manage the Hub endpoint catalog and pricing',
+    ],
+    'endpoint' => [
+        'code'                 => 'Code',
+        'category'             => 'Category',
+        'division'             => 'Division',
+        'path'                 => 'Path',
+        'method'               => 'Method',
+        'summary'              => 'Summary',
+        'description'         => 'Original YepAPI description',
+        'pricing_type'         => 'Pricing model',
+        'unit_size'            => 'Overage unit size',
+        'unit_cost_usd'        => 'Reference cost per unit (USD)',
+        'reference_cost_usd'   => 'Reference cost (USD, from YepAPI)',
+        'count_path'           => 'Response path to count units (per_volume)',
+        'credit_type'          => 'Credit color',
+        'credit_cost'          => 'Credit cost (base)',
+        'overage_credit_cost'  => 'Credit cost per overage unit',
+        'is_streaming'         => 'Supports streaming upstream',
+        'is_async'             => 'Async (billed on completion)',
+        'is_active'            => 'Active (usable by tenants)',
+        'last_synced_at'       => 'Last synced',
+    ],
+    'pricing_types' => [
+        'fixed'      => 'Fixed per call',
+        'per_page'   => 'Per page of results',
+        'per_volume' => 'Base + overage per volume',
+        'async'      => 'Async job (billed on completion)',
+    ],
+];

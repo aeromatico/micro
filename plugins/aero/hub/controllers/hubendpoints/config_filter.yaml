@@ -1,0 +1,13 @@
+scopes:
+    division:
+        label: aero.hub::lang.endpoint.division
+        type: dropdown
+        conditions: division = ':value'
+        options:
+            ai_models: aero.hub::lang.menu.ai_models
+            apis: aero.hub::lang.menu.apis
+
+    is_active:
+        label: aero.hub::lang.endpoint.is_active
+        type: switch
+        conditions: is_active = :value

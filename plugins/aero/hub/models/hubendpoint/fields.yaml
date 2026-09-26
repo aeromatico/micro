@@ -1,0 +1,81 @@
+fields:
+    code:
+        label: aero.hub::lang.endpoint.code
+        type: text
+        span: left
+        disabled: true
+
+    path:
+        label: aero.hub::lang.endpoint.path
+        type: text
+        span: right
+        disabled: true
+
+    category:
+        label: aero.hub::lang.endpoint.category
+        type: text
+        span: left
+        disabled: true
+
+    method:
+        label: aero.hub::lang.endpoint.method
+        type: text
+        span: right
+        disabled: true
+
+    summary:
+        label: aero.hub::lang.endpoint.summary
+        type: text
+        span: full
+        disabled: true
+
+    description:
+        label: aero.hub::lang.endpoint.description
+        type: textarea
+        size: small
+        span: full
+        disabled: true
+
+    reference_cost_usd:
+        label: aero.hub::lang.endpoint.reference_cost_usd
+        type: text
+        span: left
+        disabled: true
+
+    pricing_type:
+        label: aero.hub::lang.endpoint.pricing_type
+        type: dropdown
+        span: right
+        disabled: true
+
+    unit_size:
+        label: aero.hub::lang.endpoint.unit_size
+        type: number
+        span: left
+        commentAbove: aero.hub::lang.endpoint.unit_cost_usd
+
+    overage_credit_cost:
+        label: aero.hub::lang.endpoint.overage_credit_cost
+        type: number
+        span: right
+
+    count_path:
+        label: aero.hub::lang.endpoint.count_path
+        type: text
+        span: full
+        comment: 'Ej.: data.keywords (solo aplica al pricing "Base + overage por volumen")'
+
+    credit_type_id:
+        label: aero.hub::lang.endpoint.credit_type
+        type: dropdown
+        span: left
+
+    credit_cost:
+        label: aero.hub::lang.endpoint.credit_cost
+        type: number
+        span: right
+
+    is_active:
+        label: aero.hub::lang.endpoint.is_active
+        type: switch
+        span: full

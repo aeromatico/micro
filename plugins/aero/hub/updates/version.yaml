@@ -1,0 +1,8 @@
+1.0.0:
+    - "Primera versión — proxy de YepAPI (Modelos IA + APIs) bajo /hub, con
+      catálogo de 155 endpoints, cobro por Aero.Credits y autenticación por
+      Aero.Api. Requiere Aero.Connector."
+    - create_hub_endpoints_table.php
+    - create_hub_media_jobs_table.php
+    - seed_yepapi_connector.php
+    - seed_endpoints_from_openapi.php
