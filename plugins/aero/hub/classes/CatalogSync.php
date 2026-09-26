@@ -221,6 +221,7 @@ class CatalogSync
                 'summary'     => $endpoint->summary,
                 'description' => $endpoint->description,
                 'credit'      => static::creditHintFor($endpoint),
+                'doc_url'     => $endpoint->docsUrl(),
             ];
         }
 
@@ -231,7 +232,8 @@ class CatalogSync
         return $out;
     }
 
-    protected static function creditHintFor(HubEndpoint $endpoint): ?array
+    /** Público: también lo usa Aero\Hub\Classes\DocsSync al generar el artículo de cada endpoint. */
+    public static function creditHintFor(HubEndpoint $endpoint): ?array
     {
         if (!class_exists(\Aero\Credits\Classes\Credits::class)) {
             return null;

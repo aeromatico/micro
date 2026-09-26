@@ -35,6 +35,7 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('hub:sync-catalog', \Aero\Hub\Console\SyncCatalog::class);
+        $this->registerConsoleCommand('hub:sync-docs', \Aero\Hub\Console\SyncDocs::class);
     }
 
     public function boot(): void

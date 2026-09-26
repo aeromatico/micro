@@ -102,6 +102,17 @@ class HubEndpoint extends Model
     }
 
     /**
+     * URL del artículo de documentación generado por
+     * Aero\Hub\Classes\DocsSync (mismo slug que usa ese generador). Solo
+     * resuelve a una página real cuando el endpoint está activo — el
+     * llamador (CatalogSync::publicCatalog()) ya filtra por is_active.
+     */
+    public function docsUrl(): string
+    {
+        return url('documentacion/hub-' . $this->code);
+    }
+
+    /**
      * Margen efectivo de ESTE endpoint: el propio si cargó ambos campos, si
      * no el default global de Aero\Hub\Models\Settings — así ningún endpoint
      * queda "sin margen" por accidente (siempre hay un valor efectivo).
@@ -164,26 +175,27 @@ class HubEndpoint extends Model
     }
 
     /**
-     * Mantiene sincronizado el catálogo de Aero.Credits con el precio que el
-     * superadmin fijó acá — HubEndpoint sigue siendo la única fuente de
-     * verdad; esto es solo un espejo para reusar el ledger/alertas/hints de
-     * costo que ya existen en toda la plataforma sin código adicional.
+     * Mantiene sincronizados, a partir de esta fila (única fuente de
+     * verdad): el espejo en Aero.Credits (ledger/alertas/hints de costo) y
+     * el artículo de documentación en Aero.Docs (Aero\Hub\Classes\DocsSync)
+     * — ambos opcionales, cada uno con su propio guard por si ese plugin no
+     * está instalado.
      */
     public function afterSave()
     {
-        if (!class_exists(\Aero\Credits\Models\CreditAction::class) || !$this->credit_type_id) {
-            return;
+        if (class_exists(\Aero\Credits\Models\CreditAction::class) && $this->credit_type_id) {
+            \Aero\Credits\Models\CreditAction::updateOrCreate(
+                ['code' => $this->actionCode()],
+                [
+                    'label'          => $this->summary ?: $this->code,
+                    'plugin'         => 'Aero.Hub',
+                    'credit_type_id' => $this->credit_type_id,
+                    'default_cost'   => $this->credit_cost,
+                    'is_active'      => $this->is_active,
+                ]
+            );
         }
 
-        \Aero\Credits\Models\CreditAction::updateOrCreate(
-            ['code' => $this->actionCode()],
-            [
-                'label'          => $this->summary ?: $this->code,
-                'plugin'         => 'Aero.Hub',
-                'credit_type_id' => $this->credit_type_id,
-                'default_cost'   => $this->credit_cost,
-                'is_active'      => $this->is_active,
-            ]
-        );
+        \Aero\Hub\Classes\DocsSync::syncOne($this);
     }
 }
