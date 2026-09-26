@@ -8,20 +8,40 @@
                 <p class="text-base text-ink-dim leading-relaxed">Cuéntale a la IA a qué se dedica tu negocio y en minutos tienes un sitio completo. Después ajústalo con un editor visual drag &amp; drop, con decenas de componentes listos (y muchos más en construcción) y variantes predefinidas que personalizas en minutos.</p>
                 <a href="https://demo.market.com.bo/" target="_blank" rel="noopener" class="inline-flex items-center w-fit bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Mira un demo</a>
             </div>
-            <div class="bg-canvas-elev border border-edge rounded-2xl p-6 flex flex-col gap-4">
-                <div class="flex items-center gap-2.5 px-4 py-3 bg-canvas-elev2 rounded-lg">
-                    <span class="text-sm text-ink-dim">"Vendo repostería artesanal en La Paz, entrego a domicilio"</span>
-                </div>
-                <div class="h-px bg-edge"></div>
-                <div class="flex flex-col gap-2">
-                    <div class="h-2.5 w-[45%] bg-canvas-elev2 rounded"></div>
-                    <div class="h-16 w-full bg-canvas-elev2 rounded-lg"></div>
-                    <div class="flex gap-2">
-                        <div class="h-9 flex-1 bg-canvas-elev2 rounded-md"></div>
-                        <div class="h-9 flex-1 bg-canvas-elev2 rounded-md"></div>
-                        <div class="h-9 flex-1 bg-canvas-elev2 rounded-md"></div>
+            <div class="w-full max-w-[560px] mx-auto" x-data="{ started: false }" x-init="
+                let el = $el;
+                let io = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting && !started) {
+                        started = true;
+                        let v = el.querySelector('video');
+                        let src = document.createElement('source');
+                        src.src = v.dataset.src;
+                        src.type = 'video/mp4';
+                        v.appendChild(src);
+                        v.load();
+                        v.play().catch(() => {});
+                        io.disconnect();
+                    }
+                }, { rootMargin: '200px' });
+                io.observe(el);
+            ">
+                <div class="relative rounded-t-xl bg-neutral-900 border border-neutral-800 p-[10px] pb-0 shadow-2xl">
+                    <div class="rounded-md overflow-hidden bg-black aspect-video">
+                        <video
+                            class="w-full h-full object-cover"
+                            autoplay
+                            muted
+                            loop
+                            playsinline
+                            preload="none"
+                            data-src="https://panel.market.com.bo/storage/app/media/elements/editor.mp4"
+                        ></video>
                     </div>
                 </div>
+                <div class="h-3.5 bg-gradient-to-b from-neutral-300 to-neutral-400 rounded-b-lg mx-auto relative">
+                    <div class="absolute inset-x-0 top-0 h-1.5 bg-neutral-200/60 rounded-b-full mx-[35%]"></div>
+                </div>
+                <div class="h-1.5 w-[85%] mx-auto bg-neutral-500/40 rounded-b-2xl blur-[1px]"></div>
             </div>
         </div>
 
