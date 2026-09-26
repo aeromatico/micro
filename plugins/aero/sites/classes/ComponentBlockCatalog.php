@@ -26,6 +26,11 @@ class ComponentBlockCatalog
         'contacto'           => 'Con contacto',
         'barra-doble'        => 'Barra doble',
         'centrado-columnas'  => 'Centrado con columnas',
+        'simple-linea'       => 'Línea simple (legal)',
+        'pila-centrada'      => 'Apilado centrado',
+        'panel-dividido'     => 'Panel dividido (contraste)',
+        'acordeon-movil'     => 'Acordeón en móvil',
+        'tres-niveles'       => 'Tres niveles',
     ];
 
     public const FOOTER_DEFAULT_PROPS = [
@@ -46,11 +51,16 @@ class ComponentBlockCatalog
     ];
 
     public const HEADER_VARIANTS = [
-        'clasico'      => 'Clásico (logo + enlaces + botón)',
-        'centrado'     => 'Centrado',
-        'barra-marca'  => 'Barra de marca (sólida)',
-        'dos-niveles'  => 'Dos niveles (aviso arriba)',
-        'flotante'     => 'Flotante (píldora)',
+        'clasico'                    => 'Clásico (logo + enlaces + botón)',
+        'centrado'                   => 'Centrado',
+        'barra-marca'                => 'Barra de marca (sólida)',
+        'dos-niveles'                => 'Dos niveles (aviso arriba)',
+        'flotante'                   => 'Flotante (píldora)',
+        'apilado-cta'                => 'Apilado con botón (centrado)',
+        'minimalista-enlaces'        => 'Minimalista (solo enlaces)',
+        'marca-derecha'              => 'Marca a la derecha',
+        'transparente-superpuesto'   => 'Transparente superpuesto',
+        'borde-redondeado-inferior'  => 'Borde redondeado inferior',
     ];
 
     public const HEADER_DEFAULT_PROPS = [
@@ -68,11 +78,16 @@ class ComponentBlockCatalog
     ];
 
     public const HERO_VARIANTS = [
-        'centrado'         => 'Centrado (clásico)',
-        'imagen-derecha'   => 'Imagen a la derecha',
-        'imagen-izquierda' => 'Imagen a la izquierda',
-        'fondo-completo'   => 'Fondo completo (alto impacto)',
-        'minimal'          => 'Minimal (solo texto)',
+        'centrado'             => 'Centrado (clásico)',
+        'imagen-derecha'       => 'Imagen a la derecha',
+        'imagen-izquierda'     => 'Imagen a la izquierda',
+        'fondo-completo'       => 'Fondo completo (alto impacto)',
+        'minimal'              => 'Minimal (solo texto)',
+        'imagen-arriba'        => 'Imagen arriba (banner + texto abajo)',
+        'panel-elevado'        => 'Panel elevado (tarjeta centrada)',
+        'editorial-izquierda'  => 'Editorial (texto a la izquierda, grande)',
+        'fondo-texto-abajo'    => 'Fondo con texto abajo (estilo póster)',
+        'panel-imagen-grande'  => 'Panel imagen grande (60/40)',
     ];
 
     public const HERO_DEFAULT_PROPS = [
@@ -93,11 +108,16 @@ class ComponentBlockCatalog
     ];
 
     public const FEATURE_GRID_VARIANTS = [
-        'tarjetas'        => 'Tarjetas (clásico)',
-        'lista'           => 'Lista vertical',
-        'numeradas'       => 'Pasos numerados',
-        'imagen-lateral'  => 'Imagen + lista al lado',
-        'destacado'       => 'Encabezado destacado + íconos',
+        'tarjetas'                 => 'Tarjetas (clásico)',
+        'lista'                    => 'Lista vertical',
+        'numeradas'                => 'Pasos numerados',
+        'imagen-lateral'           => 'Imagen + lista al lado',
+        'destacado'                => 'Encabezado destacado + íconos',
+        'grid-iconos-circulares'   => 'Grid con íconos circulares',
+        'linea-tiempo'             => 'Línea de tiempo vertical',
+        'comparacion-dividida'     => 'Comparación dividida (checklist)',
+        'mosaico-alterno'          => 'Mosaico alterno (zigzag)',
+        'franja-horizontal'        => 'Franja horizontal (badges)',
     ];
 
     public const FEATURE_GRID_DEFAULT_PROPS = [
@@ -121,11 +141,16 @@ class ComponentBlockCatalog
     ];
 
     public const CTA_VARIANTS = [
-        'clasico'         => 'Clásico (un botón)',
-        'doble-boton'     => 'Doble botón',
-        'con-icono'       => 'Con ícono',
-        'imagen-lateral'  => 'Imagen al lado',
-        'franja-minimal'  => 'Franja minimal',
+        'clasico'                  => 'Clásico (un botón)',
+        'doble-boton'              => 'Doble botón',
+        'con-icono'                => 'Con ícono',
+        'imagen-lateral'           => 'Imagen al lado',
+        'franja-minimal'           => 'Franja minimal',
+        'apilado-icono-2botones'   => 'Ícono + doble botón',
+        'imagen-fondo'             => 'Imagen de fondo',
+        'tarjeta-borde'            => 'Tarjeta con borde',
+        'imagen-arriba'            => 'Imagen arriba (banner)',
+        'acento-superior'          => 'Acento superior (badge + texto)',
     ];
 
     public const CTA_DEFAULT_PROPS = [
@@ -152,6 +177,11 @@ class ComponentBlockCatalog
         'tres-planes-tabla'      => '3 planes — tabla minimal',
         'dos-planes'             => '2 planes',
         'un-plan'                => '1 plan (producto/servicio único)',
+        'cuatro-planes'          => '4 planes',
+        'filas-comparacion'      => 'Filas de comparación',
+        'precio-lateral'         => 'Precio lateral (tarjetas horizontales)',
+        'destacado-grande'       => 'Destacado grande (plan central más grande)',
+        'minimalista-lista'      => 'Lista minimalista (sin tarjetas)',
     ];
 
     public const PRICING_DEFAULT_PROPS = [
@@ -177,6 +207,12 @@ class ComponentBlockCatalog
                 'features' => "Todo lo de Pro\nUsuarios ilimitados\nSoporte 24/7\nIntegraciones a medida",
                 'ctaLabel' => 'Elegir Premium', 'ctaUrl' => '/contacto', 'highlighted' => 'no', 'icon' => 'tabler:diamond',
             ],
+            [
+                'name' => 'Empresa', 'price' => 'Personalizado', 'period' => '',
+                'description' => 'A medida de tu operación.',
+                'features' => "Todo lo de Premium\nSLA dedicado\nOnboarding asistido",
+                'ctaLabel' => 'Hablar con ventas', 'ctaUrl' => '/contacto', 'highlighted' => 'no', 'icon' => 'tabler:building',
+            ],
         ],
         'variant'     => 'tres-planes',
         'background'  => '',
@@ -186,11 +222,16 @@ class ComponentBlockCatalog
     ];
 
     public const FAQ_VARIANTS = [
-        'acordeon-clasico'     => 'Acordeón clásico',
-        'acordeon-exclusivo'   => 'Acordeón exclusivo (numerado)',
-        'tarjetas-grid'        => 'Tarjetas en grid',
-        'conversacional'       => 'Conversacional (chat)',
-        'dividido-lateral'     => 'Dividido — panel lateral',
+        'acordeon-clasico'      => 'Acordeón clásico',
+        'acordeon-exclusivo'    => 'Acordeón exclusivo (numerado)',
+        'tarjetas-grid'         => 'Tarjetas en grid',
+        'conversacional'        => 'Conversacional (chat)',
+        'dividido-lateral'      => 'Dividido — panel lateral',
+        'numerada-lista'        => 'Lista numerada (siempre abierta)',
+        'grid-iconos'           => 'Grid de íconos (sin tarjetas)',
+        'acordeon-minimalista'  => 'Acordeón minimalista (+/-)',
+        'columnas-alternado'    => 'Columnas alternadas',
+        'banda-destacada'       => 'Banda destacada (primera pregunta grande)',
     ];
 
     public const FAQ_DEFAULT_PROPS = [
@@ -222,11 +263,16 @@ class ComponentBlockCatalog
     ];
 
     public const TABS_VARIANTS = [
-        'clasicas'    => 'Clásicas — subrayado',
-        'pildoras'    => 'Píldoras',
-        'verticales'  => 'Verticales (lateral)',
-        'tarjetas'    => 'Tarjetas',
-        'numeradas'   => 'Numeradas (pasos)',
+        'clasicas'             => 'Clásicas — subrayado',
+        'pildoras'             => 'Píldoras',
+        'verticales'           => 'Verticales (lateral)',
+        'tarjetas'             => 'Tarjetas',
+        'numeradas'            => 'Numeradas (pasos)',
+        'apiladas-acordeon'    => 'Apiladas (tipo acordeón)',
+        'iconos-circulares'    => 'Íconos circulares',
+        'deslizante'           => 'Deslizante (scroll horizontal)',
+        'lateral-derecha'      => 'Lateral derecha',
+        'numeradas-vertical'   => 'Numeradas verticales',
     ];
 
     public const TABS_DEFAULT_PROPS = [
@@ -244,11 +290,16 @@ class ComponentBlockCatalog
     ];
 
     public const GALLERY_VARIANTS = [
-        'grid-uniforme'      => 'Grid uniforme (clásico)',
-        'masonry'            => 'Masonry (alturas variables)',
-        'carrusel'           => 'Carrusel horizontal',
-        'lightbox'           => 'Lightbox (click para ampliar)',
-        'editorial-alterno'  => 'Editorial (alternada)',
+        'grid-uniforme'          => 'Grid uniforme (clásico)',
+        'masonry'                => 'Masonry (alturas variables)',
+        'carrusel'               => 'Carrusel horizontal',
+        'lightbox'               => 'Lightbox (click para ampliar)',
+        'editorial-alterno'      => 'Editorial (alternada)',
+        'destacada-miniaturas'   => 'Destacada + miniaturas',
+        'circular'               => 'Circular (avatares)',
+        'leyenda-visible'        => 'Con leyenda visible',
+        'panoramica'             => 'Panorámica (una fila)',
+        'overlay-degradado'      => 'Overlay degradado permanente',
     ];
 
     public const GALLERY_DEFAULT_PROPS = [
@@ -269,11 +320,16 @@ class ComponentBlockCatalog
     ];
 
     public const STATS_VARIANTS = [
-        'tres-columnas'       => '3 columnas (clásico)',
-        'con-iconos'          => 'Con íconos',
-        'franja-destacada'    => 'Franja destacada',
-        'contador-destacado'  => 'Contador destacado',
-        'tarjetas-elevadas'   => 'Tarjetas elevadas',
+        'tres-columnas'          => '3 columnas (clásico)',
+        'con-iconos'             => 'Con íconos',
+        'franja-destacada'       => 'Franja destacada',
+        'contador-destacado'     => 'Contador destacado',
+        'tarjetas-elevadas'      => 'Tarjetas elevadas',
+        'linea-horizontal'       => 'Línea horizontal (compacta)',
+        'circulos-icono'         => 'Círculos con ícono',
+        'lista-vertical-icono'   => 'Lista vertical con ícono',
+        'dos-columnas-grande'    => 'Dos columnas grandes',
+        'tarjetas-borde-color'   => 'Tarjetas con borde de color',
     ];
 
     public const STATS_DEFAULT_PROPS = [
@@ -401,7 +457,7 @@ class ComponentBlockCatalog
     public static function autoResolveImages(string $block, string $variant, array $props): array
     {
         if ($block === 'FeatureGrid' || $block === 'CTASection') {
-            if ($variant === 'imagen-lateral' && empty($props['image'])) {
+            if (in_array($variant, ['imagen-lateral', 'imagen-fondo', 'imagen-arriba'], true) && empty($props['image'])) {
                 $props['image'] = (new ImageSourceService())->resolve('modern business team office')['url'];
             }
             return $props;
@@ -413,11 +469,11 @@ class ComponentBlockCatalog
 
         $images = new ImageSourceService();
 
-        if (in_array($variant, ['imagen-derecha', 'imagen-izquierda'], true) && empty($props['image'])) {
+        if (in_array($variant, ['imagen-derecha', 'imagen-izquierda', 'imagen-arriba', 'panel-imagen-grande'], true) && empty($props['image'])) {
             $props['image'] = $images->resolve('modern business team office')['url'];
         }
 
-        if ($variant === 'fondo-completo' && empty($props['bgImage'])) {
+        if (in_array($variant, ['fondo-completo', 'fondo-texto-abajo'], true) && empty($props['bgImage'])) {
             $props['bgImage'] = $images->resolve('modern business interior architecture')['url'];
         }
 

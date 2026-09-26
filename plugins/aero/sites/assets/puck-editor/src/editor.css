@@ -116,3 +116,8 @@
 @media (min-width: 640px) {
     [data-puck-component] .hidden.sm\:inline-flex { display: inline-flex !important; visibility: visible !important; }
 }
+/* Footer, variante "acordeon-movil" (`hidden md:grid`) */
+[data-puck-component] .hidden.md\:grid { display: none !important; }
+@media (min-width: 768px) {
+    [data-puck-component] .hidden.md\:grid { display: grid !important; visibility: visible !important; }
+}

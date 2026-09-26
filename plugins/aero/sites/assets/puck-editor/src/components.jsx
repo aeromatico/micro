@@ -553,6 +553,26 @@ const HERO_VARIANT_OPTIONS = [
   { label: 'Imagen a la izquierda', value: 'imagen-izquierda' },
   { label: 'Fondo completo (alto impacto)', value: 'fondo-completo' },
   { label: 'Minimal (solo texto)', value: 'minimal' },
+  { label: 'Imagen arriba (banner + texto abajo)', value: 'imagen-arriba' },
+  { label: 'Panel elevado (tarjeta centrada)', value: 'panel-elevado' },
+  { label: 'Editorial (texto a la izquierda, grande)', value: 'editorial-izquierda' },
+  { label: 'Fondo con texto abajo (estilo póster)', value: 'fondo-texto-abajo' },
+  { label: 'Panel imagen grande (60/40)', value: 'panel-imagen-grande' },
+];
+
+// Antes la columna de imagen de "Imagen a la derecha/izquierda" era siempre
+// aspect-video (16:9): en un grid a 2 columnas eso deja una caja bien corta
+// de alto (¿"muy estrecha en Y"?) para una foto de contenido común (persona,
+// producto, equipo) — normalmente esas se ven mejor más altas. Se expone
+// como campo para que el usuario ajuste el recorte sin tener que editar la
+// foto: se aplica con `style={aspectRatio}` (no clases `aspect-[…]` de
+// Tailwind) porque el valor es dinámico y el purge de Tailwind solo
+// mantiene las clases que aparecen tal cual en el código fuente escaneado.
+const HERO_IMAGE_ASPECT_OPTIONS = [
+  { label: 'Vertical (3:4) — recomendado para fotos de personas/producto', value: '3/4' },
+  { label: 'Cuadrada (1:1)', value: '1/1' },
+  { label: 'Estándar (4:3)', value: '4/3' },
+  { label: 'Panorámica (16:9)', value: '16/9' },
 ];
 
 function HeroButtons({ ctaLabel, ctaUrl, cta2Label, cta2Url, background, justify }) {
@@ -581,7 +601,7 @@ function HeroButtons({ ctaLabel, ctaUrl, cta2Label, cta2Url, background, justify
 
 export const Hero = {
   label: 'Hero',
-  desc: 'Sección principal (hero) con título grande, subtítulo, descripción, hasta 2 botones e imagen. 5 variantes de layout real (no solo color/fondo): centrado, imagen a la derecha/izquierda, fondo completo y minimal.',
+  desc: 'Sección principal (hero) con título grande, subtítulo, descripción, hasta 2 botones e imagen. 10 variantes de layout real (no solo color/fondo).',
   fields: {
     variant: { type: 'select', label: 'Variante de layout', options: HERO_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título principal' },
@@ -593,6 +613,11 @@ export const Hero = {
     cta2Url: { type: 'text', label: 'Botón 2: URL (opcional)' },
     bgImage: imageField('Imagen de fondo (opcional)'),
     image: imageField('Imagen de contenido (para variantes con imagen a un lado)'),
+    imageAspect: {
+      type: 'select',
+      label: 'Proporción de la imagen (variantes "Imagen a la derecha/izquierda")',
+      options: HERO_IMAGE_ASPECT_OPTIONS,
+    },
     background: { type: 'radio', label: 'Fondo', options: BACKGROUND_OPTIONS },
     ...CUSTOM_COLOR_FIELDS,
   },
@@ -606,6 +631,7 @@ export const Hero = {
     cta2Url: '',
     bgImage: '',
     image: '',
+    imageAspect: '3/4',
     variant: 'centrado',
     background: 'surface',
     ...CUSTOM_COLOR_DEFAULTS,
@@ -613,7 +639,7 @@ export const Hero = {
   render: (props) => {
     const {
       title, subtitle, description, ctaLabel, ctaUrl, cta2Label, cta2Url,
-      bgImage, image, variant, background, customBgColor, textColor, customTextColor,
+      bgImage, image, imageAspect, variant, background, customBgColor, textColor, customTextColor,
     } = props;
     const autoText = background === 'brand' || !!bgImage ? 'text-white' : 'text-ink';
     const { className: styleClass, style: colorStyle } = resolveSectionStyle(background, autoText, {
@@ -640,7 +666,7 @@ export const Hero = {
         </div>
       );
       const imageCol = image ? (
-        <div className="rounded-2xl overflow-hidden shadow-md aspect-video">
+        <div className="rounded-2xl overflow-hidden shadow-md" style={{ aspectRatio: imageAspect || '3/4' }}>
           <img src={image} alt="" className="w-full h-full object-cover" />
         </div>
       ) : <div />;
@@ -677,6 +703,105 @@ export const Hero = {
             <h1 className="font-heading text-5xl md:text-6xl font-bold mb-8 leading-tight">{title}</h1>
             <p className="text-xl mb-10 opacity-75 leading-relaxed">{subtitle}</p>
             {buttons('justify-center')}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- imagen-arriba: banner de imagen full-width, texto abajo ----------
+    if (variant === 'imagen-arriba') {
+      return (
+        <section className={`reveal relative ${styleClass} pb-20 text-center`} style={colorStyle}>
+          {image && (
+            <div className="w-full aspect-video sm:aspect-[21/9] overflow-hidden mb-10">
+              <img src={image} alt="" className="w-full h-full object-cover" />
+            </div>
+          )}
+          <div className="relative max-w-3xl mx-auto px-4">
+            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">{title}</h1>
+            <p className="text-xl mb-6 opacity-90 leading-relaxed">{subtitle}</p>
+            {description && <p className="text-lg mb-10 opacity-75 leading-relaxed">{description}</p>}
+            {buttons('justify-center')}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- panel-elevado: tarjeta centrada con borde/sombra sobre el fondo --
+    if (variant === 'panel-elevado') {
+      return (
+        <section className="reveal relative py-20 px-4 text-center">
+          <div
+            className={`relative max-w-3xl mx-auto rounded-2xl border border-surface-border shadow-lg p-10 sm:p-14 bg-cover bg-center ${styleClass}`}
+            style={sectionStyle}
+          >
+            {bgImage && <div className="absolute inset-0 rounded-2xl bg-black/50" />}
+            <div className="relative">
+              <h1 className="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">{title}</h1>
+              <p className="text-xl mb-6 opacity-90 leading-relaxed">{subtitle}</p>
+              {description && <p className="text-lg mb-8 opacity-75 leading-relaxed">{description}</p>}
+              {buttons('justify-center')}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- editorial-izquierda: texto alineado a la izquierda, tipografía
+    //      grande, sin columna de imagen (foco 100% editorial/copy) --------
+    if (variant === 'editorial-izquierda') {
+      return (
+        <section className={`reveal relative ${styleClass} py-24 px-4 bg-cover bg-center`} style={sectionStyle}>
+          {bgImage && <div className="absolute inset-0 bg-black/50" />}
+          <div className="relative max-w-5xl mx-auto text-left">
+            <h1 className="font-heading text-5xl md:text-7xl font-bold mb-8 leading-none">{title}</h1>
+            <p className="text-xl md:text-2xl mb-6 opacity-90 leading-relaxed max-w-2xl">{subtitle}</p>
+            {description && <p className="text-lg mb-10 opacity-75 leading-relaxed max-w-2xl">{description}</p>}
+            {buttons('justify-start')}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- fondo-texto-abajo: bgImage full-bleed con el contenido anclado
+    //      abajo (estilo póster/cartelera) ----------------------------------
+    if (variant === 'fondo-texto-abajo') {
+      return (
+        <section
+          className={`reveal relative ${styleClass} min-h-[520px] flex items-end px-4 pb-16 bg-cover bg-center`}
+          style={sectionStyle}
+        >
+          {bgImage && <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />}
+          <div className="relative max-w-4xl mx-auto text-center w-full">
+            <h1 className="font-heading text-4xl md:text-6xl font-bold mb-6 leading-tight">{title}</h1>
+            <p className="text-xl mb-6 opacity-90 leading-relaxed">{subtitle}</p>
+            {description && <p className="text-lg mb-10 opacity-75 leading-relaxed">{description}</p>}
+            {buttons('justify-center')}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- panel-imagen-grande: split 60/40 (imagen más grande que en
+    //      imagen-derecha/izquierda), imagen a la derecha ------------------
+    if (variant === 'panel-imagen-grande') {
+      return (
+        <section className={`reveal relative ${styleClass} py-20 px-4 bg-cover bg-center`} style={sectionStyle}>
+          {bgImage && <div className="absolute inset-0 bg-black/50" />}
+          <div className="relative max-w-6xl mx-auto grid md:grid-cols-5 gap-10 items-center">
+            <div className="md:col-span-2 text-left">
+              <h1 className="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">{title}</h1>
+              <p className="text-xl mb-6 opacity-90 leading-relaxed">{subtitle}</p>
+              {description && <p className="text-lg mb-8 opacity-75 leading-relaxed">{description}</p>}
+              {buttons('justify-start')}
+            </div>
+            <div className="md:col-span-3">
+              {image ? (
+                <div className="rounded-2xl overflow-hidden shadow-md aspect-[4/3]">
+                  <img src={image} alt="" className="w-full h-full object-cover" />
+                </div>
+              ) : <div />}
+            </div>
           </div>
         </section>
       );
@@ -763,11 +888,16 @@ const FEATURE_GRID_VARIANT_OPTIONS = [
   { label: 'Pasos numerados', value: 'numeradas' },
   { label: 'Imagen + lista al lado', value: 'imagen-lateral' },
   { label: 'Encabezado destacado + íconos', value: 'destacado' },
+  { label: 'Grid con íconos circulares', value: 'grid-iconos-circulares' },
+  { label: 'Línea de tiempo vertical', value: 'linea-tiempo' },
+  { label: 'Comparación dividida (checklist)', value: 'comparacion-dividida' },
+  { label: 'Mosaico alterno (zigzag)', value: 'mosaico-alterno' },
+  { label: 'Franja horizontal (badges)', value: 'franja-horizontal' },
 ];
 
 export const FeatureGrid = {
   label: 'Características',
-  desc: 'Grupo de características/beneficios (cada una con ícono, título y descripción). 5 variantes de layout real: tarjetas en grid, lista vertical, pasos numerados, imagen al lado o encabezado destacado.',
+  desc: 'Grupo de características/beneficios (cada una con ícono, título y descripción). 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante de layout', options: FEATURE_GRID_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -940,6 +1070,118 @@ export const FeatureGrid = {
       );
     }
 
+    // ---- grid-iconos-circulares: ícono en badge circular grande ----------
+    if (variant === 'grid-iconos-circulares') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {title && <h2 className={`font-heading2 text-3xl font-bold text-center mb-4 ${textOverride ? '' : 'text-ink'}`}>{title}</h2>}
+            {subtitle && <p className={`text-lg text-center max-w-2xl mx-auto mb-12 ${textOverride ? '' : 'text-ink-muted'}`}>{subtitle}</p>}
+            <div className={`grid grid-cols-1 sm:grid-cols-2 ${colClass} gap-10 text-center`}>
+              {features.map((feature, i) => (
+                <div key={i}>
+                  <div className="w-16 h-16 mx-auto rounded-full bg-brand-primary text-white flex items-center justify-center mb-4">
+                    <PickedIcon icon={feature.icon} size={28} />
+                  </div>
+                  <h3 className={`font-heading2 text-lg font-bold mb-2 ${textOverride ? '' : 'text-ink'}`}>{feature.title}</h3>
+                  <p className={textOverride ? '' : 'text-ink-muted leading-relaxed'}>{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- linea-tiempo: vertical con línea conectora + burbuja numerada ---
+    if (variant === 'linea-tiempo') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto">
+            {title && <h2 className={`font-heading2 text-3xl font-bold mb-4 ${textOverride ? '' : 'text-ink'}`}>{title}</h2>}
+            {subtitle && <p className={`text-lg mb-12 ${textOverride ? '' : 'text-ink-muted'}`}>{subtitle}</p>}
+            <div className="border-l-2 border-brand-primary/30 pl-8 flex flex-col gap-10">
+              {features.map((feature, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-9 top-0 w-6 h-6 rounded-full bg-brand-primary text-white text-xs font-bold flex items-center justify-center">{i + 1}</div>
+                  <h3 className={`font-heading2 text-lg font-bold mb-1 ${textOverride ? '' : 'text-ink'}`}>{feature.title}</h3>
+                  <p className={textOverride ? '' : 'text-ink-muted leading-relaxed'}>{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- comparacion-dividida: texto+CTA a la izquierda, checklist a la
+    //      derecha (sin imagen, a diferencia de imagen-lateral) -----------
+    if (variant === 'comparacion-dividida') {
+      return (
+        <section className={`reveal py-20 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              {title && <h2 className="font-heading2 text-3xl font-bold mb-4">{title}</h2>}
+              {subtitle && <p className="text-lg opacity-75 leading-relaxed mb-8">{subtitle}</p>}
+              {button}
+            </div>
+            <div className="flex flex-col gap-4">
+              {features.map((feature, i) => (
+                <div key={i} className="flex items-start gap-3 bg-surface-alt p-4 rounded-xl">
+                  <PickedIcon icon={feature.icon} size={20} className="mt-0.5 text-brand-primary shrink-0" />
+                  <div>
+                    <span className="font-semibold block">{feature.title}</span>
+                    <span className="text-sm text-ink-muted">{feature.description}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- mosaico-alterno: filas zigzag ícono/texto alternando de lado ----
+    if (variant === 'mosaico-alterno') {
+      return (
+        <section className={`reveal py-20 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto">
+            {title && <h2 className={`font-heading2 text-3xl font-bold text-center mb-4 ${textOverride ? '' : 'text-ink'}`}>{title}</h2>}
+            {subtitle && <p className={`text-lg text-center max-w-2xl mx-auto mb-14 ${textOverride ? '' : 'text-ink-muted'}`}>{subtitle}</p>}
+            <div className="flex flex-col gap-10">
+              {features.map((feature, i) => (
+                <div key={i} className={`flex items-center gap-6 ${i % 2 === 1 ? 'flex-row-reverse text-right' : ''}`}>
+                  <div className="shrink-0 w-14 h-14 rounded-2xl bg-brand-primary/10 flex items-center justify-center">
+                    <PickedIcon icon={feature.icon} size={28} />
+                  </div>
+                  <div>
+                    <h3 className={`font-heading2 text-lg font-bold mb-1 ${textOverride ? '' : 'text-ink'}`}>{feature.title}</h3>
+                    <p className={textOverride ? '' : 'text-ink-muted leading-relaxed'}>{feature.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- franja-horizontal: badges compactos en una sola fila -----------
+    if (variant === 'franja-horizontal') {
+      return (
+        <section className={`reveal py-10 px-4 ${styleClass || 'bg-surface-alt'}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+            {features.map((feature, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <PickedIcon icon={feature.icon} size={22} />
+                <span className="font-semibold">{feature.title}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
     // ---- tarjetas: layout clásico (default) ------------------------------
     return (
       <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
@@ -1009,11 +1251,16 @@ const CTA_VARIANT_OPTIONS = [
   { label: 'Con ícono', value: 'con-icono' },
   { label: 'Imagen al lado', value: 'imagen-lateral' },
   { label: 'Franja minimal', value: 'franja-minimal' },
+  { label: 'Ícono + doble botón', value: 'apilado-icono-2botones' },
+  { label: 'Imagen de fondo', value: 'imagen-fondo' },
+  { label: 'Tarjeta con borde', value: 'tarjeta-borde' },
+  { label: 'Imagen arriba (banner)', value: 'imagen-arriba' },
+  { label: 'Acento superior (badge + texto)', value: 'acento-superior' },
 ];
 
 export const CTASection = {
   label: 'Llamado a la acción',
-  desc: 'Sección de llamado a la acción: título, subtítulo, descripción, hasta 2 botones, ícono/emoji e imagen opcional. 5 variantes de layout real, cada una usando una combinación distinta de estos campos.',
+  desc: 'Sección de llamado a la acción: título, subtítulo, descripción, hasta 2 botones, ícono/emoji e imagen opcional. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante de layout', options: CTA_VARIANT_OPTIONS },
     heading: { type: 'text', label: 'Título' },
@@ -1150,6 +1397,89 @@ export const CTASection = {
       );
     }
 
+    // ---- apilado-icono-2botones: ícono grande + título+descripción+2 botones
+    if (variant === 'apilado-icono-2botones') {
+      return (
+        <section className={`reveal ${section} py-20 px-4 text-center`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto">
+            <PickedIcon icon={icon} size={48} className="mx-auto mb-6" />
+            <h2 className="font-heading2 text-3xl font-bold mb-4">{heading}</h2>
+            {subtitle && <p className="text-xl mb-4 opacity-90 leading-relaxed">{subtitle}</p>}
+            <p className="text-lg mb-10 opacity-90 leading-relaxed">{body}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">{button1}{button2}</div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- imagen-fondo: `image` como fondo completo con overlay oscuro -----
+    if (variant === 'imagen-fondo') {
+      return (
+        <section
+          className="reveal relative py-24 px-4 text-center text-white bg-cover bg-center"
+          style={image ? { backgroundImage: `url(${image})` } : colorStyle}
+        >
+          {image && <div className="absolute inset-0 bg-black/60" />}
+          <div className="relative max-w-2xl mx-auto">
+            <h2 className="font-heading2 text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
+            {subtitle && <p className="text-xl mb-4 opacity-90 leading-relaxed">{subtitle}</p>}
+            <p className="text-lg mb-10 opacity-90 leading-relaxed">{body}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">{button1}{button2}</div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- tarjeta-borde: contenido en una tarjeta con borde/sombra ----------
+    if (variant === 'tarjeta-borde') {
+      return (
+        <section className="reveal py-20 px-4 text-center">
+          <div className={`max-w-2xl mx-auto rounded-2xl border border-surface-border shadow-lg p-10 sm:p-14 ${section}`} style={colorStyle}>
+            <PickedIcon icon={icon} size={40} className="mx-auto mb-5" />
+            <h2 className="font-heading2 text-3xl font-bold mb-4">{heading}</h2>
+            <p className="text-lg mb-8 opacity-90 leading-relaxed">{body}</p>
+            {button1}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- imagen-arriba: imagen banner arriba, contenido debajo -----------
+    if (variant === 'imagen-arriba') {
+      return (
+        <section className={`reveal ${section} pb-16 text-center`} style={colorStyle}>
+          {image && (
+            <div className="w-full aspect-video sm:aspect-[21/9] overflow-hidden mb-10">
+              <img src={image} alt="" className="w-full h-full object-cover" />
+            </div>
+          )}
+          <div className="max-w-2xl mx-auto px-4">
+            <h2 className="font-heading2 text-3xl font-bold mb-4">{heading}</h2>
+            {subtitle && <p className="text-xl mb-4 opacity-90 leading-relaxed">{subtitle}</p>}
+            <p className="text-lg mb-10 opacity-90 leading-relaxed">{body}</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">{button1}{button2}</div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- acento-superior: badge con ícono arriba del título, un botón ----
+    if (variant === 'acento-superior') {
+      return (
+        <section className={`reveal ${section} py-20 px-4 text-center`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-current/30 mb-5">
+              <PickedIcon icon={icon} size={16} />
+              <span className="text-xs font-semibold uppercase tracking-wide">{subtitle || heading}</span>
+            </div>
+            <h2 className="font-heading2 text-3xl font-bold mb-4">{heading}</h2>
+            <p className="text-lg mb-10 opacity-90 leading-relaxed">{body}</p>
+            {button1}
+          </div>
+        </section>
+      );
+    }
+
     // ---- clasico: layout original (default) ------------------------------
     return (
       <section className={`reveal ${section} py-20 px-4 text-center`} style={colorStyle}>
@@ -1199,11 +1529,16 @@ const PRICING_VARIANT_OPTIONS = [
   { label: '3 planes — tabla minimal', value: 'tres-planes-tabla' },
   { label: '2 planes', value: 'dos-planes' },
   { label: '1 plan (producto/servicio único)', value: 'un-plan' },
+  { label: '4 planes', value: 'cuatro-planes' },
+  { label: 'Filas de comparación', value: 'filas-comparacion' },
+  { label: 'Precio lateral (tarjetas horizontales)', value: 'precio-lateral' },
+  { label: 'Destacado grande (plan central más grande)', value: 'destacado-grande' },
+  { label: 'Lista minimalista (sin tarjetas)', value: 'minimalista-lista' },
 ];
 
 export const Pricing = {
   label: 'Planes y precios',
-  desc: 'Sección de precios con lista de planes (nombre, precio, período, características, botón). 5 variantes: 3 planes en tarjetas, 3 planes con contraste, 3 planes en tabla minimal, 2 planes o 1 solo plan/producto.',
+  desc: 'Sección de precios con lista de planes (nombre, precio, período, características, botón). 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante de layout', options: PRICING_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -1268,6 +1603,12 @@ export const Pricing = {
         description: 'Para equipos grandes.',
         features: 'Todo lo de Pro\nUsuarios ilimitados\nSoporte 24/7\nIntegraciones a medida',
         ctaLabel: 'Elegir Premium', ctaUrl: '/contacto', highlighted: 'no', icon: 'tabler:diamond',
+      },
+      {
+        name: 'Empresa', price: 'Personalizado', period: '',
+        description: 'A medida de tu operación.',
+        features: 'Todo lo de Premium\nSLA dedicado\nOnboarding asistido',
+        ctaLabel: 'Hablar con ventas', ctaUrl: '/contacto', highlighted: 'no', icon: 'tabler:building',
       },
     ],
     variant: 'tres-planes',
@@ -1411,6 +1752,158 @@ export const Pricing = {
             </div>
             <PlanFeatureList features={plan.features} className={`mb-8 ${textOverride ? '' : 'text-ink-muted'}`} />
             {planButton(plan)}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- cuatro-planes: 4 columnas ----------------------------------------
+    if (variant === 'cuatro-planes') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {list.slice(0, 4).map((plan, i) => {
+                const hl = plan.highlighted === 'yes';
+                return (
+                  <div
+                    key={i}
+                    className={`p-6 rounded-2xl bg-surface-alt ${hl ? 'border-2 border-brand-primary shadow-lg' : 'border border-surface-border'}`}
+                  >
+                    <h3 className={`font-heading2 text-lg font-bold mb-2 ${textOverride ? '' : 'text-ink'}`}>{plan.name}</h3>
+                    <div className="mb-4">
+                      <span className="font-heading2 text-3xl font-bold text-brand-primary">{plan.price}</span>
+                      {plan.period && <span className={textOverride ? '' : 'text-ink-muted'}>{plan.period}</span>}
+                    </div>
+                    <PlanFeatureList features={plan.features} className={`mb-6 text-sm ${textOverride ? '' : 'text-ink-muted'}`} />
+                    {planButton(plan)}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- filas-comparacion: planes como filas horizontales, no tarjetas --
+    if (variant === 'filas-comparacion') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto">
+            {head}
+            <div className="flex flex-col divide-y divide-surface-border border border-surface-border rounded-2xl overflow-hidden">
+              {list.map((plan, i) => (
+                <div key={i} className="flex flex-col sm:flex-row items-center gap-4 p-6 bg-surface-alt">
+                  <div className="flex-1 text-left">
+                    <h3 className={`font-heading2 text-lg font-bold ${textOverride ? '' : 'text-ink'}`}>{plan.name}</h3>
+                    {plan.description && <p className={`text-sm ${textOverride ? '' : 'text-ink-muted'}`}>{plan.description}</p>}
+                  </div>
+                  <div className="shrink-0 text-center">
+                    <span className="font-heading2 text-2xl font-bold text-brand-primary">{plan.price}</span>
+                    {plan.period && <span className={`text-sm ${textOverride ? '' : 'text-ink-muted'}`}>{plan.period}</span>}
+                  </div>
+                  <div className="shrink-0">{planButton(plan)}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- precio-lateral: tarjetas horizontales, precio a la izquierda ----
+    if (variant === 'precio-lateral') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto flex flex-col gap-6">
+            {head}
+            {list.slice(0, 3).map((plan, i) => {
+              const hl = plan.highlighted === 'yes';
+              return (
+                <div
+                  key={i}
+                  className={`flex flex-col sm:flex-row gap-6 p-8 rounded-2xl bg-surface-alt ${hl ? 'border-2 border-brand-primary shadow-lg' : 'border border-surface-border'}`}
+                >
+                  <div className="sm:w-40 shrink-0 text-center sm:border-r sm:border-surface-border sm:pr-6">
+                    <span className="font-heading2 text-3xl font-bold text-brand-primary block">{plan.price}</span>
+                    {plan.period && <span className={textOverride ? '' : 'text-ink-muted'}>{plan.period}</span>}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`font-heading2 text-xl font-bold mb-2 ${textOverride ? '' : 'text-ink'}`}>{plan.name}</h3>
+                    {plan.description && <p className={`mb-4 ${textOverride ? '' : 'text-ink-muted'}`}>{plan.description}</p>}
+                    <PlanFeatureList features={plan.features} className={`mb-4 sm:grid sm:grid-cols-2 sm:gap-2 ${textOverride ? '' : 'text-ink-muted'}`} />
+                  </div>
+                  <div className="sm:w-48 shrink-0 flex items-center">{planButton(plan, hl)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- destacado-grande: plan central más grande, laterales chicos -----
+    if (variant === 'destacado-grande') {
+      const three = list.slice(0, 3);
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+              {three.map((plan, i) => {
+                const center = i === 1;
+                return (
+                  <div
+                    key={i}
+                    className={
+                      center
+                        ? 'p-10 rounded-2xl bg-brand-primary text-white shadow-2xl md:scale-110 relative z-10 text-center'
+                        : 'p-6 rounded-2xl bg-surface-alt border border-surface-border text-center opacity-90'
+                    }
+                  >
+                    <h3 className={`font-heading2 font-bold mb-2 ${center ? 'text-2xl' : `text-lg ${textOverride ? '' : 'text-ink'}`}`}>{plan.name}</h3>
+                    <div className="mb-4">
+                      <span className={`font-heading2 font-bold ${center ? 'text-5xl' : 'text-3xl text-brand-primary'}`}>{plan.price}</span>
+                      {plan.period && <span className={center ? 'opacity-80' : (textOverride ? '' : 'text-ink-muted')}>{plan.period}</span>}
+                    </div>
+                    <PlanFeatureList features={plan.features} className={`mb-6 justify-center ${center ? '' : (textOverride ? '' : 'text-ink-muted')}`} />
+                    {planButton(plan, center)}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- minimalista-lista: sin tarjetas, solo divisores -------------------
+    if (variant === 'minimalista-lista') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto">
+            {head}
+            <div className="flex flex-col divide-y divide-surface-border">
+              {list.map((plan, i) => (
+                <div key={i} className="flex items-center justify-between gap-4 py-6">
+                  <div>
+                    <h3 className={`font-heading2 text-lg font-bold ${textOverride ? '' : 'text-ink'}`}>{plan.name}</h3>
+                    {plan.description && <p className={`text-sm ${textOverride ? '' : 'text-ink-muted'}`}>{plan.description}</p>}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div>
+                      <span className="font-heading2 text-2xl font-bold text-brand-primary">{plan.price}</span>
+                      {plan.period && <span className={`text-sm ${textOverride ? '' : 'text-ink-muted'}`}>{plan.period}</span>}
+                    </div>
+                    {plan.ctaLabel && plan.ctaUrl && (
+                      <a href={plan.ctaUrl} className="text-sm font-semibold text-brand-primary hover:underline">{plan.ctaLabel}</a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       );
@@ -1624,11 +2117,16 @@ const FAQ_VARIANT_OPTIONS = [
   { label: 'Tarjetas en grid', value: 'tarjetas-grid' },
   { label: 'Conversacional (chat)', value: 'conversacional' },
   { label: 'Dividido — panel lateral', value: 'dividido-lateral' },
+  { label: 'Lista numerada (siempre abierta)', value: 'numerada-lista' },
+  { label: 'Grid de íconos (sin tarjetas)', value: 'grid-iconos' },
+  { label: 'Acordeón minimalista (+/-)', value: 'acordeon-minimalista' },
+  { label: 'Columnas alternadas', value: 'columnas-alternado' },
+  { label: 'Banda destacada (primera pregunta grande)', value: 'banda-destacada' },
 ];
 
 export const FAQ = {
   label: 'FAQ (Preguntas frecuentes)',
-  desc: 'Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 5 variantes: acordeón clásico, acordeón exclusivo, tarjetas en grid, conversacional y dividido con panel lateral.',
+  desc: 'Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: FAQ_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -1809,6 +2307,147 @@ export const FAQ = {
       );
     }
 
+    // ---- numerada-lista: todas abiertas, numeradas, sin acordeón ----------
+    if (variant === 'numerada-lista') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-3xl mx-auto">
+            {head}
+            <div className="flex flex-col gap-8">
+              {items.map((item, i) => (
+                <div key={i}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-bold flex items-center justify-center">{i + 1}</span>
+                    <span className={`font-semibold text-lg ${textOverride ? '' : 'text-ink'}`}>{item.question}</span>
+                  </div>
+                  <div className={`ml-11 prose prose-sm dark:prose-invert max-w-none ${textOverride ? '' : 'text-ink-muted'}`} dangerouslySetInnerHTML={{ __html: item.answer }} />
+                  <div className="ml-11"><FaqLinks links={item.links} /></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- grid-iconos: ícono grande centrado, sin tarjetas/bordes ---------
+    if (variant === 'grid-iconos') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-5xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center">
+              {items.map((item, i) => (
+                <div key={i}>
+                  {item.icon && (
+                    <div className="w-14 h-14 mx-auto rounded-full bg-brand-primary/10 flex items-center justify-center mb-4">
+                      <PickedIcon icon={item.icon} size={26} className="text-brand-primary" />
+                    </div>
+                  )}
+                  <h3 className={`font-heading2 text-lg font-bold mb-2 ${textOverride ? '' : 'text-ink'}`}>{item.question}</h3>
+                  <div
+                    className={`prose prose-sm dark:prose-invert max-w-none ${textOverride ? '' : 'text-ink-muted'}`}
+                    dangerouslySetInnerHTML={{ __html: item.answer }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- acordeon-minimalista: sin tarjetas, divisores + indicador +/- ---
+    if (variant === 'acordeon-minimalista') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-3xl mx-auto">
+            {head}
+            <div className="divide-y divide-surface-border border-t border-b border-surface-border">
+              {items.map((item, i) => (
+                <details key={i} className="group py-5">
+                  <summary className={`flex items-center justify-between gap-3 cursor-pointer font-semibold list-none ${textOverride ? '' : 'text-ink'}`}>
+                    <span>{item.question}</span>
+                    <span className="text-brand-primary text-xl leading-none flex-shrink-0 group-open:rotate-45 transition-transform">+</span>
+                  </summary>
+                  <div className={`mt-3 prose prose-sm dark:prose-invert max-w-none ${textOverride ? '' : 'text-ink-muted'}`} dangerouslySetInnerHTML={{ __html: item.answer }} />
+                  <FaqLinks links={item.links} />
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- columnas-alternado: dos columnas, items pares/impares ------------
+    if (variant === 'columnas-alternado') {
+      const left = items.filter((_, i) => i % 2 === 0);
+      const right = items.filter((_, i) => i % 2 === 1);
+      const col = (list) => (
+        <div className="flex flex-col gap-6">
+          {list.map((item, i) => (
+            <div key={i} className="bg-surface-alt rounded-xl border border-surface-border p-6">
+              <div className="flex items-center gap-3 mb-2">
+                {item.icon && <PickedIcon icon={item.icon} size={20} className="text-brand-primary flex-shrink-0" />}
+                <h3 className={`font-heading2 text-base font-bold ${textOverride ? '' : 'text-ink'}`}>{item.question}</h3>
+              </div>
+              <div className={`prose prose-sm dark:prose-invert max-w-none ${textOverride ? '' : 'text-ink-muted'}`} dangerouslySetInnerHTML={{ __html: item.answer }} />
+              <FaqLinks links={item.links} />
+            </div>
+          ))}
+        </div>
+      );
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-5xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {col(left)}
+              {col(right)}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- banda-destacada: primera pregunta grande, resto compacto --------
+    if (variant === 'banda-destacada') {
+      const [first, ...rest] = items;
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-3xl mx-auto">
+            {head}
+            {first && (
+              <div className="bg-brand-primary text-white rounded-2xl p-8 mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  {first.icon && <PickedIcon icon={first.icon} size={24} />}
+                  <h3 className="font-heading2 text-xl font-bold">{first.question}</h3>
+                </div>
+                <div className="prose prose-sm dark:prose-invert max-w-none opacity-90" dangerouslySetInnerHTML={{ __html: first.answer }} />
+                <FaqLinks links={first.links} />
+              </div>
+            )}
+            <div className="space-y-3">
+              {rest.map((item, i) => (
+                <details key={i} className="group bg-surface-alt rounded-xl border border-surface-border px-6 py-4">
+                  <summary className="flex items-center justify-between gap-3 cursor-pointer font-semibold text-ink list-none">
+                    <span className="flex items-center gap-3">
+                      {item.icon && <PickedIcon icon={item.icon} size={18} className="text-brand-primary flex-shrink-0" />}
+                      <span>{item.question}</span>
+                    </span>
+                    <span className="text-ink-muted group-open:rotate-180 transition-transform flex-shrink-0">▾</span>
+                  </summary>
+                  <div className="mt-3 text-ink-muted prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: item.answer }} />
+                  <FaqLinks links={item.links} />
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     // ---- acordeon-clasico: layout original (default) ---------------------
     return (
       <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
@@ -1864,11 +2503,16 @@ const TABS_VARIANT_OPTIONS = [
   { label: 'Verticales (lateral)', value: 'verticales' },
   { label: 'Tarjetas', value: 'tarjetas' },
   { label: 'Numeradas (pasos)', value: 'numeradas' },
+  { label: 'Apiladas (tipo acordeón)', value: 'apiladas-acordeon' },
+  { label: 'Íconos circulares', value: 'iconos-circulares' },
+  { label: 'Deslizante (scroll horizontal)', value: 'deslizante' },
+  { label: 'Lateral derecha', value: 'lateral-derecha' },
+  { label: 'Numeradas verticales', value: 'numeradas-vertical' },
 ];
 
 export const Tabs = {
   label: 'Pestañas',
-  desc: 'Pestañas con contenido HTML, 100% CSS (sin JS). Cada pestaña tiene ícono opcional, etiqueta y contenido. 5 variantes: subrayado clásico, píldoras, verticales, tarjetas y numeradas (pasos).',
+  desc: 'Pestañas con contenido HTML, 100% CSS (sin JS). Cada pestaña tiene ícono opcional, etiqueta y contenido. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: TABS_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -2042,6 +2686,175 @@ export const Tabs = {
       );
     }
 
+    // ---- apiladas-acordeon: label+panel apilados (reusa el resaltado de
+    //      "clasicas"; solo se ve el panel activo, igual que las demás) ---
+    if (variant === 'apiladas-acordeon') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto puck-tabs" data-variant="clasicas">
+            <TabRadios tabs={tabs} groupName={groupName} />
+            {headTitle}
+            <div className="flex flex-col divide-y divide-surface-border border border-surface-border rounded-2xl overflow-hidden">
+              {tabs.map((tab, i) => (
+                <div key={i}>
+                  <label
+                    htmlFor={`${groupName}-${i}`}
+                    className={`puck-tabs-label puck-tabs-label-${i} flex items-center gap-3 cursor-pointer px-6 py-4 font-semibold text-ink-muted bg-surface-alt border-b-2 border-transparent`}
+                  >
+                    {tab.icon && <PickedIcon icon={tab.icon} size={18} className="flex-shrink-0" />}
+                    <span>{tab.label}</span>
+                  </label>
+                  <div
+                    className={`puck-tabs-panel puck-tabs-panel-${i} text-ink-muted prose prose-sm dark:prose-invert max-w-none px-6 py-5`}
+                    dangerouslySetInnerHTML={{ __html: tab.content }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- iconos-circulares: ícono en botón circular (reusa "tarjetas") ---
+    if (variant === 'iconos-circulares') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto puck-tabs" data-variant="tarjetas">
+            <TabRadios tabs={tabs} groupName={groupName} />
+            {headTitle}
+            <div className="flex flex-wrap justify-center gap-6 mb-8">
+              {tabs.map((tab, i) => (
+                <label
+                  key={i}
+                  htmlFor={`${groupName}-${i}`}
+                  className={`puck-tabs-label puck-tabs-label-${i} cursor-pointer flex flex-col items-center gap-2 text-center`}
+                >
+                  <span className="w-16 h-16 rounded-full bg-surface-alt border-2 border-surface-border flex items-center justify-center">
+                    {tab.icon ? <PickedIcon icon={tab.icon} size={28} /> : <span className="font-bold">{i + 1}</span>}
+                  </span>
+                  <span className="text-sm font-semibold text-ink-muted">{tab.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="max-w-3xl mx-auto bg-surface-alt border border-surface-border rounded-2xl p-8">
+              {tabs.map((tab, i) => (
+                <div
+                  key={i}
+                  className={`puck-tabs-panel puck-tabs-panel-${i} text-ink-muted prose prose-lg dark:prose-invert max-w-none`}
+                  dangerouslySetInnerHTML={{ __html: tab.content }}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- deslizante: nav en una fila con scroll horizontal (reusa
+    //      "píldoras"), útil cuando hay muchas pestañas ---------------------
+    if (variant === 'deslizante') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto puck-tabs" data-variant="pildoras">
+            <TabRadios tabs={tabs} groupName={groupName} />
+            {headTitle}
+            <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+              {tabs.map((tab, i) => (
+                <label
+                  key={i}
+                  htmlFor={`${groupName}-${i}`}
+                  className={`puck-tabs-label puck-tabs-label-${i} inline-flex items-center gap-2 cursor-pointer px-5 py-2 rounded-full text-sm font-semibold border border-surface-border text-ink-muted whitespace-pre-line`}
+                >
+                  {tab.icon && <PickedIcon icon={tab.icon} size={16} className="flex-shrink-0" />}
+                  <span>{tab.label}</span>
+                </label>
+              ))}
+            </div>
+            {tabs.map((tab, i) => (
+              <div
+                key={i}
+                className={`puck-tabs-panel puck-tabs-panel-${i} text-ink-muted prose prose-lg dark:prose-invert max-w-none`}
+                dangerouslySetInnerHTML={{ __html: tab.content }}
+              />
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    // ---- lateral-derecha: espejo de "verticales", nav a la derecha -------
+    if (variant === 'lateral-derecha') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto puck-tabs" data-variant="verticales">
+            <TabRadios tabs={tabs} groupName={groupName} />
+            {headTitle}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="md:col-span-3 md:order-1">
+                {tabs.map((tab, i) => (
+                  <div
+                    key={i}
+                    className={`puck-tabs-panel puck-tabs-panel-${i} text-ink-muted prose prose-lg dark:prose-invert max-w-none`}
+                    dangerouslySetInnerHTML={{ __html: tab.content }}
+                  />
+                ))}
+              </div>
+              <div className="flex md:flex-col gap-2 md:col-span-1 md:order-2">
+                {tabs.map((tab, i) => (
+                  <label
+                    key={i}
+                    htmlFor={`${groupName}-${i}`}
+                    className={`puck-tabs-label puck-tabs-label-${i} flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl border border-transparent text-ink-muted font-semibold`}
+                  >
+                    {tab.icon && <PickedIcon icon={tab.icon} size={18} className="flex-shrink-0" />}
+                    <span>{tab.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- numeradas-vertical: pasos numerados en columna, con línea ------
+    if (variant === 'numeradas-vertical') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto puck-tabs" data-variant="numeradas">
+            <TabRadios tabs={tabs} groupName={groupName} />
+            {headTitle}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              <div className="md:col-span-1 flex flex-col gap-2">
+                {tabs.map((tab, i) => (
+                  <label
+                    key={i}
+                    htmlFor={`${groupName}-${i}`}
+                    className={`puck-tabs-label puck-tabs-label-${i} cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl`}
+                  >
+                    <span className="w-10 h-10 rounded-full bg-surface-alt border-2 border-surface-border text-ink-muted font-bold flex items-center justify-center flex-shrink-0">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm font-semibold text-ink-muted">{tab.label}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="md:col-span-2 bg-surface-alt border border-surface-border rounded-2xl p-8">
+                {tabs.map((tab, i) => (
+                  <div
+                    key={i}
+                    className={`puck-tabs-panel puck-tabs-panel-${i} text-ink-muted prose prose-lg dark:prose-invert max-w-none`}
+                    dangerouslySetInnerHTML={{ __html: tab.content }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     // ---- clasicas: nav subrayada (default) ------------------------------
     return (
       <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
@@ -2145,11 +2958,16 @@ const GALLERY_VARIANT_OPTIONS = [
   { label: 'Carrusel horizontal', value: 'carrusel' },
   { label: 'Lightbox (click para ampliar)', value: 'lightbox' },
   { label: 'Editorial (alternada)', value: 'editorial-alterno' },
+  { label: 'Destacada + miniaturas', value: 'destacada-miniaturas' },
+  { label: 'Circular (avatares)', value: 'circular' },
+  { label: 'Con leyenda visible', value: 'leyenda-visible' },
+  { label: 'Panorámica (una fila)', value: 'panoramica' },
+  { label: 'Overlay degradado permanente', value: 'overlay-degradado' },
 ];
 
 export const Gallery = {
   label: 'Galería',
-  desc: 'Galería de imágenes con texto alternativo y leyenda opcional. 5 variantes: grid uniforme, masonry, carrusel horizontal, lightbox (ampliar con click, sin JS) y editorial alternada.',
+  desc: 'Galería de imágenes con texto alternativo y leyenda opcional. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: GALLERY_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -2288,6 +3106,109 @@ export const Gallery = {
       );
     }
 
+    // ---- destacada-miniaturas: primera imagen grande, resto en grid chico -
+    if (variant === 'destacada-miniaturas') {
+      const [first, ...rest] = images;
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid md:grid-cols-3 gap-4">
+              {first && (
+                <div className="md:col-span-2">
+                  <img src={first.url} alt={first.alt} className="w-full h-full rounded-xl object-cover aspect-video md:aspect-auto" />
+                </div>
+              )}
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+                {rest.slice(0, 4).map((img, i) => (
+                  <img key={i} src={img.url} alt={img.alt} className="w-full aspect-square rounded-xl object-cover" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- circular: imágenes en avatares circulares, en fila --------------
+    if (variant === 'circular') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto text-center">
+            {head}
+            <div className="flex flex-wrap justify-center gap-6">
+              {images.map((img, i) => (
+                <div key={i}>
+                  <img src={img.url} alt={img.alt} className="w-24 h-24 rounded-full object-cover mx-auto" />
+                  {img.caption && <p className={`text-sm mt-2 ${textOverride ? '' : 'text-ink-muted'}`}>{img.caption}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- leyenda-visible: grid con leyenda siempre visible debajo --------
+    if (variant === 'leyenda-visible') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {images.map((img, i) => (
+                <div key={i}>
+                  <img src={img.url} alt={img.alt} className="w-full aspect-video rounded-xl object-cover mb-2" />
+                  {img.caption && <p className={`text-sm ${textOverride ? '' : 'text-ink-muted'}`}>{img.caption}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- panoramica: una sola fila, ancho completo, sin scroll -----------
+    if (variant === 'panoramica') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="flex gap-3">
+              {images.map((img, i) => (
+                <div key={i} className="flex-1 min-w-0">
+                  <img src={img.url} alt={img.alt} className="w-full aspect-square rounded-xl object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- overlay-degradado: leyenda siempre visible sobre gradiente -----
+    if (variant === 'overlay-degradado') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {images.map((img, i) => (
+                <div key={i} className="relative">
+                  <img src={img.url} alt={img.alt} className="w-full aspect-square rounded-xl object-cover" />
+                  {img.caption && (
+                    <div className="absolute inset-0 flex items-end rounded-xl bg-gradient-to-t from-black/70 via-black/10 to-transparent">
+                      <span className="text-white text-sm font-semibold p-3">{img.caption}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     // ---- grid-uniforme: layout original (default) --------------------------
     return (
       <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
@@ -2397,11 +3318,16 @@ const STATS_VARIANT_OPTIONS = [
   { label: 'Franja destacada', value: 'franja-destacada' },
   { label: 'Contador destacado', value: 'contador-destacado' },
   { label: 'Tarjetas elevadas', value: 'tarjetas-elevadas' },
+  { label: 'Línea horizontal (compacta)', value: 'linea-horizontal' },
+  { label: 'Círculos con ícono', value: 'circulos-icono' },
+  { label: 'Lista vertical con ícono', value: 'lista-vertical-icono' },
+  { label: 'Dos columnas grandes', value: 'dos-columnas-grande' },
+  { label: 'Tarjetas con borde de color', value: 'tarjetas-borde-color' },
 ];
 
 export const Stats = {
   label: 'Estadísticas',
-  desc: 'Sección con números/estadísticas, ícono y descripción opcionales por cada una. 5 variantes: 3 columnas clásico, con íconos, franja destacada de alto contraste, un contador principal destacado, y tarjetas elevadas.',
+  desc: 'Sección con números/estadísticas, ícono y descripción opcionales por cada una. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: STATS_VARIANT_OPTIONS },
     title: { type: 'text', label: 'Título de sección (opcional)' },
@@ -2532,6 +3458,118 @@ export const Stats = {
       );
     }
 
+    // ---- linea-horizontal: fila compacta, separadores verticales ---------
+    if (variant === 'linea-horizontal') {
+      return (
+        <section className={`reveal py-8 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+              {stats.map((s, i) => (
+                <div key={i} className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold">{s.value}</span>
+                  <span className="text-sm opacity-75">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- circulos-icono: ícono+valor dentro de un círculo con borde ------
+    if (variant === 'circulos-icono') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              {stats.map((s, i) => (
+                <div key={i}>
+                  <div className="w-28 h-28 mx-auto rounded-full border-2 border-brand-primary flex flex-col items-center justify-center mb-3">
+                    {s.icon && <PickedIcon icon={s.icon} size={20} className="mb-0.5" />}
+                    <span className="text-xl font-bold">{s.value}</span>
+                  </div>
+                  <div className="text-lg opacity-90">{s.label}</div>
+                  {s.description && <div className="text-sm opacity-75 mt-1">{s.description}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- lista-vertical-icono: ícono a la izquierda, valor+label a la
+    //      derecha, apilados verticalmente ---------------------------------
+    if (variant === 'lista-vertical-icono') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-2xl mx-auto">
+            {head}
+            <div className="flex flex-col gap-6">
+              {stats.map((s, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  {s.icon && (
+                    <div className="flex-shrink-0 w-14 h-14 rounded-brand bg-brand-primary/10 flex items-center justify-center">
+                      <PickedIcon icon={s.icon} size={28} />
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-3xl font-bold leading-tight">{s.value}</div>
+                    <div className="opacity-90">{s.label}</div>
+                    {s.description && <div className="text-sm opacity-75">{s.description}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- dos-columnas-grande: 2 números protagonistas, muy grandes -------
+    if (variant === 'dos-columnas-grande') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-4xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 text-center">
+              {stats.slice(0, 2).map((s, i) => (
+                <div key={i}>
+                  {s.icon && <PickedIcon icon={s.icon} size={36} className="mx-auto mb-3" />}
+                  <div className="text-7xl font-bold mb-2">{s.value}</div>
+                  <div className="text-xl opacity-90">{s.label}</div>
+                  {s.description && <div className="text-sm opacity-75 mt-1">{s.description}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // ---- tarjetas-borde-color: tarjetas planas con borde superior de color
+    if (variant === 'tarjetas-borde-color') {
+      return (
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            {head}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {stats.map((s, i) => (
+                <div key={i} className="border-t-2 border-brand-primary bg-surface-alt p-6 text-center">
+                  {s.icon && <PickedIcon icon={s.icon} size={28} className="mx-auto mb-2 text-brand-primary" />}
+                  <div className="text-4xl font-bold mb-1">{s.value}</div>
+                  <div className="opacity-90">{s.label}</div>
+                  {s.description && <div className="text-sm opacity-75 mt-1">{s.description}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     // ---- tres-columnas: layout original (default) --------------------------
     return (
     <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
@@ -2593,6 +3631,11 @@ const FOOTER_VARIANT_OPTIONS = [
   { label: 'Con contacto', value: 'contacto' },
   { label: 'Barra doble', value: 'barra-doble' },
   { label: 'Centrado con columnas', value: 'centrado-columnas' },
+  { label: 'Línea simple (legal)', value: 'simple-linea' },
+  { label: 'Apilado centrado', value: 'pila-centrada' },
+  { label: 'Panel dividido (contraste)', value: 'panel-dividido' },
+  { label: 'Acordeón en móvil', value: 'acordeon-movil' },
+  { label: 'Tres niveles', value: 'tres-niveles' },
 ];
 
 function footerLinkList(links, className = '') {
@@ -2611,7 +3654,7 @@ function footerAllLinks(columns) {
 
 export const Footer = {
   label: 'Footer (Pie de página)',
-  desc: 'Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 5 variantes: columnas clásico, minimalista, con contacto, barra doble y centrado con columnas.',
+  desc: 'Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: FOOTER_VARIANT_OPTIONS },
     brand: { type: 'text', label: 'Nombre de marca' },
@@ -2729,6 +3772,112 @@ export const Footer = {
       );
     }
 
+    // ---- simple-linea: una sola barra, sin columnas visibles -------------
+    if (variant === 'simple-linea') {
+      return (
+        <footer className={`py-6 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            {copyEl}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {footerAllLinks(cols).map((l, i) => (
+                <a key={i} href={l.url} className="text-sm opacity-80 hover:opacity-100">{l.label}</a>
+              ))}
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ---- pila-centrada: todo apilado y centrado, una sola columna --------
+    if (variant === 'pila-centrada') {
+      return (
+        <footer className={`py-14 px-4 text-center ${styleClass}`} style={colorStyle}>
+          <div className="max-w-md mx-auto">
+            {brandEl}
+            {taglineEl}
+            {contactLines.length > 0 && (
+              <ul className="mt-5 space-y-1">
+                {contactLines.map((l, i) => <li key={i} className="text-sm opacity-90">{l}</li>)}
+              </ul>
+            )}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6">
+              {footerAllLinks(cols).map((l, i) => (
+                <a key={i} href={l.url} className="text-sm opacity-80 hover:opacity-100">{l.label}</a>
+              ))}
+            </div>
+            <div className="mt-6">{copyEl}</div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ---- panel-dividido: panel de marca con fondo de contraste + columnas
+    if (variant === 'panel-dividido') {
+      return (
+        <footer className={styleClass} style={colorStyle}>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3">
+            <div className="bg-brand-primary text-white p-10 md:col-span-1">
+              <div className="font-heading2 text-xl font-bold">{brand}</div>
+              {tagline && <p className="text-sm opacity-90 mt-3">{tagline}</p>}
+              {contactLines.length > 0 && (
+                <ul className="mt-5 space-y-1">
+                  {contactLines.map((l, i) => <li key={i} className="text-sm opacity-90">{l}</li>)}
+                </ul>
+              )}
+            </div>
+            <div className="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8 p-10">{colBlocks}</div>
+          </div>
+          <div className="max-w-6xl mx-auto px-10 pb-6">{copyEl}</div>
+        </footer>
+      );
+    }
+
+    // ---- acordeon-movil: columnas colapsables en móvil, grid en desktop --
+    if (variant === 'acordeon-movil') {
+      return (
+        <footer className={`py-14 px-4 ${styleClass}`} style={colorStyle}>
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+              {brandEl}
+              {taglineEl}
+            </div>
+            <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 gap-8">{colBlocks}</div>
+            <div className="md:hidden flex flex-col divide-y divide-surface-border border-t border-b border-surface-border">
+              {cols.map((c, i) => (
+                <details key={i} className="group py-3">
+                  <summary className="flex items-center justify-between cursor-pointer font-semibold list-none">
+                    <span>{c.title}</span>
+                    <span className="opacity-60 group-open:rotate-180 transition-transform">▾</span>
+                  </summary>
+                  <div className="mt-3">{footerLinkList(c.links)}</div>
+                </details>
+              ))}
+            </div>
+          </div>
+          <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">{copyEl}</div>
+        </footer>
+      );
+    }
+
+    // ---- tres-niveles: aviso arriba, columnas al medio, barra abajo -------
+    if (variant === 'tres-niveles') {
+      return (
+        <footer className={styleClass} style={colorStyle}>
+          <div className="max-w-6xl mx-auto px-4 py-8 text-center border-b border-surface-border">
+            {brandEl}
+            {taglineEl}
+          </div>
+          <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-2 sm:grid-cols-3 gap-8">{colBlocks}</div>
+          <div className="bg-brand-primary text-white py-4 px-4">
+            <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+              {copyright && <p className="text-sm">{copyright}</p>}
+              {contactLines.length > 0 && <p className="text-sm opacity-90">{contactLines[0]}</p>}
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
     // ---- columnas: layout clásico (default) ---------------------------------
     return (
       <footer className={`py-14 px-4 ${styleClass}`} style={colorStyle}>
@@ -2755,6 +3904,11 @@ const HEADER_VARIANT_OPTIONS = [
   { label: 'Barra de marca (sólida)', value: 'barra-marca' },
   { label: 'Dos niveles (aviso arriba)', value: 'dos-niveles' },
   { label: 'Flotante (píldora)', value: 'flotante' },
+  { label: 'Apilado con botón (centrado)', value: 'apilado-cta' },
+  { label: 'Minimalista (solo enlaces)', value: 'minimalista-enlaces' },
+  { label: 'Marca a la derecha', value: 'marca-derecha' },
+  { label: 'Transparente superpuesto', value: 'transparente-superpuesto' },
+  { label: 'Borde redondeado inferior', value: 'borde-redondeado-inferior' },
 ];
 
 const NAV_LINK_CLS = 'px-3 py-2 text-sm font-medium opacity-80 hover:opacity-100 rounded-lg transition-all';
@@ -2799,7 +3953,7 @@ function HeaderLinks({ links, className = '' }) {
 
 export const Header = {
   label: 'Header (Navbar)',
-  desc: 'Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 5 variantes: clásico, centrado, barra de marca sólida, dos niveles con aviso superior y flotante en píldora.',
+  desc: 'Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 10 variantes de layout real.',
   fields: {
     variant: { type: 'select', label: 'Variante', options: HEADER_VARIANT_OPTIONS },
     brand: { type: 'text', label: 'Nombre de marca' },
@@ -2880,6 +4034,85 @@ export const Header = {
       return (
         <header className="relative z-40 px-4 pt-4">
           <nav className={`mx-auto max-w-5xl flex h-14 items-center justify-between gap-4 px-5 rounded-full shadow-lg border border-surface-border ${styleClass}`} style={colorStyle}>
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            <div className="flex items-center gap-2">
+              <HeaderCta label={ctaLabel} url={ctaUrl} />
+              {mobile}
+            </div>
+          </nav>
+        </header>
+      );
+    }
+
+    // ---- apilado-cta: marca arriba, enlaces al medio, botón abajo --------
+    if (variant === 'apilado-cta') {
+      return (
+        <header className={`relative z-40 border-b border-surface-border ${styleClass}`} style={colorStyle}>
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-5 flex flex-col items-center gap-3">
+            <div className="w-full flex items-center justify-between md:justify-center">
+              <HeaderBrand brand={brand} logo={logo} />
+              {mobile}
+            </div>
+            <HeaderLinks links={links} />
+            <HeaderCta label={ctaLabel} url={ctaUrl} />
+          </div>
+        </header>
+      );
+    }
+
+    // ---- minimalista-enlaces: solo marca + enlaces, sin botón ------------
+    if (variant === 'minimalista-enlaces') {
+      return (
+        <header className={`relative z-40 ${styleClass}`} style={colorStyle}>
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            {mobile}
+          </nav>
+        </header>
+      );
+    }
+
+    // ---- marca-derecha: espejo del clásico, logo a la derecha -----------
+    if (variant === 'marca-derecha') {
+      return (
+        <header className={`relative z-40 border-b border-surface-border ${styleClass}`} style={colorStyle}>
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              {mobile}
+              <HeaderCta label={ctaLabel} url={ctaUrl} />
+            </div>
+            <HeaderLinks links={links} />
+            <HeaderBrand brand={brand} logo={logo} />
+          </nav>
+        </header>
+      );
+    }
+
+    // ---- transparente-superpuesto: sin fondo, pensado para ir sobre un
+    //      Hero con imagen (position absolute, texto blanco) --------------
+    if (variant === 'transparente-superpuesto') {
+      return (
+        <header className="absolute inset-x-0 top-0 z-40 text-white">
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
+            <HeaderBrand brand={brand} logo={logo} />
+            <HeaderLinks links={links} />
+            <div className="flex items-center gap-2">
+              <HeaderCta label={ctaLabel} url={ctaUrl} solid />
+              {mobile}
+            </div>
+          </nav>
+        </header>
+      );
+    }
+
+    // ---- borde-redondeado-inferior: barra ancha con esquinas inferiores
+    //      redondeadas y sombra ---------------------------------------------
+    if (variant === 'borde-redondeado-inferior') {
+      return (
+        <header className={`relative z-40 rounded-b-3xl shadow-lg ${styleClass}`} style={colorStyle}>
+          <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
             <HeaderBrand brand={brand} logo={logo} />
             <HeaderLinks links={links} />
             <div className="flex items-center gap-2">
