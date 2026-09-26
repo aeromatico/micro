@@ -1,0 +1,63 @@
+url = "/hub/modelos"
+layout = "base"
+title = "Modelos de IA y precios — Aero Hub | Market"
+description = "Chat, texto e imagen con decenas de modelos de IA, con tu propia API key y pagando en créditos. Precio de cada modelo en monedas de bronce."
+
+[hubCatalog]
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-16">
+
+    <nav class="text-sm text-ink-dim mb-6">
+        <a href="/hub" class="hover:text-ink">Hub</a>
+        <span class="mx-1.5">/</span>
+        <span class="text-ink">Modelos IA</span>
+    </nav>
+
+    <header class="max-w-2xl mb-12">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Modelos IA</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mt-3">Chat, texto e imagen — con precio claro por modelo.</h1>
+        <p class="text-base text-ink-dim mt-3 leading-relaxed">
+            Un endpoint compatible con OpenAI que habla con decenas de modelos cambiando solo el nombre del modelo.
+            El precio de cada uno se cobra en tus créditos, solo si la llamada fue exitosa.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-6">
+            <a href="/hub/apis" class="inline-flex items-center text-sm font-semibold text-ink border border-edge rounded-lg px-4 py-2.5 hover:bg-canvas-elev2 transition-colors">Ver APIs de datos →</a>
+            <a href="/api" class="inline-flex items-center text-sm font-semibold text-ink border border-edge rounded-lg px-4 py-2.5 hover:bg-canvas-elev2 transition-colors">Probar en el explorador →</a>
+        </div>
+    </header>
+
+    {% set categories = hubCatalog.catalog.ai_models.categories %}
+    {% if categories|length > 0 %}
+    <div class="flex flex-col gap-10">
+        {% for cat in categories %}
+        <section>
+            <h2 class="text-lg font-bold mb-4">{{ cat.label }}</h2>
+            <div class="grid sm:grid-cols-2 gap-4">
+                {% for ep in cat.endpoints %}
+                <div class="p-5 border border-edge rounded-2xl bg-canvas flex flex-col gap-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <h3 class="font-semibold">{{ ep.summary }}</h3>
+                        {% if ep.credit %}
+                        <span class="shrink-0 inline-flex items-center gap-1.5 text-[11px] bg-canvas-elev2 border border-edge rounded-full px-2.5 py-1">
+                            <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background:{{ ep.credit.color }}"></span>
+                            <span>{{ ep.credit.label }}</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if ep.description %}<p class="text-sm text-ink-dim leading-relaxed">{{ ep.description }}</p>{% endif %}
+                    <div class="mt-auto pt-2">
+                        <a href="/documentacion/api-vista-general" class="inline-flex items-center text-sm font-semibold text-accent hover:underline">Ver documentación →</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-8 border border-edge rounded-2xl text-center">
+        <p class="text-ink-dim">Estamos activando el catálogo de modelos — vuelve pronto para ver los primeros disponibles.</p>
+    </div>
+    {% endif %}
+
+</div>
