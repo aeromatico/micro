@@ -5,7 +5,10 @@
     data-started="<?= now()->timestamp ?>"
     style="display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:8px; border:1px solid rgba(99,102,241,.35); background:rgba(99,102,241,.08)"
 >
-    <i class="icon-spinner icon-spin" style="font-size:22px; color:#6366f1; flex-shrink:0"></i>
+    <i class="icon-spinner" style="font-size:22px; color:#6366f1; flex-shrink:0; display:inline-block; animation: aero-ai-spin 1s linear infinite"></i>
+    <style>
+        @keyframes aero-ai-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
     <div>
         <strong>Generando tu página con IA<span data-ai-pending-dots>…</span></strong>
         <span data-ai-pending-elapsed style="opacity:.75"> (0s)</span>

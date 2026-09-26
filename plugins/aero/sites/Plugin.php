@@ -561,6 +561,8 @@ class Plugin extends PluginBase
             \Aero\Sites\Components\ContactSection::class => 'sitesContact',
             \Aero\Sites\Components\SignupWizard::class   => 'signupWizard',
             \Aero\Sites\Components\PlatformLeadForm::class => 'platformLeadForm',
+            \Aero\Sites\Components\BlocksGallery::class  => 'sitesBlocksGallery',
+            \Aero\Sites\Components\BlocksPreview::class  => 'sitesBlocksPreview',
         ];
     }
 
