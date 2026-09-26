@@ -170,6 +170,22 @@ module.exports = {
         'reveal', 'hover:-translate-y-1', 'hover:shadow-lg', 'transition-all', 'duration-300', 'shadow-md',
 
         // -------------------------------------------------------------------
+        // Segunda tanda de variantes (10 por bloque, ver
+        // check-tailwind-safelist.mjs) — mantener sincronizada con
+        // components.jsx/PuckHtmlRenderer.php igual que el resto de este
+        // archivo.
+        // -------------------------------------------------------------------
+        '-left-9', 'bg-black/60', 'bg-gradient-to-t', 'border-current/30', 'border-t-2',
+        'flex-row-reverse', 'from-black/70', 'from-black/80', 'gap-x-10', 'gap-y-4', 'gap-y-6',
+        'group-open:rotate-45', 'h-24', 'h-28', 'h-6', 'items-baseline', 'mb-0.5',
+        'md:aspect-auto', 'md:grid', 'md:grid-cols-1', 'md:grid-cols-5', 'md:order-1',
+        'md:order-2', 'md:scale-110', 'md:text-5xl', 'md:text-7xl', 'opacity-60', 'pb-16',
+        'pb-20', 'pb-6', 'pl-8', 'px-10', 'py-5', 'rounded-b-3xl', 'sm:border-r',
+        'sm:border-surface-border', 'sm:gap-2', 'sm:grid', 'sm:p-14', 'sm:pr-6', 'sm:w-40',
+        'sm:w-48', 'to-transparent', 'via-black/10', 'via-black/20', 'w-14', 'w-28', 'w-6',
+        'z-10',
+
+        // -------------------------------------------------------------------
         // LEGACY — clases del sistema de color pre-DesignTheme. Ya no las
         // genera components.jsx/PuckHtmlRenderer.php, pero hay `content`
         // HTML ya guardado en BD (ej. página de inicio del tenant demo) que
