@@ -1,0 +1,162 @@
+url = "/elements/blocks"
+layout = "base"
+title = "Elementos — bloques del editor visual | Market"
+description = "Cada bloque y variante de layout disponibles en el editor visual Puck, con preview en vivo — la misma referencia que usa el equipo para diseñar sitios."
+
+[sitesBlocksGallery]
+==
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
+
+    <div class="mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="text-xs tracking-wide text-ink-dim uppercase">Elementos</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-pretty">Bloques del editor visual</h1>
+        <p class="text-ink-dim mt-3 max-w-2xl">
+            Todos los bloques y variantes de layout que tu negocio puede usar al armar su sitio con el editor
+            visual — cada preview corre el mismo renderizador que el editor y el generador con IA, así que lo
+            que ves acá es exactamente lo que vas a poder elegir.
+        </p>
+    </div>
+
+    <noscript>
+        <div class="p-4 bg-canvas-elev border border-edge rounded-xl text-sm text-ink-dim">
+            Esta página necesita JavaScript para mostrar los previews.
+        </div>
+    </noscript>
+
+    <div x-data="blocksGallery(window.__aeroBlocks || {}, window.__aeroBlocksThemes || [], window.__aeroBlocksDefaultTheme || '')" x-init="init()" x-cloak>
+
+        <!-- Controles globales -->
+        <div class="flex flex-wrap items-end gap-6 mb-8">
+            <label class="block">
+                <span class="block text-xs font-semibold uppercase tracking-wide text-ink-dim mb-1.5">Tema visual</span>
+                <select x-model="theme" class="bg-canvas-elev border border-edge rounded-lg px-3 py-2 text-sm min-w-[200px] focus:outline-none focus:border-accent">
+                    <template x-for="t in themes" :key="t.handle">
+                        <option :value="t.handle" x-text="t.name"></option>
+                    </template>
+                </select>
+            </label>
+
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wide text-ink-dim mb-1.5">Modo</span>
+                <div class="inline-flex rounded-lg border border-edge overflow-hidden">
+                    <button type="button" @click="mode = 'light'" class="px-3.5 py-2 text-sm transition-colors" :class="mode === 'light' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'">Claro</button>
+                    <button type="button" @click="mode = 'dark'" class="px-3.5 py-2 text-sm transition-colors border-l border-edge" :class="mode === 'dark' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'">Oscuro</button>
+                </div>
+            </div>
+
+            <div>
+                <span class="block text-xs font-semibold uppercase tracking-wide text-ink-dim mb-1.5">Ancho de vista</span>
+                <div class="inline-flex rounded-lg border border-edge overflow-hidden">
+                    <button type="button" @click="width = 375" class="px-3.5 py-2 text-sm transition-colors" :class="width === 375 ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'">Mobile</button>
+                    <button type="button" @click="width = 768" class="px-3.5 py-2 text-sm transition-colors border-l border-edge" :class="width === 768 ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'">Tablet</button>
+                    <button type="button" @click="width = 0" class="px-3.5 py-2 text-sm transition-colors border-l border-edge" :class="width === 0 ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'">Desktop</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selector de bloque -->
+        <nav class="flex flex-wrap gap-2 mb-10">
+            <template x-for="key in blockKeys" :key="key">
+                <button type="button" @click="activeBlock = key"
+                    class="px-4 py-2 rounded-lg text-sm border transition-colors"
+                    :class="activeBlock === key ? 'bg-accent text-accent-fg border-accent' : 'border-edge text-ink-dim hover:text-ink hover:border-ink-dim'">
+                    <span x-text="blocks[key].label"></span>
+                    <span class="opacity-70" x-text="' (' + Object.keys(blocks[key].variants).length + ')'"></span>
+                </button>
+            </template>
+        </nav>
+
+        <template x-for="key in blockKeys" :key="key">
+            <section x-show="activeBlock === key" class="mb-16">
+                <h2 class="text-xl font-bold mb-1" x-text="blocks[key].label"></h2>
+                <p class="text-sm text-ink-dim mb-5" x-text="Object.keys(blocks[key].variants).length + ' variantes de layout'"></p>
+
+                <div class="grid gap-5" :style="`grid-template-columns:repeat(${blocks[key].columns}, minmax(0, 1fr))`">
+                    <template x-for="[value, label] in Object.entries(blocks[key].variants)" :key="value">
+                        <div class="bg-canvas-elev border border-edge rounded-2xl overflow-hidden" x-data="{ codeOpen: false, copied: false }">
+                            <div class="px-4 py-3 border-b border-edge flex items-center justify-between gap-3">
+                                <strong class="text-sm" x-text="label"></strong>
+                                <code class="text-xs text-ink-dim" x-text="value"></code>
+                            </div>
+
+                            <div class="p-4 flex justify-center bg-canvas">
+                                <div :style="width ? `width:${width}px; max-width:100%;` : 'width:100%;'">
+                                    <iframe :src="previewUrl(key, value)" loading="lazy"
+                                        class="w-full border-0 rounded-lg"
+                                        :style="`height:${blocks[key].previewHeight}px;`"></iframe>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-edge">
+                                <button type="button" @click="codeOpen = !codeOpen" class="w-full text-left px-4 py-2.5 text-sm text-ink-dim hover:text-ink flex items-center justify-between">
+                                    <span>Ver código (JSON de props)</span>
+                                    <svg class="w-3.5 h-3.5 transition-transform" :class="codeOpen && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <div x-show="codeOpen" x-cloak class="px-4 pb-4">
+                                    <div class="relative">
+                                        <pre class="bg-canvas border border-edge rounded-lg p-3 text-xs overflow-auto max-h-64"><code x-text="propsJson(key, value)"></code></pre>
+                                        <button type="button" @click="copyProps(key, value, $event)" class="absolute top-2 right-2 text-xs border border-edge rounded-md px-2 py-1 bg-canvas-elev text-ink-dim hover:text-ink">
+                                            <span x-show="!copied">Copiar</span>
+                                            <span x-show="copied" class="text-emerald-400">Copiado</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+        </template>
+    </div>
+</div>
+
+<script id="aero-blocks-data" type="application/json">{{ sitesBlocksGallery.blocksJson|raw }}</script>
+<script id="aero-blocks-themes" type="application/json">{{ sitesBlocksGallery.themesJson|raw }}</script>
+<script>
+    window.__aeroBlocks = JSON.parse(document.getElementById('aero-blocks-data').textContent);
+    window.__aeroBlocksThemes = JSON.parse(document.getElementById('aero-blocks-themes').textContent);
+    window.__aeroBlocksDefaultTheme = {{ sitesBlocksGallery.defaultThemeJson|raw }};
+
+    function blocksGallery(blocks, themes, defaultTheme) {
+        return {
+            blocks: blocks,
+            themes: themes,
+            theme: defaultTheme,
+            mode: 'light',
+            width: 0,
+            activeBlock: Object.keys(blocks)[0] || null,
+            copied: false,
+
+            init() {},
+
+            get blockKeys() {
+                return Object.keys(this.blocks);
+            },
+
+            previewUrl(block, variant) {
+                const params = new URLSearchParams({ block, variant, theme: this.theme || '', mode: this.mode });
+                return '/elements/blocks/preview?' + params.toString();
+            },
+
+            propsFor(block, variant) {
+                return { ...this.blocks[block].defaultProps, variant };
+            },
+
+            propsJson(block, variant) {
+                return JSON.stringify(this.propsFor(block, variant), null, 2);
+            },
+
+            copyProps(block, variant, evt) {
+                const text = this.propsJson(block, variant);
+                navigator.clipboard.writeText(text).then(() => {
+                    const scope = Alpine.$data(evt.target.closest('[x-data]'));
+                    scope.copied = true;
+                    setTimeout(() => { scope.copied = false; }, 1500);
+                });
+            },
+        };
+    }
+</script>
