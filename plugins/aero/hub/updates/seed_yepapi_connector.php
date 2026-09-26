@@ -10,7 +10,7 @@ use October\Rain\Database\Updates\Seeder;
  * A propósito NO trae la API key en claro: este archivo se versiona en git, y
  * escribirla acá la dejaría en el historial para siempre aunque se borre
  * después. Tras migrar, pega la key real desde el backend:
- * Aero.Connector → Connectors → YepAPI → campo "API Key" (se cifra al guardar).
+ * Aero.Connector → Connectors → Hub → campo "API Key" (se cifra al guardar).
  */
 return new class extends Seeder
 {
@@ -19,7 +19,7 @@ return new class extends Seeder
         Connector::firstOrCreate(
             ['type' => 'yepapi'],
             [
-                'name'          => 'YepAPI',
+                'name'          => 'Hub',
                 'provider_hint' => 'yepapi',
                 'base_url'      => 'https://api.yepapi.com',
                 'is_enabled'    => true,

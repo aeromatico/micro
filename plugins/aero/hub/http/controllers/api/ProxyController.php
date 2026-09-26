@@ -106,7 +106,7 @@ class ProxyController extends Controller
         $connector = Connector::where('type', 'yepapi')->first();
 
         if (!$connector) {
-            throw new \RuntimeException('Aero.Hub: no existe el Connector "YepAPI" (ver updates/seed_yepapi_connector.php).');
+            throw new \RuntimeException('Aero.Hub: no existe el Connector de tipo "yepapi" (ver updates/seed_yepapi_connector.php).');
         }
 
         return app(ConnectorClient::class)->send($connector, [
