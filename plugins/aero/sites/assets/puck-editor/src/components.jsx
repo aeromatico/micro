@@ -575,6 +575,22 @@ const HERO_IMAGE_ASPECT_OPTIONS = [
   { label: 'Panorámica (16:9)', value: '16/9' },
 ];
 
+// La propiedad CSS aspectRatio (en vez del truco de padding-top) resuelve
+// mal la altura de este div dentro de este grid en algunos motores: como el
+// alto queda "auto" y el ancho es el de la columna del grid, cualquier
+// desajuste en cómo el motor calcula esa columna (columnas 1fr con
+// min-width:0, más el propio tamaño intrínseco de la <img> como reemplazado)
+// terminaba resolviendo un alto mucho mayor al ancho — con "Cuadrada"
+// elegida, el resultado visible era un recorte angosto tipo "torre" en vez
+// de un cuadrado real. El truco clásico de padding-top en % (relativo SIEMPRE
+// al ancho del contenedor, sin ambigüedad de motor) + <img> absoluta es la
+// forma robusta de forzar una proporción exacta sin depender de eso.
+function aspectRatioPaddingTop(ratio) {
+  const [w, h] = String(ratio || '3/4').split('/').map(Number);
+  if (!w || !h) return '133.3333%';
+  return `${(h / w) * 100}%`;
+}
+
 function HeroButtons({ ctaLabel, ctaUrl, cta2Label, cta2Url, background, justify }) {
   if ((!ctaLabel || !ctaUrl) && (!cta2Label || !cta2Url)) return null;
   return (
@@ -666,8 +682,8 @@ export const Hero = {
         </div>
       );
       const imageCol = image ? (
-        <div className="rounded-2xl overflow-hidden shadow-md" style={{ aspectRatio: imageAspect || '3/4' }}>
-          <img src={image} alt="" className="w-full h-full object-cover" />
+        <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ paddingTop: aspectRatioPaddingTop(imageAspect) }}>
+          <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
         </div>
       ) : <div />;
       return (
@@ -797,8 +813,8 @@ export const Hero = {
             </div>
             <div className="md:col-span-3">
               {image ? (
-                <div className="rounded-2xl overflow-hidden shadow-md aspect-[4/3]">
-                  <img src={image} alt="" className="w-full h-full object-cover" />
+                <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ paddingTop: aspectRatioPaddingTop('4/3') }}>
+                  <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 </div>
               ) : <div />}
             </div>
@@ -1038,8 +1054,8 @@ export const FeatureGrid = {
               {button}
             </div>
             {image ? (
-              <div className="rounded-2xl overflow-hidden shadow-md aspect-video">
-                <img src={image} alt="" className="w-full h-full object-cover" />
+              <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ paddingTop: aspectRatioPaddingTop('16/9') }}>
+                <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
               </div>
             ) : <div />}
           </div>
@@ -1373,8 +1389,8 @@ export const CTASection = {
               <div className="flex flex-col sm:flex-row gap-4">{button1}{button2}</div>
             </div>
             {image ? (
-              <div className="rounded-2xl overflow-hidden shadow-md aspect-video">
-                <img src={image} alt="" className="w-full h-full object-cover" />
+              <div className="relative rounded-2xl overflow-hidden shadow-md" style={{ paddingTop: aspectRatioPaddingTop('16/9') }}>
+                <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover" />
               </div>
             ) : <div />}
           </div>
@@ -3387,13 +3403,20 @@ export const Stats = {
       );
     }
 
-    // ---- franja-destacada: franja sólida de marca, divisores verticales ---
+    // ---- franja-destacada: franja con divisores verticales -----------------
+    // Antes ignoraba "Fondo" por completo (bg-brand-primary text-white
+    // hardcodeado) — el campo se veía en el panel pero cambiarlo no hacía
+    // nada, igual que las demás variantes de Stats había que usar
+    // styleClass/colorStyle acá también. divide-white/20 asumía texto
+    // blanco siempre; con fondo dinámico se cambia a divide-surface-border
+    // (mismo token que usan el resto de los divisores en este archivo,
+    // se ve bien tanto en fondo claro como oscuro).
     if (variant === 'franja-destacada') {
       return (
-        <section className="reveal py-16 px-4 bg-brand-primary text-white">
+        <section className={`reveal py-16 px-4 ${styleClass}`} style={colorStyle}>
           <div className="max-w-6xl mx-auto">
             {title && <h2 className="font-heading2 text-3xl font-bold text-center mb-12">{title}</h2>}
-            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/20 text-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-surface-border text-center">
               {stats.map((s, i) => (
                 <div key={i} className="py-4 sm:py-0">
                   <div className="text-5xl font-bold mb-2">{s.value}</div>
