@@ -190,6 +190,86 @@ class CatalogSync
         return 'hub.' . Str::slug($category, '_');
     }
 
+    // -------------------------------------------------------------------
+    // Página pública /hub (themes/master/pages/hub.htm, componente HubCatalog)
+    // -------------------------------------------------------------------
+
+    /**
+     * Catálogo activo agrupado por división → categoría, con el hint de
+     * costo en créditos de cada endpoint (mismo cálculo que
+     * EndpointRegistry::withCreditHints(), sin pasar por Aero.Api porque acá
+     * el consumidor es la página pública, no el explorador de API).
+     *
+     * @return array{ai_models: array, apis: array} cada una con 'label' y 'categories' (['Nombre' => ['label','endpoints' => [...]]])
+     */
+    public static function publicCatalog(): array
+    {
+        $out = [
+            'ai_models' => ['label' => trans('aero.hub::lang.menu.ai_models'), 'categories' => []],
+            'apis'      => ['label' => trans('aero.hub::lang.menu.apis'), 'categories' => []],
+        ];
+
+        $endpoints = HubEndpoint::where('is_active', true)->orderBy('category')->orderBy('path')->get();
+
+        foreach ($endpoints as $endpoint) {
+            $division = $endpoint->division === 'ai_models' ? 'ai_models' : 'apis';
+
+            $out[$division]['categories'][$endpoint->category]['label'] = $endpoint->category;
+            $out[$division]['categories'][$endpoint->category]['endpoints'][] = [
+                'method'  => $endpoint->method,
+                'path'    => '/hub' . $endpoint->path,
+                'summary' => $endpoint->summary,
+                'credit'  => static::creditHintFor($endpoint),
+            ];
+        }
+
+        foreach ($out as &$division) {
+            $division['categories'] = array_values($division['categories']);
+        }
+
+        return $out;
+    }
+
+    protected static function creditHintFor(HubEndpoint $endpoint): ?array
+    {
+        if (!class_exists(\Aero\Credits\Classes\Credits::class)) {
+            return null;
+        }
+
+        try {
+            $cost = \Aero\Credits\Classes\Credits::cost($endpoint->actionCode());
+        }
+        catch (\Throwable $e) {
+            return null;
+        }
+
+        if (!$cost['type'] || $cost['amount'] < 1) {
+            return null;
+        }
+
+        return [
+            'amount' => $cost['amount'],
+            'color'  => $cost['type']->color,
+            'label'  => $cost['amount'] . ' ' . ($cost['amount'] === 1 ? 'crédito' : 'créditos') . ' de ' . $cost['type']->label,
+        ];
+    }
+
+    /**
+     * Conteos para la copia estática de /hub y la sección de docs.htm: total
+     * activo, por división, y cantidad de categorías distintas de cada una.
+     */
+    public static function publicStats(): array
+    {
+        $active = HubEndpoint::where('is_active', true)->get(['division', 'category']);
+
+        return [
+            'total'          => $active->count(),
+            'ai_models'      => $active->where('division', 'ai_models')->count(),
+            'apis'           => $active->where('division', 'apis')->count(),
+            'categories'     => $active->pluck('category')->unique()->count(),
+        ];
+    }
+
     /** Una entrada por HubEndpoint activo para el explorador público /api. */
     public static function endpointGroups(): array
     {

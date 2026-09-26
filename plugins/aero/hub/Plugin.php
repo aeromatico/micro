@@ -92,6 +92,13 @@ class Plugin extends PluginBase
         });
     }
 
+    public function registerComponents(): array
+    {
+        return [
+            \Aero\Hub\Components\HubCatalog::class => 'hubCatalog',
+        ];
+    }
+
     public function registerPermissions(): array
     {
         return [
