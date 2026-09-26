@@ -152,7 +152,13 @@ $isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
                 <div id="tab-inicio" class="tab-pane active">
                     <div class="layout padded-container">
 
-                        <?php if ($indexPage): ?>
+                        <?php if ($indexPageWidget): ?>
+                        <?php if (!$indexPage): ?>
+                        <p class="text-muted">
+                            Todavía no tienes una página de inicio. Describe tu negocio abajo y genera tu sitio con IA,
+                            o escribe el contenido a mano y guarda para crearla.
+                        </p>
+                        <?php endif ?>
                         <form data-request="onSaveIndex" data-request-flash>
                             <?= $indexPageWidget->render() ?>
                             <div
