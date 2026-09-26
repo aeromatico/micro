@@ -126,6 +126,14 @@ module.exports = {
         'gap-x-6', 'gap-y-2', 'hover:opacity-100', 'opacity-80', 'max-w-xs', 'mt-5', 'mt-6', 'py-10', 'py-12', 'py-14',
         'md:flex-row', 'md:items-center', 'md:justify-between', 'md:justify-center', 'right-0', 'top-full',
         'sm:inline-flex', 'z-40', 'z-50', 'h-14', 'rounded-full', 'max-w-md', 'list-none', 'w-56', 'px-5',
+        // Header (Puck) — antes solo sobrevivían al purge por coincidir con
+        // clases de themes/microsites/partials/site/header.htm (escaneado
+        // por `content`); si ese partial cambia de clases, el bloque Header
+        // se rompe en silencio. Ver plugins/aero/sites/assets/puck-editor/
+        // scripts/check-tailwind-safelist.mjs (corre en `npm run build` del
+        // editor y detecta este tipo de gap).
+        'sm:px-6', 'lg:px-8', 'md:flex', 'md:hidden', 'shrink-0', 'gap-2.5',
+        'tracking-tight', 'py-2.5', 'shadow-lg', 'w-5', 'h-5', 'puck-tabs-radio',
         // Tabs — píldoras, vertical, tarjetas, numeradas (radios ocultos + nav)
         'sr-only', 'py-3', 'md:flex-col', 'md:col-span-3', 'sm:grid-cols-4', 'w-10', 'h-10',
         // Tabs — hooks del mecanismo :has() en app.css (no son utilidades de
