@@ -136,25 +136,53 @@ window.AeroPuckEditor = {
         overrides: {
           // Puck's built-in Publish button text is hardcoded ("Publish") with
           // no label override prop, so the only way to relabel it is to
-          // replace the header actions entirely. We also add "Ver sitio"
-          // here, next to it.
-          headerActions: () => (
-            <>
-              {siteUrl && (
-                <Button href={siteUrl} newTab variant="secondary">
-                  Ver sitio
+          // replace the header actions entirely. También agregamos "Ver
+          // sitio" y "Pantalla completa" acá al lado.
+          //
+          // headerActions se invoca como componente de React (ver
+          // CustomHeaderActions en @puckeditor/core), así que puede usar
+          // hooks — el toggle de fullscreen necesita estado propio para
+          // refrescar la etiqueta del botón.
+          headerActions: () => {
+            const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+            // Escape ya cierra paneles propios de Puck; acá además sale de
+            // nuestro overlay de fullscreen si estaba activo.
+            React.useEffect(() => {
+              if (!isFullscreen) return undefined;
+              const onKeyDown = (e) => {
+                if (e.key === 'Escape') setIsFullscreen(false);
+              };
+              document.addEventListener('keydown', onKeyDown);
+              return () => document.removeEventListener('keydown', onKeyDown);
+            }, [isFullscreen]);
+
+            React.useEffect(() => {
+              container.classList.toggle('is-puck-fullscreen', isFullscreen);
+              document.body.classList.toggle('aero-puck-fullscreen-lock', isFullscreen);
+            }, [isFullscreen]);
+
+            return (
+              <>
+                {siteUrl && (
+                  <Button href={siteUrl} newTab variant="secondary">
+                    Ver sitio
+                  </Button>
+                )}
+                <Button variant="secondary" onClick={() => setIsFullscreen((v) => !v)}>
+                  {isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
                 </Button>
-              )}
-              <Button
-                onClick={() => {
-                  writeToDom(latestData);
-                  submitForm();
-                }}
-              >
-                Publicar
-              </Button>
-            </>
-          ),
+                <Button
+                  onClick={() => {
+                    writeToDom(latestData);
+                    submitForm();
+                  }}
+                >
+                  Publicar
+                </Button>
+              </>
+            );
+          },
         },
       })
     );

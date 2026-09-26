@@ -57,6 +57,20 @@ $safeJson = $puckJson
                 #<?= $editorId ?>-container .aero-puck-mount { display: none !important; }
                 #<?= $editorId ?>-container .aero-puck-mobile-invite { display: block !important; }
             }
+
+            /* Botón "Pantalla completa" del header de Puck (ver overrides.headerActions
+               en assets/puck-editor/src/index.jsx) — el mount div ya alberga el layout
+               interno de Puck (height:100dvh propio), así que alcanza con volverlo
+               position:fixed a pantalla completa; Puck se estira solo para llenarlo. */
+            .aero-puck-mount.is-puck-fullscreen {
+                position: fixed;
+                inset: 0;
+                z-index: 10000;
+                min-height: 100dvh;
+            }
+            body.aero-puck-fullscreen-lock {
+                overflow: hidden;
+            }
         </style>
     </div>
 

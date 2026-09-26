@@ -1,5 +1,13 @@
 <?php
 /** @var Aero\Sites\Controllers\ContentEditor $this */
+?>
+<!-- Solo esta página necesita máximo ancho para editar (Puck a pantalla
+     completa lo agradece); el resto de Aero.Sites conserva su submenú. Se
+     inyecta acá (y no en el layout) para no afectar Tenants/Planes/etc. -->
+<style>
+    .layout-sidenav-container { display: none !important; }
+</style>
+<?php
 if (!empty($this->vars['noTenant'])): ?>
 <div class="padded-container">
     <p class="text-muted">
@@ -177,6 +185,7 @@ $isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
                                     <i class="icon-refresh"></i> Rehacer con IA
                                 </button>
                                 <?php endif ?>
+                                <small class="text-muted" style="align-self:center">Ctrl+S / Cmd+S también guarda</small>
                             </div>
                         </form>
                         <?php else: ?>
@@ -216,6 +225,7 @@ $isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
                                 <button type="submit" class="btn btn-primary" data-load-indicator="Guardando...">
                                     <i class="icon-check"></i> Guardar branding
                                 </button>
+                                <small class="text-muted" style="align-self:center">Ctrl+S / Cmd+S también guarda</small>
                             </div>
                         </form>
                     </div>
@@ -297,6 +307,7 @@ $isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
                                 <button type="button" id="load-default-footer-btn" class="btn btn-default">
                                     <i class="icon-download"></i> Cargar el footer actual
                                 </button>
+                                <small class="text-muted" style="align-self:center">Ctrl+S / Cmd+S también guarda</small>
                             </div>
                         </form>
 
@@ -338,3 +349,34 @@ $isCustomLayout = $layout && $layout->mode === 'custom' && $layout->custom_html;
         </div><!-- /.control-tabs (main) -->
     </div>
 </div>
+
+<script>
+(function () {
+    // Ctrl+S / Cmd+S guarda la pestaña activa (Inicio/Branding/Plantilla),
+    // igual que en los formularios estándar de October (ver hotkey de
+    // Ui::ajaxButton) — este editor usa forms con data-request planos, no
+    // el UiFactory de Vue, así que no hereda ese binding solo y hay que
+    // engancharlo a mano. requestSubmit() dispara el evento 'submit' nativo,
+    // así que también corre el flush de Puck (mismo listener en capture
+    // phase que usa el botón "Guardar", ver puckeditor.js) y el manejo AJAX
+    // de October (data-request), sin importar cuál disparó el guardado.
+    document.addEventListener('keydown', function (e) {
+        var isSaveCombo = (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey
+            && (e.key === 's' || e.key === 'S');
+        if (!isSaveCombo) return;
+
+        var activePane = document.querySelector('.master-tabs > .tab-content > .tab-pane.active');
+        var form = activePane && activePane.querySelector('form[data-request]');
+        if (!form) return;
+
+        e.preventDefault();
+
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            var submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.click();
+        }
+    });
+})();
+</script>

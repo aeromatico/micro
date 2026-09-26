@@ -87,3 +87,32 @@
    :target (ancla con href="#id" + div con ese id). Sin JS. */
 .puck-lightbox { display: none; }
 .puck-lightbox:target { display: flex; }
+
+/* -------------------------------------------------------------------------
+   Fix: @puckeditor/core (la librería del editor visual, no nuestro código)
+   trae su propia CSS con clases Tailwind genéricas — entre ellas
+   `.hidden{display:none!important;visibility:hidden!important}` — que
+   choca por NOMBRE con la utilidad `hidden` de Header (`hidden md:flex`,
+   `hidden sm:inline-flex`: mobile-first, mostrar solo desde cierto
+   breakpoint). El !important de Puck le gana a nuestro
+   `.md\:flex{display:flex}` sin @important, sin importar el ancho real de
+   ventana — resultado: en el canvas del editor, los enlaces de nav y el
+   botón CTA del Header quedan invisibles SIEMPRE (aunque el HTML/props
+   sean correctos y en la Galería de Componentes / /elements/blocks se vean
+   bien, porque ninguna de esas dos carga @puckeditor/core).
+   Se restaura acá con !important propio, scopeado a `[data-puck-component]`
+   (atributo que el propio Puck pone en cada bloque renderizado) para no
+   tocar el `.hidden` interno de la UI de Puck en ningún otro lado. Si se
+   agrega este mismo patrón (`hidden <breakpoint>:<display>`) a otro bloque,
+   sumar su override acá también — no hay forma de detectarlo automático
+   (a diferencia del safelist, esto no es "falta una clase", es una colisión
+   de nombre con una librería de terceros).
+   ------------------------------------------------------------------------- */
+[data-puck-component] .hidden.md\:flex { display: none !important; }
+@media (min-width: 768px) {
+    [data-puck-component] .hidden.md\:flex { display: flex !important; visibility: visible !important; }
+}
+[data-puck-component] .hidden.sm\:inline-flex { display: none !important; }
+@media (min-width: 640px) {
+    [data-puck-component] .hidden.sm\:inline-flex { display: inline-flex !important; visibility: visible !important; }
+}
