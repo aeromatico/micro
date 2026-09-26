@@ -46,7 +46,7 @@ description = "Chat, texto e imagen con decenas de modelos de IA, con tu propia 
                     </div>
                     {% if ep.description %}<p class="text-sm text-ink-dim leading-relaxed">{{ ep.description }}</p>{% endif %}
                     <div class="mt-auto pt-2">
-                        <a href="/documentacion/api-vista-general" class="inline-flex items-center text-sm font-semibold text-accent hover:underline">Ver documentación →</a>
+                        <a href="{{ ep.doc_url }}" class="inline-flex items-center text-sm font-semibold text-accent hover:underline">Ver documentación →</a>
                     </div>
                 </div>
                 {% endfor %}

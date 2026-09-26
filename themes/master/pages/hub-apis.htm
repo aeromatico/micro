@@ -44,7 +44,7 @@ description = "SEO, scraping, SERP y datos de redes sociales bajo un solo panel,
                         {% if ep.description %}<p class="text-sm text-ink-dim mt-1 leading-relaxed">{{ ep.description }}</p>{% endif %}
                     </div>
                     <div class="mt-auto pt-2">
-                        <a href="/documentacion/api-vista-general" class="inline-flex items-center text-sm font-semibold text-accent hover:underline">Ver documentación →</a>
+                        <a href="{{ ep.doc_url }}" class="inline-flex items-center text-sm font-semibold text-accent hover:underline">Ver documentación →</a>
                     </div>
                 </div>
                 {% endfor %}
