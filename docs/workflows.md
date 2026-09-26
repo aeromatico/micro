@@ -116,6 +116,15 @@ sincronice):
    Node (páginas creadas por IA). Debe producir el mismo HTML/clases que el
    JSX, rama por rama.
 
+El catálogo de variantes/defaultProps (paso 3) SÍ tiene una única fuente:
+`plugins/aero/sites/classes/ComponentBlockCatalog.php`. La consumen la
+Galería de Componentes del backend (pestaña "Componentes" de Contenidos y
+`/admin/aero/sites/componentgallery`, superadmin-only) y la galería pública
+del theme `master` (`/elements/blocks`, `Components\BlocksGallery` +
+`Components\BlocksPreview`) — agregar un bloque ahí alcanza para que aparezca
+sincronizado en ambas vistas, porque las dos llaman a
+`ComponentBlockCatalog::renderPreviewDocument()`.
+
 ```bash
 # 1. Editar components.jsx: agregar fields nuevos (opcionales, sin romper
 #    los existentes), un <Type>_VARIANT_OPTIONS y las ramas del render()
@@ -130,19 +139,21 @@ sincronice):
 #    protected method reusable, mirror del helper del JSX.
 php -l plugins/aero/sites/classes/ai/PuckHtmlRenderer.php
 
-# 3. Registrar el catálogo de variantes para la Galería de Componentes
-#    (/admin/aero/sites/componentgallery, superadmin-only):
+# 3. Registrar el catálogo de variantes/defaultProps — fuente única para
+#    AMBAS galerías (backend y /elements/blocks del theme master):
 #    agregar <TYPE>_VARIANTS + <TYPE>_DEFAULT_PROPS y una entrada en
-#    self::BLOCKS en plugins/aero/sites/controllers/ComponentGallery.php
-php -l plugins/aero/sites/controllers/ComponentGallery.php
+#    self::BLOCKS en plugins/aero/sites/classes/ComponentBlockCatalog.php
+php -l plugins/aero/sites/classes/ComponentBlockCatalog.php
 
 # 4. Safelist de Tailwind — CRÍTICO, ver "Gotchas" abajo.
 #    Editar themes/microsites/tailwind.config.js (safelist) con toda clase
 #    Tailwind nueva usada en el render (dinámica, no aparece en ningún .htm
-#    escaneado por `content`).
+#    escaneado por `content`). No hace falta acordarse de memoria: el paso 5
+#    (npm run build del editor) corre check-tailwind-safelist.mjs al final y
+#    FALLA listando cualquier clase que falte acá.
 
 # 5. Build (los 3, en este orden si tocaste JSX + CSS):
-cd plugins/aero/sites/assets/puck-editor && npm run build   # bundle del editor + catalog.json
+cd plugins/aero/sites/assets/puck-editor && npm run build   # bundle del editor + catalog.json + check-tailwind-safelist.mjs
 cd ../../../../../themes/microsites && npm run build         # Tailwind (safelist + hand-written CSS)
 
 # 6. Verificar el render headless (sin abrir navegador):
@@ -177,6 +188,13 @@ pa tinker --execute="Backend\Models\User::where('login','debug_check')->first()?
   `themes/microsites/assets/css/app.css` — esas clases (`puck-tabs-panel-0`,
   etc.) tienen que estar en `safelist` igual que cualquier clase dinámica,
   o Tailwind las elimina del build aunque estén escritas en el CSS fuente.
+  `plugins/aero/sites/assets/puck-editor/scripts/check-tailwind-safelist.mjs`
+  (corre al final de `npm run build` del editor) detecta esto automáticamente
+  — extrae clases literales de `components.jsx` + `PuckHtmlRenderer.php` y
+  falla si alguna no está en el safelist ni en ningún `.htm` escaneado por
+  `content`. Es heurístico (regex, no un parser de Tailwind/JS real): un
+  falso positivo nuevo se agrega a `IGNORE_TOKENS` dentro del script, no se
+  desactiva el check.
 - **CDN (Cloudflare) cachea `app.min.css` por 12h.** Cualquier URL que sirva
   ese archivo sin query de cache-busting (`?v=<hash de filemtime>`) puede
   mostrar CSS viejo tras un rebuild. El layout real del theme ya lo hace
@@ -236,9 +254,9 @@ pa tinker --execute="Backend\Models\User::where('login','debug_check')->first()?
 - [ ] `variant` es la PRIMERA key en `fields: {...}` (no al final, no se pierde en el scroll del panel)
 - [ ] Rama default idéntica visualmente al comportamiento previo (compat con `puck_data` guardado)
 - [ ] `PuckHtmlRenderer.php`: `render<Type>()` espejado rama por rama + `php -l`
-- [ ] `ComponentGallery.php`: `<TYPE>_VARIANTS`, `<TYPE>_DEFAULT_PROPS`, entrada en `BLOCKS` + `php -l`
+- [ ] `ComponentBlockCatalog.php`: `<TYPE>_VARIANTS`, `<TYPE>_DEFAULT_PROPS`, entrada en `BLOCKS` + `php -l`
 - [ ] `tailwind.config.js`: toda clase Tailwind nueva (y toda clase hand-written de CSS propio) en `safelist`
-- [ ] `npm run build` en `assets/puck-editor/` (bundle + catalog.json) y en `themes/microsites/` (CSS)
+- [ ] `npm run build` en `assets/puck-editor/` (bundle + catalog.json + `check-tailwind-safelist.mjs`, que falla si falta algo del punto anterior) y en `themes/microsites/` (CSS)
 - [ ] Render headless por variante vía tinker (bytes > 0, sin excepción)
 - [ ] Verificación visual con Playwright + usuario temporal (borrado al terminar) en la Galería de Componentes **y** en un editor de página real
 
