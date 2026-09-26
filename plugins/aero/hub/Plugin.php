@@ -102,6 +102,22 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerSettings(): array
+    {
+        return [
+            'settings' => [
+                'label'       => 'aero.hub::lang.settings.menu_label',
+                'description' => 'aero.hub::lang.settings.menu_description',
+                'category'    => 'Sistema',
+                'icon'        => 'icon-cloud',
+                'class'       => \Aero\Hub\Models\Settings::class,
+                'order'       => 585,
+                'permissions' => ['aero.hub.manage_catalog'],
+                'keywords'    => 'hub yepapi margen ganancia margin markup credit_cost',
+            ],
+        ];
+    }
+
     public function registerNavigation(): array
     {
         return [

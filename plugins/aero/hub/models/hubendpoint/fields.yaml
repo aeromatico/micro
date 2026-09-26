@@ -42,6 +42,18 @@ fields:
         span: left
         disabled: true
 
+    margin_type:
+        label: aero.hub::lang.endpoint.margin_type
+        type: balloon-selector
+        span: right
+        comment: aero.hub::lang.endpoint.margin_type_comment
+
+    margin_value:
+        label: aero.hub::lang.endpoint.margin_value
+        type: number
+        span: left
+        comment: aero.hub::lang.endpoint.margin_value_comment
+
     pricing_type:
         label: aero.hub::lang.endpoint.pricing_type
         type: dropdown
@@ -74,6 +86,7 @@ fields:
         label: aero.hub::lang.endpoint.credit_cost
         type: number
         span: right
+        comment: aero.hub::lang.endpoint.credit_cost_comment
 
     is_active:
         label: aero.hub::lang.endpoint.is_active

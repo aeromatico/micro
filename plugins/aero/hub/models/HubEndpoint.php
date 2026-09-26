@@ -20,8 +20,8 @@ class HubEndpoint extends Model
     public $fillable = [
         'code', 'category', 'division', 'path', 'method', 'summary', 'description',
         'request_schema', 'pricing_type', 'unit_size', 'unit_cost_usd', 'count_path',
-        'reference_cost_usd', 'credit_type_id', 'credit_cost', 'overage_credit_cost',
-        'is_streaming', 'is_async', 'is_active', 'last_synced_at',
+        'reference_cost_usd', 'margin_type', 'margin_value', 'credit_type_id', 'credit_cost',
+        'overage_credit_cost', 'is_streaming', 'is_async', 'is_active', 'last_synced_at',
     ];
 
     public $rules = [
@@ -46,6 +46,7 @@ class HubEndpoint extends Model
         'unit_size'           => 'integer',
         'unit_cost_usd'       => 'float',
         'reference_cost_usd'  => 'float',
+        'margin_value'        => 'float',
         'credit_type_id'      => 'integer',
         'credit_cost'         => 'integer',
         'overage_credit_cost' => 'integer',
@@ -80,6 +81,16 @@ class HubEndpoint extends Model
         ];
     }
 
+    /** Vacío = usar el margen global de Aero\Hub\Models\Settings. */
+    public function getMarginTypeOptions(): array
+    {
+        return [
+            ''        => trans('aero.hub::lang.endpoint.margin_use_default'),
+            'percent' => trans('aero.hub::lang.settings.margin_type_percent'),
+            'fixed'   => trans('aero.hub::lang.settings.margin_type_fixed'),
+        ];
+    }
+
     public function scopeDivision($query, string $division)
     {
         return $query->where('division', $division);
@@ -88,6 +99,68 @@ class HubEndpoint extends Model
     public function actionCode(): string
     {
         return 'hub.' . $this->code;
+    }
+
+    /**
+     * Margen efectivo de ESTE endpoint: el propio si cargó ambos campos, si
+     * no el default global de Aero\Hub\Models\Settings — así ningún endpoint
+     * queda "sin margen" por accidente (siempre hay un valor efectivo).
+     *
+     * @return array{type: 'percent'|'fixed', value: float}
+     */
+    public function effectiveMargin(): array
+    {
+        if ($this->margin_type && $this->margin_value !== null) {
+            return ['type' => $this->margin_type, 'value' => (float) $this->margin_value];
+        }
+
+        return ['type' => Settings::defaultMarginType(), 'value' => Settings::defaultMarginValue()];
+    }
+
+    /**
+     * `reference_cost_usd` (lo que cuesta de verdad en YepAPI) + el margen
+     * efectivo = precio de venta en USD, convertido a créditos del color
+     * elegido (`credit_type_id`) — ceil y mínimo 1 crédito para no regalar
+     * el margen por redondeo hacia abajo. Sin costo real conocido ni tipo de
+     * crédito elegido, no hay forma de calcular: devuelve null y
+     * `recalculateCreditCost()` deja `credit_cost` como esté (manual).
+     */
+    public function computeCreditCost(): ?int
+    {
+        if (!$this->reference_cost_usd || !$this->credit_type_id || !class_exists(\Aero\Credits\Models\CreditType::class)) {
+            return null;
+        }
+
+        $type = \Aero\Credits\Models\CreditType::find($this->credit_type_id);
+        if (!$type || (float) $type->usd_value <= 0) {
+            return null;
+        }
+
+        $margin = $this->effectiveMargin();
+        $sellUsd = $margin['type'] === 'fixed'
+            ? $this->reference_cost_usd + $margin['value']
+            : $this->reference_cost_usd * (1 + $margin['value'] / 100);
+
+        return (int) max(1, ceil($sellUsd / (float) $type->usd_value));
+    }
+
+    /**
+     * Recalcula y persiste `credit_cost` si hay datos suficientes (ver
+     * computeCreditCost()) — se llama sola en beforeSave() cada vez que se
+     * toca costo/margen/color, y también en bulk desde
+     * HubEndpoints::onRecalculateCosts() para aplicar un cambio en el margen
+     * global a todos los endpoints existentes de una sola vez.
+     */
+    public function recalculateCreditCost(): void
+    {
+        if (($cost = $this->computeCreditCost()) !== null) {
+            $this->credit_cost = $cost;
+        }
+    }
+
+    public function beforeSave()
+    {
+        $this->recalculateCreditCost();
     }
 
     /**

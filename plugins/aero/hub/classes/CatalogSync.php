@@ -86,9 +86,11 @@ class CatalogSync
 
         // Solo al crearla: un borrador razonable que el superadmin revisa antes
         // de activar, nunca pisa un ajuste ya guardado en una fila existente.
+        // credit_cost NO se asigna acá: HubEndpoint::beforeSave() lo calcula
+        // solo a partir de reference_cost_usd + el margen global de
+        // Aero\Hub\Models\Settings apenas se asigna credit_type_id abajo.
         if (!$endpoint->exists) {
             $endpoint->credit_type_id = static::defaultCreditTypeId();
-            $endpoint->credit_cost = static::draftCreditCost($endpoint->reference_cost_usd);
             $endpoint->is_active = false;
         }
 
@@ -154,21 +156,6 @@ class CatalogSync
     protected static function defaultCreditTypeId(): ?int
     {
         return static::cheapestActiveCreditType()?->id;
-    }
-
-    protected static function draftCreditCost(?float $referenceCostUsd): int
-    {
-        if (!$referenceCostUsd) {
-            return 0;
-        }
-
-        $type = static::cheapestActiveCreditType();
-
-        if (!$type || (float) $type->usd_value <= 0) {
-            return 0;
-        }
-
-        return (int) max(1, ceil($referenceCostUsd / (float) $type->usd_value));
     }
 
     // -------------------------------------------------------------------

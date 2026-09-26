@@ -8,6 +8,7 @@ defaultSort:
     direction: asc
 recordUrl: aero/hub/hubendpoints/update/:id
 toolbar:
+    buttons: list_toolbar
     search:
         prompt: backend::lang.list.search_prompt
 filter: config_filter.yaml

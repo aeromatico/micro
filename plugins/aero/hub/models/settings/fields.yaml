@@ -1,0 +1,14 @@
+fields:
+    default_margin_type:
+        label: aero.hub::lang.settings.margin_type
+        type: balloon-selector
+        default: percent
+        span: left
+        comment: aero.hub::lang.settings.margin_type_comment
+
+    default_margin_value:
+        label: aero.hub::lang.settings.margin_value
+        type: number
+        default: 30
+        span: right
+        comment: aero.hub::lang.settings.margin_value_comment
