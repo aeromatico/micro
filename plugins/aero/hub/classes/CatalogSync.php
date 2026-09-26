@@ -216,10 +216,11 @@ class CatalogSync
 
             $out[$division]['categories'][$endpoint->category]['label'] = $endpoint->category;
             $out[$division]['categories'][$endpoint->category]['endpoints'][] = [
-                'method'  => $endpoint->method,
-                'path'    => '/hub' . $endpoint->path,
-                'summary' => $endpoint->summary,
-                'credit'  => static::creditHintFor($endpoint),
+                'method'      => $endpoint->method,
+                'path'        => '/hub' . $endpoint->path,
+                'summary'     => $endpoint->summary,
+                'description' => $endpoint->description,
+                'credit'      => static::creditHintFor($endpoint),
             ];
         }
 
