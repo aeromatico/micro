@@ -2,7 +2,7 @@ scopes:
     division:
         label: aero.hub::lang.endpoint.division
         type: dropdown
-        conditions: division = ':value'
+        conditions: division = :value
         options:
             ai_models: aero.hub::lang.menu.ai_models
             apis: aero.hub::lang.menu.apis
