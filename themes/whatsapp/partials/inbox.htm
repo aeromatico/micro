@@ -201,13 +201,13 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
 
     <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
         <h2>Nuevo chat</h2>
-        <p class="muted" x-show="!visibleAccounts.length">No hay números conectados.</p>
-        <label class="field" x-show="visibleAccounts.length > 1"><span>Enviar desde</span>
-            <select x-model.number="newForm.account"><template x-for="a in visibleAccounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
+        <p class="muted" x-show="!coldStartAccounts.length">No hay números conectados.</p>
+        <label class="field" x-show="coldStartAccounts.length > 1"><span>Enviar desde</span>
+            <select x-model.number="newForm.account"><template x-for="a in coldStartAccounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
         <label class="field"><span>Número (con código de país)</span><input type="tel" inputmode="tel" x-model="newForm.phone" placeholder="591 7xxxxxxx" autocomplete="off" required></label>
         <label class="field"><span>Nombre (opcional)</span><input type="text" x-model="newForm.name" maxlength="120"></label>
         <label class="field"><span>Mensaje</span><textarea x-model="newForm.body" rows="3" maxlength="4096" placeholder="Escribe el primer mensaje" required></textarea></label>
-        <button type="submit" class="btn primary" :disabled="newBusy || !visibleAccounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
+        <button type="submit" class="btn primary" :disabled="newBusy || !coldStartAccounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
     </form>
 
     <div class="sheet drawer" x-show="sheet === 'crm'" x-transition role="dialog" aria-label="Contacto y CRM">

@@ -5,7 +5,7 @@
     var API = '/api/v1/chat';
     var KEY = 'aero.chat.';
     var PALETTE = ['#17695a', '#b4532a', '#3b5fa8', '#8a3f7a', '#7a6a12', '#2f6f8f'];
-    var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS' };
+    var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS', livechat: 'Chat web' };
 
     function store(k, v) {
         try { if (v === undefined) return localStorage.getItem(KEY + k); if (v === null) localStorage.removeItem(KEY + k); else localStorage.setItem(KEY + k, v); } catch (e) { return null; }
@@ -267,9 +267,13 @@
             },
 
             // ---------- nuevo chat ----------
+            // Un chat web no tiene "número" al que escribirle en frío: el visitante siempre abre él el chat desde el widget.
+            get coldStartAccounts() { return this.visibleAccounts.filter(function (a) { return a.platform !== 'livechat'; }); },
             openNew: function () {
-                var acc = this.visibleAccounts.find(function (a) { return a.id === this.accountId; }, this) || this.visibleAccounts[0];
-                this.newForm = { account: acc ? acc.id : null, phone: '', name: '', body: '' };
+                var pool = this.coldStartAccounts;
+                if (!pool.length) { this.notify('No hay un canal desde el que iniciar chats nuevos.'); return; }
+                var acc = pool.find(function (a) { return a.id === this.accountId; }, this) || pool[0];
+                this.newForm = { account: acc.id, phone: '', name: '', body: '' };
                 this.sheet = 'new';
             },
             async startChat() {
