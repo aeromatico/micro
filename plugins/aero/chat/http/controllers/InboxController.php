@@ -109,6 +109,11 @@ class InboxController extends Controller
             return $this->error('invalid_account', 'Esa cuenta no pertenece a este espacio.', 422);
         }
 
+        // Un chat web solo lo abre el visitante desde el widget; no hay "número" al que escribirle en frío.
+        if ($account->driver === 'livechat') {
+            return $this->error('unsupported', 'No se puede iniciar una conversación nueva desde un chat web.', 422);
+        }
+
         $phone = preg_replace('/\D+/', '', $data['phone']);
         if (strlen($phone) < 8 || strlen($phone) > 15) {
             return $this->error('invalid_phone', 'Ingresa el número con código de país, por ejemplo 591 7xxxxxxx.', 422);
@@ -206,7 +211,7 @@ class InboxController extends Controller
         }
 
         try {
-            $tx = ApiCredits::charge($this->tenantId($request));
+            $tx = $this->chargeIfExternal($conversation->account, $request);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return $this->error('insufficient_credits', $e->getMessage(), 402);
         }
@@ -291,7 +296,7 @@ class InboxController extends Controller
         $url = $file->getPath();
 
         try {
-            $tx = ApiCredits::charge($this->tenantId($request));
+            $tx = $this->chargeIfExternal($conversation->account, $request);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return $this->error('insufficient_credits', $e->getMessage(), 402);
         }
@@ -522,12 +527,23 @@ class InboxController extends Controller
             'contact'         => [
                 'id'    => $c->contact_id,
                 'name'  => $c->contact?->name,
-                'phone' => $c->contact?->identities->first()?->external_id,
+                // Un chat web identifica al visitante por un token opaco, no un teléfono: no tiene sentido mostrarlo.
+                'phone' => $c->account?->platform === 'livechat' ? null : $c->contact?->identities->first()?->external_id,
                 'avatar_url' => $c->contact?->avatar_url,
             ],
             'last_message'    => $last ? ['body' => $last->body, 'direction' => $last->direction, 'media_type' => $last->media_type, 'type' => $last->type] : null,
             'assigned_to'     => $agent ? AuthController::user($agent) : null,
         ];
+    }
+
+    /**
+     * Un chat web (driver 'livechat') no llama a ninguna API externa de pago
+     * por mensaje — cobrar créditos ahí sería cobrar por algo gratis. Los
+     * demás drivers (Zernio, wapi) sí cargan al proveedor real.
+     */
+    protected function chargeIfExternal(Account $account, Request $request): ?int
+    {
+        return $account->driver === 'livechat' ? null : ApiCredits::charge($this->tenantId($request));
     }
 
     protected function tenantId(Request $request): int
