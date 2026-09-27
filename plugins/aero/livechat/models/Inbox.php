@@ -59,6 +59,14 @@ class Inbox extends Model
                 $inbox->telegram_connector_id = null;
             }
         });
+
+        // Cada inbox tiene su cuenta espejo en Aero.Hello, para que el PWA de
+        // aero/chat (tema whatsapp) lo muestre como un canal más — ver
+        // HelloBridge. Se sincroniza en cada guardado (nombre/estado/tenant
+        // pueden cambiar desde el form).
+        static::saved(function (self $inbox) {
+            \Aero\Livechat\Classes\HelloBridge::account($inbox);
+        });
     }
 
     public function getTelegramConnectorIdOptions(): array

@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public $require = ['Aero.Sites', 'Aero.Connector'];
+    public $require = ['Aero.Sites', 'Aero.Connector', 'Aero.Hello'];
 
     public function pluginDetails(): array
     {
@@ -46,6 +46,18 @@ class Plugin extends PluginBase
 
         $this->bootTenantPurgeCleanup();
         $this->bootTelegramBridge();
+        $this->bootHelloBridge();
+    }
+
+    /**
+     * Cada inbox aparece como una cuenta más del PWA de aero/chat (tema
+     * whatsapp) — ver Classes\HelloBridge y Classes\Notifications\LivechatChannelDriver.
+     */
+    protected function bootHelloBridge(): void
+    {
+        Event::listen('aero.hello.registerChannelDrivers', function ($dispatcher) {
+            $dispatcher->register('livechat', \Aero\Livechat\Classes\Notifications\LivechatChannelDriver::class);
+        });
     }
 
     /**
@@ -76,6 +88,13 @@ class Plugin extends PluginBase
 
             \Aero\Livechat\Models\Conversation::where('tenant_id', $tenantId)->delete();
             \Aero\Livechat\Models\Contact::where('tenant_id', $tenantId)->delete();
+
+            // Cuentas espejo en Aero.Hello (ver HelloBridge::account): sin esto
+            // quedan huérfanas apuntando a un tenant que ya no existe.
+            \Aero\Hello\Models\Account::where('driver', 'livechat')
+                ->whereIn('zernio_account_id', \Aero\Livechat\Models\Inbox::where('tenant_id', $tenantId)->pluck('id')->map(fn ($id) => "livechat-inbox-{$id}"))
+                ->delete();
+
             \Aero\Livechat\Models\Inbox::where('tenant_id', $tenantId)->delete();
         });
     }
