@@ -179,7 +179,7 @@ class CatalogSync
         foreach ($categories as $row) {
             $scope = static::scopeFor($row->category);
             $key = $row->division === 'ai_models' ? 'hub_ai_models' : 'hub_apis';
-            $groups[$key]['scopes'][$scope] = "YepAPI — {$row->category}";
+            $groups[$key]['scopes'][$scope] = $row->category;
         }
 
         return $groups;

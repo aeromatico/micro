@@ -201,9 +201,9 @@ class DocsSync
 
         $lines[] = '---';
         $lines[] = '';
-        $lines[] = '_Mismo endpoint que expone [YepAPI](https://docs.yepapi.com/) — mismos parámetros, '
-            . 'misma respuesta. Lo único que cambia acá es el dominio: en vez del propio de YepAPI, '
-            . 'usás `/hub` bajo tu dominio de Market, con tu API key y pagando en tus créditos._';
+        $lines[] = '_Aero Hub es un proxy: reexponemos este servicio bajo tu propio dominio de Market, '
+            . 'con tu API key y pagando en tus créditos — mismos parámetros, misma respuesta, sin cuentas '
+            . 'ni tarjetas sueltas por proveedor._';
 
         return implode("\n", $lines);
     }
