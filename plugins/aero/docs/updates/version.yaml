@@ -46,3 +46,9 @@
 1.1.4:
     - "Documento de Bolivia Pay sobre el plugin de WordPress/WooCommerce, en una nueva categoría 'Integraciones' paralela a 'Funciones del panel'."
     - seed_pay_wordpress_plugin_doc.php
+1.1.5:
+    - "Documentación de las funciones del panel (tenant) de Aero.Livechat."
+    - seed_livechat_docs.php
+1.1.6:
+    - "Documentación de las funciones del panel (tenant) de Aero.Tracking."
+    - seed_tracking_docs.php
