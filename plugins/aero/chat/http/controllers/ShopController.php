@@ -62,7 +62,8 @@ class ShopController extends Controller
         $data = $this->check($request, [
             'items' => 'required|array|min:1|max:50', 'items.*.product_id' => 'required|integer', 'items.*.variant_id' => 'nullable|integer',
             'items.*.quantity' => 'required|integer|min:1|max:999', 'payment_gateway_id' => 'nullable|integer', 'notes' => 'nullable|string|max:1000',
-            'shipping' => 'nullable|array', 'shipping.latitude' => 'nullable|numeric|between:-90,90', 'shipping.longitude' => 'nullable|numeric|between:-180,180', 'shipping.location_label' => 'nullable|string|max:120', 'customer' => 'nullable|array', 'customer.name' => 'nullable|string|max:150',
+            'shipping' => 'nullable|array', 'shipping.address_line1' => 'nullable|string|max:255', 'shipping.city' => 'nullable|string|max:120', 'shipping.country_code' => 'nullable|string|max:2',
+            'shipping.latitude' => 'nullable|numeric|between:-90,90', 'shipping.longitude' => 'nullable|numeric|between:-180,180', 'shipping.location_label' => 'nullable|string|max:120', 'customer' => 'nullable|array', 'customer.name' => 'nullable|string|max:150',
             'customer.phone' => 'nullable|string|max:30', 'customer.email' => 'nullable|email|max:255', 'notify_on_paid' => 'nullable|boolean',
         ]);
 
@@ -141,7 +142,7 @@ class ShopController extends Controller
         }
 
         try {
-            $tx = ApiCredits::charge($tenantId);
+            $tx = $this->chargeIfExternal($conv, $tenantId);
             MessageComposer::sendToContact($conv->account, $conv->contact_id, implode("\n", $lines), $options + ['credit_transaction_id' => $tx]);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return $this->fail('insufficient_credits', $e->getMessage(), 402);
@@ -210,7 +211,7 @@ class ShopController extends Controller
         $body .= "\n\nVer tu pedido: " . \Aero\Shop\Classes\OrderService::publicUrl($order);
 
         try {
-            $tx = ApiCredits::charge($this->tenantId($request));
+            $tx = $this->chargeIfExternal($conv, $this->tenantId($request));
             MessageComposer::sendToContact($conv->account, $conv->contact_id, $body, $options + ['credit_transaction_id' => $tx]);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return 'No hay créditos para enviar el mensaje. ' . $e->getMessage();
@@ -219,6 +220,12 @@ class ShopController extends Controller
         }
 
         return true;
+    }
+
+    /** Un chat web no llama a ninguna API externa de pago por mensaje — ver InboxController::chargeIfExternal. */
+    protected function chargeIfExternal(Conversation $conv, int $tenantId): ?int
+    {
+        return $conv->account?->driver === 'livechat' ? null : ApiCredits::charge($tenantId);
     }
 
     protected function state(Request $request, Conversation $conv): array
@@ -261,6 +268,12 @@ class ShopController extends Controller
         $contact = $conv->contact;
         $external = $contact?->identities()->where('platform', 'whatsapp')->value('external_id');
         $phone = $external ? '+' . preg_replace('/\D+/', '', $external) : null;
+
+        // Un chat web no tiene identidad de WhatsApp: el teléfono real es el
+        // que el visitante escribió en el pre-chat del widget.
+        if (!$phone && $contact && class_exists(\Aero\Livechat\Classes\HelloBridge::class)) {
+            $phone = \Aero\Livechat\Classes\HelloBridge::phoneFor($contact);
+        }
 
         $name = null;
         if (class_exists(\Aero\Crm\Models\Contact::class) && $contact) {
