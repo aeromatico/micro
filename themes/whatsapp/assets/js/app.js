@@ -718,7 +718,6 @@
             acctColor: function (a) { return PALETTE[a.id % PALETTE.length]; },
             acctLabel: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.label : ''; },
             acctPlatform: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.platform : ''; },
-            acctHasTelegram: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return !!(a && a.has_telegram); },
             platformLabel: function (p) { return PLATFORMS[p] || p; },
             cname: function (c) { var n = c.contact && c.contact.name; return n && !/^\d{9,}$/.test(n) ? n : ((c.contact && c.contact.phone) || 'Sin nombre'); },
             initials: function (s) { s = String(s || '').trim(); if (!s || /^[\d+]/.test(s)) return '#'; return s.split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase(); },
