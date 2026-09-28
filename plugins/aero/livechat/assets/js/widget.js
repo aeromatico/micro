@@ -103,6 +103,9 @@
         + '.aero-livechat-msg.agent{align-self:flex-end;background:' + '__COLOR__' + ';color:#fff;}'
         + '.aero-livechat-msg.contact{align-self:flex-start;background:#e5e7eb;color:#111827;}'
         + '.aero-livechat-msg.system{align-self:center;background:transparent;color:#6b7280;font-size:12px;font-style:italic;}'
+        + '.aero-livechat-msg code{background:rgba(0,0,0,.08);border-radius:4px;padding:1px 4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;}'
+        + '.aero-livechat-msg pre{background:rgba(0,0,0,.08);border-radius:6px;padding:6px 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word;margin:4px 0;}'
+        + '.aero-livechat-msg a{color:inherit;text-decoration:underline;}'
         + '#aero-livechat-toolbar{display:flex;align-items:center;gap:10px;padding:6px 10px 0;border-top:1px solid #e5e7eb;}'
         + '#aero-livechat-toolbar button{background:none;border:none;color:#6b7280;font-size:12px;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:4px;}'
         + '#aero-livechat-toolbar button:hover{color:' + '__COLOR__' + ';}'
@@ -113,6 +116,8 @@
         + '#aero-livechat-close{background:transparent;border:none;color:#fff;float:right;cursor:pointer;font-size:16px;line-height:1;}'
         + '.aero-livechat-attachment-img{max-width:100%;border-radius:8px;display:block;}'
         + '.aero-livechat-attachment-file{color:inherit;text-decoration:underline;font-size:13px;}'
+        + '.aero-livechat-attachment-audio{display:block;max-width:100%;width:230px;height:32px;}'
+        + '.aero-livechat-attachment-video{display:block;max-width:100%;border-radius:8px;}'
         + '#aero-livechat-prechat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff;}'
         + '#aero-livechat-prechat p{margin:0 0 4px;font-size:13px;color:#374151;}'
         + '.aero-livechat-pc-input{border:1px solid #d1d5db;border-radius:8px;padding:9px 11px;font-size:13px;width:100%;'
@@ -323,13 +328,17 @@
             if (m.attachment.image) {
                 div.appendChild(el('a', { href: m.attachment.url, target: '_blank', rel: 'noopener' },
                     '<img class="aero-livechat-attachment-img" src="' + m.attachment.url + '" alt="' + escapeHtml(m.attachment.name) + '">'));
+            } else if (m.attachment.audio) {
+                div.appendChild(el('audio', { class: 'aero-livechat-attachment-audio', controls: 'controls', preload: 'none', src: m.attachment.url }));
+            } else if (m.attachment.video) {
+                div.appendChild(el('video', { class: 'aero-livechat-attachment-video', controls: 'controls', preload: 'metadata', playsinline: 'playsinline', src: m.attachment.url }));
             } else {
                 div.appendChild(el('a', { href: m.attachment.url, target: '_blank', rel: 'noopener', class: 'aero-livechat-attachment-file' },
                     '📎 ' + escapeHtml(m.attachment.name)));
             }
         }
         if (m.body) {
-            var bodyDiv = el('div', {}, escapeHtml(m.body));
+            var bodyDiv = el('div', {}, formatRich(m.body));
             if (m.attachment) { bodyDiv.style.marginTop = '4px'; }
             div.appendChild(bodyDiv);
         }
@@ -465,6 +474,37 @@
         var d = document.createElement('div');
         d.textContent = s;
         return d.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    /**
+     * Mismo formato que el composer del PWA de WhatsApp (tema whatsapp,
+     * assets/js/app.js::rich): *negrita*, _cursiva_, ~tachado~, `código`,
+     * ```bloques```, y enlaces con _blank. El agente escribe igual en los dos
+     * canales y el visitante del sitio ve el mismo resultado. Escapa todo
+     * antes de aplicar el formato — el resultado es seguro para innerHTML.
+     */
+    function formatRich(text) {
+        if (!text) return '';
+        var esc = function (t) { return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+        var fmt = function (t) {
+            t = esc(t);
+            var code = [];
+            t = t.replace(/```([\s\S]+?)```/g, function (_, c) { code.push('<pre>' + c.replace(/^\n|\n$/g, '') + '</pre>'); return '\u0000' + (code.length - 1) + '\u0000'; });
+            t = t.replace(/`([^`\n]+)`/g, function (_, c) { code.push('<code>' + c + '</code>'); return '\u0000' + (code.length - 1) + '\u0000'; });
+            [['\\*', 'b'], ['_', 'i'], ['~', 's']].forEach(function (p) {
+                t = t.replace(new RegExp('(^|[\\s(¿¡])' + p[0] + '([^\\s' + p[0] + '](?:[^' + p[0] + '\\n]*[^\\s' + p[0] + '])?)' + p[0] + '(?=$|[\\s).,;:!?])', 'g'), '$1<' + p[1] + '>$2</' + p[1] + '>');
+            });
+            return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return code[+i]; });
+        };
+        var out = '', last = 0, re = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, m;
+        while ((m = re.exec(text))) {
+            var url = m[0], tail = /[.,;:!?)\]]+$/.exec(url);
+            if (tail) url = url.slice(0, -tail[0].length);
+            out += fmt(text.slice(last, m.index));
+            out += '<a href="' + esc(/^www\./i.test(url) ? 'https://' + url : url) + '" target="_blank" rel="noopener noreferrer nofollow">' + esc(url) + '</a>';
+            last = m.index + url.length; re.lastIndex = last;
+        }
+        return (out + fmt(text.slice(last))).replace(/\n/g, '<br>');
     }
 
     function applyStartResult(res) {

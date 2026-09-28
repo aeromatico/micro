@@ -29,6 +29,16 @@ class Message extends Model
         return $this->hasAttachment() && str_starts_with((string) $this->attachment_mime, 'image/');
     }
 
+    public function isAudioAttachment(): bool
+    {
+        return $this->hasAttachment() && str_starts_with((string) $this->attachment_mime, 'audio/');
+    }
+
+    public function isVideoAttachment(): bool
+    {
+        return $this->hasAttachment() && str_starts_with((string) $this->attachment_mime, 'video/');
+    }
+
     /** URL pública (sin auth — el token de 32+ chars es la única llave) para <img>/descarga, cross-domain. */
     public function getAttachmentUrlAttribute(): ?string
     {

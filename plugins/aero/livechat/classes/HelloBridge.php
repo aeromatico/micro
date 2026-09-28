@@ -32,7 +32,10 @@ class HelloBridge
                 'tenant_id' => $inbox->tenant_id,
                 'driver'    => 'livechat',
                 'platform'  => 'livechat',
-                'label'     => 'Chat web: ' . $inbox->name,
+                // Corto y genérico a propósito, igual que "WhatsApp"/"Telegram" en el PWA — el
+                // nombre propio del inbox (ej. "Soporte plataforma") sigue siendo lo que ve
+                // el visitante en el widget, esto es solo la etiqueta del canal en el omnichat.
+                'label'     => 'Livechat',
                 'status'    => 'connected',
                 'is_enabled' => (bool) $inbox->is_active,
                 'connected_at' => now(),

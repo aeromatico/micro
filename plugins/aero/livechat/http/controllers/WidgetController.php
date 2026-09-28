@@ -46,6 +46,8 @@ class WidgetController extends Controller
                 ->first();
         }
 
+        $isReturningWithoutToken = false;
+
         // Contacto nuevo (sin token todavía): el pre-chat form del widget ya
         // pide estos tres datos antes de llamar acá — se exigen también del
         // lado del servidor para no depender solo de la validación del JS.
@@ -56,20 +58,30 @@ class WidgetController extends Controller
                 'phone' => 'required|string|max:40',
             ]) + $data;
 
-            $contact = Contact::create([
-                'tenant_id' => $inbox->tenant_id,
-                'name'      => $data['name'],
-                'email'     => $data['email'],
-                'phone'     => $data['phone'],
-            ]);
+            // El visitante perdió su token local (otro dispositivo, borró datos
+            // del sitio, modo incógnito, etc.) pero ya escribió antes con este
+            // mismo correo o teléfono: se retoma su historial en la MISMA
+            // conversación en vez de abrir un contacto y un chat duplicados. El
+            // token nuevo que se le devuelve pasa a apuntar a ese contacto de
+            // siempre — no se pierde, solo se re-vincula.
+            // Email primero (más confiable, formato validado); teléfono como
+            // respaldo solo si no hay match por correo — evita fusionar a dos
+            // personas distintas que comparten un teléfono mal tipeado/formateado.
+            $contact = Contact::where('tenant_id', $inbox->tenant_id)->where('email', $data['email'])
+                ->orderByDesc('last_seen_at')->first()
+                ?? Contact::where('tenant_id', $inbox->tenant_id)->where('phone', $data['phone'])
+                ->orderByDesc('last_seen_at')->first();
+
+            $isReturningWithoutToken = (bool) $contact;
+
+            $contact ??= new Contact(['tenant_id' => $inbox->tenant_id]);
         }
-        else {
-            $contact->fill(array_filter([
-                'name'  => $data['name'] ?? null,
-                'email' => $data['email'] ?? null,
-                'phone' => $data['phone'] ?? null,
-            ]));
-        }
+
+        $contact->fill(array_filter([
+            'name'  => $data['name'] ?? null,
+            'email' => $data['email'] ?? null,
+            'phone' => $data['phone'] ?? null,
+        ]));
         $contact->last_seen_at = now();
         $contact->save();
 
@@ -95,6 +107,19 @@ class WidgetController extends Controller
                 'sender_type'     => Message::SYSTEM,
                 'body'            => $inbox->welcome_message,
             ]);
+        }
+
+        // Marca visible para el agente: mismo hilo de siempre, pero desde acá
+        // es una sesión nueva (otro dispositivo/navegador) — no un mensaje del
+        // visitante ni del agente, para no confundir quién dijo qué.
+        if ($isReturningWithoutToken && !$isNew) {
+            Message::create([
+                'conversation_id' => $conversation->id,
+                'sender_type'     => Message::SYSTEM,
+                'body'            => '↻ Nueva sesión del visitante · ' . now()->format('d/m/Y H:i'),
+            ]);
+            $conversation->last_message_at = now();
+            $conversation->save();
         }
 
         $conversation->visitor_unread_count = 0;
@@ -312,6 +337,8 @@ class WidgetController extends Controller
                     'name'  => $m->attachment_name,
                     'mime'  => $m->attachment_mime,
                     'image' => $m->isImageAttachment(),
+                    'audio' => $m->isAudioAttachment(),
+                    'video' => $m->isVideoAttachment(),
                 ] : null,
             ])
             ->all();
