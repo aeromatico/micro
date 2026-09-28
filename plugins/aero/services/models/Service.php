@@ -11,34 +11,25 @@ class Service extends Model
     public $table = 'aero_services_services';
 
     public $fillable = [
-        'category_id', 'name', 'slug', 'summary', 'description', 'code', 'type', 'pricing_mode', 'credit_price', 'credit_type', 'has_pro', 'pro_features', 'price', 'price_from', 'setup_fee',
-        'currency', 'billing_period', 'delivery_days', 'features', 'requirements', 'plugin_links',
+        'category_id', 'name', 'slug', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
+        'features', 'requirements', 'plugin_links',
         'sort_order', 'is_active', 'is_featured', 'in_megamenu',
     ];
 
     public $slugs = ['slug' => 'name'];
 
     public $rules = [
-        'name'          => 'required|max:255',
-        'slug'          => 'required|alpha_dash',
-        'type'          => 'required|in:one_time,recurring,project,hourly',
-        'price'         => 'nullable|numeric|min:0',
-        'setup_fee'     => 'nullable|numeric|min:0',
-        'currency'      => 'required|in:BOB,USD',
-        'pricing_mode'  => 'required|in:money,credits,both',
-        'credit_price'  => 'nullable|integer|min:1|required_if:pricing_mode,credits,both',
-        'credit_type'   => 'nullable|required_if:pricing_mode,credits,both',
-        'delivery_days' => 'nullable|integer|min:0',
+        'name' => 'required|max:255',
+        'slug' => 'required|alpha_dash',
     ];
 
-    public $nullable = ['credit_price', 'credit_type', 'price', 'setup_fee', 'delivery_days', 'billing_period', 'category_id'];
+    public $nullable = ['category_id'];
 
-    public $attributes = ['type' => 'one_time', 'currency' => 'BOB', 'pricing_mode' => 'money', 'has_pro' => false, 'is_active' => true, 'sort_order' => 0];
+    public $attributes = ['has_pro' => false, 'is_active' => true, 'sort_order' => 0];
 
-    public $jsonable = ['features', 'requirements', 'plugin_links', 'pro_features'];
+    public $jsonable = ['features', 'requirements', 'plugin_links', 'pro_features', 'plans'];
 
     protected $casts = [
-        'price_from'  => 'boolean',
         'has_pro'     => 'boolean',
         'is_active'   => 'boolean',
         'is_featured' => 'boolean',
@@ -73,55 +64,65 @@ class Service extends Model
 
     use \October\Rain\Database\Traits\Nullable;
 
-    public function getTypeOptions(): array
-    {
-        return [
-            'one_time'  => 'Pago único',
-            'recurring' => 'Suscripción / recurrente',
-            'project'   => 'Proyecto',
-            'hourly'    => 'Por hora',
-        ];
-    }
-
-    public function getPricingModeOptions(): array
-    {
-        return ['money' => 'Solo dinero', 'credits' => 'Solo créditos', 'both' => 'Dinero o créditos (ambos)'];
-    }
-
-    /** [código => etiqueta] de los tipos de crédito activos; vacío si Aero.Credits no está instalado. */
-    public function getCreditTypeOptions(): array
-    {
-        if (!class_exists(\Aero\Credits\Models\CreditType::class)) {
-            return [];
-        }
-
-        return \Aero\Credits\Models\CreditType::active()->pluck('label', 'code')->all();
-    }
-
-    public function getBillingPeriodOptions(): array
-    {
-        return ['monthly' => 'Mensual', 'quarterly' => 'Trimestral', 'yearly' => 'Anual'];
-    }
-
     public function getCategoryIdOptions(): array
     {
         return Category::orderBy('sort_order')->orderBy('name')->pluck('name', 'id')->all();
     }
 
-    public function beforeSave(): void
+    /** Etiqueta corta del/los planes, para listados: "Bs 100" · "3 planes" · "A cotizar". */
+    public function getPlansSummaryAttribute(): string
     {
-        // El periodo de cobro solo aplica a servicios recurrentes.
-        if ($this->type !== 'recurring') {
-            $this->billing_period = null;
+        $plans = collect((array) $this->plans);
+
+        if ($plans->isEmpty()) {
+            return '—';
         }
 
-        // Cada modalidad conserva solo los precios que usa.
-        if ($this->pricing_mode === 'credits') {
-            $this->price = $this->setup_fee = null;
+        if ($plans->count() > 1) {
+            return $plans->count() . ' planes';
         }
-        elseif ($this->pricing_mode === 'money') {
-            $this->credit_price = $this->credit_type = null;
+
+        $plan = $plans->first();
+        $mode = $plan['pricing_mode'] ?? 'money';
+
+        if (in_array($mode, ['money', 'both'], true) && filled($plan['price'] ?? null)) {
+            $prefix = !empty($plan['price_from']) ? 'Desde ' : '';
+
+            return $prefix . ($plan['currency'] ?? 'BOB') . ' ' . $plan['price'];
         }
+
+        if (in_array($mode, ['credits', 'both'], true) && filled($plan['credit_price'] ?? null)) {
+            return $plan['credit_price'] . ' créditos';
+        }
+
+        return 'A cotizar';
+    }
+
+    public function beforeSave(): void
+    {
+        // Cada plan conserva solo los campos que corresponden a su modalidad de cobro y tipo.
+        $plans = collect((array) $this->plans)
+            ->filter(fn ($p) => filled($p['name'] ?? null))
+            ->map(function (array $plan) {
+                $plan += ['type' => 'one_time', 'pricing_mode' => 'money', 'currency' => 'BOB'];
+
+                if ($plan['type'] !== 'recurring') {
+                    $plan['billing_period'] = null;
+                }
+
+                if ($plan['pricing_mode'] === 'credits') {
+                    $plan['price'] = $plan['setup_fee'] = null;
+                }
+                elseif ($plan['pricing_mode'] === 'money') {
+                    $plan['credit_price'] = $plan['credit_type'] = null;
+                }
+
+                return $plan;
+            })
+            ->values()
+            ->all();
+
+        $this->plans = $plans ?: null;
 
         $this->pro_features = $this->has_pro
             ? (collect((array) $this->pro_features)->filter(fn ($f) => trim((string) ($f['text'] ?? '')) !== '')->values()->all() ?: null)

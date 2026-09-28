@@ -20,3 +20,6 @@
 1.6.0:
     - "Colecciones de servicios: agrupan servicios afines (un servicio puede estar en varias), con su propia seccion en el menu."
     - create_service_collections_table.php
+1.7.0:
+    - "Pestana Precio y entrega: ahora es un repetidor de Planes (varios planes por servicio, cada uno con su modalidad, precio y entrega)."
+    - add_plans_to_services.php

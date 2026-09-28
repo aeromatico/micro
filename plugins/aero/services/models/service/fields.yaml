@@ -62,90 +62,96 @@ tabs:
             imageWidth: 240
             imageHeight: 160
 
-        type:
+        plans:
             tab: Precio y entrega
-            label: Modalidad de cobro
-            type: dropdown
-            span: left
-            default: one_time
-        billing_period:
-            tab: Precio y entrega
-            label: Periodo de cobro
-            type: dropdown
-            span: right
-            trigger:
-                action: show
-                field: type
-                condition: value[recurring]
-        pricing_mode:
-            tab: Precio y entrega
-            label: Se ofrece en
-            type: dropdown
-            default: money
-        price:
-            tab: Precio y entrega
-            label: Precio
-            comment: Déjalo vacío para "a cotizar".
-            type: number
-            step: 0.01
-            span: left
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        currency:
-            tab: Precio y entrega
-            label: Moneda
-            type: dropdown
-            span: right
-            default: BOB
-            options:
-                BOB: Bolivianos (BOB)
-                USD: Dólares (USD)
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        price_from:
-            tab: Precio y entrega
-            label: Mostrar como "desde"
-            type: switch
-            span: left
-        setup_fee:
-            tab: Precio y entrega
-            label: Costo de implementación (una vez)
-            type: number
-            step: 0.01
-            span: right
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        credit_price:
-            tab: Precio y entrega
-            label: Precio en créditos
-            comment: Créditos por cobro (por periodo si es recurrente).
-            type: number
-            span: left
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[credits] value[both]
-        credit_type:
-            tab: Precio y entrega
-            label: Tipo de crédito
-            type: dropdown
-            emptyOption: '— Elige —'
-            span: right
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[credits] value[both]
-        delivery_days:
-            tab: Precio y entrega
-            label: Plazo de entrega (días)
-            type: number
-            span: left
+            label: Planes
+            commentAbove: Uno o más planes que el cliente puede elegir para este servicio (p. ej. Básico / PRO, o Mensual / Anual).
+            type: repeater
+            prompt: Agregar plan
+            titleFrom: name
+            form:
+                fields:
+                    name:
+                        label: Nombre del plan
+                        span: left
+                        required: true
+                    price_from:
+                        label: Mostrar como "desde"
+                        type: switch
+                        span: right
+                    type:
+                        label: Modalidad de cobro
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::typeOptions
+                        span: left
+                        default: one_time
+                    billing_period:
+                        label: Periodo de cobro
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::billingPeriodOptions
+                        span: right
+                        trigger:
+                            action: show
+                            field: type
+                            condition: value[recurring]
+                    pricing_mode:
+                        label: Se ofrece en
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::pricingModeOptions
+                        default: money
+                        span: left
+                    delivery_days:
+                        label: Plazo de entrega (días)
+                        type: number
+                        span: right
+                    price:
+                        label: Precio
+                        comment: Déjalo vacío para "a cotizar".
+                        type: number
+                        step: 0.01
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    currency:
+                        label: Moneda
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::currencyOptions
+                        default: BOB
+                        span: right
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    setup_fee:
+                        label: Costo de implementación (una vez)
+                        type: number
+                        step: 0.01
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    credit_price:
+                        label: Precio en créditos
+                        comment: Créditos por cobro (por periodo si es recurrente).
+                        type: number
+                        span: right
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
+                    credit_type:
+                        label: Tipo de crédito
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::creditTypeOptions
+                        emptyOption: '— Elige —'
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
 
         plugin_links:
             tab: Plataforma

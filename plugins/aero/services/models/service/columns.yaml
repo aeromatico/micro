@@ -6,20 +6,9 @@ columns:
         label: Categoría
         relation: category
         select: name
-    type:
-        label: Modalidad
-        type: selectable
-    pricing_mode:
-        label: Cobro
-        type: selectable
-    price:
-        label: Precio
-        type: number
-    currency:
-        label: Moneda
-    credit_price:
-        label: Créditos
-        type: number
+    plans_summary:
+        label: Planes
+        sortable: false
     has_pro:
         label: PRO
         type: switch
