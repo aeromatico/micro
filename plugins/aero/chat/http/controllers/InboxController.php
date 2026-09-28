@@ -271,7 +271,11 @@ class InboxController extends Controller
         };
 
         // Lo que graba el navegador (webm) no lo reproduce WhatsApp: se pasa a ogg/opus.
-        if ($kind === 'audio' && !preg_match('#^audio/(ogg|mpeg|mp3|mp4|aac|x-m4a|amr)#', $mime)) {
+        // Livechat no tiene ese problema (el <audio> del widget reproduce cualquier
+        // formato que entienda el navegador) y exec() está deshabilitado en el pool de
+        // PHP-FPM (aaPanel, disable_functions) — intentarlo acá tumbaba el envío con un
+        // 500 "Call to undefined function exec()" para cualquier nota de voz a un chat web.
+        if ($kind === 'audio' && $conversation->account->driver !== 'livechat' && !preg_match('#^audio/(ogg|mpeg|mp3|mp4|aac|x-m4a|amr)#', $mime)) {
             $tmp = tempnam(sys_get_temp_dir(), 'chat') . '.ogg';
             exec('ffmpeg -y -loglevel error -i ' . escapeshellarg($path) . ' -vn -c:a libopus -b:a 32k ' . escapeshellarg($tmp) . ' 2>&1', $out, $code);
             if ($code !== 0 || !is_file($tmp)) {
