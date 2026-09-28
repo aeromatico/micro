@@ -1,6 +1,6 @@
 # Monedas
 
-El sistema de monedas prepago te permite pagar por servicios de IA y mensajería en tu sitio. Las monedas vienen en diferentes colores (azul, rojo, etc.), cada una con un valor y usos específicos.
+El sistema de monedas prepago te permite pagar por servicios de IA y mensajería en tu sitio. Las monedas vienen en diferentes colores (bronce, plata, oro), cada una con un valor y usos específicos.
 
 ## ¿Qué son las monedas?
 
@@ -14,6 +14,7 @@ Cada tipo de moneda tiene un color y un valor en dólares. Podés comprarlas por
 
 ## Funciones principales
 
+- **[Tarifas: ¿dónde y cuánto te cobramos?](credits-tarifas)** — Todos los servicios que consumen monedas y a qué precio
 - **[Wallet (Mis monedas)](credits-wallet)** — Recargar, intercambiar y ver el historial de tus monedas
 - **[Widget de dashboard](credits-widget-dashboard)** — Consultar tu saldo desde el inicio
 
@@ -45,4 +46,4 @@ Algunos planes incluyen una cantidad de monedas al activarse. Estas aparecen com
 
 ---
 
-**Versión documentada:** 1.10.0
+**Versión documentada:** 1.12.0

@@ -52,3 +52,9 @@
 1.1.6:
     - "Documentación de las funciones del panel (tenant) de Aero.Tracking."
     - seed_tracking_docs.php
+1.1.7:
+    - "Documentación de las funciones del panel (tenant) de Aero.Credits. (Este seed existía en el plugin desde antes pero nunca se había enlazado en version.yaml, así que nunca había corrido.)"
+    - seed_credits_docs.php
+1.1.8:
+    - "Página de tarifas de Aero.Credits (dónde y cuánto se cobra en cada plugin) y corrección de los colores de moneda mencionados en los artículos existentes (bronce/plata/oro, ya no azul/rojo)."
+    - seed_credits_tarifas_docs.php
