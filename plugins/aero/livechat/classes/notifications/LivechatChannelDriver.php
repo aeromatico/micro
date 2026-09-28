@@ -69,7 +69,7 @@ class LivechatChannelDriver implements ChannelDriverInterface
         $prefix = '👨‍💻 Agente:';
 
         if (!empty($payload['media_url'])) {
-            $stored = AttachmentStorage::storeFromRemote($payload['media_url'], null);
+            $stored = AttachmentStorage::storeFromRemote($payload['media_url'], null, null, $payload['media_type'] ?? null);
             if (isset($stored['error'])) {
                 throw new \RuntimeException($stored['error']);
             }

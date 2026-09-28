@@ -18,7 +18,7 @@
                     <?php elseif ($message->isAudioAttachment()): ?>
                         <audio controls preload="none" src="<?= e($message->attachment_url) ?>" style="display:block;max-width:100%;width:230px;height:32px;"></audio>
                     <?php elseif ($message->isVideoAttachment()): ?>
-                        <video controls preload="metadata" playsinline src="<?= e($message->attachment_url) ?>" style="display:block;max-width:100%;border-radius:8px;"></video>
+                        <video controls preload="metadata" playsinline src="<?= e($message->attachment_url) ?>" style="display:block;max-width:100%;width:220px;border-radius:8px;"></video>
                     <?php else: ?>
                         <a href="<?= e($message->attachment_url) ?>" target="_blank" rel="noopener" style="color:inherit;">
                             📎 <?= e($message->attachment_name) ?>

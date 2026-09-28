@@ -3,6 +3,7 @@
 use Aero\Hello\Jobs\ProcessWebhookEventJob;
 use Aero\Hello\Models\Account;
 use Aero\Hello\Models\WebhookEvent;
+use Aero\Livechat\Models\Contact;
 use Aero\Livechat\Models\Conversation;
 use Aero\Livechat\Models\Inbox;
 use Aero\Livechat\Models\Message;
@@ -58,6 +59,23 @@ class HelloBridge
     }
 
     /**
+     * Teléfono real del visitante (lo pidió el pre-chat del widget), para que
+     * Aero.Chat's ShopController pueda armar un pedido sin que el agente lo
+     * tenga que tipear a mano cada vez — ver su contactIdentity(). El
+     * contacto de Hello no tiene columna de teléfono propia (solo
+     * ContactIdentity.external_id por plataforma, que acá guarda el
+     * visitor_token, no un número), así que se cruza con el contacto real de
+     * livechat a través de ese token.
+     */
+    public static function phoneFor(\Aero\Hello\Models\Contact $helloContact): ?string
+    {
+        $token = \Aero\Hello\Models\ContactIdentity::where('contact_id', $helloContact->id)
+            ->where('platform', 'livechat')->value('external_id');
+
+        return $token ? Contact::where('visitor_token', $token)->value('phone') : null;
+    }
+
+    /**
      * Refleja un mensaje entrante del widget/Telegram hacia Hello, para que
      * el PWA lo vea llegar como cualquier otro mensaje. Se apoya en el mismo
      * job que procesa los webhooks de Zernio/wapi (ProcessWebhookEventJob),
@@ -79,7 +97,17 @@ class HelloBridge
             'conversation_id' => self::conversationExternalId($conversation),
             'from'            => $contact->visitor_token,
             'name'            => $contact->display_name,
-            'type'            => $message->hasAttachment() ? ($message->isImageAttachment() ? 'image' : 'document') : 'text',
+            // El PWA (app.js::mediaKind) decide qué reproductor mostrar solo por este
+            // campo en mensajes entrantes — Hello no guarda un media_type aparte para
+            // ellos (ver ProcessWebhookEventJob::handleMessage). Sin audio/video acá,
+            // una nota de voz o video del visitante llegaba como "📄 Ver adjunto".
+            'type'            => match (true) {
+                !$message->hasAttachment() => 'text',
+                $message->isImageAttachment() => 'image',
+                $message->isAudioAttachment() => 'audio',
+                $message->isVideoAttachment() => 'video',
+                default => 'document',
+            },
             'body'            => $message->body !== '' ? $message->body : null,
             'media_url'       => $message->hasAttachment() ? $message->attachment_url : null,
             'timestamp'       => $message->created_at?->timestamp,

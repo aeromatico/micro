@@ -23,6 +23,14 @@ class AttachmentStorage
         'ogg', 'mp3', 'm4a', 'webm', 'mp4',
     ];
 
+    /** Para adjuntos remotos sin extensión en la URL (ej. el QR de Aero.Pay: /api/v1/pay/public/qr/{ref}/image) — ver storeFromRemote(). */
+    protected const MIME_EXTENSIONS = [
+        'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp',
+        'audio/ogg' => 'ogg', 'audio/webm' => 'webm', 'audio/mpeg' => 'mp3', 'audio/mp4' => 'm4a',
+        'video/mp4' => 'mp4', 'video/webm' => 'webm',
+        'application/pdf' => 'pdf',
+    ];
+
     /** @return array{path:string,name:string,mime:string,size:int,token:string}|array{error:string} */
     public static function store(UploadedFile $file): array
     {
@@ -58,21 +66,38 @@ class AttachmentStorage
      *
      * @return array{path:string,name:string,mime:string,size:int,token:string}|array{error:string}
      */
-    public static function storeFromRemote(string $url, ?string $mime = null, ?string $name = null): array
+    /**
+     * $kind ('audio'|'video'|'image'|'document', ver InboxController::attachment de
+     * aero/chat) manda sobre el Content-Type que devuelva el servidor de origen: el
+     * disco de archivos públicos de October no siempre lo reporta bien (un .webm sin
+     * mapear cae en application/octet-stream ahí) y eso hacía que el adjunto llegara
+     * al widget como "📎 archivo" en vez de reproductor de audio/video.
+     *
+     * No toda URL de origen trae extensión en la ruta (ej. el QR de Aero.Pay:
+     * /api/v1/pay/public/qr/{ref}/image) — en ese caso se deriva del mime ya
+     * resuelto (kind, o si no el Content-Type real), vía MIME_EXTENSIONS.
+     */
+    public static function storeFromRemote(string $url, ?string $mime = null, ?string $name = null, ?string $kind = null): array
     {
         $response = Http::timeout(20)->get($url);
         if (!$response->successful()) {
             return ['error' => 'No se pudo descargar el archivo enviado.'];
         }
 
+        $urlExt = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+
+        if (!$mime && $kind && $urlExt && in_array($kind, ['audio', 'video', 'image'], true)) {
+            $mime = "{$kind}/" . ($urlExt === 'jpg' ? 'jpeg' : $urlExt);
+        }
         $mime = $mime ?: strtok((string) $response->header('Content-Type'), ';') ?: null;
+        $ext = $urlExt ?: (self::MIME_EXTENSIONS[$mime] ?? null);
+
         $body = $response->body();
         if (strlen($body) > self::MAX_BYTES) {
             return ['error' => 'El archivo supera los 8 MB.'];
         }
 
-        $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
-        if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
+        if (!$ext || !in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
             return ['error' => 'Tipo de archivo no permitido.'];
         }
 
@@ -81,9 +106,13 @@ class AttachmentStorage
 
         Storage::disk('local')->put($path, $body);
 
+        // basename() de una URL sin extensión (el QR de Aero.Pay) da un nombre sin
+        // punto (ej. "image") — se le pega la extensión ya resuelta en ese caso.
+        $base = basename(parse_url($url, PHP_URL_PATH) ?: '');
+
         return [
             'path'  => $path,
-            'name'  => $name ?: basename(parse_url($url, PHP_URL_PATH) ?: "archivo.{$ext}"),
+            'name'  => $name ?: (str_contains($base, '.') ? $base : "archivo.{$ext}"),
             'mime'  => $mime ?: 'application/octet-stream',
             'size'  => strlen($body),
             'token' => $token,

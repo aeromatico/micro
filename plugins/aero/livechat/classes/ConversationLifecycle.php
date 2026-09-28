@@ -11,7 +11,12 @@ use Aero\Livechat\Models\Message;
  */
 class ConversationLifecycle
 {
-    public static function finish(Conversation $conversation, string $reason): void
+    /**
+     * $auto = true solo desde el cierre automático por inactividad (nadie lo
+     * finalizó a mano) — abre un ticket de CRM con el historial para no
+     * perder el lead. Ver LeadTicket::openFor.
+     */
+    public static function finish(Conversation $conversation, string $reason, bool $auto = false): void
     {
         $message = Message::create([
             'conversation_id' => $conversation->id,
@@ -24,5 +29,9 @@ class ConversationLifecycle
 
         TelegramBridge::relay($conversation, $message, 'ℹ️');
         TelegramBridge::closeThreadIfAny($conversation);
+
+        if ($auto) {
+            LeadTicket::openFor($conversation);
+        }
     }
 }

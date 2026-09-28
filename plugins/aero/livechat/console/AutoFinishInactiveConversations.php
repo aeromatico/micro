@@ -26,7 +26,7 @@ class AutoFinishInactiveConversations extends Command
             ->get();
 
         foreach ($stale as $conversation) {
-            ConversationLifecycle::finish($conversation, 'Se cerró automáticamente por inactividad.');
+            ConversationLifecycle::finish($conversation, 'Se cerró automáticamente por inactividad.', auto: true);
         }
 
         $this->info("Conversaciones cerradas por inactividad: {$stale->count()}.");

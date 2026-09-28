@@ -1,5 +1,8 @@
 <?php
 
+use Aero\Chat\Http\Middleware\AuthenticateChatToken;
+use Aero\Chat\Http\Middleware\ForceJson as ChatForceJson;
+use Aero\Livechat\Http\Controllers\PwaController;
 use Aero\Livechat\Http\Controllers\WidgetController;
 use Aero\Livechat\Http\Middleware\Cors;
 use Aero\Livechat\Http\Middleware\ForceJson;
@@ -23,4 +26,13 @@ Route::prefix('api/v1/livechat')->middleware(['api', ForceJson::class, Cors::cla
     Route::get('attachments/{token}', [WidgetController::class, 'attachmentDownload'])->middleware(ThrottleJson::class . ':120,1')->where('token', '[A-Za-z0-9]{40}');
     Route::post('transcript', [WidgetController::class, 'transcript'])->middleware(ThrottleJson::class . ':10,1');
     Route::post('end', [WidgetController::class, 'end'])->middleware(ThrottleJson::class . ':20,1');
+});
+
+// Acciones del agente desde el PWA de aero/chat (tema whatsapp): Finalizar y
+// Banear no existen para WhatsApp, solo para el canal de chat web. Mismo
+// prefijo y middleware de sesión que aero/chat, para reusar el token del
+// agente ya logueado — ver Aero\Chat\Http\Middleware\AuthenticateChatToken.
+Route::prefix('api/v1/chat/livechat')->middleware(['api', ChatForceJson::class, AuthenticateChatToken::class])->group(function () {
+    Route::post('conversations/{id}/finish', [PwaController::class, 'finish']);
+    Route::post('conversations/{id}/ban', [PwaController::class, 'ban']);
 });

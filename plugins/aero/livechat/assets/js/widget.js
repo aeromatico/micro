@@ -117,7 +117,7 @@
         + '.aero-livechat-attachment-img{max-width:100%;border-radius:8px;display:block;}'
         + '.aero-livechat-attachment-file{color:inherit;text-decoration:underline;font-size:13px;}'
         + '.aero-livechat-attachment-audio{display:block;max-width:100%;width:230px;height:32px;}'
-        + '.aero-livechat-attachment-video{display:block;max-width:100%;border-radius:8px;}'
+        + '.aero-livechat-attachment-video{display:block;max-width:100%;width:220px;border-radius:8px;}'
         + '#aero-livechat-prechat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fff;}'
         + '#aero-livechat-prechat p{margin:0 0 4px;font-size:13px;color:#374151;}'
         + '.aero-livechat-pc-input{border:1px solid #d1d5db;border-radius:8px;padding:9px 11px;font-size:13px;width:100%;'

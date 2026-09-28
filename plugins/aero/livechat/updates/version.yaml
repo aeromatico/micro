@@ -14,3 +14,9 @@
 1.4.0:
     - "Finalizar chat (widget y panel) y Topics de Telegram: cada conversación abre su propio hilo dentro del mismo grupo, para manejar varios chats simultáneos sin mezclarlos."
     - add_telegram_thread.php
+1.5.0:
+    - "Ban de visitantes (temporal o permanente) y acciones de Finalizar/Banear desde el PWA de aero/chat (tema whatsapp) para el canal de chat web."
+    - add_ban_fields_to_contacts.php
+1.6.0:
+    - "El widget solo muestra los mensajes de la sesión activa (no el historial completo de sesiones anteriores) — el historial completo sigue visible para los agentes en el panel y el omnichat."
+    - add_session_started_at_to_conversations.php

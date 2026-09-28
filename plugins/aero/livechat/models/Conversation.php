@@ -13,7 +13,7 @@ class Conversation extends Model
 
     public $table = 'aero_livechat_conversations';
 
-    public $fillable = ['tenant_id', 'inbox_id', 'contact_id', 'status', 'assigned_to', 'page_url'];
+    public $fillable = ['tenant_id', 'inbox_id', 'contact_id', 'status', 'assigned_to', 'page_url', 'session_started_at'];
 
     public $attributes = ['status' => self::OPEN];
 
@@ -21,7 +21,7 @@ class Conversation extends Model
         'status' => 'in:open,resolved',
     ];
 
-    protected $dates = ['last_message_at'];
+    protected $dates = ['last_message_at', 'session_started_at'];
 
     public $belongsTo = [
         'tenant'   => [Tenant::class],

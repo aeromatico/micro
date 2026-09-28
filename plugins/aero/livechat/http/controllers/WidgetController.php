@@ -77,6 +77,10 @@ class WidgetController extends Controller
             $contact ??= new Contact(['tenant_id' => $inbox->tenant_id]);
         }
 
+        if ($contact->exists && $contact->isBanned()) {
+            return response()->json(['error' => 'banned', 'message' => 'No podés iniciar un chat en este momento.'], 403);
+        }
+
         $contact->fill(array_filter([
             'name'  => $data['name'] ?? null,
             'email' => $data['email'] ?? null,
@@ -90,10 +94,11 @@ class WidgetController extends Controller
 
         if (!$conversation) {
             $conversation = Conversation::create([
-                'tenant_id'  => $inbox->tenant_id,
-                'inbox_id'   => $inbox->id,
-                'contact_id' => $contact->id,
-                'page_url'   => $data['page_url'] ?? null,
+                'tenant_id'          => $inbox->tenant_id,
+                'inbox_id'           => $inbox->id,
+                'contact_id'         => $contact->id,
+                'page_url'           => $data['page_url'] ?? null,
+                'session_started_at' => now(),
             ]);
         }
         elseif (!empty($data['page_url'])) {
@@ -112,6 +117,9 @@ class WidgetController extends Controller
         // Marca visible para el agente: mismo hilo de siempre, pero desde acá
         // es una sesión nueva (otro dispositivo/navegador) — no un mensaje del
         // visitante ni del agente, para no confundir quién dijo qué.
+        // session_started_at mueve el corte de lo que el WIDGET le muestra al
+        // visitante (ver serializeMessages) — el agente sigue viendo todo el
+        // historial siempre, en el panel y en el omnichat.
         if ($isReturningWithoutToken && !$isNew) {
             Message::create([
                 'conversation_id' => $conversation->id,
@@ -119,6 +127,7 @@ class WidgetController extends Controller
                 'body'            => '↻ Nueva sesión del visitante · ' . now()->format('d/m/Y H:i'),
             ]);
             $conversation->last_message_at = now();
+            $conversation->session_started_at = now();
             $conversation->save();
         }
 
@@ -148,12 +157,22 @@ class WidgetController extends Controller
         if (!$conversation) {
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
+        if ($contact->isBanned()) {
+            return response()->json(['error' => 'banned', 'message' => 'No podés seguir escribiendo en este chat.'], 403);
+        }
 
         $message = Message::create([
             'conversation_id' => $conversation->id,
             'sender_type'     => Message::CONTACT,
             'body'            => $data['body'],
         ]);
+
+        // Reabre una conversación resuelta (auto-cierre o "Finalizar" manual):
+        // desde el punto de vista del visitante, es una sesión nueva — no debe
+        // ver el hilo cerrado anterior (ver serializeMessages).
+        if ($conversation->status === Conversation::RESOLVED) {
+            $conversation->session_started_at = now();
+        }
 
         $conversation->last_message_at = now();
         $conversation->agent_unread_count++;
@@ -178,6 +197,9 @@ class WidgetController extends Controller
         if (!$conversation) {
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
+        if ($contact->isBanned()) {
+            return response()->json(['error' => 'banned', 'message' => 'No podés seguir escribiendo en este chat.'], 403);
+        }
 
         $stored = AttachmentStorage::store($request->file('file'));
         if (isset($stored['error'])) {
@@ -194,6 +216,10 @@ class WidgetController extends Controller
             'attachment_size'  => $stored['size'],
             'attachment_token' => $stored['token'],
         ]);
+
+        if ($conversation->status === Conversation::RESOLVED) {
+            $conversation->session_started_at = now();
+        }
 
         $conversation->last_message_at = now();
         $conversation->agent_unread_count++;
@@ -321,10 +347,19 @@ class WidgetController extends Controller
         return [$inbox, $contact, $conversation];
     }
 
+    /**
+     * Lo que ve el VISITANTE — no el agente (el panel y el omnichat leen el
+     * historial completo directo del modelo, sin pasar por acá). Solo la
+     * sesión activa: desde `session_started_at` en adelante, si hay uno
+     * marcado (conversación reabierta o retomada desde otro dispositivo — ver
+     * start()/message()/attachment()). Sin marca (primera sesión de siempre),
+     * se ve todo, no hay nada anterior que ocultar.
+     */
     protected function serializeMessages(Conversation $conversation, ?int $afterId = null): array
     {
         return $conversation->messages()
             ->when($afterId, fn ($q) => $q->where('id', '>', $afterId))
+            ->when($conversation->session_started_at, fn ($q) => $q->where('created_at', '>=', $conversation->session_started_at))
             ->orderBy('id')
             ->get()
             ->map(fn (Message $m) => [

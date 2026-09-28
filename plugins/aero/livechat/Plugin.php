@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public $require = ['Aero.Sites', 'Aero.Connector', 'Aero.Hello'];
+    public $require = ['Aero.Sites', 'Aero.Connector', 'Aero.Hello', 'Aero.Chat'];
 
     public function pluginDetails(): array
     {
