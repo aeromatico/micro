@@ -337,3 +337,7 @@
 1.49.0:
     - "Otorga a tenant_admin el tab Webhooks del gateway Aero.Api (suscripciones salientes a eventos aero.*, ver Aero.Api 1.2.0)."
     - grant_api_webhooks_to_tenant_admin.php
+
+1.50.0:
+    - "Otorga a tenant_admin la pantalla 'Motor del sitio' de Aero.WpFlash (WordPress Flash): activar/desactivar el childsite de WordPress y ver sus credenciales."
+    - grant_wpflash_to_tenant_admin.php
