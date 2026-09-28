@@ -238,6 +238,7 @@ class SignupWizard extends ComponentBase
             currency: 'BOB',
             description: $description,
             origin: 'sites',
+            tenantId: $tenant->id,
         );
 
         $tenant->signup_qr_code_id = $qrCode->id;

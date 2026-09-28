@@ -62,6 +62,7 @@ class GenerateRenewals extends Command
                     description: "Renovación Market — {$tenant->handle} (plan {$plan->name})",
                     origin: 'sites',
                     dueDate: $tenant->plan_expires_at->toDateString(),
+                    tenantId: $tenant->id,
                 );
             } catch (\Throwable $e) {
                 \Log::error("Aero\\Sites: fallo emitiendo QR de renovación para el tenant {$tenant->id}: " . $e->getMessage());
