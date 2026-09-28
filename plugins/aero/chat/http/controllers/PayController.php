@@ -70,6 +70,7 @@ class PayController extends Controller
                 externalReference: 'chat-' . $conv->id . '-' . now()->timestamp,
                 origin: 'chat',
                 dueDate: now()->addDays((int) $data['days'])->toDateString(),
+                tenantId: $tenantId,
             );
         } catch (\Throwable $e) {
             return $this->fail('qr_failed', 'El banco no pudo generar el QR: ' . $e->getMessage(), 422);
