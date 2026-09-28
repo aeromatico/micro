@@ -1,18 +1,12 @@
 <?php namespace Aero\WpFlash\Models;
 
 use Model;
-use Aero\Connector\Models\Connector;
 
 /**
- * Apunta a los dos Connectors que WP Flash necesita a nivel plataforma (uno
- * solo de cada, no por tenant): el puente de red que crea childsites nuevos
- * (tipo genérico `http` de Aero.Connector, contra el mu-plugin de WordPress —
- * ver README.md) y el de Cloudflare que apunta subdominios al Multisite. Se
- * eligen por dropdown en vez de buscarlos por nombre a mano — evita casos
- * frágiles si alguien renombra el Connector.
- *
- * Solo guarda IDs (no secretos): las credenciales reales viven cifradas en el
- * propio Connector, donde sí les corresponde estar.
+ * WordPress vive en este mismo servidor (`/www/wwwroot/wp.market.com.bo`),
+ * así que el provisioning no habla por HTTP contra un mu-plugin: corre
+ * WP-CLI directo (ver Classes\WpCli). Estos valores son rutas/binarios del
+ * servidor, no secretos — está bien que vivan en SettingsModel.
  */
 class Settings extends Model
 {
@@ -22,28 +16,23 @@ class Settings extends Model
 
     public $settingsFields = 'fields.yaml';
 
-    public function getNetworkConnectorIdOptions(): array
+    public static function wpPath(): string
     {
-        return Connector::where('type', 'http')->pluck('name', 'id')->all();
+        return rtrim(self::get('wp_path', '/www/wwwroot/wp.market.com.bo'), '/');
     }
 
-    public function getCloudflareConnectorIdOptions(): array
+    public static function wpCliBinary(): string
     {
-        return Connector::where('type', 'cloudflare')->pluck('name', 'id')->all();
+        return self::get('wp_cli_binary', '/usr/local/bin/wp');
     }
 
-    public static function networkConnector(): ?Connector
+    public static function phpBinary(): string
     {
-        return Connector::find(self::get('network_connector_id'));
+        return self::get('php_binary', '/www/server/php/84/bin/php');
     }
 
-    public static function cloudflareConnector(): ?Connector
+    public static function wpNetworkDomain(): string
     {
-        return Connector::find(self::get('cloudflare_connector_id'));
-    }
-
-    public static function wordpressTarget(): string
-    {
-        return self::get('wordpress_target', 'wp.market.com.bo');
+        return self::get('wp_network_domain', 'wp.market.com.bo');
     }
 }

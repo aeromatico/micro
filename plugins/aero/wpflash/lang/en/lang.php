@@ -10,11 +10,10 @@
         'manage_sites' => 'Manage WordPress Flash sites',
     ],
     'settings' => [
-        'description' => 'Network connector, Cloudflare connector and WordPress Multisite target host.',
+        'description' => 'WP-CLI paths/binaries for the WordPress Multisite install on this same server.',
     ],
     'types' => [
         'woocommerce' => 'WooCommerce (WordPress Flash)',
-        'cloudflare'  => 'Cloudflare (DNS)',
     ],
     'site' => [
         'status_provisioning' => 'Provisioning',

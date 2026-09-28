@@ -1,15 +1,19 @@
 fields:
-    network_connector_id:
-        label: "Conector de red (crea childsites)"
-        type: dropdown
-        placeholder: "-- elegir --"
-        comment: "Connector tipo 'HTTP genérico' apuntando al endpoint del mu-plugin de WordPress (ver README.md de Aero.WpFlash: POST /wp-json/wpflash/v1/sites)."
-    cloudflare_connector_id:
-        label: "Conector de Cloudflare (DNS)"
-        type: dropdown
-        placeholder: "-- elegir --"
-        comment: "Connector tipo 'Cloudflare' con la zona de market.com.bo. Se crea una sola vez desde Connectors, con las credenciales de la cuenta Cloudflare."
-    wordpress_target:
-        label: "Host de WordPress Multisite"
+    wp_path:
+        label: "Ruta del WordPress Multisite"
+        default: "/www/wwwroot/wp.market.com.bo"
+        span: left
+    wp_network_domain:
+        label: "Dominio de la red"
         default: "wp.market.com.bo"
-        comment: "Destino del CNAME que se crea en Cloudflare para cada subdominio que elige WordPress Flash."
+        span: right
+        comment: "Cada childsite nuevo nace en {slug}.<este dominio> antes de apuntarlo al dominio del tenant."
+    wp_cli_binary:
+        label: "Binario de WP-CLI"
+        default: "/usr/local/bin/wp"
+        span: left
+    php_binary:
+        label: "Binario de PHP para WP-CLI"
+        default: "/www/server/php/84/bin/php"
+        span: right
+        comment: "Debe coincidir con la versión de PHP de wp.market.com.bo."

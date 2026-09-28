@@ -17,9 +17,11 @@ use Aero\WpFlash\Models\SiteInstance;
  *
  * Requiere Aero.Sites (dueño del Tenant/Dominio que se enrutan) y
  * Aero.Connector (dueño del abstracto driver/tipo/log que este plugin
- * registra para hablar con WooCommerce y Cloudflare). Aero.Shop es opcional
- * (class_exists): sin él, WP Flash sigue sirviendo para el enrutamiento de
- * dominio, solo se omite el sync de catálogo.
+ * registra para hablar con WooCommerce). WordPress vive en este mismo
+ * servidor: el provisioning y el enrutamiento del dominio corren por WP-CLI
+ * y nginx (ver Classes\WpCli, Classes\DomainRouter), no por HTTP. Aero.Shop
+ * es opcional (class_exists): sin él, WP Flash sigue sirviendo para el
+ * enrutamiento de dominio, solo se omite el sync de catálogo.
  */
 class Plugin extends PluginBase
 {
@@ -39,6 +41,7 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('wpflash:sync', \Aero\WpFlash\Console\SyncCommand::class);
+        $this->registerConsoleCommand('wpflash:nginx-sync', \Aero\WpFlash\Console\NginxSyncCommand::class);
     }
 
     public function boot(): void
@@ -54,6 +57,10 @@ class Plugin extends PluginBase
         // red, reinicio) no trajo quedarían desincronizados indefinidamente
         // — aero/connector no trae cron propio, cada plugin agrega el suyo.
         $schedule->command('wpflash:sync')->everyFifteenMinutes()->withoutOverlapping();
+
+        // Red de seguridad: regenera storage/app/wpflash/tenants.conf aunque
+        // DomainRouter ya lo haga en cada activar/desactivar (ver deploy/apply-nginx.sh).
+        $schedule->command('wpflash:nginx-sync')->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**
@@ -68,9 +75,12 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Suma dos tipos al catálogo de Aero.Connector: `woocommerce` (uno por
-     * tenant, contra su childsite) y `cloudflare` (uno solo, a nivel
-     * plataforma, para apuntar subdominios al Multisite de WordPress).
+     * Suma `woocommerce` al catálogo de Aero.Connector: un Connector por
+     * tenant, contra su childsite (auth Basic con usuario + application
+     * password de WordPress — ver Classes\Provisioner). El childsite en sí y
+     * el apuntado del dominio del tenant NO pasan por un Connector: se hacen
+     * por WP-CLI/nginx (Classes\WpCli, Classes\DomainRouter), porque
+     * WordPress y esta plataforma viven en el mismo servidor.
      */
     protected function registerConnectorTypes(): void
     {
@@ -81,13 +91,6 @@ class Plugin extends PluginBase
                     'category'      => 'ecommerce',
                     'driver'        => \Aero\WpFlash\Drivers\WooCommerceDriver::class,
                     'provider_hint' => 'woocommerce',
-                ],
-                'cloudflare' => [
-                    'label'         => trans('aero.wpflash::lang.types.cloudflare'),
-                    'category'      => 'dns',
-                    'driver'        => \Aero\WpFlash\Drivers\CloudflareDriver::class,
-                    'provider_hint' => 'cloudflare',
-                    'default_base_url' => 'https://api.cloudflare.com/client/v4',
                 ],
             ];
         });

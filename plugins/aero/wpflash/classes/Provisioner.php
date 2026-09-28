@@ -2,7 +2,6 @@
 
 use ApplicationException;
 use Str;
-use Aero\Connector\Classes\ConnectorClient;
 use Aero\Connector\Models\Connector;
 use Aero\Sites\Models\Tenant;
 use Aero\WpFlash\Drivers\WooCommerceDriver;
@@ -10,17 +9,14 @@ use Aero\WpFlash\Models\Settings;
 use Aero\WpFlash\Models\SiteInstance;
 
 /**
- * Orquesta el alta de WordPress Flash para un tenant: crea el childsite (vía
- * el Connector de red, contra el mu-plugin de WordPress — ver README.md),
- * arma el Connector WooCommerce local, registra sus webhooks, y apunta el
- * subdominio vía Classes\DomainRouter. Todo en un solo método porque, a
- * diferencia de OrderService (que sí necesita ser reentrante/transaccional),
- * este flujo es un proceso de una sola vez por tenant, disparado a mano desde
- * el backend.
+ * Orquesta el alta de WordPress Flash para un tenant: crea el childsite y su
+ * admin por WP-CLI (mismo mecanismo que bin/nuevo-sitio.sh en
+ * wp.market.com.bo, ver Classes\WpCli), arma el Connector WooCommerce local
+ * con un application password de WordPress, registra sus webhooks, y apunta
+ * el dominio del tenant vía Classes\DomainRouter.
  */
 class Provisioner
 {
-    /** @var string[] Tópicos que WooCommerce debe entregar en tiempo real. */
     protected const WEBHOOK_TOPICS = [
         'product'  => ['product.created', 'product.updated', 'product.deleted'],
         'customer' => ['customer.created', 'customer.updated'],
@@ -28,68 +24,70 @@ class Provisioner
 
     public function provision(Tenant $tenant): SiteInstance
     {
-        $networkConnector = Settings::networkConnector();
-        if (!$networkConnector) {
-            throw new ApplicationException('No hay un Connector de red configurado en Ajustes → WpFlash (ver README.md de Aero.WpFlash).');
+        $wp = app(WpCli::class);
+
+        if (!$wp->isWooCommerceNetworkActive()) {
+            throw new ApplicationException(
+                'WooCommerce no está activo en la red de WordPress. Es un paso único: en el servidor, '
+                . '"wp plugin install woocommerce --activate-network --path=' . Settings::wpPath() . '" (ver README.md).'
+            );
         }
 
         $site = SiteInstance::firstOrNew(['tenant_id' => $tenant->id]);
         $site->status = 'provisioning';
         $site->save();
 
-        $domain = $tenant->handle . '.' . ($tenant->rootDomain?->domain ?: 'market.com.bo');
-        $adminEmail = $tenant->backendUser?->email ?: "tenant{$tenant->id}@market.com.bo";
+        $slug = $tenant->handle;
+        $username = 'wpflash_' . $tenant->id;
+        $email = $tenant->backendUser?->email ?: "tenant{$tenant->id}@market.com.bo";
+        $password = Str::random(16);
+        $childUrl = "https://{$slug}." . Settings::wpNetworkDomain() . '/';
 
-        $response = app(ConnectorClient::class)->send($networkConnector, [
-            'domain'      => $domain,
-            'admin_email' => $adminEmail,
-        ]);
+        $wp->ensureUser($username, $email, $password);
 
-        if (!$response->successful) {
+        $blogId = $wp->createSite($slug, $tenant->name, $email);
+
+        if (!$blogId) {
             $site->status = 'error';
-            $site->error_message = $response->error ?: 'El puente de WordPress no pudo crear el childsite.';
+            $site->error_message = 'WP-CLI no pudo crear el sitio (¿el slug ya existe en la red?).';
             $site->save();
 
             throw new ApplicationException($site->error_message);
         }
 
-        $body = is_array($response->body) ? $response->body : [];
+        $appPassword = $wp->createApplicationPassword($username, 'Aero Shop Sync', $childUrl);
         $webhookSecret = Str::random(40);
 
         $wooConnector = Connector::create([
             'name'          => "WooCommerce — {$tenant->name}",
             'provider_hint' => 'woocommerce',
-            'base_url'      => rtrim((string) ($body['admin_url'] ?? "https://{$domain}"), '/'),
+            'base_url'      => rtrim($childUrl, '/'),
             'owner_type'    => Tenant::class,
             'owner_id'      => $tenant->id,
             'credentials'   => [
-                'api_key'        => $body['consumer_key'] ?? null,
-                'secret'         => $body['consumer_secret'] ?? null,
+                'api_key'        => $username,
+                'secret'         => $appPassword,
                 'webhook_secret' => $webhookSecret,
             ],
         ]);
 
         $site->fill([
-            'wp_site_id'     => $body['wp_site_id'] ?? null,
-            'wp_admin_url'   => $body['admin_url'] ?? "https://{$domain}",
-            'primary_domain' => $domain,
-            'admin_username' => $body['admin_username'] ?? 'admin',
+            'wp_site_id'     => $blogId,
+            'wp_admin_url'   => $childUrl,
+            'primary_domain' => "{$slug}." . Settings::wpNetworkDomain(),
+            'admin_username' => $username,
             'connector_id'   => $wooConnector->id,
             'status'         => 'active',
             'error_message'  => null,
         ]);
-        $site->admin_password = $body['admin_password'] ?? null;
+        $site->admin_password = $password;
         $site->save();
 
         $this->registerWebhooks($wooConnector, $webhookSecret);
 
-        $dns = app(DomainRouter::class)->pointToWordPress($tenant);
-        if (!($dns['ok'] ?? false) && empty($dns['manual'])) {
-            $site->error_message = 'Sitio creado, pero el DNS no se pudo apuntar automáticamente: ' . ($dns['message'] ?? '');
-            $site->save();
-        }
+        app(DomainRouter::class)->pointToWordPress($tenant, $site->fresh());
 
-        return $site;
+        return $site->fresh();
     }
 
     public function deprovision(Tenant $tenant): void
@@ -99,7 +97,7 @@ class Provisioner
             return;
         }
 
-        app(DomainRouter::class)->pointToPlatform($tenant);
+        app(DomainRouter::class)->pointToPlatform($site);
 
         $site->status = 'suspended';
         $site->save();

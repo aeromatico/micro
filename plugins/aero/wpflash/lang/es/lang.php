@@ -10,11 +10,10 @@
         'manage_sites' => 'Gestionar sitios WordPress Flash',
     ],
     'settings' => [
-        'description' => 'Conector de red, conector de Cloudflare y host de destino del WordPress Multisite.',
+        'description' => 'Rutas y binarios de WP-CLI para el WordPress Multisite de este mismo servidor.',
     ],
     'types' => [
         'woocommerce' => 'WooCommerce (WordPress Flash)',
-        'cloudflare'  => 'Cloudflare (DNS)',
     ],
     'site' => [
         'status_provisioning' => 'Creando',
