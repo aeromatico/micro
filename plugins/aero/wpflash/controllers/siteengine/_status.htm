@@ -1,0 +1,60 @@
+<?php
+/** @var \Aero\Sites\Models\Tenant $tenant */
+/** @var \Aero\WpFlash\Models\SiteInstance|null $site */
+$revealed = $revealed ?? false;
+?>
+<div class="form-group">
+    <?php if (!$site || $site->status === 'suspended'): ?>
+        <p><strong>Motor actual:</strong> Plataforma Aero (Sitio + Tienda).</p>
+
+        <?php if ($site && $site->status === 'suspended'): ?>
+            <p class="text-muted">
+                Este tenant tuvo WordPress Flash activo (childsite: <?= e($site->primary_domain) ?>).
+                El childsite sigue existiendo, solo está desconectado.
+            </p>
+        <?php endif ?>
+
+        <form data-request="onActivate" data-request-confirm="¿Crear un childsite de WordPress para este tenant? El subdominio empezará a apuntar a WordPress en cuanto termine." data-attach-loading>
+            <button type="submit" class="btn btn-primary">
+                <i class="icon-exchange"></i> Activar WordPress Flash
+            </button>
+        </form>
+
+    <?php elseif ($site->status === 'provisioning'): ?>
+        <p><strong>Creando el childsite de WordPress…</strong> esto puede tardar unos minutos. Actualiza la página en un momento.</p>
+
+    <?php elseif ($site->status === 'error'): ?>
+        <div class="alert alert-danger">
+            No se pudo completar el alta de WordPress Flash: <?= e($site->error_message) ?>
+        </div>
+        <form data-request="onActivate" data-request-confirm="¿Reintentar la creación del childsite?" data-attach-loading>
+            <button type="submit" class="btn btn-primary">Reintentar</button>
+        </form>
+
+    <?php else: /* active */ ?>
+        <p><strong>Motor actual:</strong> WordPress Flash — <a href="<?= e($site->wp_admin_url) ?>" target="_blank"><?= e($site->primary_domain) ?></a></p>
+
+        <?php if ($revealed): ?>
+        <div class="alert alert-warning">
+            <strong>Guarda estos datos ahora</strong> — no se volverán a mostrar en claro salvo que los vuelvas a pedir desde aquí.
+            <ul class="mb-0">
+                <li>Panel: <a href="<?= e(rtrim($site->wp_admin_url, '/')) ?>/wp-admin" target="_blank"><?= e(rtrim($site->wp_admin_url, '/')) ?>/wp-admin</a></li>
+                <li>Usuario: <code><?= e($site->admin_username) ?></code></li>
+                <li>Contraseña: <code><?= e($site->admin_password) ?></code></li>
+            </ul>
+        </div>
+        <?php else: ?>
+        <form data-request="onRevealPassword" data-attach-loading>
+            <button type="submit" class="btn btn-default btn-sm">Ver credenciales de acceso a WordPress</button>
+        </form>
+        <?php endif ?>
+
+        <?php if ($site->last_synced_at): ?>
+        <p class="text-muted">Última sincronización: <?= e($site->last_synced_at->diffForHumans()) ?></p>
+        <?php endif ?>
+
+        <form data-request="onDeactivate" data-request-confirm="¿Volver a la plataforma Aero? El childsite de WordPress no se borra, solo se desconecta del subdominio." data-attach-loading>
+            <button type="submit" class="btn btn-default">Volver a la plataforma Aero</button>
+        </form>
+    <?php endif ?>
+</div>

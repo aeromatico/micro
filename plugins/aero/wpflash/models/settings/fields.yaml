@@ -1,0 +1,15 @@
+fields:
+    network_connector_id:
+        label: "Conector de red (crea childsites)"
+        type: dropdown
+        placeholder: "-- elegir --"
+        comment: "Connector tipo 'HTTP genérico' apuntando al endpoint del mu-plugin de WordPress (ver README.md de Aero.WpFlash: POST /wp-json/wpflash/v1/sites)."
+    cloudflare_connector_id:
+        label: "Conector de Cloudflare (DNS)"
+        type: dropdown
+        placeholder: "-- elegir --"
+        comment: "Connector tipo 'Cloudflare' con la zona de market.com.bo. Se crea una sola vez desde Connectors, con las credenciales de la cuenta Cloudflare."
+    wordpress_target:
+        label: "Host de WordPress Multisite"
+        default: "wp.market.com.bo"
+        comment: "Destino del CNAME que se crea en Cloudflare para cada subdominio que elige WordPress Flash."

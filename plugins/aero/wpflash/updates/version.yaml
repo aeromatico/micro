@@ -1,0 +1,8 @@
+1.0.0:
+    - "Primera versión — motor de sitio alternativo con WordPress/WooCommerce:
+      provisioning de childsites, drivers de Aero.Connector (woocommerce,
+      cloudflare) y sync unidireccional (WP manda) de productos/clientes hacia
+      Aero.Shop en tiempo real vía webhooks, con reconciliación periódica."
+    - create_sites_table.php
+    - create_product_links_table.php
+    - create_customer_links_table.php
