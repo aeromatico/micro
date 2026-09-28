@@ -42,7 +42,7 @@ class Bridges
             $code = $conv?->code;
 
             Notify::fire('hello.message.received', [
-                'url'          => $handle && $code ? 'https://whatsapp.market.com.bo/' . $handle . '/' . $code : null,
+                'url'          => $handle && $code ? 'https://chat.market.com.bo/' . $handle . '/' . $code : null,
                 'contact_name' => $message->contact?->name ?: 'Contacto',
                 'platform'     => $message->account?->platform ?? 'chat',
                 'preview'      => mb_strimwidth((string) $message->body, 0, 140, '…') ?: '[' . ($message->type ?? 'adjunto') . ']',
