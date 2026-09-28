@@ -23,6 +23,7 @@
             gateInput: '', gateError: '', loginForm: { login: '', password: '' }, loginError: '', busy: false,
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
+            banForm: { hours: '' }, banBusy: false,
             crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
@@ -420,6 +421,36 @@
             setReply: function (m) {
                 this.mode = 'reply'; this.replyTo = { conv: this.current.id, m: { id: m.id, direction: m.direction, body: m.body || (m.media_type ? '[' + m.media_type + ']' : '') } };
                 var ta = document.querySelector('.composer textarea'); if (ta) ta.focus();
+            },
+
+            // ---------- Finalizar / Banear (solo canal de chat web) ----------
+            get isLivechatChat() {
+                var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
+                return !!(a && a.platform === 'livechat');
+            },
+            async finishLivechat() {
+                var c = this.current; if (!c || !confirm('¿Finalizar esta conversación de chat web?')) return;
+                try {
+                    await this.api('/livechat/conversations/' + c.id + '/finish', { method: 'POST' });
+                    this.notify('Conversación finalizada'); this.loadMsgs(false);
+                } catch (e) { this.notify(e.message); }
+            },
+            openBan: function () { this.banForm = { hours: '' }; this.sheet = 'ban'; },
+            async submitBan(permanent) {
+                var c = this.current; if (!c || this.banBusy) return;
+                var body = {};
+                if (!permanent) {
+                    var hours = parseInt(this.banForm.hours, 10);
+                    if (!(hours > 0)) { this.notify('Ingresa un número de horas válido.'); return; }
+                    body.hours = hours;
+                }
+                this.banBusy = true;
+                try {
+                    await this.api('/livechat/conversations/' + c.id + '/ban', { method: 'POST', body: body });
+                    this.notify(permanent ? 'Visitante baneado de forma permanente' : 'Visitante baneado por ' + body.hours + ' h');
+                    this.sheet = ''; this.loadMsgs(false);
+                } catch (e) { this.notify(e.message); }
+                finally { this.banBusy = false; }
             },
 
             // ---------- encuestas (solo WhatsApp Web) ----------
