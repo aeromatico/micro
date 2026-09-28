@@ -34,8 +34,11 @@ class CollectionQrIssuer
             return null;
         }
 
+        // Sin el where('tenant_id', ...): la autorización real es que
+        // CrmSettings DE ESTE TENANT apunte a esta cuenta — el dueño de la
+        // cuenta puede ser otro (varios negocios del mismo dueño compartiendo
+        // un solo API bancario). Ver QrIssuer::issue()/tenantId.
         $bankAccount = \Aero\Pay\Models\BankAccount::active()
-            ->where('tenant_id', $item->tenant_id)
             ->find($settings->collections_bank_account_id);
 
         if (!$bankAccount) {
@@ -51,6 +54,7 @@ class CollectionQrIssuer
                 externalReference: 'crm-cobro-' . $item->id . '-' . now()->timestamp,
                 origin: 'crm',
                 dueDate: now()->addDays(self::QR_VALIDITY_DAYS)->toDateString(),
+                tenantId: $item->tenant_id,
             );
         } catch (\Throwable $e) {
             return null;
