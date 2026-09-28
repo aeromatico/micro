@@ -116,13 +116,15 @@
                 } finally { this.busy = false; }
             },
 
+            // A la raíz (no al login del mismo espacio): en modo PWA instalado no hay
+            // barra de direcciones, así que es la única forma intuitiva de cambiar
+            // de cuenta. Se olvida el último espacio para que el gate no lo rellene solo.
             logout: function (remote) {
                 if (remote && this.token) fetch(API + '/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + this.token, Accept: 'application/json' } }).catch(function () {});
                 store('token.' + this.handle, null);
                 ['snap.' + this.handle + '.me', 'snap.' + this.handle + '.inbox'].concat((jget('msgidx.' + this.handle) || []).map(function (id) { return 'msgs.' + this.handle + '.' + id; }, this)).concat('msgidx.' + this.handle).forEach(function (k) { store(k, null); });
-                this.stopTimers();
-                this.token = null; this.user = null; this.convs = []; this.msgs = []; this.current = null; this.sheet = '';
-                this.screen = 'login';
+                store('last', null);
+                location.href = '/';
             },
 
             // ---------- API ----------
@@ -715,6 +717,9 @@
 
             acctColor: function (a) { return PALETTE[a.id % PALETTE.length]; },
             acctLabel: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.label : ''; },
+            acctPlatform: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.platform : ''; },
+            acctHasTelegram: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return !!(a && a.has_telegram); },
+            platformLabel: function (p) { return PLATFORMS[p] || p; },
             cname: function (c) { var n = c.contact && c.contact.name; return n && !/^\d{9,}$/.test(n) ? n : ((c.contact && c.contact.phone) || 'Sin nombre'); },
             initials: function (s) { s = String(s || '').trim(); if (!s || /^[\d+]/.test(s)) return '#'; return s.split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase(); },
             preview: function (c) {
