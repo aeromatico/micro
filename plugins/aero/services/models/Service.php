@@ -98,6 +98,41 @@ class Service extends Model
         return 'A cotizar';
     }
 
+    /**
+     * Líneas de precio de un plan para el sitio público: dinero, créditos (con
+     * su equivalencia en Bs debajo) o "a cotizar". Cada línea trae ['primary' => bool, 'text' => string].
+     */
+    public function planPriceLines(array $plan): array
+    {
+        $lines = [];
+        $mode = $plan['pricing_mode'] ?? 'money';
+
+        if (in_array($mode, ['money', 'both'], true)) {
+            if (filled($plan['price'] ?? null)) {
+                $prefix = !empty($plan['price_from']) ? 'Desde ' : '';
+                $lines[] = ['primary' => true, 'text' => $prefix . ($plan['currency'] ?? 'BOB') . ' ' . $plan['price']];
+            }
+            elseif ($mode === 'money') {
+                $lines[] = ['primary' => true, 'text' => 'A cotizar'];
+            }
+        }
+
+        if (in_array($mode, ['credits', 'both'], true) && filled($plan['credit_price'] ?? null)) {
+            $type = class_exists(\Aero\Credits\Models\CreditType::class)
+                ? \Aero\Credits\Models\CreditType::findByCode((string) ($plan['credit_type'] ?? ''))
+                : null;
+
+            $lines[] = ['primary' => empty($lines), 'text' => $plan['credit_price'] . ' ' . ($type->label ?? 'créditos')];
+
+            if ($type && $type->price_bob) {
+                $bob = rtrim(rtrim(number_format($plan['credit_price'] * $type->price_bob, 2, '.', ''), '0'), '.');
+                $lines[] = ['primary' => false, 'text' => '≈ Bs ' . $bob];
+            }
+        }
+
+        return $lines ?: [['primary' => true, 'text' => 'A cotizar']];
+    }
+
     public function beforeSave(): void
     {
         // Cada plan conserva solo los campos que corresponden a su modalidad de cobro y tipo.
