@@ -75,7 +75,7 @@
                     // Sin red: si ya hubo sesión, se abre igual con lo último conocido.
                     this.tenant = { handle: handle, name: handle };
                 }
-                document.title = 'WhatsApp by Clouds · ' + (this.tenant ? this.tenant.name : handle) + ' OmniChat';
+                document.title = 'Omnichat by Clouds · ' + (this.tenant ? this.tenant.name : handle);
                 store('last', handle);
                 this.token = store('token.' + handle);
                 if (!this.token) { this.screen = 'login'; return; }
