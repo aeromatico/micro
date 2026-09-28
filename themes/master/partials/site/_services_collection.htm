@@ -52,6 +52,21 @@
                 {% endif %}
             </div>
 
+            {% if service.plans %}
+                <div class="flex flex-col gap-3">
+                    {% for plan in service.plans %}
+                    <div class="flex items-baseline justify-between gap-3 text-sm">
+                        {% if service.plans|length > 1 %}<span class="font-medium text-ink">{{ plan.name }}</span>{% endif %}
+                        <div class="ml-auto text-right leading-tight">
+                            {% for line in service.planPriceLines(plan) %}
+                                <div class="{% if line.primary %}text-base font-bold text-ink{% else %}text-xs text-ink-dim{% endif %}">{{ line.text }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             {% if service.is_active %}
                 <a href="/servicio/{{ service.slug }}" class="mt-auto inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
                     Ver más
