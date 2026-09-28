@@ -63,11 +63,25 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .inbox { height: 100dvh; display: flex; flex-direction: column; position: relative; }
 .accounts { flex-shrink: 0; display: flex; gap: 8px; overflow-x: auto; padding: calc(var(--safe-t) + 10px) 12px 10px; background: var(--rail); scrollbar-width: none; }
 .accounts::-webkit-scrollbar { display: none; }
+/* Difuminado en los bordes de las tiras con scroll horizontal: sin esto varias personas no notaban que había más chips deslizando hacia los costados. */
+.accounts, .filters, .modes { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%); }
 .acct { position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px 0 6px; border-radius: 22px; border: 2px solid transparent; background: rgba(255, 255, 255, .08); color: #e9e2d3; }
-.acct.on { border-color: #e9e2d3; background: rgba(255, 255, 255, .16); }
-.acct-badge { width: 32px; height: 32px; border-radius: 50%; color: #fff; font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+/* Antes un borde crema puro (#e9e2d3) — muy duro contra el riel oscuro. Ahora un aro cálido (mismo tono que el badge de no-leídos del riel) más un fondo tenue, sin borde grueso. */
+.acct.on { border-color: transparent; background: rgba(232, 163, 61, .16); box-shadow: inset 0 0 0 1.5px rgba(232, 163, 61, .65); }
+.acct-badge { position: relative; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-weight: 600; font-size: 12px; display: flex; align-items: center; justify-content: center; }
 .acct-badge.all { background: #e9e2d3; color: #1c2b27; }
 .acct-name { font-size: 14px; font-weight: 500; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Distingue de un vistazo el canal (WhatsApp/Telegram/chat web) de una cuenta: en el riel de cuentas siempre, en la lista solo con "Todas" (ver acctPlatform en app.js) — filtrado a una sola cuenta ya se sabe cuál es. */
+.plat-mini { position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; border-radius: 50%; background: #1c2b27; border: 1.5px solid #14201d; color: #e9e2d3; display: flex; align-items: center; justify-content: center; }
+.plat-mini svg { width: 9px; height: 9px; }
+.plat-mini.inline { position: static; width: 13px; height: 13px; border: none; background: none; color: inherit; margin-right: 3px; vertical-align: -2px; }
+.plat-mini.inline svg { width: 11px; height: 11px; }
+/* Íconos reales de marca (WhatsApp/Telegram, estilo Font Awesome): color propio de cada marca, no el genérico oscuro de plat-mini. */
+.plat-mini.fa-whatsapp { background: #25d366; border-color: #1da851; color: #fff; }
+.plat-mini.fa-telegram { background: #229ed9; border-color: #1b84b5; color: #fff; }
+.plat-mini.inline.fa-whatsapp, .plat-mini.inline.fa-telegram { background: none; border: none; }
+.plat-mini.inline.fa-whatsapp { color: #25d366; }
+.plat-mini.inline.fa-telegram { color: #229ed9; }
 .dot { font-style: normal; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--brand); color: var(--brand-ink); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
 .acct .dot { background: #e8a33d; color: #1c1b18; }
 
@@ -113,7 +127,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .agent.free { color: var(--warn); }
 .agent.free .mini { background: var(--panel-2); color: var(--muted); }
 .acct-badge svg { width: 18px; height: 18px; }
-.plat { margin-left: auto; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
+.plat { margin-left: auto; display: inline-flex; align-items: center; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; }
 .mini { width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: var(--brand-ink); font-size: 9px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .mini.gray { background: var(--panel-2); color: var(--muted); }
 .mini.big { width: 44px; height: 44px; font-size: 15px; }
@@ -127,6 +141,9 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .is-in { justify-content: flex-start; } .is-out, .is-note { justify-content: flex-end; } .is-event { justify-content: center; }
 .bubble { max-width: min(82%, 460px); padding: 8px 12px 6px; border-radius: 14px; background: var(--in); border: 1px solid var(--line); word-break: break-word; }
 .is-out .bubble { background: var(--out); border-color: transparent; }
+/* Adjunto en camino (foto/audio/documento): la burbuja se atenúa y late para que se note que algo está pasando, no solo el textito "enviando…". */
+.bubble.is-pending { opacity: .55; animation: bubble-pending 1.1s ease-in-out infinite; }
+@keyframes bubble-pending { 0%, 100% { opacity: .45; } 50% { opacity: .75; } }
 .is-note .bubble { background: var(--note); border-color: var(--note-line); color: var(--note-ink); }
 .note-label { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
 .body { white-space: pre-wrap; }
@@ -159,7 +176,10 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .slash-menu li em { font-style: normal; font-size: 11px; color: var(--muted); justify-self: end; }
 .slash-menu li small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .input-row { display: flex; align-items: flex-end; gap: 8px; }
-.input-row textarea { flex: 1; min-width: 0; resize: none; max-height: 140px; min-height: 46px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); font-size: 16px; line-height: 1.35; }
+.ta-wrap { position: relative; flex: 1; min-width: 0; }
+.credit-mini { position: absolute; top: 6px; right: 10px; display: flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 600; color: var(--muted); opacity: .55; pointer-events: none; }
+.credit-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; display: block; }
+.input-row textarea { width: 100%; resize: none; max-height: 140px; min-height: 46px; padding: 11px 40px 11px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); font-size: 16px; line-height: 1.35; }
 .composer.note textarea { border-color: var(--note-line); }
 .send { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; border: 0; background: var(--brand); color: var(--brand-ink); display: flex; align-items: center; justify-content: center; }
 .send:disabled { opacity: .45; }
@@ -222,7 +242,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 /* ---------- Escritorio ---------- */
 @media (min-width: 900px) {
     .inbox { flex-direction: row; }
-    .accounts { flex-direction: column; width: 76px; padding: 16px 0; align-items: center; overflow-x: hidden; overflow-y: auto; }
+    .accounts { flex-direction: column; width: 76px; padding: 16px 0; align-items: center; overflow-x: hidden; overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
     .acct { width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 16px; }
     .acct-badge { width: 40px; height: 40px; font-size: 14px; }
     .acct-name { display: none; }
@@ -339,6 +359,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     <button type="button" onclick="demoGo('crm')">CRM y negocios</button>
     <button type="button" onclick="demoGo('ticket')">Soporte y tickets</button>
     <button type="button" onclick="demoGo('delegate')">Delegar chat</button>
+    <button type="button" onclick="demoGo('webchat')">Chat web</button>
     <button type="button" onclick="location.reload()">Reiniciar</button>
 </div>
 <div x-data="chatApp()" x-init="init()" x-cloak class="app" :class="{ 'in-chat': screen === 'inbox' && current }" @keydown.escape.window="sheet = ''">
@@ -346,7 +367,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     <form class="card" @submit.prevent="submitGate()">
         <div class="logo" aria-hidden="true">ae</div>
         <h1>Chat de tu equipo</h1>
-        <p class="muted">Ingresa el nombre de tu espacio para continuar. Por ejemplo <strong>boliviahost</strong> o <strong>demo</strong>.</p>
+        <p class="muted">Ingresa el nombre de tu espacio para continuar.</p>
         <label class="field">
             <span>Tu espacio</span>
             <div class="prefix"><span>whatsapp.market.com.bo/</span><input type="text" x-model="gateInput" placeholder="id" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" required></div>
@@ -380,7 +401,12 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         </button>
         <template x-for="a in visibleAccounts" :key="a.id">
             <button type="button" class="acct" :class="{ on: accountId === a.id }" @click="pickAccount(a.id)" :aria-label="a.label" :title="a.label">
-                <span class="acct-badge" :style="'background:' + acctColor(a)" x-text="initials(a.label)"></span>
+                <span class="acct-badge" :style="'background:' + acctColor(a)">
+                    <span x-text="initials(a.label)"></span>
+                    <i class="plat-mini fa-whatsapp" x-show="a.platform === 'whatsapp'" :title="platformLabel(a.platform)"><svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zM223.9 431.9c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 351.6l-4.4-7c-18.5-29.4-28.3-63.3-28.3-98.3 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.5-186.5 184.5zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.8-16.4-54.3-29.3-75.8-66.5-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></i>
+                    <i class="plat-mini fa-telegram" x-show="a.platform === 'telegram'" :title="platformLabel(a.platform)"><svg viewBox="0 0 496 512" aria-hidden="true"><path fill="currentColor" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.5-1.1-7-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></i>
+                    <i class="plat-mini" x-show="a.platform === 'livechat'" :title="platformLabel(a.platform)"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></i>
+                </span>
                 <span class="acct-name" x-text="a.label"></span>
                 <i class="dot" x-show="a.unread > 0" x-text="a.unread > 99 ? '99+' : a.unread"></i>
             </button>
@@ -420,7 +446,12 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                             <span class="row-mid"><span class="preview" x-text="preview(c)"></span><i class="dot" x-show="c.unread_count > 0" x-text="c.unread_count"></i></span>
                             <span class="row-bot">
                                 <span class="agent" :class="{ free: !c.assigned_to }"><span class="mini" x-text="c.assigned_to ? c.assigned_to.initials : '?'"></span><span x-text="c.assigned_to ? (c.assigned_to.id === user.id ? 'Tú' : c.assigned_to.name) : 'Sin asignar'"></span></span>
-                                <span class="plat" x-show="accountId === null" x-text="acctLabel(c.account_id)"></span>
+                                <span class="plat" x-show="accountId === null">
+                                    <i class="plat-mini inline fa-whatsapp" x-show="acctPlatform(c.account_id) === 'whatsapp'"><svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zM223.9 431.9c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 351.6l-4.4-7c-18.5-29.4-28.3-63.3-28.3-98.3 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.5-186.5 184.5zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.8-16.4-54.3-29.3-75.8-66.5-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></i>
+                                    <i class="plat-mini inline fa-telegram" x-show="acctPlatform(c.account_id) === 'telegram'"><svg viewBox="0 0 496 512" aria-hidden="true"><path fill="currentColor" d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.5-1.1-7-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/></svg></i>
+                                    <i class="plat-mini inline" x-show="acctPlatform(c.account_id) === 'livechat'"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></i>
+                                    <span x-text="acctLabel(c.account_id)"></span>
+                                </span>
                             </span>
                         </span>
                     </button>
@@ -462,7 +493,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                                 <div class="event" x-text="eventText(m)"></div>
                             </template>
                             <template x-if="m.kind !== 'event'">
-                                <div class="bubble" :class="{ sticker: mediaKind(m) === 'sticker' }">
+                                <div class="bubble" :class="{ sticker: mediaKind(m) === 'sticker', 'is-pending': m.status === 'sending' }">
                                     <div class="note-label" x-show="m.kind === 'note'" x-text="'Nota interna · ' + (m.by ? m.by.name : '')"></div>
                                     <template x-if="mediaKind(m) === 'image'"><a class="media-img" :href="m.media_url" target="_blank" rel="noopener noreferrer"><img referrerpolicy="no-referrer" :src="m.media_url" alt="Imagen adjunta" loading="lazy" @load="scrollDown(false)"></a></template>
                                     <template x-if="mediaKind(m) === 'sticker'"><img referrerpolicy="no-referrer" class="media-sticker" :src="m.media_url" alt="Sticker" loading="lazy" @load="scrollDown(false)"></template>
@@ -486,6 +517,8 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                         <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
                         <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
                         <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="finishLivechat()" title="Finalizar chat web" aria-label="Finalizar chat web"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M20 6 9 17l-5-5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="openBan()" title="Banear visitante" aria-label="Banear visitante"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="m5 5 14 14"/></svg></button>
                         <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
                         <template x-if="topQuick.length"><span class="modes-sep" aria-hidden="true"></span></template>
                         <template x-for="q in topQuick" :key="q.id">
@@ -511,7 +544,12 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                         <button type="button" class="icon-btn" @click="replyTo = null" aria-label="Cancelar cita">✕</button>
                     </div>
                     <div class="input-row" x-show="!recording">
-                        <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
+                        <div class="ta-wrap">
+                            <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
+                            <span class="credit-mini" x-show="mode === 'reply' && tenant && tenant.credits" :title="'Mensajes disponibles: ' + (tenant && tenant.credits ? tenant.credits.reaches : '')">
+                                <i class="credit-dot" :style="'background:' + (tenant && tenant.credits ? tenant.credits.color : '')"></i><b x-text="tenant && tenant.credits ? tenant.credits.reaches : ''"></b>
+                            </span>
+                        </div>
                         <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
                     </div>
                 </form>
@@ -534,6 +572,14 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         <label class="field"><span>Nota para quien lo recibe (opcional)</span><input type="text" x-model="delegateNote" maxlength="500"></label>
     </div>
 
+    <form class="sheet" x-show="sheet === 'ban'" x-transition role="dialog" aria-label="Banear visitante" @submit.prevent="submitBan(false)">
+        <h2>Banear visitante</h2>
+        <p class="muted">No va a poder seguir escribiendo en este chat web.</p>
+        <label class="field"><span>Horas (vacío = permanente)</span><input type="number" min="1" max="8760" x-model="banForm.hours" placeholder="Ej. 24"></label>
+        <button type="submit" class="btn primary" :disabled="banBusy">Banear por horas</button>
+        <button type="button" class="btn" :disabled="banBusy" @click="submitBan(true)">Banear permanente</button>
+        <button type="button" class="btn" @click="sheet = ''">Cancelar</button>
+    </form>
 
     <form class="sheet" x-show="sheet === 'attach'" x-transition role="dialog" aria-label="Enviar archivo" @submit.prevent="sendAttachment()">
         <h2>Enviar archivo</h2>
@@ -565,13 +611,13 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 
     <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
         <h2>Nuevo chat</h2>
-        <p class="muted" x-show="!visibleAccounts.length">No hay números conectados.</p>
-        <label class="field" x-show="visibleAccounts.length > 1"><span>Enviar desde</span>
-            <select x-model.number="newForm.account"><template x-for="a in visibleAccounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
+        <p class="muted" x-show="!coldStartAccounts.length">No hay números conectados.</p>
+        <label class="field" x-show="coldStartAccounts.length > 1"><span>Enviar desde</span>
+            <select x-model.number="newForm.account"><template x-for="a in coldStartAccounts" :key="a.id"><option :value="a.id" x-text="a.label + (a.phone_number ? ' · ' + a.phone_number : '')"></option></template></select></label>
         <label class="field"><span>Número (con código de país)</span><input type="tel" inputmode="tel" x-model="newForm.phone" placeholder="591 7xxxxxxx" autocomplete="off" required></label>
         <label class="field"><span>Nombre (opcional)</span><input type="text" x-model="newForm.name" maxlength="120"></label>
         <label class="field"><span>Mensaje</span><textarea x-model="newForm.body" rows="3" maxlength="4096" placeholder="Escribe el primer mensaje" required></textarea></label>
-        <button type="submit" class="btn primary" :disabled="newBusy || !visibleAccounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
+        <button type="submit" class="btn primary" :disabled="newBusy || !coldStartAccounts.length" x-text="newBusy ? 'Enviando…' : 'Enviar'"></button>
     </form>
 
     <div class="sheet drawer" x-show="sheet === 'crm'" x-transition role="dialog" aria-label="Contacto y CRM">
@@ -900,10 +946,14 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     function agent(id) { return AGENTS.filter(function (a) { return a.id === id; })[0] || null; }
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
+    // Livechat (chat del sitio web) es texto+adjuntos nomás: sin encuestas, ubicación
+    // ni citar — así el PWA oculta solo esos botones para este canal (ver mediaKind/capabilities).
+    var LIVECHAT_CAPS = { text: true, media: true, templates: false, window_24h: false, calls: false, posts: false, location: false, contact: false, poll: false, quote_reply: false };
     var ACCOUNTS = [
         { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
         { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
         { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
+        { id: 4, label: 'Livechat', platform: 'livechat', status: 'connected', phone_number: null, capabilities: LIVECHAT_CAPS },
     ];
     function acct(id) { return ACCOUNTS.filter(function (a) { return a.id === id; })[0]; }
 
@@ -1030,6 +1080,15 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             M('inbound', '¿Cómo preparo el cold brew que compré? No dice la proporción', day(4, 16, 20)),
             M('outbound', 'Hola Sofía. Mezcla *1 parte de concentrado por 3 de agua fría* o leche, con hielo. Dura 10 días en refrigerador.', day(4, 16, 31)),
             M('inbound', 'Perfecto, quedó buenísimo. Gracias!', day(4, 17, 2)),
+          ] },
+        { id: 109, code: 'fpaz9w', account_id: 4, contact: { id: 509, name: 'Fernanda Paz', phone: null }, assigned_to: 1, unread: 1,
+          script: [], locations: [], orders: [], charges: [], crm: null,
+          items: [
+            M('inbound', 'Hola! Escribo desde la página web. ¿Tienen café en grano para un evento de 50 personas?', ago(75)),
+            M('outbound', '¡Hola Fernanda! Sí, para ese volumen te conviene el *Blend Casa Altiplano* — Bs 42 los 250 g, con descuento por cantidad.', ago(72)),
+            M('inbound', 'Perfecto, ¿me pueden mandar la ficha en PDF?', ago(70)),
+            E('session', '↻ Nueva sesión del visitante · ' + new Date(NOW - 3 * 60000).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), null, ago(3)),
+            M('inbound', 'Hola de nuevo, disculpa, se cerró la pestaña. ¿Vieron mi mensaje anterior?', ago(2)),
           ] },
     ];
     // la nota de voz necesita el data-uri del audio, que se genera de forma asíncrona
@@ -1294,6 +1353,20 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         return ok({});
     });
 
+    // ---------- acciones de Livechat (solo canal "Chat web") ----------
+    on('POST', '/livechat/conversations/(\\d+)/finish', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        push(c, E('session', 'El agente finalizó el chat.', ME, nowIso()));
+        c.status = 'resolved';
+        return ok({ ok: true });
+    });
+    on('POST', '/livechat/conversations/(\\d+)/ban', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var hours = r.body.hours ? +r.body.hours : null;
+        push(c, E('session', '🚫 Visitante baneado ' + (hours ? 'por ' + hours + ' h' : 'de forma permanente') + ' por ' + ME.name + '.', ME, nowIso()));
+        return ok({ ok: true, banned_until: hours ? new Date(NOW + hours * 3600000).toISOString() : null });
+    });
+
     // ---------- fetch simulado ----------
     var realFetch = window.fetch ? window.fetch.bind(window) : null;
     window.fetch = function (input, opts) {
@@ -1334,7 +1407,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     var API = '/api/v1/chat';
     var KEY = 'aero.chat.';
     var PALETTE = ['#17695a', '#b4532a', '#3b5fa8', '#8a3f7a', '#7a6a12', '#2f6f8f'];
-    var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS' };
+    var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS', livechat: 'Chat web' };
 
     function store(k, v) {
         try { if (v === undefined) return localStorage.getItem(KEY + k); if (v === null) localStorage.removeItem(KEY + k); else localStorage.setItem(KEY + k, v); } catch (e) { return null; }
@@ -1352,6 +1425,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             gateInput: '', gateError: '', loginForm: { login: '', password: '' }, loginError: '', busy: false,
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
+            banForm: { hours: '' }, banBusy: false,
             crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
@@ -1445,13 +1519,15 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                 } finally { this.busy = false; }
             },
 
+            // A la raíz (no al login del mismo espacio): en modo PWA instalado no hay
+            // barra de direcciones, así que es la única forma intuitiva de cambiar
+            // de cuenta. Se olvida el último espacio para que el gate no lo rellene solo.
             logout: function (remote) {
                 if (remote && this.token) fetch(API + '/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + this.token, Accept: 'application/json' } }).catch(function () {});
                 store('token.' + this.handle, null);
                 ['snap.' + this.handle + '.me', 'snap.' + this.handle + '.inbox'].concat((jget('msgidx.' + this.handle) || []).map(function (id) { return 'msgs.' + this.handle + '.' + id; }, this)).concat('msgidx.' + this.handle).forEach(function (k) { store(k, null); });
-                this.stopTimers();
-                this.token = null; this.user = null; this.convs = []; this.msgs = []; this.current = null; this.sheet = '';
-                this.screen = 'login';
+                store('last', null);
+                location.href = '/';
             },
 
             // ---------- API ----------
@@ -1596,9 +1672,13 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             },
 
             // ---------- nuevo chat ----------
+            // Un chat web no tiene "número" al que escribirle en frío: el visitante siempre abre él el chat desde el widget.
+            get coldStartAccounts() { return this.visibleAccounts.filter(function (a) { return a.platform !== 'livechat'; }); },
             openNew: function () {
-                var acc = this.visibleAccounts.find(function (a) { return a.id === this.accountId; }, this) || this.visibleAccounts[0];
-                this.newForm = { account: acc ? acc.id : null, phone: '', name: '', body: '' };
+                var pool = this.coldStartAccounts;
+                if (!pool.length) { this.notify('No hay un canal desde el que iniciar chats nuevos.'); return; }
+                var acc = pool.find(function (a) { return a.id === this.accountId; }, this) || pool[0];
+                this.newForm = { account: acc.id, phone: '', name: '', body: '' };
                 this.sheet = 'new';
             },
             async startChat() {
@@ -1661,6 +1741,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                     if (i >= 0) this.msgs.splice(i, 1, Object.assign(json.data, { local_url: localUrl }));
                     c.last_message = { body: caption, direction: 'outbound', media_type: kind }; c.last_message_at = new Date().toISOString();
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { item.status = 'failed'; item.failed_reason = e.message; this.notify('No se envió: ' + e.message, 8000); }
             },
             async startRec() {
@@ -1723,6 +1804,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                     this.msgs.push(res); this.scrollDown(true);
                     c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { this.notify(e && e.status ? e.message : this.geoError(e), 7000); }
                 finally { this.geoBusy = false; }
             },
@@ -1741,6 +1823,36 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             setReply: function (m) {
                 this.mode = 'reply'; this.replyTo = { conv: this.current.id, m: { id: m.id, direction: m.direction, body: m.body || (m.media_type ? '[' + m.media_type + ']' : '') } };
                 var ta = document.querySelector('.composer textarea'); if (ta) ta.focus();
+            },
+
+            // ---------- Finalizar / Banear (solo canal de chat web) ----------
+            get isLivechatChat() {
+                var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
+                return !!(a && a.platform === 'livechat');
+            },
+            async finishLivechat() {
+                var c = this.current; if (!c || !confirm('¿Finalizar esta conversación de chat web?')) return;
+                try {
+                    await this.api('/livechat/conversations/' + c.id + '/finish', { method: 'POST' });
+                    this.notify('Conversación finalizada'); this.loadMsgs(false);
+                } catch (e) { this.notify(e.message); }
+            },
+            openBan: function () { this.banForm = { hours: '' }; this.sheet = 'ban'; },
+            async submitBan(permanent) {
+                var c = this.current; if (!c || this.banBusy) return;
+                var body = {};
+                if (!permanent) {
+                    var hours = parseInt(this.banForm.hours, 10);
+                    if (!(hours > 0)) { this.notify('Ingresa un número de horas válido.'); return; }
+                    body.hours = hours;
+                }
+                this.banBusy = true;
+                try {
+                    await this.api('/livechat/conversations/' + c.id + '/ban', { method: 'POST', body: body });
+                    this.notify(permanent ? 'Visitante baneado de forma permanente' : 'Visitante baneado por ' + body.hours + ' h');
+                    this.sheet = ''; this.loadMsgs(false);
+                } catch (e) { this.notify(e.message); }
+                finally { this.banBusy = false; }
             },
 
             // ---------- encuestas (solo WhatsApp Web) ----------
@@ -1762,6 +1874,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                     this.msgs.push(res); this.sheet = ''; this.scrollDown(true);
                     c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
                     if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
                 } catch (e) { this.notify(e.message, 8000); }
                 finally { this.pollBusy = false; }
             },
@@ -1821,12 +1934,25 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                     if (!isNote) {
                         c.last_message = { body: text, direction: 'outbound' }; c.last_message_at = new Date().toISOString();
                         if (!c.assigned_to) c.assigned_to = this.user;
+                        this.spendCredit();
                     }
                 } catch (e) {
                     if (isNote) { this.msgs = this.msgs.filter(function (m) { return m.id !== tmp; }); this.draft = text; }
                     else { item.status = 'failed'; item.failed_reason = e.message; }
                     this.notify('No se envió: ' + e.message, 8000);
                 }
+            },
+
+            /**
+             * Descuenta 1 del contador visible tras un envío que cobra. Nada más: el
+             * saldo real lo lleva el servidor. Reasigna el objeto (en vez de mutar
+             * `.reaches` en el objeto anidado) para que Alpine SIEMPRE detecte el
+             * cambio, sin depender de cómo haya quedado envuelto el objeto que vino
+             * del JSON de /me o /login.
+             */
+            spendCredit() {
+                var c = this.tenant && this.tenant.credits;
+                if (c && c.reaches > 0) this.tenant.credits = Object.assign({}, c, { reaches: c.reaches - 1 });
             },
 
             async delegate(agentId) {
@@ -2024,6 +2150,8 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 
             acctColor: function (a) { return PALETTE[a.id % PALETTE.length]; },
             acctLabel: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.label : ''; },
+            acctPlatform: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.platform : ''; },
+            platformLabel: function (p) { return PLATFORMS[p] || p; },
             cname: function (c) { var n = c.contact && c.contact.name; return n && !/^\d{9,}$/.test(n) ? n : ((c.contact && c.contact.phone) || 'Sin nombre'); },
             initials: function (s) { s = String(s || '').trim(); if (!s || /^[\d+]/.test(s)) return '#'; return s.split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase(); },
             preview: function (c) {
@@ -2195,6 +2323,11 @@ window.demoGo = function (step) {
     if (step === 'delegate') {
         var c = a.convs.find(function (x) { return x.id === 104; });
         if (c) { a.openConv(c).then(function () { a.sheet = 'delegate'; }); }
+        return;
+    }
+    if (step === 'webchat') {
+        var wc = a.convs.find(function (x) { return x.id === 109; });
+        if (wc) a.openConv(wc);
         return;
     }
     var s = steps[step], conv = a.convs.find(function (x) { return x.id === s[0]; });

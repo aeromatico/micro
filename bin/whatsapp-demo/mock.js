@@ -61,10 +61,14 @@
     function agent(id) { return AGENTS.filter(function (a) { return a.id === id; })[0] || null; }
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
+    // Livechat (chat del sitio web) es texto+adjuntos nomás: sin encuestas, ubicación
+    // ni citar — así el PWA oculta solo esos botones para este canal (ver mediaKind/capabilities).
+    var LIVECHAT_CAPS = { text: true, media: true, templates: false, window_24h: false, calls: false, posts: false, location: false, contact: false, poll: false, quote_reply: false };
     var ACCOUNTS = [
         { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
         { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
         { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
+        { id: 4, label: 'Livechat', platform: 'livechat', status: 'connected', phone_number: null, capabilities: LIVECHAT_CAPS },
     ];
     function acct(id) { return ACCOUNTS.filter(function (a) { return a.id === id; })[0]; }
 
@@ -191,6 +195,15 @@
             M('inbound', '¿Cómo preparo el cold brew que compré? No dice la proporción', day(4, 16, 20)),
             M('outbound', 'Hola Sofía. Mezcla *1 parte de concentrado por 3 de agua fría* o leche, con hielo. Dura 10 días en refrigerador.', day(4, 16, 31)),
             M('inbound', 'Perfecto, quedó buenísimo. Gracias!', day(4, 17, 2)),
+          ] },
+        { id: 109, code: 'fpaz9w', account_id: 4, contact: { id: 509, name: 'Fernanda Paz', phone: null }, assigned_to: 1, unread: 1,
+          script: [], locations: [], orders: [], charges: [], crm: null,
+          items: [
+            M('inbound', 'Hola! Escribo desde la página web. ¿Tienen café en grano para un evento de 50 personas?', ago(75)),
+            M('outbound', '¡Hola Fernanda! Sí, para ese volumen te conviene el *Blend Casa Altiplano* — Bs 42 los 250 g, con descuento por cantidad.', ago(72)),
+            M('inbound', 'Perfecto, ¿me pueden mandar la ficha en PDF?', ago(70)),
+            E('session', '↻ Nueva sesión del visitante · ' + new Date(NOW - 3 * 60000).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), null, ago(3)),
+            M('inbound', 'Hola de nuevo, disculpa, se cerró la pestaña. ¿Vieron mi mensaje anterior?', ago(2)),
           ] },
     ];
     // la nota de voz necesita el data-uri del audio, que se genera de forma asíncrona
@@ -453,6 +466,20 @@
         var c = conv(r.p[1]), p = PRODUCTS.filter(function (x) { return x.id === +r.p[2]; })[0]; if (!c || !p) return NOT_FOUND;
         agentSays(c, '*' + p.name + '*\n' + (p.has_price_range ? 'Desde ' : '') + bs(p.price) + '\nhttps://altiplano.example/tienda/' + p.id, { status: 'sent', type: 'image', media_type: 'image', media_url: p.image_url });
         return ok({});
+    });
+
+    // ---------- acciones de Livechat (solo canal "Chat web") ----------
+    on('POST', '/livechat/conversations/(\\d+)/finish', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        push(c, E('session', 'El agente finalizó el chat.', ME, nowIso()));
+        c.status = 'resolved';
+        return ok({ ok: true });
+    });
+    on('POST', '/livechat/conversations/(\\d+)/ban', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var hours = r.body.hours ? +r.body.hours : null;
+        push(c, E('session', '🚫 Visitante baneado ' + (hours ? 'por ' + hours + ' h' : 'de forma permanente') + ' por ' + ME.name + '.', ME, nowIso()));
+        return ok({ ok: true, banned_until: hours ? new Date(NOW + hours * 3600000).toISOString() : null });
     });
 
     // ---------- fetch simulado ----------

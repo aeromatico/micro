@@ -66,6 +66,11 @@ window.demoGo = function (step) {
         if (c) { a.openConv(c).then(function () { a.sheet = 'delegate'; }); }
         return;
     }
+    if (step === 'webchat') {
+        var wc = a.convs.find(function (x) { return x.id === 109; });
+        if (wc) a.openConv(wc);
+        return;
+    }
     var s = steps[step], conv = a.convs.find(function (x) { return x.id === s[0]; });
     if (!conv) return;
     a.sheet = '';
@@ -82,6 +87,7 @@ bar = """<div class="demo-bar" role="toolbar" aria-label="Guía del demo">
     <button type="button" onclick="demoGo('crm')">CRM y negocios</button>
     <button type="button" onclick="demoGo('ticket')">Soporte y tickets</button>
     <button type="button" onclick="demoGo('delegate')">Delegar chat</button>
+    <button type="button" onclick="demoGo('webchat')">Chat web</button>
     <button type="button" onclick="location.reload()">Reiniciar</button>
 </div>"""
 
