@@ -1,14 +1,14 @@
 {# Spotlight — IA + editor #}
 <section>
     <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div class="flex flex-col gap-5">
-                <span class="text-xs tracking-wide text-accent uppercase font-bold">Diseño con IA + editor visual</span>
-                <h2 class="text-3xl font-bold">Genera tu sitio con una frase. Edítalo como quieras.</h2>
-                <p class="text-base text-ink-dim leading-relaxed">Cuéntale a la IA a qué se dedica tu negocio y en minutos tienes un sitio completo. Después ajústalo con un editor visual drag &amp; drop, con decenas de componentes listos (y muchos más en construcción) y variantes predefinidas que personalizas en minutos.</p>
-                <a href="https://demo.market.com.bo/" target="_blank" rel="noopener" class="inline-flex items-center w-fit bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Mira un demo</a>
-            </div>
-            <div class="w-full max-w-[560px] mx-auto" x-data="{ started: false }" x-init="
+        <div class="flex flex-col items-center text-center gap-5 max-w-3xl mx-auto mb-14">
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Diseño con IA + editor visual</span>
+            <h2 class="text-3xl sm:text-4xl font-bold">Genera tu sitio con una frase. Edítalo como quieras.</h2>
+            <p class="text-base text-ink-dim leading-relaxed">Cuéntale a la IA a qué se dedica tu negocio y en minutos tienes un sitio completo. Después ajústalo con un editor visual drag &amp; drop, con decenas de componentes listos (y muchos más en construcción) y variantes predefinidas que personalizas en minutos.</p>
+            <a href="https://demo.market.com.bo/" target="_blank" rel="noopener" class="inline-flex items-center w-fit bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Mira un demo</a>
+        </div>
+        <div>
+            <div class="w-full max-w-5xl mx-auto" x-data="{ started: false }" x-init="
                 let el = $el;
                 let io = new IntersectionObserver((entries) => {
                     if (entries[0].isIntersecting && !started) {
@@ -28,7 +28,7 @@
                 <div class="relative rounded-t-xl bg-neutral-900 border border-neutral-800 p-[10px] pb-0 shadow-2xl">
                     <div class="rounded-md overflow-hidden bg-black aspect-video">
                         <video
-                            class="w-full h-full object-cover"
+                            class="w-full h-full object-contain"
                             autoplay
                             muted
                             loop
