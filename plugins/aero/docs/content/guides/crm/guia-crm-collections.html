@@ -1,0 +1,411 @@
+<!doctype html>
+<!--guide {"title":"Nuevo cobro","article":"crm-cobranzas","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nuevo cobro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.g-title { font-size: 16px; font-weight: 600; margin: 4px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+button { font: inherit; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.steps [aria-current="step"] .dot { border-color: var(--accent); color: var(--accent); }
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+.field[hidden] { display: none !important; }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=number], input[type=date], input[type=time], select, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input:disabled { background: var(--surface-2); color: var(--ink-2); }
+textarea { resize: vertical; min-height: 84px; }
+input.err, select.err, textarea.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; min-height: 26px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-soft); color: var(--ink); border-radius: 12px; padding: 2px 4px 2px 10px; font-size: 12px; }
+.chip button { border: 0; background: transparent; color: var(--ink-2); padding: 0 6px; font-size: 14px; line-height: 1; }
+.chips .empty { color: var(--ink-2); font-size: 12px; font-style: italic; }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; justify-items: start; }
+.upd h4 { margin: 0; font-size: 13px; }
+.qr { width: 120px; height: 120px; border: 1px solid var(--line); border-radius: 4px; background: #fff; display: grid; place-items: center; color: #555; font-size: 11px; text-align: center; }
+.locked { color: var(--ink-2); font-size: 12px; padding: 10px 12px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 4px; grid-column: 1 / -1; }
+.sample { font-size: 11px; color: var(--ink-2); font-style: italic; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Nuevo cobro</h1>
+      <div class="crumb">/backend/aero/crm/collections/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn" id="gPrev" type="button">Anterior</button>
+      <button class="btn primary" id="gNext" type="button">Siguiente</button>
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx" id="ctxLine"></div>
+      <div class="panel">
+        <div class="field full" data-f="contactLists">
+          <label class="lbl" for="listSel">Listas (opcional)</label>
+          <div class="chips" id="listChips"></div>
+          <select id="listSel"><option value="">— agregar una lista —</option></select>
+          <div class="help">Agrupa el cobro en una o varias listas. Es solo organización, no define quién recibe el recordatorio.</div>
+        </div>
+
+        <div class="field full" data-f="recipients">
+          <label class="lbl" for="rcpSel">Contactos</label>
+          <div class="chips" id="rcpChips"></div>
+          <select id="rcpSel"><option value="">— agregar un contacto —</option></select>
+          <div class="help">Personas que reciben el recordatorio de cobro. Sumá una o varias, pertenezcan o no a la lista.</div>
+        </div>
+
+        <div class="field full" data-f="concept">
+          <label class="lbl" for="concept">Concepto<span class="req">*</span></label>
+          <input type="text" id="concept" placeholder="Ej. Mensualidad de agosto" autocomplete="off">
+          <div class="errmsg" hidden></div>
+        </div>
+
+        <div class="field" data-f="amount">
+          <label class="lbl" for="amount">Monto<span class="req">*</span></label>
+          <input type="number" id="amount" step="0.01">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="currency">
+          <label class="lbl" for="currency">Moneda</label>
+          <select id="currency">
+            <option value="BOB" selected>Bolivianos (BOB)</option>
+            <option value="USD">Dólares (USD)</option>
+          </select>
+        </div>
+
+        <div class="field" data-f="due_date">
+          <label class="lbl" for="due_date">Fecha de vencimiento<span class="req">*</span></label>
+          <input type="date" id="due_date">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="status">
+          <label class="lbl" for="status">Estado</label>
+          <select id="status">
+            <option value="pending" selected>Pendiente</option>
+            <option value="paid">Pagado</option>
+            <option value="void">Anulado</option>
+          </select>
+        </div>
+
+        <div class="field full" data-f="notes">
+          <label class="lbl" for="notes">Notas</label>
+          <textarea id="notes"></textarea>
+        </div>
+
+        <div class="field" data-f="last_reminder_at">
+          <label class="lbl" for="last_reminder_at">Último recordatorio enviado</label>
+          <input type="text" id="last_reminder_at" disabled>
+        </div>
+        <div class="field" data-f="reminder_count">
+          <label class="lbl" for="reminder_count">Recordatorios enviados</label>
+          <input type="number" id="reminder_count" disabled>
+        </div>
+
+        <div class="locked" id="lockQr">Al crear no aparece el panel «QR de cobro»: es <code>context: update</code>. Guarda el cobro para verlo.</div>
+        <div class="upd" id="qrPanel" hidden data-f="qr">
+          <h4>QR de cobro</h4>
+          <div class="qr" id="qrBox" hidden>QR de ejemplo</div>
+          <button class="btn" type="button" id="btnQr">Generar QR</button>
+          <div class="help">La cuenta bancaria usada se configura en Configuración de CRM → Cuenta bancaria para cobranzas. Se adjunta solo a cada recordatorio de WhatsApp que se mande desde acá en adelante. Solo aparece si el plugin de Pagos está instalado.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas</label>
+      </div>
+    </div>
+    <div class="sample">Listas y contactos son datos de ejemplo. En la app real salen de tu tenant.</div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var LISTS = ['Clientes mensuales', 'Morosos', 'Corporativos'];
+  var CONTACTS = ['María Quispe', 'Carlos Mamani', 'Distribuidora Andina'];
+  var state = { mode: 'create', step: 0, lists: [], rcp: [], qr: false };
+
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function set(id, v) {
+    var el = $('#' + id); el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  var steps = [
+    { id: 'contactLists', fields: ['contactLists'], title: 'Agrupa en listas', opt: true,
+      body: 'Elige una o varias listas de contactos para organizar el cobro. Puedes dejarlo vacío.',
+      tip: 'La lista no decide quién recibe el recordatorio: solo ordena. Los destinatarios se eligen en el paso siguiente.',
+      ex: 'Clientes mensuales', fill: function () { addTo('lists', LISTS[0]); }, done: function () { return state.lists.length > 0; } },
+    { id: 'recipients', fields: ['recipients'], title: 'Elige a quién se cobra',
+      body: 'Suma uno o varios contactos: ellos reciben el recordatorio de cobro.',
+      tip: 'Sin contactos no hay a quién enviarle el recordatorio, aunque el cobro pertenezca a una lista.',
+      ex: 'María Quispe', fill: function () { addTo('rcp', CONTACTS[0]); }, done: function () { return state.rcp.length > 0; } },
+    { id: 'concept', fields: ['concept'], title: 'Escribe el concepto', req: true,
+      body: 'Describe qué se cobra. Es obligatorio y admite hasta 255 caracteres.',
+      tip: 'Sé específico (mes, servicio o pedido): el contacto lo lee en el recordatorio.',
+      ex: 'Mensualidad de agosto', fill: function () { set('concept', 'Mensualidad de agosto'); }, done: function () { return val('concept').length > 0; } },
+    { id: 'amount', fields: ['amount', 'currency'], title: 'Monto y moneda', req: true,
+      body: 'Indica el monto (con hasta dos decimales, no negativo) y la moneda: Bolivianos (BOB, por defecto) o Dólares (USD).',
+      tip: 'Revisa la moneda antes de crear: por defecto es BOB.',
+      ex: '250.00 BOB', fill: function () { set('amount', '250.00'); set('currency', 'BOB'); }, done: function () { return val('amount') !== '' && parseFloat(val('amount')) >= 0; } },
+    { id: 'due_date', fields: ['due_date'], title: 'Fecha de vencimiento', req: true,
+      body: 'Día límite de pago. Un cobro pendiente con fecha anterior a hoy se considera vencido.',
+      tip: 'Es obligatoria: sin fecha no se puede crear el cobro.',
+      ex: '2026-10-05', fill: function () { set('due_date', '2026-10-05'); }, done: function () { return val('due_date') !== ''; } },
+    { id: 'status', fields: ['status'], title: 'Estado', opt: true,
+      body: 'Pendiente (por defecto al crear), Pagado o Anulado. Solo los cobros pendientes reciben recordatorios y pueden vencer.',
+      tip: 'Déjalo en Pendiente al crear. Para cobros ya pagados usa la acción «marcar como pagado» del listado.',
+      ex: 'Pendiente', fill: function () { set('status', 'pending'); }, done: function () { return true; } },
+    { id: 'notes', fields: ['notes'], title: 'Notas internas', opt: true,
+      body: 'Texto libre de apoyo para tu equipo.', tip: '', ex: 'Cliente pide factura a nombre de la empresa.',
+      fill: function () { set('notes', 'Cliente pide factura a nombre de la empresa.'); }, done: function () { return val('notes') !== ''; } },
+    { id: 'save', fields: [], title: 'Guardar el cobro', last: true,
+      body: 'Pulsa Crear. La demo valida Concepto, Monto y Fecha de vencimiento y te lleva a la pantalla de edición.',
+      tip: 'Al editar aparecen «Último recordatorio enviado» y «Recordatorios enviados» (solo lectura, los completa el sistema) y el panel «QR de cobro».',
+      ex: '', fill: function () { save(false); }, done: function () { return state.mode === 'update'; } }
+  ];
+
+  function addTo(kind, name) {
+    var arr = state[kind];
+    if (arr.indexOf(name) < 0) arr.push(name);
+    renderChips(); renderGuide();
+  }
+  function renderChips() {
+    [['lists', '#listChips', '#listSel', LISTS, 'Sin listas seleccionadas'], ['rcp', '#rcpChips', '#rcpSel', CONTACTS, 'Sin contactos seleccionados']].forEach(function (c) {
+      var box = $(c[1]); box.innerHTML = '';
+      if (!state[c[0]].length) { var e = document.createElement('span'); e.className = 'empty'; e.textContent = c[4]; box.appendChild(e); }
+      state[c[0]].forEach(function (n) {
+        var ch = document.createElement('span'); ch.className = 'chip';
+        var t = document.createElement('span'); t.textContent = n;
+        var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Quitar ' + n);
+        x.onclick = function () { state[c[0]].splice(state[c[0]].indexOf(n), 1); renderChips(); renderGuide(); };
+        ch.appendChild(t); ch.appendChild(x); box.appendChild(ch);
+      });
+    });
+  }
+  function fillSelect(id, arr, ph) {
+    var s = $(id); s.innerHTML = '';
+    var o = document.createElement('option'); o.value = ''; o.textContent = ph; s.appendChild(o);
+    arr.forEach(function (n) { var p = document.createElement('option'); p.value = n; p.textContent = n; s.appendChild(p); });
+  }
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex;
+      w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) {
+      var n = document.createElement('div'), b = document.createElement('b');
+      n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n);
+    }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = cur.id === 'save' && state.mode === 'update';
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button';
+      var done = s.done();
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      if (done) bt.className = 'done';
+      d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1);
+      t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t);
+      bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el && !el.hidden) el.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i));
+    renderGuide();
+    if (scroll !== false) {
+      var f = steps[state.step].fields[0], el = f && $('[data-f="' + f + '"]');
+      if (el) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+
+  function showErr(f, msg) {
+    var box = $('[data-f="' + f + '"]'); if (!box) return;
+    var m = $('.errmsg', box), inp = $('input,select,textarea', box);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = [];
+    ['concept', 'amount', 'due_date'].forEach(function (f) { showErr(f, ''); });
+    if (!val('concept')) errs.push(['concept', 'El campo Concepto es obligatorio.']);
+    else if (val('concept').length > 255) errs.push(['concept', 'Concepto no puede superar 255 caracteres.']);
+    if (val('amount') === '') errs.push(['amount', 'El campo Monto es obligatorio.']);
+    else if (isNaN(parseFloat(val('amount')))) errs.push(['amount', 'Monto debe ser un número.']);
+    else if (parseFloat(val('amount')) < 0) errs.push(['amount', 'Monto no puede ser negativo.']);
+    if (!val('due_date')) errs.push(['due_date', 'El campo Fecha de vencimiento es obligatorio.']);
+    return errs;
+  }
+  function save(close) {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0]);
+      if (idx >= 0) go(idx);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    if (close) { flash('Cobro creado. En la app real vuelves a la lista de cobros.'); }
+    else flash('Cobro creado. Ahora estás en la pantalla de edición.');
+    goUpdate();
+  }
+  function goUpdate() {
+    state.mode = 'update';
+    $('h1').textContent = 'Editar cobro';
+    $('.crumb').textContent = '/backend/aero/crm/collections/update/12 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#lockQr').hidden = true; $('#qrPanel').hidden = false;
+    $('#last_reminder_at').value = 'Aún no se envió'; $('#reminder_count').value = '0';
+    $('#ctxLine').textContent = 'context: update · se muestra el panel «QR de cobro»';
+    renderGuide();
+  }
+
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200);
+  }
+
+  $('#btnQr').onclick = function () {
+    state.qr = true; $('#qrBox').hidden = false; $('#btnQr').textContent = 'Regenerar QR';
+    flash('QR generado (simulado).');
+  };
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); renderGuide(); };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+  $('#listSel').onchange = function (e) { if (e.target.value) addTo('lists', e.target.value); e.target.value = ''; };
+  $('#rcpSel').onchange = function (e) { if (e.target.value) addTo('rcp', e.target.value); e.target.value = ''; };
+
+  $$('.field input, .field select, .field textarea').forEach(function (el) {
+    el.addEventListener('input', function () {
+      if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; }
+      renderGuide();
+    });
+    el.addEventListener('focus', function () {
+      var box = el.closest('.field'); if (!box) return;
+      var name = box.getAttribute('data-f');
+      var idx = -1;
+      steps.forEach(function (s, i) { if (idx < 0 && s.fields.indexOf(name) >= 0) idx = i; });
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+
+  fillSelect('#listSel', LISTS, '— agregar una lista —');
+  fillSelect('#rcpSel', CONTACTS, '— agregar un contacto —');
+  $('#ctxLine').textContent = 'context: create · el panel con context: update no se muestra';
+  renderChips(); renderGuide();
+})();
+</script>
+
+</body></html>
