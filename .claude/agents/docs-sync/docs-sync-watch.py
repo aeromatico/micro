@@ -316,7 +316,8 @@ def build_prompt(items, bootstrap):
             if g.get("note"):
                 lines.append(f"    · INSTRUCCIÓN DEL USUARIO para esta guía: {g['note']}")
     lines.append("\nRecuerda: todo lo que produces es borrador. Escribe solo bajo plugins/aero/docs/content/ y termina "
-                 "ejecutando `sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>` por cada plugin. "
+                 "ejecutando `sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>` por cada plugin "
+                 "(añade `--mark-reviewed` SOLO si el brief incluía DOCUMENTACIÓN de ese plugin y la revisaste; en plugins solo de guías, sin esa opción). "
                  "Cierra con el reporte corto.")
     return "\n".join(lines)
 
@@ -370,7 +371,8 @@ def execute(c, st, plan, bootstrap=False, dry=False):
         if ok:
             # Red de seguridad determinista: importar aunque el agente lo haya olvidado (es idempotente).
             for it in items:
-                r = sh(["sudo", "-u", c["web_user"], PHP_BIN, "artisan", "docs:import", it["plugin"]], timeout=300)
+                cmd = ["sudo", "-u", c["web_user"], PHP_BIN, "artisan", "docs:import", it["plugin"]] + (["--mark-reviewed"] if it["docs"] else [])
+                r = sh(cmd, timeout=300)
                 out += f"\n[docs:import {it['plugin']}] rc={r.returncode}\n{(r.stdout + r.stderr)[-1200:]}"
                 if r.returncode != 0:
                     ok = False

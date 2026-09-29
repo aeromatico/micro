@@ -39,7 +39,7 @@ ambiguo, no lo afirmes; dilo en el reporte.
 - **Solo tenant.** Si un formulario es de superadmin, no lo documentes ni le hagas guía.
 - Un artículo `.md` por función: `content/<plugin>/<plugin>-<tema>.md` (el nombre del archivo es el slug).
 - Una guía `.html` por formulario: `content/guides/<plugin>/<slug>.html`, con el `slug` **exacto** del brief.
-- Después de escribir, ejecuta `docs:import <plugin>`. Si imprime un error, corrígelo y vuelve a ejecutarlo.
+- Después de escribir, ejecuta `docs:import <plugin>`. Añade `--mark-reviewed` únicamente si el brief incluía DOCUMENTACIÓN de ese plugin y la revisaste (así una versión sin cambios visibles queda registrada como revisada); en plugins con solo guías, nunca. Si imprime un error, corrígelo y vuelve a ejecutarlo.
   Es tu verificación: no hay otra.
 - Si una versión no cambia nada visible para el tenant, no crees ni cambies artículos. Es un resultado válido.
 

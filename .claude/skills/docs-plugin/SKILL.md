@@ -61,13 +61,15 @@ breve, Cualidades de impacto y Casos de uso, más su línea de versión document
 ### 4. Importar (es tu verificación)
 
 ```bash
-sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>
+sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin> --mark-reviewed
 ```
 
 `docs:import` **nunca pisa lo publicado**:
 - artículo nuevo → borrador (`is_published = false`);
 - artículo publicado con contenido distinto → "cambios pendientes de aprobar";
-- contenido igual → solo actualiza la versión documentada.
+- contenido igual → no cambia nada, salvo con `--mark-reviewed`, que registra la versión actual como revisada.
+
+`--mark-reviewed` afirma que revisaste la documentación de ese plugin y decidiste que no requiere cambios (o ya la actualizaste). Úsalo solo entonces; si no, se ocultaría documentación desactualizada.
 
 Si imprime un error, corrígelo y vuelve a ejecutar. No hay seeders PHP ni cambios en `version.yaml`.
 

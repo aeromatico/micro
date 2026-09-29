@@ -36,7 +36,13 @@ Documento completo (`<!doctype html>`), un solo archivo, sin recursos locales:
 3. Tokens de color en `:root` con tema claro y oscuro (`prefers-color-scheme` + `[data-theme]`), `body` con fondo
    explícito. Tipografía: IBM Plex Sans + IBM Plex Mono desde Google Fonts con fallback.
 4. Layout: guía a la izquierda (sticky en escritorio) y réplica del formulario a la derecha. En móvil, la guía
-   arriba. Sin scroll horizontal; gutter mínimo de 16 px.
+   arriba. Sin scroll horizontal; gutter mínimo de 16 px. El contenedor `.wrap` llega hasta `max-width: 1760px`
+   porque el sitio muestra la guía a ancho completo.
+   **Navegación de pasos:** los botones `← Anterior` / `Siguiente →` (`#gPrev`, `#gNext`) van en `.g-head`, justo
+   bajo el eyebrow «Paso x de X · …», como dos botones grandes de igual peso (`.g-nav`: Anterior con borde y fondo
+   suave, Siguiente relleno). `Rellenar ejemplo` queda aparte, en `.g-actions`. Copia `.g-nav` de `reference.html`.
+   **La barra de guía tiene color propio** (tokens `--g-*` remapeados dentro de `.guide`), distinto del formulario y
+   con variantes claro/oscuro; el eyebrow va a 15 px. Copia ese bloque de `reference.html`.
 5. Formulario fiel al YAML: mismo orden, columnas (`span`), pestañas (`tab`), etiquetas, `comment`,
    asterisco en `required`, valores `default`, opciones reales de los dropdowns.
 6. **Lógica**: `trigger` (mostrar/ocultar campos según otro campo) y validación (`required`, `max`, JSON
