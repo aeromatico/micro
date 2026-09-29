@@ -1,0 +1,13 @@
+list: $/aero/services/models/servicepurchase/columns.yaml
+modelClass: Aero\Services\Models\ServicePurchase
+title: Compras de servicios
+showSetup: true
+showCheckboxes: false
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+noRecordsMessage: Todavía no hay compras.
+toolbar:
+    search:
+        prompt: backend::lang.list.search_prompt

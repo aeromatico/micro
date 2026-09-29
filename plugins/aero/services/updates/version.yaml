@@ -23,3 +23,6 @@
 1.7.0:
     - "Pestana Precio y entrega: ahora es un repetidor de Planes (varios planes por servicio, cada uno con su modalidad, precio y entrega)."
     - add_plans_to_services.php
+1.8.0:
+    - "Compra de servicios: el tenant paga un plan con sus créditos o su saldo en Bs (Aero.Credits) desde el nuevo panel «Servicios» (sin permiso, como Wallet); el superadmin entrega o cancela cada compra desde Servicios → Compras. plan_snapshot congela el plan comprado aunque el catálogo cambie después."
+    - create_service_purchases_table.php

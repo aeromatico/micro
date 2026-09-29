@@ -42,6 +42,13 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         return [
+            // Panel del tenant: comprar servicios con sus créditos/saldo en Bs (sin permiso, como Wallet).
+            'my-services' => [
+                'label'       => 'aero.services::lang.menu.my_services',
+                'url'         => Backend::url('aero/services/myservices'),
+                'icon'        => 'icon-shopping-basket',
+                'order'       => 120,
+            ],
             'services' => [
                 'label'       => 'aero.services::lang.menu.services',
                 'url'         => Backend::url('aero/services/services'),
@@ -65,6 +72,12 @@ class Plugin extends PluginBase
                         'label'       => 'aero.services::lang.menu.collections',
                         'icon'        => 'icon-th-large',
                         'url'         => Backend::url('aero/services/collections'),
+                        'permissions' => ['aero.services.manage'],
+                    ],
+                    'purchases' => [
+                        'label'       => 'aero.services::lang.menu.purchases',
+                        'icon'        => 'icon-shopping-basket',
+                        'url'         => Backend::url('aero/services/purchases'),
                         'permissions' => ['aero.services.manage'],
                     ],
                 ],
