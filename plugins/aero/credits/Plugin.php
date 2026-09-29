@@ -50,6 +50,7 @@ class Plugin extends PluginBase
         $this->bootNavbarWidget();
         $this->bootConnectorIntegration();
         $this->bootPurchaseIntegration();
+        $this->bootGiftIntegration();
     }
 
     /**
@@ -278,6 +279,32 @@ HTML;
             }
             catch (\Throwable $e) {
                 \Log::error("Aero.Credits: fallo al acreditar la recarga #{$purchase->id} tras pago confirmado: " . $e->getMessage());
+            }
+        });
+    }
+
+    public function registerComponents(): array
+    {
+        return [
+            \Aero\Credits\Components\GiftForm::class => 'giftForm',
+        ];
+    }
+
+    /** Pago confirmado de un regalo de suscripción (/regalar) → emite y envía el cupón. */
+    protected function bootGiftIntegration(): void
+    {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
+            $gift = \Aero\Credits\Models\CreditGift::where('payment_reference', $qrCode->internal_reference)->first();
+
+            if (!$gift) {
+                return;
+            }
+
+            try {
+                \Aero\Credits\Classes\Gifts::settle($gift);
+            }
+            catch (\Throwable $e) {
+                \Log::error("Aero.Credits: fallo al procesar el regalo #{$gift->id} tras pago confirmado: " . $e->getMessage());
             }
         });
     }

@@ -56,3 +56,6 @@
     - create_credit_coupons_table.php
     - create_credit_invitation_quotas_table.php
     - create_credit_invitations_table.php
+1.13.0:
+    - "Regalar una suscripción (/regalar): el comprador paga un QR y al confirmarse se emite un cupón de un solo uso que se envía al destinatario (WhatsApp o correo) con el enlace de canje. Tabla aero_credits_gifts, componente giftForm."
+    - create_credit_gifts_table.php
