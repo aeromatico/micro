@@ -8,6 +8,6 @@ return [
     'permissions' => ['manage' => 'Administrar el catálogo de servicios'],
     'menu' => [
         'services' => 'Servicios', 'categories' => 'Categorías', 'collections' => 'Colecciones',
-        'purchases' => 'Compras', 'my_services' => 'Servicios',
+        'purchases' => 'Compras',
     ],
 ];

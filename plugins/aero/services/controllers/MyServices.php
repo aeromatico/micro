@@ -12,10 +12,12 @@ use BackendAuth;
 use BackendMenu;
 
 /**
- * "Servicios": catálogo de planes que el tenant puede comprar con sus
+ * "App Store": catálogo de planes que el tenant puede comprar con sus
  * monedas o su saldo en Bs (mismas cuentas de Aero.Credits que Wallet). Sin
  * permiso requerido, como Wallet: cualquier usuario del panel con un tenant
- * resoluble ve y compra para SU tenant, nunca para otro.
+ * resoluble ve y compra para SU tenant, nunca para otro. Se accede desde el
+ * ícono del menú inferior (ver Aero.Credits\Plugin::bootNavbarWidget()), no
+ * desde el menú lateral: no tiene entrada en registerNavigation().
  */
 class MyServices extends Controller
 {
@@ -24,8 +26,8 @@ class MyServices extends Controller
     public function __construct()
     {
         parent::__construct();
-        BackendMenu::setContext('Aero.Services', 'my-services', 'my-services');
-        $this->pageTitle = 'Servicios';
+        BackendMenu::setContext('Aero.Services', 'app-store', 'app-store');
+        $this->pageTitle = 'App Store';
     }
 
     public function index()

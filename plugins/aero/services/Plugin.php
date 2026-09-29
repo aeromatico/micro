@@ -41,14 +41,12 @@ class Plugin extends PluginBase
 
     public function registerNavigation(): array
     {
+        // El panel del tenant (App Store, comprar servicios) NO vive acá: es un
+        // ícono del menú inferior (ver Aero.Credits\Plugin::bootNavbarWidget()),
+        // igual que Wallet. Un ítem de sideMenu sin permisos lo haría "administrable
+        // por plan" (Aero\Sites\Classes\ProFeatures::manageablePlugins()) y algún
+        // plan podría terminar bloqueándolo por accidente.
         return [
-            // Panel del tenant: comprar servicios con sus créditos/saldo en Bs (sin permiso, como Wallet).
-            'my-services' => [
-                'label'       => 'aero.services::lang.menu.my_services',
-                'url'         => Backend::url('aero/services/myservices'),
-                'icon'        => 'icon-shopping-basket',
-                'order'       => 120,
-            ],
             'services' => [
                 'label'       => 'aero.services::lang.menu.services',
                 'url'         => Backend::url('aero/services/services'),
