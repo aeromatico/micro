@@ -42,4 +42,34 @@ slug = "{{ :slug }}"
             </ul>
         {% endif %}
     {% endif %}
+
+    {# Guías interactivas vinculadas al servicio (Servicios → pestaña Documentación); solo las publicadas. #}
+    {% set guias = service.published_guides %}
+    {% if guias|length %}
+        <section class="mt-16 pt-10 border-t border-edge" id="guias" aria-labelledby="guias-titulo">
+            <div class="flex flex-wrap items-end justify-between gap-3 mb-2">
+                <h2 id="guias-titulo" class="text-2xl sm:text-3xl font-bold text-pretty">Pruébalo antes de usarlo</h2>
+                <a href="/guias" class="text-sm font-semibold text-accent hover:underline">Todas las guías interactivas →</a>
+            </div>
+            <p class="text-ink-dim max-w-2xl">
+                {{ guias|length == 1 ? 'Una guía interactiva te lleva' : 'Guías interactivas que te llevan' }} paso a paso por el formulario real, sin guardar datos.
+            </p>
+
+            <div class="mt-8 flex flex-col gap-12">
+                {% for g in guias %}
+                    <article aria-labelledby="guia-{{ g.slug }}">
+                        <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-3">
+                            <h3 id="guia-{{ g.slug }}" class="text-lg font-semibold">{{ g.title }}</h3>
+                            <span class="flex items-center gap-4 text-sm">
+                                {% if g.article %}<a href="{{ g.article.url }}" class="text-ink-dim hover:text-ink">Ver documentación</a>{% endif %}
+                                <a href="{{ g.url }}" class="text-ink-dim hover:text-ink">Abrir a pantalla completa ↗</a>
+                            </span>
+                        </div>
+                        <iframe src="{{ g.embed_url }}" sandbox="allow-scripts" loading="lazy" title="{{ g.title }}"
+                            class="block w-full rounded-xl border border-edge bg-canvas-elev" style="height:min(80vh,820px);min-height:640px"></iframe>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
 </div>
