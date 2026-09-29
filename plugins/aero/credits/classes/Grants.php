@@ -14,7 +14,6 @@ class Grants
     public static function apply(\Aero\Sites\Models\Tenant $tenant, \Aero\Sites\Models\Plan $plan, string $periodUnit, int $periodCount): void
     {
         $periodCount = max(1, $periodCount);
-        $months = $periodUnit === 'annual' ? $periodCount * 12 : $periodCount;
 
         $base = ($tenant->plan_expires_at && $tenant->plan_expires_at->isFuture())
             ? $tenant->plan_expires_at->copy()
@@ -22,8 +21,28 @@ class Grants
 
         $tenant->plan_id = $plan->id;
         $tenant->plan_price = 0;
-        $tenant->billing_period = $periodUnit === 'annual' ? 'annual' : 'monthly';
-        $tenant->plan_expires_at = $base->addMonths($months);
+
+        // 'daily' = periodo corto (p.ej. los 7 días del Trial); los otros dos
+        // son los de siempre.
+        if ($periodUnit === 'daily') {
+            $tenant->billing_period = 'trial';
+            $tenant->plan_expires_at = $base->addDays($periodCount);
+        } else {
+            $tenant->billing_period = $periodUnit === 'annual' ? 'annual' : 'monthly';
+            $tenant->plan_expires_at = $base->addMonths($periodUnit === 'annual' ? $periodCount * 12 : $periodCount);
+        }
         $tenant->save();
+    }
+
+    /** "7 días", "1 mes", "2 años" */
+    public static function periodLabel(string $unit, int $count): string
+    {
+        $count = max(1, $count);
+
+        return match ($unit) {
+            'daily'  => $count . ($count === 1 ? ' día' : ' días'),
+            'annual' => $count . ($count === 1 ? ' año' : ' años'),
+            default  => $count . ($count === 1 ? ' mes' : ' meses'),
+        };
     }
 }

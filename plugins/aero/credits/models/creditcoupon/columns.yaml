@@ -6,7 +6,7 @@ columns:
         searchable: false
     period_count:
         label: Periodos
-        select: 'concat(period_count, " ", if(period_unit = "annual", "año(s)", "mes(es)"))'
+        select: 'concat(period_count, " ", if(period_unit = "annual", "año(s)", if(period_unit = "daily", "día(s)", "mes(es)")))'
         searchable: false
     times_redeemed:
         label: Canjes

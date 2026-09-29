@@ -22,7 +22,7 @@ class CreditCoupon extends Model
     public $rules = [
         'code'         => 'required|alpha_dash|max:40',
         'plan_id'      => 'required',
-        'period_unit'  => 'required|in:monthly,annual',
+        'period_unit'  => 'required|in:daily,monthly,annual',
         'period_count' => 'required|integer|min:1',
     ];
 
@@ -56,13 +56,13 @@ class CreditCoupon extends Model
     public function getPlanIdOptions(): array
     {
         return class_exists(\Aero\Sites\Models\Plan::class)
-            ? \Aero\Sites\Models\Plan::active()->orderBy('sort_order')->pluck('name', 'id')->all()
+            ? \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'id')->all()
             : [];
     }
 
     public function getPeriodUnitOptions(): array
     {
-        return ['monthly' => 'Meses', 'annual' => 'Años'];
+        return ['daily' => 'Días', 'monthly' => 'Meses', 'annual' => 'Años'];
     }
 
     public function getPlanNameAttribute(): string

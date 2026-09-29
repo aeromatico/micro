@@ -12,7 +12,7 @@ columns:
         sortable: false
     grant_period_count:
         label: Regalo
-        select: 'concat(ifnull(grant_period_count, "—"), " ", if(grant_period_unit = "annual", "año(s)", if(grant_period_unit = "monthly", "mes(es)", "")))'
+        select: 'concat(ifnull(grant_period_count, "—"), " ", if(grant_period_unit = "annual", "año(s)", if(grant_period_unit = "monthly", "mes(es)", if(grant_period_unit = "daily", "día(s)", ""))))'
         searchable: false
     updated_at:
         label: Actualizado

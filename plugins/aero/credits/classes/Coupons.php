@@ -28,7 +28,7 @@ class Coupons
             return null;
         }
 
-        $plan = \Aero\Sites\Models\Plan::active()->find($coupon->plan_id);
+        $plan = \Aero\Sites\Models\Plan::find($coupon->plan_id);
         if (!$plan) {
             return null;
         }

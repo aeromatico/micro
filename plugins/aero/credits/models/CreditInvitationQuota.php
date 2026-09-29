@@ -24,7 +24,7 @@ class CreditInvitationQuota extends Model
 
     public function getPeriodUnitOptions(): array
     {
-        return ['' => '— Usar el valor por defecto —', 'monthly' => 'Meses', 'annual' => 'Años'];
+        return ['' => '— Usar el valor por defecto —', 'daily' => 'Días', 'monthly' => 'Meses', 'annual' => 'Años'];
     }
 
     public function getGrantPeriodUnitOptions(): array
@@ -35,7 +35,7 @@ class CreditInvitationQuota extends Model
     public function getGrantPlanIdOptions(): array
     {
         return ['' => '— Usar el valor por defecto —'] + (class_exists(\Aero\Sites\Models\Plan::class)
-            ? \Aero\Sites\Models\Plan::active()->orderBy('sort_order')->pluck('name', 'id')->all()
+            ? \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'id')->all()
             : []);
     }
 

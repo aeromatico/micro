@@ -71,6 +71,7 @@ class SignupWizard extends ComponentBase
             'domainRegistrationPrice'    => $domainRegistrationPrice,
             'domainRenewalMarkupPercent' => $domainRenewalMarkupPercent,
             'usdToBobRate'               => $usdToBobRate,
+            'initialPromo'               => strtoupper(trim((string) request()->query('promo', ''))),
         ], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG);
     }
 
@@ -98,6 +99,46 @@ class SignupWizard extends ComponentBase
         }
 
         return ['available' => true, 'message' => "¡Disponible! {$handle}.market.com.bo"];
+    }
+
+    // -------------------------------------------------------------------
+    // Código de invitación/cupón — validación sin consumir
+    // -------------------------------------------------------------------
+
+    public function onCheckPromo(): array
+    {
+        $key = 'signup-promo:' . request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 20)) {
+            return ['valid' => false, 'message' => 'Demasiados intentos. Espera un momento.'];
+        }
+        RateLimiter::hit($key, 300);
+
+        $code = trim((string) post('promo_code', ''));
+        $redemption = null;
+
+        if ($code !== '') {
+            if (class_exists(\Aero\Credits\Classes\Invitations::class)) {
+                $redemption = \Aero\Credits\Classes\Invitations::preview($code);
+            }
+            if (!$redemption && class_exists(\Aero\Credits\Classes\Coupons::class)) {
+                $redemption = \Aero\Credits\Classes\Coupons::preview($code);
+            }
+        }
+
+        if (!$redemption) {
+            return ['valid' => false, 'message' => 'Ese código no es válido o ya venció.'];
+        }
+
+        $plan = $redemption['plan'];
+        $duration = \Aero\Credits\Classes\Grants::periodLabel($redemption['period_unit'], $redemption['period_count']);
+
+        return [
+            'valid'      => true,
+            'plan_label' => $plan->name,
+            'is_pro'     => (bool) $plan->is_pro,
+            'duration'   => $duration,
+            'message'    => "¡Código válido! {$duration} gratis" . ($plan->is_pro ? ' con todas las funciones del plan PRO' : " del plan {$plan->name}"),
+        ];
     }
 
     // -------------------------------------------------------------------
@@ -307,6 +348,7 @@ class SignupWizard extends ComponentBase
         return [
             'success'     => true,
             'trial'       => !$redemption,
+            'free'        => true,
             'tenant_id'   => $tenant->id,
             'reference'   => $tenant->signup_payment_reference,
             'domain'      => $tenant->handle . '.' . $rootDomain->domain,

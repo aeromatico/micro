@@ -43,6 +43,15 @@ class CreditInvitation extends Model
         return ['whatsapp' => 'WhatsApp', 'email' => 'Correo'];
     }
 
+    /** "7 días gratis con todas las funciones del plan PRO" */
+    public function grantLabel(): string
+    {
+        $plan = ($this->plan_id && class_exists(\Aero\Sites\Models\Plan::class)) ? \Aero\Sites\Models\Plan::find($this->plan_id) : null;
+        $label = \Aero\Credits\Classes\Grants::periodLabel((string) $this->period_unit, (int) $this->period_count) . ' gratis';
+
+        return $plan && $plan->is_pro ? "{$label} con todas las funciones del plan PRO" : $label;
+    }
+
     public function getStatusOptions(): array
     {
         return [

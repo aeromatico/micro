@@ -80,6 +80,12 @@ function signupWizard(config) {
         catalogLoading: false,
         showCatalog: false,
 
+        // Código de invitación/cupón (Aero.Credits): activa el sitio gratis
+        // con el plan/periodo del regalo, sin pasar por el QR.
+        promoCode: config.initialPromo || '',
+        promoStatus: 'idle', // 'idle' | 'checking' | 'valid' | 'invalid'
+        promoMessage: '',
+
         creating: false,
         createError: '',
 
@@ -97,6 +103,42 @@ function signupWizard(config) {
         // Plan con dominio propio: viene del plan (is_pro), no de un id fijo.
         init() {
             this.ensurePeriod();
+            if (this.promoCode) this.checkPromo();
+        },
+
+        get isPromo() {
+            return this.promoStatus === 'valid';
+        },
+
+        // Sin cobro: prueba gratis o código válido.
+        get isFree() {
+            return this.isTrial || this.isPromo;
+        },
+
+        checkPromo() {
+            const code = this.promoCode.trim();
+            if (!code) {
+                this.promoStatus = 'idle';
+                this.promoMessage = '';
+                return;
+            }
+            this.promoStatus = 'checking';
+            oc.request(null, 'signupWizard::onCheckPromo', { data: { promo_code: code } })
+                .then((data) => {
+                    this.promoStatus = data.valid ? 'valid' : 'invalid';
+                    this.promoMessage = data.message || '';
+                    if (data.valid && this.domainMode === 'register') this.setDomainMode('');
+                })
+                .catch(() => {
+                    this.promoStatus = 'invalid';
+                    this.promoMessage = 'No se pudo validar el código. Intenta de nuevo.';
+                });
+        },
+
+        clearPromo() {
+            this.promoCode = '';
+            this.promoStatus = 'idle';
+            this.promoMessage = '';
         },
 
         get isPro() {
@@ -126,13 +168,16 @@ function signupWizard(config) {
             if (!ids.includes(this.period)) {
                 this.period = ids.includes('monthly') ? 'monthly' : (ids[0] || 'monthly');
             }
-            if (this.isTrial && this.domainMode === 'register') {
+            if (this.isFree && this.domainMode === 'register') {
                 this.setDomainMode('');
             }
         },
 
         get canContinue() {
-            if (!this.signupEnabled || this.available !== true || !this.niche || !this.plan || this.creating) {
+            if (this.promoStatus === 'checking' || (this.promoCode.trim() && this.promoStatus === 'invalid')) {
+                return false;
+            }
+            if (!(this.signupEnabled || this.isFree) || this.available !== true || !this.niche || !this.plan || this.creating) {
                 return false;
             }
             if (this.isPro && this.domainMode === 'register' && !this.selectedDomain) return false;
@@ -147,7 +192,7 @@ function signupWizard(config) {
             // falta que ya haya buscado/elegido el nombre puntual, el cargo
             // es por el servicio de registro en sí, no por un dominio
             // específico.
-            const addsFee = this.isPro && !this.isTrial && this.domainMode === 'register';
+            const addsFee = this.isPro && !this.isFree && this.domainMode === 'register';
             return addsFee ? base + this.domainRegistrationPrice : base;
         },
 
@@ -337,6 +382,7 @@ function signupWizard(config) {
                     period: this.period,
                     domain_mode: domainMode,
                     domain: domainValue,
+                    promo_code: this.isPromo ? this.promoCode.trim() : '',
                 },
             })
                 .then((data) => {
@@ -347,8 +393,8 @@ function signupWizard(config) {
                     }
                     this.payment = data;
                     this.step = 2;
-                    if (data.trial) {
-                        // Prueba gratis: el sitio ya está activo, sin QR ni polling.
+                    if (data.trial || data.free) {
+                        // Prueba gratis o código canjeado: el sitio ya está activo, sin QR ni polling.
                         this.paymentStatus = 'paid';
                         return;
                     }

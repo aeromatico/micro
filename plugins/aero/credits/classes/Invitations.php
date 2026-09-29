@@ -98,7 +98,7 @@ class Invitations
             ? (\Aero\Sites\Models\Tenant::find($invitation->tenant_id)->name ?? 'un cliente de Market')
             : 'un cliente de Market';
 
-        $message = "{$tenantName} te invitó a Market. Crea tu sitio gratis con este código: {$invitation->code}\n{$link}";
+        $message = "{$tenantName} te invitó a Market. Regalo: {$invitation->grantLabel()}. Tu código: {$invitation->code}\n{$link}";
 
         try {
             if ($invitation->channel === 'whatsapp' && class_exists(\Aero\Hello\Classes\Hello::class)) {
@@ -136,7 +136,7 @@ class Invitations
             return null;
         }
 
-        $plan = $invitation->plan_id ? \Aero\Sites\Models\Plan::active()->find($invitation->plan_id) : null;
+        $plan = $invitation->plan_id ? \Aero\Sites\Models\Plan::find($invitation->plan_id) : null;
         if (!$plan) {
             return null;
         }
@@ -189,8 +189,8 @@ class Invitations
     protected static function signupUrl(string $code): string
     {
         $base = class_exists(\Aero\Sites\Models\Settings::class)
-            ? (\Aero\Sites\Models\Settings::get('public_signup_url') ?: url('/alta'))
-            : url('/alta');
+            ? (\Aero\Sites\Models\Settings::get('public_signup_url') ?: url('/comprar'))
+            : url('/comprar');
 
         return rtrim($base, '/') . '?promo=' . urlencode($code);
     }
