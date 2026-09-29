@@ -1,0 +1,23 @@
+columns:
+    title:
+        label: Título
+        searchable: true
+    plugin:
+        label: Plugin
+        type: text
+        width: 90px
+    status:
+        label: Estado
+        type: selectable
+        options: getStatusOptions
+    has_pending:
+        label: Propuesta pendiente
+        type: switch
+        sortable: false
+    article:
+        label: Documentación
+        relation: article
+        select: title
+    updated_at:
+        label: Actualizado
+        type: datetime

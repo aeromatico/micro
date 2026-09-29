@@ -34,3 +34,7 @@ columns:
     updated_at:
         label: Actualizado
         type: datetime
+    has_pending:
+        label: Cambios pendientes
+        type: switch
+        sortable: false

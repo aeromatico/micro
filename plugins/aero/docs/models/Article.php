@@ -16,6 +16,7 @@ class Article extends Model
     public $fillable = [
         'tenant_id', 'is_global', 'category_id', 'title', 'slug', 'excerpt', 'content', 'plugin_version',
         'sort_order', 'is_published', 'is_featured', 'published_at',
+        'pending_content', 'pending_plugin_version', 'pending_at',
     ];
 
     public $slugs = ['slug' => 'title'];
@@ -31,7 +32,7 @@ class Article extends Model
         'is_global'    => 'boolean',
     ];
 
-    protected $dates = ['published_at'];
+    protected $dates = ['published_at', 'pending_at'];
 
     public $jsonable = ['toc'];
 
@@ -141,6 +142,37 @@ class Article extends Model
     public function getUrlAttribute(): string
     {
         return url('documentacion/' . $this->slug);
+    }
+
+    public function getHasPendingAttribute(): bool
+    {
+        return !empty($this->pending_content);
+    }
+
+    /**
+     * Promueve la edición propuesta por la IA a contenido visible. Pasa por
+     * save() a propósito: así se regenera el HTML y se crea la versión nueva.
+     */
+    public function approvePending(): void
+    {
+        if (!$this->pending_content) {
+            return;
+        }
+
+        $this->content        = $this->pending_content;
+        $this->plugin_version = $this->pending_plugin_version ?: $this->plugin_version;
+        $this->pending_content        = null;
+        $this->pending_plugin_version = null;
+        $this->pending_at             = null;
+        $this->save();
+    }
+
+    public function rejectPending(): void
+    {
+        $this->pending_content        = null;
+        $this->pending_plugin_version = null;
+        $this->pending_at             = null;
+        $this->saveQuietly();
     }
     /** El slug solo debe ser único dentro del ámbito del registro. */
     protected function newSluggableQuery()

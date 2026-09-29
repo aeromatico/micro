@@ -58,3 +58,7 @@
 1.1.8:
     - "Página de tarifas de Aero.Credits (dónde y cuánto se cobra en cada plugin) y corrección de los colores de moneda mencionados en los artículos existentes (bronce/plata/oro, ya no azul/rojo)."
     - seed_credits_tarifas_docs.php
+1.2.0:
+    - "Guías interactivas (tabla aero_docs_guides) y cambios pendientes de revisión en artículos, para el flujo de documentación automática con Claude."
+    - create_aero_docs_guides_table.php
+    - add_pending_changes_to_aero_docs_articles.php

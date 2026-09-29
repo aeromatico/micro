@@ -1,0 +1,18 @@
+<?php
+$html = $formModel->exists ? $formModel->preview_html : null;
+?>
+<?php if (!$html): ?>
+    <p class="text-muted">Esta guía todavía no tiene HTML.</p>
+<?php else: ?>
+    <?php if ($formModel->has_pending): ?>
+        <div class="callout callout-warning no-subheader">
+            <div class="header"><h3>Propuesta pendiente de revisión</h3>
+                <p>Estás viendo lo que generó la IA<?= $formModel->pending_at ? ' el ' . e($formModel->pending_at->format('d/m/Y H:i')) : '' ?>.
+                Pruébala completa (rellena, valida, guarda) antes de aprobar.
+                <?= $formModel->html ? 'Lo publicado en /guias sigue siendo la versión anterior.' : 'Aún no hay versión publicada.' ?></p>
+            </div>
+        </div>
+    <?php endif ?>
+    <iframe sandbox="allow-scripts" srcdoc="<?= e($html) ?>" title="Vista previa de la guía"
+        style="width:100%;height:78vh;border:1px solid #d5dce2;border-radius:4px;background:#fff"></iframe>
+<?php endif ?>

@@ -35,4 +35,31 @@ class Articles extends Controller
             $model->tenant_id = \Aero\Docs\Classes\DocsScope::currentTenantId();
         }
     }
+
+    public function onApprovePending()
+    {
+        $this->assertReviewer();
+        $article = \Aero\Docs\Models\Article::inCurrentScope()->findOrFail(post('record_id'));
+        $article->approvePending();
+        \Flash::success('Cambios aprobados. El artículo ya muestra el contenido nuevo.');
+
+        return \Backend::redirect('aero/docs/articles/update/' . $article->id);
+    }
+
+    public function onRejectPending()
+    {
+        $this->assertReviewer();
+        $article = \Aero\Docs\Models\Article::inCurrentScope()->findOrFail(post('record_id'));
+        $article->rejectPending();
+        \Flash::success('Cambios descartados. El artículo publicado no cambió.');
+
+        return \Backend::redirect('aero/docs/articles/update/' . $article->id);
+    }
+
+    protected function assertReviewer(): void
+    {
+        if (!\BackendAuth::getUser()?->hasAccess('aero.docs.guides.review')) {
+            throw new \ApplicationException('No tienes permiso para aprobar cambios.');
+        }
+    }
 }
