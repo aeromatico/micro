@@ -1,0 +1,16 @@
+{
+  "dry_run": true,
+  "model": "sonnet",
+  "max_turns": 80,
+  "max_budget_usd": 4,
+  "docs_quiet_minutes": 15,
+  "source_quiet_minutes": 30,
+  "max_plugins_per_run": 3,
+  "max_runs_per_day": 4,
+  "retry_backoff_minutes": 180,
+  "max_failures": 3,
+  "agent_timeout_minutes": 45,
+  "guides_enabled": true,
+  "max_guides_per_run": 4,
+  "cron_every_minutes": 30
+}

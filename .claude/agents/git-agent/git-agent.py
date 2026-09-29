@@ -75,8 +75,8 @@ DEFAULT_CONFIG = {
     "cron": {"commit_every_minutes": 10},
     "web_user": "www",
     # Áreas que otro proceso puede estar escribiendo: mientras el lock exista y su pid viva, NO se commitean
-    # (ni siquiera con --now). docs-sync-watch crea el lock mientras el agente de documentación trabaja.
-    "busy_locks": {"plugins/aero/docs": ".opencode/.docs-sync.lock"},
+    # (ni siquiera con --now). docs-sync-watch (Claude, .claude/agents/docs-sync) crea el lock mientras el agente de documentación trabaja.
+    "busy_locks": {"plugins/aero/docs": ".git/docs-sync-claude/agent.lock"},
 }
 
 
