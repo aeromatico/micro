@@ -16,7 +16,7 @@ use October\Rain\Parse\Yaml;
  */
 class ImportCommand extends Command
 {
-    protected $signature = 'docs:import {plugin? : Plugin a importar (ej. pay); vacío = todos} {--dry-run : Solo mostrar qué haría}';
+    protected $signature = 'docs:import {plugin? : Plugin a importar (ej. pay); vacío = todos} {--dry-run : Solo mostrar qué haría} {--mark-reviewed : Marca los artículos SIN cambios como revisados para la versión actual del plugin}';
 
     protected $description = 'Importa artículos y guías de docs-sync como borrador / cambios pendientes.';
 
@@ -92,7 +92,10 @@ class ImportCommand extends Command
             $same = trim($existing->content) === trim($body);
 
             if ($same) {
-                if ($version && $existing->plugin_version !== $version) {
+                // Contenido idéntico NO significa revisado: solo se sube la versión documentada cuando quien
+                // importa afirma que revisó la documentación de ese plugin (--mark-reviewed). Si no, se
+                // ocultaría documentación realmente desactualizada.
+                if ($this->option('mark-reviewed') && $version && $existing->plugin_version !== $version) {
                     $this->line("  = {$slug}: sin cambios de contenido, versión documentada → {$version}");
                     $this->direct($existing->id, ['plugin_version' => $version]);
                 }

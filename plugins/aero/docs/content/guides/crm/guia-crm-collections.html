@@ -27,7 +27,7 @@
 }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
-.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
 @media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
 header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
 h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
@@ -47,6 +47,35 @@ h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
 .note b { color: var(--hint); }
 .example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+
+/* Navegación de pasos: bajo el eyebrow, dos botones grandes y de igual peso */
+.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--accent); }
+.g-nav #gPrev { background: var(--accent-soft); color: var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
+.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
+.g-title { margin-top: 14px !important; }
+
+/* Barra de guía con color propio (distinta del formulario), claro y oscuro */
+:root {
+  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
+  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+  }
+}
+:root[data-theme="dark"] {
+  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+}
+.guide { --surface: var(--g-surface); --surface-2: var(--g-surface-2); --line: var(--g-line); --ink: var(--g-ink); --ink-2: var(--g-ink-2);
+  --accent: var(--g-accent); --accent-ink: var(--g-accent-ink); --accent-soft: var(--g-accent-soft); color: var(--ink); }
+.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
 button { font: inherit; cursor: pointer; }
 button:disabled { opacity: .5; cursor: default; }
 .btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
@@ -110,13 +139,15 @@ body:not(.show-tech) .trig { display: none; }
   <aside class="guide" aria-label="Guía paso a paso">
     <div class="g-head">
       <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
       <h2 class="g-title" id="gTitle"></h2>
       <div class="progress"><i id="gBar"></i></div>
     </div>
     <div class="g-body" id="gBody"></div>
     <div class="g-actions">
-      <button class="btn" id="gPrev" type="button">Anterior</button>
-      <button class="btn primary" id="gNext" type="button">Siguiente</button>
       <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
     </div>
     <ol class="steps" id="gSteps"></ol>
