@@ -38,7 +38,6 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         $this->bootTenantPurgeCleanup();
-        $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
         $this->bootChatbotsIntegration();
         $this->bootRestApi();
@@ -147,28 +146,6 @@ class Plugin extends PluginBase
                     'handler' => [\Aero\Shop\Classes\Ai\ChatbotTools::class, 'listProducts'],
                 ],
             ];
-        });
-    }
-
-    /**
-     * Espejo de "Tienda → Configuración" como tab del menú central
-     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
-     * un solo lugar. El menú propio de Tienda sigue existiendo tal cual —
-     * esto solo agrega un acceso más al mismo controlador, no lo mueve.
-     */
-    protected function registerConfigMenuTab(): void
-    {
-        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
-            return;
-        }
-
-        Event::listen('backend.menu.extendItems', function ($manager) {
-            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'shop-settings', [
-                'label'       => 'aero.shop::lang.menu.settings',
-                'icon'        => 'icon-shopping-cart',
-                'url'         => Backend::url('aero/shop/shopsettings'),
-                'permissions' => ['aero.shop.manage_settings'],
-            ]);
         });
     }
 
