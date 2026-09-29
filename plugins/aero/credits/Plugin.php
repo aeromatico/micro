@@ -84,11 +84,14 @@ class Plugin extends PluginBase
             }
 
             // "Wallet" e "Invitaciones" viven en el menú inferior (antes «Mis
-            // monedas» estaba en el menú lateral).
+            // monedas» estaba en el menú lateral). "App Store" (Aero.Services,
+            // opcional) va ANTES de Wallet: se arma acá y no en Aero.Services
+            // para que el orden no dependa de en qué secuencia arrancan los plugins.
+            $appStoreItem = class_exists(\Aero\Services\Classes\Storefront::class) ? \Aero\Services\Classes\Storefront::navbarItem() : '';
             $walletItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Wallet"><a href="' . e(Backend::url('aero/credits/wallet')) . '"><span class="nav-icon"><i class="icon-money"></i></span><span class="nav-label">Wallet</span></a></li></ul></div>';
             $inviteItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Invitaciones"><a href="' . e(Backend::url('aero/credits/myinvitations')) . '"><span class="nav-icon"><i class="icon-user-plus"></i></span><span class="nav-label">Invitar</span></a></li></ul></div>';
 
-            return $html . $walletItem . $inviteItem . $this->navbarPollScript();
+            return $html . $appStoreItem . $walletItem . $inviteItem . $this->navbarPollScript();
         });
     }
 
