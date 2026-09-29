@@ -50,6 +50,14 @@ class Service extends Model
             'scope'    => 'platform',
             'order'    => 'title',
         ],
+        'guides' => [
+            \Aero\Docs\Models\Guide::class,
+            'table'    => 'aero_services_service_guide',
+            'key'      => 'service_id',
+            'otherKey' => 'guide_id',
+            'scope'    => 'platform',
+            'order'    => 'aero_docs_guides.sort_order',
+        ],
     ];
 
     public $attachOne = [
@@ -60,6 +68,12 @@ class Service extends Model
     public function getCategoryAttribute(): ?Category
     {
         return $this->categories->first();
+    }
+
+    /** Guías interactivas vinculadas Y publicadas: lo que se renderiza dentro de /servicio/{slug}. */
+    public function getPublishedGuidesAttribute()
+    {
+        return $this->guides()->published()->orderBy('aero_docs_guides.sort_order')->orderBy('aero_docs_guides.title')->get();
     }
 
     /** Etiqueta corta del/los planes, para listados: "Bs 100" · "3 planes" · "A cotizar". */

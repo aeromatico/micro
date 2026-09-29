@@ -32,3 +32,6 @@
 1.10.0:
     - "Jerarquía Colección → Categorías → Servicios (ambas múltiples). El vínculo directo colección↔servicio se migra a categorías y se elimina."
     - create_collection_category_table.php
+1.11.0:
+    - "Guías interactivas en el servicio: pestaña Documentación con relación múltiple a las guías de Aero.Docs; las publicadas se muestran dentro de /servicio/{slug}."
+    - create_service_guide_table.php

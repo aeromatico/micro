@@ -191,6 +191,14 @@ tabs:
             nameFrom: select_label
             scope: platform
 
+        guides:
+            tab: Documentación
+            label: Guías interactivas del servicio
+            commentAbove: Guías de Aero.Docs que se muestran dentro de la página pública del servicio, una debajo de otra. Se pueden elegir varias; solo se ven las que están publicadas.
+            type: relation
+            nameFrom: select_label
+            scope: platform
+
         is_active:
             tab: Publicación
             label: Público
