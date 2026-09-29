@@ -11,7 +11,7 @@ class Service extends Model
     public $table = 'aero_services_services';
 
     public $fillable = [
-        'category_id', 'name', 'slug', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
+        'name', 'slug', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
         'features', 'requirements', 'plugin_links',
         'sort_order', 'is_active', 'is_featured', 'in_megamenu',
     ];
@@ -22,8 +22,6 @@ class Service extends Model
         'name' => 'required|max:255',
         'slug' => 'required|alpha_dash',
     ];
-
-    public $nullable = ['category_id'];
 
     public $attributes = ['has_pro' => false, 'is_active' => true, 'sort_order' => 0];
 
@@ -36,11 +34,14 @@ class Service extends Model
         'in_megamenu' => 'boolean',
     ];
 
-    public $belongsTo = [
-        'category' => [Category::class, 'key' => 'category_id'],
-    ];
-
     public $belongsToMany = [
+        'categories' => [
+            Category::class,
+            'table'    => 'aero_services_category_service',
+            'key'      => 'service_id',
+            'otherKey' => 'category_id',
+            'order'    => 'sort_order',
+        ],
         'articles' => [
             \Aero\Docs\Models\Article::class,
             'table'    => 'aero_services_service_article',
@@ -62,11 +63,10 @@ class Service extends Model
         'cover' => \System\Models\File::class,
     ];
 
-    use \October\Rain\Database\Traits\Nullable;
-
-    public function getCategoryIdOptions(): array
+    /** Categoría principal (la primera por orden), para migas de pan y etiquetas de una sola categoría. */
+    public function getCategoryAttribute(): ?Category
     {
-        return Category::orderBy('sort_order')->orderBy('name')->pluck('name', 'id')->all();
+        return $this->categories->first();
     }
 
     /** Etiqueta corta del/los planes, para listados: "Bs 100" · "3 planes" · "A cotizar". */

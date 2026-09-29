@@ -42,7 +42,7 @@ class MyServices extends Controller
             return;
         }
 
-        $this->vars['services'] = Service::active()->with('category')->orderBy('sort_order')->orderBy('name')->get()
+        $this->vars['services'] = Service::active()->with('categories')->orderBy('sort_order')->orderBy('name')->get()
             ->filter(fn ($s) => collect((array) $s->plans)->isNotEmpty());
 
         $this->vars['purchases'] = ServicePurchase::forTenant($tenantId)->with('service')

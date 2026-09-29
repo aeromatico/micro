@@ -221,11 +221,14 @@ class OfferBuilder
             'code'         => $offer['code'],
         ]);
 
-        if ($category = Category::where('name', $categoryName)->first()) {
-            $service->category_id = $category->id;
-        }
+        $category = Category::where('name', $categoryName)->first();
 
         $service->save();
+
+        if ($category) {
+            $service->categories()->syncWithoutDetaching([$category->id]);
+        }
+
         $this->dumpForTailwind($service);
 
         if ($offer['docs']) {

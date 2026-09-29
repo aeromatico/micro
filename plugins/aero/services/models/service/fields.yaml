@@ -9,25 +9,30 @@ fields:
         preset:
             field: name
             type: slug
-    category_id:
-        label: Categoría
-        type: dropdown
-        emptyOption: '— Sin categoría —'
-        span: left
-    summary:
-        label: Resumen
-        comment: Una línea para tarjetas y listados.
-        span: right
-        type: text
+
 tabs:
     fields:
+        categories:
+            tab: General
+            label: Categorías
+            commentAbove: Puede pertenecer a varias; aparece en el megamenú bajo cada una.
+            type: relation
+            nameFrom: name
+            span: left
+        summary:
+            tab: General
+            label: Resumen
+            comment: Una línea para tarjetas y listados.
+            type: textarea
+            size: small
+            span: right
         description:
-            tab: Descripción
+            tab: Contenido
             label: Descripción completa
             type: markdown
             size: giant
         features:
-            tab: Descripción
+            tab: Contenido
             label: Qué incluye
             type: repeater
             prompt: Agregar ítem
@@ -37,7 +42,7 @@ tabs:
                         label: Ítem
                         type: text
         requirements:
-            tab: Descripción
+            tab: Contenido
             label: Qué necesitamos del cliente
             type: repeater
             prompt: Agregar requisito
@@ -55,7 +60,7 @@ tabs:
             size: giant
             stretch: true
         cover:
-            tab: Descripción
+            tab: General
             label: Imagen de portada
             type: fileupload
             mode: image
@@ -179,7 +184,7 @@ tabs:
                         type: text
 
         collections:
-            tab: Plataforma
+            tab: General
             label: Colecciones
             commentAbove: Colecciones en las que aparece este servicio (opcional).
             type: relation

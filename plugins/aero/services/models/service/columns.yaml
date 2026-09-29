@@ -2,9 +2,9 @@ columns:
     name:
         label: Servicio
         searchable: true
-    category:
-        label: Categoría
-        relation: category
+    categories:
+        label: Categorías
+        relation: categories
         select: name
     plans_summary:
         label: Planes

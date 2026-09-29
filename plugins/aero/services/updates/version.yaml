@@ -26,3 +26,6 @@
 1.8.0:
     - "Compra de servicios: el tenant paga un plan con sus créditos o su saldo en Bs (Aero.Credits) desde el nuevo panel «Servicios» (sin permiso, como Wallet); el superadmin entrega o cancela cada compra desde Servicios → Compras. plan_snapshot congela el plan comprado aunque el catálogo cambie después."
     - create_service_purchases_table.php
+1.9.0:
+    - "Un servicio puede tener varias categorías (tabla pivote; se migran las existentes). Formulario reorganizado por pestañas: General, Contenido, Planes, Página, Plataforma, Publicación."
+    - create_category_service_table.php

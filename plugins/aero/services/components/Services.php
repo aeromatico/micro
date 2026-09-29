@@ -81,15 +81,25 @@ class Services extends ComponentBase
 
     protected function menuGroups(): array
     {
-        $services = Service::inMegamenu()->with('category')->orderBy('sort_order')->orderBy('name')->get();
+        $services = Service::inMegamenu()->with('categories')->orderBy('sort_order')->orderBy('name')->get();
+
+        // Un servicio aparece en cada una de sus categorías (o en «Otros servicios» si no tiene).
+        $buckets = [];
+        foreach ($services as $s) {
+            $cats = $s->categories->isNotEmpty() ? $s->categories : collect([null]);
+            foreach ($cats as $c) {
+                $buckets[$c?->id ?? 0]['category'] = $c;
+                $buckets[$c?->id ?? 0]['items'][] = $s;
+            }
+        }
 
         $groups = [];
-        foreach ($services->groupBy(fn ($s) => $s->category_id ?: 0) as $categoryId => $items) {
-            $category = $categoryId ? $items->first()->category : null;
+        foreach ($buckets as $bucket) {
+            $category = $bucket['category'];
             $groups[] = [
                 'name'  => $category?->name ?: 'Otros servicios',
                 'order' => $category?->sort_order ?? PHP_INT_MAX,
-                'items' => $items->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'url' => url('servicio/' . $s->slug)])->all(),
+                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'url' => url('servicio/' . $s->slug)])->all(),
             ];
         }
         usort($groups, fn ($a, $b) => $a['order'] <=> $b['order']);

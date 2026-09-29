@@ -20,8 +20,13 @@ class Category extends Model
 
     protected $casts = ['is_active' => 'boolean'];
 
-    public $hasMany = [
-        'services' => [Service::class, 'key' => 'category_id'],
+    public $belongsToMany = [
+        'services' => [
+            Service::class,
+            'table'    => 'aero_services_category_service',
+            'key'      => 'category_id',
+            'otherKey' => 'service_id',
+        ],
     ];
 
     public function scopeActive($query)
