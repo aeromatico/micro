@@ -64,8 +64,13 @@ class Plan extends Model
 
     public const PERIODS = ['trial', 'monthly', 'annual'];
 
-    /** Plugins que ningún plan puede quitar: la propia plataforma y la billetera para poder pagar/recargar. */
-    public const ALWAYS_ALLOWED = ['Aero.Sites', 'Aero.Credits', 'Aero.Docs'];
+    /**
+     * Plugins que ningún plan puede quitar: la propia plataforma, la billetera
+     * para poder pagar/recargar, y el catálogo para comprar servicios extra
+     * (Aero.Services) — bloquearlo por plan no tendría sentido: es justamente
+     * el lugar donde el tenant paga por más cosas, no una función premium.
+     */
+    public const ALWAYS_ALLOWED = ['Aero.Sites', 'Aero.Credits', 'Aero.Docs', 'Aero.Services'];
 
     /** Periodos que este plan ofrece: ['trial' => 0, 'monthly' => 49.0, 'annual' => 490.0]. */
     public function periods(): array
