@@ -20,7 +20,8 @@ class InboxController extends Controller
     {
         $accounts = Account::with('profile')->forTenant($this->tenantId($request))->enabled()->orderBy('label')->get();
 
-        $pending = Conversation::whereIn('account_id', $accounts->pluck('id'))->where('unread_count', '>', 0)->get(['id', 'account_id', 'unread_count']);
+        // is_archived=false: un chat archivado no debe sumar al badge de la cuenta ni al total del riel.
+        $pending = Conversation::whereIn('account_id', $accounts->pluck('id'))->where('is_archived', false)->where('unread_count', '>', 0)->get(['id', 'account_id', 'unread_count']);
         $lastOut = $this->lastMessages($pending->pluck('id'))->filter(fn ($m) => $m->direction === 'outbound')->keys();
         $unread = $pending->reject(fn ($c) => $lastOut->contains($c->id))->groupBy('account_id')->map(fn ($g) => $g->sum('unread_count'));
 

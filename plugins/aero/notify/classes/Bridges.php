@@ -36,7 +36,14 @@ class Bridges
             $tenantId = (int) $message->account?->tenant_id;
 
             // Enlace directo al chat en la PWA (/{espacio}/{codigo}); sin él, el push abre solo la lista.
-            $conv = \Aero\Hello\Models\Conversation::find($message->conversation_id, ['id', 'tenant_id', 'code']);
+            $conv = \Aero\Hello\Models\Conversation::find($message->conversation_id, ['id', 'tenant_id', 'code', 'is_muted']);
+
+            // Un chat archivado queda silenciado (is_muted, ver InboxController::archive) — no
+            // debe avisar por push ni sumar a la bandeja de notificaciones del agente.
+            if ($conv?->is_muted) {
+                return;
+            }
+
             $urlTenant = $tenantId ?: (int) $conv?->tenant_id;
             $handle = $urlTenant ? \Aero\Sites\Models\Tenant::find($urlTenant)?->handle : null;
             $code = $conv?->code;
