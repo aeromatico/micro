@@ -27,12 +27,12 @@ class Guides extends Controller
 
     public function listExtendQuery($query): void
     {
-        $query->inCurrentScope();
+        $query->inReviewerScope();
     }
 
     public function formExtendQuery($query): void
     {
-        $query->inCurrentScope();
+        $query->inReviewerScope();
     }
 
     public function formExtendModel($model): void
@@ -45,7 +45,7 @@ class Guides extends Controller
     public function onApprove($id = null)
     {
         $this->assertReviewer();
-        $guide = Guide::inCurrentScope()->findOrFail($id ?: post('record_id'));
+        $guide = Guide::inReviewerScope()->findOrFail($id ?: post('record_id'));
         $guide->approve(BackendAuth::getUser()?->id);
         Flash::success('Guía publicada.');
 
@@ -55,7 +55,7 @@ class Guides extends Controller
     public function onReject($id = null)
     {
         $this->assertReviewer();
-        $guide = Guide::inCurrentScope()->findOrFail($id ?: post('record_id'));
+        $guide = Guide::inReviewerScope()->findOrFail($id ?: post('record_id'));
         $guide->reject(BackendAuth::getUser()?->id, post('reason') ?: null);
         Flash::success('Propuesta descartada. Lo publicado no cambió.');
 

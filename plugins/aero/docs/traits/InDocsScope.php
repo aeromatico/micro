@@ -33,6 +33,29 @@ trait InDocsScope
         return $query->whereNull($this->getTable() . '.tenant_id');
     }
 
+    /**
+     * Ámbito de quien REVISA: con el permiso `aero.docs.guides.review` (personal de la plataforma) se ve
+     * además lo de la plataforma (tenant_id NULL), donde cae lo que genera docs-sync, aunque el usuario
+     * pertenezca a un tenant. Sin ese permiso, solo el ámbito propio.
+     */
+    public function scopeInReviewerScope($query)
+    {
+        $user = \BackendAuth::getUser();
+        if (!$user || !$user->hasAccess('aero.docs.guides.review')) {
+            return $query->inCurrentScope();
+        }
+
+        $tenantId = DocsScope::currentTenantId();
+        $table = $this->getTable();
+
+        return $query->where(function ($q) use ($tenantId, $table) {
+            $q->whereNull($table . '.tenant_id');
+            if ($tenantId) {
+                $q->orWhere($table . '.tenant_id', $tenantId);
+            }
+        });
+    }
+
     /** Ámbito del sitio o usuario actual. */
     public function scopeInCurrentScope($query)
     {

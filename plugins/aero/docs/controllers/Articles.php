@@ -20,13 +20,13 @@ class Articles extends Controller
 
     public function listExtendQuery($query): void
     {
-        $query->inCurrentScope();
+        $query->inReviewerScope();
     }
 
     /** Sin esto se podría abrir por URL un registro de otro sitio. */
     public function formExtendQuery($query): void
     {
-        $query->inCurrentScope();
+        $query->inReviewerScope();
     }
 
     public function formExtendModel($model): void
@@ -39,7 +39,7 @@ class Articles extends Controller
     public function onApprovePending()
     {
         $this->assertReviewer();
-        $article = \Aero\Docs\Models\Article::inCurrentScope()->findOrFail(post('record_id'));
+        $article = \Aero\Docs\Models\Article::inReviewerScope()->findOrFail(post('record_id'));
         $article->approvePending();
         \Flash::success('Cambios aprobados. El artículo ya muestra el contenido nuevo.');
 
@@ -49,7 +49,7 @@ class Articles extends Controller
     public function onRejectPending()
     {
         $this->assertReviewer();
-        $article = \Aero\Docs\Models\Article::inCurrentScope()->findOrFail(post('record_id'));
+        $article = \Aero\Docs\Models\Article::inReviewerScope()->findOrFail(post('record_id'));
         $article->rejectPending();
         \Flash::success('Cambios descartados. El artículo publicado no cambió.');
 
