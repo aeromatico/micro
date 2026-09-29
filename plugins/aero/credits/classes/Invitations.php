@@ -102,7 +102,7 @@ class Invitations
 
         try {
             if ($invitation->channel === 'whatsapp' && class_exists(\Aero\Hello\Classes\Hello::class)) {
-                \Aero\Hello\Classes\Hello::send($invitation->recipient, $message);
+                \Aero\Hello\Classes\Hello::send($invitation->recipient, $message, ['platform' => 'whatsapp']);
             }
             elseif ($invitation->channel === 'email') {
                 \Mail::raw($message, function ($mail) use ($invitation) {
