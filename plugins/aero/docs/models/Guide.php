@@ -51,6 +51,20 @@ class Guide extends Model
         }
     }
 
+    /** Solo guías de la plataforma (tenant_id NULL), para enlazarlas desde otros plugins. */
+    public function scopePlatform($query)
+    {
+        return $query->whereNull($this->getTable() . '.tenant_id');
+    }
+
+    /** «Plugin › Título (estado)» para los selectores de otros plugins. */
+    public function getSelectLabelAttribute(): string
+    {
+        $state = $this->status === 'published' ? '' : ' (borrador)';
+
+        return ucfirst((string) $this->plugin) . ' › ' . $this->title . $state;
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published')->whereNotNull('html')
