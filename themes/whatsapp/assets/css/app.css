@@ -240,6 +240,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 /* ---------- Escritorio ---------- */
 @media (min-width: 900px) {
     .inbox { flex-direction: row; }
+    .chip.ico.emoji-hint { display: inline-flex; }
     .accounts { flex-direction: column; width: 76px; padding: 16px 0; align-items: center; overflow-x: hidden; overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
     .acct { width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 16px; }
     .acct-badge { width: 40px; height: 40px; font-size: 14px; }
@@ -266,6 +267,8 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 .poll-opt input { flex: 1; height: 44px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); padding: 0 14px; color: var(--ink); font-size: 16px; }
 
 .chip.ico { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+/* Solo de escritorio: en el celular el teclado ya trae su propio selector de emojis. */
+.chip.ico.emoji-hint { display: none; }
 .chip.ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 .icon-btn { flex-shrink: 0; }

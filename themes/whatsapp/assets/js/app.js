@@ -453,6 +453,18 @@
                 finally { this.banBusy = false; }
             },
 
+            // ---------- emojis (solo escritorio: el celular ya trae su propio selector) ----------
+            // No cargamos un picker propio a propósito — mostramos el atajo nativo del
+            // sistema para acostumbrar al equipo a usarlo (Win/Mac/Linux ya traen uno bueno).
+            get emojiShortcutLabel() {
+                var p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '').toLowerCase();
+                if (p.indexOf('mac') >= 0) return 'Cmd + Ctrl + Barra espaciadora';
+                if (p.indexOf('win') >= 0) return 'Tecla Windows + . (punto)';
+                if (p.indexOf('linux') >= 0 || p.indexOf('x11') >= 0) return 'Ctrl + . (o Ctrl + Shift + E, según tu escritorio)';
+                return 'Buscá "insertar emoji" en los atajos de tu sistema';
+            },
+            showEmojiHint: function () { this.notify('😀 Emojis: ' + this.emojiShortcutLabel, 4500); },
+
             // ---------- encuestas (solo WhatsApp Web) ----------
             get canPoll() {
                 var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
