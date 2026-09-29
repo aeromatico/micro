@@ -1,6 +1,9 @@
 <?php namespace Aero\Credits\Controllers;
 
+use Aero\Credits\Classes\Coupons;
 use Aero\Credits\Classes\Credits;
+use Aero\Credits\Classes\Grants;
+use Illuminate\Support\Facades\RateLimiter;
 use Aero\Credits\Classes\Invitations;
 use Aero\Credits\Models\CreditInvitation;
 use ApplicationException;

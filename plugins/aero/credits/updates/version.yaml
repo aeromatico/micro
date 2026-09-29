@@ -59,3 +59,6 @@
 1.13.0:
     - "Regalar una suscripción (/regalar): el comprador paga un QR y al confirmarse se emite un cupón de un solo uso que se envía al destinatario (WhatsApp o correo) con el enlace de canje. Tabla aero_credits_gifts, componente giftForm."
     - create_credit_gifts_table.php
+1.14.0:
+    - "Regalos: pantalla de auditoría (Créditos → Regalos de suscripción) y vencimiento automático de los QR sin pagar (credits:expire-gifts). Canje de cupones por un tenant existente desde Mis invitaciones (un canje por tenant y cupón; solo del mismo plan que ya tiene o si no tiene plan vigente; nunca el Trial)."
+    - create_credit_coupon_redemptions_table.php

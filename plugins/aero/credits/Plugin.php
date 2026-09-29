@@ -35,12 +35,14 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('credits:verify', \Aero\Credits\Console\Verify::class);
         $this->registerConsoleCommand('credits:reset-ledger', \Aero\Credits\Console\ResetLedger::class);
         $this->registerConsoleCommand('credits:expire-plan-grants', \Aero\Credits\Console\ExpirePlanGrants::class);
+        $this->registerConsoleCommand('credits:expire-gifts', \Aero\Credits\Console\ExpireGifts::class);
     }
 
     public function registerSchedule($schedule): void
     {
         $schedule->command('credits:sweep-holds')->everyFiveMinutes();
         $schedule->command('credits:expire-purchases')->everyMinute();
+        $schedule->command('credits:expire-gifts')->everyFiveMinutes();
         $schedule->command('credits:verify')->dailyAt('04:10');
         $schedule->command('credits:expire-plan-grants')->dailyAt('04:05')->withoutOverlapping()->onOneServer();
     }
@@ -391,6 +393,12 @@ HTML;
                         'label'       => 'aero.credits::lang.menu.creditinvitations',
                         'icon'        => 'icon-envelope-open',
                         'url'         => Backend::url('aero/credits/creditinvitations'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditgifts' => [
+                        'label'       => 'Regalos de suscripción',
+                        'icon'        => 'icon-gift',
+                        'url'         => Backend::url('aero/credits/creditgifts'),
                         'permissions' => ['aero.credits.superadmin'],
                     ],
                 ],

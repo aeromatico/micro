@@ -96,6 +96,15 @@ class Gifts
         return [$gift, $qr];
     }
 
+    /** Marca como vencidos los regalos sin pagar cuyo QR ya caducó. Devuelve cuántos. */
+    public static function expirePending(): int
+    {
+        return CreditGift::where('status', CreditGift::PENDING)
+            ->whereNull('coupon_id')
+            ->where('expires_at', '<', now()->subMinutes(10)) // margen por si el pago llega justo al vencer
+            ->update(['status' => CreditGift::EXPIRED]);
+    }
+
     /** Pago confirmado: emite el cupón (una sola vez) y avisa al destinatario. */
     public static function settle(CreditGift $gift): void
     {

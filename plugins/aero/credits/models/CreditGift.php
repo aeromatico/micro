@@ -24,4 +24,30 @@ class CreditGift extends Model
     public $belongsTo = [
         'coupon' => [CreditCoupon::class],
     ];
+
+    public function getPlanNameAttribute(): string
+    {
+        $plan = class_exists(\Aero\Sites\Models\Plan::class) ? \Aero\Sites\Models\Plan::find($this->plan_id) : null;
+
+        return ($plan->name ?? "Plan #{$this->plan_id}") . ' · ' . \Aero\Credits\Classes\Grants::periodLabel((string) $this->period_unit, (int) $this->period_count);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return [self::PENDING => 'Pendiente de pago', self::PAID => 'Pagado', self::EXPIRED => 'Vencido'][$this->status] ?? (string) $this->status;
+    }
+
+    public function getCouponCodeAttribute(): string
+    {
+        return $this->coupon->code ?? '—';
+    }
+
+    public function getCouponStatusAttribute(): string
+    {
+        if (!$this->coupon) {
+            return '—';
+        }
+
+        return $this->coupon->times_redeemed > 0 ? 'Canjeado' : 'Sin canjear';
+    }
 }
