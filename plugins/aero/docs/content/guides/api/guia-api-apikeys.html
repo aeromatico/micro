@@ -1,0 +1,345 @@
+<!doctype html>
+<!--guide {"title":"Nueva API key","article":"api-autenticacion","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nueva API key</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 48px; margin: 0; }
+* { box-sizing: border-box; }
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.g-title { font-size: 16px; font-weight: 600; margin: 4px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover { background: var(--surface-2); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.danger { color: var(--err); }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.steps [aria-current="step"] .dot { border-color: var(--accent); color: var(--accent); }
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=number], input[type=date] { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.scopes { border: 1px solid var(--line); border-radius: 4px; padding: 8px 12px; display: grid; gap: 4px; max-height: 300px; overflow: auto; }
+.scopes .grp { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-top: 6px; }
+.scopes label { display: flex; gap: 8px; align-items: baseline; }
+.scopes code { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent); }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
+.upd h4 { margin: 0; font-size: 13px; }
+.keybox { font-family: var(--font-mono); font-size: 12.5px; padding: 8px 10px; border-radius: 4px; background: var(--ok-soft); overflow-wrap: anywhere; }
+.keyrow { display: flex; gap: 8px; flex-wrap: wrap; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; overflow-wrap: anywhere; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Nueva API key</h1>
+      <div class="crumb" id="crumb">/backend/aero/api/apikeys/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn" id="gPrev" type="button">Anterior</button>
+      <button class="btn primary" id="gNext" type="button">Siguiente</button>
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card" id="formCard">
+      <div class="ctx">Campos del formulario tal como los ve un administrador de tenant. Los permisos de ejemplo cambian según los plugins instalados.</div>
+      <div class="panel" id="panel">
+        <div class="field" data-f="name">
+          <label class="lbl" for="name">Nombre</label>
+          <input type="text" id="name" autocomplete="off">
+          <div class="help">Para qué es esta key: la integración, el script o la persona que la va a usar.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="rate_limit_per_minute">
+          <label class="lbl" for="rate_limit_per_minute">Límite por minuto<span class="req">*</span></label>
+          <input type="number" id="rate_limit_per_minute" value="60" min="1" max="10000">
+          <div class="help">Peticiones por minuto permitidas a esta key.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field full" data-f="scopes">
+          <label class="lbl">Permisos</label>
+          <div class="scopes" id="scopes"></div>
+          <div class="help">Áreas que esta key puede usar. Concede lo mínimo necesario: «Acceso total» abre todo, también los plugins que instales después.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="expires_at">
+          <label class="lbl" for="expires_at">Expira el</label>
+          <input type="date" id="expires_at">
+          <div class="help">Opcional. Sin fecha, la key no caduca.</div>
+        </div>
+
+        <div class="upd" id="keyPanel" hidden>
+          <h4>Tu key (ejemplo)</h4>
+          <div class="keybox" id="keyVal"></div>
+          <div class="help">En la app real, este valor aparece una sola vez en el aviso verde al crear. Cópialo y guárdalo en un lugar seguro antes de salir de la pantalla.</div>
+          <div class="keyrow">
+            <button class="btn" type="button" id="btnRegen">Regenerar</button>
+            <button class="btn danger" type="button" id="btnRevoke">Revocar</button>
+          </div>
+          <div class="help">Regenerar emite una key nueva y la actual deja de funcionar de inmediato. Revocar la desactiva pero conserva su historial de uso.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas</label>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // Permisos de ejemplo tomados de los plugins que declaran áreas (Aero.Api, Hello, Tienda).
+  var GROUPS = [
+    { label: 'Aero API', scopes: [['api.currencies.read', 'Consultar tasas de cambio']] },
+    { label: 'Hello', scopes: [['hello.messages.read', 'Leer mensajes'], ['hello.messages.send', 'Enviar mensajes'], ['hello.contacts.read', 'Leer contactos'], ['hello.contacts.write', 'Crear o editar contactos']] },
+    { label: 'Tienda', scopes: [['shop.products.read', 'Leer productos'], ['shop.orders.read', 'Leer pedidos'], ['shop.orders.write', 'Crear pedidos']] }
+  ];
+  var state = { mode: 'create', step: 0, key: '' };
+
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function chosen() { return $$('#scopes input:checked').map(function (i) { return i.value; }); }
+  function set(id, v) { var el = $('#' + id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); }
+  function checkScopes(list) {
+    $$('#scopes input').forEach(function (i) { i.checked = list.indexOf(i.value) >= 0; });
+    refresh();
+  }
+
+  function buildSteps() {
+    var s = [
+      { id: 'name', fields: ['name'], title: 'Nombre de la key', req: true,
+        body: 'Escribe para qué sirve: la integración, el script o la persona que la usará. Solo tú y tu equipo lo ven.',
+        tip: 'Una key por integración. Si una se filtra, la revocas sin afectar a las demás.',
+        ex: 'Integración tienda web', fill: function () { set('name', 'Integración tienda web'); }, done: function () { return val('name').length > 0; } },
+      { id: 'scopes', fields: ['scopes'], title: 'Permisos por área (scopes)', req: true,
+        body: 'Cada permiso abre una acción concreta de la API, con el formato «área.recurso.acción». Por ejemplo, «shop.orders.read» solo deja leer pedidos; «shop.orders.write» permite crearlos. Marca únicamente lo que la integración necesita: si intenta algo fuera de sus permisos, la API responde 403.',
+        tip: 'Concede lo mínimo. Las áreas disponibles dependen de los plugins instalados. Para un tenant no aparece «Acceso total»: aunque se enviara, el servidor lo descarta. Una key sin ningún permiso no podrá usar ningún endpoint.',
+        ex: 'shop.products.read\nshop.orders.read', fill: function () { checkScopes(['shop.products.read', 'shop.orders.read']); }, done: function () { return chosen().length > 0; } },
+      { id: 'rate', fields: ['rate_limit_per_minute'], title: 'Límite por minuto', req: true,
+        body: 'Cuántas peticiones por minuto acepta esta key. Debe ser un entero entre 1 y 10000. Por defecto: 60.',
+        tip: 'Un límite bajo protege tu cuenta si la key se usa mal. Súbelo solo si la integración lo necesita.',
+        ex: '60', fill: function () { set('rate_limit_per_minute', '60'); }, done: function () { var n = Number(val('rate_limit_per_minute')); return n >= 1 && n <= 10000 && Math.floor(n) === n; } },
+      { id: 'expires', fields: ['expires_at'], title: 'Fecha de expiración', opt: true,
+        body: 'Opcional. Pasada la fecha, la key deja de funcionar. Sin fecha, no caduca.',
+        tip: 'Para accesos temporales (un proveedor, una prueba) pon siempre una fecha.',
+        ex: '31/12/2026', fill: function () { set('expires_at', '2026-12-31'); }, done: function () { return val('expires_at') !== ''; } },
+      { id: 'save', fields: [], title: 'Crear y copiar la key', last: true,
+        body: 'Pulsa Crear. El sistema genera la key (empieza por «ak_») y la muestra completa en un aviso.',
+        tip: 'La key completa se muestra una sola vez al crearla. Cópiala y guárdala de inmediato en un gestor de contraseñas. Después no la compartas por chat ni correo. Si la pierdes, regenera una nueva: la anterior deja de funcionar al instante.',
+        ex: '', fill: function () { save(false); }, done: function () { return state.mode === 'update'; } }
+    ];
+    return s;
+  }
+  var steps = buildSteps();
+
+  function buildScopes() {
+    var box = $('#scopes');
+    GROUPS.forEach(function (g) {
+      var h = document.createElement('div'); h.className = 'grp'; h.textContent = g.label + ' (ejemplo)'; box.appendChild(h);
+      g.scopes.forEach(function (sc) {
+        var l = document.createElement('label');
+        var i = document.createElement('input'); i.type = 'checkbox'; i.value = sc[0]; i.id = 'sc_' + sc[0].replace(/\./g, '_');
+        i.addEventListener('change', function () { showErr('scopes', ''); refresh(); });
+        var c = document.createElement('code'); c.textContent = sc[0];
+        var t = document.createElement('span'); t.textContent = sc[1];
+        l.appendChild(i); l.appendChild(c); l.appendChild(t); box.appendChild(l);
+      });
+    });
+  }
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'); var l = document.createElement('div'); l.className = 'g-sub'; l.textContent = 'Ejemplo';
+      var e = document.createElement('div'); e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) { var n = document.createElement('div'); n.className = 'note'; var b = document.createElement('b'); b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = cur.id === 'save' && state.mode === 'update';
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'); var bt = document.createElement('button'); bt.type = 'button';
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      var done = s.done();
+      if (done) bt.className = 'done';
+      var d = document.createElement('span'); d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1);
+      var t = document.createElement('span'); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t);
+      bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el) el.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i));
+    renderGuide();
+    if (scroll !== false) {
+      var f = steps[state.step].fields[0]; var el = f && $('[data-f="' + f + '"]');
+      if (el) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+  function refresh() { renderGuide(); }
+
+  function showErr(f, msg) {
+    var box = $('[data-f="' + f + '"]'); if (!box) return;
+    var m = $('.errmsg', box), inp = $('input[type=text],input[type=number]', box);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = [];
+    ['name', 'rate_limit_per_minute', 'scopes'].forEach(function (f) { showErr(f, ''); });
+    if (!val('name')) errs.push(['name', 'El campo Nombre es obligatorio.']);
+    var n = Number(val('rate_limit_per_minute'));
+    if (val('rate_limit_per_minute') === '') errs.push(['rate_limit_per_minute', 'El campo Límite por minuto es obligatorio.']);
+    else if (Math.floor(n) !== n) errs.push(['rate_limit_per_minute', 'Límite por minuto debe ser un número entero.']);
+    else if (n < 1) errs.push(['rate_limit_per_minute', 'Límite por minuto debe ser al menos 1.']);
+    else if (n > 10000) errs.push(['rate_limit_per_minute', 'Límite por minuto no puede ser mayor que 10000.']);
+    return errs;
+  }
+  function rnd(n) { var c = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = ''; for (var i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+
+  function save(close) {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0] === 'rate_limit_per_minute' ? 'rate_limit_per_minute' : errs[0][0]);
+      if (idx >= 0) go(idx);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    state.key = 'ak_' + rnd(40);
+    state.mode = 'update';
+    $('#h1').textContent = 'Editar API key';
+    $('#crumb').textContent = '/backend/aero/api/apikeys/update/5 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#keyPanel').hidden = false; $('#keyVal').textContent = state.key;
+    flash(close ? 'API key creada. En la app real vuelves a la lista. Cópiala ahora, es la única vez que se muestra completa: ' + state.key
+                : 'API key creada. Cópiala ahora, es la única vez que se muestra completa: ' + state.key);
+    refresh();
+  }
+
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 9000);
+  }
+
+  $('#btnRegen').onclick = function () { state.key = 'ak_' + rnd(40); $('#keyVal').textContent = state.key; flash('Key regenerada (simulado). La anterior dejó de funcionar.'); };
+  $('#btnRevoke').onclick = function () { $('#keyVal').textContent = '(key revocada)'; $('#btnRegen').disabled = true; $('#btnRevoke').disabled = true; flash('Key revocada (simulado).'); };
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refresh(); };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+
+  buildScopes();
+  $$('.field input[type=text], .field input[type=number], .field input[type=date]').forEach(function (el) {
+    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refresh(); });
+    el.addEventListener('focus', function () {
+      var box = el.closest('.field'); if (!box) return;
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(box.getAttribute('data-f'));
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+  renderGuide();
+})();
+</script>
+
+</body></html>

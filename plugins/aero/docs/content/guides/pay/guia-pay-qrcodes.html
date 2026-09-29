@@ -1,0 +1,403 @@
+<!doctype html>
+<!--guide {"title":"Generar QR","article":"pay-generar-qr","sort":20} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Generar QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.g-title { font-size: 16px; font-weight: 600; margin: 4px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover { background: var(--surface-2); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.formcol { grid-area: form; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=date], input[type=number], select { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input:disabled, select:disabled { background: var(--surface-2); color: var(--ink-2); }
+input.err, select.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.alert { grid-column: 1 / -1; padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); }
+.sec { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 10px; }
+.sec b { display: block; }
+.switch { display: flex; gap: 8px; align-items: center; }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.demo { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: var(--ink-2); }
+.demo label { display: inline-flex; gap: 6px; align-items: center; }
+.qrimg { width: 140px; height: 140px; border: 1px solid var(--line); border-radius: 4px; background: #fff; display: block; }
+.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
+.upd h4 { margin: 0; font-size: 13px; }
+.sample { font-size: 11px; color: var(--ink-2); font-style: italic; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; overflow-wrap: anywhere; }
+#flash.err { background: var(--err); color: #fff; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Generar QR</h1>
+      <div class="crumb" id="crumb">/backend/aero/pay/qrcodes/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn" id="gPrev" type="button">Anterior</button>
+      <button class="btn primary" id="gNext" type="button">Siguiente</button>
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx" id="ctxLine">context: create</div>
+      <div class="panel">
+        <div class="demo" id="demoOpts">
+          <span>Ajustes del comercio (en la app real vienen de Configuración de pagos):</span>
+          <label><input type="checkbox" id="optShop"> Tienda con productos</label>
+          <label><input type="checkbox" id="optTax"> Impuesto activo</label>
+          <label><input type="checkbox" id="optBranch"> Sucursales activas</label>
+        </div>
+
+        <div class="field full" data-f="product_id" hidden>
+          <label class="lbl" for="product_id">Producto de la tienda (opcional)<span class="trig">solo si la tienda está activa y hay productos</span></label>
+          <select id="product_id">
+            <option value="">No aplica</option>
+            <option value="1">Polera básica — Bs 120.00</option>
+            <option value="2">Taza personalizada — Bs 45.00</option>
+          </select>
+          <div class="help">Si eliges un producto, completamos el monto y la descripción (puedes editarlos igual). Productos de ejemplo.</div>
+        </div>
+
+        <div class="field full" data-f="bank_account_id">
+          <label class="lbl" for="bank_account_id">Cuenta bancaria<span class="req">*</span></label>
+          <select id="bank_account_id">
+            <option value="">— seleccionar —</option>
+            <option value="1">Cuenta principal BNB (Producción)</option>
+            <option value="2">Banco Económico — pruebas (Sandbox)</option>
+          </select>
+          <div class="help">Solo se listan cuentas activas del tenant actual. Las cuentas de QR fijo (sin API bancario) no aparecen aquí. (Cuentas de ejemplo.)</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="amount">
+          <label class="lbl" for="amount">Monto<span class="req">*</span></label>
+          <input type="number" id="amount" min="0" step="0.01">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="currency">
+          <label class="lbl" for="currency">Moneda<span class="req">*</span></label>
+          <select id="currency">
+            <option value="BOB">Bolivianos (BOB)</option>
+            <option value="USD">Dólares (USD)</option>
+          </select>
+        </div>
+        <div class="alert" id="usdWarn" hidden>Si eliges dólares (USD), verifica que la cuenta bancaria de destino también sea en dólares. De lo contrario, el dinero podría no acreditarse. <span class="trig">show si currency = USD</span></div>
+        <div class="field full" data-f="description">
+          <label class="lbl" for="description">Descripción del pago</label>
+          <input type="text" id="description" autocomplete="off">
+          <div class="help">Se agregará después del texto automático de sucursal y facturación.</div>
+        </div>
+        <div class="field" data-f="due_date">
+          <label class="lbl" for="due_date">Fecha de vencimiento<span class="req">*</span></label>
+          <input type="date" id="due_date">
+          <div class="help">Viene precargada según los días de vencimiento por defecto de tu configuración.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="branch_code" hidden>
+          <label class="lbl" for="branch_code">Sucursal (opcional)<span class="trig">solo si hay sucursales activas</span></label>
+          <select id="branch_code">
+            <option value="">No aplica</option>
+            <option value="S01">Casa matriz (S01)</option>
+            <option value="S02">Sucursal Sopocachi (S02)</option>
+          </select>
+        </div>
+        <div class="alert" id="taxNotice" hidden>Se aplicará un impuesto del 13.00%. El monto ingresado ya lo incluye. <b>No emitimos facturas — solo facilitamos la cobranza.</b> El NIT queda guardado únicamente como referencia para el comercio. <span class="trig">solo si el impuesto está activo</span></div>
+        <div class="field" data-f="customer_nit" hidden>
+          <label class="lbl" for="customer_nit">NIT del cliente</label>
+          <input type="text" id="customer_nit" maxlength="50" autocomplete="off">
+          <div class="help">Se guarda como referencia del comprador.</div>
+        </div>
+        <div class="field" data-f="single_use">
+          <label class="lbl" for="single_use">Uso único</label>
+          <div class="switch"><input type="checkbox" id="single_use" checked><span id="suTxt"></span></div>
+          <div class="help">Activo: el QR solo permite un pago. Inactivo: admite varios pagos.</div>
+        </div>
+        <div class="sec"><b>Alerta (opcional)</b><span class="help">Si completas alguno de estos, te mandamos la imagen del QR apenas se genera.</span></div>
+        <div class="field" data-f="alert_prefix">
+          <label class="lbl" for="alert_prefix">Prefijo</label>
+          <select id="alert_prefix"><option value="+591">+591</option></select>
+          <div class="help">Solo se muestra el prefijo de Bolivia como ejemplo.</div>
+        </div>
+        <div class="field" data-f="alert_phone">
+          <label class="lbl" for="alert_phone">WhatsApp</label>
+          <input type="text" id="alert_phone" placeholder="70000000" autocomplete="off">
+        </div>
+        <div class="field full" data-f="alert_email">
+          <label class="lbl" for="alert_email">Correo</label>
+          <input type="text" id="alert_email" placeholder="correo@ejemplo.com" autocomplete="off">
+        </div>
+
+        <div class="upd" id="detail" hidden>
+          <h4>Detalle del QR (solo lectura, ejemplo)</h4>
+          <canvas class="qrimg" id="qrCanvas" width="140" height="140" role="img" aria-label="QR de ejemplo"></canvas>
+          <div id="detailTxt" class="help"></div>
+          <div><button class="btn" type="button" id="btnRefresh">Actualizar estado</button> <button class="btn" type="button" id="btnCancel">Anular QR</button></div>
+          <div class="help">En la app real, «Actualizar estado» consulta al banco al instante y «Anular QR» lo cancela si el banco lo permite. Los campos del detalle no se pueden editar.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Generar QR</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas</label>
+      </div>
+      <div class="sample" style="padding:0 16px 12px">Todos los datos son de ejemplo. Esta demo no genera QR reales ni guarda nada.</div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var state = { mode: 'create', step: 0, status: 'Pendiente' };
+
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function set(id, v) { var el = $('#' + id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+  function today(n) { var d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); }
+  $('#due_date').value = today(3);
+
+  function buildSteps() {
+    var s = [];
+    if ($('#optShop').checked) s.push({ id: 'product_id', fields: ['product_id'], title: 'Producto de la tienda', opt: true,
+      body: 'Si cobras un producto de tu tienda, elígelo: se completan el monto y la descripción.', tip: 'Puedes editar ambos después de elegirlo.',
+      ex: 'Polera básica — Bs 120.00', fill: function () { set('product_id', '1'); set('amount', '120'); set('description', 'Polera básica'); }, done: function () { return !!val('product_id'); } });
+    s.push(
+      { id: 'bank_account_id', fields: ['bank_account_id'], title: 'Elige la cuenta que cobra', req: true,
+        body: 'El dinero llegará a esta cuenta. Solo aparecen tus cuentas activas.',
+        tip: 'Una cuenta en Sandbox es de pruebas: no mueve dinero real. Las cuentas de QR fijo (sin API bancario) no generan QR por cobro.',
+        ex: 'Cuenta principal BNB (Producción)', fill: function () { set('bank_account_id', '1'); }, done: function () { return !!val('bank_account_id'); } },
+      { id: 'amount', fields: ['amount', 'currency'], title: 'Monto y moneda', req: true,
+        body: 'Escribe cuánto cobrar (mayor que 0) y elige BOB o USD.',
+        tip: 'Con USD, la cuenta de destino también debe ser en dólares. Además, cobrar en dólares debe estar habilitado en la configuración de pagos.',
+        ex: '150.00 BOB', fill: function () { set('amount', '150'); set('currency', 'BOB'); }, done: function () { return parseFloat(val('amount')) > 0; } },
+      { id: 'description', fields: ['description'], title: 'Describe el cobro', opt: true,
+        body: 'Texto que acompaña al pago. El sistema antepone un texto automático de sucursal y facturación.', tip: 'Sé concreto: ayuda a conciliar después.',
+        ex: 'Pedido 1050 — Juan Pérez', fill: function () { set('description', 'Pedido 1050 — Juan Pérez'); }, done: function () { return val('description').length > 0; } },
+      { id: 'due_date', fields: ['due_date'], title: 'Fecha de vencimiento', req: true,
+        body: 'Hasta cuándo se puede pagar el QR. Ya viene con los días por defecto de tu configuración.', tip: 'Pasada esa fecha, el QR vence y no se puede pagar.',
+        ex: today(3), fill: function () { set('due_date', today(3)); }, done: function () { return !!val('due_date'); } }
+    );
+    if ($('#optBranch').checked) s.push({ id: 'branch_code', fields: ['branch_code'], title: 'Sucursal', opt: true,
+      body: 'Indica desde qué sucursal se cobra.', tip: 'Se incluye en el texto automático de la descripción.', ex: 'Casa matriz (S01)',
+      fill: function () { set('branch_code', 'S01'); }, done: function () { return !!val('branch_code'); } });
+    if ($('#optTax').checked) s.push({ id: 'customer_nit', fields: ['customer_nit'], title: 'NIT del cliente', opt: true,
+      body: 'Con el impuesto activo puedes guardar el NIT del comprador como referencia.', tip: 'No se emite factura: es solo una referencia para tu comercio.',
+      ex: '1234567019', fill: function () { set('customer_nit', '1234567019'); }, done: function () { return !!val('customer_nit'); } });
+    s.push(
+      { id: 'single_use', fields: ['single_use'], title: 'Uso único o varios pagos', opt: true,
+        body: 'Activo (por defecto): el QR admite un solo pago. Inactivo: admite varios.', tip: 'Para cobros de un pedido concreto, déjalo activo.',
+        ex: 'Activo', fill: function () { $('#single_use').checked = true; refresh(); }, done: function () { return true; } },
+      { id: 'alerts', fields: ['alert_prefix', 'alert_phone', 'alert_email'], title: 'Recibir el QR por WhatsApp o correo', opt: true,
+        body: 'Si completas WhatsApp o correo, te mandamos la imagen del QR apenas se genera.', tip: 'Si el envío falla, el QR se genera igual y verás un aviso.',
+        ex: '+591 70000000 · cobros@ejemplo.com', fill: function () { set('alert_phone', '70000000'); set('alert_email', 'cobros@ejemplo.com'); }, done: function () { return !!(val('alert_phone') || val('alert_email')); } },
+      { id: 'save', fields: [], title: 'Generar el QR', last: true,
+        body: 'Pulsa Generar QR. La demo valida los campos obligatorios y abre el detalle con un QR de ejemplo.',
+        tip: 'Si el banco rechaza la generación, verás el error y no se crea nada.', ex: '',
+        fill: function () { save(); }, done: function () { return state.mode === 'update'; } }
+    );
+    return s;
+  }
+  var steps = buildSteps();
+
+  function applyTriggers() {
+    $('[data-f="product_id"]').hidden = !$('#optShop').checked;
+    $('[data-f="branch_code"]').hidden = !$('#optBranch').checked;
+    $('#taxNotice').hidden = !$('#optTax').checked;
+    $('[data-f="customer_nit"]').hidden = !$('#optTax').checked;
+    $('#usdWarn').hidden = val('currency') !== 'USD';
+    $('#suTxt').textContent = $('#single_use').checked ? 'Sí: un solo pago' : 'No: admite varios pagos';
+  }
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) { var n = document.createElement('div'), b = document.createElement('b'); n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Generar con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button';
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      var done = s.done();
+      if (done) bt.className = 'done';
+      d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el && !el.hidden) el.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i)); renderGuide();
+    var f = steps[state.step].fields[0], el = f && $('[data-f="' + f + '"]');
+    if (scroll !== false && el && !el.hidden) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  function refresh() {
+    var curId = steps[state.step].id;
+    applyTriggers(); steps = buildSteps();
+    var idx = steps.map(function (s) { return s.id; }).indexOf(curId);
+    state.step = idx >= 0 ? idx : Math.min(state.step, steps.length - 1);
+    renderGuide();
+  }
+
+  function showErr(f, msg) {
+    var box = $('[data-f="' + f + '"]'), m = $('.errmsg', box), inp = $('input,select', box);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function save() {
+    ['bank_account_id', 'amount', 'due_date'].forEach(function (f) { showErr(f, ''); });
+    var errs = [];
+    if (!val('bank_account_id')) errs.push(['bank_account_id', 'Selecciona una cuenta bancaria válida.']);
+    if (!(parseFloat(val('amount')) > 0)) errs.push(['amount', 'El monto debe ser un número mayor a 0.']);
+    if (!val('due_date')) errs.push(['due_date', 'El campo Fecha de vencimiento es obligatorio.']);
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0]);
+      if (idx >= 0) go(idx);
+      flash('No se pudo generar: ' + errs[0][1], true); return;
+    }
+    state.mode = 'update';
+    $('#h1').textContent = 'Detalle del QR';
+    $('#crumb').textContent = '/backend/aero/pay/qrcodes/update/12 · Guía de capacitación';
+    $('#ctxLine').textContent = 'context: update · campos en solo lectura';
+    $('#demoOpts').hidden = true;
+    $$('.field input, .field select').forEach(function (el) { el.disabled = true; });
+    $('#btnSave').hidden = true;
+    var sym = val('currency');
+    $('#detailTxt').textContent = 'Estado: ' + state.status + ' · Monto: ' + parseFloat(val('amount')).toFixed(2) + ' ' + sym + ' · Vence: ' + val('due_date') + ' · Uso único: ' + ($('#single_use').checked ? 'sí' : 'no') + (val('alert_phone') || val('alert_email') ? ' · Alerta enviada (ejemplo)' : '');
+    $('#detail').hidden = false; drawQr();
+    flash('QR generado correctamente (ejemplo). Ahora ves su detalle.');
+    refresh();
+  }
+  function drawQr() {
+    var c = $('#qrCanvas'), x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, 140, 140); x.fillStyle = '#000';
+    var seed = 11; for (var i = 0; i < 20; i++) for (var j = 0; j < 20; j++) { seed = (seed * 9301 + 49297) % 233280; if (seed / 233280 > .52) x.fillRect(i * 7, j * 7, 7, 7); }
+    [[0, 0], [119, 0], [0, 119]].forEach(function (p) { x.fillStyle = '#000'; x.fillRect(p[0], p[1], 21, 21); x.fillStyle = '#fff'; x.fillRect(p[0] + 3, p[1] + 3, 15, 15); x.fillStyle = '#000'; x.fillRect(p[0] + 7, p[1] + 7, 7, 7); });
+  }
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200);
+  }
+
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refresh(); };
+  $('#btnSave').onclick = save;
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+  $('#btnRefresh').onclick = function () { flash('Sin cambios — el QR sigue pendiente (simulado).'); };
+  $('#btnCancel').onclick = function () { state.status = 'Anulado'; $('#detailTxt').textContent = $('#detailTxt').textContent.replace('Pendiente', 'Anulado'); flash('QR anulado correctamente (simulado).'); };
+
+  $$('.field input, .field select, #optShop, #optTax, #optBranch').forEach(function (el) {
+    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refresh(); });
+    el.addEventListener('change', refresh);
+    el.addEventListener('focus', function () {
+      var box = el.closest('.field'); if (!box) return;
+      var name = box.getAttribute('data-f');
+      var idx = -1; steps.forEach(function (s, i) { if (idx < 0 && s.fields.indexOf(name) >= 0) idx = i; });
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+  applyTriggers(); renderGuide();
+})();
+</script>
+</body></html>

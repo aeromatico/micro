@@ -25,6 +25,7 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('docs:import', \Aero\Docs\Console\ImportCommand::class);
         $this->registerConsoleCommand('docs:guides', \Aero\Docs\Console\GuidesPlanCommand::class);
         $this->registerConsoleCommand('docs:versions', \Aero\Docs\Console\VersionsCommand::class);
+        $this->registerConsoleCommand('docs:backlog', \Aero\Docs\Console\BacklogCommand::class);
     }
 
     public function registerComponents(): array
@@ -53,6 +54,8 @@ class Plugin extends PluginBase
                 'iconSvg'     => null,
                 'permissions' => ['aero.docs.manage'],
                 'order'       => 530,
+                'counter'     => $this->backlogCount(),
+                'counterLabel' => 'Pendientes de generar (CLI docs-cli)',
                 'sideMenu'    => [
                     'articles'   => ['label' => 'Artículos', 'icon' => 'icon-file-text-o', 'url' => Backend::url('aero/docs/articles'), 'permissions' => ['aero.docs.manage']],
                     'guides'     => ['label' => 'Guías interactivas', 'icon' => 'icon-desktop', 'url' => Backend::url('aero/docs/guides'), 'permissions' => ['aero.docs.manage'], 'counter' => $this->pendingReviewCount(), 'counterLabel' => 'Pendientes de revisión'],
@@ -69,6 +72,16 @@ class Plugin extends PluginBase
         try {
             return \Aero\Docs\Models\Guide::pendingReview()->count()
                 + \Aero\Docs\Models\Article::whereNotNull('pending_content')->count();
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    /** Elementos por generar según el último escaneo del cron (Cache); 0 si aún no hay. */
+    protected function backlogCount(): int
+    {
+        try {
+            return (int) (\Cache::get('aero.docs.backlog')['total'] ?? 0);
         } catch (\Throwable $e) {
             return 0;
         }

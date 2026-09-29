@@ -45,6 +45,14 @@ class GuideSources
             $modelFile = static::modelFile($config['modelClass'] ?? null);
             $inputs = [$configPath, $fieldsPath];
 
+            // Formularios propios de cada contexto (create/update pueden apuntar a otro fields.yaml).
+            foreach (['create', 'update'] as $ctx) {
+                $p = static::resolvePath($config[$ctx]['form'] ?? null);
+                if ($p && is_file($p)) {
+                    $inputs[] = $p;
+                }
+            }
+
             foreach (['config_relation.yaml'] as $extra) {
                 if (is_file($dir . '/' . $extra)) {
                     $inputs[] = $dir . '/' . $extra;
@@ -83,7 +91,7 @@ class GuideSources
                 'controller'  => $controller,
                 'slug'        => 'guia-' . $plugin . '-' . $controller,
                 'form_ref'    => 'Aero.' . ucfirst($plugin) . '/' . $controller . '/create',
-                'name'        => $config['name'] ?? $controller,
+                'name'        => static::label($config['name'] ?? null, $controller),
                 'form_yaml'   => str_replace(base_path() . '/', '', $fieldsPath),
                 'config_yaml' => str_replace(base_path() . '/', '', $configPath),
                 'model_file'  => $modelFile ? str_replace(base_path() . '/', '', $modelFile) : null,
@@ -92,6 +100,17 @@ class GuideSources
         }
 
         return $out;
+    }
+
+    /** Traduce claves de idioma (`aero.x::lang.y`) y cae al nombre del controlador si no hay traducción. */
+    protected static function label(?string $name, string $controller): string
+    {
+        if (!$name) {
+            return $controller;
+        }
+        $text = str_contains($name, '::') ? (string) trans($name) : $name;
+
+        return ($text === '' || $text === $name && str_contains($name, '::')) ? $controller : $text;
     }
 
     /** Un solo formulario por slug, o null. */
