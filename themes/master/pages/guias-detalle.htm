@@ -1,0 +1,33 @@
+url = "/guias/:slug"
+layout = "base"
+title = "Guía interactiva — Market"
+
+[docs]
+mode = "home"
+
+[guides]
+mode = "detail"
+slug = "{{ :slug }}"
+==
+{% partial 'docs/shell-open' %}
+
+<nav class="flex flex-wrap items-center gap-1.5 text-sm text-ink-dim mb-6" aria-label="Migas de pan">
+    <a href="/guias" class="hover:text-ink">Guías</a><span>›</span><span class="text-ink">{{ guides.guide.title }}</span>
+</nav>
+
+<header class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-pretty">{{ guides.guide.title }}</h1>
+        <p class="text-sm text-ink-dim mt-2">Guía interactiva · no guarda datos reales</p>
+    </div>
+    {% if guides.article %}
+        <a href="{{ guides.article.url }}" class="inline-flex items-center gap-2 text-sm font-semibold border border-edge rounded-lg px-3.5 py-2 hover:border-accent hover:text-accent transition-colors">
+            Ver documentación: {{ guides.article.title }} →
+        </a>
+    {% endif %}
+</header>
+
+<iframe src="{{ guides.guide.embed_url }}" sandbox="allow-scripts" loading="lazy" title="{{ guides.guide.title }}"
+    class="w-full rounded-xl border border-edge bg-canvas-elev" style="height:80vh;min-height:640px"></iframe>
+
+{% partial 'docs/shell-close' %}

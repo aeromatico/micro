@@ -5,6 +5,7 @@ title = "sitemap.xml"
 <?php
 
 use Aero\Docs\Models\Article as DocsArticle;
+use Aero\Docs\Models\Guide as DocsGuide;
 use Aero\Docs\Models\Category as DocsCategory;
 use Aero\Services\Models\Service;
 use Aero\Services\Models\Collection as ServiceCollection;
@@ -15,7 +16,7 @@ function onStart()
     $host = request()->getSchemeAndHttpHost();
     $urls = [];
 
-    $static = ['/', '/comprar', '/api', '/documentacion'];
+    $static = ['/', '/comprar', '/api', '/documentacion', '/guias'];
     foreach ($static as $path) {
         $urls[] = ['loc' => $host . $path, 'priority' => $path === '/' ? '1.0' : '0.8'];
     }
@@ -34,6 +35,10 @@ function onStart()
 
     foreach (DocsArticle::whereNull('tenant_id')->where('is_published', true)->get(['slug', 'updated_at']) as $a) {
         $urls[] = ['loc' => $host . '/documentacion/' . $a->slug, 'lastmod' => optional($a->updated_at)->toAtomString(), 'priority' => '0.6'];
+    }
+
+    foreach (DocsGuide::published()->whereNull('tenant_id')->get(['slug', 'updated_at']) as $g) {
+        $urls[] = ['loc' => $host . '/guias/' . $g->slug, 'lastmod' => optional($g->updated_at)->toAtomString(), 'priority' => '0.5'];
     }
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";

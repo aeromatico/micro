@@ -1,0 +1,39 @@
+url = "/guias"
+layout = "base"
+title = "Guías interactivas — Market"
+description = "Practica cada formulario de Market antes de usarlo: guías interactivas paso a paso, enlazadas a la documentación."
+
+[docs]
+mode = "home"
+
+[guides]
+mode = "list"
+==
+{% partial 'docs/shell-open' %}
+
+<div class="mb-10">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-5">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+        <span class="text-xs tracking-wide text-ink-dim uppercase">Guías interactivas</span>
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-bold text-pretty">Practica antes de configurar</h1>
+    <p class="text-lg text-ink-dim mt-3 max-w-xl">Réplicas de los formularios del panel con un guía al lado. Rellena, equivócate y aprende sin tocar datos reales.</p>
+</div>
+
+{% for plugin, items in guides.byPlugin %}
+    <section class="mb-10">
+        <h2 class="text-sm uppercase tracking-wide text-ink-dim mb-3">{{ plugin }}</h2>
+        <div class="grid sm:grid-cols-2 gap-3">
+            {% for g in items %}
+                <a href="{{ g.url }}" class="group block p-5 bg-canvas-elev border border-edge rounded-xl hover:border-accent transition-colors">
+                    <div class="font-display font-semibold text-lg group-hover:text-accent transition-colors">{{ g.title }}</div>
+                    {% if g.article %}<p class="text-sm text-ink-dim mt-1">Documentación: {{ g.article.title }}</p>{% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+{% else %}
+    <p class="text-ink-dim">Aún no hay guías publicadas.</p>
+{% endfor %}
+
+{% partial 'docs/shell-close' %}
