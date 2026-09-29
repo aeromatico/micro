@@ -59,6 +59,31 @@ class Plugin extends PluginBase
         $this->bootPayRenewalBridge();
         $this->bootZeptomailMailer();
         $this->bootProFeaturesGate();
+        $this->bootHideSystemMenuForTenants();
+    }
+
+    /**
+     * El menú "Ajustes" (October.System → system) se registra con
+     * `permissions => []`, así que el núcleo lo muestra a CUALQUIER usuario
+     * del backend sin filtrar por permiso — incluidos los tenants, que no
+     * deberían ver la configuración global de la plataforma (solo la suya,
+     * en "Sitio Web → Configuración"). Se oculta para cualquier usuario que
+     * resuelva a un tenant y no sea superadmin (tenant_admin, tenant_admin_pro
+     * o un rol a medida asignado a un tenant).
+     */
+    protected function bootHideSystemMenuForTenants(): void
+    {
+        Event::listen('backend.menu.extendItems', function ($manager) {
+            $user = \BackendAuth::getUser();
+
+            if (!$user || $user->is_superuser) {
+                return;
+            }
+
+            if (\Aero\Sites\Models\Tenant::resolveForBackendUser($user)) {
+                $manager->removeMainMenuItem('October.System', 'system');
+            }
+        });
     }
 
     /**
