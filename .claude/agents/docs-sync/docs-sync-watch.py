@@ -302,6 +302,8 @@ def build_prompt(items, bootstrap):
             lines.append(head)
             for v, n in it["notes"][-8:]:
                 lines.append(f"    · {v}: {n[:220]}")
+            if it.get("doc_note"):
+                lines.append(f"    · INSTRUCCIÓN DEL USUARIO: {it['doc_note']}")
         arts = sorted(f.stem for f in (ROOT / "plugins/aero/docs/content" / it["plugin"]).glob("*.md"))
         if it["guides"] and arts:
             lines.append(f"- Artículos de docs existentes de este plugin (usa su slug en `article` del metadato de la guía si corresponde): {', '.join(arts)}")
@@ -311,6 +313,8 @@ def build_prompt(items, bootstrap):
             lines.append(f"    · form_ref {g['form_ref']} · YAML {g['form_yaml']} · config {g['config_yaml']}"
                          + (f" · modelo {g['model_file']}" if g.get("model_file") else ""))
             lines.append(f"    · archivo de salida: plugins/aero/docs/content/guides/{g['plugin']}/{g['slug']}.html")
+            if g.get("note"):
+                lines.append(f"    · INSTRUCCIÓN DEL USUARIO para esta guía: {g['note']}")
     lines.append("\nRecuerda: todo lo que produces es borrador. Escribe solo bajo plugins/aero/docs/content/ y termina "
                  "ejecutando `sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>` por cada plugin. "
                  "Cierra con el reporte corto.")
@@ -480,7 +484,9 @@ def cmd_install_cron(args):
     if CRON_MARK in cur:
         print("Ya está programado."); return
     every = int(cfg()["cron_every_minutes"])
-    line = f"*/{every} * * * * {SCRIPT_DIR / 'docs-sync-watch.py'} run --quiet >/dev/null 2>&1 {CRON_MARK}"
+    # Solo DETECTA (sin IA, sin coste): recalcula el backlog y actualiza el contador del backend.
+    # Generar con Claude es siempre una decisión manual (docs-cli).
+    line = f"*/{every} * * * * {SCRIPT_DIR / 'docs-cli.py'} scan >/dev/null 2>&1 {CRON_MARK}"
     subprocess.run(["crontab", "-"], input=cur.rstrip("\n") + "\n" + line + "\n", text=True, check=True)
     print("Programado:\n  " + line)
 
