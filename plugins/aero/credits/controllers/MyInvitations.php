@@ -82,6 +82,37 @@ class MyInvitations extends Controller
         return $this->refreshInvitationsPartial($tenantId);
     }
 
+    /**
+     * Canjear un cupón (p.ej. un regalo de /regalar) sobre el sitio actual.
+     * Las invitaciones NO se canjean acá: son solo para sitios nuevos.
+     */
+    public function onRedeemCode()
+    {
+        $tenantId = $this->tenantIdOrFail();
+
+        $key = 'credits-redeem:' . $tenantId;
+        if (RateLimiter::tooManyAttempts($key, 10)) {
+            throw new ApplicationException('Demasiados intentos. Espera unos minutos.');
+        }
+        RateLimiter::hit($key, 600);
+
+        $tenant = class_exists(\Aero\Sites\Models\Tenant::class) ? \Aero\Sites\Models\Tenant::find($tenantId) : null;
+        if (!$tenant) {
+            throw new ApplicationException('No se encontró tu sitio.');
+        }
+
+        try {
+            $result = Coupons::redeemForTenant((string) post('code', ''), $tenant);
+        }
+        catch (\RuntimeException $e) {
+            throw new ApplicationException($e->getMessage());
+        }
+
+        \Flash::success('¡Código canjeado! Plan ' . $result['plan']->name . ' extendido ' . Grants::periodLabel($result['period_unit'], $result['period_count']) . '.');
+
+        return \Backend::redirect('aero/credits/myinvitations');
+    }
+
     protected function refreshInvitationsPartial(int $tenantId)
     {
         $quota = Invitations::quotaFor($tenantId);

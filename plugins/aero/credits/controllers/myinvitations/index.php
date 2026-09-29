@@ -50,6 +50,15 @@
             </div>
         </div>
 
+        <div class="inv-card">
+            <h3>Canjear un código</h3>
+            <p>¿Te regalaron una suscripción o tienes un cupón? Canjéalo aquí para extender el plan de este sitio.</p>
+            <form data-request="onRedeemCode" class="inv-form">
+                <input type="text" name="code" class="form-control" placeholder="Código, ej. GIFTAB12CD" autocomplete="off" required>
+                <button type="submit" class="btn btn-default">Canjear</button>
+            </form>
+        </div>
+
         <div>
             <h3 class="inv-list-title">Invitaciones enviadas</h3>
             <div id="invitations-panel">
