@@ -26,6 +26,14 @@ class Category extends Model
             'table'    => 'aero_services_category_service',
             'key'      => 'category_id',
             'otherKey' => 'service_id',
+            'order'    => 'name',
+        ],
+        'collections' => [
+            Collection::class,
+            'table'    => 'aero_services_collection_category',
+            'key'      => 'category_id',
+            'otherKey' => 'collection_id',
+            'order'    => 'name',
         ],
     ];
 

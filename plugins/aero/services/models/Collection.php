@@ -4,7 +4,7 @@ use Model;
 
 /**
  * Agrupa servicios afines para presentarlos juntos (p. ej. "Plugins especializados por rubro").
- * A diferencia de Category (una sola por servicio), un servicio puede estar en varias colecciones.
+ * Jerarquía: Colección → Categorías → Servicios, ambas relaciones múltiples.
  */
 class Collection extends Model
 {
@@ -25,14 +25,24 @@ class Collection extends Model
     protected $casts = ['is_active' => 'boolean'];
 
     public $belongsToMany = [
-        'services' => [
-            Service::class,
-            'table'    => 'aero_services_collection_service',
+        'categories' => [
+            Category::class,
+            'table'    => 'aero_services_collection_category',
             'key'      => 'collection_id',
-            'otherKey' => 'service_id',
+            'otherKey' => 'category_id',
             'order'    => 'sort_order',
         ],
     ];
+
+    /** Servicios de la colección: los de todas sus categorías, sin repetir. */
+    public function getServicesAttribute()
+    {
+        return $this->categories()->with('services')->get()
+            ->flatMap->services
+            ->unique('id')
+            ->sortBy([['sort_order', 'asc'], ['name', 'asc']])
+            ->values();
+    }
 
     public function scopeActive($query)
     {

@@ -26,9 +26,9 @@ fields:
         label: Descripción
         type: textarea
         size: small
-    services:
-        label: Servicios
-        commentAbove: Servicios incluidos en esta colección.
+    categories:
+        label: Categorías
+        commentAbove: Categorías incluidas en esta colección; sus servicios aparecen en ella.
         type: relation
         nameFrom: name
     is_active:

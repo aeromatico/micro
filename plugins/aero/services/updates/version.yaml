@@ -29,3 +29,6 @@
 1.9.0:
     - "Un servicio puede tener varias categorías (tabla pivote; se migran las existentes). Formulario reorganizado por pestañas: General, Contenido, Planes, Página, Plataforma, Publicación."
     - create_category_service_table.php
+1.10.0:
+    - "Jerarquía Colección → Categorías → Servicios (ambas múltiples). El vínculo directo colección↔servicio se migra a categorías y se elimina."
+    - create_collection_category_table.php

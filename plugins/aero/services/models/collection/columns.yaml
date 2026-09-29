@@ -4,10 +4,10 @@ columns:
         searchable: true
     slug:
         label: Slug
-    services_count:
-        label: Servicios
+    categories_count:
+        label: Categorías
         type: number
-        relationCount: services
+        relationCount: categories
     sort_order:
         label: Orden
         sortable: true

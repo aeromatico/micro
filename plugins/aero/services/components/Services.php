@@ -57,8 +57,7 @@ class Services extends ComponentBase
         if ($this->property('mode') === 'collection') {
             $requireCollection = !in_array((string) $this->property('requireCollection', '1'), ['0', 'false', ''], true);
 
-            $this->collection = Collection::with(['services' => fn ($q) => $q->orderBy('sort_order')->orderBy('name')])
-                ->where('slug', $this->property('slug'))->first();
+            $this->collection = Collection::where('slug', $this->property('slug'))->first();
 
             if (!$this->collection) {
                 return $requireCollection ? Response::make($this->controller->run('404'), 404) : null;
