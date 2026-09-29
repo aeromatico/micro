@@ -2,6 +2,18 @@
     <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-dim pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
     <input type="search" name="q" value="{{ docs.q }}" placeholder="Buscar en la documentación…" class="w-full bg-canvas-elev border border-edge rounded-lg pl-9 pr-3 py-2.5 text-sm placeholder:text-ink-dim focus:outline-none focus:border-accent">
 </form>
+{% if docs.guidesCount > 0 %}
+    {% set onGuides = this.page.url starts with '/guias' %}
+    <a href="/guias" class="group flex items-center gap-3 mb-5 p-3 rounded-xl border {{ onGuides ? 'border-accent bg-canvas-elev2' : 'border-edge bg-canvas-elev hover:border-accent' }} transition-colors">
+        <span class="grid place-items-center w-9 h-9 rounded-lg bg-accent text-canvas shrink-0">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
+        </span>
+        <span class="min-w-0">
+            <span class="block text-sm font-semibold group-hover:text-accent transition-colors">Guías interactivas</span>
+            <span class="block text-xs text-ink-dim">{{ docs.guidesCount }} para practicar paso a paso</span>
+        </span>
+    </a>
+{% endif %}
 <nav class="flex flex-col gap-1" aria-label="Documentación">
     {% for node in docs.tree %}
         {% partial 'docs/node' node=node %}
