@@ -6,7 +6,7 @@ varias sesiones de trabajo a la vez y con edición manual. **Ninguno hace push n
 | Agente | Qué hace | Cron | Estado |
 |---|---|---|---|
 | `git-agent` | Commitea lo pendiente, un commit por área | cada 10 min | activo |
-| `docs-sync` (vigilante + Claude) | Documentación del tenant y guías interactivas, siempre como borrador | cada 30 min | en pruebas (`dry_run: true`) |
+| `docs-sync` (detección + `docs-cli`) | Detecta qué documentar; Claude genera solo lo que eliges, siempre como borrador | cada 30 min (solo detecta) | activo |
 
 Ver crons: `crontab -l` (marcas `# git-agent (auto)` y `# docs-sync-claude (auto)`).
 
@@ -52,13 +52,33 @@ Log: `.git/git-agent/agent.log`. Estado: `.git/git-agent/status.json`.
 
 ## 2. docs-sync (documentación del tenant y guías interactivas)
 
+**Nada se genera solo.** El cron (cada 30 min) solo *detecta*: `docs-cli scan` recalcula el backlog sin IA y
+actualiza el contador del menú Docs del backend. Tú eliges qué incorporar con **`docs-cli`** y solo entonces
+se llama a Claude (Sonnet), siempre como borrador.
+
+```bash
+docs-cli                         # interactivo: lista numerada, elegir (1,3,5-7 · all), omitir (s), anotar (n), filtrar (f)
+docs-cli list [--plugin P] [--all] [--json]
+docs-cli generate guide:guia-api-apikeys doc:credits --note "enfócate en los permisos" [--yes]
+docs-cli skip guide:guia-docs-guides   # no necesita guía (persistente, en git)
+docs-cli unskip guide:guia-docs-guides
+```
+Ids: `guide:<slug>` (guía de un formulario), `doc:<plugin>` (actualizar documentación), `bootstrap:<plugin>`
+(documentar por primera vez). Las **notas** (`n <nº> texto` o `--note`) se pasan a Claude como instrucción
+del usuario para ese elemento. Coste estimado por elemento: guía ~$0.35–0.50, doc ~$0.60, doc nueva ~$2.
+Omitidos: `plugins/aero/docs/content/guides/exclude.json` (formularios) y `content/docs-skip.json`
+(documentación, reaparece sola en la siguiente versión del plugin).
+
+El backlog sale de `artisan docs:backlog` (PHP: `Aero\Docs\Classes\Backlog`), que reutiliza el hash de fuentes
+de cada formulario (`GuideSources`).
+
 Motor: **Claude** (`claude -p`, modelo Sonnet). Sustituyó a opencode, que dejó de funcionar el 2026-09-21.
 Ubicación: `.claude/agents/docs-sync/` (`docs-sync-watch.py`, `docs-sync.json`, `agent.md`, `settings.json`) y skills
 `.claude/skills/docs-plugin/` y `.claude/skills/form-guide/` (esta trae `reference.html`, la guía modelo).
 
 Tiene dos piezas:
 
-1. **Vigilante determinista** (`docs-sync-watch.py`, cron cada 30 min). Sin IA. Decide dos cosas:
+1. **Detección determinista** (`docs:backlog`; `docs-sync-watch.py` conserva el motor de ejecución y el modo totalmente automático, hoy con `dry_run: true`). Sin IA. Decide dos cosas:
    - *Documentación:* la versión documentada (`docs:versions`, incluye ediciones pendientes de aprobar) es menor
      que la última de `plugins/aero/<plugin>/updates/version.yaml`.
    - *Guías:* un formulario principal sin guía o cuyo `source_hash` cambió (`docs:guides`). El hash cubre
