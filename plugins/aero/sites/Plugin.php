@@ -53,7 +53,6 @@ class Plugin extends PluginBase
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
         $this->bootChatbotsIntegration();
-        $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
         $this->bootPayRenewalBridge();
@@ -358,28 +357,6 @@ class Plugin extends PluginBase
             if ($tenantId) {
                 $owner = ['type' => \Aero\Sites\Models\Tenant::class, 'id' => $tenantId];
             }
-        });
-    }
-
-    /**
-     * Espejo de "Sitio Web → Configuración" como tab del menú central
-     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
-     * un solo lugar. El menú propio de Sitio Web sigue existiendo tal cual —
-     * esto solo agrega un acceso más al mismo controlador, no lo mueve.
-     */
-    protected function registerConfigMenuTab(): void
-    {
-        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
-            return;
-        }
-
-        Event::listen('backend.menu.extendItems', function ($manager) {
-            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'site-settings', [
-                'label'       => 'aero.sites::lang.menu.settings',
-                'icon'        => 'icon-globe',
-                'url'         => Backend::url('aero/sites/sitesettings'),
-                'permissions' => ['aero.sites.manage_seo'],
-            ]);
         });
     }
 
