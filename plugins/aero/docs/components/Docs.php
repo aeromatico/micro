@@ -2,6 +2,7 @@
 
 use Aero\Docs\Models\Article;
 use Aero\Docs\Models\Category;
+use Aero\Docs\Models\Guide;
 use Cms\Classes\ComponentBase;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -26,6 +27,9 @@ class Docs extends ComponentBase
     public ?array $next = null;
     public array $featured = [];
     public array $versions = [];
+
+    /** Guías interactivas publicadas visibles en este sitio: alimenta el acceso del menú lateral. */
+    public int $guidesCount = 0;
 
     /** Estado del bloque "¿te resultó útil?". */
     public int $helpfulYes = 0;
@@ -69,6 +73,7 @@ class Docs extends ComponentBase
     public function onRun()
     {
         $this->buildTree();
+        $this->guidesCount = Guide::published()->visibleIn($this->tenantId())->count();
         $this->q = trim((string) request()->query('q', ''));
 
         switch ($this->property('mode')) {
