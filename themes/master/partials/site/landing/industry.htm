@@ -1,5 +1,8 @@
-{# Use cases — edge-to-edge horizontal carousel (bleeds past the max-w-6xl
-   container to the viewport edge, unlike the contained carousel in domains.htm). #}
+{# Casos de uso — carrusel horizontal edge-to-edge (se sale del contenedor
+   max-w-6xl hasta el borde del viewport, a diferencia del carrusel contenido
+   en domains.htm) alimentado por los servicios activos de la categoría
+   "Especializados por rubro" (aero/services, categoría slug "rubros").
+   Cada tarjeta abre un modal con el resumen y las funciones del servicio. #}
 <section id="casos-uso" class="py-24 scroll-mt-14 overflow-x-hidden">
     <div class="max-w-6xl mx-auto px-6 sm:px-10 mb-12">
         <div class="max-w-[600px]">
@@ -8,37 +11,51 @@
         </div>
     </div>
 
-    {% set cases = [
-        {icon: 'M6 8h12l-1 12H7L6 8z M9 8V6a3 3 0 016 0v2', title: 'Tiendas y ventas por WhatsApp', desc: 'Catálogo, checkout y cobros QR conectados a tus conversaciones de WhatsApp.'},
-        {icon: 'M4 10h16M10 10v10 M4 4h16v16H4z', title: 'Profesionales y consultorios', desc: 'Sitio con datos de contacto y cobros a pacientes, sin depender de terceros.'},
-        {icon: 'M4 21V10l8-6 8 6v11 M9 21v-7h6v7', title: 'Inmobiliarias', desc: 'Publica propiedades y gestiona interesados con un CRM propio, sin planillas.'},
-        {icon: 'M6 3v7a2 2 0 002 2h0a2 2 0 002-2V3 M8 12v9 M17 3c-1.7 0-3 2.2-3 5s1.3 5 3 5v9', title: 'Restaurantes y delivery', desc: 'Menú digital, pedidos y pagos QR en mesa o para llevar.'},
-        {icon: 'M12 3c0 3-3 3-3 6a3 3 0 006 0c0-3-3-3-3-6z M9 15c0 3 1.5 6 3 6s3-3 3-6', title: 'Salones de belleza y spas', desc: 'Agenda citas, cobra por WhatsApp y fideliza clientes recurrentes.'},
-        {icon: 'M6.5 6.5l11 11 M6.5 17.5l11-11 M4 7l3-3 M17 20l3-3 M4 17l3 3 M17 4l3 3', title: 'Gimnasios y academias', desc: 'Controla membresías, cobros mensuales y recordatorios automáticos.'},
-        {icon: 'M3 21h18 M5 21V9l7-5 7 5v12 M9 13h6M9 17h6', title: 'Ferreterías y bazares', desc: 'Catálogo con stock actualizado y pedidos por WhatsApp.'},
-        {icon: 'M9 3h6l1 4h4v2h-2l-1.5 12.5A2 2 0 0114.5 22h-5a2 2 0 01-2-1.5L6 8H4V6h4l1-4z M9.5 11v6M14.5 11v6', title: 'Farmacias', desc: 'Catálogo de productos con delivery y cobros QR sin efectivo.'},
-        {icon: 'M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2 2-1.7-1.7 2-2z', title: 'Talleres mecánicos', desc: 'Agenda de servicios, seguimiento de clientes y cobros digitales.'},
-        {icon: 'M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z M12 9.5h.01', title: 'Veterinarias y mascotas', desc: 'Historial de mascotas, citas y recordatorios de vacunas.'},
-        {icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z', title: 'Colegios e institutos', desc: 'Cobro de pensiones y comunicación con padres por WhatsApp.'},
-        {icon: 'M4 15V9a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2z M8 21h8 M12 17v4 M8 12h.01M12 12h.01M16 12h.01', title: 'Radioemisoras y medios', desc: 'Sitio con streaming, contacto de anunciantes y CRM de pauta.'},
-        {icon: 'M3 17h1l2-6h12l2 6h1 M6 17v2M18 17v2 M6 11l1.5-4h9L18 11', title: 'Transporte y flotas', desc: 'Rastreo en tiempo real de vehículos y choferes con Tracking.'},
-        {icon: 'M4 4h16v16H4z M4 9h16 M8 4v5', title: 'Eventos y salones', desc: 'Reserva de fechas, cotizaciones y cobros de anticipo.'},
-        {icon: 'M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z', title: 'Abogados y estudios jurídicos', desc: 'Gestión de casos, clientes y cobros de honorarios.'},
-        {icon: 'M2 12h20 M12 2c2.4 2.5 3.7 5.7 3.7 10s-1.3 7.5-3.7 10c-2.4-2.5-3.7-5.7-3.7-10s1.3-7.5 3.7-10z', title: 'Agencias de viaje', desc: 'Catálogo de paquetes, cotizaciones y pagos QR.'},
-        {icon: 'M12 12a4 4 0 100-8 4 4 0 000 8z M4 21c0-4 3.6-7 8-7s8 3 8 7', title: 'Freelancers y consultores', desc: 'Sitio personal, cobros y CRM de clientes en un solo lugar.'},
-        {icon: 'M8 3l4 3 4-3 3 4-2 2v11H7V9L5 7l3-4z', title: 'Tiendas de ropa y moda', desc: 'Catálogo visual, tallas y stock con ventas por WhatsApp.'},
-        {icon: 'M5 12a7 7 0 0114 0v6a1 1 0 01-1 1H6a1 1 0 01-1-1v-6z M9 12a3 3 0 016 0', title: 'Panaderías y repostería', desc: 'Pedidos anticipados, catálogo de productos y cobros QR.'},
-        {icon: 'M12 21s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z', title: 'ONGs y fundaciones', desc: 'Sitio institucional, donaciones QR y contacto con donantes.'}
-    ] %}
+    {% set icons = {
+        'tiendas-por-whatsapp': 'M6 8h12l-1 12H7L6 8z M9 8V6a3 3 0 016 0v2',
+        'consultorios': 'M4 10h16M10 10v10 M4 4h16v16H4z',
+        'inmobiliarias': 'M4 21V10l8-6 8 6v11 M9 21v-7h6v7',
+        'restaurantes': 'M6 3v7a2 2 0 002 2h0a2 2 0 002-2V3 M8 12v9 M17 3c-1.7 0-3 2.2-3 5s1.3 5 3 5v9',
+        'barberias-y-salones-de-belleza': 'M12 3c0 3-3 3-3 6a3 3 0 006 0c0-3-3-3-3-6z M9 15c0 3 1.5 6 3 6s3-3 3-6',
+        'gimnasios': 'M6.5 6.5l11 11 M6.5 17.5l11-11 M4 7l3-3 M17 20l3-3 M4 17l3 3 M17 4l3 3',
+        'ferreterias-y-bazares': 'M3 21h18 M5 21V9l7-5 7 5v12 M9 13h6M9 17h6',
+        'farmacias': 'M9 3h6l1 4h4v2h-2l-1.5 12.5A2 2 0 0114.5 22h-5a2 2 0 01-2-1.5L6 8H4V6h4l1-4z M9.5 11v6M14.5 11v6',
+        'talleres-mecanicos': 'M14.7 6.3a4 4 0 01-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 015.4-5.4l-2 2-1.7-1.7 2-2z',
+        'mascotas': 'M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z M12 9.5h.01',
+        'colegios-e-institutos': 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z',
+        'radioemisoras': 'M4 15V9a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2z M8 21h8 M12 17v4 M8 12h.01M12 12h.01M16 12h.01',
+        'flotas-y-transporte': 'M3 17h1l2-6h12l2 6h1 M6 17v2M18 17v2 M6 11l1.5-4h9L18 11',
+        'eventos-y-salones': 'M4 4h16v16H4z M4 9h16 M8 4v5',
+        'abogados-y-estudios-juridicos': 'M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z',
+        'turismo': 'M2 12h20 M12 2c2.4 2.5 3.7 5.7 3.7 10s-1.3 7.5-3.7 10c-2.4-2.5-3.7-5.7-3.7-10s1.3-7.5 3.7-10z',
+        'freelancers-y-consultores': 'M12 12a4 4 0 100-8 4 4 0 000 8z M4 21c0-4 3.6-7 8-7s8 3 8 7',
+        'tiendas-de-ropa-y-moda': 'M8 3l4 3 4-3 3 4-2 2v11H7V9L5 7l3-4z',
+        'panaderias-y-reposteria': 'M5 12a7 7 0 0114 0v6a1 1 0 01-1 1H6a1 1 0 01-1-1v-6z M9 12a3 3 0 016 0',
+        'ongs-y-fundaciones': 'M12 21s-7-4.5-9-9a5 5 0 019-3 5 5 0 019 3c-2 4.5-9 9-9 9z',
+        'tickets': 'M4 8a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 000 4v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2a2 2 0 000-4V8z M9 6v12',
+    } %}
+    {% set fallbackIcon = 'M4 4h16v16H4z M4 9h16 M8 4v5' %}
 
     <div
         x-data="{
             paused: false,
             dragging: false,
+            moved: false,
             startX: 0,
             startScroll: 0,
             setWidth: 0,
             resumeTimer: null,
+            modalOpen: false,
+            modalItem: null,
+            open(item) {
+                if (this.moved) return;
+                this.modalItem = item;
+                this.modalOpen = true;
+                this.paused = true;
+            },
+            close() {
+                this.modalOpen = false;
+            },
             init() {
                 this.setWidth = this.$refs.track.scrollWidth / 3;
                 this.$refs.track.scrollLeft = this.setWidth;
@@ -56,15 +73,17 @@
             },
             dragStart(e) {
                 this.dragging = true;
+                this.moved = false;
                 this.paused = true;
                 clearTimeout(this.resumeTimer);
                 this.startX = e.clientX;
                 this.startScroll = this.$refs.track.scrollLeft;
-                this.$refs.track.setPointerCapture(e.pointerId);
             },
             dragMove(e) {
                 if (!this.dragging) return;
-                this.$refs.track.scrollLeft = this.startScroll - (e.clientX - this.startX);
+                const delta = e.clientX - this.startX;
+                if (Math.abs(delta) > 4) this.moved = true;
+                this.$refs.track.scrollLeft = this.startScroll - delta;
             },
             dragEnd() {
                 if (!this.dragging) return;
@@ -77,33 +96,79 @@
         <div
             x-ref="track"
             @pointerdown="dragStart($event)"
-            @pointermove="dragMove($event)"
-            @pointerup="dragEnd()"
-            @pointercancel="dragEnd()"
+            @pointermove.window="dragMove($event)"
+            @pointerup.window="dragEnd()"
+            @pointercancel.window="dragEnd()"
             @mouseenter="paused = true"
-            @mouseleave="!dragging && (paused = false)"
+            @mouseleave="!dragging && !modalOpen && (paused = false)"
             class="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [touch-action:pan-y] cursor-grab active:cursor-grabbing select-none px-6 sm:px-[max(1.5rem,calc((100vw-72rem)/2+2.5rem))]"
         >
             {% for n in 1..3 %}
-                {% for item in cases %}
-                <div {% if n > 1 %}aria-hidden="true"{% endif %} class="shrink-0 w-64 sm:w-72 lg:w-[calc(25%-0.75rem)] flex flex-col gap-3.5 p-6 border border-edge rounded-2xl bg-canvas hover:border-ink-dim hover:bg-canvas-elev2 transition-colors">
+                {% for item in items %}
+                {% set icon = icons[item.slug] ?? fallbackIcon %}
+                <div
+                    {% if n > 1 %}aria-hidden="true"{% else %}role="button" tabindex="0"{% endif %}
+                    @click="open({
+                        name: '{{ item.name|e('js') }}',
+                        summary: '{{ item.summary|e('js') }}',
+                        features: [{% for f in item.features %}'{{ f.text|e('js') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+                        icon: '{{ icon|e('js') }}'
+                    })"
+                    @keydown.enter="open({
+                        name: '{{ item.name|e('js') }}',
+                        summary: '{{ item.summary|e('js') }}',
+                        features: [{% for f in item.features %}'{{ f.text|e('js') }}'{% if not loop.last %},{% endif %}{% endfor %}],
+                        icon: '{{ icon|e('js') }}'
+                    })"
+                    class="text-left shrink-0 w-64 sm:w-72 lg:w-[calc(25%-0.75rem)] flex flex-col gap-3.5 p-6 border border-edge rounded-2xl bg-canvas hover:border-ink-dim hover:bg-canvas-elev2 transition-colors cursor-pointer"
+                >
                     <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                        {% for d in item.icon|split(' M') %}<path d="{{ loop.first ? d : 'M' ~ d }}"/>{% endfor %}
+                        {% for d in icon|split(' M') %}<path d="{{ loop.first ? d : 'M' ~ d }}"/>{% endfor %}
                     </svg>
-                    <h3 class="text-[15px] font-bold">{{ item.title }}</h3>
-                    <p class="text-sm text-ink-dim">{{ item.desc }}</p>
+                    <h3 class="text-[15px] font-bold leading-snug min-h-[2.6rem] line-clamp-2">{{ item.name }}</h3>
+                    <p class="text-sm text-ink-dim flex-1">{{ item.summary }}</p>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-accent mt-1">
+                        Ver funciones
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </span>
                 </div>
                 {% endfor %}
             {% endfor %}
         </div>
-    </div>
 
-    {% if not collection %}
-    <div class="max-w-6xl mx-auto px-6 sm:px-10 mt-10">
-        <div class="flex flex-wrap items-center gap-4 p-6 border border-dashed border-edge rounded-2xl">
-            <span class="text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Muy pronto</span>
-            <p class="text-sm text-ink-dim flex-1 min-w-[240px]">En unos días llegan módulos especializados para Inmobiliarias, Consultorios, Radioemisoras, Flotas y transporte, Mascotas, Sitios deportivos y más.</p>
-        </div>
+        <template x-if="modalOpen">
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4" style="translate: none; rotate: none; scale: none;">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="close()" x-transition.opacity></div>
+                <div
+                    class="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-canvas border border-edge rounded-2xl shadow-2xl p-7"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    @click.outside="close()"
+                    @keydown.escape.window="close()"
+                >
+                    <button type="button" @click="close()" aria-label="Cerrar" class="absolute top-5 right-5 text-ink-dim hover:text-ink transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+
+                    <svg class="w-9 h-9 text-accent mb-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" x-html="modalItem.icon.split(' M').map((d, i) => `<path d=&quot;${i === 0 ? d : 'M' + d}&quot;/>`).join('')"></svg>
+
+                    <h3 class="text-xl font-bold mb-2" x-text="modalItem.name"></h3>
+                    <p class="text-ink-dim mb-5" x-text="modalItem.summary"></p>
+
+                    <div class="pt-5 border-t border-edge">
+                        <p class="text-xs tracking-wide text-accent uppercase font-bold mb-3">Qué incluye</p>
+                        <ul class="space-y-2.5">
+                            <template x-for="feature in modalItem.features" :key="feature">
+                                <li class="flex items-start gap-2.5 text-sm text-ink-dim">
+                                    <svg class="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                                    <span x-text="feature"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
-    {% endif %}
 </section>

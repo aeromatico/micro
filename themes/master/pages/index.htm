@@ -18,6 +18,21 @@ function onStart()
         'domainRenewalMarkupPercent' => \Aero\Sites\Models\Settings::getDomainRenewalMarkupPercent(),
         'usdToBobRate'               => \Aero\Sites\Models\Settings::getUsdToBobRate(),
     ];
+
+    $industryOrder = [
+        'tiendas-por-whatsapp', 'consultorios', 'inmobiliarias', 'restaurantes',
+        'barberias-y-salones-de-belleza', 'gimnasios', 'ferreterias-y-bazares', 'farmacias',
+        'talleres-mecanicos', 'mascotas', 'colegios-e-institutos', 'radioemisoras',
+        'flotas-y-transporte', 'eventos-y-salones', 'abogados-y-estudios-juridicos', 'turismo',
+        'freelancers-y-consultores', 'tiendas-de-ropa-y-moda', 'panaderias-y-reposteria',
+        'ongs-y-fundaciones', 'tickets',
+    ];
+
+    $bySlug = \Aero\Services\Models\Category::where('slug', 'rubros')->first()
+        ?->services()->active()->get(['aero_services_services.id', 'name', 'slug', 'summary', 'features'])
+        ->keyBy('slug') ?? collect();
+
+    $this['industryServices'] = collect($industryOrder)->map(fn ($slug) => $bySlug->get($slug))->filter()->values();
 }
 ?>
 ==
@@ -53,7 +68,7 @@ function onStart()
     {% partial 'site/_services_collection' collection=collection id='por-rubro' %}
 {% endif %}
 
-{% partial 'site/landing/industry' collection=collection %}
+{% partial 'site/landing/industry' items=industryServices %}
 
 {% partial 'site/landing/payments' %}
 
