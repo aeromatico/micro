@@ -11,7 +11,6 @@ slug = "plugins-especializados-por-rubro"
 requireCollection = 0
 ==
 <?php
-
 function onStart()
 {
     $this['domainConfig'] = [
@@ -20,6 +19,7 @@ function onStart()
         'usdToBobRate'               => \Aero\Sites\Models\Settings::getUsdToBobRate(),
     ];
 }
+?>
 ==
 <div x-data="{ init() {
     const el = this.$root;
@@ -39,13 +39,13 @@ function onStart()
 
 {% partial 'site/landing/steps' %}
 
+{% partial 'site/landing/configuracion' %}
+
 {% partial 'site/landing/features' %}
 
 {% partial 'site/landing/demo' %}
 
 {% partial 'site/landing/whatsapp-comparison' %}
-
-{% partial 'site/landing/configuracion' %}
 
 {% partial 'site/landing/spotlight' %}
 
@@ -53,9 +53,9 @@ function onStart()
     {% partial 'site/_services_collection' collection=collection id='por-rubro' %}
 {% endif %}
 
-{% partial 'site/landing/casos-uso' collection=collection %}
+{% partial 'site/landing/industry' collection=collection %}
 
-{% partial 'site/landing/pagos' %}
+{% partial 'site/landing/payments' %}
 
 {% partial 'site/landing/wordpress-woocommerce' %}
 
