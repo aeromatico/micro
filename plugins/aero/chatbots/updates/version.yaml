@@ -47,3 +47,10 @@
       elegir qué fuentes habilitar. El cobro de créditos ahora ocurre por
       cada llamada real al connector, no solo por la respuesta final."
     - add_ai_tool_categories_to_bots_table.php
+
+1.6.0:
+    - "Modos Chatbot IA / Super Chatbot IA: nuevo interruptor 'Incluir
+      respuestas automáticas'. Activo (default) = se revisan primero las
+      reglas del chatbot simple y la IA solo responde si ninguna coincide;
+      inactivo = la IA responde siempre."
+    - add_ai_include_rules_to_bots_table.php

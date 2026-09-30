@@ -56,16 +56,23 @@ class ChatbotEngine
             return;
         }
 
-        $rule = $bot->rules()
-            ->active()
-            ->orderByDesc('priority')
-            ->get()
-            ->first(fn ($rule) => $rule->matches($message->body));
+        // En modos IA, "Incluir respuestas automáticas" apagado = la IA responde
+        // siempre, sin revisar las reglas del chatbot simple.
+        $isAiMode = in_array($bot->reply_mode, static::AI_REPLY_MODES, true);
+        $checkRules = !$isAiMode || $bot->ai_include_rules;
+
+        $rule = $checkRules
+            ? $bot->rules()
+                ->active()
+                ->orderByDesc('priority')
+                ->get()
+                ->first(fn ($rule) => $rule->matches($message->body))
+            : null;
 
         if ($rule) {
             $responseText = $rule->response_text;
         }
-        elseif (in_array($bot->reply_mode, static::AI_REPLY_MODES, true)) {
+        elseif ($isAiMode) {
             // En modo IA no hay fallback al mensaje estático: si la IA falla
             // (error de la API, modelo mal configurado, etc.) preferimos no
             // responder nada antes que mandar un texto genérico que no tiene

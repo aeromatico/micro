@@ -22,13 +22,14 @@ class Bot extends Model
 
     public $fillable = [
         'tenant_id', 'account_id', 'name', 'is_active', 'fallback_message', 'handoff_minutes',
-        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt', 'ai_tool_categories',
+        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt', 'ai_include_rules', 'ai_tool_categories',
     ];
 
     protected $jsonable = ['ai_tool_categories'];
 
     public $attributes = [
-        'reply_mode' => 'autoresponder',
+        'reply_mode'       => 'autoresponder',
+        'ai_include_rules' => true,
     ];
 
     public $rules = [
@@ -68,6 +69,12 @@ class Bot extends Model
 
         if ($this->handoff_minutes === null || $this->handoff_minutes === '') {
             $this->handoff_minutes = 15;
+        }
+
+        // El <select> de conector manda '' cuando no se elige nada, y la
+        // columna es un entero nullable: '' da "Incorrect integer value".
+        if ($this->ai_connector_id === '') {
+            $this->ai_connector_id = null;
         }
 
         // "Desactivar" en el selector de modo es la única fuente de verdad
