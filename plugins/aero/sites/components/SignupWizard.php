@@ -1,5 +1,6 @@
 <?php namespace Aero\Sites\Components;
 
+use Aero\Sites\Classes\Meta\ConversionsApiClient;
 use Aero\Sites\Classes\Niches\NicheManager;
 use Aero\Sites\Classes\SignupPlans;
 use Aero\Sites\Classes\TenantProvisioner;
@@ -262,6 +263,16 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
         }
 
+        // Meta Conversions API: "Lead" en cuanto se reserva el tenant — el
+        // punto más temprano del embudo donde ya hay una intención real
+        // (nombre + rubro + plan elegidos), antes de saber si paga o no.
+        ConversionsApiClient::send(
+            eventName: 'Lead',
+            eventId: 'lead_tenant_' . $tenant->id,
+            tracking: ConversionsApiClient::captureRequestTracking($handle),
+            customData: ['value' => $planPrice, 'currency' => 'BOB'],
+        );
+
         if ($isTrial || $redemption) {
             return $this->activateFree($tenant, $planData, $rootDomain, $niche, $domainMode, $domain, $redemption);
         }
@@ -337,6 +348,26 @@ class SignupWizard extends ComponentBase
                     \Aero\Credits\Classes\Coupons::consume($redemption['model'], $tenant);
                 }
                 $tenant->refresh();
+            }
+
+            // Meta Conversions API: un canje de cupón/invitación es una
+            // conversión con valor real (el plan que se está regalando), la
+            // prueba gratis sin código no vale nada todavía — StartTrial en
+            // vez de Purchase para no inflar el valor de las campañas.
+            $tracking = ConversionsApiClient::captureRequestTracking($tenant->handle);
+            if ($redemption) {
+                ConversionsApiClient::send(
+                    eventName: 'Purchase',
+                    eventId: 'purchase_ref_' . $tenant->signup_payment_reference,
+                    tracking: $tracking,
+                    customData: ['value' => (float) $tenant->plan_price, 'currency' => 'BOB'],
+                );
+            } else {
+                ConversionsApiClient::send(
+                    eventName: 'StartTrial',
+                    eventId: 'trial_tenant_' . $tenant->id,
+                    tracking: $tracking,
+                );
             }
         } catch (\Exception $e) {
             \Log::error("Aero\\Sites: fallo al aprovisionar el alta gratis del tenant {$tenant->id}: " . $e->getMessage());
@@ -443,6 +474,20 @@ class SignupWizard extends ComponentBase
             \Log::error("Aero\\Sites SignupWizard: fallo al crear admin del tenant {$tenant->id}: " . $e->getMessage());
             return ['success' => false, 'message' => 'No se pudo crear la cuenta. Intenta con otro correo.'];
         }
+
+        // Meta Conversions API: acá sí tenemos email/teléfono reales del
+        // dueño del tenant — la mejor calidad de coincidencia (EMQ) de todo
+        // el embudo.
+        ConversionsApiClient::send(
+            eventName: 'CompleteRegistration',
+            eventId: 'admin_tenant_' . $tenant->id,
+            tracking: ConversionsApiClient::captureRequestTracking($tenant->handle),
+            userData: [
+                'email'      => $data['email'],
+                'phone'      => $data['phone'],
+                'first_name' => $data['name'],
+            ],
+        );
 
         return [
             'success'        => true,
