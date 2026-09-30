@@ -297,7 +297,7 @@ def build_prompt(items, bootstrap):
     for it in items:
         lines.append(f"## aero/{it['plugin']} (versión actual {it['current']})")
         if it["docs"]:
-            head = "- DOCUMENTACIÓN: SIN documentar, documéntalo completo (skill docs-plugin)" if bootstrap else \
+            head = "- DOCUMENTACIÓN: SIN documentar, documéntalo completo (skill docs-plugin)" if (bootstrap or it.get("bootstrap")) else \
                 f"- DOCUMENTACIÓN: documentada {it['documented']} → actualizar (skill docs-plugin)"
             lines.append(head)
             for v, n in it["notes"][-8:]:
@@ -315,6 +315,15 @@ def build_prompt(items, bootstrap):
             lines.append(f"    · archivo de salida: plugins/aero/docs/content/guides/{g['plugin']}/{g['slug']}.html")
             if g.get("note"):
                 lines.append(f"    · INSTRUCCIÓN DEL USUARIO para esta guía: {g['note']}")
+    for it in items:
+        o = it.get("offer")
+        if o:
+            lines.append(f"## PÁGINA DEL SERVICIO «{o['name']}» (id {o['id']}, slug {o['slug']}, {'PÚBLICO' if o.get('public') else 'no público'})")
+            lines.append("- OFERTA (skill service-offer): redacta la página del servicio y déjala como PROPUESTA con "
+                         f"`services:offer-proposal {o['id']} --from-json=plugins/aero/docs/content/offers/{o['slug']}.json`. "
+                         "No se aplica al servicio: una persona decide.")
+            if o.get("note"):
+                lines.append(f"    · INSTRUCCIÓN DEL USUARIO: {o['note']}")
     lines.append("\nRecuerda: todo lo que produces es borrador. Escribe solo bajo plugins/aero/docs/content/ y termina "
                  "ejecutando `sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>` por cada plugin "
                  "(añade `--mark-reviewed` SOLO si el brief incluía DOCUMENTACIÓN de ese plugin y la revisaste; en plugins solo de guías, sin esa opción). "
@@ -348,7 +357,7 @@ def run_claude(c, prompt):
 def execute(c, st, plan, bootstrap=False, dry=False):
     items = plan["todo"]
     if not items:
-        return
+        return True
     names = ", ".join(i["plugin"] for i in items)
     n_guides = sum(len(i["guides"]) for i in items)
     if dry:
@@ -359,7 +368,7 @@ def execute(c, st, plan, bootstrap=False, dry=False):
             for g in it["guides"]:
                 log(f"[simulación]   aero/{it['plugin']} guía {g['slug']} ({g['state']})")
         st["last_plan"] = {"ts": dt.datetime.now().isoformat(timespec="seconds"), "plugins": [i["plugin"] for i in items], "guides": n_guides}
-        return
+        return True
     before = pending_paths()
     LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
     LOCK_FILE.write_text(json.dumps({"pid": os.getpid(), "ts": time.time(), "plugins": [i["plugin"] for i in items]}))
@@ -394,14 +403,14 @@ def execute(c, st, plan, bootstrap=False, dry=False):
         st["paused"] = True
         st["alert"] = {"why": f"el agente modificó rutas de plugins fuera de docs: {', '.join(risky[:5])}", "ts": dt.datetime.now().isoformat(timespec="seconds")}
         log(st["alert"]["why"] + " — vigilante PAUSADO; revisa `git status` (no se revirtió nada)", "ERROR")
-        return
+        return False
     if auth_failed:
         # No quema los reintentos de ningún plugin: el problema es la sesión de Claude, no el plugin.
         st["paused"] = True
         st["alert"] = {"why": "Claude no está autenticado (token caducado?). Ejecuta `claude` y /login, luego `docs-sync-watch resume`",
                        "ts": dt.datetime.now().isoformat(timespec="seconds")}
         log(st["alert"]["why"], "ERROR")
-        return
+        return False
     for it in items:
         if ok:
             if it["docs"]:
@@ -413,6 +422,7 @@ def execute(c, st, plan, bootstrap=False, dry=False):
             f["ts"] = time.time()
     log(f"docs-sync {'terminó bien' if ok else 'FALLÓ'}: {names}; turnos={info.get('num_turns')} coste=${info.get('total_cost_usd')}; "
         f"archivos nuevos/cambiados en docs: {len(new)}", "INFO" if ok else "ERROR")
+    return ok
 
 
 # ─────────────────────────── comandos ───────────────────────────

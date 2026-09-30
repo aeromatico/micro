@@ -17,7 +17,8 @@
       "Bash(sudo -u www /www/server/php/84/bin/php artisan docs:guides:*)",
       "Bash(sudo -u www /www/server/php/84/bin/php artisan docs:versions)",
       "Edit(//www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/content/**)",
-      "Write(//www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/content/**)"
+      "Write(//www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/content/**)",
+      "Bash(sudo -u www /www/server/php/84/bin/php artisan services:offer-proposal:*)"
     ],
     "deny": [
       "Read(//www/wwwroot/micro.clouds.com.bo/.env)",

@@ -8,7 +8,9 @@ Todo lo generado queda como borrador (Docs → Guías interactivas / Artículos 
 
   docs-cli                       modo interactivo (lista, elegir, omitir, anotar, generar)
   docs-cli list [--plugin P] [--all] [--json]
-  docs-cli generate <id…> [--note "texto"] [--yes]      ids: guide:guia-pay-x · doc:pay · bootstrap:notify
+  docs-cli generate <id…> [--note "texto"] [--yes]      ids: guide:guia-pay-x · doc:pay · bootstrap:notify · service:22
+  docs-cli generate service:22 --what dgo [--forms all|slug,…] [--apply]   d=documentación g=guías o=página del servicio
+  docs-cli offer show|apply|revert <id-servicio>         revisar / aplicar / deshacer la propuesta de página
   docs-cli skip <id…>            no necesita guía / actualización (persistente, versionado en git)
   docs-cli unskip <id…>
   docs-cli scan                  recalcula el backlog y actualiza el contador del menú (lo usa el cron)
@@ -29,9 +31,9 @@ spec.loader.exec_module(W)
 ROOT = W.ROOT
 EXCLUDE = ROOT / "plugins/aero/docs/content/guides/exclude.json"
 SKIPDOCS = ROOT / "plugins/aero/docs/content/docs-skip.json"
-COST = {"guide": 0.35, "doc": 0.6, "bootstrap": 2.0}     # estimación por elemento con Sonnet (USD)
-KIND_LABEL = {"guide": "guía", "doc": "doc", "bootstrap": "doc nueva"}
-STATE_LABEL = {"missing": "sin guía", "stale": "cambió", "outdated": "desactualizada", "undocumented": "sin documentar"}
+COST = {"guide": 0.35, "doc": 0.6, "bootstrap": 2.0, "offer": 1.0}     # estimación por elemento con Sonnet (USD)
+KIND_LABEL = {"guide": "guía", "doc": "doc", "bootstrap": "doc nueva", "service": "servicio"}
+STATE_LABEL = {"missing": "sin guía", "stale": "cambió", "outdated": "desactualizada", "undocumented": "sin documentar", "current": "al día"}
 
 
 def backlog(c, all_plugins=False):
@@ -52,21 +54,37 @@ def write_json(path, data):
 
 
 # ─────────────────────────── presentación ───────────────────────────
+def item_cost(it):
+    if it["kind"] != "service":
+        return COST[it["kind"]]
+    total = COST["offer"] if it["offer_state"] == "missing" else 0
+    for p in it["plugins"]:
+        total += COST["bootstrap"] if p["doc_state"] == "undocumented" else COST["doc"] if p["doc_state"] == "outdated" else 0
+        total += COST["guide"] * sum(1 for f in p["forms"] if f["state"] != "current")
+    return total
+
+
 def render(items):
     if not items:
         print("Nada pendiente: documentación y guías al día.")
         return
-    print(f"\n{'#':>3}  {'TIPO':<9} {'PLUGIN':<10} {'ELEMENTO':<38} MOTIVO")
+    print(f"\n{'#':>3}  {'TIPO':<9} {'PLUGIN':<12} {'ELEMENTO':<36} MOTIVO")
     for i, it in enumerate(items, 1):
-        if it["kind"] == "guide":
+        if it["kind"] == "service":
+            name = f"{it['title']} (id {it['service_id']})" + ("" if it.get("public") else " · no público")
+            plug = "+".join(p["plugin"] for p in it["plugins"])
+        elif it["kind"] == "guide":
             name = f"{it['name']} ({it['controller']})" if it["name"] != it["controller"] else it["controller"]
+            plug = it["plugin"]
         else:
-            name = "documentación"
+            name, plug = "documentación", it["plugin"]
         note = f"  ✎ {it['note']}" if it.get("note") else ""
         pend = "  [ya hay borrador sin revisar]" if it.get("pending") else ""
-        print(f"{i:>3}  {KIND_LABEL[it['kind']]:<9} {it['plugin']:<10} {name[:38]:<38} {it['reason']}{pend}{note}")
-    total = sum(COST[i["kind"]] for i in items)
-    print(f"\n{len(items)} elemento(s). Generar TODO costaría ~${total:.2f} (Sonnet). Por elemento: guía ~$0.35, doc ~$0.60, doc nueva ~$2.")
+        print(f"{i:>3}  {KIND_LABEL[it['kind']]:<9} {plug[:12]:<12} {name[:36]:<36} {it['reason']}{pend}{note}")
+    total = sum(item_cost(i) for i in items)
+    print(f"\n{len(items)} elemento(s). Generar TODO costaría ~${total:.2f} (Sonnet). Por elemento: guía ~$0.35, doc ~$0.60, doc nueva ~$2, página de servicio ~$1.")
+    if any(i["kind"] == "service" for i in items):
+        print("Los servicios (identificados por su plugin «Construido con») te preguntan qué crear: documentación, guías y/o la página.")
 
 
 def parse_selection(text, n):
@@ -144,6 +162,7 @@ def build_plan_from(selected):
                                            "documented": None, "docs": False, "guides": [], "notes": []})
         if it["kind"] in ("doc", "bootstrap"):
             cur["docs"] = True
+            cur["bootstrap"] = it["kind"] == "bootstrap"
             cur["documented"] = it.get("documented")
             cur["current"] = it["current"]
             cur["notes"] = W.version_notes_since(it["plugin"], it.get("documented"))
@@ -184,9 +203,163 @@ def generate(c, st, selected, assume_yes=False):
     return 0
 
 
+# ─────────────────────────── servicios ───────────────────────────
+def service_options(it):
+    """Qué se puede crear para este servicio y en qué estado está cada cosa."""
+    docs = [p for p in it["plugins"] if p["doc_state"] != "current"]
+    forms = [(p, f) for p in it["plugins"] for f in p["forms"]]
+    todo_forms = [f for _, f in forms if f["state"] != "current"]
+    return {
+        "d": ("documentación", ", ".join(f"{p['plugin']} {STATE_LABEL[p['doc_state']]}" for p in docs) if docs else "al día", bool(docs)),
+        "g": ("guías interactivas", f"{len(todo_forms)} de {len(forms)} formulario(s) por generar" if forms else "el plugin no tiene formularios candidatos", bool(forms)),
+        "o": ("página del servicio", "vacía" if it["offer_state"] == "missing" else "completa (se propondría una versión nueva)", True),
+    }
+
+
+def ask_service(it, forms_arg=None):
+    """Pregunta qué crear. Devuelve (what, guías_elegidas) o None si se cancela."""
+    opts = service_options(it)
+    print(f"\nServicio #{it['service_id']} · {it['title']}  ·  plugin «Construido con»: {', '.join(p['code'] for p in it['plugins'])}")
+    for k, (label, state, avail) in opts.items():
+        print(f"  {k}  {label:<20} {state}" + ("" if avail else "  (nada que crear)"))
+    raw = input("¿Qué creamos? d, g, o (ej. dg) · t = todo lo pendiente · enter = cancelar > ").strip().lower()
+    if not raw:
+        return None
+    what = "".join(k for k in "dgo" if k in raw) if raw != "t" else "".join(k for k, (_, _, a) in opts.items() if a and (k != "o" or it["offer_state"] == "missing"))
+    if not what:
+        print("No entendí; cancelado.")
+        return None
+    return what, (choose_forms(it, forms_arg) if "g" in what else [])
+
+
+def choose_forms(it, forms_arg=None):
+    forms = [(p, f) for p in it["plugins"] for f in p["forms"]]
+    if not forms:
+        return []
+    if forms_arg is not None:
+        if forms_arg == "all":
+            return [f["slug"] for _, f in forms]
+        wanted = [x.strip() for x in forms_arg.split(",") if x.strip()]
+        return [f["slug"] for _, f in forms if f["slug"] in wanted or f["controller"] in wanted]
+    print("\nFormularios del plugin (se generan y se muestran en la página del servicio):")
+    for i, (p, f) in enumerate(forms, 1):
+        extra = "  · ya vinculada" if f.get("linked") else ""
+        print(f"  {i:>2}. {f['name']} ({f['controller']}) — {STATE_LABEL[f['state']]}{extra}")
+    raw = input("Elige cuáles (ej. 1,3 · all · enter = ninguno) > ").strip()
+    if not raw:
+        return []
+    return [forms[k - 1][1]["slug"] for k in sorted(parse_selection(raw, len(forms)))]
+
+
+def service_flow(c, it, what, guides, note=None, assume_yes=False, apply_offer=False):
+    st = W.load_state()
+    blockers = manual_blockers(c, st)
+    if blockers:
+        print("No puedo generar ahora:\n - " + "\n - ".join(blockers))
+        return 1
+
+    step1, cost = [], 0.0
+    for p in it["plugins"]:
+        if "d" in what and p["doc_state"] != "current":
+            undoc = p["doc_state"] == "undocumented"
+            step1.append({"id": f"{'bootstrap' if undoc else 'doc'}:{p['plugin']}", "kind": "bootstrap" if undoc else "doc", "plugin": p["plugin"],
+                          "current": p["current"], "documented": p["documented"], "note": note})
+            cost += COST["bootstrap" if undoc else "doc"]
+        for f in p["forms"]:
+            if f["slug"] in guides and f["state"] != "current":
+                step1.append(dict(f, kind="guide", id="guide:" + f["slug"], plugin=p["plugin"], note=note))
+                cost += COST["guide"]
+    do_offer = "o" in what
+    cost += COST["offer"] if do_offer else 0
+
+    print(f"\nServicio «{it['title']}» — se generará (todo como BORRADOR / propuesta):")
+    for x in step1:
+        print(f"  · {KIND_LABEL[x['kind']]:<9} {x['id']}")
+    linked = [g for g in guides]
+    if linked:
+        print(f"  · vincular al servicio: {len(linked)} guía(s) y los artículos de {', '.join(p['plugin'] for p in it['plugins'])}")
+    if do_offer:
+        print("  · página del servicio: PROPUESTA (el servicio no se modifica hasta que la apruebes aquí)")
+    if note:
+        print(f"  ✎ {note}")
+    if not (step1 or linked or do_offer):
+        print("Nada que hacer.")
+        return 0
+    print(f"Coste estimado: ~${cost:.2f}")
+    if not assume_yes and input("¿Continuar? [s/N] ").strip().lower() not in ("s", "si", "sí", "y", "yes"):
+        print("Cancelado.")
+        return 0
+    W.QUIET = False
+
+    # 1) documentación + guías
+    if step1:
+        plan = {"todo": build_plan_from(step1), "deferred": [], "undocumented": [], "skipped": {}}
+        if not W.execute(c, st, plan, bootstrap=False, dry=False):
+            print("\n⚠ Falló la generación de documentación/guías; no sigo con el resto.")
+            return 1
+        W.save_state(st)
+
+    # 2) vincular (solo añade vínculos)
+    link_args = ["services:link-docs", str(it["service_id"])]
+    if "d" in what or do_offer:
+        link_args += [f"--plugin={p['plugin']}" for p in it["plugins"]]
+    if linked:
+        link_args += ["--guides=" + ",".join(linked)]
+    if len(link_args) > 2:
+        r = W.sh(["sudo", "-u", c["web_user"], W.PHP_BIN, "artisan", *link_args], timeout=120)
+        print("Vínculos:", (r.stdout or r.stderr).strip().splitlines()[-1] if (r.stdout or r.stderr).strip() else "(sin salida)")
+
+    # 3) página del servicio
+    if do_offer:
+        offer = {"id": it["service_id"], "slug": it["slug"], "name": it["title"], "public": it.get("public"), "note": note}
+        plan = {"todo": [{"plugin": it["plugins"][0]["plugin"], "current": it["plugins"][0]["current"], "documented": None, "docs": False,
+                          "guides": [], "notes": [], "offer": offer}], "deferred": [], "undocumented": [], "skipped": {}}
+        if not W.execute(c, W.load_state(), plan, bootstrap=False, dry=False):
+            print("\n⚠ No se pudo generar la propuesta de la página.")
+            return 1
+        return offer_review(c, it["service_id"], it["slug"], apply_now=apply_offer, assume_yes=assume_yes)
+    print("\nListo. Revisa los borradores en el backend: Docs → Guías interactivas / Artículos → Cambios pendientes.")
+    return 0
+
+
+def offer_review(c, service_id, slug, apply_now=False, assume_yes=False):
+    try:
+        info = W.artisan_json(c, "services:offer-apply", str(service_id), "--show")
+    except RuntimeError as e:
+        print("No hay propuesta para revisar:", e)
+        return 1
+    print("\n── Propuesta de la página ──")
+    print("Resumen:", info["summary"])
+    print(f"Descripción: {info['description'][:300]}…")
+    print(f"{info['features']} características · {info['requirements']} requisitos · HTML {info['html_bytes']} bytes · {info['docs']} documento(s) enlazado(s)")
+    print("Servicio público:", "SÍ (se vería de inmediato al aplicar)" if info["public"] else "no")
+    print("Propuesta completa (JSON):", info["file"])
+    if not apply_now:
+        if assume_yes or not sys.stdin.isatty():
+            print(f"\nNo se aplicó. Para aplicarla: docs-cli offer apply {service_id}")
+            return 0
+        if input("\n¿Aplicarla al servicio ahora? (se puede deshacer con `docs-cli offer revert`) [s/N] ").strip().lower() not in ("s", "si", "sí", "y", "yes"):
+            print(f"Queda como propuesta. Para aplicarla luego: docs-cli offer apply {service_id}")
+            return 0
+    return offer_apply(c, service_id, slug)
+
+
+def offer_apply(c, service_id, slug):
+    r = W.sh(["sudo", "-u", c["web_user"], W.PHP_BIN, "artisan", "services:offer-apply", str(service_id)], timeout=120)
+    print((r.stdout + r.stderr).strip()[-300:])
+    if r.returncode != 0:
+        return 1
+    print("Recompilando el CSS del tema (las clases Tailwind de la página viven en la BD)…")
+    b = subprocess.run(["npm", "run", "build"], cwd=ROOT / "themes/master", capture_output=True, text=True, timeout=300)
+    print("CSS:", "ok" if b.returncode == 0 else "FALLÓ\n" + b.stderr[-300:])
+    W.sh(["sudo", "-u", c["web_user"], W.PHP_BIN, "artisan", "cache:clear"], timeout=60)
+    print(f"Listo: https://market.com.bo/servicio/{slug}")
+    return 0
+
+
 # ─────────────────────────── modo interactivo ───────────────────────────
 HELP = """Comandos:
-  <números>        elegir para generar, ej. 1,3,5-7 · all
+  <números>        elegir para generar, ej. 1,3,5-7 · all  (en un servicio pregunta: documentación, guías y/o página)
   n <nº> <texto>   añadir una instrucción para Claude en ese elemento, ej. n 3 enfócate en el flujo de pago
   s <números>      omitir (no necesita guía/actualización)
   f <plugin>       filtrar por plugin · f  (sin argumento) quita el filtro
@@ -239,8 +412,14 @@ def interactive(c):
             else:
                 idx = parse_selection(line, len(view))
                 sel = [dict(view[k - 1], note=notes.get(view[k - 1]["id"])) for k in sorted(idx)]
-                st = W.load_state()
-                generate(c, st, sel)
+                plain = [x for x in sel if x["kind"] != "service"]
+                for svc in [x for x in sel if x["kind"] == "service"]:
+                    ans = ask_service(svc)
+                    if ans:
+                        service_flow(c, svc, ans[0], ans[1], note=svc.get("note"))
+                        input("\n(enter para continuar)")
+                if plain:
+                    generate(c, W.load_state(), plain)
                 input("\n(enter para volver)")
                 items = backlog(c, allp)
         except ValueError as e:
@@ -254,6 +433,10 @@ def main():
     sub = ap.add_subparsers(dest="cmd")
     ls = sub.add_parser("list"); ls.add_argument("--plugin"); ls.add_argument("--all", action="store_true"); ls.add_argument("--json", action="store_true")
     g = sub.add_parser("generate"); g.add_argument("ids", nargs="+"); g.add_argument("--note"); g.add_argument("--yes", action="store_true")
+    g.add_argument("--what", help="solo servicios: d=documentación g=guías o=página del servicio (ej. dgo)")
+    g.add_argument("--forms", help="solo servicios con g: 'all' o lista de slugs/controladores separados por coma")
+    g.add_argument("--apply", action="store_true", help="solo servicios con o: aplicar la página al servicio sin preguntar")
+    of = sub.add_parser("offer"); of.add_argument("action", choices=["show", "apply", "revert"]); of.add_argument("service")
     sk = sub.add_parser("skip"); sk.add_argument("ids", nargs="+")
     us = sub.add_parser("unskip"); us.add_argument("ids", nargs="+")
     sub.add_parser("scan")
@@ -286,9 +469,39 @@ def main():
             return 1
         chosen = [dict(items[x], note=args.note) if args.cmd == "generate" else items[x] for x in args.ids]
         if args.cmd == "skip":
-            do_skip(chosen)
+            do_skip([x for x in chosen if x["kind"] != "service"])
             return 0
-        return generate(c, W.load_state(), chosen, assume_yes=args.yes)
+        rc = 0
+        for svc in [x for x in chosen if x["kind"] == "service"]:
+            if args.what:
+                what = "".join(k for k in "dgo" if k in args.what.lower())
+                guides = choose_forms(svc, args.forms or "all") if "g" in what else []
+            elif args.yes:
+                print(f"{svc['id']}: indica qué crear con --what (d, g, o).")
+                return 1
+            else:
+                ans = ask_service(svc, args.forms)
+                if not ans:
+                    continue
+                what, guides = ans
+            rc |= service_flow(c, svc, what, guides, note=args.note, assume_yes=args.yes, apply_offer=args.apply)
+        plain = [x for x in chosen if x["kind"] != "service"]
+        return rc | (generate(c, W.load_state(), plain, assume_yes=args.yes) if plain else 0)
+    if args.cmd == "offer":
+        sid = args.service if args.service.isdigit() else None
+        row = W.artisan_json(c, "services:offer-apply", args.service, "--show") if args.action == "show" else None
+        if args.action == "show":
+            print(json.dumps(row, ensure_ascii=False, indent=2))
+            return 0
+        slug = args.service
+        if sid:
+            svc = next((i for i in items.values() if i["kind"] == "service" and str(i["service_id"]) == sid), None)
+            slug = svc["slug"] if svc else args.service
+        if args.action == "apply":
+            return offer_review(c, args.service, slug, apply_now=True)
+        r = W.sh(["sudo", "-u", c["web_user"], W.PHP_BIN, "artisan", "services:offer-apply", args.service, "--revert"], timeout=120)
+        print((r.stdout + r.stderr).strip()[-300:])
+        return r.returncode
     if args.cmd == "unskip":
         do_unskip(args.ids, items)
         return 0
