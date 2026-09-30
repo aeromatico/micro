@@ -71,6 +71,32 @@ class Service extends Model
     }
 
     /** Guías interactivas vinculadas Y publicadas: lo que se renderiza dentro de /servicio/{slug}. */
+    /**
+     * `code` separado en [resto, sección "Documentación", sección "Preguntas frecuentes"]
+     * para que la página intercale las guías/documentación (en pestañas) antes de las FAQ.
+     * Las secciones que no existen van vacías.
+     */
+    public function getCodePartsAttribute(): array
+    {
+        $code = (string) $this->code;
+        $found = ['Documentación' => '', 'Preguntas frecuentes' => ''];
+
+        if (preg_match_all('#<section\b.*?</section>#is', $code, $m)) {
+            foreach (array_reverse($m[0]) as $section) {
+                foreach ($found as $title => $html) {
+                    if ($html === '' && preg_match('#<h2\b[^>]*>\s*' . preg_quote($title, '#') . '#iu', $section)) {
+                        $pos = strrpos($code, $section);
+                        $code = substr($code, 0, $pos) . substr($code, $pos + strlen($section));
+                        $found[$title] = $section;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return [$code, $found['Documentación'], $found['Preguntas frecuentes']];
+    }
+
     public function getPublishedGuidesAttribute()
     {
         return $this->guides()->published()->orderBy('aero_docs_guides.sort_order')->orderBy('aero_docs_guides.title')->get();
