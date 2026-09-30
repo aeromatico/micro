@@ -14,6 +14,7 @@ slug = "{{ :slug }}"
         <span class="text-ink">{{ service.name }}</span>
     </nav>
 
+    {% set code_parts = service.code_parts %}
     {% if service.code %}
         <div class="service-page"
              x-data="{ init() {
@@ -25,7 +26,7 @@ slug = "{{ :slug }}"
                  document.documentElement.classList.add('js-reveal');
                  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
                  items.forEach(n => io.observe(n));
-             } }">{{ service.code|raw }}</div>
+             } }">{{ code_parts[0]|raw }}</div>
     {% else %}
         <h1 class="text-4xl font-bold text-pretty">{{ service.name }}</h1>
         {% if service.summary %}<p class="mt-4 text-lg text-ink-dim">{{ service.summary }}</p>{% endif %}
@@ -43,33 +44,60 @@ slug = "{{ :slug }}"
         {% endif %}
     {% endif %}
 
-    {# Guías interactivas vinculadas al servicio (Servicios → pestaña Documentación); solo las publicadas. #}
+    {# Pestañas: guías interactivas (Servicios → pestaña Documentación; solo las publicadas) y documentación. #}
     {% set guias = service.published_guides %}
-    {% if guias|length %}
-        <section class="mt-16 pt-10 border-t border-edge" id="guias" aria-labelledby="guias-titulo">
-            <div class="flex flex-wrap items-end justify-between gap-3 mb-2">
-                <h2 id="guias-titulo" class="text-2xl sm:text-3xl font-bold text-pretty">Pruébalo antes de usarlo</h2>
-                <a href="/guias" class="text-sm font-semibold text-accent hover:underline">Todas las guías interactivas →</a>
+    {% set has_guias = guias|length > 0 %}
+    {% set has_docs = code_parts[1] is not empty %}
+    {% if has_guias or has_docs %}
+        <section class="mt-16 pt-10 border-t border-edge" id="guias" x-data="{ tab: '{{ has_guias ? 'guias' : 'docs' }}' }">
+            <div role="tablist" class="flex flex-wrap gap-2 border-b border-edge mb-8">
+                {% if has_guias %}
+                <button type="button" role="tab" id="tab-guias" aria-controls="panel-guias" :aria-selected="tab === 'guias'" @click="tab = 'guias'"
+                    :class="tab === 'guias' ? 'border-accent text-ink' : 'border-transparent text-ink-dim hover:text-ink'"
+                    class="px-4 py-2.5 -mb-px border-b-2 font-semibold text-sm sm:text-base">Pruébalo antes de usar</button>
+                {% endif %}
+                {% if has_docs %}
+                <button type="button" role="tab" id="tab-docs" aria-controls="panel-docs" :aria-selected="tab === 'docs'" @click="tab = 'docs'"
+                    :class="tab === 'docs' ? 'border-accent text-ink' : 'border-transparent text-ink-dim hover:text-ink'"
+                    class="px-4 py-2.5 -mb-px border-b-2 font-semibold text-sm sm:text-base">Documentación</button>
+                {% endif %}
             </div>
-            <p class="text-ink-dim max-w-2xl">
-                {{ guias|length == 1 ? 'Una guía interactiva te lleva' : 'Guías interactivas que te llevan' }} paso a paso por el formulario real, sin guardar datos.
-            </p>
 
-            <div class="mt-8 flex flex-col gap-12">
-                {% for g in guias %}
-                    <article aria-labelledby="guia-{{ g.slug }}">
-                        <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-3">
-                            <h3 id="guia-{{ g.slug }}" class="text-lg font-semibold">{{ g.title }}</h3>
-                            <span class="flex items-center gap-4 text-sm">
-                                {% if g.article %}<a href="{{ g.article.url }}" class="text-ink-dim hover:text-ink">Ver documentación</a>{% endif %}
-                                <a href="{{ g.url }}" class="text-ink-dim hover:text-ink">Abrir a pantalla completa ↗</a>
-                            </span>
-                        </div>
-                        <iframe src="{{ g.embed_url }}" sandbox="allow-scripts" loading="lazy" title="{{ g.title }}"
-                            class="block w-full rounded-xl border border-edge bg-canvas-elev" style="height:min(80vh,820px);min-height:640px"></iframe>
-                    </article>
-                {% endfor %}
+            {% if has_guias %}
+            <div role="tabpanel" id="panel-guias" aria-labelledby="tab-guias" x-show="tab === 'guias'" {{ has_guias ? '' : 'hidden' }}>
+                <div class="flex flex-wrap items-end justify-between gap-3 mb-2">
+                    <p class="text-ink-dim max-w-2xl">
+                        {{ guias|length == 1 ? 'Una guía interactiva te lleva' : 'Guías interactivas que te llevan' }} paso a paso por el formulario real, sin guardar datos.
+                    </p>
+                    <a href="/guias" class="text-sm font-semibold text-accent hover:underline">Todas las guías interactivas →</a>
+                </div>
+
+                <div class="mt-8 flex flex-col gap-12">
+                    {% for g in guias %}
+                        <article aria-labelledby="guia-{{ g.slug }}">
+                            <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 mb-3">
+                                <h3 id="guia-{{ g.slug }}" class="text-lg font-semibold">{{ g.title }}</h3>
+                                <span class="flex items-center gap-4 text-sm">
+                                    {% if g.article %}<a href="{{ g.article.url }}" class="text-ink-dim hover:text-ink">Ver documentación</a>{% endif %}
+                                    <a href="{{ g.url }}" class="text-ink-dim hover:text-ink">Abrir a pantalla completa ↗</a>
+                                </span>
+                            </div>
+                            <iframe src="{{ g.embed_url }}" sandbox="allow-scripts" loading="lazy" title="{{ g.title }}"
+                                class="block w-full rounded-xl border border-edge bg-canvas-elev" style="height:min(80vh,820px);min-height:640px"></iframe>
+                        </article>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
+
+            {% if has_docs %}
+            <div role="tabpanel" id="panel-docs" aria-labelledby="tab-docs" x-show="tab === 'docs'" {{ has_guias ? 'x-cloak' : '' }} class="service-page service-page--plain">{{ code_parts[1]|raw }}</div>
+            {% endif %}
         </section>
+    {% endif %}
+
+    {# Preguntas frecuentes siempre al final. #}
+    {% if service.code and code_parts[2] %}
+        <div class="service-page service-page--plain">{{ code_parts[2]|raw }}</div>
     {% endif %}
 </div>

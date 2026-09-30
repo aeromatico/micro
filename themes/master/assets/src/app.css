@@ -95,6 +95,10 @@
     -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
     mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
 }
+/* Documentación y FAQ van en su propio contenedor: su primera sección no es el hero, sin fondo degradado. */
+.service-page--plain > section:first-child { padding-block: 3.5rem; isolation: auto; }
+.service-page--plain > section:first-child::before { content: none; }
+.service-page--plain > section:first-child p { font-size: inherit; line-height: inherit; margin-top: 0; max-width: none; }
 .service-page h1 {
     font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.06; font-weight: 700; text-wrap: balance;
     background: linear-gradient(115deg, var(--color-ink) 35%, var(--color-warm) 100%);
