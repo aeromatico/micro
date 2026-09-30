@@ -31,8 +31,13 @@
             },
             wrap() {
                 const t = this.$refs.track;
-                if (t.scrollLeft <= this.setWidth * 0.4) t.scrollLeft += this.setWidth;
-                else if (t.scrollLeft >= this.setWidth * 1.6) t.scrollLeft -= this.setWidth;
+                if (t.scrollLeft <= this.setWidth * 0.4) {
+                    t.scrollLeft += this.setWidth;
+                    if (this.dragging) this.startScroll += this.setWidth;
+                } else if (t.scrollLeft >= this.setWidth * 1.6) {
+                    t.scrollLeft -= this.setWidth;
+                    if (this.dragging) this.startScroll -= this.setWidth;
+                }
             },
             dragStart(e) {
                 this.dragging = true;
@@ -45,6 +50,7 @@
             dragMove(e) {
                 if (!this.dragging) return;
                 this.$refs.track.scrollLeft = this.startScroll - (e.clientX - this.startX);
+                this.wrap();
             },
             dragEnd() {
                 if (!this.dragging) return;

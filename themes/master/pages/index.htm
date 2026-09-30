@@ -25,14 +25,28 @@ function onStart()
         'talleres-mecanicos', 'mascotas', 'colegios-e-institutos', 'radioemisoras',
         'flotas-y-transporte', 'eventos-y-salones', 'abogados-y-estudios-juridicos', 'turismo',
         'freelancers-y-consultores', 'tiendas-de-ropa-y-moda', 'panaderias-y-reposteria',
-        'ongs-y-fundaciones', 'tickets',
+        'ongs-y-fundaciones', 'iglesias-y-congregaciones', 'tickets',
     ];
 
     $bySlug = \Aero\Services\Models\Category::where('slug', 'rubros')->first()
-        ?->services()->active()->get(['aero_services_services.id', 'name', 'slug', 'summary', 'features'])
+        ?->services()->active()->get(['aero_services_services.id', 'name', 'slug', 'summary', 'features', 'plans'])
         ->keyBy('slug') ?? collect();
 
-    $this['industryServices'] = collect($industryOrder)->map(fn ($slug) => $bySlug->get($slug))->filter()->values();
+    $creditColors = \Aero\Credits\Models\CreditType::pluck('color', 'code');
+
+    $this['industryServices'] = collect($industryOrder)->map(function ($slug) use ($bySlug, $creditColors) {
+        $service = $bySlug->get($slug);
+
+        if (!$service) {
+            return null;
+        }
+
+        $plan = collect($service->plans)->first();
+        $service->priceCredits = $plan['credit_price'] ?? null;
+        $service->priceColor = $creditColors[$plan['credit_type'] ?? ''] ?? '#94a3b8';
+
+        return $service;
+    })->filter()->values();
 }
 ?>
 ==
