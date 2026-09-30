@@ -21,7 +21,8 @@ class BacklogCommand extends Command
         if ($this->option('cache')) {
             Cache::forever('aero.docs.backlog', [
                 'total' => count($items),
-                'docs'  => count(array_filter($items, fn ($i) => $i['kind'] !== 'guide')),
+                'docs'  => count(array_filter($items, fn ($i) => in_array($i['kind'], ['doc', 'bootstrap'], true))),
+                'services' => count(array_filter($items, fn ($i) => $i['kind'] === 'service')),
                 'guides' => count(array_filter($items, fn ($i) => $i['kind'] === 'guide')),
                 'at'    => now()->toDateTimeString(),
             ]);
