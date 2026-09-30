@@ -22,6 +22,9 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('services.build-offer', \Aero\Services\Console\BuildOffer::class);
+        $this->registerConsoleCommand('services.offer-proposal', \Aero\Services\Console\OfferProposal::class);
+        $this->registerConsoleCommand('services.offer-apply', \Aero\Services\Console\OfferApply::class);
+        $this->registerConsoleCommand('services.link-docs', \Aero\Services\Console\LinkDocs::class);
     }
 
     public function registerComponents(): array
