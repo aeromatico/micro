@@ -201,7 +201,16 @@ function giftWizard(config) {
                 oc.request(null, 'giftForm::onCheckGiftStatus', {
                     data: { gift_id: this.payment.gift_id, reference: this.payment.reference },
                 }).then((d) => {
-                    if (d.status === 'paid') { this.status = 'paid'; this.delivered = !!d.delivered; clearInterval(this._timer); }
+                    if (d.status === 'paid') {
+                        this.status = 'paid';
+                        this.delivered = !!d.delivered;
+                        clearInterval(this._timer);
+                        if (window.metaTrack) {
+                            // Mismo event_id que QrCode::afterUpdate ya mandó
+                            // por la Conversions API al confirmarse el pago.
+                            window.metaTrack('Purchase', { value: this.payment.amount, currency: 'BOB' }, 'purchase_ref_' + this.payment.reference);
+                        }
+                    }
                     else if (d.status === 'expired') { this.status = 'expired'; clearInterval(this._timer); }
                 }).catch(() => {});
             }, 5000);

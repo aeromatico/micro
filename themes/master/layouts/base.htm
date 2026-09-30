@@ -19,6 +19,12 @@ function onStart()
 
     $this['appJs'] = $entry['file'] ?? null;
     $this['appCss'] = $entry['css'][0] ?? null;
+
+    // El ID del Pixel no es secreto (queda expuesto en el propio HTML del
+    // fbq base code de cualquier sitio) — el access_token de la Conversions
+    // API sí lo es y nunca sale del backend (ver services.meta_pixel /
+    // Aero\Sites\Classes\Meta\ConversionsApiClient).
+    $this['metaPixelId'] = config('services.meta_pixel.pixel_id');
 }
 ==
 <!DOCTYPE html>
@@ -99,6 +105,33 @@ function onStart()
     {% endif %}
 
     {% placeholder head %}
+
+    {% if metaPixelId %}
+    {# Meta Pixel — base code + PageView. Los eventos de conversión
+       (Lead, StartTrial, Purchase, CompleteRegistration) se disparan desde
+       signup.js/regalar con el MISMO event_id que ya mandó el servidor por
+       la Conversions API (ver Aero\Sites\Classes\Meta\ConversionsApiClient),
+       para que Meta deduplique en vez de contar el evento dos veces. #}
+    <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{ metaPixelId }}');
+        fbq('track', 'PageView');
+
+        // Dispara un evento del Pixel con el mismo event_id que su par del
+        // servidor (CAPI) — window.metaTrack('Lead', {...}, 'lead_tenant_5').
+        window.metaTrack = function (eventName, params, eventId) {
+            try {
+                fbq('track', eventName, params || {}, eventId ? { eventID: eventId } : undefined);
+            } catch (e) {}
+        };
+    </script>
+    <noscript><img height="1" width="1" style="display:none" alt=""
+        src="https://www.facebook.com/tr?id={{ metaPixelId }}&ev=PageView&noscript=1" /></noscript>
+    {% endif %}
 
     {% framework extras %}
 </head>

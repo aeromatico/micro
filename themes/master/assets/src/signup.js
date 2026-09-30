@@ -393,9 +393,24 @@ function signupWizard(config) {
                     }
                     this.payment = data;
                     this.step = 2;
+
+                    // Meta Pixel — mismo event_id que ya mandó el servidor
+                    // por la Conversions API (SignupWizard::onCreateSignup),
+                    // para que Meta deduplique.
+                    if (window.metaTrack) {
+                        window.metaTrack('Lead', { value: data.amount, currency: 'BOB' }, 'lead_tenant_' + data.tenant_id);
+                    }
+
                     if (data.trial || data.free) {
                         // Prueba gratis o código canjeado: el sitio ya está activo, sin QR ni polling.
                         this.paymentStatus = 'paid';
+                        if (window.metaTrack) {
+                            if (data.trial) {
+                                window.metaTrack('StartTrial', {}, 'trial_tenant_' + data.tenant_id);
+                            } else {
+                                window.metaTrack('Purchase', { value: data.amount, currency: 'BOB' }, 'purchase_ref_' + data.reference);
+                            }
+                        }
                         return;
                     }
                     this.paymentStatus = 'pending';
@@ -459,6 +474,11 @@ function signupWizard(config) {
                     clearInterval(this._pollTimer);
                     clearInterval(this._countdownTimer);
                     this.paymentStatus = 'paid';
+                    if (window.metaTrack) {
+                        // Mismo event_id que QrCode::afterUpdate ya mandó
+                        // por CAPI en cuanto el banco confirmó el pago.
+                        window.metaTrack('Purchase', { value: this.payment.amount, currency: 'BOB' }, 'purchase_ref_' + this.payment.reference);
+                    }
                 } else if (data.status === 'not_found') {
                     // El tenant ya no existe — expiró y el cron lo purgó
                     // (o algo más lo eliminó); en cualquier caso no hay
@@ -488,6 +508,9 @@ function signupWizard(config) {
                     if (!data.success) {
                         this.adminError = data.message || 'No se pudo crear tu cuenta.';
                         return;
+                    }
+                    if (window.metaTrack) {
+                        window.metaTrack('CompleteRegistration', {}, 'admin_tenant_' + this.payment.tenant_id);
                     }
                     this.done = data;
                 })
