@@ -29,6 +29,7 @@ puedes tener varios bots.
 Mensaje entrante
       ▼
 ¿Hay una regla que coincida?  ── sí ──▶  responde la regla
+(en modos IA, solo si «Incluir respuestas automáticas» está activo)
       │ no
       ▼
 ¿El modo es Chatbot?  ── sí ──▶  mensaje por defecto
@@ -36,6 +37,10 @@ Mensaje entrante
       ▼
 Responde la IA (o no responde nada si falla)
 ```
+
+> [!TIP]
+> En Chatbot IA y Super Chatbot IA puedes apagar **Incluir respuestas
+> automáticas** para que la IA responda siempre, sin pasar por las reglas.
 
 > [!NOTE]
 > Si un **agente responde manualmente** una conversación, el bot deja de
@@ -53,3 +58,5 @@ Responde la IA (o no responde nada si falla)
 |---------|-----------|
 | `aero.chatbots.manage` | Bots y registro del propio sitio |
 | `aero.chatbots.superadmin` | Además, los modelos de IA de la plataforma |
+
+**Versión documentada:** 1.6.0

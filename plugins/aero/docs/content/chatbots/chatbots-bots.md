@@ -27,6 +27,12 @@ cómo responde: con reglas, con IA o desactivado.
 | **Modelo** | Modelo del conector elegido (catálogo de la plataforma). |
 | **Prompt del sistema** | Cómo se presenta y comporta el bot. Vacío = prompt genérico de atención por WhatsApp en español. |
 
+### Respuestas automáticas (reglas)
+
+| Campo | Para qué sirve |
+|-------|----------------|
+| **Incluir respuestas automáticas** | Solo en modos con IA. Activo (por defecto): primero se revisan las reglas; si una coincide responde la regla y, si no, responde la IA. Inactivo: la IA responde siempre y las reglas se ocultan. |
+
 ### Mensaje por defecto
 
 | Campo | Para qué sirve |
@@ -53,4 +59,11 @@ literales. Para emojis usa el atajo del sistema (Win+. / Cmd+Ctrl+Space).
 > [!TIP]
 > La pestaña **Reglas** (ver [Reglas](chatbots-reglas)) es donde cargas las
 > respuestas de palabra clave. Si usas IA, las reglas siguen teniendo prioridad
-> cuando coinciden.
+> cuando coinciden, mientras **Incluir respuestas automáticas** esté activo.
+
+> [!NOTE]
+> La pestaña de reglas se ve en modo Chatbot y, en los modos con IA, solo si
+> **Incluir respuestas automáticas** está activo. Las reglas se cargan después
+> de crear el bot.
+
+**Versión documentada:** 1.6.0
