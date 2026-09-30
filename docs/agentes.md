@@ -117,6 +117,23 @@ sudo -u www /www/server/php/84/bin/php artisan docs:import <plugin>   # importar
 Interactivo: `/form-guide` genera o pule la guía de un formulario concreto (p. ej. con Claude Design) y
 `docs:import` la deja como propuesta.
 
+**Servicios (Aero.Services).** Los servicios aparecen primero en la lista, identificados por su plugin
+«Construido con el plugin» (Backend → Servicios → Plataforma → Plugins ligados; los `integrates`/`recommended`
+solo aportan contexto). Al elegirlos, el CLI pregunta **qué crear**: `d` documentación del plugin, `g` guías
+(eliges qué formularios) y/o `o` página del servicio, o `t` para todo lo pendiente.
+```bash
+docs-cli generate service:22 --what o                    # solo la página (propuesta)
+docs-cli generate service:10 --what dg --forms all       # documentación + guías de los plugins «Construido con»
+docs-cli offer show|apply|revert 22                      # revisar / aplicar / deshacer la página propuesta
+```
+- La página la redacta Claude (skill `service-offer`) a partir de la información base del servicio y la evidencia
+  del plugin, y queda como **propuesta** (`storage/app/service-offers/<slug>.proposal.json`, copia en
+  `plugins/aero/docs/content/offers/`). No toca el servicio: `offer apply` (o responder «s» en el CLI) la aplica,
+  recompila el CSS del tema y guarda la versión anterior para `offer revert`.
+- Tras generar se **vinculan** al servicio los artículos del plugin y las guías elegidas (`services:link-docs`, solo añade).
+  Las guías vinculadas publicadas se ven dentro de `/servicio/{slug}`.
+- Servicios sin un plugin «Construido con» no aparecen: no hay a qué vincular.
+
 **Excluir formularios de las guías:** añade `"plugin/controlador"` a `plugins/aero/docs/content/guides/exclude.json`.
 
 **Solo local.** Las aprobaciones viven en la BD de cada entorno. En otro entorno, tras `git pull`, se
