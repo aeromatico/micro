@@ -90,6 +90,11 @@ class Service extends Model
         }
 
         $plan = $plans->first();
+
+        if (($plan['type'] ?? null) === 'free') {
+            return 'Gratis';
+        }
+
         $mode = $plan['pricing_mode'] ?? 'money';
 
         if (in_array($mode, ['money', 'both'], true) && filled($plan['price'] ?? null)) {
@@ -111,6 +116,10 @@ class Service extends Model
      */
     public function planPriceLines(array $plan): array
     {
+        if (($plan['type'] ?? null) === 'free') {
+            return [['primary' => true, 'text' => 'Gratis']];
+        }
+
         $lines = [];
         $mode = $plan['pricing_mode'] ?? 'money';
 
@@ -152,7 +161,11 @@ class Service extends Model
                     $plan['billing_period'] = null;
                 }
 
-                if ($plan['pricing_mode'] === 'credits') {
+                if ($plan['type'] === 'free') {
+                    $plan['price'] = $plan['setup_fee'] = $plan['credit_price'] = $plan['credit_type'] = null;
+                    $plan['price_from'] = false;
+                }
+                elseif ($plan['pricing_mode'] === 'credits') {
                     $plan['price'] = $plan['setup_fee'] = null;
                 }
                 elseif ($plan['pricing_mode'] === 'money') {

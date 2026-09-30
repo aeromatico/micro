@@ -105,6 +105,10 @@ tabs:
                         options: Aero\Services\Classes\PlanOptions::pricingModeOptions
                         default: money
                         span: left
+                        trigger:
+                            action: hide
+                            field: type
+                            condition: value[free]
                     delivery_days:
                         label: Plazo de entrega (días)
                         type: number

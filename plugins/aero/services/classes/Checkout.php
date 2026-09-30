@@ -34,6 +34,10 @@ class Checkout
     /** Métodos de pago que admite un plan, según su modalidad de cobro. */
     public static function methodsFor(array $plan): array
     {
+        if (($plan['type'] ?? null) === 'free') {
+            return ['free'];
+        }
+
         return match ($plan['pricing_mode'] ?? 'money') {
             'credits' => ['credits'],
             'both'    => ['credits', 'money'],
@@ -94,6 +98,19 @@ class Checkout
 
         if (!in_array($method, static::methodsFor($plan), true)) {
             throw new \InvalidArgumentException('Ese plan no admite ese método de pago.');
+        }
+
+        if ($method === 'free') {
+            return ServicePurchase::create([
+                'tenant_id'      => $tenantId,
+                'service_id'     => $service->id,
+                'plan_index'     => $planIndex,
+                'plan_snapshot'  => $plan,
+                'payment_method' => 'free',
+                'amount'         => 0,
+                'status'         => ServicePurchase::PENDING,
+                'requested_by'   => $userId,
+            ]);
         }
 
         $cost = static::cost($plan, $method);

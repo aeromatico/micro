@@ -10,6 +10,7 @@ class PlanOptions
             'recurring' => 'Suscripción / recurrente',
             'project'   => 'Proyecto',
             'hourly'    => 'Por hora',
+            'free'      => 'Gratis',
         ];
     }
 

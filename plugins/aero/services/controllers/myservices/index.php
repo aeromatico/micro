@@ -87,17 +87,21 @@ $fmt = fn ($n) => number_format((float) $n, 0, ',', '.');
                         <?php endforeach ?>
                         <?php if (!empty($plan['delivery_days'])): ?><div class="sub">Entrega en <?= (int) $plan['delivery_days'] ?> días</div><?php endif ?>
                         <div class="btns">
-                            <?php if (in_array($plan['pricing_mode'] ?? 'money', ['credits', 'both'], true) && filled($plan['credit_price'] ?? null)): ?>
+                            <?php if (($plan['type'] ?? null) === 'free'): ?>
+                                <button type="button" class="btn btn-primary btn-sm" data-buy
+                                    data-service="<?= $service->id ?>" data-plan="<?= $i ?>" data-method="free"
+                                    data-confirm="¿Solicitar «<?= e($plan['name'] ?? '') ?>»? Es gratis.">Solicitar gratis</button>
+                            <?php elseif (in_array($plan['pricing_mode'] ?? 'money', ['credits', 'both'], true) && filled($plan['credit_price'] ?? null)): ?>
                                 <button type="button" class="btn btn-primary btn-sm" data-buy
                                     data-service="<?= $service->id ?>" data-plan="<?= $i ?>" data-method="credits"
                                     data-confirm="¿Comprar «<?= e($plan['name'] ?? '') ?>» con tus créditos?">Comprar con créditos</button>
                             <?php endif ?>
-                            <?php if (in_array($plan['pricing_mode'] ?? 'money', ['money', 'both'], true) && filled($plan['price'] ?? null)): ?>
+                            <?php if (($plan['type'] ?? null) !== 'free' && in_array($plan['pricing_mode'] ?? 'money', ['money', 'both'], true) && filled($plan['price'] ?? null)): ?>
                                 <button type="button" class="btn btn-default btn-sm" data-buy
                                     data-service="<?= $service->id ?>" data-plan="<?= $i ?>" data-method="money"
                                     data-confirm="¿Comprar «<?= e($plan['name'] ?? '') ?>» con tu saldo en Bs?">Comprar con mi saldo en Bs</button>
                             <?php endif ?>
-                            <?php if (($plan['pricing_mode'] ?? 'money') === 'money' && empty($plan['price'])): ?>
+                            <?php if (($plan['type'] ?? null) !== 'free' && ($plan['pricing_mode'] ?? 'money') === 'money' && empty($plan['price'])): ?>
                                 <span class="ms-note">A cotizar: escríbenos.</span>
                             <?php endif ?>
                         </div>

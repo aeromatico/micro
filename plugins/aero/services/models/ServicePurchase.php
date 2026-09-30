@@ -28,7 +28,7 @@ class ServicePurchase extends Model
     public $rules = [
         'service_id'      => 'required',
         'tenant_id'       => 'required',
-        'payment_method'  => 'required|in:credits,money',
+        'payment_method'  => 'required|in:credits,money,free',
     ];
 
     public $jsonable = ['plan_snapshot'];
@@ -66,6 +66,10 @@ class ServicePurchase extends Model
     /** "5 monedas de bronce" o "Bs 120,00", según el método de cobro. */
     public function getAmountLabelAttribute(): string
     {
+        if ($this->payment_method === 'free') {
+            return 'Gratis';
+        }
+
         if ($this->payment_method === 'money') {
             return class_exists(\Aero\Credits\Classes\Money::class)
                 ? \Aero\Credits\Classes\Money::label((int) $this->amount)
