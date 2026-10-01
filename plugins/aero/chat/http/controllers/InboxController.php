@@ -18,7 +18,7 @@ class InboxController extends Controller
     /** GET accounts — los números conectados del tenant. */
     public function accounts(Request $request)
     {
-        $accounts = Account::with('profile')->forTenant($this->tenantId($request))->enabled()->orderBy('label')->get();
+        $accounts = Account::with('profile')->forTenant($this->tenantId($request))->enabled()->orderBy('sort_order')->orderBy('label')->get();
 
         // is_archived=false: un chat archivado no debe sumar al badge de la cuenta ni al total del riel.
         $pending = Conversation::whereIn('account_id', $accounts->pluck('id'))->where('is_archived', false)->where('unread_count', '>', 0)->get(['id', 'account_id', 'unread_count']);
