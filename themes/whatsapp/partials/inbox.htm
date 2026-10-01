@@ -85,7 +85,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
             <div class="chat-in">
                 <header class="bar" :style="chatBarTint">
                     <button type="button" class="icon-btn back" @click="closeChat()" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
-                    <span class="avatar" x-text="initials(cname(current))"></span>
+                    <span class="avatar" :style="chatAvatarTint" x-text="initials(cname(current))"></span>
                     <div class="grow">
                         <div class="title" x-text="cname(current)"></div>
                         <div class="sub"><span x-text="current.contact.phone || ''"></span> · <span x-text="current.assigned_to ? 'atiende ' + (current.assigned_to.id === user.id ? 'tú' : current.assigned_to.name) : 'sin asignar'"></span></div>

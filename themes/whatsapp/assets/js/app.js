@@ -400,7 +400,12 @@
             },
             get chatBarTint() {
                 var c = this.currentAccount && this.currentAccount.color;
-                return isHexColor(c) ? ('border-bottom-color:' + c + ';border-bottom-width:3px') : '';
+                if (!isHexColor(c)) return '';
+                return 'background:color-mix(in srgb,' + c + ' 20%,transparent);backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6);border-bottom-color:' + c + ';border-bottom-width:3px';
+            },
+            get chatAvatarTint() {
+                var c = this.currentAccount && this.currentAccount.color;
+                return isHexColor(c) ? ('background:' + c + ';color:#fff') : '';
             },
 
             // ---------- ubicación del operador ----------
@@ -494,10 +499,10 @@
                 var p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '').toLowerCase();
                 if (p.indexOf('mac') >= 0) return 'Cmd + Ctrl + Barra espaciadora';
                 if (p.indexOf('win') >= 0) return 'Tecla Windows + . (punto)';
-                if (p.indexOf('linux') >= 0 || p.indexOf('x11') >= 0) return 'Ctrl + . (o Ctrl + Shift + E, según tu escritorio)';
+                if (p.indexOf('linux') >= 0 || p.indexOf('x11') >= 0) return 'Depende del entorno: con IBus activo, Ctrl + . abre el panel (activalo con "ibus-setup"). XFCE no lo trae por defecto.';
                 return 'Buscá "insertar emoji" en los atajos de tu sistema';
             },
-            showEmojiHint: function () { this.notify('😀 Emojis: ' + this.emojiShortcutLabel, 4500); },
+            showEmojiHint: function () { this.notify('😀 Emojis: ' + this.emojiShortcutLabel, 7000); },
 
             // ---------- encuestas (solo WhatsApp Web) ----------
             get canPoll() {
