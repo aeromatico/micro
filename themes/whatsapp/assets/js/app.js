@@ -6,15 +6,28 @@
     var KEY = 'aero.chat.';
     var PALETTE = ['#17695a', '#b4532a', '#3b5fa8', '#8a3f7a', '#7a6a12', '#2f6f8f'];
     var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS', livechat: 'Chat web' };
-    var soundCache = {};
+    var soundCache = {}, soundPrimed = {};
     function isHexColor(hex) { return /^#[0-9a-f]{6}$/i.test(hex || ''); }
+    function getSound(a) {
+        var audio = soundCache[a.id];
+        if (!audio) { audio = new Audio(a.notification_sound); audio.preload = 'auto'; soundCache[a.id] = audio; }
+        return audio;
+    }
     function playAccountSound(a) {
         if (!a || !a.notification_sound) return;
-        try {
-            var audio = soundCache[a.id];
-            if (!audio) { audio = new Audio(a.notification_sound); soundCache[a.id] = audio; }
-            audio.currentTime = 0; audio.play().catch(function () {});
-        } catch (e) {}
+        try { var audio = getSound(a); audio.pause(); audio.currentTime = 0; audio.play().catch(function () {}); } catch (e) {}
+    }
+    // Safari/iOS solo deja sonar un <audio> si ya se reprodujo una vez dentro de un gesto del
+    // usuario (clic/toque); sin esto, el primer mensaje recién llegado nunca suena.
+    function primeSounds(accounts) {
+        (accounts || []).forEach(function (a) {
+            if (!a.notification_sound || soundPrimed[a.id]) return;
+            try {
+                var audio = getSound(a), p = audio.play();
+                if (p && p.then) p.then(function () { audio.pause(); audio.currentTime = 0; }).catch(function () {});
+                soundPrimed[a.id] = true;
+            } catch (e) {}
+        });
     }
 
     function store(k, v) {
@@ -164,6 +177,8 @@
                 this.refresh(true);
                 this.openPending();
                 this.pushInit(); this.geoInit();
+                document.addEventListener('click', function () { primeSounds(self.accounts); });
+                document.addEventListener('touchstart', function () { primeSounds(self.accounts); }, { passive: true });
                 this.stopTimers();
                 this._timers.push(setInterval(function () { if (!document.hidden) self.refresh(); }, 8000));
                 this._timers.push(setInterval(function () { if (!document.hidden && self.current) self.loadMsgs(false); }, 4000));
@@ -780,7 +795,8 @@
             get listSub() { var a = this.accountId && this.accounts.find(function (x) { return x.id === this.accountId; }, this); return a ? (PLATFORMS[a.platform] || a.platform) + (a.phone_number ? ' · ' + a.phone_number : '') : 'Todas las cuentas'; },
             get themeLabel() { return { auto: 'Automático (según tu dispositivo)', light: 'Claro', dark: 'Oscuro' }[this.theme]; },
 
-            acctColor: function (a) { return PALETTE[a.id % PALETTE.length]; },
+            acctColor: function (a) { return isHexColor(a.color) ? a.color : PALETTE[a.id % PALETTE.length]; },
+            acctAbbr: function (a) { return (a.abbreviation && a.abbreviation.trim()) || this.initials(a.label); },
             acctLabel: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.label : ''; },
             acctPlatform: function (id) { var a = this.accounts.find(function (x) { return x.id === id; }); return a ? a.platform : ''; },
             platformLabel: function (p) { return PLATFORMS[p] || p; },
