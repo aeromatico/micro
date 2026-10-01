@@ -15,4 +15,8 @@ perPage = "12"
 
 [shopCart]
 ==
-{% component 'shopCatalog' %}
+{% if shopCatalog.restaurantStore %}
+    {% partial 'shopCatalog::restaurant' %}
+{% else %}
+    {% component 'shopCatalog' %}
+{% endif %}
