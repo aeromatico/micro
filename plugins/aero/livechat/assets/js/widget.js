@@ -240,6 +240,7 @@
         state.open = true;
         document.getElementById('aero-livechat-panel').style.display = 'flex';
         setOpenFlag(true);
+        lastUnread = 0;
         hideBadge();
 
         if (state.started || getToken()) {
@@ -283,6 +284,7 @@
         submitBtn.textContent = 'Iniciando...';
 
         state.started = true;
+        askPushPermission();
         api('start', {
             method: 'POST',
             body: { widget_key: widgetKey, visitor_token: getToken(), name: name, email: email, phone: phone, page_url: location.href },
@@ -315,6 +317,70 @@
      * vuelta — sin este control se pintaba dos veces.
      */
     var renderedIds = {};
+    var SOUND_URL = 'https://panel.market.com.bo/storage/app/media/notifications/notification-5.mp3';
+    var alertAudio = null;
+    var lastUnread = 0;
+
+    function getAudio() {
+        if (!alertAudio) {
+            try { alertAudio = new Audio(SOUND_URL); alertAudio.preload = 'auto'; } catch (e) {}
+        }
+        return alertAudio;
+    }
+
+    // Los navegadores bloquean audio hasta que el visitante interactúa con
+    // la página: el primer toque "desbloquea" el reproductor en silencio.
+    function unlockAudio() {
+        var a = getAudio();
+        if (!a) { return; }
+        a.muted = true;
+        var pr = a.play();
+        var done = function () { a.pause(); a.currentTime = 0; a.muted = false; };
+        if (pr && pr.then) { pr.then(done).catch(function () { a.muted = false; }); } else { done(); }
+    }
+    ['pointerdown', 'keydown'].forEach(function (ev) {
+        document.addEventListener(ev, function once() {
+            document.removeEventListener(ev, once, true);
+            unlockAudio();
+        }, true);
+    });
+
+    function playAlert() {
+        var a = getAudio();
+        if (!a) { return; }
+        try {
+            a.currentTime = 0;
+            var pr = a.play();
+            if (pr && pr.catch) { pr.catch(function () {}); }
+        } catch (e) {}
+    }
+
+    // Se pide el permiso solo tras una acción del visitante (enviar), nunca
+    // en frío al cargar la página — así el navegador no lo bloquea/penaliza.
+    function askPushPermission() {
+        try {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        } catch (e) {}
+    }
+
+    function pushNotify(body) {
+        try {
+            if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
+            // Con la pestaña a la vista y el panel abierto ya se ve el mensaje.
+            if (!document.hidden && state.open) { return; }
+            var title = (document.getElementById('aero-livechat-title') || {}).textContent || 'Chat';
+            var n = new Notification(title, { body: body || 'Tienes una respuesta nueva', tag: 'aero-livechat-' + widgetKey, renotify: true });
+            n.onclick = function () { window.focus(); if (!state.open) { openPanel(); } n.close(); };
+        } catch (e) {}
+    }
+
+    function alertIncoming(body) {
+        playAlert();
+        pushNotify(body);
+    }
+
     function renderMessage(m) {
         if (m.id) {
             if (renderedIds[m.id]) { return; }
@@ -367,7 +433,11 @@
             }
         }
 
+        var fresh = !(m.id && renderedIds[m.id]);
         renderMessage(m);
+        if (fresh && m.from !== 'contact') {
+            alertIncoming(m.body || (m.attachment ? '📎 ' + m.attachment.name : ''));
+        }
     }
 
     function uploadAttachment(file) {
@@ -573,6 +643,7 @@
         var body = input.value.trim();
         if (!body || !state.visitorToken) return;
         input.value = '';
+        askPushPermission();
 
         // Optimista: se pinta al toque, sin esperar la ida y vuelta al servidor.
         renderMessage({ from: 'contact', body: body });
@@ -607,9 +678,11 @@
             if (res.unread > 0) {
                 badge.textContent = res.unread;
                 badge.style.display = 'block';
+                if (res.unread > lastUnread) { alertIncoming(); }
             } else {
                 hideBadge();
             }
+            lastUnread = res.unread || 0;
         });
     }
 
