@@ -11,8 +11,10 @@ class OrderItem extends Model
     public $fillable = [
         'tenant_id', 'order_id', 'product_id', 'product_variant_id', 'product_name_snapshot',
         'variant_label_snapshot', 'sku_snapshot', 'unit_price', 'quantity', 'line_total',
-        'product_type_snapshot',
+        'product_type_snapshot', 'modifiers', 'note',
     ];
+
+    public $jsonable = ['modifiers'];
 
     public $rules = [
         'tenant_id'              => 'required|exists:aero_sites_tenants,id',

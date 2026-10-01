@@ -185,6 +185,27 @@ tabs:
             path: relation_variants
             span: full
 
+        prep_minutes:
+            tab: Restaurante
+            label: Tiempo de preparación (min)
+            type: number
+            span: left
+            comment: "Se muestra al cliente como tiempo estimado. Vacío = no se indica."
+
+        min_quantity:
+            tab: Restaurante
+            label: Pedido mínimo (unidades)
+            type: number
+            span: right
+            default: 1
+            comment: "Cantidad mínima de este plato por pedido."
+
+        _modifiers_relation:
+            tab: Restaurante
+            type: partial
+            path: relation_modifiers
+            span: full
+
         _seo_section:
             tab: SEO
             type: section

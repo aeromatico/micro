@@ -12,7 +12,11 @@
     <tbody>
         <?php foreach ($model->items as $item): ?>
             <tr>
-                <td><?= e($item->product_name_snapshot) ?></td>
+                <td>
+                    <?= e($item->product_name_snapshot) ?>
+                    <?php if ($item->modifiers): ?><br><small class="text-muted">+ <?= e(\Aero\Shop\Classes\RestaurantService::modifiersText($item->modifiers)) ?></small><?php endif ?>
+                    <?php if ($item->note): ?><br><small><strong>Nota:</strong> <?= e($item->note) ?></small><?php endif ?>
+                </td>
                 <td><?= e($item->variant_label_snapshot) ?></td>
                 <td><?= e($item->sku_snapshot) ?></td>
                 <td><?= number_format($item->unit_price, 2) ?></td>

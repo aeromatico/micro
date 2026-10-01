@@ -54,16 +54,43 @@ class ShopSettings extends Controller
             'inventory_tracking_enabled'  => (bool) ($data['inventory_tracking_enabled'] ?? false),
             'guest_checkout_enabled'      => (bool) ($data['guest_checkout_enabled'] ?? false),
             'order_number_prefix'         => $data['order_number_prefix'] ?: null,
-            'store_mode'                  => in_array($data['store_mode'] ?? '', ['standard', 'whatsapp'], true) ? $data['store_mode'] : 'standard',
+            'store_mode'                  => in_array($data['store_mode'] ?? '', ['standard', 'whatsapp', 'restaurant'], true) ? $data['store_mode'] : 'standard',
             'whatsapp_mode'               => in_array($data['whatsapp_mode'] ?? '', ['api', 'market'], true) ? $data['whatsapp_mode'] : 'api',
             'whatsapp_number'             => preg_replace('/\D+/', '', (string) ($data['whatsapp_number'] ?? '')) ?: null,
             'whatsapp_account_id'         => $this->ownedAccountId($tenant->id, $data['whatsapp_account_id'] ?? null),
+            'restaurant_config'           => $this->restaurantConfigFrom($data),
+            'schedule_mode'               => in_array($data['schedule_mode'] ?? '', ['always_open', 'scheduled', 'online'], true) ? $data['schedule_mode'] : 'always_open',
+            'accepting_orders'            => (bool) ($data['accepting_orders'] ?? true),
+            'timezone'                    => in_array($data['timezone'] ?? '', \DateTimeZone::listIdentifiers(), true) ? $data['timezone'] : 'America/La_Paz',
+            'schedule_hours'              => $this->scheduleHoursFrom($data),
             'low_stock_threshold'         => is_numeric($data['low_stock_threshold'] ?? '') ? (int) $data['low_stock_threshold'] : null,
         ]);
         $settings->save();
 
         Flash::success('Configuración de la tienda guardada.');
         return [];
+    }
+
+    /** QR imprimibles de cada mesa: /tienda?mesa=N en el dominio del tenant. */
+    public function onTableQrs()
+    {
+        $tenant   = $this->getCurrentTenant();
+        $settings = ShopSettingsModel::where('tenant_id', $tenant->id)->first();
+        $tables   = (int) ($settings?->restaurant()['tables'] ?? 0);
+        $qrs      = [];
+
+        if ($settings?->isRestaurantStore() && $tenant->primary_domain) {
+            $writer = new \BaconQrCode\Writer(new \BaconQrCode\Renderer\ImageRenderer(
+                new \BaconQrCode\Renderer\RendererStyle\RendererStyle(220, 1),
+                new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+            ));
+            for ($i = 1; $i <= $tables; $i++) {
+                $url = 'https://' . $tenant->primary_domain . '/tienda?mesa=' . $i;
+                $qrs[$i] = ['url' => $url, 'svg' => $writer->writeString($url)];
+            }
+        }
+
+        return ['#table-qrs' => $this->makePartial('table_qrs', ['qrs' => $qrs])];
     }
 
     public function onAddCurrency()
@@ -99,6 +126,36 @@ class ShopSettings extends Controller
             '#currencies-list' => $this->makePartial('currencies_list', [
                 'currencies' => $this->getTenantCurrencies($tenant->id),
             ]),
+        ];
+    }
+
+    protected function scheduleHoursFrom(array $data): array
+    {
+        $hours = [];
+        foreach ((array) ($data['schedule_hours'] ?? []) as $h) {
+            if (!array_key_exists($h['day'] ?? '', ShopSettingsModel::DAYS)) {
+                continue;
+            }
+            $hours[] = [
+                'day'    => $h['day'],
+                'open'   => preg_match('/^\d{2}:\d{2}/', (string) ($h['open'] ?? '')) ? substr($h['open'], 0, 5) : null,
+                'close'  => preg_match('/^\d{2}:\d{2}/', (string) ($h['close'] ?? '')) ? substr($h['close'], 0, 5) : null,
+                'closed' => (bool) ($h['closed'] ?? false),
+            ];
+        }
+
+        return $hours;
+    }
+
+    protected function restaurantConfigFrom(array $data): array
+    {
+        $types = array_values(array_intersect((array) ($data['rc_order_types'] ?? []), array_keys(ShopSettingsModel::ORDER_TYPES)));
+
+        return [
+            'order_types'   => $types ?: ['pickup'],
+            'delivery_fee'  => max(0, (float) ($data['rc_delivery_fee'] ?? 0)),
+            'tables'        => min(500, max(0, (int) ($data['rc_tables'] ?? 0))),
+            'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
         ];
     }
 
@@ -142,8 +199,9 @@ class ShopSettings extends Controller
                 'options' => [
                     'standard' => 'Tienda estándar',
                     'whatsapp' => 'Tienda para WhatsApp',
+                    'restaurant' => 'Restaurante',
                 ],
-                'comment' => 'La tienda para WhatsApp simplifica el checkout: solo pide el celular del cliente y envía el pedido al chat.',
+                'comment' => 'La tienda para WhatsApp simplifica el checkout: solo pide el celular del cliente y envía el pedido al chat. Restaurante agrega extras por plato, tipo de pedido (local, recoger, delivery), mesas por QR y horarios.',
             ],
             'whatsapp_mode' => [
                 'label'   => 'Envío del pedido',
@@ -172,6 +230,67 @@ class ShopSettings extends Controller
                 'placeholder' => 'Selecciona la cuenta que enviará los pedidos',
                 'comment'     => 'Se administran en Hello → Cuentas.',
                 'trigger'     => ['action' => 'show', 'field' => 'whatsapp_mode', 'condition' => 'value[market]'],
+            ],
+            'rc_section' => [
+                'label'   => 'Restaurante',
+                'type'    => 'section',
+                'comment' => 'Carta con extras y notas por plato, tipo de pedido, mesas por QR y horarios.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_order_types' => [
+                'label'   => 'Tipos de pedido que aceptas',
+                'type'    => 'checkboxlist',
+                'default' => ['dine_in', 'pickup', 'delivery'],
+                'options' => ShopSettingsModel::ORDER_TYPES,
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_delivery_fee' => [
+                'label' => 'Costo de delivery', 'type' => 'number', 'span' => 'left', 'default' => 0,
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_tables' => [
+                'label' => 'Cantidad de mesas', 'type' => 'number', 'span' => 'right', 'default' => 0,
+                'comment' => 'Cada mesa tiene un QR (/tienda?mesa=N) que prellena la mesa del pedido. Ver «QR de mesas» abajo.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_accept_closed' => [
+                'label' => 'Aceptar pedidos fuera de horario', 'type' => 'switch',
+                'comment' => 'Si está activo, el cliente puede programar su pedido; si no, la tienda se bloquea al cerrar.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'schedule_mode' => [
+                'label'   => 'Horario de la tienda',
+                'type'    => 'balloon-selector',
+                'default' => 'always_open',
+                'options' => ['always_open' => 'Abierto 24 horas', 'scheduled' => 'Por horario', 'online' => 'Atención en línea'],
+                'comment' => 'Fuera de horario la tienda no acepta pedidos. «Atención en línea»: tú abres y cierras con un interruptor.',
+            ],
+            'accepting_orders' => [
+                'label'   => 'Recibiendo pedidos ahora',
+                'type'    => 'switch',
+                'default' => true,
+                'trigger' => ['action' => 'show', 'field' => 'schedule_mode', 'condition' => 'value[online]'],
+            ],
+            'timezone' => [
+                'label'   => 'Zona horaria',
+                'type'    => 'dropdown',
+                'default' => 'America/La_Paz',
+                'options' => array_combine(\DateTimeZone::listIdentifiers(\DateTimeZone::AMERICA), \DateTimeZone::listIdentifiers(\DateTimeZone::AMERICA)),
+                'trigger' => ['action' => 'show', 'field' => 'schedule_mode', 'condition' => 'value[scheduled]'],
+            ],
+            'schedule_hours' => [
+                'label'     => 'Horarios',
+                'type'      => 'repeater',
+                'prompt'    => 'Agregar horario',
+                'titleFrom' => 'day',
+                'comment'   => 'Una fila por día; repite el día para turnos partidos. Un cierre menor a la apertura cruza la medianoche.',
+                'form'      => ['fields' => [
+                    'day'    => ['label' => 'Día', 'type' => 'dropdown', 'span' => 'left', 'options' => ShopSettingsModel::DAYS],
+                    'closed' => ['label' => 'Cerrado todo el día', 'type' => 'switch', 'span' => 'right'],
+                    'open'   => ['label' => 'Abre', 'type' => 'text', 'span' => 'left', 'placeholder' => '08:00'],
+                    'close'  => ['label' => 'Cierra', 'type' => 'text', 'span' => 'right', 'placeholder' => '22:00'],
+                ]],
+                'trigger'   => ['action' => 'show', 'field' => 'schedule_mode', 'condition' => 'value[scheduled]'],
             ],
             'is_enabled' => [
                 'label'   => 'Tienda activada',

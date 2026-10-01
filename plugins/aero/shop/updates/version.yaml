@@ -84,3 +84,21 @@
       pedido formateado hacia el número de la tienda) o por Market Api (envío
       desde una cuenta de Hello del tenant)."
     - add_store_mode_to_shop_settings.php
+
+1.2.0:
+    - "Modo Restaurante en Configuración: grupos de extras por plato (mín/máx),
+      nota de cocina por línea, tipo de pedido (local, recoger, delivery), mesa
+      por QR, horarios y pedido mínimo."
+    - add_restaurant_mode.php
+
+1.3.0:
+    - "Horario general de la tienda (todos los tipos): 24 horas, por horario
+      semanal o atención en línea con interruptor. Cierra el checkout y el
+      pedido cuando la tienda está cerrada. Variantes/Extras del producto
+      se muestran según el tipo de tienda."
+    - add_schedule_to_shop_settings.php
+
+1.4.0:
+    - "Tiempo de preparación y cantidad mínima pasan de Configuración a cada
+      producto (pestaña Restaurante, antes Extras)."
+    - add_restaurant_product_fields.php

@@ -32,3 +32,52 @@ variants:
         toolbarButtons: create|delete
         recordsPerPage: 20
     form: $/aero/shop/models/productvariant/fields.yaml
+
+modifier_groups:
+    label: Extras del plato
+    view:
+        list: $/aero/shop/models/modifiergroup/columns.yaml
+        toolbarButtons: create|delete
+        recordsPerPage: 10
+    form:
+        fields:
+            name:
+                label: Nombre del grupo
+                type: text
+                required: true
+                comment: "Ej: Tamaño, Adicionales, Punto de cocción"
+            min_select:
+                label: Mínimo a elegir
+                type: number
+                span: left
+                default: 0
+                comment: "0 = opcional. 1 o más = el cliente debe elegir."
+            max_select:
+                label: Máximo a elegir
+                type: number
+                span: right
+                default: 1
+                comment: "1 = elige una opción (radio). Más de 1 = casillas."
+            choices:
+                label: Opciones
+                type: repeater
+                span: full
+                prompt: Agregar opción
+                titleFrom: name
+                form:
+                    fields:
+                        name:
+                            label: Opción
+                            type: text
+                            required: true
+                            span: left
+                        price_delta:
+                            label: Costo extra
+                            type: number
+                            span: right
+                            default: 0
+                            step: 0.01
+                        is_active:
+                            label: Disponible
+                            type: switch
+                            default: true

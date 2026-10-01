@@ -85,7 +85,17 @@ class Cart extends ComponentBase
             return $this->errorResponse('No hay suficiente stock disponible.');
         }
 
-        $this->cart($tenant->id)->add($productId, $variantId, $qty);
+        $modifiers = array_map('strval', (array) post('modifiers', []));
+        $note = post('note');
+        try {
+            if (StorefrontContext::settings()?->isRestaurantStore() || $modifiers) {
+                \Aero\Shop\Classes\RestaurantService::resolve($product, $modifiers); // valida mín/máx y opciones
+            }
+        } catch (\Aero\Shop\Classes\Exceptions\OrderException $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        $this->cart($tenant->id)->add($productId, $variantId, $qty, $modifiers, $note);
         $this->hydrate();
 
         return $this->renderUpdates();
@@ -122,11 +132,17 @@ class Cart extends ComponentBase
 
     protected function renderUpdates(): array
     {
-        return [
+        $updates = [
             '#cart-badge'   => $this->renderPartial('@badge'),
             '#cart-content' => $this->renderPartial('@content'),
             '#cart-error'   => '',
         ];
+
+        if (StorefrontContext::settings()?->isRestaurantStore()) {
+            $updates['#rest-cartbar'] = $this->renderPartial('@restaurantbar');
+        }
+
+        return $updates;
     }
 
     protected function errorResponse(string $message): array

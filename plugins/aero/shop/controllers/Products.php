@@ -37,4 +37,31 @@ class Products extends Controller
             $model->tenant_id = $this->getCurrentTenantId();
         }
     }
+
+    /**
+     * Pestañas según el tipo de tienda: Restaurante usa su pestaña (extras,
+     * tiempo, mínimo) en vez de Variantes; las demás no la ven. Un plato que ya tiene variantes
+     * conserva sus pestañas para no dejar esos datos huérfanos.
+     */
+    public function formExtendFields($form): void
+    {
+        if (!$form->model instanceof \Aero\Shop\Models\Product) {
+            return;
+        }
+
+        $tenantId = (int) ($form->model->tenant_id ?: $this->getCurrentTenantId());
+        $restaurant = \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
+
+        if ($restaurant && !$form->model->has_variants) {
+            $form->removeField('_options_relation');
+            $form->removeField('_variants_relation');
+            $form->removeField('has_variants');
+        }
+
+        if (!$restaurant) {
+            $form->removeField('_modifiers_relation');
+            $form->removeField('prep_minutes');
+            $form->removeField('min_quantity');
+        }
+    }
 }

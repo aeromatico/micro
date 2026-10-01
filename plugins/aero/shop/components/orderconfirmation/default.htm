@@ -14,6 +14,18 @@
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
     </div>
 
+    {% if order.order_type %}
+    <div class="card p-5 mb-6 text-sm">
+        <p class="font-semibold text-ink">
+            {{ order.order_type == 'dine_in' ? '🍽️ Comer aquí' : (order.order_type == 'pickup' ? '🛍️ Recoger en el local' : '🛵 Delivery') }}
+            {% if order.table_label %} · Mesa {{ order.table_label }}{% endif %}
+        </p>
+        {% if order.scheduled_for %}
+        <p class="text-ink-muted mt-1">Programado para {{ order.scheduled_for|date('d/m H:i') }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div id="order-payment-status">
         {% partial __SELF__~"::paymentStatus" %}
     </div>
@@ -25,11 +37,16 @@
             <div class="flex justify-between gap-3 text-sm">
                 <span class="text-ink-muted">
                     {{ item.quantity }}× {{ item.product_name_snapshot }}{% if item.variant_label_snapshot %} <span class="text-xs">({{ item.variant_label_snapshot }})</span>{% endif %}
+                    {% if item.modifiers %}<span class="block text-xs">{% for m in item.modifiers %}{{ m.name }}{{ not loop.last ? ', ' : '' }}{% endfor %}</span>{% endif %}
+                    {% if item.note %}<span class="block text-xs italic">“{{ item.note }}”</span>{% endif %}
                 </span>
                 <span class="text-ink font-medium shrink-0">{{ currency.format(item.line_total) }}</span>
             </div>
             {% endfor %}
         </div>
+        {% if order.shipping_total > 0 %}
+        <div class="flex justify-between text-sm text-ink-muted mb-3"><span>Delivery</span><span>{{ currency.format(order.shipping_total) }}</span></div>
+        {% endif %}
         <div class="border-t border-surface-border pt-4 flex justify-between items-center">
             <span class="font-semibold text-ink">Total</span>
             <span class="text-xl font-bold text-ink">{{ currency.format(order.grand_total) }}</span>

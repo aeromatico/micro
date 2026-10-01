@@ -25,6 +25,12 @@ class Checkout extends ComponentBase
     public $paymentGateways = null;
     public ?\RainLab\User\Models\User $authUser = null;
     public bool $whatsappStore = false;
+    public bool $restaurantStore = false;
+    public array $orderTypes = [];
+    public array $restaurant = [];
+    public bool $isOpen = true;
+    public ?string $table = null;
+    public int $prepMinutes = 0;
     public string $pickerAssets = '';
 
     public function componentDetails(): array
@@ -44,13 +50,23 @@ class Checkout extends ComponentBase
 
         $this->currency = StorefrontContext::currency();
         $this->whatsappStore = (bool) StorefrontContext::settings()?->isWhatsappStore();
+        $settings = StorefrontContext::settings();
+        $this->isOpen = $settings ? $settings->isOpenNow() : true;
+        if ($settings?->isRestaurantStore()) {
+            $this->restaurantStore = true;
+            $this->restaurant = $settings->restaurant();
+            $this->orderTypes = $settings->enabledOrderTypes();
+            $this->table = session('aero_shop_table_' . $tenant->id);
+            // Sin mesa por QR no se ofrece "Comer aquí" con mesa fija, pero sigue disponible (el cliente la escribe).
+        }
         // Mapa de ubicación exacta (aero/tracking). Sin el plugin, queda el campo de texto.
-        if ($this->whatsappStore && class_exists(\Aero\Tracking\Components\LocationPicker::class)) {
+        if (($this->whatsappStore || $this->restaurantStore) && class_exists(\Aero\Tracking\Components\LocationPicker::class)) {
             $this->pickerAssets = \Aero\Tracking\Components\LocationPicker::assetTags();
         }
 
         $cart = new CartService($tenant->id);
         $this->lines = $cart->lines();
+        $this->prepMinutes = (int) max(array_merge([0], array_map(fn ($l) => (int) $l['product']->prep_minutes, $this->lines)));
         $this->subtotal = $cart->subtotal();
         $this->requiresShipping = $cart->requiresShipping();
 
@@ -80,6 +96,10 @@ class Checkout extends ComponentBase
         $lines = $cart->lines();
         if (!$lines) {
             return $this->errorResponse('Tu carrito está vacío.');
+        }
+
+        if ($settings->isRestaurantStore()) {
+            return $this->placeRestaurantOrder($tenant, $settings, $cart, $lines);
         }
 
         if ($settings->isWhatsappStore()) {
@@ -157,6 +177,89 @@ class Checkout extends ComponentBase
                     ] : null,
                     'customer_notes' => $data['customer_notes'] ?? null,
                     'source'         => 'web',
+                ]
+            );
+        } catch (InsufficientStockException $e) {
+            return $this->errorResponse($e->getMessage() . ' Vuelve al carrito para ajustar la cantidad.');
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        $cart->clear();
+
+        return Redirect::to('/tienda/pedido/' . $order->access_token);
+    }
+
+    protected function placeRestaurantOrder($tenant, $settings, CartService $cart, array $lines)
+    {
+        $data = post();
+        $type = (string) ($data['order_type'] ?? '');
+
+        $validator = Validator::make($data, [
+            'first_name' => 'required|min:2|max:100',
+            'phone'      => 'required|max:30',
+            'payment_gateway_id' => 'nullable|exists:aero_shop_payment_gateways,id',
+        ], [
+            'first_name.required' => 'Dinos tu nombre para llamarte cuando esté listo.',
+            'phone.required'      => 'El teléfono es obligatorio.',
+        ]);
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors()->first());
+        }
+
+        $phone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($data['phone']) ?: trim($data['phone']);
+
+        $shipping = null;
+        if ($type === 'delivery') {
+            $address = trim((string) ($data['address_line1'] ?? ''));
+            $lat = is_numeric($data['latitude'] ?? null) ? (float) $data['latitude'] : null;
+            $lng = is_numeric($data['longitude'] ?? null) ? (float) $data['longitude'] : null;
+            if ($lat === null || $lng === null || abs($lat) > 90 || abs($lng) > 180) {
+                $lat = $lng = null;
+            }
+            if ($address === '' && $lat === null) {
+                return $this->errorResponse('Marca tu ubicación en el mapa o escribe la dirección de entrega.');
+            }
+            $shipping = [
+                'address_line1' => mb_substr($address, 0, 200) ?: 'Ubicación en el mapa', 'city' => 'Por coordinar', 'country_code' => 'BO',
+                'latitude' => $lat, 'longitude' => $lng,
+            ];
+        }
+
+        $gatewayId = null;
+        if (!empty($data['payment_gateway_id'])) {
+            $gatewayId = PaymentGateway::forTenant($tenant->id)->where('is_active', true)->whereKey($data['payment_gateway_id'])->value('id');
+            if (!$gatewayId) {
+                return $this->errorResponse('El método de pago elegido ya no está disponible.');
+            }
+        }
+
+        $scheduled = null;
+        if (!empty($data['scheduled_for'])) {
+            try {
+                $scheduled = \Carbon\Carbon::parse($data['scheduled_for']);
+            } catch (\Throwable $e) {
+                return $this->errorResponse('La hora elegida no es válida.');
+            }
+        }
+
+        try {
+            $order = (new \Aero\Shop\Classes\OrderService())->create(
+                $tenant->id,
+                array_map(fn ($l) => [
+                    'product_id' => $l['product']->id, 'variant_id' => $l['variant']?->id, 'quantity' => $l['quantity'],
+                    'modifiers' => $l['modifier_uids'], 'note' => $l['note'],
+                ], $lines),
+                [
+                    'user_id' => $this->currentUserId(), 'first_name' => trim($data['first_name']), 'phone' => $phone,
+                    'email' => filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: null,
+                ],
+                $gatewayId,
+                [
+                    'order_type' => $type, 'table_label' => $data['table_label'] ?? null, 'scheduled_for' => $scheduled,
+                    'shipping' => $shipping,
+                    'customer_notes' => mb_substr((string) ($data['customer_notes'] ?? ''), 0, 1000) ?: null,
+                    'source' => 'web',
                 ]
             );
         } catch (InsufficientStockException $e) {

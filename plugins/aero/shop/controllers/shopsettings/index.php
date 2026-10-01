@@ -25,6 +25,16 @@ $allCurrencies  = $this->vars['allCurrencies'];
                 </div>
             </form>
 
+            <?php if ($this->vars['settings']->isRestaurantStore() && ($this->vars['settings']->restaurant()['tables'] ?? 0) > 0): ?>
+                <hr>
+                <h4>QR de mesas</h4>
+                <p class="help-block">Cada QR abre la carta con la mesa ya elegida. Imprímelos y colócalos en las mesas.</p>
+                <button type="button" class="btn btn-default" data-request="onTableQrs">
+                    <i class="icon-qrcode"></i> Generar QR de mesas
+                </button>
+                <div id="table-qrs" style="margin-top:16px"></div>
+            <?php endif ?>
+
             <hr>
 
             <h4>Monedas activas</h4>

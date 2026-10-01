@@ -14,7 +14,7 @@ class Product extends Model
         'tenant_id', 'collection_id', 'type', 'name', 'slug', 'description', 'sku',
         'has_variants', 'base_price', 'compare_at_price', 'cost_price', 'weight_grams',
         'requires_shipping', 'track_inventory', 'stock_quantity', 'allow_backorder',
-        'status', 'is_featured', 'published_at', 'seo_title', 'seo_description',
+        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'seo_title', 'seo_description',
     ];
 
     protected $dates = ['deleted_at', 'published_at'];
@@ -36,6 +36,7 @@ class Product extends Model
     public $hasMany = [
         'options'  => [ProductOption::class],
         'variants' => [ProductVariant::class],
+        'modifier_groups' => [ModifierGroup::class, 'order' => 'sort_order'],
     ];
 
     public $belongsToMany = [

@@ -37,12 +37,26 @@ class CartService
         return $productId . '-' . ($variantId ?? 0);
     }
 
-    public function add(int $productId, ?int $variantId, int $qty): void
+    public function add(int $productId, ?int $variantId, int $qty, array $modifierUids = [], ?string $note = null): void
     {
-        $key = self::lineKey($productId, $variantId);
+        $note = RestaurantService::cleanNote($note);
+        $suffix = RestaurantService::suffix($modifierUids, $note);
+        $key = self::lineKey($productId, $variantId) . ($suffix ? '-' . $suffix : '');
         $items = $this->raw();
         $items[$key] = max(1, ($items[$key] ?? 0) + $qty);
         $this->persist($items);
+
+        if ($suffix) {
+            $meta = $this->meta();
+            $meta[$key] = ['mods' => array_values($modifierUids), 'note' => $note];
+            session([$this->sessionKey . '_meta' => $meta]);
+        }
+    }
+
+    /** Extras y nota por línea (solo líneas de restaurante). */
+    protected function meta(): array
+    {
+        return session($this->sessionKey . '_meta', []);
     }
 
     public function setQuantity(string $key, int $qty): void
@@ -50,6 +64,7 @@ class CartService
         $items = $this->raw();
         if ($qty <= 0) {
             unset($items[$key]);
+            $this->forgetMeta($key);
         } else {
             $items[$key] = $qty;
         }
@@ -61,11 +76,19 @@ class CartService
         $items = $this->raw();
         unset($items[$key]);
         $this->persist($items);
+        $this->forgetMeta($key);
+    }
+
+    protected function forgetMeta(string $key): void
+    {
+        $meta = $this->meta();
+        unset($meta[$key]);
+        session([$this->sessionKey . '_meta' => $meta]);
     }
 
     public function clear(): void
     {
-        session()->forget($this->sessionKey);
+        session()->forget([$this->sessionKey, $this->sessionKey . '_meta']);
     }
 
     public function isEmpty(): bool
@@ -96,8 +119,9 @@ class CartService
 
         foreach ($items as $key => $qty)
         {
-            [$productId, $variantId] = array_pad(explode('-', $key, 2), 2, 0);
+            [$productId, $variantId] = array_pad(explode('-', $key, 3), 2, 0);
             $variantId = (int) $variantId ?: null;
+            $extras = $this->meta()[$key] ?? null;
 
             $product = Product::forTenant($this->tenantId)->where('status', 'active')->find((int) $productId);
             if (!$product) {
@@ -117,6 +141,17 @@ class CartService
             }
 
             $price = $variant ? (float) $variant->price : (float) $product->base_price;
+
+            $modifiers = [];
+            if ($extras) {
+                try {
+                    $resolved = RestaurantService::resolve($product, $extras['mods'] ?? []);
+                } catch (\Aero\Shop\Classes\Exceptions\OrderException $e) {
+                    continue; // un extra dejó de existir: la línea ya no es válida
+                }
+                $modifiers = $resolved['snapshot'];
+                $price += $resolved['delta'];
+            }
             $image = $variant?->image ?: $product->images->first();
 
             $lines[] = [
@@ -128,6 +163,9 @@ class CartService
                 'line_total'    => round($price * (int) $qty, 4),
                 'image'         => $image,
                 'label'         => $variant?->label,
+                'modifiers'     => $modifiers,
+                'modifier_uids' => $extras['mods'] ?? [],
+                'note'          => $extras['note'] ?? null,
                 'sku'           => $variant?->sku ?: $product->sku,
                 'in_stock'      => $inventory->checkAvailability($product, $variant, (int) $qty),
                 'max_available' => ShopSettings::inventoryEnabledForTenant($this->tenantId) && $product->track_inventory && !$product->allow_backorder

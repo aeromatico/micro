@@ -1,0 +1,10 @@
+{% if __SELF__.count > 0 %}
+<a href="/tienda/checkout"
+   class="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-[420px] z-40 flex items-center justify-between gap-3 bg-brand-primary text-white font-semibold px-5 py-4 rounded-brand shadow-xl">
+    <span class="flex items-center gap-2">
+        <span class="bg-white/20 rounded-full min-w-[26px] h-[26px] px-1.5 flex items-center justify-center text-xs">{{ __SELF__.count }}</span>
+        Ver mi pedido
+    </span>
+    <span>{{ __SELF__.currency.format(__SELF__.subtotal) }}</span>
+</a>
+{% endif %}

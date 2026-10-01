@@ -43,6 +43,39 @@ tabs:
             span: left
             disabled: true
 
+        order_type:
+            tab: Pedido
+            label: Tipo de pedido
+            type: dropdown
+            span: left
+            disabled: true
+            options:
+                dine_in: Comer aquí
+                pickup: Recoger
+                delivery: Delivery
+            context: update
+
+        table_label:
+            tab: Pedido
+            label: Mesa
+            type: text
+            span: right
+            disabled: true
+            context: update
+            trigger:
+                action: show
+                field: order_type
+                condition: value[dine_in]
+
+        scheduled_for:
+            tab: Pedido
+            label: Programado para
+            type: datepicker
+            mode: datetime
+            span: left
+            disabled: true
+            context: update
+
         _payment_info:
             tab: Pedido
             type: partial
