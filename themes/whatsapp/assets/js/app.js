@@ -6,6 +6,16 @@
     var KEY = 'aero.chat.';
     var PALETTE = ['#17695a', '#b4532a', '#3b5fa8', '#8a3f7a', '#7a6a12', '#2f6f8f'];
     var PLATFORMS = { whatsapp: 'WhatsApp', facebook: 'Messenger', instagram: 'Instagram', telegram: 'Telegram', sms: 'SMS', livechat: 'Chat web' };
+    var soundCache = {};
+    function isHexColor(hex) { return /^#[0-9a-f]{6}$/i.test(hex || ''); }
+    function playAccountSound(a) {
+        if (!a || !a.notification_sound) return;
+        try {
+            var audio = soundCache[a.id];
+            if (!audio) { audio = new Audio(a.notification_sound); soundCache[a.id] = audio; }
+            audio.currentTime = 0; audio.play().catch(function () {});
+        } catch (e) {}
+    }
 
     function store(k, v) {
         try { if (v === undefined) return localStorage.getItem(KEY + k); if (v === null) localStorage.removeItem(KEY + k); else localStorage.setItem(KEY + k, v); } catch (e) { return null; }
@@ -369,6 +379,15 @@
             },
             recTime: function () { var s = this.recSecs; return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); },
 
+            // ---------- distinguir el canal activo (color + sonido de la cuenta) ----------
+            get currentAccount() {
+                return this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
+            },
+            get chatBarTint() {
+                var c = this.currentAccount && this.currentAccount.color;
+                return isHexColor(c) ? ('border-bottom-color:' + c + ';border-bottom-width:3px') : '';
+            },
+
             // ---------- ubicación del operador ----------
             get canLocate() {
                 var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
@@ -512,9 +531,12 @@
                     var fresh = rows.filter(function (m) { return !known[m.id]; });
                     if (fresh.length) {
                         this.msgs = this.msgs.concat(fresh); this.scrollDown(false);
-                        if (!document.hidden && fresh.some(function (m) { return m.direction === 'inbound'; })) {
-                            c.unread_count = 0;
-                            this.api('/conversations/' + c.id + '/read', { method: 'POST' }).then(this.refreshAccounts.bind(this)).catch(function () {});
+                        if (fresh.some(function (m) { return m.direction === 'inbound'; })) {
+                            if (!document.hidden) {
+                                c.unread_count = 0;
+                                this.api('/conversations/' + c.id + '/read', { method: 'POST' }).then(this.refreshAccounts.bind(this)).catch(function () {});
+                                playAccountSound(this.currentAccount);
+                            }
                         }
                         var paid = fresh.find(function (m) { return m.type === 'payment'; });
                         if (paid) { this.notify(paid.body); if (this.sheet === 'crm') { this.loadPay(); this.loadShop(); } }

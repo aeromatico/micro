@@ -83,7 +83,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         </div>
         <template x-if="current">
             <div class="chat-in">
-                <header class="bar">
+                <header class="bar" :style="chatBarTint">
                     <button type="button" class="icon-btn back" @click="closeChat()" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
                     <span class="avatar" x-text="initials(cname(current))"></span>
                     <div class="grow">
