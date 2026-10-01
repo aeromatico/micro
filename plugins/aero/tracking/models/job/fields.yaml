@@ -20,8 +20,8 @@ fields:
                 type: {label: Tipo, type: dropdown, span: left, options: {pickup: Recojo, delivery: Entrega, service: Servicio}, default: delivery}
                 name: {label: Nombre, span: right}
                 address: {label: Dirección}
-                lat: {label: Latitud, span: left}
-                lng: {label: Longitud, span: right}
+                lat: {label: Ubicación exacta, type: locationpicker, lngField: lng}
+                lng: {label: Longitud, type: text, containerAttributes: {style: 'display:none'}}
                 contact_name: {label: Contacto, span: left}
                 contact_phone: {label: Teléfono, span: right}
                 notes: {label: Notas, type: textarea, size: tiny}

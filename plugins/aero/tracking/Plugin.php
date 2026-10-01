@@ -25,6 +25,16 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerFormWidgets(): array
+    {
+        return [\Aero\Tracking\FormWidgets\LocationPicker::class => 'locationpicker'];
+    }
+
+    public function registerComponents(): array
+    {
+        return [\Aero\Tracking\Components\LocationPicker::class => 'locationPicker'];
+    }
+
     public function register(): void
     {
         $this->registerConsoleCommand('aero.tracking.prune', \Aero\Tracking\Console\PrunePositions::class);

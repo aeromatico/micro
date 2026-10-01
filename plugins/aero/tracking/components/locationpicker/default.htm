@@ -1,0 +1,7 @@
+{{ aeroLocationPickerAssets|raw }}
+<div data-aero-location-picker
+     data-lat-input="{{ __SELF__.property('latInput') }}"
+     data-lng-input="{{ __SELF__.property('lngInput') }}"
+     {% if __SELF__.property('accInput') %}data-acc-input="{{ __SELF__.property('accInput') }}"{% endif %}
+     data-height="{{ __SELF__.property('height') }}"
+     data-autolocate="{{ __SELF__.property('autolocate') ? '1' : '0' }}"></div>
