@@ -38,6 +38,9 @@ class WhatsappCheckout
         if ($addr = $order->shipping_address) {
             $lines[] = '';
             $lines[] = '📍 ' . $addr->address_line1;
+            if ($addr->latitude !== null) {
+                $lines[] = "https://www.google.com/maps?q={$addr->latitude},{$addr->longitude}";
+            }
         }
         if ($order->customer_notes) {
             $lines[] = '';

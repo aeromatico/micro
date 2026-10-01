@@ -38,8 +38,16 @@
 
                 {% if __SELF__.requiresShipping %}
                 <section>
-                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Dirección o referencia de entrega *</label>
-                    <input type="text" name="address_line1" required
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Ubicación de entrega</h2>
+                    {% if __SELF__.pickerAssets %}
+                    {{ __SELF__.pickerAssets|raw }}
+                    <input type="hidden" name="latitude" id="co-lat">
+                    <input type="hidden" name="longitude" id="co-lng">
+                    <div data-aero-location-picker data-lat-input="#co-lat" data-lng-input="#co-lng" data-height="300"></div>
+                    <p class="text-xs text-ink-muted mt-1.5 mb-3">Detectamos tu ubicación; arrastra el pin para dejarla exacta.</p>
+                    {% endif %}
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Dirección o referencia {{ __SELF__.pickerAssets ? '(opcional si marcaste el mapa)' : '*' }}</label>
+                    <input type="text" name="address_line1" {{ __SELF__.pickerAssets ? '' : 'required' }}
                         class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
                 </section>
                 {% endif %}

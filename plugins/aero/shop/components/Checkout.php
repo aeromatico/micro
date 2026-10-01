@@ -25,6 +25,7 @@ class Checkout extends ComponentBase
     public $paymentGateways = null;
     public ?\RainLab\User\Models\User $authUser = null;
     public bool $whatsappStore = false;
+    public string $pickerAssets = '';
 
     public function componentDetails(): array
     {
@@ -43,6 +44,10 @@ class Checkout extends ComponentBase
 
         $this->currency = StorefrontContext::currency();
         $this->whatsappStore = (bool) StorefrontContext::settings()?->isWhatsappStore();
+        // Mapa de ubicación exacta (aero/tracking). Sin el plugin, queda el campo de texto.
+        if ($this->whatsappStore && class_exists(\Aero\Tracking\Components\LocationPicker::class)) {
+            $this->pickerAssets = \Aero\Tracking\Components\LocationPicker::assetTags();
+        }
 
         $cart = new CartService($tenant->id);
         $this->lines = $cart->lines();
@@ -180,8 +185,13 @@ class Checkout extends ComponentBase
 
         $requiresShipping = $cart->requiresShipping();
         $address = trim((string) ($data['address_line1'] ?? ''));
-        if ($requiresShipping && $address === '') {
-            return $this->errorResponse('Indica la dirección o referencia de entrega.');
+        $lat = is_numeric($data['latitude'] ?? null) ? (float) $data['latitude'] : null;
+        $lng = is_numeric($data['longitude'] ?? null) ? (float) $data['longitude'] : null;
+        if ($lat === null || $lng === null || abs($lat) > 90 || abs($lng) > 180) {
+            $lat = $lng = null;
+        }
+        if ($requiresShipping && $address === '' && $lat === null) {
+            return $this->errorResponse('Marca tu ubicación en el mapa o escribe la dirección de entrega.');
         }
 
         if ($cart->hasStockIssues()) {
@@ -196,7 +206,8 @@ class Checkout extends ComponentBase
                 null,
                 [
                     'shipping' => $requiresShipping ? [
-                        'address_line1' => mb_substr($address, 0, 200), 'city' => 'Por coordinar', 'country_code' => 'BO',
+                        'address_line1' => mb_substr($address, 0, 200) ?: 'Ubicación en el mapa', 'city' => 'Por coordinar', 'country_code' => 'BO',
+                        'latitude' => $lat, 'longitude' => $lng,
                     ] : null,
                     'customer_notes' => mb_substr((string) ($data['customer_notes'] ?? ''), 0, 1000) ?: null,
                     'source'         => 'whatsapp',
