@@ -11,7 +11,7 @@ class ShopSettings extends Model
     public $fillable = [
         'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled',
         'guest_checkout_enabled', 'order_number_prefix', 'order_number_sequence',
-        'low_stock_threshold',
+        'low_stock_threshold', 'store_mode', 'whatsapp_mode', 'whatsapp_number', 'whatsapp_account_id',
     ];
 
     public $rules = [
@@ -22,6 +22,11 @@ class ShopSettings extends Model
         'tenant'        => [\Aero\Sites\Models\Tenant::class],
         'base_currency' => [Currency::class],
     ];
+
+    public function isWhatsappStore(): bool
+    {
+        return $this->store_mode === 'whatsapp';
+    }
 
     public function scopeForTenant($query, int $tenantId)
     {

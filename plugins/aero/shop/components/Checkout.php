@@ -24,6 +24,7 @@ class Checkout extends ComponentBase
     public ?\Aero\Shop\Models\Currency $currency = null;
     public $paymentGateways = null;
     public ?\RainLab\User\Models\User $authUser = null;
+    public bool $whatsappStore = false;
 
     public function componentDetails(): array
     {
@@ -41,6 +42,7 @@ class Checkout extends ComponentBase
         }
 
         $this->currency = StorefrontContext::currency();
+        $this->whatsappStore = (bool) StorefrontContext::settings()?->isWhatsappStore();
 
         $cart = new CartService($tenant->id);
         $this->lines = $cart->lines();
@@ -73,6 +75,10 @@ class Checkout extends ComponentBase
         $lines = $cart->lines();
         if (!$lines) {
             return $this->errorResponse('Tu carrito está vacío.');
+        }
+
+        if ($settings->isWhatsappStore()) {
+            return $this->placeWhatsappOrder($tenant, $settings, $cart, $lines);
         }
 
         $data = post();
@@ -155,6 +161,61 @@ class Checkout extends ComponentBase
         }
 
         $cart->clear();
+
+        return Redirect::to('/tienda/pedido/' . $order->access_token);
+    }
+
+    protected function placeWhatsappOrder($tenant, $settings, CartService $cart, array $lines)
+    {
+        $data = post();
+        $phone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($data['phone'] ?? null);
+        if (!$phone) {
+            return $this->errorResponse('Ingresa un celular válido (con prefijo de país, ej. 59171234567).');
+        }
+
+        $isApi = $settings->whatsapp_mode !== 'market';
+        if ($isApi && !$settings->whatsapp_number) {
+            return $this->errorResponse('La tienda aún no tiene un número de WhatsApp configurado.');
+        }
+
+        $requiresShipping = $cart->requiresShipping();
+        $address = trim((string) ($data['address_line1'] ?? ''));
+        if ($requiresShipping && $address === '') {
+            return $this->errorResponse('Indica la dirección o referencia de entrega.');
+        }
+
+        if ($cart->hasStockIssues()) {
+            return $this->errorResponse('Algunos productos de tu carrito ya no tienen stock suficiente. Vuelve al carrito para ajustarlos.');
+        }
+
+        try {
+            $order = (new \Aero\Shop\Classes\OrderService())->create(
+                $tenant->id,
+                array_map(fn ($l) => ['product_id' => $l['product']->id, 'variant_id' => $l['variant']?->id, 'quantity' => $l['quantity']], $lines),
+                ['user_id' => $this->currentUserId(), 'phone' => $phone],
+                null,
+                [
+                    'shipping' => $requiresShipping ? [
+                        'address_line1' => mb_substr($address, 0, 200), 'city' => 'Por coordinar', 'country_code' => 'BO',
+                    ] : null,
+                    'customer_notes' => mb_substr((string) ($data['customer_notes'] ?? ''), 0, 1000) ?: null,
+                    'source'         => 'whatsapp',
+                ]
+            );
+        } catch (InsufficientStockException $e) {
+            return $this->errorResponse($e->getMessage() . ' Vuelve al carrito para ajustar la cantidad.');
+        } catch (\RuntimeException $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        $cart->clear();
+
+        $text = \Aero\Shop\Classes\WhatsappCheckout::buildMessage($order) . "\n\n" . \Aero\Shop\Classes\OrderService::publicUrl($order);
+        if ($isApi) {
+            return Redirect::to(\Aero\Shop\Classes\WhatsappCheckout::apiUrl($settings->whatsapp_number, $text));
+        }
+
+        \Aero\Shop\Classes\WhatsappCheckout::sendViaHello($settings, $order, $phone);
 
         return Redirect::to('/tienda/pedido/' . $order->access_token);
     }

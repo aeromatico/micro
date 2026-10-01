@@ -76,3 +76,11 @@
       dirección de envío con enlace al mapa (antes no mostraba ninguna), la
       API REST acepta y devuelve shipping.latitude/longitude/location_label y
       la confirmación pública del pedido enlaza el mapa."
+
+1.1.0:
+    - "Modo de tienda en Configuración: estándar (por defecto) o Tienda para
+      WhatsApp. El checkout de WhatsApp solo pide el celular (prefijo 591) y
+      manda el pedido al chat: por WhatsApp Api (enlace api.whatsapp.com con el
+      pedido formateado hacia el número de la tienda) o por Market Api (envío
+      desde una cuenta de Hello del tenant)."
+    - add_store_mode_to_shop_settings.php

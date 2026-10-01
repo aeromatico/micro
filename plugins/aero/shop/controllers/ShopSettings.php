@@ -35,7 +35,7 @@ class ShopSettings extends Controller
 
         $settings = ShopSettingsModel::firstOrCreate(['tenant_id' => $tenant->id], ['is_enabled' => false]);
 
-        $this->settingsWidget = $this->makeSettingsWidget($settings);
+        $this->settingsWidget = $this->makeSettingsWidget($settings, $tenant->id);
         $this->vars['tenant']    = $tenant;
         $this->vars['settings']  = $settings;
         $this->vars['currencies'] = $this->getTenantCurrencies($tenant->id);
@@ -54,6 +54,10 @@ class ShopSettings extends Controller
             'inventory_tracking_enabled'  => (bool) ($data['inventory_tracking_enabled'] ?? false),
             'guest_checkout_enabled'      => (bool) ($data['guest_checkout_enabled'] ?? false),
             'order_number_prefix'         => $data['order_number_prefix'] ?: null,
+            'store_mode'                  => in_array($data['store_mode'] ?? '', ['standard', 'whatsapp'], true) ? $data['store_mode'] : 'standard',
+            'whatsapp_mode'               => in_array($data['whatsapp_mode'] ?? '', ['api', 'market'], true) ? $data['whatsapp_mode'] : 'api',
+            'whatsapp_number'             => preg_replace('/\D+/', '', (string) ($data['whatsapp_number'] ?? '')) ?: null,
+            'whatsapp_account_id'         => $this->ownedAccountId($tenant->id, $data['whatsapp_account_id'] ?? null),
             'low_stock_threshold'         => is_numeric($data['low_stock_threshold'] ?? '') ? (int) $data['low_stock_threshold'] : null,
         ]);
         $settings->save();
@@ -98,18 +102,77 @@ class ShopSettings extends Controller
         ];
     }
 
+    /** Solo cuentas de Hello del propio tenant: nunca se confía en el id que llega del formulario. */
+    protected function ownedAccountId(int $tenantId, $id): ?int
+    {
+        if (!$id || !class_exists(\Aero\Hello\Models\Account::class)) {
+            return null;
+        }
+
+        return \Aero\Hello\Models\Account::forTenant($tenantId)->whereKey($id)->value('id');
+    }
+
+    protected function whatsappAccountOptions(int $tenantId): array
+    {
+        if (!class_exists(\Aero\Hello\Models\Account::class)) {
+            return [];
+        }
+
+        return \Aero\Hello\Models\Account::forTenant($tenantId)->ofPlatform('whatsapp')->orderBy('label')->get()
+            ->mapWithKeys(fn ($a) => [$a->id => $a->label . ($a->phone_number ? " (+{$a->phone_number})" : '')])
+            ->all();
+    }
+
     protected function getTenantCurrencies(int $tenantId)
     {
         return TenantCurrency::forTenant($tenantId)->with('currency')->get();
     }
 
-    protected function makeSettingsWidget(ShopSettingsModel $model): Form
+    protected function makeSettingsWidget(ShopSettingsModel $model, int $tenantId): Form
     {
         $config            = new \stdClass;
         $config->model     = $model;
         $config->arrayName = 'ShopSettings';
         $config->alias     = 'shopSettingsForm';
         $config->fields    = [
+            'store_mode' => [
+                'label'   => 'Tipo de tienda',
+                'type'    => 'balloon-selector',
+                'default' => 'standard',
+                'options' => [
+                    'standard' => 'Tienda estándar',
+                    'whatsapp' => 'Tienda para WhatsApp',
+                ],
+                'comment' => 'La tienda para WhatsApp simplifica el checkout: solo pide el celular del cliente y envía el pedido al chat.',
+            ],
+            'whatsapp_mode' => [
+                'label'   => 'Envío del pedido',
+                'type'    => 'balloon-selector',
+                'default' => 'api',
+                'options' => [
+                    'api'    => 'WhatsApp Api',
+                    'market' => 'Market Api',
+                ],
+                'comment' => 'WhatsApp Api: el cliente abre WhatsApp con el pedido ya escrito hacia tu número. Market Api: el pedido se envía al cliente desde una de tus cuentas de Hello.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[whatsapp]'],
+            ],
+            'whatsapp_number' => [
+                'label'       => 'Número de WhatsApp de la tienda',
+                'type'        => 'text',
+                'span'        => 'left',
+                'placeholder' => '59171234567',
+                'comment'     => 'Con código de país, solo dígitos. Es el número que recibe los pedidos.',
+                'trigger'     => ['action' => 'show', 'field' => 'whatsapp_mode', 'condition' => 'value[api]'],
+            ],
+            'whatsapp_account_id' => [
+                'label'       => 'Cuenta de Hello',
+                'type'        => 'dropdown',
+                'span'        => 'left',
+                'options'     => $this->whatsappAccountOptions($tenantId),
+                'placeholder' => 'Selecciona la cuenta que enviará los pedidos',
+                'comment'     => 'Se administran en Hello → Cuentas.',
+                'trigger'     => ['action' => 'show', 'field' => 'whatsapp_mode', 'condition' => 'value[market]'],
+            ],
             'is_enabled' => [
                 'label'   => 'Tienda activada',
                 'type'    => 'switch',
