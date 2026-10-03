@@ -57,20 +57,37 @@
 .k-go { flex:1; min-height:48px; border:0; border-radius:10px; font-size:16px; font-weight:800; color:#fff; background:var(--c); cursor:pointer; transition:filter .15s, transform .05s; }
 .k-go:hover { filter:brightness(1.08); }
 .k-go:active { transform:scale(.98); }
-.k-undo { min-width:48px; min-height:48px; border:1px solid var(--kx-line); background:#fff; border-radius:10px; font-size:18px; cursor:pointer; }
+.k-undo { min-height:48px; min-width:52px; padding:0 14px; justify-content:center; border:1px solid #9ca3af; background:#fff; color:var(--kx-ink); border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.k-undo:hover { background:#f3f4f6; border-color:#6b7280; }
+.k-undo:active { transform:scale(.97); }
 .k-empty { text-align:center; color:var(--kx-mute); padding:34px 10px; font-size:14px; }
-.k-empty i { display:block; font-size:30px; margin-bottom:6px; opacity:.4; font-style:normal; }
-.kx i[class^="icon-"] { font-style:normal; }
-.kx-chip i, .kx-btn i, .k-pill i, .k-cust i, .k-sched i, .k-note i, .k-onote i { margin-right:2px; }
-.k-go i { margin-left:4px; vertical-align:-1px; }
-.k-eta { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:8px 10px; margin:8px 0 10px; }
+.kx .kx-ic { flex:none; vertical-align:-3px; }
+.k-empty .kx-ic { display:block; width:34px; height:34px; margin:0 auto 6px; opacity:.4; }
+.kx-chip .kx-ic, .kx-btn .kx-ic, .k-pill .kx-ic, .k-cust .kx-ic, .k-sched .kx-ic, .k-note .kx-ic, .k-onote .kx-ic { margin-right:4px; }
+.k-go .kx-ic { margin-left:4px; }
+.k-undo .kx-ic, .k-step .kx-ic { margin:0; }
+.k-eta-val { line-height:1; }
+.k-eta { display:grid; gap:8px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 12px; margin:8px 0 10px; }
 .k-eta.k-eta-set { background:#fffbeb; border-color:#fde68a; }
 .k-eta.is-late { background:#fef2f2; border-color:#fecaca; color:var(--kx-late); }
-.k-eta-label { font-size:13px; font-weight:600; }
-.k-eta-label small { display:block; font-weight:500; color:var(--kx-mute); }
-.k-eta-ctl { display:inline-flex; align-items:center; gap:8px; }
-.k-eta-val { font-size:17px; min-width:64px; text-align:center; font-variant-numeric:tabular-nums; }
-.k-step { min-height:36px; min-width:44px; padding:0 10px; border:1px solid var(--kx-line); background:#fff; border-radius:8px; font-weight:700; cursor:pointer; }
+.k-eta-label { font-size:13px; font-weight:600; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.k-eta-label small { flex-basis:100%; font-weight:500; color:var(--kx-mute); }
+.k-eta-label small.k-left { flex-basis:auto; font-weight:700; }
+.k-eta-ctl { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+.k-eta-val { font-size:22px; min-width:84px; text-align:center; font-variant-numeric:tabular-nums; }
+.k-eta-cap { font-size:12px; font-weight:700; color:var(--kx-mute); text-transform:uppercase; letter-spacing:.04em; }
+.k-eta-hint { font-size:12px; color:var(--kx-mute); text-align:center; }
+.k-step { min-height:44px; min-width:44px; padding:0 12px; border:1px solid #93c5fd; background:#fff; color:#1d4ed8; border-radius:999px; font-weight:800; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:4px; transition:background .12s, transform .05s, opacity .12s; }
+.k-step:hover:not(:disabled) { background:#dbeafe; }
+.k-step:active:not(:disabled) { transform:scale(.94); }
+.k-step:disabled { opacity:.35; cursor:not-allowed; }
+.k-eta-set .k-eta-cap { flex-basis:100%; text-align:left; }
+.k-eta-set .k-step.k-plus { flex:1; }
+.k-step.k-reset { border-color:var(--kx-line); color:var(--kx-mute); visibility:hidden; }
+.k-eta.is-adjusted .k-step.k-reset { visibility:visible; }
+.k-step.k-plus { border-color:#fcd34d; color:#92400e; border-radius:10px; }
+.k-step.k-plus:hover:not(:disabled) { background:#fef3c7; }
+.k-eta.is-late .k-step.k-plus { border-color:#fca5a5; color:var(--kx-late); }
 .kx-busy.is-on { background:#fff7ed; border-color:#f97316; color:#c2410c; }
 .kx-done { margin-top:16px; }
 .kx-done h5 { margin:0 0 8px; color:var(--kx-mute); font-size:13px; text-transform:uppercase; letter-spacing:.06em; }
@@ -85,18 +102,18 @@
 
 <div class="padded-container kx">
 <?php if (!$isRestaurant): ?>
-    <div class="alert alert-warning"><i class="icon-warning"></i>
+    <div class="alert alert-warning"><?= \Aero\Shop\Classes\KitchenIcons::svg('utensils') ?>
         La pantalla de cocina está disponible cuando el tipo de tienda es «Restaurante» (Tienda → Configuración).
     </div>
 <?php else: ?>
     <div class="kx-wrap" id="kitchen-wrap">
         <div class="kx-bar">
-            <h3 class="kx-title"><i class="icon-cutlery"></i> Cocina</h3>
+            <h3 class="kx-title"><?= \Aero\Shop\Classes\KitchenIcons::svg('utensils') ?> Cocina</h3>
             <span class="kx-live" id="kx-live"><i class="kx-dot"></i><span id="kx-updated">En vivo</span></span>
             <span class="kx-spacer"></span>
-            <label class="kx-toggle"><input type="checkbox" id="kitchen-sound" checked> <i class="icon-bell"></i> Sonido</label>
-            <button type="button" class="kx-btn" id="kx-test" title="Probar sonido"><i class="icon-play"></i> Probar</button>
-            <button type="button" class="kx-btn" id="kx-full" title="Pantalla completa"><i class="icon-expand"></i> Pantalla completa</button>
+            <label class="kx-toggle"><input type="checkbox" id="kitchen-sound" checked> <?= \Aero\Shop\Classes\KitchenIcons::svg('bell') ?> Sonido</label>
+            <button type="button" class="kx-btn" id="kx-test" title="Probar sonido"><?= \Aero\Shop\Classes\KitchenIcons::svg('play') ?> Probar</button>
+            <button type="button" class="kx-btn" id="kx-full" title="Pantalla completa"><?= \Aero\Shop\Classes\KitchenIcons::svg('maximize') ?> Pantalla completa</button>
         </div>
         <div id="kitchen-board" data-filter="all"><?= $board ?></div>
     </div>
@@ -105,7 +122,7 @@
     (function () {
         var board = document.getElementById('kitchen-board');
         var wrap = document.getElementById('kitchen-wrap');
-        var known = null, offset = 0, failing = false, adj = {};
+        var known = null, offset = 0, failing = false, adj = {}, lastStep = 0, MIN = 5, MAX = 240;
 
         function beep() {
             try {
@@ -126,6 +143,11 @@
 
         function tick() {
             var now = Math.floor(Date.now() / 1000) + offset;
+            board.querySelectorAll('.k-eta-set[data-due]').forEach(function (box) {
+                var diff = Math.round((parseInt(box.getAttribute('data-due'), 10) - now) / 60), el = box.querySelector('.k-left');
+                if (el) el.textContent = diff >= 0 ? '· faltan ' + diff + ' min' : '· retrasado ' + Math.abs(diff) + ' min';
+                box.classList.toggle('is-late', diff < 0);
+            });
             board.querySelectorAll('.k-timer').forEach(function (t) {
                 var m = Math.max(0, Math.floor((now - parseInt(t.getAttribute('data-ts'), 10)) / 60));
                 t.textContent = m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
@@ -135,12 +157,18 @@
             });
         }
 
-        function etaVal(box) { return Math.min(240, Math.max(5, parseInt(box.getAttribute('data-base'), 10) + (adj[box.getAttribute('data-id')] || 0))); }
+        function etaVal(box) { return Math.min(MAX, Math.max(MIN, parseInt(box.getAttribute('data-base'), 10) + (adj[box.getAttribute('data-id')] || 0))); }
 
         function paintEta() {
             board.querySelectorAll('.k-eta[data-base]').forEach(function (box) {
+                var id = box.getAttribute('data-id'), base = parseInt(box.getAttribute('data-base'), 10);
+                // El ajuste nunca sale del rango: así cada clic siempre mueve el valor.
+                adj[id] = Math.min(MAX - base, Math.max(MIN - base, adj[id] || 0));
                 var m = etaVal(box);
                 box.querySelector('.k-eta-val').textContent = m + ' min';
+                box.classList.toggle('is-adjusted', adj[id] !== 0);
+                box.querySelector('[data-step="-5"]').disabled = m <= MIN;
+                box.querySelector('[data-step="5"]').disabled = m >= MAX;
                 var at = box.querySelector('.k-start-at');
                 if (at) {
                     var start = new Date((parseInt(at.getAttribute('data-sched'), 10) - m * 60) * 1000);
@@ -165,7 +193,8 @@
         }
 
         function refresh() {
-            if (document.hidden) return;
+            // No se refresca mientras se ajusta un tiempo: evita que el valor salte.
+            if (document.hidden || Date.now() - lastStep < 6000) return;
             $.request('onRefresh', {
                 complete: function () {
                     onBoard();
@@ -185,10 +214,12 @@
             var chip = e.target.closest('.kx-chip');
             if (chip) board.setAttribute('data-filter', chip.getAttribute('data-f'));
 
-            var step = e.target.closest('.k-eta[data-base] .k-step[data-step]');
-            if (step) {
+            var step = e.target.closest('.k-eta[data-base] .k-step');
+            if (step && !step.disabled) {
                 var box = step.closest('.k-eta'), id = box.getAttribute('data-id');
-                adj[id] = (adj[id] || 0) + parseInt(step.getAttribute('data-step'), 10);
+                if (step.hasAttribute('data-reset')) adj[id] = 0;
+                else adj[id] = (adj[id] || 0) + parseInt(step.getAttribute('data-step'), 10);
+                lastStep = Date.now();
                 paintEta();
             }
 

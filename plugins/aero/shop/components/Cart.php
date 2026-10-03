@@ -95,10 +95,13 @@ class Cart extends ComponentBase
             return $this->errorResponse($e->getMessage());
         }
 
-        $this->cart($tenant->id)->add($productId, $variantId, $qty, $modifiers, $note);
+        $added = $this->cart($tenant->id)->add($productId, $variantId, $qty, $modifiers, $note);
         $this->hydrate();
 
-        return $this->renderUpdates();
+        // Datos para el aviso «Deshacer»: la línea y la cantidad que tenía antes de agregar.
+        return $this->renderUpdates() + [
+            '#rest-last' => '<span data-key="' . e($added['key']) . '" data-prev="' . $added['previous'] . '" data-name="' . e($product->name) . '" data-qty="' . $qty . '"></span>',
+        ];
     }
 
     public function onUpdateQuantity()

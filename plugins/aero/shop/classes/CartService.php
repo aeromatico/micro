@@ -37,13 +37,15 @@ class CartService
         return $productId . '-' . ($variantId ?? 0);
     }
 
-    public function add(int $productId, ?int $variantId, int $qty, array $modifierUids = [], ?string $note = null): void
+    /** @return array{key: string, previous: int} línea afectada y cantidad que tenía antes (0 = nueva) */
+    public function add(int $productId, ?int $variantId, int $qty, array $modifierUids = [], ?string $note = null): array
     {
         $note = RestaurantService::cleanNote($note);
         $suffix = RestaurantService::suffix($modifierUids, $note);
         $key = self::lineKey($productId, $variantId) . ($suffix ? '-' . $suffix : '');
         $items = $this->raw();
-        $items[$key] = max(1, ($items[$key] ?? 0) + $qty);
+        $previous = (int) ($items[$key] ?? 0);
+        $items[$key] = max(1, $previous + $qty);
         $this->persist($items);
 
         if ($suffix) {
@@ -51,6 +53,8 @@ class CartService
             $meta[$key] = ['mods' => array_values($modifierUids), 'note' => $note];
             session([$this->sessionKey . '_meta' => $meta]);
         }
+
+        return ['key' => $key, 'previous' => $previous];
     }
 
     /** Extras y nota por línea (solo líneas de restaurante). */

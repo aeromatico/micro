@@ -28,9 +28,9 @@
             <div id="checkout-error"></div>
 
             <form data-request="shopCheckout::onPlaceOrder"
-                  @ajax-before="sending = true"
-                  @ajax-done="sending = false"
-                  @ajax-fail="sending = false"
+                  @ajax:setup="sending = true"
+                  @ajax:done="sending = false"
+                  @ajax:fail="sending = false"
                   class="space-y-8">
 
                 {% if __SELF__.whatsappStore %}

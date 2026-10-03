@@ -1,4 +1,7 @@
-<style>[x-cloak]{display:none!important}</style>
+<style>[x-cloak]{display:none!important}
+@keyframes rest-bump{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-6px) scale(1.04)}100%{transform:translateY(0) scale(1)}}
+.rest-bump{animation:rest-bump .45s ease-out}
+@media (prefers-reduced-motion:reduce){.rest-bump{animation:none}}</style>
 {% set menu = __SELF__.menu %}
 {% set currency = __SELF__.currency %}
 {% set cfg = __SELF__.restaurant %}
@@ -62,7 +65,10 @@
     <div x-show="p" x-cloak class="fixed inset-0 z-50 flex items-end sm:items-center justify-center" @keydown.escape.window="close()">
         <div class="absolute inset-0 bg-black/50" @click="close()"></div>
         <form x-show="p" x-transition
-              data-request="shopCart::onAdd" @ajax-done="close()"
+              data-request="shopCart::onAdd"
+              @ajax:setup="adding = true; pendingName = p.name"
+              @ajax:done="$nextTick(() => afterAdd())"
+              @ajax:fail="adding = false"
               class="relative bg-surface w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl shadow-2xl">
             <template x-if="p">
                 <div>
@@ -119,9 +125,9 @@
                             <span class="w-8 text-center" x-text="qty"></span>
                             <button type="button" @click="qty = Math.min(99, qty + 1)" class="w-10 h-11 text-lg">+</button>
                         </div>
-                        <button type="submit" :disabled="!valid()"
+                        <button type="submit" :disabled="!valid() || adding"
                                 class="flex-1 bg-brand-primary disabled:opacity-50 text-white font-semibold py-3 rounded-brand text-sm flex justify-between px-5">
-                            <span>Agregar</span><span x-text="money(total())"></span>
+                            <span x-text="adding ? 'Agregando…' : 'Agregar'">Agregar</span><span x-text="money(total())"></span>
                         </button>
                     </div>
                 </div>
@@ -130,12 +136,27 @@
     </div>
 
     <div id="rest-cartbar">{% partial 'shopCart::restaurantbar' %}</div>
+    <span id="rest-last" hidden></span>
+
+    {# Aviso de plato agregado, con Deshacer #}
+    <div x-show="toast.show" x-cloak x-transition.opacity role="status" aria-live="polite"
+         class="fixed left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-[420px] bottom-24 z-50 flex items-center justify-between gap-3 bg-ink text-surface text-sm font-medium px-4 py-3 rounded-brand shadow-xl">
+        <span class="flex items-center gap-2 min-w-0">
+            <svg class="w-5 h-5 shrink-0 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            <span class="truncate" x-text="toast.name + ' agregado'"></span>
+        </span>
+        <button type="button" @click="undo()" class="shrink-0 font-bold underline underline-offset-2 px-2 py-1 -my-1">Deshacer</button>
+    </div>
+    <form data-request="shopCart::onUpdateQuantity" x-ref="undoForm" hidden>
+        <input type="hidden" name="key" :value="toast.key"><input type="hidden" name="quantity" :value="toast.prev">
+    </form>
 </div>
 
 <script>
 function restaurantMenu(menu, symbol) {
     return {
         menu, symbol, p: null, qty: 1, variant: null, chosen: [], active: menu[0] ? menu[0].id : '',
+        adding: false, pendingName: '', toast: { show: false, name: '', key: '', prev: 0 }, timer: null,
         init() {
             const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) this.active = e.target.id; }), { rootMargin: '-30% 0px -60% 0px' });
             document.querySelectorAll('[data-section]').forEach(s => obs.observe(s));
@@ -147,6 +168,25 @@ function restaurantMenu(menu, symbol) {
             document.body.style.overflow = 'hidden';
         },
         close() { this.p = null; document.body.style.overflow = ''; },
+        afterAdd() {
+            this.adding = false;
+            // Si el servidor rechazó el plato (ej. falta una opción obligatoria) la hoja sigue abierta con el motivo.
+            const err = document.getElementById('cart-error');
+            if (err && err.textContent.trim() !== '') return;
+            const last = document.querySelector('#rest-last span');
+            this.close();
+            if (!last) return;
+            this.toast = { show: true, name: last.dataset.name || this.pendingName, key: last.dataset.key, prev: parseInt(last.dataset.prev, 10) || 0 };
+            clearTimeout(this.timer);
+            this.timer = setTimeout(() => { this.toast.show = false; }, 5000);
+            const bar = document.querySelector('#rest-cartbar a');
+            if (bar) { bar.classList.add('rest-bump'); bar.addEventListener('animationend', () => bar.classList.remove('rest-bump'), { once: true }); }
+        },
+        undo() {
+            this.toast.show = false;
+            clearTimeout(this.timer);
+            this.$refs.undoForm.requestSubmit();
+        },
         money(n) { return this.symbol + ' ' + (Math.round(n * 100) / 100).toFixed(2); },
         hint(g) {
             if (g.min > 0 && g.max === 1) return '· elige 1 (obligatorio)';

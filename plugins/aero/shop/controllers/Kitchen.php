@@ -100,8 +100,10 @@ class Kitchen extends Controller
     {
         $order = Order::forTenant($this->getCurrentTenantId())->where('kitchen_status', 'preparing')->find((int) post('order_id'));
         $minutes = (int) post('minutes');
-        if ($order && $order->promised_at && $minutes > 0 && $minutes <= 60) {
-            $order->promised_at = $order->promised_at->copy()->addMinutes($minutes);
+        if ($order && $minutes > 0 && $minutes <= 60) {
+            // Sin hora prometida (pedido aceptado antes de esta función): se fija desde ahora.
+            $order->promised_at = $order->promised_at ? $order->promised_at->copy()->addMinutes($minutes) : now()->addMinutes($minutes);
+            $order->accepted_at ??= now();
             $order->save();
         }
 
