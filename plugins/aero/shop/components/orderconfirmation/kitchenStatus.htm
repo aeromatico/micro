@@ -8,7 +8,7 @@
         {% for k in keys %}
         <div class="flex-1 text-center">
             <div class="mx-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold {{ loop.index0 <= current ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted' }}">
-                {{ loop.index0 < current ? '✓' : loop.index }}
+                {% if loop.index0 < current %}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% else %}{{ loop.index }}{% endif %}
             </div>
             <p class="text-xs mt-1.5 {{ loop.index0 == current ? 'font-semibold text-ink' : 'text-ink-muted' }}">{{ steps[k] }}</p>
         </div>

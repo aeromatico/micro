@@ -82,7 +82,7 @@ class Kitchen extends Controller
     protected function boardData(?int $tenantId): array
     {
         $base = Order::forTenant($tenantId)->where('status', '!=', 'cancelled')
-            ->with(['items', 'customer', 'currency'])->orderBy('created_at');
+            ->with(['items.product', 'customer', 'currency'])->orderBy('created_at');
 
         $active = (clone $base)->whereIn('kitchen_status', ['new', 'preparing', 'ready'])->get()->groupBy('kitchen_status');
         $done = (clone $base)->where('kitchen_status', 'delivered')->where('kitchen_updated_at', '>=', now()->subHours(3))

@@ -56,8 +56,30 @@ class Product extends Model
 
     public function beforeValidate()
     {
+        // Los campos numéricos vacíos del formulario llegan como null: las columnas
+        // obligatorias toman su valor por defecto en vez de fallar en la base de datos.
+        foreach (['stock_quantity' => 0, 'min_quantity' => 1, 'base_price' => 0] as $field => $default) {
+            if ($this->{$field} === null || $this->{$field} === '') {
+                $this->{$field} = $default;
+            }
+        }
+        foreach (['compare_at_price', 'cost_price', 'weight_grams', 'prep_minutes', 'sku'] as $field) {
+            if ($this->{$field} === '') {
+                $this->{$field} = null;
+            }
+        }
+
         if (!$this->slug && $this->name) {
             $this->slug = Str::slug($this->name);
+        }
+        // Dos platos con el mismo nombre no deben chocar: el identificador se hace único por tienda.
+        if ($this->slug && $this->tenant_id && ($this->isDirty('slug') || !$this->exists)) {
+            $base = $this->slug;
+            $n = 2;
+            while (static::withTrashed()->where('tenant_id', $this->tenant_id)->where('slug', $this->slug)
+                ->when($this->exists, fn ($q) => $q->where('id', '!=', $this->id))->exists()) {
+                $this->slug = $base . '-' . $n++;
+            }
         }
         if ($this->type === 'digital') {
             $this->requires_shipping = false;

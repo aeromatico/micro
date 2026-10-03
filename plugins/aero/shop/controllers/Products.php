@@ -58,6 +58,13 @@ class Products extends Controller
             $form->removeField('has_variants');
         }
 
+        // Sin sistema de inventario no se pide stock: el campo vacío ya no puede romper el guardado.
+        if (!\Aero\Shop\Models\ShopSettings::inventoryEnabledForTenant($tenantId)) {
+            foreach (['track_inventory', 'allow_backorder', 'stock_quantity'] as $field) {
+                $form->removeField($field);
+            }
+        }
+
         if (!$restaurant) {
             $form->removeField('_modifiers_relation');
             $form->removeField('prep_minutes');
