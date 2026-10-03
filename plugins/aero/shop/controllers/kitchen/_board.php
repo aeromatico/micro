@@ -19,6 +19,11 @@ foreach ($columns as $col) {
     <?php foreach ($types as $key => $label): ?>
         <button type="button" class="kx-chip" data-f="<?= $key ?>"><i class="<?= $icons[$key] ?>"></i> <?= e($label) ?> <b><?= $counts[$key] ?></b></button>
     <?php endforeach ?>
+    <span class="kx-spacer"></span>
+    <button type="button" class="kx-btn kx-busy<?= $busy ? ' is-on' : '' ?>" data-request="onToggleBusy"
+            title="Suma minutos al tiempo estimado de los pedidos nuevos" aria-pressed="<?= $busy ? 'true' : 'false' ?>">
+        <i class="icon-fire"></i> Modo ocupado<?= $busy ? ' activo (+' . (int) $busyExtra . ' min)' : '' ?>
+    </button>
 </div>
 
 <div class="kx-cols">
@@ -70,12 +75,40 @@ foreach ($columns as $col) {
 
                 <?php if ($o->customer_notes): ?><div class="k-onote"><i class="icon-comment"></i> <?= e($o->customer_notes) ?></div><?php endif ?>
 
+                <?php if ($key === 'new'): $sg = (int) ($suggest[$o->id] ?? 20); ?>
+                    <div class="k-eta" data-id="<?= $o->id ?>" data-base="<?= $sg ?>">
+                        <div class="k-eta-label">
+                            <?= $o->order_type === 'delivery' ? 'Llegada estimada en' : 'Listo en' ?>
+                            <?php if ($o->scheduled_for): ?><small>· cocina debe empezar a las <span class="k-start-at" data-sched="<?= $o->scheduled_for->timestamp ?>">…</span></small><?php endif ?>
+                        </div>
+                        <div class="k-eta-ctl">
+                            <button type="button" class="k-step" data-step="-5" aria-label="Restar 5 minutos">−5</button>
+                            <strong class="k-eta-val"><?= $sg ?> min</strong>
+                            <button type="button" class="k-step" data-step="5" aria-label="Sumar 5 minutos">+5</button>
+                        </div>
+                    </div>
+                <?php elseif ($key === 'preparing' && $o->promised_at): $late = $o->promised_at->isPast(); ?>
+                    <div class="k-eta k-eta-set<?= $late ? ' is-late' : '' ?>">
+                        <div class="k-eta-label"><?= $o->order_type === 'delivery' ? 'Llegada prometida' : 'Listo a las' ?>
+                            <strong><?= e($o->promised_at->timezone($tz)->format('H:i')) ?></strong><?= $late ? ' · retrasado' : '' ?>
+                        </div>
+                        <div class="k-eta-ctl">
+                            <button type="button" class="k-step" data-request="onExtend" data-request-data="order_id: <?= $o->id ?>, minutes: 5">+5 min</button>
+                            <button type="button" class="k-step" data-request="onExtend" data-request-data="order_id: <?= $o->id ?>, minutes: 10">+10 min</button>
+                        </div>
+                    </div>
+                <?php endif ?>
+
                 <div class="k-actions">
                     <?php if (isset($prevOf[$key])): ?>
                         <button type="button" class="k-undo" title="Regresar al paso anterior" aria-label="Regresar"
                                 data-request="onMove" data-request-data="order_id: <?= $o->id ?>, to: '<?= $prevOf[$key] ?>'"><i class="icon-rotate-left"></i></button>
                     <?php endif ?>
+                    <?php if ($key === 'new'): ?>
+                    <button type="button" class="k-go k-start" data-id="<?= $o->id ?>">
+                    <?php else: ?>
                     <button type="button" class="k-go" data-request="onMove" data-request-data="order_id: <?= $o->id ?>, to: '<?= $col['next'] ?>'">
+                    <?php endif ?>
                         <?= e($col['action']) ?> <i class="icon-angle-right"></i>
                     </button>
                 </div>

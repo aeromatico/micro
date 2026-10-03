@@ -108,3 +108,10 @@
       listo, entregado), pantalla de cocina en el backend, anticipación mínima
       para pedidos programados y seguimiento del pedido para el cliente."
     - add_kitchen_to_orders.php
+
+1.6.0:
+    - "Tiempo estimado del pedido (restaurante): se calcula con la preparación del
+      plato más lento, la carga de la cocina, el modo ocupado y, en delivery, un
+      tiempo de reparto. El cliente lo ve solo cuando cocina acepta el pedido, y
+      cocina puede ajustarlo y extenderlo."
+    - add_eta_to_orders.php

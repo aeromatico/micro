@@ -43,7 +43,7 @@
                     <h3 class="font-semibold text-ink">{{ p.name }}{% if p.featured %} <span class="ml-1 text-[10px] uppercase bg-brand-primary text-white px-2 py-0.5 rounded-full align-middle">Popular</span>{% endif %}</h3>
                     {% if p.description %}<p class="text-sm text-ink-muted line-clamp-2 mt-0.5">{{ p.description|striptags }}</p>{% endif %}
                     <p class="mt-2 font-bold text-ink">{% if p.from %}Desde {% endif %}{{ currency.format(p.price) }}{% if not p.in_stock %} <span class="text-xs font-normal text-ink-muted">· Agotado</span>{% endif %}</p>
-                    {% if p.prep or p.min_qty > 1 %}<p class="text-xs text-ink-muted mt-1">{% if p.prep %}≈ {{ p.prep }} min{% endif %}{% if p.prep and p.min_qty > 1 %} · {% endif %}{% if p.min_qty > 1 %}mínimo {{ p.min_qty }}{% endif %}</p>{% endif %}
+                    {% if p.min_qty > 1 %}<p class="text-xs text-ink-muted mt-1">Pedido mínimo: {{ p.min_qty }} unidades</p>{% endif %}
                 </div>
                 {% if p.image %}
                 <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" class="w-24 h-24 rounded-lg object-cover shrink-0">

@@ -9,6 +9,7 @@ class OrderConfirmation extends ComponentBase
     public ?Order $order = null;
     public ?\Aero\Shop\Models\Currency $currency = null;
     public $qrCode = null;
+    public string $timezone = 'America/La_Paz';
 
     public function componentDetails(): array
     {
@@ -31,12 +32,25 @@ class OrderConfirmation extends ComponentBase
 
     public function onRun()
     {
+        if (!$this->loadOrder()) {
+            return $this->controller->run('404');
+        }
+    }
+
+    /**
+     * En las llamadas AJAX de October no se ejecuta onRun(), así que cada
+     * handler debe cargar el pedido por su cuenta: sin esto el fragmento
+     * actualizado salía vacío y la tarjeta desaparecía hasta recargar la página.
+     */
+    protected function loadOrder(): bool
+    {
         $tenant = StorefrontContext::tenant();
         if (!$tenant) {
-            return $this->controller->run('404');
+            return false;
         }
 
         $this->currency = StorefrontContext::currency();
+        $this->timezone = StorefrontContext::settings()?->timezone ?: 'America/La_Paz';
 
         $this->order = Order::forTenant($tenant->id)
             ->where('access_token', $this->property('token'))
@@ -44,10 +58,12 @@ class OrderConfirmation extends ComponentBase
             ->first();
 
         if (!$this->order) {
-            return $this->controller->run('404');
+            return false;
         }
 
         $this->loadQrCode();
+
+        return true;
     }
 
     /**
@@ -62,6 +78,10 @@ class OrderConfirmation extends ComponentBase
      */
     public function onCheckPaymentStatus()
     {
+        if (!$this->loadOrder()) {
+            return [];
+        }
+
         if ($this->order?->payment_gateway?->driver === 'pagos_qr' && class_exists(\Aero\Pay\Classes\QrStatusReconciler::class)) {
             $qrCode = \Aero\Pay\Models\QrCode::where('internal_reference', $this->order->payment_reference)->first();
             if ($qrCode && $qrCode->status === 'pending' && ($qrCode->flow ?: 'qr_dynamic') !== 'qr_static') {
@@ -69,7 +89,7 @@ class OrderConfirmation extends ComponentBase
             }
         }
 
-        $this->order?->refresh();
+        $this->order->refresh();
         $this->loadQrCode();
 
         return ['#order-payment-status' => $this->renderPartial('@paymentStatus')];
@@ -78,7 +98,9 @@ class OrderConfirmation extends ComponentBase
     /** Seguimiento en cocina: la página consulta cada pocos segundos. */
     public function onRefreshKitchen()
     {
-        $this->order?->refresh();
+        if (!$this->loadOrder()) {
+            return [];
+        }
 
         return ['#order-kitchen' => $this->renderPartial('@kitchenStatus')];
     }

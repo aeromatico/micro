@@ -38,6 +38,11 @@ class ShopSettings extends Model
     public function getRcOrderTypesAttribute() { return $this->restaurant()['order_types']; }
     public function getRcDeliveryFeeAttribute() { return $this->restaurant()['delivery_fee']; }
     public function getRcLeadMinutesAttribute() { return $this->restaurant()['lead_minutes']; }
+    public function getRcDefaultPrepAttribute() { return $this->restaurant()['default_prep']; }
+    public function getRcCapacityAttribute() { return $this->restaurant()['capacity']; }
+    public function getRcLoadMinutesAttribute() { return $this->restaurant()['load_minutes']; }
+    public function getRcBusyExtraAttribute() { return $this->restaurant()['busy_extra']; }
+    public function getRcDeliveryExtraAttribute() { return $this->restaurant()['delivery_extra']; }
     public function getRcTablesAttribute() { return $this->restaurant()['tables']; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
 
@@ -59,6 +64,12 @@ class ShopSettings extends Model
             'delivery_fee'     => 0,
             'tables'           => 0,
             'lead_minutes'     => 30,
+            'default_prep'     => 15,   // minutos si el plato no tiene tiempo de preparación
+            'capacity'         => 3,    // pedidos que la cocina atiende a la vez sin demora
+            'load_minutes'     => 3,    // minutos extra por cada pedido por encima de la capacidad
+            'busy'             => false, // modo ocupado (lo enciende cocina)
+            'busy_extra'       => 10,
+            'delivery_extra'   => 15,   // asignar repartidor + trayecto
             'accept_closed'    => false,
         ], (array) $this->restaurant_config);
     }

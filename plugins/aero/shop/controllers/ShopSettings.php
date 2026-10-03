@@ -58,7 +58,7 @@ class ShopSettings extends Controller
             'whatsapp_mode'               => in_array($data['whatsapp_mode'] ?? '', ['api', 'market'], true) ? $data['whatsapp_mode'] : 'api',
             'whatsapp_number'             => preg_replace('/\D+/', '', (string) ($data['whatsapp_number'] ?? '')) ?: null,
             'whatsapp_account_id'         => $this->ownedAccountId($tenant->id, $data['whatsapp_account_id'] ?? null),
-            'restaurant_config'           => $this->restaurantConfigFrom($data),
+            'restaurant_config'           => $this->restaurantConfigFrom($data, !empty($settings->restaurant()['busy'])),
             'schedule_mode'               => in_array($data['schedule_mode'] ?? '', ['always_open', 'scheduled', 'online'], true) ? $data['schedule_mode'] : 'always_open',
             'accepting_orders'            => (bool) ($data['accepting_orders'] ?? true),
             'timezone'                    => in_array($data['timezone'] ?? '', \DateTimeZone::listIdentifiers(), true) ? $data['timezone'] : 'America/La_Paz',
@@ -147,13 +147,19 @@ class ShopSettings extends Controller
         return $hours;
     }
 
-    protected function restaurantConfigFrom(array $data): array
+    protected function restaurantConfigFrom(array $data, bool $busy = false): array
     {
         $types = array_values(array_intersect((array) ($data['rc_order_types'] ?? []), array_keys(ShopSettingsModel::ORDER_TYPES)));
 
         return [
             'order_types'   => $types ?: ['pickup'],
             'delivery_fee'  => max(0, (float) ($data['rc_delivery_fee'] ?? 0)),
+            'default_prep'  => min(240, max(1, (int) ($data['rc_default_prep'] ?? 15))),
+            'capacity'      => min(100, max(1, (int) ($data['rc_capacity'] ?? 3))),
+            'load_minutes'  => min(60, max(0, (int) ($data['rc_load_minutes'] ?? 3))),
+            'busy_extra'    => min(120, max(0, (int) ($data['rc_busy_extra'] ?? 10))),
+            'delivery_extra' => min(240, max(0, (int) ($data['rc_delivery_extra'] ?? 15))),
+            'busy'          => $busy,
             'lead_minutes'  => min(1440, max(0, (int) ($data['rc_lead_minutes'] ?? 30))),
             'tables'        => min(500, max(0, (int) ($data['rc_tables'] ?? 0))),
             'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
@@ -252,6 +258,31 @@ class ShopSettings extends Controller
             'rc_tables' => [
                 'label' => 'Cantidad de mesas', 'type' => 'number', 'span' => 'right', 'default' => 0,
                 'comment' => 'Cada mesa tiene un QR (/tienda?mesa=N) que prellena la mesa del pedido. Ver «QR de mesas» abajo.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_default_prep' => [
+                'label' => 'Preparación por defecto (min)', 'type' => 'number', 'span' => 'left', 'default' => 15,
+                'comment' => 'Se usa si el plato no tiene su propio tiempo de preparación.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_capacity' => [
+                'label' => 'Capacidad de cocina (pedidos a la vez)', 'type' => 'number', 'span' => 'right', 'default' => 3,
+                'comment' => 'Hasta este número de pedidos en cocina no se suma demora.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_load_minutes' => [
+                'label' => 'Minutos extra por pedido en espera', 'type' => 'number', 'span' => 'left', 'default' => 3,
+                'comment' => 'Por cada pedido por encima de la capacidad.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_busy_extra' => [
+                'label' => 'Minutos extra en «modo ocupado»', 'type' => 'number', 'span' => 'right', 'default' => 10,
+                'comment' => 'Cocina enciende el modo ocupado desde la pantalla de Cocina.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_delivery_extra' => [
+                'label' => 'Tiempo de reparto (min)', 'type' => 'number', 'span' => 'left', 'default' => 15,
+                'comment' => 'Asignar repartidor y trayecto; se suma solo a pedidos de delivery.',
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'rc_lead_minutes' => [

@@ -131,7 +131,7 @@
                         </label>
                         <input type="datetime-local" name="scheduled_for" {{ __SELF__.isOpen ? '' : 'required' }}
                             class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
-                        {% if __SELF__.isOpen %}<p class="text-xs text-ink-muted mt-1.5">Déjalo vacío para recibirlo lo antes posible {% if __SELF__.prepMinutes %}(≈ {{ __SELF__.prepMinutes }} min){% endif %}.</p>{% endif %}
+                        {% if __SELF__.isOpen %}<p class="text-xs text-ink-muted mt-1.5">Déjalo vacío para recibirlo lo antes posible. El restaurante te confirmará el tiempo al aceptar tu pedido.</p>{% endif %}
                     </div>
                 </section>
 

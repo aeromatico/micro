@@ -14,9 +14,28 @@
         </div>
         {% endfor %}
     </div>
-    {% if order.kitchen_status == 'ready' %}
+    {# El tiempo se muestra recién cuando la cocina acepta el pedido. #}
+    {% set tz = __SELF__.timezone %}
+    {% if order.kitchen_status == 'new' %}
+        <p class="text-sm text-ink-muted text-center mt-4">
+            {% if order.scheduled_for %}Tu pedido está programado para las {{ order.scheduled_for|date('H:i', tz) }}.{% else %}Esperando la confirmación del restaurante…{% endif %}
+        </p>
+    {% elseif order.kitchen_status == 'preparing' and order.promised_at %}
+        {% set overdue = order.promised_at|date('U') + 300 < 'now'|date('U') %}
+        <div class="text-center mt-4">
+            {% if overdue %}
+            <p class="text-sm font-semibold text-amber-600">Está tomando unos minutos más. Gracias por tu paciencia.</p>
+            {% elseif order.order_type == 'delivery' %}
+            <p class="text-xs text-ink-muted">Llegará aproximadamente entre</p>
+            <p class="text-lg font-bold text-ink">{{ order.promised_at|date('H:i', tz) }} y {{ order.promised_at|date_modify('+10 minutes')|date('H:i', tz) }}</p>
+            {% else %}
+            <p class="text-xs text-ink-muted">Estará listo a las</p>
+            <p class="text-lg font-bold text-ink">{{ order.promised_at|date('H:i', tz) }}</p>
+            {% endif %}
+        </div>
+    {% elseif order.kitchen_status == 'ready' %}
     <p class="text-sm font-semibold text-green-600 text-center mt-4">
-        {{ order.order_type == 'pickup' ? '¡Tu pedido está listo, pasa a recogerlo!' : (order.order_type == 'dine_in' ? '¡Tu pedido está listo, ya te lo llevamos!' : '¡Tu pedido está listo!') }}
+        {{ order.order_type == 'pickup' ? '¡Tu pedido está listo, pasa a recogerlo!' : (order.order_type == 'dine_in' ? '¡Tu pedido está listo, ya te lo llevamos!' : '¡Tu pedido está listo y sale hacia tu dirección!') }}
     </p>
     {% elseif order.kitchen_status == 'delivered' %}
     <p class="text-sm text-ink-muted text-center mt-4">¡Buen provecho!</p>

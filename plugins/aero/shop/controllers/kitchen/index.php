@@ -63,6 +63,15 @@
 .kx i[class^="icon-"] { font-style:normal; }
 .kx-chip i, .kx-btn i, .k-pill i, .k-cust i, .k-sched i, .k-note i, .k-onote i { margin-right:2px; }
 .k-go i { margin-left:4px; vertical-align:-1px; }
+.k-eta { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:8px 10px; margin:8px 0 10px; }
+.k-eta.k-eta-set { background:#fffbeb; border-color:#fde68a; }
+.k-eta.is-late { background:#fef2f2; border-color:#fecaca; color:var(--kx-late); }
+.k-eta-label { font-size:13px; font-weight:600; }
+.k-eta-label small { display:block; font-weight:500; color:var(--kx-mute); }
+.k-eta-ctl { display:inline-flex; align-items:center; gap:8px; }
+.k-eta-val { font-size:17px; min-width:64px; text-align:center; font-variant-numeric:tabular-nums; }
+.k-step { min-height:36px; min-width:44px; padding:0 10px; border:1px solid var(--kx-line); background:#fff; border-radius:8px; font-weight:700; cursor:pointer; }
+.kx-busy.is-on { background:#fff7ed; border-color:#f97316; color:#c2410c; }
 .kx-done { margin-top:16px; }
 .kx-done h5 { margin:0 0 8px; color:var(--kx-mute); font-size:13px; text-transform:uppercase; letter-spacing:.06em; }
 .kx-done span { display:inline-flex; gap:8px; align-items:center; background:#fff; border:1px solid var(--kx-line); border-radius:999px; padding:5px 12px; margin:0 6px 6px 0; font-size:13px; font-weight:600; }
@@ -96,7 +105,7 @@
     (function () {
         var board = document.getElementById('kitchen-board');
         var wrap = document.getElementById('kitchen-wrap');
-        var known = null, offset = 0, failing = false;
+        var known = null, offset = 0, failing = false, adj = {};
 
         function beep() {
             try {
@@ -126,6 +135,20 @@
             });
         }
 
+        function etaVal(box) { return Math.min(240, Math.max(5, parseInt(box.getAttribute('data-base'), 10) + (adj[box.getAttribute('data-id')] || 0))); }
+
+        function paintEta() {
+            board.querySelectorAll('.k-eta[data-base]').forEach(function (box) {
+                var m = etaVal(box);
+                box.querySelector('.k-eta-val').textContent = m + ' min';
+                var at = box.querySelector('.k-start-at');
+                if (at) {
+                    var start = new Date((parseInt(at.getAttribute('data-sched'), 10) - m * 60) * 1000);
+                    at.textContent = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+            });
+        }
+
         function onBoard() {
             var meta = board.querySelector('[data-server-ts]');
             if (meta) offset = parseInt(meta.getAttribute('data-server-ts'), 10) - Math.floor(Date.now() / 1000);
@@ -136,6 +159,7 @@
                 if (fresh.length && document.getElementById('kitchen-sound').checked) beep();
             }
             known = ids;
+            paintEta();
             tick();
             document.title = (ids.length ? '(' + ids.length + ') ' : '') + 'Cocina';
         }
@@ -160,6 +184,20 @@
         board.addEventListener('click', function (e) {
             var chip = e.target.closest('.kx-chip');
             if (chip) board.setAttribute('data-filter', chip.getAttribute('data-f'));
+
+            var step = e.target.closest('.k-eta[data-base] .k-step[data-step]');
+            if (step) {
+                var box = step.closest('.k-eta'), id = box.getAttribute('data-id');
+                adj[id] = (adj[id] || 0) + parseInt(step.getAttribute('data-step'), 10);
+                paintEta();
+            }
+
+            var start = e.target.closest('.k-start');
+            if (start) {
+                var b = board.querySelector('.k-eta[data-id="' + start.getAttribute('data-id') + '"]');
+                $.request('onMove', { data: { order_id: start.getAttribute('data-id'), to: 'preparing', eta: b ? etaVal(b) : 0 } });
+                delete adj[start.getAttribute('data-id')];
+            }
         });
         // Tras mover un pedido el servidor ya devuelve el tablero: solo actualizamos estado local.
         $(document).on('ajaxComplete', function () { if (document.getElementById('kitchen-board')) onBoard(); });
