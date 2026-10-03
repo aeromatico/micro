@@ -7,7 +7,8 @@ use Aero\Shop\Models\Order;
  * evento shop.order.* en Aero.Notify. Nunca lanza: un fallo de notificación no
  * puede romper la creación, el pago ni la cancelación de un pedido.
  *
- * Eventos: placed, paid, shipped (pedido 'fulfilled'), cancelled.
+ * Eventos: placed, paid, shipped (pedido 'fulfilled'), ready (restaurante: listo para
+ * servir/recoger), cancelled.
  */
 class OrderNotifier
 {
@@ -30,8 +31,14 @@ class OrderNotifier
                 'total'         => number_format((float) $order->grand_total, 2),
                 'currency'      => $order->currency?->code,
                 'items'         => $order->items
-                    ->map(fn ($i) => $i->quantity . '× ' . $i->product_name_snapshot)
+                    ->map(fn ($i) => $i->quantity . '× ' . $i->product_name_snapshot
+                        . ($i->modifiers ? ' (' . RestaurantService::modifiersText($i->modifiers) . ')' : '')
+                        . ($i->note ? ' «' . $i->note . '»' : ''))
                     ->implode(', '),
+                'order_type'    => \Aero\Shop\Models\ShopSettings::ORDER_TYPES[$order->order_type] ?? null,
+                'table_label'   => $order->table_label,
+                'scheduled_for' => $order->scheduled_for?->format('d/m H:i'),
+                'customer_notes' => $order->customer_notes,
                 'tenant_name'   => $tenant?->name,
                 'url'           => \Aero\Shop\Classes\OrderService::publicUrl($order),
                 'shipping_address' => $addr ? trim($addr->address_line1 . ', ' . $addr->city, ', ') : null,

@@ -26,6 +26,13 @@
     </div>
     {% endif %}
 
+    {% if order.kitchen_status %}
+    <div x-data x-init="setInterval(() => { if (!document.hidden && $refs.poll) $refs.poll.click() }, 10000)">
+        <button type="button" x-ref="poll" class="hidden" data-request="shopOrderConfirmation::onRefreshKitchen" aria-hidden="true" tabindex="-1"></button>
+        <div id="order-kitchen">{% partial __SELF__~"::kitchenStatus" %}</div>
+    </div>
+    {% endif %}
+
     <div id="order-payment-status">
         {% partial __SELF__~"::paymentStatus" %}
     </div>

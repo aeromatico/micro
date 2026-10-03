@@ -37,6 +37,7 @@ class ShopSettings extends Model
     // Accesores para el formulario de Configuración (campos rc_*).
     public function getRcOrderTypesAttribute() { return $this->restaurant()['order_types']; }
     public function getRcDeliveryFeeAttribute() { return $this->restaurant()['delivery_fee']; }
+    public function getRcLeadMinutesAttribute() { return $this->restaurant()['lead_minutes']; }
     public function getRcTablesAttribute() { return $this->restaurant()['tables']; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
 
@@ -57,6 +58,7 @@ class ShopSettings extends Model
             'order_types'      => ['dine_in', 'pickup', 'delivery'],
             'delivery_fee'     => 0,
             'tables'           => 0,
+            'lead_minutes'     => 30,
             'accept_closed'    => false,
         ], (array) $this->restaurant_config);
     }

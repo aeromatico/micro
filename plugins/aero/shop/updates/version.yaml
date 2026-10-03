@@ -102,3 +102,9 @@
     - "Tiempo de preparación y cantidad mínima pasan de Configuración a cada
       producto (pestaña Restaurante, antes Extras)."
     - add_restaurant_product_fields.php
+
+1.5.0:
+    - "Operación del restaurante: estado de cocina por pedido (nuevo, preparando,
+      listo, entregado), pantalla de cocina en el backend, anticipación mínima
+      para pedidos programados y seguimiento del pedido para el cliente."
+    - add_kitchen_to_orders.php

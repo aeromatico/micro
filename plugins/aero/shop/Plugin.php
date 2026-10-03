@@ -254,6 +254,15 @@ class Plugin extends PluginBase
                 ],
             ];
 
+            if ($this->isRestaurantForCurrentTenant()) {
+                $sideMenu['shop-cocina'] = [
+                    'label'       => 'aero.shop::lang.menu.kitchen',
+                    'icon'        => 'icon-cutlery',
+                    'url'         => Backend::url('aero/shop/kitchen'),
+                    'permissions' => ['aero.shop.manage_orders'],
+                ];
+            }
+
             if ($this->isInventoryEnabledForCurrentTenant()) {
                 $sideMenu['shop-inventario'] = [
                     'label'       => 'aero.shop::lang.menu.inventory',
@@ -307,6 +316,13 @@ class Plugin extends PluginBase
         }
 
         return \Aero\Shop\Models\ShopSettings::inventoryEnabledForTenant($tenantId);
+    }
+
+    protected function isRestaurantForCurrentTenant(): bool
+    {
+        $tenantId = $this->resolveCurrentBackendTenantId();
+
+        return $tenantId && \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
     }
 
     protected function resolveCurrentBackendTenantId(): ?int

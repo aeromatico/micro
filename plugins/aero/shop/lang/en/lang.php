@@ -9,6 +9,7 @@
         'collections'       => 'Collections',
         'orders'            => 'Orders',
         'customers'         => 'Customers',
+        'kitchen'           => 'Kitchen',
         'inventory'         => 'Inventory',
         'payment_gateways'  => 'Payment methods',
         'settings'          => 'Shop settings',

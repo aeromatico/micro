@@ -11,16 +11,18 @@ class Order extends Model
 
     public const STATUSES = ['pending', 'awaiting_payment', 'paid', 'fulfilled', 'cancelled', 'refunded'];
 
+    public const KITCHEN_STATUSES = ['new' => 'Nuevo', 'preparing' => 'Preparando', 'ready' => 'Listo', 'delivered' => 'Entregado'];
+
     public $fillable = [
         'tenant_id', 'customer_id', 'order_number', 'access_token', 'status', 'currency_id',
         'exchange_rate_snapshot', 'subtotal', 'discount_total', 'shipping_total',
         'tax_total', 'grand_total', 'payment_gateway_id', 'payment_reference',
         'paid_at', 'paid_confirmed_by_backend_user_id', 'fulfilled_at', 'cancelled_at',
         'cancel_reason', 'shipping_address_id', 'billing_address_id', 'notes',
-        'customer_notes', 'requires_shipping', 'order_type', 'table_label', 'scheduled_for',
+        'customer_notes', 'requires_shipping', 'order_type', 'table_label', 'scheduled_for', 'kitchen_status', 'kitchen_updated_at', 'ready_at',
     ];
 
-    protected $dates = ['paid_at', 'fulfilled_at', 'cancelled_at', 'scheduled_for'];
+    protected $dates = ['paid_at', 'fulfilled_at', 'cancelled_at', 'scheduled_for', 'kitchen_updated_at', 'ready_at'];
 
     public $rules = [
         'tenant_id'    => 'required|exists:aero_sites_tenants,id',

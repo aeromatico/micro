@@ -154,6 +154,7 @@ class ShopSettings extends Controller
         return [
             'order_types'   => $types ?: ['pickup'],
             'delivery_fee'  => max(0, (float) ($data['rc_delivery_fee'] ?? 0)),
+            'lead_minutes'  => min(1440, max(0, (int) ($data['rc_lead_minutes'] ?? 30))),
             'tables'        => min(500, max(0, (int) ($data['rc_tables'] ?? 0))),
             'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
         ];
@@ -251,6 +252,11 @@ class ShopSettings extends Controller
             'rc_tables' => [
                 'label' => 'Cantidad de mesas', 'type' => 'number', 'span' => 'right', 'default' => 0,
                 'comment' => 'Cada mesa tiene un QR (/tienda?mesa=N) que prellena la mesa del pedido. Ver «QR de mesas» abajo.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_lead_minutes' => [
+                'label' => 'Anticipación mínima de pedidos programados (min)', 'type' => 'number', 'span' => 'left', 'default' => 30,
+                'comment' => 'Un pedido programado debe pedirse con al menos este tiempo de anticipación.',
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'rc_accept_closed' => [

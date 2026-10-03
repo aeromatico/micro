@@ -100,6 +100,7 @@ class OrderService
                 'requires_shipping' => $requiresShipping,
                 'order_type' => $restaurant['order_type'] ?? null, 'table_label' => $restaurant['table_label'] ?? null,
                 'scheduled_for' => $restaurant['scheduled_for'] ?? null,
+                'kitchen_status' => $restaurant ? 'new' : null, 'kitchen_updated_at' => $restaurant ? now() : null,
             ]);
 
             foreach ($lines as $line) {
@@ -250,18 +251,19 @@ class OrderService
             throw new OrderException('Ese tipo de pedido no está disponible.');
         }
 
+        $lead = max(0, (int) ($cfg['lead_minutes'] ?? 30));
         $scheduled = null;
         if (!$settings->isOpenNow()) {
             if (empty($cfg['accept_closed'])) {
                 throw new OrderException('El restaurante está cerrado en este momento.');
             }
             $scheduled = !empty($options['scheduled_for']) ? \Carbon\Carbon::parse($options['scheduled_for']) : null;
-            if (!$scheduled || $scheduled->isPast() || !$settings->isOpenNow($scheduled)) {
-                throw new OrderException('Estamos cerrados: elige una hora de entrega dentro de nuestro horario.');
+            if (!$scheduled || $scheduled->lt(now()->addMinutes($lead)) || !$settings->isOpenNow($scheduled)) {
+                throw new OrderException('Estamos cerrados: elige una hora de entrega dentro de nuestro horario (con al menos '.$lead.' min de anticipación).');
             }
         } elseif (!empty($options['scheduled_for'])) {
             $at = \Carbon\Carbon::parse($options['scheduled_for']);
-            if ($at->isFuture() && $settings->isOpenNow($at)) {
+            if ($at->gte(now()->addMinutes($lead)) && $settings->isOpenNow($at)) {
                 $scheduled = $at;
             }
         }

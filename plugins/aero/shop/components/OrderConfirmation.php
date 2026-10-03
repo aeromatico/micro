@@ -75,6 +75,14 @@ class OrderConfirmation extends ComponentBase
         return ['#order-payment-status' => $this->renderPartial('@paymentStatus')];
     }
 
+    /** Seguimiento en cocina: la página consulta cada pocos segundos. */
+    public function onRefreshKitchen()
+    {
+        $this->order?->refresh();
+
+        return ['#order-kitchen' => $this->renderPartial('@kitchenStatus')];
+    }
+
     protected function loadQrCode(): void
     {
         if (
