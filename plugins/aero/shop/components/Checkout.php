@@ -186,6 +186,7 @@ class Checkout extends ComponentBase
         }
 
         $cart->clear();
+        $this->rememberOrder($tenant->id, $order->access_token);
 
         return Redirect::to('/tienda/pedido/' . $order->access_token);
     }
@@ -269,6 +270,7 @@ class Checkout extends ComponentBase
         }
 
         $cart->clear();
+        $this->rememberOrder($tenant->id, $order->access_token);
 
         return Redirect::to('/tienda/pedido/' . $order->access_token);
     }
@@ -323,6 +325,7 @@ class Checkout extends ComponentBase
         }
 
         $cart->clear();
+        $this->rememberOrder($tenant->id, $order->access_token);
 
         $text = \Aero\Shop\Classes\WhatsappCheckout::buildMessage($order) . "\n\n" . \Aero\Shop\Classes\OrderService::publicUrl($order);
         if ($isApi) {
@@ -332,6 +335,14 @@ class Checkout extends ComponentBase
         \Aero\Shop\Classes\WhatsappCheckout::sendViaHello($settings, $order, $phone);
 
         return Redirect::to('/tienda/pedido/' . $order->access_token);
+    }
+
+    /** Guarda en la sesión los últimos pedidos para poder volver a su seguimiento desde la tienda. */
+    protected function rememberOrder(int $tenantId, string $token): void
+    {
+        $key = 'aero_shop_orders_' . $tenantId;
+        $tokens = array_values(array_unique(array_merge([$token], (array) session($key, []))));
+        session([$key => array_slice($tokens, 0, 5)]);
     }
 
     protected function currentUserId(): ?int

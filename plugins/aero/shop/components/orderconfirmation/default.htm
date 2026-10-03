@@ -14,6 +14,43 @@
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
     </div>
 
+    {# Guardar el enlace para volver al seguimiento #}
+    <div class="card p-4 mb-6 text-sm" x-data="orderLink()" x-init="remember()">
+        <p class="font-semibold text-ink">Guarda este enlace para ver el estado de tu pedido cuando quieras</p>
+        <p class="text-ink-muted mt-1">También lo encontrarás en la carta, en «Tus pedidos en curso», y con tu número de pedido y celular.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <button type="button" @click="copy()" class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 font-semibold text-ink hover:bg-surface-alt">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span x-text="copied ? '¡Enlace copiado!' : 'Copiar enlace'">Copiar enlace</span>
+            </button>
+            <a :href="'https://wa.me/?text=' + encodeURIComponent('Mi pedido {{ order.order_number }}: ' + location.href)" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 font-semibold text-ink hover:bg-surface-alt">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>
+                Enviármelo por WhatsApp
+            </a>
+        </div>
+    </div>
+    <script>
+    function orderLink() {
+        return {
+            copied: false,
+            remember() {
+                try {
+                    const t = '{{ order.access_token }}';
+                    const list = JSON.parse(localStorage.getItem('aero_shop_orders') || '[]').filter(x => x !== t);
+                    list.unshift(t);
+                    localStorage.setItem('aero_shop_orders', JSON.stringify(list.slice(0, 5)));
+                } catch (e) {}
+            },
+            async copy() {
+                try { await navigator.clipboard.writeText(location.href); }
+                catch (e) { const i = document.createElement('input'); i.value = location.href; document.body.appendChild(i); i.select(); document.execCommand('copy'); i.remove(); }
+                this.copied = true; setTimeout(() => this.copied = false, 2500);
+            },
+        };
+    }
+    </script>
+
     {% if order.order_type %}
     <div class="card p-5 mb-6 text-sm">
         <p class="font-semibold text-ink">

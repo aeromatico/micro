@@ -17,6 +17,8 @@ class ShopCatalog extends ComponentBase
     public array $restaurant = [];
     public bool $isOpen = true;
     public ?string $table = null;
+    public $activeOrders = null;
+    public string $timezone = 'America/La_Paz';
 
     public function componentDetails(): array
     {
@@ -118,6 +120,8 @@ class ShopCatalog extends ComponentBase
             session(['aero_shop_table_' . $tenant->id => $mesa]);
         }
         $this->table = session('aero_shop_table_' . $tenant->id);
+        $this->timezone = $settings->timezone ?: 'America/La_Paz';
+        $this->activeOrders = $this->loadActiveOrders($tenant->id, []);
 
         $groupsByProduct = \Aero\Shop\Models\ModifierGroup::forTenant($tenant->id)->orderBy('sort_order')->get()->groupBy('product_id');
 
@@ -158,5 +162,79 @@ class ShopCatalog extends ComponentBase
 
         usort($sections, fn ($a, $b) => $a['sort'] <=> $b['sort'] ?: strcmp($a['name'], $b['name']));
         $this->menu = $sections;
+    }
+
+    /**
+     * Pedidos del cliente que siguen en curso (últimas 24 h): los de su sesión
+     * más los tokens que el navegador recuerda en localStorage. El token es el
+     * secreto del pedido, así que solo se listan los que el cliente ya posee.
+     */
+    protected function loadActiveOrders(int $tenantId, array $extraTokens)
+    {
+        $tokens = array_values(array_unique(array_filter(array_merge(
+            (array) session('aero_shop_orders_' . $tenantId, []),
+            array_map('strval', $extraTokens)
+        ), fn ($t) => is_string($t) && strlen($t) === 40)));
+
+        if (!$tokens) {
+            return collect();
+        }
+
+        return \Aero\Shop\Models\Order::forTenant($tenantId)
+            ->whereIn('access_token', array_slice($tokens, 0, 8))
+            ->where('status', '!=', 'cancelled')
+            ->where('created_at', '>=', now()->subDay())
+            ->where(fn ($q) => $q->whereIn('kitchen_status', ['new', 'preparing', 'ready'])
+                // Recién entregados (2 h): siguen a la vista por si el cliente quiere revisar el detalle.
+                ->orWhere(fn ($q3) => $q3->where('kitchen_status', 'delivered')->where('kitchen_updated_at', '>=', now()->subHours(2)))
+                ->orWhere(fn ($q2) => $q2->whereNull('kitchen_status')->whereIn('status', ['pending', 'awaiting_payment', 'paid'])))
+            ->orderByDesc('created_at')->limit(3)->get();
+    }
+
+    /** El navegador envía los tokens que recuerda; se devuelve el bloque «Tus pedidos» actualizado. */
+    public function onActiveOrders()
+    {
+        $tenant = StorefrontContext::tenant();
+        if (!$tenant) {
+            return [];
+        }
+
+        $tokens = array_slice(array_filter(explode(',', (string) post('tokens'))), 0, 8);
+        $this->activeOrders = $this->loadActiveOrders($tenant->id, $tokens);
+        $this->timezone = StorefrontContext::settings()?->timezone ?: 'America/La_Paz';
+
+        return ['#active-orders' => $this->renderPartial('@activeorders')];
+    }
+
+    /** Consulta de un pedido con número + celular (para quien perdió el enlace o cambió de dispositivo). */
+    public function onFindOrder()
+    {
+        $tenant = StorefrontContext::tenant();
+        if (!$tenant) {
+            return [];
+        }
+
+        $key = 'shop-find-order:' . request()->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 6)) {
+            return ['#find-order-error' => '<p class="text-sm text-red-500">Demasiados intentos. Espera un minuto e inténtalo de nuevo.</p>'];
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 60);
+
+        $number = strtoupper(trim((string) post('order_number')));
+        $phone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone(post('phone'));
+        $fail = ['#find-order-error' => '<p class="text-sm text-red-500">No encontramos un pedido con esos datos. Revisa el número (ej. PED-000007) y el celular con el que lo hiciste.</p>'];
+        if ($number === '' || !$phone) {
+            return $fail;
+        }
+
+        $order = \Aero\Shop\Models\Order::forTenant($tenant->id)->where('order_number', $number)->with('customer')->first();
+        $orderPhone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($order?->customer?->phone);
+        if (!$order || !$orderPhone || $orderPhone !== $phone) {
+            return $fail;
+        }
+
+        \Illuminate\Support\Facades\RateLimiter::clear($key);
+
+        return \Redirect::to('/tienda/pedido/' . $order->access_token);
     }
 }
