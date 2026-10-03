@@ -160,3 +160,9 @@
       del landing de la plataforma (no de un tenant), a superadmin por email
       e inapp. Disparado por Aero.Sites\\Jobs\\DispatchPlatformLeadNotification."
     - seed_platform_lead_templates.php
+
+1.5.5:
+    - "Evento nuevo shop.order.ready (restaurante: pedido listo) al cliente por
+      email y WhatsApp. El aviso de pedido nuevo (shop.order.placed) incluye
+      tipo de pedido, mesa, hora programada, detalle con extras y notas."
+    - shop_restaurant_order_events.php

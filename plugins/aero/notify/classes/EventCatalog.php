@@ -641,6 +641,21 @@ class EventCatalog
                 'sample_context' => $orderSample + ['tracking_code' => 'ENV-9912'],
             ],
             [
+                'code' => 'shop.order.ready',
+                'source_plugin' => 'Aero.Shop',
+                'category' => 'orders',
+                'name' => 'Pedido listo',
+                'description' => 'Restaurante: el pedido está listo para servir o recoger.',
+                'priority' => 3,
+                'default_audiences' => ['actor'],
+                'default_channels' => ['email', 'whatsapp'],
+                'variables_schema' => $orderVars + [
+                    'order_type'  => ['type' => 'string', 'required' => false, 'label' => 'Tipo de pedido'],
+                    'table_label' => ['type' => 'string', 'required' => false, 'label' => 'Mesa'],
+                ] + self::TENANT_VARS,
+                'sample_context' => $orderSample + ['order_type' => 'Recoger', 'table_label' => null],
+            ],
+            [
                 'code' => 'shop.order.cancelled',
                 'source_plugin' => 'Aero.Shop',
                 'category' => 'orders',
