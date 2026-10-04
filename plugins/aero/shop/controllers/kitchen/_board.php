@@ -51,13 +51,24 @@ foreach ($columns as $col) {
                     <div class="k-sched"><?= \Aero\Shop\Classes\KitchenIcons::svg('clock') ?> Programado para <?= e($o->scheduled_for->format('d/m H:i')) ?></div>
                 <?php endif ?>
 
+                <?php if (($o->source ?? 'web') !== 'web' || $o->cashier): ?>
+                    <div class="k-channel">
+                        <span class="k-src k-src-<?= e($o->source) ?>"><?= e(['pos' => 'Local (POS)', 'api' => 'API', 'whatsapp' => 'WhatsApp', 'chat' => 'Chat'][$o->source] ?? $o->source) ?></span>
+                        <?php if ($o->cashier): ?><span class="k-waiter"><?= \Aero\Shop\Classes\KitchenIcons::svg('user') ?> <?= e($o->cashier->first_name ?: $o->cashier->login) ?></span><?php endif ?>
+                    </div>
+                <?php endif ?>
+
                 <div class="k-cust">
                     <?= \Aero\Shop\Classes\KitchenIcons::svg('user') ?> <?= e($o->customer?->full_name) ?>
                     <?php if ($o->customer?->phone): ?> · <a href="tel:<?= e($o->customer->phone) ?>"><?= e($o->customer->phone) ?></a><?php endif ?>
                 </div>
 
+                <?php $maxRound = (int) $o->items->max('round'); ?>
                 <ul class="k-items">
-                    <?php foreach ($o->items as $item): ?>
+                    <?php $lastRound = null; foreach ($o->items->sortBy([['round', 'asc'], ['id', 'asc']]) as $item):
+                        if ($maxRound > 1 && $item->round !== $lastRound): $lastRound = $item->round; ?>
+                        <li class="k-round<?= $item->round === $maxRound ? ' is-latest' : '' ?>">Ronda <?= (int) $item->round ?><?= $item->round === $maxRound ? ' · nueva' : '' ?></li>
+                    <?php endif ?>
                         <li>
                             <span class="k-qty"><?= (int) $item->quantity ?></span>
                             <div>

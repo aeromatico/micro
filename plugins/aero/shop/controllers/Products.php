@@ -29,6 +29,7 @@ class Products extends Controller
     public function listExtendQuery($query): void
     {
         $this->scopeQueryToTenant($query);
+        $query->where('is_internal', false);
     }
 
     public function formExtendModel($model): void

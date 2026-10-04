@@ -12,9 +12,27 @@ use Aero\Shop\Models\Order;
  */
 class OrderNotifier
 {
+    protected static function posShouldNotify(Order $order, string $event): bool
+    {
+        if ($event !== 'ready' || !in_array($order->order_type, ['pickup', 'delivery'], true)) {
+            return false;
+        }
+
+        $customer = $order->customer ?: $order->customer()->first();
+        $realEmail = $customer && $customer->email && !str_ends_with($customer->email, '.invalid');
+
+        return $realEmail || !empty($customer?->phone);
+    }
+
     public static function fire(Order $order, string $event, array $extra = []): void
     {
         if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
+            return;
+        }
+
+        // Ventas del POS: el personal ya sabe lo que pasa; al cliente solo se le avisa que su
+        // pedido está listo (recoger/delivery) y únicamente si dejó un contacto real.
+        if (($order->source ?? 'web') === 'pos' && !self::posShouldNotify($order, $event)) {
             return;
         }
 

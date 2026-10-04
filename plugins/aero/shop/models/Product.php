@@ -14,7 +14,7 @@ class Product extends Model
         'tenant_id', 'collection_id', 'type', 'name', 'slug', 'description', 'sku',
         'has_variants', 'base_price', 'compare_at_price', 'cost_price', 'weight_grams',
         'requires_shipping', 'track_inventory', 'stock_quantity', 'allow_backorder',
-        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'seo_title', 'seo_description',
+        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'barcode', 'is_internal', 'seo_title', 'seo_description',
     ];
 
     protected $dates = ['deleted_at', 'published_at'];
@@ -95,9 +95,10 @@ class Product extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
+    /** Publicados y visibles: excluye los productos internos (ej. «Venta libre» del POS). */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', 'active')->where('is_internal', false);
     }
 
     public function getCollectionIdOptions(): array

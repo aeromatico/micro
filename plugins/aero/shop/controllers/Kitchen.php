@@ -50,7 +50,7 @@ class Kitchen extends Controller
             return $this->onRefresh();
         }
 
-        $order = Order::forTenant($tenantId)->whereNotNull('kitchen_status')->where('status', '!=', 'cancelled')->find((int) post('order_id'));
+        $order = Order::forTenant($tenantId)->whereNotNull('kitchen_status')->whereNotIn('status', ['cancelled', 'refunded'])->find((int) post('order_id'));
         if (!$order || $order->kitchen_status === $to) {
             return $this->onRefresh();
         }
@@ -126,8 +126,8 @@ class Kitchen extends Controller
 
     protected function boardData(?int $tenantId): array
     {
-        $base = Order::forTenant($tenantId)->where('status', '!=', 'cancelled')
-            ->with(['items.product', 'customer', 'currency'])->orderBy('created_at');
+        $base = Order::forTenant($tenantId)->whereNotIn('status', ['cancelled', 'refunded'])
+            ->with(['items.product', 'customer', 'currency', 'cashier'])->orderBy('created_at');
 
         $active = (clone $base)->whereIn('kitchen_status', ['new', 'preparing', 'ready'])->get()->groupBy('kitchen_status');
         $done = (clone $base)->where('kitchen_status', 'delivered')->where('kitchen_updated_at', '>=', now()->subHours(3))

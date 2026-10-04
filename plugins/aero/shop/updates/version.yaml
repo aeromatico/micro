@@ -115,3 +115,10 @@
       tiempo de reparto. El cliente lo ve solo cuando cocina acepta el pedido, y
       cocina puede ajustarlo y extenderlo."
     - add_eta_to_orders.php
+
+1.7.0:
+    - "Prerrequisitos de aero/pos: origen de la venta (web, pos, api...), cajero,
+      rondas de comanda, código de barras, productos internos (Venta libre) y NIT
+      y razón social del cliente. OrderService suma agregar rondas, cobrar,
+      descuento y anulación."
+    - add_pos_prerequisites.php

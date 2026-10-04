@@ -39,7 +39,7 @@ class Orders extends Controller
         $this->scopeQueryToTenant($query);
     }
 
-    protected function transition(int $orderId, string $toStatus, callable $sideEffect = null)
+    protected function transition(int $orderId, string $toStatus, ?callable $sideEffect = null)
     {
         $tenantId = $this->getCurrentTenantId();
         $order = Order::forTenant($tenantId)->findOrFail($orderId);
@@ -74,11 +74,8 @@ class Orders extends Controller
         $orderId = $recordId ?: post('order_id');
         // El stock ya se reservó al crear el pedido (checkout público, vía
         // InventoryService::reserveForOrderStrict) — aquí solo se confirma el pago.
-        $this->transition((int) $orderId, 'paid', function (Order $order, int $userId) {
-            $order->paid_at = now();
-            $order->paid_confirmed_by_backend_user_id = $userId;
-            $order->save();
-        });
+        $order = Order::forTenant($this->getCurrentTenantId())->findOrFail((int) $orderId);
+        (new \Aero\Shop\Classes\OrderService())->markPaid($order, null, null, BackendAuth::getUser()->id);
 
         Flash::success('Pedido marcado como pagado.');
         return $this->formRefresh();

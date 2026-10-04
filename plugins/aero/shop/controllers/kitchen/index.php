@@ -62,6 +62,12 @@
 .k-undo:active { transform:scale(.97); }
 .k-empty { text-align:center; color:var(--kx-mute); padding:34px 10px; font-size:14px; }
 .kx .kx-ic { flex:none; vertical-align:-3px; }
+.k-channel { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 6px; font-size:12px; font-weight:700; }
+.k-src { padding:2px 8px; border-radius:6px; background:#e0e7ff; color:#3730a3; }
+.k-src-pos { background:#dcfce7; color:#166534; }
+.k-waiter { padding:2px 8px; border-radius:6px; background:#f3f4f6; color:#374151; }
+.k-items li.k-round { display:block; padding:6px 0 2px; border-top:2px solid var(--kx-line); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--kx-mute); }
+.k-items li.k-round.is-latest { color:#1d4ed8; }
 .k-empty .kx-ic { display:block; width:34px; height:34px; margin:0 auto 6px; opacity:.4; }
 .kx-chip .kx-ic, .kx-btn .kx-ic, .k-pill .kx-ic, .k-cust .kx-ic, .k-sched .kx-ic, .k-note .kx-ic, .k-onote .kx-ic { margin-right:4px; }
 .k-go .kx-ic { margin-left:4px; }
