@@ -1,0 +1,8 @@
+title: Fuentes y campos
+list: $/aero/sheets/models/source/columns.yaml
+modelClass: Aero\Sheets\Models\Source
+recordUrl: aero/sheets/sources/update/:id
+noRecordsMessage: No hay fuentes. Crea una para empezar.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar

@@ -1,0 +1,16 @@
+columns:
+    label:
+        label: Nombre
+        searchable: true
+    model_class:
+        label: Modelo
+    fields_count:
+        label: Campos
+        type: number
+        sortable: false
+    tenant_access:
+        label: Tenants
+        type: switch
+    is_enabled:
+        label: Activa
+        type: switch

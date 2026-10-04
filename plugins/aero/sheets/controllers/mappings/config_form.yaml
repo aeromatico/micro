@@ -1,0 +1,10 @@
+name: Mapeo
+form: $/aero/sheets/models/mapping/fields.yaml
+modelClass: Aero\Sheets\Models\Mapping
+defaultRedirect: aero/sheets/mappings
+create:
+    redirect: aero/sheets/mappings/update/:id
+    redirectClose: aero/sheets/mappings
+update:
+    redirect: aero/sheets/mappings/update/:id
+    redirectClose: aero/sheets/mappings

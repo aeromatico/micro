@@ -1,0 +1,10 @@
+name: Fuente
+form: $/aero/sheets/models/source/fields.yaml
+modelClass: Aero\Sheets\Models\Source
+defaultRedirect: aero/sheets/sources
+create:
+    redirect: aero/sheets/sources/update/:id
+    redirectClose: aero/sheets/sources
+update:
+    redirect: aero/sheets/sources
+    redirectClose: aero/sheets/sources

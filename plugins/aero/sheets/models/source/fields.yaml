@@ -1,0 +1,29 @@
+fields:
+    label:
+        label: Nombre visible
+        span: left
+        required: true
+    model_class:
+        label: Clase del modelo
+        span: right
+        required: true
+        comment: 'Ej.: Aero\Crm\Models\Contact (solo modelos de plugins Aero)'
+    is_enabled:
+        label: Activa
+        type: switch
+        span: left
+        default: true
+    tenant_access:
+        label: Disponible para tenants
+        type: switch
+        span: right
+        comment: Solo si la tabla tiene tenant_id; cada tenant verá y escribirá únicamente sus propios registros.
+    suggestions:
+        type: partial
+        path: $/aero/sheets/models/source/_suggestions.php
+        context: create
+    sync_fields:
+        label: Campos sincronizables
+        type: partial
+        path: $/aero/sheets/models/source/_fields_table.php
+        context: update

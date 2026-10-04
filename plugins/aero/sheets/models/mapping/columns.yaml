@@ -1,0 +1,21 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+    source:
+        label: Fuente
+        relation: source
+        select: label
+    direction:
+        label: Dirección
+        type: partial
+        path: $/aero/sheets/models/mapping/_col_direction.php
+    spreadsheet_title:
+        label: Hoja
+    sheet_title:
+        label: Pestaña
+    last_status:
+        label: Última ejecución
+    last_run_at:
+        label: Cuándo
+        type: datetime
