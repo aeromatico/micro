@@ -206,7 +206,7 @@ tabs:
         is_active:
             tab: Publicación
             label: Público
-            comment: Visible en el sitio, en /servicio/{slug}. Apagado = borrador.
+            comment: Visible en el sitio, en /plugin/{slug}. Apagado = borrador.
             type: switch
             default: true
             span: left

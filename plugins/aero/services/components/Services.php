@@ -80,7 +80,7 @@ class Services extends ComponentBase
 
     protected function menuGroups(): array
     {
-        $services = Service::inMegamenu()->with('categories')->orderBy('sort_order')->orderBy('name')->get();
+        $services = Service::active()->with(['categories' => fn ($q) => $q->where('is_active', true)])->orderBy('sort_order')->orderBy('name')->get();
 
         // Un servicio aparece en cada una de sus categorías (o en «Otros servicios» si no tiene).
         $buckets = [];
@@ -98,7 +98,7 @@ class Services extends ComponentBase
             $groups[] = [
                 'name'  => $category?->name ?: 'Otros servicios',
                 'order' => $category?->sort_order ?? PHP_INT_MAX,
-                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'url' => url('servicio/' . $s->slug)])->all(),
+                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'url' => url('plugin/' . $s->slug)])->all(),
             ];
         }
         usort($groups, fn ($a, $b) => $a['order'] <=> $b['order']);

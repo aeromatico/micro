@@ -70,7 +70,7 @@ class Service extends Model
         return $this->categories->first();
     }
 
-    /** Guías interactivas vinculadas Y publicadas: lo que se renderiza dentro de /servicio/{slug}. */
+    /** Guías interactivas vinculadas Y publicadas: lo que se renderiza dentro de /plugin/{slug}. */
     /**
      * `code` separado en [resto, sección "Documentación", sección "Preguntas frecuentes"]
      * para que la página intercale las guías/documentación (en pestañas) antes de las FAQ.
