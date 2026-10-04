@@ -5,6 +5,10 @@
 {% set menu = __SELF__.menu %}
 {% set currency = __SELF__.currency %}
 {% set cfg = __SELF__.restaurant %}
+{# Presentación de los productos: 'lista' (por defecto), 'tarjetas' o 'compacta'. Solo cambia el render; el carrito y los popups son los mismos. #}
+{% set presentacion = presentacion|default('lista') %}
+{% set cardView = presentacion == 'tarjetas' %}
+{% set compactView = presentacion == 'compacta' %}
 
 <div class="mx-auto max-w-3xl px-4 sm:px-6 py-8 pb-32"
      x-data="restaurantMenu({{ menu|json_encode|e('html_attr') }}, '{{ currency.symbol|default('Bs')|e('js') }}')"
@@ -46,18 +50,28 @@
     {% for section in menu %}
     <section id="{{ section.id }}" data-section class="mb-10 scroll-mt-20">
         <h2 class="text-xl font-bold text-ink mb-4">{{ section.name }}</h2>
-        <div class="space-y-3">
+        <div class="{{ cardView ? 'grid grid-cols-2 sm:grid-cols-3 gap-4' : (compactView ? 'grid grid-cols-1 sm:grid-cols-2 gap-x-8' : 'space-y-3') }}">
             {% for p in section.products %}
+            {% set info %}
+                <h3 class="font-semibold text-ink">{{ p.name }}{% if p.featured %} <span class="ml-1 text-[10px] uppercase bg-brand-primary text-white px-2 py-0.5 rounded-full align-middle">Popular</span>{% endif %}</h3>
+                {% if p.description and not compactView %}<p class="text-sm text-ink-muted {{ cardView ? '' : 'line-clamp-2' }} mt-0.5">{{ p.description|striptags }}</p>{% endif %}
+                <p class="mt-2 font-bold text-ink">{% if p.from %}Desde {% endif %}{{ currency.format(p.price) }}{% if not p.in_stock %} <span class="text-xs font-normal text-ink-muted">· Agotado</span>{% endif %}</p>
+                {% if p.min_qty > 1 and not compactView %}<p class="text-xs text-ink-muted mt-1">Pedido mínimo: {{ p.min_qty }} unidades</p>{% endif %}
+            {% endset %}
             <button type="button" @click="open({{ p.id }})" {{ p.in_stock ? '' : 'disabled' }}
-                    class="w-full text-left flex gap-4 p-3 card hover:shadow-md transition-shadow disabled:opacity-50">
-                <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold text-ink">{{ p.name }}{% if p.featured %} <span class="ml-1 text-[10px] uppercase bg-brand-primary text-white px-2 py-0.5 rounded-full align-middle">Popular</span>{% endif %}</h3>
-                    {% if p.description %}<p class="text-sm text-ink-muted line-clamp-2 mt-0.5">{{ p.description|striptags }}</p>{% endif %}
-                    <p class="mt-2 font-bold text-ink">{% if p.from %}Desde {% endif %}{{ currency.format(p.price) }}{% if not p.in_stock %} <span class="text-xs font-normal text-ink-muted">· Agotado</span>{% endif %}</p>
-                    {% if p.min_qty > 1 %}<p class="text-xs text-ink-muted mt-1">Pedido mínimo: {{ p.min_qty }} unidades</p>{% endif %}
-                </div>
-                {% if p.image %}
-                <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" class="w-24 h-24 rounded-lg object-cover shrink-0">
+                    class="{{ cardView ? 'flex flex-col overflow-hidden text-left card hover:shadow-md transition-shadow disabled:opacity-50' : (compactView ? 'block w-full text-left py-4 border-b border-surface-border disabled:opacity-50' : 'w-full text-left flex gap-4 p-3 card hover:shadow-md transition-shadow disabled:opacity-50') }}">
+                {% if compactView %}
+                    <div class="min-w-0">{{ info|raw }}</div>
+                {% elseif cardView %}
+                    {% if p.image %}
+                    <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" class="w-full aspect-[4/3] object-cover">
+                    {% endif %}
+                    <div class="p-3 flex-1 min-w-0">{{ info|raw }}</div>
+                {% else %}
+                    <div class="flex-1 min-w-0">{{ info|raw }}</div>
+                    {% if p.image and not compactView %}
+                    <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy" class="w-24 h-24 rounded-lg object-cover shrink-0">
+                    {% endif %}
                 {% endif %}
             </button>
             {% endfor %}
