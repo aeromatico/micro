@@ -1,6 +1,6 @@
 ---
 name: service-offer
-description: Redacta la página comercial (oferta) de un servicio de Aero.Services a partir de la información base que dio una persona y de la evidencia real de los plugins ligados, y la deja como PROPUESTA para aprobar. Úsala cuando el brief de docs-sync liste una PÁGINA DEL SERVICIO, o cuando pidan completar /servicio/{slug}.
+description: Redacta la página comercial (oferta) de un servicio de Aero.Services a partir de la información base que dio una persona y de la evidencia real de los plugins ligados, y la deja como PROPUESTA para aprobar. Úsala cuando el brief de docs-sync liste una PÁGINA DEL SERVICIO, o cuando pidan completar /plugin/{slug}.
 ---
 
 # Completar la página de un servicio

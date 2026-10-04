@@ -13,7 +13,7 @@ que hay trabajo. El *brief* del mensaje trae, por plugin, dos listas independien
 - **Guías:** los formularios sin guía o desactualizados, con su `slug`, YAML y archivo del modelo.
   Sigue la skill `form-guide` (`.claude/skills/form-guide/SKILL.md`).
 
-- **Página del servicio:** una oferta (`/servicio/{slug}`) por redactar. Sigue la skill `service-offer`
+- **Página del servicio:** una oferta (`/plugin/{slug}`) por redactar. Sigue la skill `service-offer`
   (`.claude/skills/service-offer/SKILL.md`). Se deja como propuesta con `services:offer-proposal`; nunca se aplica.
 
 El alcance ya está calculado. No lo repitas ni explores plugins que no aparecen en el brief.

@@ -353,7 +353,7 @@ def offer_apply(c, service_id, slug):
     b = subprocess.run(["npm", "run", "build"], cwd=ROOT / "themes/master", capture_output=True, text=True, timeout=300)
     print("CSS:", "ok" if b.returncode == 0 else "FALLÓ\n" + b.stderr[-300:])
     W.sh(["sudo", "-u", c["web_user"], W.PHP_BIN, "artisan", "cache:clear"], timeout=60)
-    print(f"Listo: https://market.com.bo/servicio/{slug}")
+    print(f"Listo: https://market.com.bo/plugin/{slug}")
     return 0
 
 
