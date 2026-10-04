@@ -1,0 +1,15 @@
+title: Ventas del POS
+list: $/aero/pos/models/sale/columns.yaml
+modelClass: Aero\Pos\Models\Sale
+recordUrl: aero/pos/sales/view/:id
+noRecordsMessage: Todavía no hay ventas hechas desde el POS.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    search:
+        prompt: Buscar por número de pedido
+
+defaultSort:
+    column: created_at
+    direction: desc

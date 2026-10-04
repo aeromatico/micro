@@ -1,0 +1,10 @@
+columns:
+    name:
+        label: Terminal
+        type: text
+    code:
+        label: Código
+        type: text
+    is_active:
+        label: Activa
+        type: switch

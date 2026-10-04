@@ -1,0 +1,14 @@
+title: Métodos de pago
+list: $/aero/pos/models/paymentmethod/columns.yaml
+modelClass: Aero\Pos\Models\PaymentMethod
+recordUrl: aero/pos/paymentmethods/update/:id
+noRecordsMessage: Todavía no hay registros.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: sort_order
+    direction: asc

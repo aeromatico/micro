@@ -1,0 +1,14 @@
+name: Método de pago
+form: $/aero/pos/models/paymentmethod/fields.yaml
+modelClass: Aero\Pos\Models\PaymentMethod
+defaultRedirect: aero/pos/paymentmethods
+
+create:
+    title: Nuevo método de pago
+    redirect: aero/pos/paymentmethods
+    redirectClose: aero/pos/paymentmethods
+
+update:
+    title: Editar método de pago
+    redirect: aero/pos/paymentmethods
+    redirectClose: aero/pos/paymentmethods

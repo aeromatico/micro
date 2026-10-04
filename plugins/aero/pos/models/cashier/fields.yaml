@@ -1,0 +1,26 @@
+fields:
+    user_id:
+        label: Usuario
+        type: dropdown
+        span: left
+        required: true
+        comment: "Personas con acceso a este negocio"
+    pin_input:
+        label: PIN rápido (4 a 6 dígitos)
+        type: sensitive
+        span: right
+        comment: "Con el PIN el cajero cambia de usuario en la app sin escribir su contraseña. Vacío = no cambia."
+    discount_limit_percent:
+        label: Descuento máximo sin autorización (%)
+        type: number
+        span: left
+        comment: "Vacío = el del negocio. Por encima de esto se pide el PIN de un supervisor."
+    is_supervisor:
+        label: Supervisor
+        type: switch
+        span: right
+        comment: "Puede autorizar descuentos y anulaciones con su PIN."
+    is_active:
+        label: Activo
+        type: switch
+        default: true

@@ -1,0 +1,33 @@
+fields:
+    label:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+        comment: "Lo que ve el cajero: Efectivo, QR, Tarjeta…"
+    kind:
+        label: Tipo
+        type: dropdown
+        span: right
+        required: true
+        options:
+            cash: Efectivo (cuenta en el arqueo de caja)
+            qr: QR
+            card: Tarjeta
+            transfer: Transferencia
+            other: Otro
+        comment: "Solo «Efectivo» entra en el efectivo esperado al cerrar el turno."
+    code:
+        label: Código
+        type: text
+        span: left
+        comment: "Vacío = se genera del nombre"
+    sort_order:
+        label: Orden
+        type: number
+        span: right
+        default: 0
+    is_active:
+        label: Activo
+        type: switch
+        default: true

@@ -1,0 +1,14 @@
+name: Cajero
+form: $/aero/pos/models/cashier/fields.yaml
+modelClass: Aero\Pos\Models\Cashier
+defaultRedirect: aero/pos/cashiers
+
+create:
+    title: Nuevo cajero
+    redirect: aero/pos/cashiers
+    redirectClose: aero/pos/cashiers
+
+update:
+    title: Editar cajero
+    redirect: aero/pos/cashiers
+    redirectClose: aero/pos/cashiers

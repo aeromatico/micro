@@ -1,0 +1,14 @@
+title: Mesas
+list: $/aero/pos/models/postable/columns.yaml
+modelClass: Aero\Pos\Models\PosTable
+recordUrl: aero/pos/tables/update/:id
+noRecordsMessage: Todavía no hay registros.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: sort_order
+    direction: asc

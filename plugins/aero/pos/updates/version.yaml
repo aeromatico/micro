@@ -1,0 +1,4 @@
+1.0.0:
+    - "Punto de venta (POS) sobre la tienda: terminales, mesas, métodos de pago, cajeros, turnos de caja con arqueo, ventas y pagos divididos. Administración en el backend."
+    - create_pos_tables.php
+    - grant_tenant_admin_permissions.php
