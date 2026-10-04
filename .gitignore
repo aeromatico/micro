@@ -7,6 +7,7 @@ storage/backups/
 .claude/*
 !.claude/agents/
 !.claude/commands/
+!.claude/hooks/
 !.claude/skills/
 .idea
 .env

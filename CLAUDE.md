@@ -18,6 +18,11 @@ rm -f storage/cms/manifest.php          # si un plugin nuevo no muestra su menú
 cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (Cloudflare cachea 1 año)
 ```
 
+## Herramientas del repo
+- `bin/verify-plugin <plugin>` — compuerta de calidad de un plugin (lint, version.yaml, vistas, filtros, permisos/grants, tenant, tests). Correrla antes de dar por terminado un plugin.
+- `bin/aero-test <plugin> [filtro]` — tests aislados (SQLite en memoria, como `www`). Nunca `phpunit` pelado: ver `.claude/skills/aero-plugin`.
+- `.claude/hooks/aero-check.sh` — hook PostToolUse (php -l y verify en cada edición); se activa con `.claude/settings.json`.
+
 ## Prohibido (ya costó datos o días)
 - **NUNCA** `plugin:refresh` ni `plugin:rollback`/`rollbackPlugin()`: ignoran la versión y ejecutan el `down()` de casi todo (13 tablas de Sites perdidas el 2026-09-21). Para cambiar esquema: nueva versión en `version.yaml` + `october:migrate`.
 - No correr artisan/tinker que escriba en `storage/` como root: deja archivos `root:root` y PHP-FPM (`www`) responde 500. Si pasa: `chown -R www:www storage/`.
