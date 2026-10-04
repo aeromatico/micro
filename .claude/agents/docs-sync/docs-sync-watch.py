@@ -63,6 +63,7 @@ DEFAULTS = {
     "max_guides_per_run": 4,         # acota el coste de una corrida: el resto entra en las siguientes
 }
 ALLOWED_WRITE_PREFIXES = ("plugins/aero/docs/",)
+DOCS_CONTENT_PREFIX = "plugins/aero/docs/content/"
 # Zona de riesgo real: código de plugins. Fuera de "plugins/" (temas, bin, .claude, config…) el agente
 # no tiene permiso de escritura (ver settings.json); si algo cambia ahí durante la corrida, casi siempre es OTRA sesión
 # editando en paralelo por coincidencia de horario, no el agente. Se audita mas no se pausa el mundo.
@@ -377,10 +378,16 @@ def execute(c, st, plan, bootstrap=False, dry=False):
     try:
         ok, out, info = run_claude(c, build_prompt(items, bootstrap))
         auth_failed = (not ok) and bool(AUTH_PATTERNS.search(out[:600]))
+        # Sin escritura de contenido no hay nada que revisar: nunca se estampa "revisado" en falso ni se da el run por bueno.
+        wrote = any(p.startswith(DOCS_CONTENT_PREFIX) for p in pending_paths() - before)
+        if ok and any(it["docs"] for it in items) and not wrote:
+            ok = False
+            out += "\n[sin cambios] el agente no escribió contenido en plugins/aero/docs/content/; no se marca como revisado"
+            log(f"docs-sync sin escritura de contenido para: {names}; se trata como fallo", "ERROR")
         if ok:
             # Red de seguridad determinista: importar aunque el agente lo haya olvidado (es idempotente).
             for it in items:
-                cmd = ["sudo", "-u", c["web_user"], PHP_BIN, "artisan", "docs:import", it["plugin"]] + (["--mark-reviewed"] if it["docs"] else [])
+                cmd = ["sudo", "-u", c["web_user"], PHP_BIN, "artisan", "docs:import", it["plugin"]] + (["--mark-reviewed"] if it["docs"] and wrote else [])
                 r = sh(cmd, timeout=300)
                 out += f"\n[docs:import {it['plugin']}] rc={r.returncode}\n{(r.stdout + r.stderr)[-1200:]}"
                 if r.returncode != 0:
