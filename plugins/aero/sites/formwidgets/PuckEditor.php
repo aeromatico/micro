@@ -41,7 +41,14 @@ class PuckEditor extends FormWidgetBase
         $tenant = $this->model->tenant ?? null;
         $this->vars['tenantCssVars']   = $tenant ? ($tenant->getEffectiveCssVars()['light'] ?? null) : null;
         $this->vars['googleFontsUrl']  = $tenant ? $tenant->getGoogleFontsUrl() : null;
-        $this->vars['siteUrl']         = $tenant ? ('https://' . $tenant->primary_domain) : null;
+        // "Ver sitio" abre la página en cuestión (dominio/slug). Solo existe
+        // si la página ya está guardada y marcada como pública: una página
+        // oculta responde 404, así que el botón no se muestra.
+        $page = $this->model;
+        $pageIsPublic = $page->exists && (bool) $page->is_published;
+        $this->vars['siteUrl'] = $tenant && $pageIsPublic
+            ? rtrim('https://' . $tenant->primary_domain . '/' . trim((string) $page->slug, '/'), '/')
+            : null;
     }
 
     public function getSaveValue($value): mixed

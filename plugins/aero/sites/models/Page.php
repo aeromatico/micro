@@ -62,6 +62,19 @@ class Page extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
+    /**
+     * Campos solo de formulario (no son columnas). Sus valores los pasa
+     * Controllers\Pages::formBeforeSave() a `content`; aquí se descartan para
+     * que October no intente insertarlos como columnas.
+     */
+    public function setContentRicheditorAttribute($value): void
+    {
+    }
+
+    public function setContentRawAttribute($value): void
+    {
+    }
+
     public function getMenuPositionsOptions(): array
     {
         return self::MENU_POSITIONS;
