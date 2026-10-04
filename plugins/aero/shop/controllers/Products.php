@@ -35,6 +35,29 @@ class Products extends Controller
     {
         if (!$model->exists) {
             $model->tenant_id = $this->getCurrentTenantId();
+            $model->type = 'physical';
+        }
+    }
+
+    protected function isRestaurantTenant(): bool
+    {
+        $tenantId = $this->getCurrentTenantId();
+
+        return $tenantId && \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
+    }
+
+    /** En el listado de un restaurante no tiene sentido la columna ni el filtro «Tipo». */
+    public function listExtendColumns($list): void
+    {
+        if ($this->isRestaurantTenant()) {
+            $list->removeColumn('type');
+        }
+    }
+
+    public function listFilterExtendScopes($filter): void
+    {
+        if ($this->isRestaurantTenant()) {
+            $filter->removeScope('type');
         }
     }
 
@@ -51,6 +74,12 @@ class Products extends Controller
 
         $tenantId = (int) ($form->model->tenant_id ?: $this->getCurrentTenantId());
         $restaurant = \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
+
+        // Un restaurante solo vende platos (físicos): el tipo de producto no se pregunta.
+        if ($restaurant) {
+            $form->removeField('type');
+            $form->removeField('digital_file');
+        }
 
         if ($restaurant && !$form->model->has_variants) {
             $form->removeField('_options_relation');

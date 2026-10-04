@@ -12,7 +12,7 @@
         'kitchen'           => 'Kitchen',
         'inventory'         => 'Inventory',
         'payment_gateways'  => 'Payment methods',
-        'settings'          => 'Shop settings',
+        'settings'          => 'Settings',
     ],
     'permissions' => [
         'manage_products'          => 'Manage products',

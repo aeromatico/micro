@@ -81,6 +81,10 @@ class Product extends Model
                 $this->slug = $base . '-' . $n++;
             }
         }
+        // Restaurante: todo es físico (platos); sin tipo definido, también.
+        if (!$this->type || ($this->tenant_id && ShopSettings::isRestaurantForTenant((int) $this->tenant_id))) {
+            $this->type = 'physical';
+        }
         if ($this->type === 'digital') {
             $this->requires_shipping = false;
         }
