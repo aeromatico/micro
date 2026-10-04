@@ -122,3 +122,7 @@
       y razón social del cliente. OrderService suma agregar rondas, cobrar,
       descuento y anulación."
     - add_pos_prerequisites.php
+
+1.8.0:
+    - "Sucursales: la tienda puede tener varias sucursales (interruptor en Configuración). El checkout pide elegir una y el pedido guarda su nombre."
+    - add_branches_to_shop.php

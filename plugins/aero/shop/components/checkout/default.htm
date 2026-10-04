@@ -91,6 +91,23 @@
                     </div>
                 </section>
 
+                {% if __SELF__.branches %}
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Sucursal</h2>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        {% for branch in __SELF__.branches %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="branch_id" value="{{ branch.id }}" required {{ loop.first ? 'checked' : '' }} class="sr-only peer">
+                            <div class="card py-3 px-4 border-2 border-transparent peer-checked:border-brand-primary transition-colors">
+                                <p class="text-sm font-semibold text-ink">{{ branch.name }}</p>
+                                {% if branch.address %}<p class="text-xs text-ink-muted mt-1">{{ branch.address }}</p>{% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
                 <section class="space-y-4">
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div>

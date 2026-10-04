@@ -46,6 +46,8 @@ class OrderService
         $requiresShipping = collect($lines)->contains(fn ($l) => $l['product']->requires_shipping);
 
         $restaurant = $settings->isRestaurantStore() ? $this->resolveRestaurant($settings, $lines, $options) : null;
+        // Sucursal elegida en el checkout (el checkout la valida; la API/POS pueden no enviarla).
+        $branch = $settings->findActiveBranch($options['branch_id'] ?? null);
         if ($restaurant) {
             // En restaurante solo el delivery lleva dirección, sin importar el flag del producto.
             $requiresShipping = $restaurant['order_type'] === 'delivery';
@@ -111,6 +113,7 @@ class OrderService
                 'scheduled_for' => $restaurant['scheduled_for'] ?? null,
                 'kitchen_status' => $restaurant ? 'new' : null, 'kitchen_updated_at' => $restaurant ? now() : null,
                 'source' => $options['source'] ?? 'web', 'cashier_backend_user_id' => $options['cashier_id'] ?? null,
+                'branch_id' => $branch['id'] ?? null, 'branch_name' => $branch['name'] ?? null,
             ]);
 
             foreach ($lines as $line) {

@@ -32,6 +32,8 @@ class Checkout extends ComponentBase
     public ?string $table = null;
     public int $prepMinutes = 0;
     public string $pickerAssets = '';
+    /** Sucursales activas para elegir en el checkout (vacío = no se manejan sucursales). */
+    public array $branches = [];
 
     public function componentDetails(): array
     {
@@ -52,12 +54,13 @@ class Checkout extends ComponentBase
         $this->whatsappStore = (bool) StorefrontContext::settings()?->isWhatsappStore();
         $settings = StorefrontContext::settings();
         $this->isOpen = $settings ? $settings->isOpenNow() : true;
+        $this->branches = $settings?->activeBranches() ?? [];
         if ($settings?->isRestaurantStore()) {
             $this->restaurantStore = true;
             $this->restaurant = $settings->restaurant();
             $this->orderTypes = $settings->enabledOrderTypes();
             $this->table = session('aero_shop_table_' . $tenant->id);
-            // Sin mesa por QR no se ofrece "Comer aquí" con mesa fija, pero sigue disponible (el cliente la escribe).
+            // Sin mesa por QR no se ofrece "Comer en local" con mesa fija, pero sigue disponible (el cliente la escribe).
         }
         // Mapa de ubicación exacta (aero/tracking). Sin el plugin, queda el campo de texto.
         if (($this->whatsappStore || $this->restaurantStore) && class_exists(\Aero\Tracking\Components\LocationPicker::class)) {
@@ -96,6 +99,10 @@ class Checkout extends ComponentBase
         $lines = $cart->lines();
         if (!$lines) {
             return $this->errorResponse('Tu carrito está vacío.');
+        }
+
+        if (!$this->branchChosen($settings)) {
+            return $this->errorResponse('Elige la sucursal para tu pedido.');
         }
 
         if ($settings->isRestaurantStore()) {
@@ -177,6 +184,7 @@ class Checkout extends ComponentBase
                     ] : null,
                     'customer_notes' => $data['customer_notes'] ?? null,
                     'source'         => 'web',
+                    'branch_id'      => $data['branch_id'] ?? null,
                 ]
             );
         } catch (InsufficientStockException $e) {
@@ -189,6 +197,12 @@ class Checkout extends ComponentBase
         $this->rememberOrder($tenant->id, $order->access_token);
 
         return Redirect::to('/tienda/pedido/' . $order->access_token);
+    }
+
+    /** Sin sucursales activas no se pide nada; con ellas, la elegida debe existir y estar activa. */
+    protected function branchChosen($settings): bool
+    {
+        return !$settings->activeBranches() || (bool) $settings->findActiveBranch(post('branch_id'));
     }
 
     protected function placeRestaurantOrder($tenant, $settings, CartService $cart, array $lines)
@@ -261,6 +275,7 @@ class Checkout extends ComponentBase
                     'shipping' => $shipping,
                     'customer_notes' => mb_substr((string) ($data['customer_notes'] ?? ''), 0, 1000) ?: null,
                     'source' => 'web',
+                    'branch_id' => $data['branch_id'] ?? null,
                 ]
             );
         } catch (InsufficientStockException $e) {
@@ -316,6 +331,7 @@ class Checkout extends ComponentBase
                     ] : null,
                     'customer_notes' => mb_substr((string) ($data['customer_notes'] ?? ''), 0, 1000) ?: null,
                     'source'         => 'whatsapp',
+                    'branch_id'      => $data['branch_id'] ?? null,
                 ]
             );
         } catch (InsufficientStockException $e) {

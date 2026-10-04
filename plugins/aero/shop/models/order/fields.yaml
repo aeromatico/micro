@@ -43,6 +43,12 @@ tabs:
             span: left
             disabled: true
 
+        branch_name:
+            tab: Pedido
+            label: Sucursal
+            span: left
+            disabled: true
+
         order_type:
             tab: Pedido
             label: Tipo de pedido
@@ -50,7 +56,7 @@ tabs:
             span: left
             disabled: true
             options:
-                dine_in: Comer aquí
+                dine_in: Comer en local
                 pickup: Recoger
                 delivery: Delivery
             context: update

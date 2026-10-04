@@ -50,6 +50,8 @@ class ShopSettings extends Controller
 
         $settings->fill([
             'is_enabled'                  => (bool) ($data['is_enabled'] ?? false),
+            'branches_enabled'            => (bool) ($data['branches_enabled'] ?? false),
+            'branches'                    => $this->branchesFrom($data),
             'base_currency_id'            => $data['base_currency_id'] ?: null,
             'inventory_tracking_enabled'  => (bool) ($data['inventory_tracking_enabled'] ?? false),
             'guest_checkout_enabled'      => (bool) ($data['guest_checkout_enabled'] ?? false),
@@ -167,6 +169,35 @@ class ShopSettings extends Controller
     }
 
     /** Solo cuentas de Hello del propio tenant: nunca se confía en el id que llega del formulario. */
+    /** Normaliza las filas del repeater; las sucursales nuevas reciben un id estable. */
+    protected function branchesFrom(array $data): array
+    {
+        $rows = [];
+        $ids = [];
+
+        foreach ((array) ($data['branches'] ?? []) as $row) {
+            $name = mb_substr(trim((string) ($row['name'] ?? '')), 0, 120);
+            if ($name === '') {
+                continue;
+            }
+
+            $id = preg_match('/^[a-z0-9]{6,12}$/', (string) ($row['id'] ?? '')) && !in_array($row['id'], $ids, true)
+                ? $row['id']
+                : strtolower(\Illuminate\Support\Str::random(8));
+            $ids[] = $id;
+
+            $rows[] = [
+                'id'        => $id,
+                'name'      => $name,
+                'address'   => mb_substr(trim((string) ($row['address'] ?? '')), 0, 255) ?: null,
+                'phone'     => mb_substr(trim((string) ($row['phone'] ?? '')), 0, 30) ?: null,
+                'is_active' => !empty($row['is_active']),
+            ];
+        }
+
+        return $rows;
+    }
+
     protected function ownedAccountId(int $tenantId, $id): ?int
     {
         if (!$id || !class_exists(\Aero\Hello\Models\Account::class)) {
@@ -328,6 +359,29 @@ class ShopSettings extends Controller
                     'close'  => ['label' => 'Cierra', 'type' => 'text', 'span' => 'right', 'placeholder' => '22:00'],
                 ]],
                 'trigger'   => ['action' => 'show', 'field' => 'schedule_mode', 'condition' => 'value[scheduled]'],
+            ],
+            'branches_enabled' => [
+                'label'   => 'Manejar sucursales',
+                'type'    => 'switch',
+                'span'    => 'left',
+                'default' => false,
+                'comment' => 'Apagado, la tienda es un solo negocio. Encendido, el checkout pide elegir una sucursal.',
+            ],
+            'branches' => [
+                'label'   => 'Sucursales',
+                'type'    => 'repeater',
+                'span'    => 'full',
+                'prompt'  => 'Agregar sucursal',
+                'trigger' => ['action' => 'show', 'field' => 'branches_enabled', 'condition' => 'checked'],
+                'form'    => [
+                    'fields' => [
+                        'id'        => ['type' => 'hidden'],
+                        'name'      => ['label' => 'Nombre', 'type' => 'text', 'span' => 'left'],
+                        'phone'     => ['label' => 'Teléfono', 'type' => 'text', 'span' => 'right'],
+                        'address'   => ['label' => 'Dirección', 'type' => 'text', 'span' => 'full'],
+                        'is_active' => ['label' => 'Activa', 'type' => 'switch', 'span' => 'left', 'default' => true],
+                    ],
+                ],
             ],
             'is_enabled' => [
                 'label'   => 'Tienda activada',

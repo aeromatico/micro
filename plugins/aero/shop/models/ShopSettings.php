@@ -9,15 +9,15 @@ class ShopSettings extends Model
     public $table = 'aero_shop_settings';
 
     public $fillable = [
-        'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled',
+        'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled', 'branches_enabled', 'branches',
         'guest_checkout_enabled', 'order_number_prefix', 'order_number_sequence',
         'low_stock_threshold', 'store_mode', 'whatsapp_mode', 'whatsapp_number', 'whatsapp_account_id',
         'restaurant_config', 'schedule_mode', 'schedule_hours', 'accepting_orders', 'timezone',
     ];
 
-    public $jsonable = ['restaurant_config', 'schedule_hours'];
+    public $jsonable = ['restaurant_config', 'schedule_hours', 'branches'];
 
-    public const ORDER_TYPES = ['dine_in' => 'Comer aquí', 'pickup' => 'Recoger', 'delivery' => 'Delivery'];
+    public const ORDER_TYPES = ['delivery' => 'Delivery', 'pickup' => 'Recoger', 'dine_in' => 'Comer en local'];
     public const DAYS = ['mon' => 'Lunes', 'tue' => 'Martes', 'wed' => 'Miércoles', 'thu' => 'Jueves', 'fri' => 'Viernes', 'sat' => 'Sábado', 'sun' => 'Domingo'];
 
     public $rules = [
@@ -28,6 +28,34 @@ class ShopSettings extends Model
         'tenant'        => [\Aero\Sites\Models\Tenant::class],
         'base_currency' => [Currency::class],
     ];
+
+    /** Sucursales activas (solo si el interruptor está encendido). Vacío = la tienda es un solo negocio. */
+    public function activeBranches(): array
+    {
+        if (!$this->branches_enabled) {
+            return [];
+        }
+
+        return collect((array) $this->branches)
+            ->filter(fn ($b) => !empty($b['id']) && !empty($b['name']) && !empty($b['is_active']))
+            ->values()
+            ->all();
+    }
+
+    public function findActiveBranch(?string $id): ?array
+    {
+        if (!$id) {
+            return null;
+        }
+
+        foreach ($this->activeBranches() as $branch) {
+            if ($branch['id'] === $id) {
+                return $branch;
+            }
+        }
+
+        return null;
+    }
 
     public function isWhatsappStore(): bool
     {
@@ -74,7 +102,7 @@ class ShopSettings extends Model
         ], (array) $this->restaurant_config);
     }
 
-    /** Tipos de pedido habilitados ['dine_in' => 'Comer aquí', ...]. */
+    /** Tipos de pedido habilitados ['dine_in' => 'Comer en local', ...]. */
     public function enabledOrderTypes(): array
     {
         $enabled = (array) $this->restaurant()['order_types'];

@@ -13,7 +13,7 @@ columns:
         label: Tipo
         type: selectable
         options:
-            dine_in: Comer aquí
+            dine_in: Comer en local
             pickup: Recoger
             delivery: Delivery
         width: 110px
