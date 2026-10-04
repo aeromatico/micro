@@ -53,8 +53,8 @@ class Docs extends ComponentBase
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'home',
                 'options' => ['home' => 'Portada', 'category' => 'Categoría', 'article' => 'Artículo']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
-            'base' => ['title' => 'Ruta base', 'type' => 'string', 'default' => 'documentacion',
-                'description' => 'Prefijo de las URLs (ej. "documentacion" o "ayuda").'],
+            'base' => ['title' => 'Ruta base', 'type' => 'string', 'default' => 'docs',
+                'description' => 'Prefijo de las URLs (ej. "docs").'],
         ];
     }
 
@@ -67,11 +67,16 @@ class Docs extends ComponentBase
     /** Prefijo de las URLs del centro de ayuda. */
     protected function base(): string
     {
-        return trim((string) $this->property('base'), '/') ?: 'documentacion';
+        return trim((string) $this->property('base'), '/') ?: 'docs';
     }
 
     public function onRun()
     {
+        // Un tenant solo tiene documentación si el superadmin lo activó (desactivado por defecto).
+        if (!\Aero\Docs\Models\TenantSetting::enabledFor($this->tenantId())) {
+            abort(404);
+        }
+
         $this->buildTree();
         $this->guidesCount = Guide::published()->visibleIn($this->tenantId())->count();
         $this->q = trim((string) request()->query('q', ''));

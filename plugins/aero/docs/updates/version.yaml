@@ -62,3 +62,6 @@
     - "Guías interactivas (tabla aero_docs_guides) y cambios pendientes de revisión en artículos, para el flujo de documentación automática con Claude."
     - create_aero_docs_guides_table.php
     - add_pending_changes_to_aero_docs_articles.php
+1.3.0:
+    - "Interruptor de documentación por tenant (desactivado por defecto) y redirección 301 de /documentacion a /docs."
+    - create_tenant_settings_table.php

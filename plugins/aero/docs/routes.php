@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Route;
  * y por eso la respuesta se puede cachear sin riesgo de servir una versión vieja.
  */
 Route::get('guias/{slug}/embed', function (string $slug) {
+    if (!\Aero\Docs\Models\TenantSetting::enabledFor(DocsScope::currentTenantId())) {
+        abort(404);
+    }
+
     $guide = Guide::published()->visibleIn(DocsScope::currentTenantId())
         ->where('slug', $slug)->first();
 
@@ -27,3 +31,8 @@ Route::get('guias/{slug}/embed', function (string $slug) {
         'ETag'                    => '"' . $guide->html_hash . '"',
     ]);
 })->where('slug', '[A-Za-z0-9_-]+')->middleware('web');
+
+/** /documentacion se mudó a /docs: se conservan los enlaces viejos. */
+Route::get('documentacion/{path?}', function (?string $path = null) {
+    return redirect('/docs' . ($path ? '/' . $path : ''), 301);
+})->where('path', '.*')->middleware('web');

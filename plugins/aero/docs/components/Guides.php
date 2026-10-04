@@ -41,6 +41,10 @@ class Guides extends ComponentBase
 
     public function onRun()
     {
+        if (!\Aero\Docs\Models\TenantSetting::enabledFor(DocsScope::currentTenantId())) {
+            abort(404);
+        }
+
         switch ($this->property('mode')) {
             case 'detail':
                 $this->guide = $this->published()->where('slug', $this->property('slug'))->first();

@@ -17,20 +17,14 @@ trait InDocsScope
     }
 
     /**
-     * Ámbito de lectura pública: lo propio del tenant MÁS lo marcado como
-     * global (uso general). En la plataforma (null) se ve lo de la plataforma,
-     * que ya incluye lo global. A diferencia de inScope(), este scope es solo
-     * para mostrar; editar/validar sigue usando inScope().
+     * Ámbito de lectura pública. Cada sitio ve SOLO lo suyo: la plataforma
+     * (tenant_id NULL) es nuestra documentación y es el portal; los tenants no
+     * la ven, aunque esté marcada como global. A diferencia de inScope(), este
+     * scope es solo para mostrar; editar/validar sigue usando inScope().
      */
     public function scopeVisibleIn($query, ?int $tenantId)
     {
-        if ($tenantId) {
-            return $query->where(fn ($q) => $q
-                ->where($this->getTable() . '.tenant_id', $tenantId)
-                ->orWhere($this->getTable() . '.is_global', true));
-        }
-
-        return $query->whereNull($this->getTable() . '.tenant_id');
+        return $this->scopeInScope($query, $tenantId);
     }
 
     /**

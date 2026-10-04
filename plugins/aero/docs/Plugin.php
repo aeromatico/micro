@@ -36,6 +36,17 @@ class Plugin extends PluginBase
         ];
     }
 
+    /** Para los temas: {% if docs_enabled() %}. En la plataforma siempre; en un tenant, según el interruptor. */
+    public function registerMarkupTags(): array
+    {
+        return [
+            'functions' => [
+                'docs_enabled' => fn () => \Aero\Docs\Classes\DocsScope::currentTenantId() === null
+                    || \Aero\Docs\Models\TenantSetting::enabledFor(\Aero\Docs\Classes\DocsScope::currentTenantId()),
+            ],
+        ];
+    }
+
     public function registerPermissions(): array
     {
         return [
@@ -61,6 +72,7 @@ class Plugin extends PluginBase
                     'guides'     => ['label' => 'Guías interactivas', 'icon' => 'icon-desktop', 'url' => Backend::url('aero/docs/guides'), 'permissions' => ['aero.docs.manage'], 'counter' => $this->pendingReviewCount(), 'counterLabel' => 'Pendientes de revisión'],
                     'categories' => ['label' => 'Categorías', 'icon' => 'icon-sitemap', 'url' => Backend::url('aero/docs/categories'), 'permissions' => ['aero.docs.manage']],
                     'reorder'    => ['label' => 'Ordenar árbol', 'icon' => 'icon-arrows-v', 'url' => Backend::url('aero/docs/categories/reorder'), 'permissions' => ['aero.docs.manage']],
+                    'settings'   => ['label' => 'Configuración', 'icon' => 'icon-cog', 'url' => Backend::url('aero/docs/docssettings'), 'permissions' => ['aero.docs.manage']],
                 ],
             ],
         ];
