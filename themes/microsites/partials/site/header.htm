@@ -33,10 +33,11 @@
                 {{ page.title }}
             </a>
             {% endfor %}
-            <a href="/ayuda"
+            {% if docs_enabled() %}
+            <a href="/docs"
                class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
                 Ayuda
-            </a>
+            </a>{% endif %}
             <a href="/soporte"
                class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
                 Soporte
@@ -110,11 +111,12 @@
             {{ page.title }}
         </a>
         {% endfor %}
-        <a href="/ayuda"
+        {% if docs_enabled() %}
+        <a href="/docs"
            @click="$store.nav.close()"
            class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
             Ayuda
-        </a>
+        </a>{% endif %}
         <a href="/soporte"
            @click="$store.nav.close()"
            class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">

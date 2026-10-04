@@ -38,9 +38,11 @@
                         </a>
                     </li>
                     {% endfor %}
+                    {% if docs_enabled() %}
                     <li>
-                        <a href="/ayuda" class="text-sm text-ink-muted hover:text-ink transition-colors">Ayuda</a>
+                        <a href="/docs" class="text-sm text-ink-muted hover:text-ink transition-colors">Ayuda</a>
                     </li>
+                    {% endif %}
                     <li>
                         <a href="/soporte" class="text-sm text-ink-muted hover:text-ink transition-colors">Soporte</a>
                     </li>

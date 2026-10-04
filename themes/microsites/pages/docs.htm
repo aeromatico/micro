@@ -1,4 +1,4 @@
-url = "/ayuda"
+url = "/docs"
 layout = "base"
 title = "Centro de ayuda"
 description = "Guías y respuestas para sacar el máximo de nuestro servicio."
@@ -13,7 +13,7 @@ excludeHome = 1
 
 [docs]
 mode = "home"
-base = "ayuda"
+base = "docs"
 ==
 <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-12">
@@ -31,7 +31,7 @@ base = "ayuda"
                 <p class="mt-3 text-ink-muted">Buscá en las guías o navegá por categorías.</p>
             </header>
 
-            <form method="get" action="/ayuda" class="mb-10">
+            <form method="get" action="/docs" class="mb-10">
                 <div class="flex gap-2">
                     <input type="search" name="q" value="{{ docs.q }}" placeholder="Buscar ayuda..."
                         class="flex-1 rounded-brand border border-surface-border bg-surface-alt text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary placeholder-ink-muted">

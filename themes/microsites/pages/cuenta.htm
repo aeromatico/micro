@@ -27,7 +27,7 @@ excludeHome = 1
         <div class="rounded-brand border border-surface-border bg-surface-alt p-6 flex flex-col gap-3">
             <a href="/soporte" class="inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-3 rounded-brand text-sm transition-all">Mis tickets</a>
             <a href="/soporte/nuevo" class="inline-flex items-center justify-center border border-surface-border hover:border-brand-primary text-ink font-semibold px-5 py-3 rounded-brand text-sm transition-colors">Abrir un ticket</a>
-            <button type="button" data-request="session::onLogout" data-request-data="redirect: '/ayuda'"
+            <button type="button" data-request="session::onLogout" data-request-data="redirect: '{{ docs_enabled() ? '/docs' : '/' }}'"
                 class="inline-flex items-center justify-center text-ink-muted hover:text-ink font-semibold px-5 py-3 text-sm transition-colors">
                 Cerrar sesión
             </button>
