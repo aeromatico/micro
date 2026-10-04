@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
 use October\Rain\Database\Updates\Seeder;
 
 /**
@@ -11,7 +12,11 @@ return new class extends Seeder
 {
     public function run(): void
     {
-        if (!class_exists(\Aero\Credits\Models\CreditAction::class)) {
+        // La clase puede existir sin que Credits haya migrado todavía (instalación
+        // nueva, o tests): comprobar también las tablas.
+        if (!class_exists(\Aero\Credits\Models\CreditAction::class)
+            || !Schema::hasTable('aero_credits_types')
+            || !Schema::hasTable('aero_credits_actions')) {
             return;
         }
 
