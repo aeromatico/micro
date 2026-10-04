@@ -16,7 +16,15 @@ function buildConfig(sources) {
   const labelOf = (value) => (list.find((s) => s.value === value) || {}).label || value;
   const dynamic = {
     ...DynamicBlock,
-    fields: { source: { ...DynamicBlock.fields.source, options: list } },
+    fields: { ...DynamicBlock.fields, source: { ...DynamicBlock.fields.source, options: list } },
+    // Las variantes son siempre 3, pero sus nombres cambian según la fuente elegida.
+    resolveFields: (data, { fields }) => {
+      const source = list.find((s) => s.value === data.props?.source);
+      return {
+        ...fields,
+        variant: { ...fields.variant, options: source?.variantes || fields.variant.options },
+      };
+    },
     render: (props) => DynamicBlock.render({ ...props, label: labelOf(props.source) }),
   };
   return {

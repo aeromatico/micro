@@ -21,9 +21,18 @@ class DynamicSources
     {
         return [
             'carta' => [
-                'label'   => 'Carta (restaurante)',
-                'plugin'  => \Aero\Shop\Plugin::class,
-                'handler' => [self::class, 'renderCarta'],
+                'label'    => 'Carta (restaurante)',
+                'plugin'   => \Aero\Shop\Plugin::class,
+                'handler'  => [self::class, 'renderCarta'],
+                // Cada fuente tiene exactamente 3 variantes numeradas; el marcador guarda el número.
+                // Qué significa cada número lo decide el handler de la fuente (ver renderCarta).
+                'variantes' => ['1' => 'Variante 1', '2' => 'Variante 2', '3' => 'Variante 3'],
+            ],
+            'catalogo' => [
+                'label'    => 'Catálogo de productos',
+                'plugin'   => \Aero\Shop\Plugin::class,
+                'handler'  => [self::class, 'renderCatalogo'],
+                'variantes' => ['1' => 'Variante 1', '2' => 'Variante 2', '3' => 'Variante 3'],
             ],
         ];
     }
@@ -34,7 +43,11 @@ class DynamicSources
         $options = [];
         foreach (self::registry() as $key => $def) {
             if (class_exists($def['plugin'])) {
-                $options[] = ['label' => $def['label'], 'value' => $key];
+                $variants = [];
+                foreach ($def['variantes'] as $value => $label) {
+                    $variants[] = ['label' => $label, 'value' => (string) $value];
+                }
+                $options[] = ['label' => $def['label'], 'value' => $key, 'variantes' => $variants];
             }
         }
         return $options;
@@ -51,7 +64,9 @@ class DynamicSources
                 if (!$def || !class_exists($def['plugin'])) {
                     return '';
                 }
-                return (string) call_user_func($def['handler']);
+                // La variante es opcional: si falta o no existe, cada fuente usa su presentación por defecto.
+                preg_match('/\bdata-variant="([a-z0-9_-]*)"/', $match[0], $variant);
+                return (string) call_user_func($def['handler'], $variant[1] ?? '');
             },
             $html
         ) ?? $html;
@@ -62,7 +77,7 @@ class DynamicSources
      * depende del estado del componente (menú, moneda, mesa), así que se
      * ejecuta el ciclo del componente dentro de la página actual.
      */
-    protected static function renderCarta(): string
+    protected static function renderCarta(string $variante = ''): string
     {
         $controller = Controller::getController();
         if (!$controller) {
@@ -79,6 +94,41 @@ class DynamicSources
             return '';
         }
 
-        return $controller->renderPartial('shopCatalog::restaurant');
+        // Carta: variante 1 = lista (por defecto), 2 = tarjetas, 3 = compacta.
+        $presentacion = ['2' => 'tarjetas', '3' => 'compacta'][$variante] ?? 'lista';
+
+        return $controller->renderPartial('shopCatalog::restaurant', ['presentacion' => $presentacion]);
+    }
+
+    /**
+     * Catálogo de la tienda embebido en la página: misma vista que /tienda, pero
+     * sin colecciones ni paginación y con un número limitado de productos.
+     * Solo aplica a tiendas en modo tienda (en modo restaurante se muestra la carta).
+     */
+    protected static function renderCatalogo(string $variante = ''): string
+    {
+        $controller = Controller::getController();
+        if (!$controller) {
+            return '';
+        }
+
+        $component = $controller->addComponent('shopCatalog', 'shopCatalog');
+        if (!$component) {
+            return '';
+        }
+
+        $component->onRun();
+        if ($component->restaurantStore) {
+            return '';
+        }
+
+        // Variante 1 = cuadrícula (por defecto), 2 = lista, 3 = compacta.
+        $presentacion = ['2' => 'lista', '3' => 'compacta'][$variante] ?? 'cuadricula';
+
+        return $controller->renderPartial('shopCatalog::default', [
+            'presentacion' => $presentacion,
+            'embebido'     => true,
+            'limite'       => 6,
+        ]);
     }
 }

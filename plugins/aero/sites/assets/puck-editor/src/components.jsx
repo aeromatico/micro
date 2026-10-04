@@ -2098,10 +2098,20 @@ export const DynamicBlock = {
   desc: 'Muestra contenido que se actualiza solo, como la carta del restaurante. Se llena al ver la página publicada.',
   fields: {
     source: { type: 'select', label: 'Contenido', options: [] },
+    // Opciones de respaldo; index.jsx (buildConfig) las reemplaza por las de la fuente elegida.
+    variant: {
+      type: 'select',
+      label: 'Presentación',
+      options: [
+        { label: 'Variante 1', value: '1' },
+        { label: 'Variante 2', value: '2' },
+        { label: 'Variante 3', value: '3' },
+      ],
+    },
   },
-  defaultProps: { source: '' },
-  render: ({ source, label }) => (
-    <div data-aero-dynamic={source || ''} className="rounded-brand border-2 border-dashed border-surface-border p-6 text-center text-sm text-ink-muted">
+  defaultProps: { source: '', variant: '1' },
+  render: ({ source, variant, label }) => (
+    <div data-aero-dynamic={source || ''} data-variant={variant || '1'} className="rounded-brand border-2 border-dashed border-surface-border p-6 text-center text-sm text-ink-muted">
       {source ? `Contenido dinámico: ${label}` : 'Contenido dinámico: elige una fuente'}
     </div>
   ),

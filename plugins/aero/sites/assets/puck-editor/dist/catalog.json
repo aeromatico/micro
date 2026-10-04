@@ -1057,6 +1057,24 @@
         "type": "select",
         "label": "Contenido",
         "options": []
+      },
+      "variant": {
+        "type": "select",
+        "label": "Presentación",
+        "options": [
+          {
+            "label": "Variante 1",
+            "value": "1"
+          },
+          {
+            "label": "Variante 2",
+            "value": "2"
+          },
+          {
+            "label": "Variante 3",
+            "value": "3"
+          }
+        ]
       }
     }
   },
