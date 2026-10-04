@@ -169,7 +169,33 @@ class ShopSettings extends Controller
     }
 
     /** Solo cuentas de Hello del propio tenant: nunca se confía en el id que llega del formulario. */
-    /** Normaliza las filas del repeater; las sucursales nuevas reciben un id estable. */
+    /**
+     * Campos de cada sucursal. Con aero/tracking instalado la ubicación se fija
+     * en el mapa (FormWidget `locationpicker`, con botón de geolocalización);
+     * sin él, lat/lng quedan como números.
+     */
+    protected function branchFormFields(): array
+    {
+        $fields = [
+            'name'      => ['label' => 'Nombre', 'type' => 'text', 'span' => 'left'],
+            'phone'     => ['label' => 'Teléfono', 'type' => 'text', 'span' => 'right'],
+            'address'   => ['label' => 'Dirección', 'type' => 'text', 'span' => 'full'],
+        ];
+
+        if (class_exists(\Aero\Tracking\FormWidgets\LocationPicker::class)) {
+            $fields['lat'] = ['label' => 'Ubicación exacta', 'type' => 'locationpicker', 'lngField' => 'lng', 'height' => 260, 'span' => 'full'];
+            $fields['lng'] = ['label' => 'Longitud', 'type' => 'text', 'span' => 'full', 'containerAttributes' => ['style' => 'display:none']];
+        } else {
+            $fields['lat'] = ['label' => 'Latitud', 'type' => 'number', 'span' => 'left'];
+            $fields['lng'] = ['label' => 'Longitud', 'type' => 'number', 'span' => 'right'];
+        }
+
+        $fields['is_active'] = ['label' => 'Activa', 'type' => 'switch', 'span' => 'left', 'default' => true];
+
+        return $fields;
+    }
+
+    /** Normaliza las filas del repeater y asigna un id a cada sucursal. */
     protected function branchesFrom(array $data): array
     {
         $rows = [];
@@ -181,16 +207,25 @@ class ShopSettings extends Controller
                 continue;
             }
 
-            $id = preg_match('/^[a-z0-9]{6,12}$/', (string) ($row['id'] ?? '')) && !in_array($row['id'], $ids, true)
-                ? $row['id']
-                : strtolower(\Illuminate\Support\Str::random(8));
+            $address = mb_substr(trim((string) ($row['address'] ?? '')), 0, 255);
+
+            // Id estable a partir de nombre y dirección (sin campo oculto: no hay parcial _field_hidden).
+            $id = substr(md5(mb_strtolower($name) . '|' . mb_strtolower($address)), 0, 8);
+            while (in_array($id, $ids, true)) {
+                $id = substr(md5($id . '|' . count($ids)), 0, 8);
+            }
             $ids[] = $id;
+
+            $lat = is_numeric($row['lat'] ?? null) ? round((float) $row['lat'], 6) : null;
+            $lng = is_numeric($row['lng'] ?? null) ? round((float) $row['lng'], 6) : null;
 
             $rows[] = [
                 'id'        => $id,
                 'name'      => $name,
-                'address'   => mb_substr(trim((string) ($row['address'] ?? '')), 0, 255) ?: null,
+                'address'   => $address ?: null,
                 'phone'     => mb_substr(trim((string) ($row['phone'] ?? '')), 0, 30) ?: null,
+                'lat'       => $lat,
+                'lng'       => $lng,
                 'is_active' => !empty($row['is_active']),
             ];
         }
@@ -374,13 +409,7 @@ class ShopSettings extends Controller
                 'prompt'  => 'Agregar sucursal',
                 'trigger' => ['action' => 'show', 'field' => 'branches_enabled', 'condition' => 'checked'],
                 'form'    => [
-                    'fields' => [
-                        'id'        => ['type' => 'hidden'],
-                        'name'      => ['label' => 'Nombre', 'type' => 'text', 'span' => 'left'],
-                        'phone'     => ['label' => 'Teléfono', 'type' => 'text', 'span' => 'right'],
-                        'address'   => ['label' => 'Dirección', 'type' => 'text', 'span' => 'full'],
-                        'is_active' => ['label' => 'Activa', 'type' => 'switch', 'span' => 'left', 'default' => true],
-                    ],
+                    'fields' => $this->branchFormFields(),
                 ],
             ],
             'is_enabled' => [
