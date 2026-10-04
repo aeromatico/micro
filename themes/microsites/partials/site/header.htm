@@ -44,8 +44,8 @@
             </a>
             {% if sitesSeo.isShopEnabled %}
             <a href="/tienda"
-               class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
-                Tienda
+               class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
+                {% if sitesSeo.isRestaurant %}<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>Menú &amp; Pedidos{% else %}Tienda{% endif %}
             </a>
             {% endif %}
         </div>
@@ -125,8 +125,8 @@
         {% if sitesSeo.isShopEnabled %}
         <a href="/tienda"
            @click="$store.nav.close()"
-           class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
-            Tienda
+           class="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
+            {% if sitesSeo.isRestaurant %}<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>Menú &amp; Pedidos{% else %}Tienda{% endif %}
         </a>
         {% endif %}
         {% if user is defined and user %}
