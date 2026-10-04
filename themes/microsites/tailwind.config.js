@@ -132,7 +132,7 @@ module.exports = {
         // se rompe en silencio. Ver plugins/aero/sites/assets/puck-editor/
         // scripts/check-tailwind-safelist.mjs (corre en `npm run build` del
         // editor y detecta este tipo de gap).
-        'sm:px-6', 'lg:px-8', 'md:flex', 'md:hidden', 'shrink-0', 'gap-2.5',
+        'sm:px-6', 'lg:px-8', 'md:flex', 'md:hidden', 'shrink-0', 'gap-2.5', 'border-dashed',
         'tracking-tight', 'py-2.5', 'shadow-lg', 'w-5', 'h-5', 'puck-tabs-radio',
         // Tabs — píldoras, vertical, tarjetas, numeradas (radios ocultos + nav)
         'sr-only', 'py-3', 'md:flex-col', 'md:col-span-3', 'sm:grid-cols-4', 'w-10', 'h-10',

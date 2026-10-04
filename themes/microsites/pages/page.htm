@@ -20,7 +20,7 @@ excludeHome = 1
 {% if page %}
 {% if page.content %}
 {# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
-{{ page.content | raw }}
+{{ page.content | aeroDynamic | raw }}
 {% else %}
 <article class="py-16 sm:py-20">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
