@@ -42,19 +42,20 @@ plugins/aero/{p}/Plugin.php   classes/  controllers/  models/  jobs/  console/  
 
 ## 4. Aplicar y VERIFICAR (no se da por terminado sin esto)
 ```bash
-PHP=/www/server/php/84/bin/php
-find plugins/aero/{p} -name '*.php' -print0 | xargs -0 -n1 $PHP -l | grep -v 'No syntax'   # debe quedar vacío
-sudo -u www $PHP artisan october:migrate                 # NUNCA plugin:refresh / rollback
+sudo -u www /www/server/php/84/bin/php artisan october:migrate     # NUNCA plugin:refresh / rollback
 rm -f storage/cms/manifest.php
-sudo -u www $PHP artisan route:list | grep -i {p}        # si hay API
+bin/verify-plugin {p}          # compuerta: lint, version.yaml, vistas, filtros, alias $/, permisos, grants, íconos, tenant + tests
+bin/aero-test {p} [filtro]     # solo los tests (SQLite en memoria, aislados de producción)
 ```
-Verificación funcional con tinker (como `www`):
-- Las tablas existen y las columnas esperadas están.
+`verify-plugin` debe salir sin ERRORES (los avisos se revisan, no bloquean). Si el plugin no tiene tests, crea `phpunit.xml` y `tests/SmokeTest.php` desde `templates/*.tpl` (ejemplo funcionando: `plugins/aero/sms/tests/`) y añade al menos un test de **aislamiento por tenant**.
+
+Además, verificación funcional con tinker (como `www`), que los tests no sustituyen:
 - Con un usuario real del rol `tenant_admin`: `$u->hasAccess('aero.{p}.use')` es `true` y `NavigationManager::instance()->listSideMenuItems(...)` muestra el ítem.
-- Crear un registro para tenant A y comprobar que el tenant B no lo ve.
 - Si hay API: un `curl` con una key de prueba al endpoint principal.
-- `curl -sI` a la URL del backend → 200/302 (no 500). Revisa `storage/logs/system.log` por errores nuevos.
+- `curl -sI` a la URL del backend → 200/302 (no 500); `storage/logs/system.log` sin errores nuevos.
 Reporta qué verificaste y qué NO pudiste verificar.
+
+**Tests: reglas de oro.** Nunca correr `phpunit` pelado: `phpunit.xml` debe forzar (`force="true"`) `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`, `CACHE_STORE=array`, `SESSION_DRIVER=array`, `QUEUE_CONNECTION=sync`, `MAIL_MAILER=array`. Sin `CACHE_STORE=array` los tests leen la configuración de correo del Redis de producción y fallan (`Mailer [zeptomail] is not defined`). Los seeds/migraciones que tocan otro plugin deben comprobar `Schema::hasTable(...)`, no solo `class_exists`.
 
 ## 5. Cierre
 - Si tiene pantallas: invoca `/docs-plugin {Plugin}` para dejar la documentación como borrador.
