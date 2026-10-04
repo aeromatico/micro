@@ -97,7 +97,7 @@ function onStart()
         "url": "{{ this.request.getSchemeAndHttpHost() }}",
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "{{ this.request.getSchemeAndHttpHost() }}/documentacion?q={search_term_string}",
+            "target": "{{ this.request.getSchemeAndHttpHost() }}/docs?q={search_term_string}",
             "query-input": "required name=search_term_string"
         }
     }

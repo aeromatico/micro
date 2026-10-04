@@ -16,7 +16,7 @@ function onStart()
     $host = request()->getSchemeAndHttpHost();
     $urls = [];
 
-    $static = ['/', '/comprar', '/api', '/documentacion', '/guias'];
+    $static = ['/', '/comprar', '/api', '/docs', '/guias'];
     foreach ($static as $path) {
         $urls[] = ['loc' => $host . $path, 'priority' => $path === '/' ? '1.0' : '0.8'];
     }
@@ -30,11 +30,11 @@ function onStart()
     }
 
     foreach (DocsCategory::whereNull('tenant_id')->where('is_active', true)->get(['slug', 'updated_at']) as $c) {
-        $urls[] = ['loc' => $host . '/documentacion/categoria/' . $c->slug, 'lastmod' => optional($c->updated_at)->toAtomString(), 'priority' => '0.5'];
+        $urls[] = ['loc' => $host . '/docs/categoria/' . $c->slug, 'lastmod' => optional($c->updated_at)->toAtomString(), 'priority' => '0.5'];
     }
 
     foreach (DocsArticle::whereNull('tenant_id')->where('is_published', true)->get(['slug', 'updated_at']) as $a) {
-        $urls[] = ['loc' => $host . '/documentacion/' . $a->slug, 'lastmod' => optional($a->updated_at)->toAtomString(), 'priority' => '0.6'];
+        $urls[] = ['loc' => $host . '/docs/' . $a->slug, 'lastmod' => optional($a->updated_at)->toAtomString(), 'priority' => '0.6'];
     }
 
     foreach (DocsGuide::published()->whereNull('tenant_id')->get(['slug', 'updated_at']) as $g) {
