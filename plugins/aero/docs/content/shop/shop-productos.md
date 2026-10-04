@@ -45,6 +45,23 @@ combinación gestiona su precio y stock).
 - **Variantes**: un SKU por combinación, con su precio y stock. Ver
   [Variantes y opciones](shop-variantes).
 
+## Pestaña Restaurante
+
+Disponible cuando el tipo de tienda es *Restaurante*.
+
+| Campo | Para qué sirve |
+|-------|----------------|
+| **Tiempo de preparación (min)** | Se muestra al cliente como tiempo estimado; vacío = no se indica (se usa el valor por defecto de la configuración en el cálculo). |
+| **Pedido mínimo (unidades)** | Cantidad mínima del plato por pedido (por defecto 1). |
+| **Extras del plato** | Grupos como «Tamaño» o «Adicionales». Guarda el plato primero. |
+
+Cada grupo de extras tiene: **Nombre del grupo**, **Mínimo a elegir** (0 = opcional),
+**Máximo a elegir** (1 = una opción; más de 1 = casillas) y una lista de
+**Opciones** con nombre, **Costo extra** y **Disponible**.
+
+> [!NOTE]
+> Las pestañas *Variantes* y *Restaurante* se muestran según el tipo de tienda.
+
 ## Pestaña SEO
 
 | Campo | Para qué sirve |
@@ -59,3 +76,5 @@ combinación gestiona su precio y stock).
 > [!TIP]
 > Usa **Borrador** mientras preparas un producto y publica en **Activo** solo
 > cuando esté listo.
+
+**Versión documentada:** 1.7.0

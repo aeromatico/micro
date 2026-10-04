@@ -22,7 +22,18 @@ las **notas internas** y las **acciones de estado**.
 | **Comentario del cliente** | Nota del comprador. |
 | **Notas internas** | **Editable**: notas para el equipo. |
 
+En pedidos de **restaurante** se muestran además (solo lectura):
+
+| Campo | Para qué sirve |
+|-------|----------------|
+| **Tipo de pedido** | Comer aquí, Recoger o Delivery. |
+| **Mesa** | Solo en *Comer aquí*. |
+| **Programado para** | Fecha y hora si el cliente programó el pedido. |
+
 Los bloques de **pago** y **dirección de envío** se muestran según el pedido.
+La dirección de envío incluye, si el cliente compartió su ubicación, el enlace
+**Ver ubicación en el mapa** con las coordenadas y su etiqueta. La confirmación
+pública del pedido también enlaza el mapa.
 
 ## Pestaña Artículos
 
@@ -58,6 +69,12 @@ Registro de cambios de estado, con fecha y nota.
 > solo: el pedido muestra un aviso para que verifiques la transacción en
 > *Bolivia Pay → Cuentas → Transacciones* antes de marcar pagado.
 
+> [!NOTE]
+> En restaurantes, el avance en cocina (nuevo, preparando, listo, entregado) se
+> gestiona en [Cocina](shop-cocina); al marcar *Entregado* el pedido pasa a despachado.
+
 > [!TIP]
 > Al cambiar de estado se pueden enviar avisos al cliente (pago, envío,
 > cancelación) por el plugin de notificaciones, si están configurados.
+
+**Versión documentada:** 1.7.0
