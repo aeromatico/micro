@@ -30,27 +30,34 @@
             <div>
                 <h4 class="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-3">Navegación</h4>
                 <ul class="space-y-2">
-                    {% for page in pages %}
+                    {% for page in pages %}{% if page.slug != 'contacto' %}
                     <li>
                         <a href="{{ page.slug ? '/' ~ page.slug : '/' }}"
                            class="text-sm text-ink-muted hover:text-ink transition-colors">
                             {{ page.title }}
                         </a>
                     </li>
-                    {% endfor %}
+                    {% endif %}{% endfor %}
                     {% if docs_enabled() %}
                     <li>
                         <a href="/docs" class="text-sm text-ink-muted hover:text-ink transition-colors">Ayuda</a>
                     </li>
                     {% endif %}
+                    {% if tickets_enabled() %}
                     <li>
                         <a href="/soporte" class="text-sm text-ink-muted hover:text-ink transition-colors">Soporte</a>
                     </li>
+                    {% endif %}
                     {% if sitesSeo.isShopEnabled %}
                     <li>
                         <a href="/tienda" class="text-sm text-ink-muted hover:text-ink transition-colors inline-flex items-center gap-1.5">{% if sitesSeo.isRestaurant %}<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>Menú &amp; Pedidos{% else %}Tienda{% endif %}</a>
                     </li>
                     {% endif %}
+                    {% for page in pages %}{% if page.slug == 'contacto' %}
+                    <li>
+                        <a href="/{{ page.slug }}" class="text-sm text-ink-muted hover:text-ink transition-colors">{{ page.title }}</a>
+                    </li>
+                    {% endif %}{% endfor %}
                 </ul>
             </div>
             {% endif %}

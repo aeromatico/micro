@@ -43,7 +43,7 @@ base = "docs"
                 <section class="mb-12">
                     <h2 class="text-sm font-semibold text-ink-muted uppercase tracking-wider mb-4">Resultados para «{{ docs.q }}»</h2>
                     {% if docs.results is empty %}
-                        <p class="text-sm text-ink-muted">No encontramos artículos. Probá con otras palabras o <a href="/soporte/nuevo" class="text-brand-primary hover:opacity-80">abrí un ticket</a>.</p>
+                        <p class="text-sm text-ink-muted">No encontramos artículos. Probá con otras palabras{% if tickets_enabled() %} o <a href="/soporte/nuevo" class="text-brand-primary hover:opacity-80">abrí un ticket</a>{% endif %}.</p>
                     {% else %}
                         <ul class="flex flex-col gap-2">
                             {% for r in docs.results %}
@@ -96,9 +96,9 @@ base = "docs"
             <div class="mt-12 rounded-brand border border-surface-border bg-surface-alt p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <p class="font-semibold text-ink">¿No encontrás lo que buscás?</p>
-                    <p class="text-sm text-ink-muted mt-1">Abrí un ticket y nuestro equipo te responde.</p>
+                    <p class="text-sm text-ink-muted mt-1">{% if tickets_enabled() %}Abrí un ticket y nuestro equipo te responde.{% else %}Escribinos y te ayudamos.{% endif %}</p>
                 </div>
-                <a href="/soporte/nuevo" class="inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-2.5 rounded-brand text-sm transition-all">Contactar soporte</a>
+                {% if tickets_enabled() %}<a href="/soporte/nuevo" class="inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-2.5 rounded-brand text-sm transition-all">Contactar soporte</a>{% endif %}
             </div>
         </div>
     </div>

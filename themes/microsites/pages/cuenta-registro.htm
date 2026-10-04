@@ -20,7 +20,7 @@ excludeHome = 1
     {% if user %}
         <div class="rounded-brand border border-surface-border bg-surface-alt p-6 text-center">
             <p class="text-ink font-semibold">Ya tenés una sesión activa.</p>
-            <a href="/soporte" class="mt-4 inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-2.5 rounded-brand text-sm transition-all">Ir a mis tickets</a>
+            {% if tickets_enabled() %}<a href="/soporte" class="mt-4 inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-5 py-2.5 rounded-brand text-sm transition-all">Ir a mis tickets</a>{% endif %}
         </div>
     {% else %}
         <header class="mb-8">
@@ -33,7 +33,7 @@ excludeHome = 1
 
         <div class="rounded-brand border border-surface-border bg-surface-alt p-6 sm:p-8">
             <form data-request="registration::onRegister" data-request-flash class="flex flex-col gap-4">
-                <input type="hidden" name="redirect" value="/soporte">
+                <input type="hidden" name="redirect" value="{{ tickets_enabled() ? '/soporte' : '/cuenta' }}">
 
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
