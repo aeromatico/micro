@@ -1,0 +1,12 @@
+fields:
+    callback_info:
+        type: partial
+        path: $/aero/oauth/models/settings/_callback_info.php
+    google_login_enabled:
+        label: Permitir iniciar sesión con Google
+        type: switch
+        default: true
+    link_by_verified_email:
+        label: Vincular por correo verificado
+        type: switch
+        comment: Si un usuario del backend nunca vinculó Google, se vincula la primera vez cuando el correo de Google (verificado) coincide con el suyo. Nunca se crean usuarios nuevos.
