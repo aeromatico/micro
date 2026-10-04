@@ -52,4 +52,15 @@ class PageList extends ComponentBase
 
         $this->pages = $query->get()->toArray();
     }
+
+    /**
+     * Páginas publicadas para una posición de menú del tema (ver Page::MENU_POSITIONS).
+     * Devuelve arrays con el mismo orden (sort_order) que $pages.
+     */
+    public function menuPages(string $position): array
+    {
+        return array_values(array_filter($this->pages, function ($page) use ($position) {
+            return !empty($page['show_in_menu']) && in_array($position, (array) ($page['menu_positions'] ?? []), true);
+        }));
+    }
 }

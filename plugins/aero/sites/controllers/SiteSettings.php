@@ -88,16 +88,25 @@ class SiteSettings extends Controller
     public function onSaveContactInfo()
     {
         $tenant        = $this->getCurrentTenant();
-        $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
+        // Tenants creados antes de la tabla no tienen fila: se crea al guardar.
+        $contactConfig = ContactConfig::firstOrCreate(['tenant_id' => $tenant->id]);
         $data          = post('ContactInfo', []);
 
+        // Sin dirección física se borran dirección, departamento y mapa (no quedan datos viejos ocultos).
+        $noPhysical = (bool) ($data['no_physical_address'] ?? false);
+        $region     = array_key_exists($data['region'] ?? '', ContactConfig::BO_DEPARTMENTS) ? $data['region'] : null;
+
         $contactConfig->fill([
-            'contact_email' => $data['contact_email'] ?: null,
-            'phone'         => $data['phone']         ?: null,
-            'whatsapp'      => $data['whatsapp']      ?: null,
-            'address'       => $data['address']       ?: null,
-            'lat'           => is_numeric($data['lat'] ?? '') ? (float) $data['lat'] : null,
-            'lng'           => is_numeric($data['lng'] ?? '') ? (float) $data['lng'] : null,
+            'contact_enabled'     => (bool) ($data['contact_enabled'] ?? false),
+            'contact_email'       => $data['contact_email'] ?: null,
+            'phone'               => $data['phone']         ?: null,
+            'whatsapp'            => $data['whatsapp']      ?: null,
+            'no_physical_address' => $noPhysical,
+            'city'                => $noPhysical ? null : (mb_substr(trim((string) ($data['city'] ?? '')), 0, 120) ?: null),
+            'region'              => $noPhysical ? null : $region,
+            'address'             => $noPhysical ? null : ($data['address'] ?: null),
+            'lat'                 => !$noPhysical && is_numeric($data['lat'] ?? '') ? (float) $data['lat'] : null,
+            'lng'                 => !$noPhysical && is_numeric($data['lng'] ?? '') ? (float) $data['lng'] : null,
         ]);
         $contactConfig->save();
 
@@ -108,7 +117,7 @@ class SiteSettings extends Controller
     public function onSaveContactConfig()
     {
         $tenant        = $this->getCurrentTenant();
-        $contactConfig = ContactConfig::where('tenant_id', $tenant->id)->firstOrFail();
+        $contactConfig = ContactConfig::firstOrCreate(['tenant_id' => $tenant->id]);
         $data          = post('ContactConfig', []);
 
         $contactConfig->form_enabled    = (bool) ($data['form_enabled'] ?? false);
@@ -122,7 +131,7 @@ class SiteSettings extends Controller
     public function onSaveSeo()
     {
         $tenant    = $this->getCurrentTenant();
-        $seoConfig = SeoConfig::where('tenant_id', $tenant->id)->firstOrFail();
+        $seoConfig = SeoConfig::firstOrCreate(['tenant_id' => $tenant->id]);
         $data      = post('SeoConfig', []);
 
         $seoConfig->fill([
@@ -275,7 +284,16 @@ class SiteSettings extends Controller
         $config->model     = $model ?? new ContactConfig;
         $config->arrayName = 'ContactInfo';
         $config->alias     = 'contactInfoForm';
+        $noPhysical = ['trigger' => ['action' => 'disable', 'field' => 'no_physical_address', 'condition' => 'checked']];
+
         $config->fields    = [
+            'contact_enabled' => [
+                'label'   => 'Área de contacto activa en el sitio',
+                'type'    => 'switch',
+                'span'    => 'full',
+                'default' => true,
+                'comment' => 'Apagada: la página de contacto responde 404, no aparece en los menús y no se aceptan mensajes.',
+            ],
             'contact_email' => [
                 'label'       => 'Email de contacto',
                 'type'        => 'text',
@@ -295,31 +313,68 @@ class SiteSettings extends Controller
                 'placeholder' => '+59170000000',
                 'comment'     => 'Con código de país, sin espacios',
             ],
+            'no_physical_address' => [
+                'label'   => 'No tiene una dirección física',
+                'type'    => 'switch',
+                'span'    => 'right',
+                'default' => false,
+                'comment' => 'Para negocios digitales. Oculta dirección y mapa en la página de contacto.',
+            ],
+            '_location' => [
+                'label' => 'Ubicación',
+                'type'  => 'section',
+                'trigger' => ['action' => 'hide', 'field' => 'no_physical_address', 'condition' => 'checked'],
+            ],
+            'city' => [
+                'label'       => 'Ciudad',
+                'type'        => 'text',
+                'span'        => 'left',
+                'placeholder' => 'La Paz',
+                'trigger'     => $noPhysical['trigger'],
+            ],
+            'region' => [
+                'label'       => 'Departamento',
+                'type'        => 'dropdown',
+                'span'        => 'right',
+                'options'     => ContactConfig::BO_DEPARTMENTS,
+                'emptyOption' => '-- Selecciona --',
+                'comment'     => 'Bolivia por ahora.',
+                'trigger'     => $noPhysical['trigger'],
+            ],
             'address' => [
                 'label'       => 'Dirección',
                 'type'        => 'text',
-                'span'        => 'right',
-                'placeholder' => 'Av. Ejemplo 123, Ciudad',
-            ],
-            '_location' => [
-                'label' => 'Ubicación en mapa (opcional)',
-                'type'  => 'section',
-            ],
-            'lat' => [
-                'label'       => 'Latitud',
-                'type'        => 'number',
-                'span'        => 'left',
-                'placeholder' => '-17.783333',
-                'step'        => 'any',
-            ],
-            'lng' => [
-                'label'       => 'Longitud',
-                'type'        => 'number',
-                'span'        => 'right',
-                'placeholder' => '-63.182222',
-                'step'        => 'any',
+                'span'        => 'full',
+                'placeholder' => 'Av. Ejemplo 123, zona…',
+                'trigger'     => $noPhysical['trigger'],
             ],
         ];
+
+        // Mapa con geolocalización (FormWidget de aero/tracking). Sin el plugin, lat/lng como números.
+        if (class_exists(\Aero\Tracking\FormWidgets\LocationPicker::class)) {
+            $config->fields['lat'] = [
+                'label'  => 'Ubicación exacta',
+                'type'   => 'locationpicker',
+                'lngField' => 'lng',
+                'height' => 300,
+                'span'   => 'full',
+                'comment' => 'Se muestra en la página de contacto. Usa «Mi ubicación» o toca el mapa.',
+            ];
+            $config->fields['lng'] = [
+                'label'  => 'Longitud',
+                'type'   => 'text',
+                'span'   => 'full',
+                'containerAttributes' => ['style' => 'display:none'],
+            ];
+        } else {
+            $config->fields['lat'] = ['label' => 'Latitud', 'type' => 'number', 'span' => 'left', 'placeholder' => '-17.783333', 'step' => 'any'];
+            $config->fields['lng'] = ['label' => 'Longitud', 'type' => 'number', 'span' => 'right', 'placeholder' => '-63.182222', 'step' => 'any'];
+        }
+
+        // El mapa no admite «deshabilitar» (es un widget con JS): sin dirección física se oculta.
+        foreach (['lat', 'lng'] as $f) {
+            $config->fields[$f]['trigger'] = ['action' => 'hide', 'field' => 'no_physical_address', 'condition' => 'checked'];
+        }
 
         $widget = $this->makeWidget(Form::class, $config);
         $widget->bindToController();

@@ -23,13 +23,18 @@ class ContactSection extends ComponentBase
         ];
     }
 
-    public function onRun(): void
+    public function onRun()
     {
         $host = request()->getHost();
         $this->tenant = Tenant::resolveFromDomain($host);
         if (!$this->tenant) return;
 
         $this->contactConfig = ContactConfig::where('tenant_id', $this->tenant->id)->first();
+
+        // Área de contacto apagada: la página no existe para el visitante.
+        if ($this->contactConfig && !$this->contactConfig->contact_enabled) {
+            return $this->controller->run('404');
+        }
     }
 
     public function onSend(): array
@@ -42,6 +47,10 @@ class ContactSection extends ComponentBase
         }
 
         $this->contactConfig = ContactConfig::where('tenant_id', $this->tenant->id)->first();
+
+        if (!$this->contactConfig?->contact_enabled) {
+            return ['#contact-response' => '<p class="text-red-400">El área de contacto no está disponible.</p>'];
+        }
 
         if (!$this->contactConfig?->form_enabled) {
             return ['#contact-response' => '<p class="text-red-400">El formulario no está disponible.</p>'];

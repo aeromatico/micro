@@ -78,10 +78,29 @@ tabs:
                 condition: value[code]
 
         is_published:
-            label: Publicado
-            type: checkbox
+            label: Mostrar como público
+            type: switch
             default: true
+            comment: "Apagada, la página no se ve en el sitio (responde 404)."
             tab: Contenido
+
+        show_in_menu:
+            label: Incluir en menús
+            type: switch
+            default: false
+            tab: Contenido
+
+        menu_positions:
+            label: Posiciones de menú
+            type: checkboxlist
+            span: full
+            options: getMenuPositionsOptions
+            comment: "Dónde aparece la página. Cada tema decide cómo pinta cada posición."
+            tab: Contenido
+            trigger:
+                action: show
+                field: show_in_menu
+                condition: checked
 
         og_image:
             label: Imagen destacada (OG Image)

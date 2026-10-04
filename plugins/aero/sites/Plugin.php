@@ -554,6 +554,20 @@ class Plugin extends PluginBase
         ];
     }
 
+    /** Para los temas: {% if contact_enabled() %}. Resuelve el tenant por el dominio del request. */
+    public function registerMarkupTags(): array
+    {
+        return [
+            'functions' => [
+                'contact_enabled' => function () {
+                    $tenant = \Aero\Sites\Models\Tenant::resolveFromDomain(request()->getHost());
+
+                    return $tenant ? \Aero\Sites\Models\ContactConfig::isEnabledFor($tenant->id) : false;
+                },
+            ],
+        ];
+    }
+
     public function registerComponents(): array
     {
         return [

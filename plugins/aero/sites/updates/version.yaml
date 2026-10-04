@@ -341,3 +341,15 @@
 1.50.0:
     - "Otorga a tenant_admin la pantalla 'Motor del sitio' de Aero.WpFlash (WordPress Flash): activar/desactivar el childsite de WordPress y ver sus credenciales."
     - grant_wpflash_to_tenant_admin.php
+
+1.51.0:
+    - "Contacto: switch «No tiene una dirección física» (negocios digitales, oculta dirección y mapa), ciudad y departamento de Bolivia por separado de la dirección."
+    - add_location_fields_to_contact_configs.php
+
+1.52.0:
+    - "Contacto: interruptor para activar/desactivar el área de contacto en el sitio (página, enlaces y envío de mensajes). Activado por defecto."
+    - add_contact_enabled_to_contact_configs.php
+
+1.53.0:
+    - "Páginas: interruptor «Mostrar como público» (is_published) e «Incluir en menús» con posiciones: top, navbar (menú principal), sidebar (menú móvil) y footer. Las páginas existentes conservan navbar, sidebar y footer."
+    - add_menu_fields_to_pages.php
