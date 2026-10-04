@@ -241,4 +241,4 @@ Report the full directory tree created, the migration output, and confirm the me
 - Public API → `/october-api`
 - Background/async work → `/october-job`
 - Cross-plugin reaction to a platform event → `/october-event` (name new events `aero.{plugin_lower}.{eventInPastTense}`, mirroring `aero.pay.paymentReceived`, `aero.connector.beforeRun`/`afterRun`)
-- Once the plugin has real backend screens, run `/docs` (or let `docs-agent` pick it up) so `/docs/estructura.md` and `docs/skills/backend.md` stay in sync
+- Once the plugin has real backend screens, run `/docs` (or let `docs-agent` pick it up) so `/www/wwwroot/docs-platform/estructura.md` and `/www/wwwroot/docs-platform/skills/backend.md` stay in sync

@@ -19,24 +19,24 @@ Manage project documentation in /docs — audit, update, validate, or sync.
 
 ### `audit` — Full documentation audit
 
-Read all files in `docs/` then check against the actual project:
+Read all files in `/www/wwwroot/docs-platform/` then check against the actual project:
 
-1. **Verify environment info** (`docs/entorno.md`):
+1. **Verify environment info** (`/www/wwwroot/docs-platform/entorno.md`):
    - Run `ls /www/server/php/84/bin/php` — confirm path is correct
    - Run `/www/server/php/84/bin/php --version` — confirm PHP version
    - Run `/www/server/php/84/bin/php artisan --version` — confirm Laravel version
    - Run `redis-cli --version` — confirm Redis version
    - Confirm Nginx vhost path exists
 
-2. **Verify plugins** (`docs/estructura.md`):
+2. **Verify plugins** (`/www/wwwroot/docs-platform/estructura.md`):
    - Run `find /www/wwwroot/micro.clouds.com.bo/plugins -name "Plugin.php" | grep -v fixtures`
    - Compare with what's documented
 
-3. **Verify skills** (`docs/skills/README.md`):
+3. **Verify skills** (`/www/wwwroot/docs-platform/skills/README.md`):
    - Run `ls /www/wwwroot/micro.clouds.com.bo/.claude/commands/`
    - Confirm all skills in README match actual files
 
-4. **Verify theme** (`docs/estructura.md`):
+4. **Verify theme** (`/www/wwwroot/docs-platform/estructura.md`):
    - Run `ls /www/wwwroot/micro.clouds.com.bo/themes/`
    - Confirm active theme matches `ACTIVE_THEME` in `.env`
 
@@ -51,10 +51,10 @@ Report: what's correct, what's outdated, what's missing.
 
 ### `update <target>` — Update specific doc
 
-If target is `entorno`: update `docs/entorno.md` with current server state.
-If target is `stack`: update `docs/stack.md` with current dependency versions.
-If target is `estructura`: update `docs/estructura.md` with current project tree.
-If target is `skills` or `commands`: regenerate `docs/skills/README.md` table from actual `.claude/commands/` files.
+If target is `entorno`: update `/www/wwwroot/docs-platform/entorno.md` with current server state.
+If target is `stack`: update `/www/wwwroot/docs-platform/stack.md` with current dependency versions.
+If target is `estructura`: update `/www/wwwroot/docs-platform/estructura.md` with current project tree.
+If target is `skills` or `commands`: regenerate `/www/wwwroot/docs-platform/skills/README.md` table from actual `.claude/commands/` files.
 If target is a filename: read and update that specific doc.
 
 Always:
@@ -69,11 +69,11 @@ Always:
 ### `sync` — Sync all docs with code
 
 Systematically go through each doc and bring it up to date:
-1. `docs/entorno.md` — re-verify all paths, versions, commands
-2. `docs/stack.md` — re-verify versions from composer.json and package.json
-3. `docs/estructura.md` — re-verify directory structure
-4. `docs/skills/README.md` — re-count and re-list skills
-5. `docs/workflows.md` — verify all commands work
+1. `/www/wwwroot/docs-platform/entorno.md` — re-verify all paths, versions, commands
+2. `/www/wwwroot/docs-platform/stack.md` — re-verify versions from composer.json and package.json
+3. `/www/wwwroot/docs-platform/estructura.md` — re-verify directory structure
+4. `/www/wwwroot/docs-platform/skills/README.md` — re-count and re-list skills
+5. `/www/wwwroot/docs-platform/workflows.md` — verify all commands work
 
 Report what changed.
 
@@ -106,7 +106,7 @@ Run:
 ```bash
 find /www/wwwroot/micro.clouds.com.bo/docs -name "*.md" | wc -l
 find /www/wwwroot/micro.clouds.com.bo/.claude/commands -name "*.md" | wc -l
-wc -l /www/wwwroot/micro.clouds.com.bo/docs/**/*.md 2>/dev/null || find /www/wwwroot/micro.clouds.com.bo/docs -name "*.md" -exec wc -l {} +
+wc -l /www/wwwroot/docs-platform/**/*.md 2>/dev/null || find /www/wwwroot/micro.clouds.com.bo/docs -name "*.md" -exec wc -l {} +
 ```
 
 ---
