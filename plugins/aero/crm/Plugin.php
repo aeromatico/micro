@@ -23,6 +23,20 @@ class Plugin extends PluginBase
             ->name('aero-crm-cobranza-reminders');
     }
 
+    /** Para los temas: {% if tickets_enabled() %}. Resuelve el tenant por el dominio del request. */
+    public function registerMarkupTags(): array
+    {
+        return [
+            'functions' => [
+                'tickets_enabled' => function () {
+                    $tenant = \Aero\Sites\Models\Tenant::resolveFromDomain(request()->getHost());
+
+                    return $tenant && \Aero\Crm\Models\CrmSettings::ticketsEnabledFor($tenant->id);
+                },
+            ],
+        ];
+    }
+
     public function registerComponents(): array
     {
         return [

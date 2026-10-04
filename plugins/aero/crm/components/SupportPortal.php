@@ -1,5 +1,6 @@
 <?php namespace Aero\Crm\Components;
 
+use Aero\Crm\Models\CrmSettings;
 use Aero\Crm\Models\Department;
 use Aero\Crm\Models\Ticket;
 use Aero\Crm\Models\TicketReply;
@@ -51,7 +52,7 @@ class SupportPortal extends ComponentBase
     public function onRun()
     {
         $this->tenant = Tenant::resolveFromDomain(request()->getHost());
-        if (!$this->tenant) {
+        if (!$this->tenant || !CrmSettings::ticketsEnabledFor($this->tenant->id)) {
             return $this->controller->run('404');
         }
 
@@ -86,7 +87,7 @@ class SupportPortal extends ComponentBase
             $this->user = \Auth::getUser();
         }
 
-        return (bool) $this->tenant;
+        return $this->tenant && CrmSettings::ticketsEnabledFor($this->tenant->id);
     }
 
     protected function baseQuery()
