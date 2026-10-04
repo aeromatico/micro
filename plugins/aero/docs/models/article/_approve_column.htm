@@ -1,0 +1,5 @@
+<?php if ($record->has_pending): ?>
+    <button type="button" class="btn btn-success btn-sm" data-request="onApprovePending"
+        data-request-data="record_id: <?= (int) $record->id ?>, from_list: 1"
+        data-request-confirm="¿Aprobar los cambios de «<?= e($record->title) ?>»? Se publican como una versión nueva.">Aprobar</button>
+<?php endif ?>

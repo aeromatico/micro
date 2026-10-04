@@ -43,6 +43,10 @@ class Articles extends Controller
         $article->approvePending();
         \Flash::success('Cambios aprobados. El artículo ya muestra el contenido nuevo.');
 
+        if (post('from_list')) {
+            return $this->listRefresh();
+        }
+
         return \Backend::redirect('aero/docs/articles/update/' . $article->id);
     }
 

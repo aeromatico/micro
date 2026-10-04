@@ -34,7 +34,10 @@ columns:
     updated_at:
         label: Actualizado
         type: datetime
-    has_pending:
+    pending_action:
         label: Cambios pendientes
-        type: switch
+        type: partial
+        path: $/aero/docs/models/article/_approve_column.htm
         sortable: false
+        searchable: false
+        width: 110px
