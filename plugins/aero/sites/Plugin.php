@@ -565,6 +565,11 @@ class Plugin extends PluginBase
                     return $tenant ? \Aero\Sites\Models\ContactConfig::isEnabledFor($tenant->id) : false;
                 },
             ],
+            // Uso: {{ page.content | aeroDynamic | raw }} — resuelve los marcadores
+            // data-aero-dynamic (ver Classes\DynamicSources).
+            'filters' => [
+                'aeroDynamic' => fn ($html) => \Aero\Sites\Classes\DynamicSources::render((string) $html),
+            ],
         ];
     }
 

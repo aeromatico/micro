@@ -160,12 +160,14 @@ $safeJson = $puckJson
             }
             var existingData = <?= $puckJson ?: 'null' ?>;
             var siteUrl = <?= $siteUrl ? json_encode($siteUrl) : 'null' ?>;
+            var dynamicSources = <?= json_encode($dynamicSources, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
             window.AeroPuckEditor.init(
                 '<?= $editorId ?>',
                 '<?= $puckDataId ?>',
                 '<?= $contentId ?>',
                 existingData,
-                siteUrl
+                siteUrl,
+                dynamicSources
             );
 
             // Flush pending (debounced) editor data before the form serializes,

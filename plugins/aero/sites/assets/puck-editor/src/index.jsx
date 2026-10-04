@@ -3,12 +3,29 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { Puck, Render, Button } from '@puckeditor/core';
 import '@puckeditor/core/puck.css';
-import { components, categories } from './components';
+import { components, categories, DynamicBlock } from './components';
 
-const config = {
-  components,
-  categories,
-};
+// Config de Puck. El bloque «Contenido dinámico» toma sus fuentes del servidor
+// (DynamicSources::forEditor). Sin fuentes, el bloque no se ofrece.
+function buildConfig(sources) {
+  const list = Array.isArray(sources) ? sources : [];
+  if (!list.length) {
+    const { DynamicBlock: _unused, ...rest } = components;
+    return { components: rest, categories };
+  }
+  const labelOf = (value) => (list.find((s) => s.value === value) || {}).label || value;
+  const dynamic = {
+    ...DynamicBlock,
+    fields: { source: { ...DynamicBlock.fields.source, options: list } },
+    render: (props) => DynamicBlock.render({ ...props, label: labelOf(props.source) }),
+  };
+  return {
+    components: { ...components, DynamicBlock: dynamic },
+    categories: { ...categories, dynamic: { title: 'Dinámico', components: ['DynamicBlock'] } },
+  };
+}
+
+let config = buildConfig([]);
 
 function generateHtml(data) {
   const container = document.createElement('div');
@@ -63,9 +80,11 @@ function normalizeIds(data) {
 window.AeroPuckEditor = {
   instances: {},
 
-  init(containerId, puckDataId, contentId, existingData, siteUrl) {
+  init(containerId, puckDataId, contentId, existingData, siteUrl, dynamicSources) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    config = buildConfig(dynamicSources);
 
     // Evita montar dos veces el mismo editor (ej. si el partial se vuelve a
     // ejecutar) — createRoot() sobre un contenedor ya montado duplica el render.
@@ -96,15 +115,18 @@ window.AeroPuckEditor = {
 
     const syncData = debounce(writeToDom, 400);
 
-    // Triggers the same form submit as the "Guardar" button. The form uses
-    // October's data-request, so this performs the AJAX save (onSaveIndex).
+    // Dispara el mismo guardado que el botón «Guardar» de October. Ese botón
+    // tiene data-request="onSave" (AJAX): un form.requestSubmit() nativo no
+    // guarda nada, October lo trata como una visita y re-renderiza la página.
+    // La barra de acciones vive fuera del <form>, por eso se busca en el documento.
     const submitForm = () => {
       if (!form) return;
-      if (typeof form.requestSubmit === 'function') {
+      const save = Array.from(document.querySelectorAll('[data-request="onSave"]'))
+        .find((btn) => btn.getAttribute('data-tooltip-text') === 'Guardar');
+      if (save) {
+        save.click();
+      } else if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
-      } else {
-        const submit = form.querySelector('button[type="submit"]');
-        if (submit) submit.click();
       }
     };
 

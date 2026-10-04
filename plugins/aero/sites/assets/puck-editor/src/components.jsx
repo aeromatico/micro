@@ -2089,6 +2089,24 @@ export const Badge = {
   },
 };
 
+// Marcador de contenido dinámico: el HTML guardado solo lleva
+// <div data-aero-dynamic="fuente">. Al mostrar la página, el servidor lo
+// reemplaza por el contenido vivo (Classes\DynamicSources). Las fuentes
+// disponibles llegan del servidor y las arma index.jsx (buildConfig).
+export const DynamicBlock = {
+  label: 'Contenido dinámico',
+  desc: 'Muestra contenido que se actualiza solo, como la carta del restaurante. Se llena al ver la página publicada.',
+  fields: {
+    source: { type: 'select', label: 'Contenido', options: [] },
+  },
+  defaultProps: { source: '' },
+  render: ({ source, label }) => (
+    <div data-aero-dynamic={source || ''} className="rounded-brand border-2 border-dashed border-surface-border p-6 text-center text-sm text-ink-muted">
+      {source ? `Contenido dinámico: ${label}` : 'Contenido dinámico: elige una fuente'}
+    </div>
+  ),
+};
+
 // Convierte "Texto | URL" (una por línea) en [{label, url}] — mismo patrón
 // que parsePlanFeatures() en Pricing, reutilizado para enlaces de FAQ.
 function parseFaqLinks(text) {
@@ -4180,6 +4198,7 @@ export const components = {
   Divider,
   Banner,
   Badge,
+  DynamicBlock,
   FAQ,
   Tabs,
   Testimonials,

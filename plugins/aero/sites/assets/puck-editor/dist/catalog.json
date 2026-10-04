@@ -1049,6 +1049,17 @@
       }
     }
   },
+  "DynamicBlock": {
+    "label": "Contenido dinámico",
+    "desc": "Muestra contenido que se actualiza solo, como la carta del restaurante. Se llena al ver la página publicada.",
+    "fields": {
+      "source": {
+        "type": "select",
+        "label": "Contenido",
+        "options": []
+      }
+    }
+  },
   "FAQ": {
     "label": "FAQ (Preguntas frecuentes)",
     "desc": "Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 10 variantes de layout real.",

@@ -353,3 +353,11 @@
 1.53.0:
     - "Páginas: interruptor «Mostrar como público» (is_published) e «Incluir en menús» con posiciones: top, navbar (menú principal), sidebar (menú móvil) y footer. Las páginas existentes conservan navbar, sidebar y footer."
     - add_menu_fields_to_pages.php
+
+1.54.0:
+    - "El rol tenant_admin recibe aero.oauth.use (vincular su cuenta de Google)."
+    - grant_oauth_to_tenant_admin.php
+
+1.55.0:
+    - "El rol tenant_admin recibe aero.sheets.use (sincronizar sus datos con Google Sheets)."
+    - grant_sheets_to_tenant_admin.php

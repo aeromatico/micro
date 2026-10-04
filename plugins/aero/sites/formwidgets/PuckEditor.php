@@ -46,6 +46,7 @@ class PuckEditor extends FormWidgetBase
         // oculta responde 404, así que el botón no se muestra.
         $page = $this->model;
         $pageIsPublic = $page->exists && (bool) $page->is_published;
+        $this->vars['dynamicSources'] = \Aero\Sites\Classes\DynamicSources::forEditor();
         $this->vars['siteUrl'] = $tenant && $pageIsPublic
             ? rtrim('https://' . $tenant->primary_domain . '/' . trim((string) $page->slug, '/'), '/')
             : null;
