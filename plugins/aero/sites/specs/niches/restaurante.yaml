@@ -25,7 +25,7 @@ default_pages:
     layout: default
     is_published: true
     sort_order: 3
-  - title: "Contacto y Reservas"
+  - title: "Contacto"
     slug: "contacto"
     layout: contact
     is_published: true
