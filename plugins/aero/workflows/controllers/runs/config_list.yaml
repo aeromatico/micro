@@ -1,0 +1,9 @@
+title: Ejecuciones
+list: $/aero/workflows/models/run/columns.yaml
+modelClass: Aero\Workflows\Models\Run
+recordUrl: aero/workflows/runs/preview/:id
+noRecordsMessage: Aún no hay ejecuciones.
+recordsPerPage: 30
+defaultSort:
+    column: id
+    direction: desc

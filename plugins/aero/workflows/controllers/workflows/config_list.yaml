@@ -1,0 +1,10 @@
+title: Workflows
+list: $/aero/workflows/models/workflow/columns.yaml
+modelClass: Aero\Workflows\Models\Workflow
+recordUrl: aero/workflows/workflows/update/:id
+noRecordsMessage: No hay workflows.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

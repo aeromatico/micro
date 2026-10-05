@@ -1,0 +1,6 @@
+1.0.0:
+    - "Primera versión: workflows (grafo de nodos), ejecuciones y pasos."
+    - create_workflows_tables.php
+1.0.1:
+    - "Acción facturable workflows.run en Aero.Credits (si está instalado)."
+    - seed_workflows_credit_action.php
