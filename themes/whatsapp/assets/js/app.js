@@ -47,6 +47,7 @@
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
             banForm: { hours: '' }, banBusy: false,
+            lcSettings: { enabled: false, account_id: '', to: '' }, lcAccounts: [], lcBusy: false,
             crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
@@ -474,6 +475,26 @@
                     await this.api('/livechat/conversations/' + c.id + '/finish', { method: 'POST' });
                     this.notify('Conversación finalizada'); this.loadMsgs(false);
                 } catch (e) { this.notify(e.message); }
+            },
+            get hasLivechat() { return this.accounts.some(function (a) { return a.platform === 'livechat'; }); },
+            async openLcSettings() {
+                try {
+                    var d = await this.api('/livechat/settings');
+                    this.lcAccounts = d.accounts || [];
+                    this.lcSettings = { enabled: !!d.settings.enabled, account_id: d.settings.account_id || '', to: d.settings.to || '' };
+                    this.sheet = 'lcsettings';
+                } catch (e) { this.notify(e.status === 403 ? 'No tienes permiso para configurar esto.' : e.message); }
+            },
+            async saveLcSettings() {
+                if (this.lcBusy) return;
+                this.lcBusy = true;
+                try {
+                    var d = await this.api('/livechat/settings', { method: 'POST', body: { enabled: this.lcSettings.enabled, account_id: this.lcSettings.account_id || null, to: this.lcSettings.to } });
+                    this.lcSettings = { enabled: !!d.settings.enabled, account_id: d.settings.account_id || '', to: d.settings.to || '' };
+                    this.notify(d.settings.enabled ? 'Retransmisión a WhatsApp activada' : 'Retransmisión a WhatsApp desactivada');
+                    this.sheet = '';
+                } catch (e) { this.notify(e.message); }
+                finally { this.lcBusy = false; }
             },
             openBan: function () { this.banForm = { hours: '' }; this.sheet = 'ban'; },
             async submitBan(permanent) {
