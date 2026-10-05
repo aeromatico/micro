@@ -133,3 +133,7 @@
 
 1.8.2:
     - "Nodos para Aero.Workflows: «Tienda › Menú de categorías» y «Tienda › Productos de una categoría» (se entienden entre sí por el número del menú)."
+
+1.9.0:
+    - "Compra por chat: carrito y última lista mostrada por cliente (tabla aero_shop_chat_sessions) para los nodos de Workflows «Buscar productos», «Agregar al pedido», «Ver o editar pedido» y «Confirmar pedido»."
+    - create_chat_sessions_table.php

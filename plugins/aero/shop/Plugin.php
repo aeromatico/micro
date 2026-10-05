@@ -158,7 +158,7 @@ class Plugin extends PluginBase
     protected function bootWorkflowsIntegration(): void
     {
         Event::listen('aero.workflows.registerNodes', function () {
-            return \Aero\Shop\Classes\Workflows\CatalogNodes::definitions();
+            return \Aero\Shop\Classes\Workflows\CatalogNodes::definitions() + \Aero\Shop\Classes\Workflows\OrderNodes::definitions();
         });
     }
 

@@ -2,67 +2,11 @@
 
 use Aero\Shop\Classes\Workflows\CatalogNodes;
 use Illuminate\Support\Facades\DB;
-use PluginTestCase;
 
-class CatalogNodesTest extends PluginTestCase
+require_once __DIR__ . '/ShopTestCase.php';
+
+class CatalogNodesTest extends ShopTestCase
 {
-    /**
-     * Shop requiere Aero.Sites (y éste a RainLab.User): arrancarlos en el
-     * harness exige tablas ajenas. Los nodos solo necesitan las tablas de la
-     * tienda, así que no se registra ningún plugin: se corren las migraciones
-     * propias de shop (salvo seeds de demo) sobre SQLite en memoria.
-     */
-    protected $autoRegister = false;
-
-    /** Migran los módulos de October (system_settings, etc.) pero no los plugins. */
-    protected function migrateCurrentPlugin()
-    {
-    }
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        // Tabla mínima de tenants para satisfacer las claves foráneas de la tienda.
-        \Schema::create('aero_sites_tenants', function ($t) {
-            $t->id();
-            $t->string('name')->nullable();
-            $t->timestamp('deleted_at')->nullable();
-        });
-        DB::table('aero_sites_tenants')->insert([['id' => 1, 'name' => 'Uno'], ['id' => 2, 'name' => 'Dos']]);
-
-        $versions = \Symfony\Component\Yaml\Yaml::parseFile(__DIR__ . '/../updates/version.yaml');
-
-        foreach ($versions as $entries) {
-            foreach ((array) $entries as $entry) {
-                if (!is_string($entry) || !str_ends_with($entry, '.php') || preg_match('/^(seed|attach)_/', $entry)) {
-                    continue;
-                }
-
-                $migration = require __DIR__ . '/../updates/' . $entry;
-                $migration->up();
-            }
-        }
-    }
-
-    protected function collection(int $tenant, string $name, int $sort = 0, ?int $parent = null, bool $active = true): int
-    {
-        return DB::table('aero_shop_collections')->insertGetId([
-            'tenant_id' => $tenant, 'parent_id' => $parent, 'name' => $name, 'slug' => \Str::slug($name),
-            'is_active' => $active, 'sort_order' => $sort, 'created_at' => now(), 'updated_at' => now(),
-        ]);
-    }
-
-    protected function product(int $tenant, ?int $collection, string $name, float $price = 10, string $status = 'active', bool $internal = false): int
-    {
-        return DB::table('aero_shop_products')->insertGetId([
-            'tenant_id' => $tenant, 'collection_id' => $collection, 'type' => 'physical', 'name' => $name,
-            'slug' => \Str::slug($name) . '-' . uniqid(), 'base_price' => $price, 'status' => $status,
-            'is_internal' => $internal, 'track_inventory' => false, 'stock_quantity' => 0, 'has_variants' => false,
-            'created_at' => now(), 'updated_at' => now(),
-        ]);
-    }
-
     protected function seedStore(): array
     {
         $entradas = $this->collection(1, 'Entradas', 1);

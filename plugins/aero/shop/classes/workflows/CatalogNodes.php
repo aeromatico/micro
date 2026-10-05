@@ -89,11 +89,35 @@ class CatalogNodes
             ];
         }
 
+        static::remember($data, $ctx, $tenantId, [
+            'type'  => 'categories',
+            'items' => array_map(fn ($i) => ['n' => $i['n'], 'id' => $i['id'], 'name' => $i['name']], $items),
+        ]);
+
         return [
             'output' => ['found' => true, 'count' => count($items), 'items' => $items, 'text' => static::menuText($items, $data)],
             'handle' => 'found',
             'var'    => $var,
         ];
+    }
+
+    /**
+     * Guarda la última lista mostrada al cliente para entender su «2» después.
+     * Sin cliente identificable (pruebas manuales) no hace nada: los nodos
+     * siguen funcionando con el menú recalculado.
+     */
+    public static function remember(array $data, array $ctx, int $tenantId, array $list): void
+    {
+        try {
+            $contact = ChatContact::resolve($data, $ctx, $tenantId);
+
+            if ($contact) {
+                \Aero\Shop\Models\ChatSession::forContact($tenantId, $contact['key'])->remember($list);
+            }
+        }
+        catch (\Throwable $e) {
+            // Recordar es una ayuda, nunca debe romper el nodo.
+        }
     }
 
     /**
@@ -184,7 +208,7 @@ class CatalogNodes
         }
         else {
             $choice = trim((string) ($data['category'] ?? '')) ?: static::messageText($ctx);
-            $category = static::resolveCategory($tenantId, $choice, $ctx, $menuOptions, $linked['var']);
+            $category = static::resolveCategory($tenantId, $choice, $ctx, $menuOptions, $linked['var'], $data);
         }
 
         if (!$category) {
@@ -242,6 +266,12 @@ class CatalogNodes
             ];
         }
 
+        static::remember($data, $ctx, $tenantId, [
+            'type'     => 'products',
+            'category' => (int) $category->id,
+            'items'    => array_map(fn ($i) => ['n' => $i['n'], 'id' => $i['id'], 'name' => $i['name']], $items),
+        ]);
+
         return [
             'output' => [
                 'found' => true, 'count' => count($items), 'total' => $all->count(), 'items' => $items,
@@ -272,7 +302,7 @@ class CatalogNodes
      * Qué categoría quiso decir el cliente: un número del menú, el nombre
      * (sin importar mayúsculas ni tildes) o el código (slug).
      */
-    protected static function resolveCategory(int $tenantId, string $choice, array $ctx, array $menuOptions, string $menuVar): ?Collection
+    protected static function resolveCategory(int $tenantId, string $choice, array $ctx, array $menuOptions, string $menuVar, array $data = []): ?Collection
     {
         $choice = trim($choice);
 
@@ -284,7 +314,18 @@ class CatalogNodes
         // misma ejecución se usa tal cual; si no, se reconstruye igual que el nodo.
         if (preg_match('/^\s*(\d{1,3})\s*[.)\-]?\s*$/u', $choice, $m)) {
             $items = $ctx['vars'][$menuVar]['items'] ?? null;
-            $items = is_array($items) && $items ? $items : static::menu($tenantId, $menuOptions);
+
+            if (!is_array($items) || !$items) {
+                $remembered = static::rememberedList($data, $ctx, $tenantId);
+
+                // Si lo último que vio el cliente NO fue un menú de categorías (p. ej. una lista de
+                // productos), su número no es de categoría: se deja pasar al siguiente nodo.
+                if ($remembered && ($remembered['type'] ?? null) !== 'categories') {
+                    return null;
+                }
+
+                $items = $remembered ? (array) $remembered['items'] : static::menu($tenantId, $menuOptions);
+            }
 
             foreach ($items as $item) {
                 if ((int) ($item['n'] ?? 0) === (int) $m[1]) {
@@ -298,8 +339,21 @@ class CatalogNodes
         return static::findCollection($tenantId, $choice);
     }
 
+    /** La última lista que este cliente vio (categorías, productos, variantes), si no caducó. */
+    protected static function rememberedList(array $data, array $ctx, int $tenantId): array
+    {
+        try {
+            $contact = ChatContact::resolve($data, $ctx, $tenantId);
+
+            return $contact ? \Aero\Shop\Models\ChatSession::forContact($tenantId, $contact['key'])->getList() : [];
+        }
+        catch (\Throwable $e) {
+            return [];
+        }
+    }
+
     /** Por código exacto, nombre exacto o nombre que contiene / está contenido (sin tildes ni mayúsculas). */
-    protected static function findCollection(int $tenantId, string $text): ?Collection
+    public static function findCollection(int $tenantId, string $text): ?Collection
     {
         $needle = static::normalize($text);
 
@@ -407,7 +461,7 @@ class CatalogNodes
     }
 
     /** Lo que escribió el cliente (mensaje entrante) o el texto de la entrada. */
-    protected static function messageText(array $ctx): string
+    public static function messageText(array $ctx): string
     {
         $trigger = (array) ($ctx['trigger'] ?? []);
 
@@ -421,7 +475,7 @@ class CatalogNodes
     }
 
     /** IDs de la categoría y de sus subcategorías activas. */
-    protected static function scopeIds(int $tenantId, int $collectionId): array
+    public static function scopeIds(int $tenantId, int $collectionId): array
     {
         $children = Collection::forTenant($tenantId)->where('is_active', true)->where('parent_id', $collectionId)->pluck('id')->all();
 
@@ -433,7 +487,7 @@ class CatalogNodes
         return Product::forTenant($tenantId)->active()->whereIn('collection_id', $collectionIds)->count();
     }
 
-    protected static function currency(int $tenantId): Currency
+    public static function currency(int $tenantId): Currency
     {
         $settings = ShopSettings::forTenant($tenantId)->first();
 
@@ -442,7 +496,7 @@ class CatalogNodes
             ?: new Currency(['symbol' => 'Bs', 'decimal_places' => 2]);
     }
 
-    protected static function requireShop(?int $tenantId): void
+    public static function requireShop(?int $tenantId): void
     {
         if (!$tenantId) {
             throw new \RuntimeException('El nodo de tienda necesita un workflow con cuenta (tenant).');
@@ -455,14 +509,14 @@ class CatalogNodes
         }
     }
 
-    protected static function varName(mixed $value, string $default): string
+    public static function varName(mixed $value, string $default): string
     {
         $name = preg_replace('/[^A-Za-z0-9_]/', '', (string) $value);
 
         return $name !== '' ? $name : $default;
     }
 
-    protected static function truthy(mixed $value, bool $default): bool
+    public static function truthy(mixed $value, bool $default): bool
     {
         if ($value === null || $value === '') {
             return $default;
@@ -471,7 +525,7 @@ class CatalogNodes
         return in_array(strtolower((string) $value), ['1', 'true', 'si', 'sí', 'yes', 'on'], true);
     }
 
-    protected static function normalize(string $text): string
+    public static function normalize(string $text): string
     {
         $text = mb_strtolower(trim($text));
         $text = strtr($text, ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n']);
