@@ -411,7 +411,8 @@
             // ---------- ubicación del operador ----------
             get canLocate() {
                 var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
-                return !!(a && a.capabilities && a.capabilities.location);
+                // El backend decide: pin nativo si la cuenta lo admite, si no, enlace de mapa en texto.
+                return !!a;
             },
             position: function () {
                 return new Promise(function (resolve, reject) {
