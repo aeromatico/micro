@@ -1,0 +1,294 @@
+<!doctype html>
+<!--guide {"title":"Nueva terminal","article":"pos-terminales","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
+  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
+.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--g-surface); border: 1px solid var(--g-line); border-radius: 6px; min-width: 0; color: var(--g-ink); }
+@media (min-width: 940px) { .guide { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--g-line); }
+.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--g-accent); }
+.g-title { font-size: 16px; font-weight: 600; margin: 14px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--g-surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--g-accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--g-ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--g-surface-2); border: 1px solid var(--g-line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--g-accent); }
+.g-nav #gPrev { background: var(--g-accent-soft); color: var(--g-accent); }
+.g-nav #gPrev:hover:not(:disabled) { background: var(--g-accent); color: var(--g-accent-ink); }
+.g-nav #gNext { background: var(--g-accent); color: var(--g-accent-ink); }
+.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
+.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.ghost { border-color: transparent; color: var(--g-accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--g-line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--g-ink-2); }
+.steps button:hover { background: var(--g-surface-2); }
+.steps button[aria-current="step"] { background: var(--g-accent-soft); color: var(--g-ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--g-line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+.steps [aria-current="step"] .dot { border-color: var(--g-accent); color: var(--g-accent); }
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.tabs { display: flex; gap: 2px; padding: 8px 8px 0; border-bottom: 1px solid var(--line); }
+.tab { padding: 8px 14px; border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: 500; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=number], input[type=password], select { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input.err, select.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.sw { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; font-size: 13px; }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Nueva terminal</h1>
+      <div class="crumb" id="crumb">/backend/aero/pos/terminals/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx">context: create · datos de ejemplo, la demo no guarda nada</div>
+      <div class="tabs"><span class="tab">Terminal</span></div>
+      <div class="panel" id="panel"></div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // Campos tomados de models/terminal/fields.yaml y reglas de Terminal.php
+  var EDIT_TITLE = 'Editar terminal', PATH = '/backend/aero/pos/terminals/';
+  var F = [
+    { id: 'name', type: 'text', label: 'Nombre', span: 'left', req: true, min: 2, max: 80,
+      help: 'Ej: Caja principal, Barra, Terraza',
+      title: 'Nombra la terminal', body: 'Es la caja o punto de venta donde se abren turnos. Entre 2 y 80 caracteres.',
+      tip: 'Nómbrala por el lugar físico (Caja principal, Barra), no por la persona que la usa.', ex: 'Caja principal', fillv: 'Caja principal' },
+    { id: 'code', type: 'text', label: 'Código', span: 'right', opt: true, max: 30,
+      re: /^[A-Za-z0-9_-]+$/, reMsg: 'Código solo admite letras, números, guiones y guion bajo.',
+      help: 'Vacío = se genera del nombre',
+      title: 'Código (opcional)', body: 'Identificador corto. Si lo dejas vacío se genera a partir del nombre. Solo letras, números, guiones y guion bajo; máximo 30.',
+      tip: 'Sin espacios ni tildes: «caja 1» no es válido, «caja-1» sí.', ex: 'caja-principal', fillv: 'caja-principal' },
+    { id: 'is_active', type: 'switch', label: 'Activa', span: 'full', def: true,
+      title: 'Activa o no', body: 'Una terminal activa puede abrir turnos. Viene activada por defecto.',
+      tip: 'Desactívala en vez de borrarla si dejas de usarla: conservas el historial de turnos.', ex: 'Activa', fillv: true }
+  ];
+  var state = { step: 0, mode: 'create' };
+
+  function build() {
+    var p = $('#panel');
+    F.forEach(function (f) {
+      var box = document.createElement('div'); box.className = 'field' + (f.span === 'full' ? ' full' : ''); box.setAttribute('data-f', f.id);
+      if (f.type === 'switch') {
+        var l = document.createElement('label'); l.className = 'sw';
+        var c = document.createElement('input'); c.type = 'checkbox'; c.id = f.id; c.checked = !!f.def;
+        l.appendChild(c); l.appendChild(document.createTextNode(f.label)); box.appendChild(l);
+      } else {
+        var lb = document.createElement('label'); lb.className = 'lbl'; lb.setAttribute('for', f.id); lb.textContent = f.label;
+        if (f.req) { var r = document.createElement('span'); r.className = 'req'; r.textContent = '*'; lb.appendChild(r); }
+        box.appendChild(lb);
+        var i;
+        if (f.type === 'select') {
+          i = document.createElement('select'); i.id = f.id;
+          [['', '— seleccionar —']].concat(f.options).forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; i.appendChild(op); });
+        } else {
+          i = document.createElement('input'); i.type = f.type; i.id = f.id; i.autocomplete = 'off';
+          if (f.type === 'number') { i.step = '1'; if (f.min != null) i.min = f.min; if (f.max != null) i.max = f.max; }
+        }
+        if (f.def != null && f.type !== 'switch') i.value = f.def;
+        box.appendChild(i);
+      }
+      if (f.help) { var h = document.createElement('div'); h.className = 'help'; h.textContent = f.help; box.appendChild(h); }
+      var m = document.createElement('div'); m.className = 'errmsg'; m.hidden = true; box.appendChild(m);
+      p.appendChild(box);
+    });
+  }
+  function val(id) { var e = $('#' + id); return e.type === 'checkbox' ? e.checked : (e.value || '').trim(); }
+  function set(id, v) {
+    var e = $('#' + id); if (e.type === 'checkbox') e.checked = !!v; else e.value = v;
+    e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  function check(f) {
+    var v = val(f.id);
+    if (f.type === 'switch') return '';
+    if (f.req && v === '') return 'El campo ' + f.label + ' es obligatorio.';
+    if (v === '') return '';
+    if (f.type === 'number') {
+      if (!/^-?\d+$/.test(v)) return f.label + ' debe ser un número entero.';
+      if (f.min != null && +v < f.min) return f.label + ' debe ser al menos ' + f.min + '.';
+      if (f.max != null && +v > f.max) return f.label + ' no puede ser mayor que ' + f.max + '.';
+    } else {
+      if (f.max && v.length > f.max) return f.label + ' no puede superar ' + f.max + ' caracteres.';
+      if (f.min && v.length < f.min) return f.label + ' debe tener al menos ' + f.min + ' caracteres.';
+    }
+    if (f.re && !f.re.test(v)) return f.reMsg;
+    return '';
+  }
+  function steps() {
+    var s = F.map(function (f) {
+      return { id: f.id, f: f, title: f.title, req: f.req, opt: f.opt, body: f.body, tip: f.tip, ex: f.ex,
+        done: function () { return f.type === 'switch' || f.def != null ? true : (val(f.id) !== '' && !check(f)); } };
+    });
+    s.push({ id: 'save', title: 'Guardar', last: true, body: 'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición.',
+      tip: 'En la app real, «Crear y cerrar» te devuelve a la lista.', ex: '', done: function () { return state.mode === 'update'; } });
+    return s;
+  }
+  var S = steps();
+
+  function render() {
+    var cur = S[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + S.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex;
+      w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) { var n = document.createElement('div'), b = document.createElement('b'); n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    $('#gBar').style.width = Math.round(100 * S.filter(function (x) { return x.done(); }).length / S.length) + '%';
+    $('#gPrev').disabled = state.step === 0; $('#gNext').disabled = state.step === S.length - 1;
+    $('#gFill').hidden = cur.id === 'save' && state.mode === 'update';
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    S.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button'; var ok = s.done(); if (i === state.step) bt.setAttribute('aria-current', 'step'); if (ok) bt.className = 'done';
+      d.className = 'dot'; d.textContent = ok ? '✓' : String(i + 1); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (x) { x.classList.remove('is-guided'); });
+    if (cur.f) { var el = $('[data-f="' + cur.f.id + '"]'); if (el) el.classList.add('is-guided'); }
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(S.length - 1, i)); render();
+    var c = S[state.step];
+    if (scroll !== false && c.f) { var el = $('[data-f="' + c.f.id + '"]'); if (el) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  }
+  function showErr(id, msg) {
+    var box = $('[data-f="' + id + '"]'); if (!box) return;
+    var m = $('.errmsg', box), inp = $('input,select', box);
+    m.hidden = !msg; m.textContent = msg || ''; if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function save(close) {
+    var errs = [];
+    F.forEach(function (f) { var m = check(f); showErr(f.id, m); if (m) errs.push([f, m]); });
+    if (errs.length) { go(F.indexOf(errs[0][0])); flash('No se pudo crear: ' + errs[0][1], true); return; }
+    state.mode = 'update'; $('#h1').textContent = EDIT_TITLE; $('#crumb').textContent = PATH + 'update/7 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    flash(close ? 'Registro creado. En la app real vuelves a la lista.' : 'Registro creado. Ahora estás en la pantalla de edición.'); render();
+  }
+  var ft;
+  function flash(msg, isErr) { var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+
+  build();
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var c = S[state.step]; if (c.id === 'save') save(false); else { set(c.f.id, c.f.fillv); render(); } };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+  $$('.field input, .field select').forEach(function (el) {
+    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); $('.errmsg', el.closest('.field')).hidden = true; } render(); });
+    el.addEventListener('change', render);
+    el.addEventListener('focus', function () {
+      var id = el.closest('.field').getAttribute('data-f'); var idx = S.map(function (s) { return s.id; }).indexOf(id);
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+  render();
+})();
+</script>
+</body></html>
