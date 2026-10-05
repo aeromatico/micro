@@ -40,7 +40,7 @@ class ShopController extends Controller
             return $err;
         }
 
-        return $this->ok($this->state($request, $conv) + ['locations' => \Aero\Chat\Classes\SharedLocations::for($conv)]);
+        return $this->ok($this->state($request, $conv));
     }
 
     /**
@@ -232,7 +232,8 @@ class ShopController extends Controller
     {
         $tenantId = $this->tenantId($request);
         $available = $this->available($tenantId);
-        $out = ['available' => $available];
+        // Las ubicaciones se devuelven siempre (también tras crear un pedido) para que el interruptor no desaparezca.
+        $out = ['available' => $available, 'locations' => \Aero\Chat\Classes\SharedLocations::for($conv)];
 
         if (!$available) {
             return $out;
