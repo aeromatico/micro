@@ -1,12 +1,12 @@
-{# Casos de uso — carrusel horizontal edge-to-edge (se sale del contenedor
+{# Por rubro — carrusel horizontal edge-to-edge (se sale del contenedor
    max-w-6xl hasta el borde del viewport, a diferencia del carrusel contenido
    en domains.htm) alimentado por los servicios activos de la categoría
    "Especializados por rubro" (aero/services, categoría slug "rubros").
    Cada tarjeta abre un modal con el resumen y las funciones del servicio. #}
-<section id="casos-uso" class="py-24 scroll-mt-14 overflow-x-hidden">
+<section id="por-rubro" class="py-24 scroll-mt-14 overflow-x-hidden">
     <div class="max-w-6xl mx-auto px-6 sm:px-10 mb-12">
         <div class="max-w-[600px]">
-            <span class="text-xs tracking-wide text-accent uppercase font-bold">Casos de uso</span>
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Por rubro</span>
             <h2 class="text-3xl sm:text-4xl font-bold mt-3">Un mismo sistema, para cualquier tipo de negocio.</h2>
         </div>
     </div>
@@ -44,7 +44,9 @@
             moved: false,
             startX: 0,
             startScroll: 0,
-            setWidth: 0,
+            period: 0,
+            pos: 0,
+            ready: false,
             resumeTimer: null,
             modalOpen: false,
             modalItem: { name: '', summary: '', features: [], icon: '' },
@@ -58,25 +60,34 @@
                 this.modalOpen = false;
             },
             init() {
-                this.setWidth = this.$refs.track.scrollWidth / 3;
-                this.$refs.track.scrollLeft = this.setWidth;
+                const t = this.$refs.track;
+                const measure = () => {
+                    const n = t.children.length / 3;
+                    this.period = t.children[n].offsetLeft - t.children[0].offsetLeft;
+                    if (!this.ready) { this.pos = this.period; t.scrollLeft = this.pos; this.ready = true; }
+                };
+                measure();
+                window.addEventListener('resize', measure);
+                window.addEventListener('load', measure);
                 requestAnimationFrame(() => this.tick());
             },
             tick() {
-                if (!this.paused) {
-                    this.$refs.track.scrollLeft += 0.6;
+                if (!this.paused && this.period) {
+                    this.pos -= 0.6;
+                    this.$refs.track.scrollLeft = this.pos;
                     this.wrap();
                 }
                 requestAnimationFrame(() => this.tick());
             },
             wrap() {
-                const t = this.$refs.track;
-                if (t.scrollLeft <= this.setWidth * 0.4) {
-                    t.scrollLeft += this.setWidth;
-                    if (this.dragging) this.startScroll += this.setWidth;
-                } else if (t.scrollLeft >= this.setWidth * 1.6) {
-                    t.scrollLeft -= this.setWidth;
-                    if (this.dragging) this.startScroll -= this.setWidth;
+                const p = this.period;
+                let shift = 0;
+                if (this.pos < p * 0.5) shift = p;
+                else if (this.pos >= p * 1.5) shift = -p;
+                if (shift) {
+                    this.pos += shift;
+                    this.$refs.track.scrollLeft = this.pos;
+                    if (this.dragging) this.startScroll += shift;
                 }
             },
             dragStart(e) {
@@ -85,18 +96,20 @@
                 this.paused = true;
                 clearTimeout(this.resumeTimer);
                 this.startX = e.clientX;
-                this.startScroll = this.$refs.track.scrollLeft;
+                this.startScroll = this.pos = this.$refs.track.scrollLeft;
             },
             dragMove(e) {
                 if (!this.dragging) return;
                 const delta = e.clientX - this.startX;
                 if (Math.abs(delta) > 4) this.moved = true;
-                this.$refs.track.scrollLeft = this.startScroll - delta;
+                this.pos = this.startScroll - delta;
+                this.$refs.track.scrollLeft = this.pos;
                 this.wrap();
             },
             dragEnd() {
                 if (!this.dragging) return;
                 this.dragging = false;
+                this.pos = this.$refs.track.scrollLeft;
                 this.resumeTimer = setTimeout(() => this.paused = false, 1500);
             }
         }"
@@ -129,7 +142,7 @@
                         features: [{% for f in item.features %}'{{ f.text|e('js') }}'{% if not loop.last %},{% endif %}{% endfor %}],
                         icon: '{{ icon|e('js') }}'
                     })"
-                    class="text-left shrink-0 w-64 sm:w-72 lg:w-[calc(25%-0.75rem)] flex flex-col gap-3.5 p-6 border border-edge rounded-2xl bg-canvas hover:border-ink-dim hover:bg-canvas-elev2 transition-colors cursor-pointer"
+                    class="text-left shrink-0 w-64 sm:w-72 lg:w-[calc(25%-0.75rem)] flex flex-col gap-3.5 p-6 border border-edge rounded-2xl bg-canvas outline-none focus-visible:ring-1 focus-visible:ring-edge hover:bg-canvas-elev2 transition-colors cursor-pointer"
                 >
                     <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         {% for d in icon|split(' M') %}<path d="{{ loop.first ? d : 'M' ~ d }}"/>{% endfor %}

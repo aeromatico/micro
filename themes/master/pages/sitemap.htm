@@ -22,7 +22,7 @@ function onStart()
     }
 
     foreach (Service::active()->get(['slug', 'updated_at']) as $s) {
-        $urls[] = ['loc' => $host . '/servicio/' . $s->slug, 'lastmod' => optional($s->updated_at)->toAtomString(), 'priority' => '0.7'];
+        $urls[] = ['loc' => $host . '/plugin/' . $s->slug, 'lastmod' => optional($s->updated_at)->toAtomString(), 'priority' => '0.7'];
     }
 
     foreach (ServiceCollection::where('is_active', true)->get(['slug', 'updated_at']) as $c) {

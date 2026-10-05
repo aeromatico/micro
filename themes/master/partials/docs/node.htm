@@ -6,7 +6,7 @@
             <svg class="w-3.5 h-3.5 transition-transform" :class="open && 'rotate-90'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
         </button>
         <a href="{{ node.url }}" class="flex-1 min-w-0 flex items-center gap-2 py-1.5 text-sm font-semibold truncate {{ docs.category.id == node.id and not docs.article ? 'text-accent' : 'text-ink hover:text-accent' }}">
-            {% if node.icon %}<span class="text-base leading-none">{{ node.icon }}</span>{% endif %}
+            <span class="text-ink-dim group-hover:text-accent transition-colors">{% partial 'docs/cat-icon' url=node.url class='w-4 h-4' %}</span>
             <span class="truncate">{{ node.name }}</span>
         </a>
         <span class="text-[11px] text-ink-dim tabular-nums">{{ node.count }}</span>

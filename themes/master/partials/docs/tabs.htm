@@ -1,0 +1,19 @@
+{# Menú especial de Docs & API: une la documentación con la referencia de la API (/api) y el Hub.
+   Uso: {% partial 'docs/tabs' active='docs' %}  (docs | api | hub | elements) #}
+{% set tabs = [
+    {id: 'docs', label: 'Documentación', url: '/docs', icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z'},
+    {id: 'api', label: 'Referencia de API', url: '/api', icon: 'M8 9l-4 3 4 3 M16 9l4 3-4 3 M13.5 6l-3 12'},
+    {id: 'hub', label: 'Hub', url: '/hub', icon: 'M12 2l9 5v10l-9 5-9-5V7l9-5z M12 12l9-5 M12 12v10 M12 12L3 7'},
+    {id: 'elements', label: 'Elementos', url: '/elements/blocks', icon: 'M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z'}
+] %}
+<div class="border-b border-edge bg-canvas">
+    <nav aria-label="Docs y API" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center gap-1 overflow-x-auto whitespace-nowrap [scrollbar-width:none]">
+        {% for t in tabs %}
+        <a href="{{ t.url }}" {% if active == t.id %}aria-current="page"{% endif %}
+           class="inline-flex items-center gap-2 text-sm font-medium px-3 py-3.5 border-b-2 shrink-0 transition-colors {{ active == t.id ? 'text-ink border-accent' : 'text-ink-dim border-transparent hover:text-ink' }}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">{% for d in t.icon|split(' M') %}<path d="{{ loop.first ? d : 'M' ~ d }}"/>{% endfor %}</svg>
+            {{ t.label }}
+        </a>
+        {% endfor %}
+    </nav>
+</div>

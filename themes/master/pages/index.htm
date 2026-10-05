@@ -34,6 +34,11 @@ function onStart()
         ?->services()->active()->get(['aero_services_services.id', 'name', 'slug', 'summary', 'features', 'plans'])
         ->keyBy('slug') ?? collect();
 
+    $this['pluginServices'] = \Aero\Services\Models\Service::active()
+        ->whereDoesntHave('categories', fn ($q) => $q->where('slug', 'rubros'))
+        ->orderBy('sort_order')->orderBy('name')
+        ->get(['aero_services_services.id', 'name', 'slug', 'summary']);
+
     $creditColors = \Aero\Credits\Models\CreditType::pluck('color', 'code');
 
     $this['industryServices'] = collect($industryOrder)->map(function ($slug) use ($bySlug, $creditColors) {
@@ -72,7 +77,9 @@ function onStart()
 
 {% partial 'site/landing/configuracion' %}
 
-{% partial 'site/landing/features' %}
+{% partial 'site/landing/plugins' items=pluginServices %}
+
+{% partial 'site/landing/industry' items=industryServices %}
 
 {% partial 'site/landing/demo' %}
 
@@ -81,10 +88,8 @@ function onStart()
 {% partial 'site/landing/spotlight' %}
 
 {% if collection %}
-    {% partial 'site/_services_collection' collection=collection id='por-rubro' %}
+    {% partial 'site/_services_collection' collection=collection id='coleccion-rubro' %}
 {% endif %}
-
-{% partial 'site/landing/industry' items=industryServices %}
 
 {% partial 'site/landing/payments' %}
 
