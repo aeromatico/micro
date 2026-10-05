@@ -126,3 +126,7 @@
 1.8.0:
     - "Sucursales: la tienda puede tener varias sucursales (interruptor en Configuración). El checkout pide elegir una y el pedido guarda su nombre."
     - add_branches_to_shop.php
+
+1.8.1:
+    - "Pedido con la última ubicación compartida por el cliente en el chat: dirección y ciudad opcionales cuando hay coordenadas."
+    - make_address_line_city_nullable.php

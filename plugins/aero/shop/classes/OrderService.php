@@ -62,7 +62,9 @@ class OrderService
         }
 
         $shipping = $options['shipping'] ?? null;
-        if ($requiresShipping && (empty($shipping['address_line1']) || empty($shipping['city']))) {
+        // Con coordenadas (ubicación compartida) la dirección y la ciudad son opcionales.
+        $hasCoordinates = isset($shipping['latitude'], $shipping['longitude']);
+        if ($requiresShipping && !$hasCoordinates && (empty($shipping['address_line1']) || empty($shipping['city']))) {
             throw new OrderException('Estos productos requieren envío: falta la dirección y la ciudad.');
         }
 
@@ -85,14 +87,14 @@ class OrderService
                 $addressId = Address::create([
                     'tenant_id' => $tenantId, 'customer_id' => $customerModel->id, 'type' => 'shipping',
                     'full_name' => $customerModel->full_name, 'phone' => $customerModel->phone,
-                    'address_line1' => $shipping['address_line1'],
+                    'address_line1' => $shipping['address_line1'] ?? null,
                     // Con coordenadas, el enlace al mapa queda a la vista dondequiera que se muestre la dirección.
                     'address_line2' => $shipping['address_line2']
                         ?? (isset($shipping['latitude'], $shipping['longitude'])
                             ? "📍 https://www.google.com/maps?q={$shipping['latitude']},{$shipping['longitude']}" : null),
                     'latitude' => $shipping['latitude'] ?? null, 'longitude' => $shipping['longitude'] ?? null,
                     'location_label' => $shipping['location_label'] ?? null,
-                    'city' => $shipping['city'], 'state_province' => $shipping['state_province'] ?? null,
+                    'city' => $shipping['city'] ?? null, 'state_province' => $shipping['state_province'] ?? null,
                     'postal_code' => $shipping['postal_code'] ?? null, 'country_code' => strtoupper($shipping['country_code'] ?? 'BO'),
                 ])->id;
             }
