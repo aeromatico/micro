@@ -349,7 +349,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                         </select>
                                     </div>
                                     <div class="prod-actions">
-                                        <label class="check" x-show="shop.locations && shop.locations.length" title="Enviar a la última ubicación que compartió el cliente"><input type="checkbox" x-model="shopForm.useLoc"><span>Ubicación del cliente</span></label>
+                                        <label class="check" x-show="shop.locations && shop.locations.length" title="Enviar a la última ubicación que compartió el cliente"><input type="checkbox" x-model="p._useLoc"><span>Ubicación del cliente</span></label>
                                         <button type="button" class="btn sm" :disabled="!p.in_stock || (p.has_variants && !p._variant)" @click="addToCart(p)" x-text="p.in_stock ? 'Agregar' : 'Agotado'"></button>
                                         <button type="button" class="btn sm" :disabled="cardBusy === p.id" @click="sendCard(p)" title="Enviar foto, precio y enlace de este producto al chat" x-text="cardBusy === p.id ? 'Enviando…' : 'Tarjeta'"></button>
                                     </div>
@@ -369,7 +369,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                 <label class="field" x-show="!shop.customer.phone"><span>Teléfono del cliente</span><input type="tel" x-model="shopForm.phone" placeholder="+591 7…"></label>
                                 <template x-if="shop.locations && shop.locations.length">
                                     <div class="pane-in">
-                                        <div class="muted" x-show="shopForm.useLoc && latestLoc" x-cloak>
+                                        <div class="muted" x-show="cartUsesLoc && latestLoc" x-cloak>
                                             <small x-text="locLabel(latestLoc)"></small>
                                             <a class="media" :href="latestLoc ? latestLoc.url : '#'" target="_blank" rel="noopener">Ver en el mapa</a>
                                         </div>
@@ -378,7 +378,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                                 <template x-if="cartNeedsShipping">
                                     <div class="pane-in">
                                         <label class="field"><span x-text="chosenLoc ? 'Dirección (opcional)' : 'Dirección de envío'"></span><input type="text" x-model="shopForm.addr1" placeholder="Calle, número, zona"></label>
-                                        <label class="field"><span x-text="chosenLoc ? 'Ciudad (opcional)' : 'Ciudad'"></span><input type="text" x-model="shopForm.city"></label>
+                                        <label class="field" x-show="!chosenLoc"><span>Ciudad</span><input type="text" x-model="shopForm.city"></label>
                                     </div>
                                 </template>
                                 <label class="field"><span>Método de pago</span>

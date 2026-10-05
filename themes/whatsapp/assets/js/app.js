@@ -47,7 +47,7 @@
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
             banForm: { hours: '' }, banBusy: false,
-            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, useLoc: false }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
+            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
@@ -705,7 +705,9 @@
             },
             // Solo la última ubicación compartida (la lista llega de la más reciente a la más antigua).
             get latestLoc() { return (this.shop && this.shop.locations || [])[0] || null; },
-            get chosenLoc() { return this.shopForm.useLoc ? this.latestLoc : null; },
+            // Un pedido tiene una sola dirección: usa la ubicación si algún producto del carrito la marcó.
+            get cartUsesLoc() { return this.shopCart.some(function (l) { return l.useLoc; }); },
+            get chosenLoc() { return this.cartUsesLoc ? this.latestLoc : null; },
             get cartNeedsShipping() { return this.shopCart.some(function (l) { return l.shipping; }); },
 
 
@@ -742,14 +744,13 @@
                         if (!this.shopResults.length) this.searchProducts();
                     }
                     // Sin ubicación compartida no hay interruptor: se apaga.
-                    if (!(d.locations || []).length) this.shopForm.useLoc = false;
                 } catch (e) {}
             },
             async searchProducts() {
                 this.shopLoading = true;
                 try {
                     var r = await this.api('/shop/products?q=' + encodeURIComponent(this.shopQ.trim()));
-                    this.shopResults = (r.data || []).map(function (p) { p._variant = 0; return p; });
+                    this.shopResults = (r.data || []).map(function (p) { p._variant = 0; p._useLoc = false; return p; });
                 } catch (e) {}
                 this.shopLoading = false;
             },
@@ -758,14 +759,16 @@
                 if (p.has_variants && !v) return;
                 var key = p.id + '-' + (v ? v.id : 0), line = this.shopCart.find(function (l) { return l.key === key; });
                 if (line) line.qty++;
-                else this.shopCart.push({ key: key, product_id: p.id, variant_id: v ? v.id : null, name: p.name, variantLabel: v ? v.label : '', price: v ? v.price : p.price, qty: 1, shipping: p.requires_shipping });
+                if (line) line.useLoc = line.useLoc || !!p._useLoc;
+                else this.shopCart.push({ key: key, product_id: p.id, variant_id: v ? v.id : null, name: p.name, variantLabel: v ? v.label : '', price: v ? v.price : p.price, qty: 1, shipping: p.requires_shipping, useLoc: !!p._useLoc });
             },
             cartQty: function (i, d) { var l = this.shopCart[i]; l.qty += d; if (l.qty < 1) this.shopCart.splice(i, 1); },
             // Con la ubicación compartida, sus coordenadas tienen prioridad; dirección y ciudad solo se envían si se escribieron.
             shippingPayload: function () {
                 var f = this.shopForm, loc = this.chosenLoc, s = { country_code: 'BO' };
                 if (f.addr1.trim()) s.address_line1 = f.addr1.trim();
-                if (f.city.trim()) s.city = f.city.trim();
+                // Con ubicación no se pide ciudad: la dirección queda solo como aclaración.
+                if (!loc && f.city.trim()) s.city = f.city.trim();
                 if (loc) Object.assign(s, { latitude: loc.lat, longitude: loc.lng, location_label: loc.label });
                 return s;
             },
@@ -786,7 +789,7 @@
                     var json = await res.json().catch(function () { return {}; });
                     if (res.status === 401) { this.logout(false); return; }
                     if (!res.ok && res.status !== 207) throw { message: json.message || 'No se pudo crear el pedido.' };
-                    this.shop = json.data; this.shopCart = []; f.notes = ''; f.addr1 = ''; f.city = ''; f.useLoc = false;
+                    this.shop = json.data; this.shopCart = []; f.notes = ''; f.addr1 = ''; f.city = ''; this.shopResults.forEach(function (p) { p._useLoc = false; });
                     this.notify(res.status === 207 ? 'Pedido creado, pero no se pudo enviar: ' + json.data.send_error : 'Pedido creado y enviado al cliente', res.status === 207 ? 8000 : 3200);
                     this.loadMsgs(false); this.searchProducts();
                 } catch (e) { this.notify(e.message, 8000); }
@@ -841,7 +844,8 @@
                     t = t.replace(/```([\s\S]+?)```/g, function (_, c) { code.push('<pre>' + c.replace(/^\n|\n$/g, '') + '</pre>'); return '\u0000' + (code.length - 1) + '\u0000'; });
                     t = t.replace(/`([^`\n]+)`/g, function (_, c) { code.push('<code>' + c + '</code>'); return '\u0000' + (code.length - 1) + '\u0000'; });
                     [['\\*', 'b'], ['_', 'i'], ['~', 's']].forEach(function (p) {
-                        t = t.replace(new RegExp('(^|[\\s(¿¡])' + p[0] + '([^\\s' + p[0] + '](?:[^' + p[0] + '\\n]*[^\\s' + p[0] + '])?)' + p[0] + '(?=$|[\\s).,;:!?])', 'g'), '$1<' + p[1] + '>$2</' + p[1] + '>');
+                        // Admite anidar formatos (_*texto*_): el marcador puede ir pegado a otro marcador.
+                        t = t.replace(new RegExp('(^|[\\s(¿¡_*~])' + p[0] + '([^\\s' + p[0] + '](?:[^' + p[0] + '\\n]*[^\\s' + p[0] + '])?)' + p[0] + '(?=$|[\\s).,;:!?_*~])', 'g'), '$1<' + p[1] + '>$2</' + p[1] + '>');
                     });
                     return t.replace(/\u0000(\d+)\u0000/g, function (_, i) { return code[+i]; });
                 };
