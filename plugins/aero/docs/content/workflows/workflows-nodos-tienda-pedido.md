@@ -96,7 +96,7 @@ Valida contra el catálogo: stock (contando lo que ya tiene en el pedido), canti
 
 ## Tienda › Ver o editar pedido
 
-Una de tres acciones: **Ver el pedido**, **Quitar un producto** (por el número de línea del pedido o por nombre) o **Vaciar el pedido**. Salidas: *con productos*, *vacío* y *no entendí*.
+Una de tres acciones: **Ver el pedido**, **Quitar un producto** (por el número de línea del pedido o por nombre; entiende «quitar 2»)  o **Vaciar el pedido**. Salidas: *con productos*, *vacío* y *no entendí*.
 
 ## Tienda › Confirmar pedido
 
@@ -104,9 +104,10 @@ Crea el **pedido real** de la tienda, igual que el checkout web (precios del cat
 
 | Opción | Para qué sirve |
 |--------|----------------|
-| **Ubicación de entrega** | Vacío = la capturada con el nodo [Capturar ubicación](workflows-nodo-ubicacion). También acepta `lat, lng`. |
+| **Ubicación de entrega** | Vacío = la capturada con el nodo [Capturar ubicación](workflows-nodo-ubicacion) o, si no hay, **la última ubicación que el cliente compartió en el chat** (de las últimas 6 horas). También acepta `lat, lng`. |
 | **Dirección / Ciudad** | Si el cliente la escribió. Con ubicación no son obligatorias. |
 | **Tipo de pedido** | En restaurantes: delivery, recoger o comer en local. |
+| **Mesa** | Para comer en el local. Vacío = lo que escribió el cliente («mesa 5»). Sin número, el nodo sale por *falta dirección* con la pregunta «¿En qué mesa estás?». |
 | **ID del método de pago** | Vacío = el pedido queda pendiente, sin cobro. |
 | **Nombre del cliente** | Vacío = el nombre de su contacto. |
 | **Notas del pedido** | Se guardan en el pedido. |
@@ -117,6 +118,29 @@ Datos del pedido: `{{ vars.orden.order_number }}`, `.total`, `.total_text`, `.tr
 
 > [!WARNING]
 > Confirmar crea un pedido de verdad y notifica a tu equipo. Prueba con un catálogo de prueba antes de activar el flujo.
+
+## Ejemplo para un restaurante
+
+**Ejemplo: restaurante por chat (carta, pedido y delivery)** atiende toda la conversación de un restaurante por WhatsApp. El cliente escribe y el flujo responde guiándolo al siguiente paso:
+
+| El cliente escribe | El flujo responde |
+|--------------------|-------------------|
+| `hola`, `menú`, `carta` | Saluda y muestra la carta por categorías. |
+| `2` (categoría) · el nombre de una categoría | Los platos de esa categoría. |
+| `1` (plato) · `quiero un silpancho` | Lo agrega al pedido y sugiere cómo seguir. |
+| `ver 2` · `info 2` · `foto 2` | La tarjeta del plato con su foto. |
+| `silpancho` · `algo con carne` | Busca en la carta. |
+| `pedido` · `quitar 1` · `vaciar` | Muestra, edita o vacía el pedido. |
+| Su **ubicación** de WhatsApp | La confirma para el delivery. |
+| `delivery` · `recoger` · `mesa 5` | Confirma el pedido según cómo lo quiera. |
+
+Cada respuesta termina diciendo qué escribir después. En el delivery, el flujo usa la última ubicación que el cliente compartió; si no hay ninguna, se la pide y conserva el pedido.
+
+> [!IMPORTANT]
+> Para usarlo en un chat real, cambia el disparador a **Mensaje entrante**: atiende **todos** los mensajes de la cuenta. Probar con **Probar**: `{"data":[{"body":"hola"}],"telefono":"59170009999"}`; en modo prueba no se envía nada y el resultado muestra la última respuesta.
+
+> [!NOTE]
+> Los platos con **tamaños o extras obligatorios** aún no se pueden pedir por chat: el cliente recibe el aviso de pedirlos desde la tienda en línea.
 
 ## Flujo completo de ejemplo
 
