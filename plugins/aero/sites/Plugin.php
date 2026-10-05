@@ -287,13 +287,13 @@ class Plugin extends PluginBase
     {
         Event::listen('aero.chatbots.registerAiTools', function () {
             return [
-                'get_contact_info' => [
+                'sites_contact_get' => [
                     'description' => 'Obtiene los datos de contacto del negocio: nombre, teléfono, WhatsApp, email y dirección.',
                     'category'    => 'site',
                     'parameters'  => ['type' => 'object', 'properties' => []],
                     'handler'     => [\Aero\Sites\Classes\Ai\ChatbotTools::class, 'getContactInfo'],
                 ],
-                'get_landing_content' => [
+                'sites_landing_get' => [
                     'description' => 'Obtiene el contenido publicado de una página del sitio web del negocio (por defecto, la página de inicio).',
                     'category'    => 'site',
                     'parameters'  => [
