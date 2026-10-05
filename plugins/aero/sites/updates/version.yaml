@@ -365,3 +365,7 @@
 1.56.0:
     - "El rol tenant_admin recibe aero.workflows.use (crear y ver sus workflows)."
     - grant_workflows_to_tenant_admin.php
+
+1.57.0:
+    - "El rol tenant_admin recibe aero.livechat.manage_settings (configurar el puente de Livechat a WhatsApp)."
+    - grant_livechat_settings_to_tenant_admin.php
