@@ -137,3 +137,11 @@
 1.9.0:
     - "Compra por chat: carrito y última lista mostrada por cliente (tabla aero_shop_chat_sessions) para los nodos de Workflows «Buscar productos», «Agregar al pedido», «Ver o editar pedido» y «Confirmar pedido»."
     - create_chat_sessions_table.php
+
+
+1.9.1:
+    - "Costo de envío de la tienda (0 = gratis), aplicado a pedidos con productos que requieren envío; el checkout web lo muestra."
+    - add_shipping_fee_to_shop_settings.php
+
+1.9.2:
+    - "Nodo de Workflows «Tienda › Ver producto (tarjeta)»: foto, precio con descuento, descripción, opciones y stock; se envía por Hello en un chat real y deja lista la compra rápida («1», «1 x3», «sí»)."

@@ -101,7 +101,10 @@ class OrderService
 
             $subtotal = round(array_sum(array_column($lines, 'line_total')), 4);
             $status = $gateway ? 'awaiting_payment' : 'pending';
-            $deliveryFee = $restaurant['delivery_fee'] ?? 0;
+            // Restaurante: su costo de delivery. Tienda: el costo de envío, solo si el pedido lleva envío.
+            $deliveryFee = $restaurant
+                ? ($restaurant['delivery_fee'] ?? 0)
+                : ($requiresShipping ? (float) $settings->shipping_fee : 0.0);
 
             $order = Order::create([
                 'tenant_id' => $tenantId, 'customer_id' => $customerModel->id,

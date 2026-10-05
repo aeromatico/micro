@@ -28,6 +28,8 @@ class Checkout extends ComponentBase
     public bool $restaurantStore = false;
     public array $orderTypes = [];
     public array $restaurant = [];
+    /** Costo de envío de la tienda (0 si el carrito no lleva envío); el restaurante usa su delivery. */
+    public float $deliveryFee = 0;
     public bool $isOpen = true;
     public ?string $table = null;
     public int $prepMinutes = 0;
@@ -72,6 +74,9 @@ class Checkout extends ComponentBase
         $this->prepMinutes = (int) max(array_merge([0], array_map(fn ($l) => (int) $l['product']->prep_minutes, $this->lines)));
         $this->subtotal = $cart->subtotal();
         $this->requiresShipping = $cart->requiresShipping();
+        $this->deliveryFee = $this->restaurantStore
+            ? (float) ($this->restaurant['delivery_fee'] ?? 0)
+            : ($this->requiresShipping ? (float) ($settings?->shipping_fee ?? 0) : 0.0);
 
         $this->paymentGateways = PaymentGateway::forTenant($tenant->id)
             ->where('is_active', true)

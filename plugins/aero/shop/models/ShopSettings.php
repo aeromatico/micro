@@ -9,7 +9,7 @@ class ShopSettings extends Model
     public $table = 'aero_shop_settings';
 
     public $fillable = [
-        'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled', 'branches_enabled', 'branches',
+        'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled', 'branches_enabled', 'branches', 'shipping_fee',
         'guest_checkout_enabled', 'order_number_prefix', 'order_number_sequence',
         'low_stock_threshold', 'store_mode', 'whatsapp_mode', 'whatsapp_number', 'whatsapp_account_id',
         'restaurant_config', 'schedule_mode', 'schedule_hours', 'accepting_orders', 'timezone',

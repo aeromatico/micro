@@ -66,6 +66,7 @@ class ShopSettings extends Controller
             'timezone'                    => in_array($data['timezone'] ?? '', \DateTimeZone::listIdentifiers(), true) ? $data['timezone'] : 'America/La_Paz',
             'schedule_hours'              => $this->scheduleHoursFrom($data),
             'low_stock_threshold'         => is_numeric($data['low_stock_threshold'] ?? '') ? (int) $data['low_stock_threshold'] : null,
+            'shipping_fee'                => max(0, (float) ($data['shipping_fee'] ?? 0)),
         ]);
         $settings->save();
 
@@ -316,6 +317,11 @@ class ShopSettings extends Controller
                 'default' => ['dine_in', 'pickup', 'delivery'],
                 'options' => ShopSettingsModel::ORDER_TYPES,
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'shipping_fee' => [
+                'label' => 'Costo de envío', 'type' => 'number', 'span' => 'left', 'default' => 0,
+                'comment' => 'Se cobra una vez por pedido con productos que requieren envío. 0 = envío gratis.',
+                'trigger' => ['action' => 'hide', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'rc_delivery_fee' => [
                 'label' => 'Costo de delivery', 'type' => 'number', 'span' => 'left', 'default' => 0,

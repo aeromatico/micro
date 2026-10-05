@@ -22,7 +22,7 @@
 
     {% set rest = __SELF__.restaurant %}
     <div class="grid lg:grid-cols-[1fr_360px] gap-10"
-         x-data="{ sending: false, gateway: null, type: '{{ __SELF__.orderTypes|keys|first }}', fee: {{ rest.delivery_fee|default(0) }}, subtotal: {{ __SELF__.subtotal }}, symbol: '{{ currency.symbol|e('js') }}' }">
+         x-data="{ sending: false, gateway: null, type: '{{ __SELF__.orderTypes|keys|first }}', fee: {{ __SELF__.deliveryFee }}, noTypes: {{ __SELF__.orderTypes|length ? 'false' : 'true' }}, subtotal: {{ __SELF__.subtotal }}, symbol: '{{ currency.symbol|e('js') }}' }">
 
         <div>
             <div id="checkout-error"></div>
@@ -315,12 +315,12 @@
                 {% endfor %}
             </div>
             {% if __SELF__.restaurantStore %}
-            <div x-show="type === 'delivery' && fee > 0" x-cloak class="flex justify-between text-sm text-ink-muted mb-3">
-                <span>Delivery</span><span x-text="symbol + ' ' + fee.toFixed(2)"></span>
+            <div x-show="(type === 'delivery' || noTypes) && fee > 0" x-cloak class="flex justify-between text-sm text-ink-muted mb-3">
+                <span x-text="restaurantStore ? 'Delivery' : 'Envío'"></span><span x-text="symbol + ' ' + fee.toFixed(2)"></span>
             </div>
             <div class="border-t border-surface-border pt-4 flex justify-between items-center">
                 <span class="font-semibold text-ink">Total</span>
-                <span class="text-xl font-bold text-ink" x-text="symbol + ' ' + (subtotal + (type === 'delivery' ? fee : 0)).toFixed(2)">{{ currency.format(__SELF__.subtotal) }}</span>
+                <span class="text-xl font-bold text-ink" x-text="symbol + ' ' + (subtotal + ((type === 'delivery' || noTypes) ? fee : 0)).toFixed(2)">{{ currency.format(__SELF__.subtotal) }}</span>
             </div>
             {% else %}
             <div class="border-t border-surface-border pt-4 flex justify-between items-center">

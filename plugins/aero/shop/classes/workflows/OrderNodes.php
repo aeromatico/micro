@@ -268,6 +268,18 @@ class OrderNodes
         if (is_numeric($data['product_id'] ?? null) && (int) $data['product_id'] > 0) {
             $product = static::findProduct($tenantId, (int) $data['product_id']);
         }
+        elseif (static::isConfirmation($ref) && static::singleOption($list)) {
+            // «sí», «ok», «agregar»… sobre la tarjeta de un producto: es esa opción.
+            $resolved = static::resolveFromList($tenantId, $list, 1);
+
+            if (is_string($resolved)) {
+                return static::addResult('not_found', $var, $resolved);
+            }
+
+            [$product, $variant, $listQty] = $resolved;
+            $qty = $qty ?? $listQty;
+            $consumedList = in_array($list['type'] ?? null, ['variants', 'choose'], true);
+        }
         elseif ($ref === '') {
             return static::addResult('not_found', $var, 'No se indicó qué producto agregar.');
         }
@@ -377,7 +389,7 @@ class OrderNodes
     }
 
     /** @return array{0: Product, 1: ?ProductVariant, 2: ?int}|string producto elegido o el motivo por el que no se pudo */
-    protected static function resolveFromList(int $tenantId, array $list, int $n): array|string
+    public static function resolveFromList(int $tenantId, array $list, int $n): array|string
     {
         $type = $list['type'] ?? null;
 
@@ -406,7 +418,7 @@ class OrderNodes
     }
 
     /** @return array{status: string, product?: Product, products?: array<int, Product>} */
-    protected static function resolveByName(int $tenantId, string $ref, array $list, bool $intent = true): array
+    public static function resolveByName(int $tenantId, string $ref, array $list, bool $intent = true): array
     {
         $needle = CatalogNodes::normalize($ref);
         $tokens = static::tokens($ref) ?: array_values(array_filter(explode(' ', $needle)));
@@ -486,8 +498,9 @@ class OrderNodes
 
         foreach ($variants->values() as $i => $variant) {
             $n = $i + 1;
-            $items[] = ['n' => $n, 'id' => (int) $variant->id, 'name' => $variant->label];
-            $lines[] = "{$n}. {$variant->label} — " . $currency->format((float) $variant->price) . ($variant->stock_quantity > 0 || !$product->track_inventory ? '' : ' (agotado)');
+            $label = $variant->label ?: ($variant->sku ?: 'Opción ' . $n);
+            $items[] = ['n' => $n, 'id' => (int) $variant->id, 'name' => $label];
+            $lines[] = "{$n}. {$label} — " . $currency->format((float) $variant->price) . ($variant->stock_quantity > 0 || !$product->track_inventory ? '' : ' (agotado)');
         }
 
         CatalogNodes::remember($data, $ctx, $tenantId, [
@@ -498,6 +511,18 @@ class OrderNodes
         $text = "*{$product->name}* tiene estas opciones:\n\n" . implode("\n", $lines) . "\n\nResponde con el número de la opción.";
 
         return ['output' => ['added' => false, 'reason' => 'Debe elegir una opción.', 'product' => ['id' => (int) $product->id, 'name' => $product->name], 'items' => $items, 'text' => $text], 'handle' => 'choose', 'var' => $var];
+    }
+
+    /** Respuestas afirmativas sueltas («sí», «ok», «agregar», «quiero»): la parte de verbo ya se quitó de `ref`. */
+    protected static function isConfirmation(string $ref): bool
+    {
+        return in_array(CatalogNodes::normalize($ref), ['', 'si', 'ok', 'okay', 'dale', 'listo', 'agregar', 'agregalo', 'agrega', 'anadir', 'anadelo', 'comprar', 'comprarlo', 'lo quiero', 'lo llevo', 'quiero'], true);
+    }
+
+    /** ¿La última lista tiene una sola opción elegible (la tarjeta de un producto)? */
+    protected static function singleOption(array $list): bool
+    {
+        return ($list['type'] ?? null) === 'choose' && count((array) ($list['items'] ?? [])) === 1;
     }
 
     /**
@@ -735,13 +760,13 @@ class OrderNodes
         return [$contact, ChatSession::forContact($tenantId, $contact['key'])];
     }
 
-    protected static function findProduct(int $tenantId, int $id): ?Product
+    public static function findProduct(int $tenantId, int $id): ?Product
     {
         return Product::forTenant($tenantId)->active()->with('images')->find($id);
     }
 
     /** @param array<int, Product> $products */
-    protected static function presentProducts(int $tenantId, array $products): array
+    public static function presentProducts(int $tenantId, array $products): array
     {
         $currency = CatalogNodes::currency($tenantId);
         $items = [];
@@ -759,7 +784,7 @@ class OrderNodes
         return $items;
     }
 
-    protected static function itemLines(array $items, bool $showDescription): string
+    public static function itemLines(array $items, bool $showDescription): string
     {
         $lines = [];
 
