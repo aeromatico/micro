@@ -379,16 +379,16 @@ class InboxController extends Controller
             return $this->notFound();
         }
 
-        if (!$conversation->account->can('location')) {
-            return $this->error('unsupported', 'Este número no admite enviar ubicaciones (solo WhatsApp Web).', 422);
-        }
-
         $data = $this->check($request, ['latitude' => 'required|numeric|between:-90,90', 'longitude' => 'required|numeric|between:-180,180']);
 
-        try {
-            $structured = \Aero\Hello\Classes\StructuredMessage::build('location', $data);
-        } catch (\InvalidArgumentException $e) {
-            return $this->error('validation_failed', $e->getMessage(), 422);
+        // Sin pin nativo (p. ej. Zernio): se manda como texto con enlace al mapa, que el cliente abre igual.
+        $native = $conversation->account->can('location');
+        if ($native) {
+            try {
+                $structured = \Aero\Hello\Classes\StructuredMessage::build('location', $data);
+            } catch (\InvalidArgumentException $e) {
+                return $this->error('validation_failed', $e->getMessage(), 422);
+            }
         }
 
         try {
@@ -398,8 +398,11 @@ class InboxController extends Controller
         }
 
         try {
-            $message = MessageComposer::sendToContact($conversation->account, $conversation->contact_id, $structured['body'],
-                ['type' => 'location', 'provider_payload' => $structured['payload'], 'credit_transaction_id' => $tx]);
+            $message = $native
+                ? MessageComposer::sendToContact($conversation->account, $conversation->contact_id, $structured['body'],
+                    ['type' => 'location', 'provider_payload' => $structured['payload'], 'credit_transaction_id' => $tx])
+                : MessageComposer::sendToContact($conversation->account, $conversation->contact_id,
+                    "📍 Mi ubicación: https://www.google.com/maps?q={$data['latitude']},{$data['longitude']}", ['credit_transaction_id' => $tx]);
         } catch (\Throwable $e) {
             return $this->error('send_failed', $e->getMessage(), 422);
         }
@@ -411,7 +414,7 @@ class InboxController extends Controller
         $conversation->update($update);
 
         return $this->data([
-            'kind' => 'message', 'id' => 'm' . $message->id, 'direction' => 'outbound', 'type' => 'location',
+            'kind' => 'message', 'id' => 'm' . $message->id, 'direction' => 'outbound', 'type' => $native ? 'location' : 'text',
             'body' => $message->body, 'status' => $message->status, 'at' => optional($message->created_at)->toIso8601String(),
         ], 202);
     }
