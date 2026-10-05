@@ -196,7 +196,9 @@ class ShopController extends Controller
         $money = fn ($n) => ChargeSettler::money($n, $order->currency?->code);
 
         $lines = $order->items->map(fn ($i) => '• ' . $i->quantity . ' × ' . $i->product_name_snapshot . ($i->variant_label_snapshot ? ' (' . $i->variant_label_snapshot . ')' : '') . ' — ' . $money($i->line_total))->implode("\n");
-        $body = 'Pedido ' . $order->order_number . "\n" . $lines . "\nTotal: " . $money($order->grand_total);
+        $body = '*NÚMERO DE ORDEN:* ' . $order->order_number . "\n\n" . $lines
+            . ((float) $order->shipping_total > 0 ? "\nEnvío: " . $money($order->shipping_total) : '')
+            . "\nTotal: " . $money($order->grand_total);
 
         $options = [];
         $qr = $order->payment_reference && class_exists(\Aero\Pay\Models\QrCode::class)
@@ -208,7 +210,7 @@ class ShopController extends Controller
         } elseif ($order->payment_gateway?->instructions) {
             $body .= "\n\n" . trim(html_entity_decode(strip_tags(str_replace(['<br>', '<br/>', '</p>'], "\n", $order->payment_gateway->instructions))));
         }
-        $body .= "\n\nVer tu pedido: " . \Aero\Shop\Classes\OrderService::publicUrl($order);
+        $body .= "\n\n*Por favor revisa los detalles y lugar de destino:*\n" . \Aero\Shop\Classes\OrderService::publicUrl($order);
 
         try {
             $tx = $this->chargeIfExternal($conv, $this->tenantId($request));
