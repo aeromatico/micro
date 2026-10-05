@@ -16,6 +16,10 @@ sort: 20
 | [Capturar ubicación](workflows-nodo-ubicacion) | Acción | Texto a analizar, latitud/longitud, variable, cobertura | Extrae una coordenada de lo que comparta el cliente. Salidas *con ubicación* y *sin ubicación*. |
 | [Tienda › Menú de categorías](workflows-nodos-tienda) | Acción | Título, subcategorías de, incluir vacías, máximo | Arma el menú numerado de las categorías de tu tienda, listo para enviar. Requiere Tienda. |
 | [Tienda › Productos de una categoría](workflows-nodos-tienda) | Acción | Categoría, límite, solo con stock, descripción | Lista los productos de la categoría que eligió el cliente (número o nombre). Requiere Tienda. |
+| [Tienda › Buscar productos](workflows-nodos-tienda-pedido) | Acción | Texto, categoría, límite, solo con stock | Busca por texto libre («busco camisetas negras»). Requiere Tienda. |
+| [Tienda › Agregar al pedido](workflows-nodos-tienda-pedido) | Acción | Producto, cantidad | Agrega al pedido del cliente: «2», «2 x3» o «quiero una taza». Requiere Tienda. |
+| [Tienda › Ver o editar pedido](workflows-nodos-tienda-pedido) | Acción | Acción, producto a quitar | Muestra, quita un producto o vacía el pedido. Requiere Tienda. |
+| [Tienda › Confirmar pedido](workflows-nodos-tienda-pedido) | Acción | Ubicación, dirección, método de pago | Crea el pedido real de la tienda. Requiere Tienda. |
 | Responder | Acción | Valor | Es lo que recibe quien llamó al workflow, por ejemplo la IA. |
 
 > [!NOTE]
