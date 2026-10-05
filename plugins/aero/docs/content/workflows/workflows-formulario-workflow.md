@@ -53,7 +53,13 @@ Responde `202` con el número de ejecución. Sin `secret` configurado, el webhoo
 
 Plantillas: `{{ trigger.campo }}` (datos de entrada), `{{ vars.nombre }}` (variables guardadas), `{{ nodes.n2.body.email }}` (salida de otro nodo).
 
+### Flujos grandes
+
+- **⛶ Pantalla completa:** el editor ocupa toda la ventana. Sal con **✕ Salir** o la tecla **Esc**.
+- **⟲ Ordenar:** acomoda los nodos por capas, cada uno debajo de lo que lo alimenta, para que se crucen menos las líneas. Solo cambia las posiciones, no las conexiones.
+- **Minimapa:** en la esquina; arrástralo para moverte por el flujo.
+
 > [!TIP]
 > El editor avisa si falta el disparador, hay nodos sueltos o hay un ciclo.
 
-**Versión documentada:** 1.1.0
+**Versión documentada:** 1.2.0

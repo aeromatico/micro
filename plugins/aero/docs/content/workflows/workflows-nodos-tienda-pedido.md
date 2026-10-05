@@ -114,33 +114,39 @@ Crea el **pedido real** de la tienda, igual que el checkout web (precios del cat
 
 Datos del pedido: `{{ vars.orden.order_number }}`, `.total`, `.total_text`, `.tracking_url`, `.text` (confirmación lista).
 
+**Costo de envío.** Se usa el **costo de envío de la tienda** (Tienda → Configuración): se suma a los pedidos con **productos físicos** y no a los digitales (un pedido solo de productos digitales no lleva envío ni pide dirección). El carrito lo muestra antes de confirmar (`Envío: Bs 8.00` y el total con envío) y la confirmación lo detalla. En un restaurante se usa el costo de delivery, que solo aplica si el cliente elige *delivery*, así que el carrito lo muestra como aviso.
+
+**Dirección.** Si el pedido lleva envío, el nodo toma la dirección del cliente de, en este orden: el campo del nodo, la ubicación del flujo, **la dirección que escribió** («confirmar Av. Arce 123, La Paz») o **la última ubicación que compartió en el chat**. Si no hay ninguna, sale por *falta dirección*.
+
 **Salidas:** *pedido creado*, *pedido vacío*, *falta dirección* (los productos requieren envío y no hay ubicación ni dirección) y *error* (tienda cerrada, stock insuficiente, etc.).
 
 > [!WARNING]
 > Confirmar crea un pedido de verdad y notifica a tu equipo. Prueba con un catálogo de prueba antes de activar el flujo.
 
-## Ejemplo para un restaurante
+## Dos flujos de ejemplo
 
-**Ejemplo: restaurante por chat (carta, pedido y delivery)** atiende toda la conversación de un restaurante por WhatsApp. El cliente escribe y el flujo responde guiándolo al siguiente paso:
+**Ejemplo: tienda por chat (catálogo, pedido y envío)** atiende toda la conversación de una tienda por WhatsApp:
 
 | El cliente escribe | El flujo responde |
 |--------------------|-------------------|
-| `hola`, `menú`, `carta` | Saluda y muestra la carta por categorías. |
-| `2` (categoría) · el nombre de una categoría | Los platos de esa categoría. |
-| `1` (plato) · `quiero un silpancho` | Lo agrega al pedido y sugiere cómo seguir. |
-| `ver 2` · `info 2` · `foto 2` | La tarjeta del plato con su foto. |
-| `silpancho` · `algo con carne` | Busca en la carta. |
-| `pedido` · `quitar 1` · `vaciar` | Muestra, edita o vacía el pedido. |
-| Su **ubicación** de WhatsApp | La confirma para el delivery. |
-| `delivery` · `recoger` · `mesa 5` | Confirma el pedido según cómo lo quiera. |
+| `hola`, `catálogo`, `menú` | Saluda y muestra las categorías. |
+| `1` (categoría) · el nombre de una categoría | Los productos de esa categoría. |
+| `2` (producto) · `quiero una gorra` | Lo agrega al pedido y sugiere cómo seguir. |
+| `ver 2` · `info 2` · `foto 2` | La tarjeta del producto con su foto. |
+| `gorra azul` · `guía pdf` | Busca en el catálogo. |
+| `pedido` · `quitar 1` · `vaciar` | Muestra (con el envío), edita o vacía el pedido. |
+| Su **ubicación** de WhatsApp | La recibe para el envío. |
+| `confirmar` · `confirmar Av. Arce 123, La Paz` | Crea el pedido; si es a domicilio, usa la dirección o la ubicación. |
 
-Cada respuesta termina diciendo qué escribir después. En el delivery, el flujo usa la última ubicación que el cliente compartió; si no hay ninguna, se la pide y conserva el pedido.
+**Ejemplo: restaurante por chat (carta, pedido y delivery)** es la variante para restaurantes: carta en lugar de catálogo y, para cerrar, `delivery`, `recoger` o `mesa 5` (si falta el número de mesa, la pregunta).
+
+Cada respuesta termina diciendo qué escribir después. Para probarlos usa **Probar** con `{"data":[{"body":"hola"}],"telefono":"59170009999"}`; en modo prueba no se envía nada y el resultado muestra la última respuesta.
 
 > [!IMPORTANT]
-> Para usarlo en un chat real, cambia el disparador a **Mensaje entrante**: atiende **todos** los mensajes de la cuenta. Probar con **Probar**: `{"data":[{"body":"hola"}],"telefono":"59170009999"}`; en modo prueba no se envía nada y el resultado muestra la última respuesta.
+> Para usarlos en un chat real, cambia el disparador a **Mensaje entrante**: atiende **todos** los mensajes de la cuenta.
 
 > [!NOTE]
-> Los platos con **tamaños o extras obligatorios** aún no se pueden pedir por chat: el cliente recibe el aviso de pedirlos desde la tienda en línea.
+> Los productos con **tamaños o extras obligatorios** aún no se pueden pedir por chat: el cliente recibe el aviso de pedirlos desde la tienda en línea.
 
 ## Flujo completo de ejemplo
 
@@ -149,4 +155,4 @@ Cada respuesta termina diciendo qué escribir después. En el delivery, el flujo
 > [!TIP]
 > En WhatsApp real usa el disparador **Mensaje entrante** y reemplaza `{{ trigger.texto }}` por `{{ trigger.data.0.body }}` en las condiciones. Los nodos de tienda ya leen el mensaje y al cliente por sí solos si dejas esos campos vacíos.
 
-**Versión documentada:** 1.1.0
+**Versión documentada:** 1.2.0
