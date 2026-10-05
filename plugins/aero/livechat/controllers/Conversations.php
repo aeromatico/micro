@@ -2,7 +2,7 @@
 
 use Aero\Livechat\Classes\AttachmentStorage;
 use Aero\Livechat\Classes\ConversationLifecycle;
-use Aero\Livechat\Classes\TelegramBridge;
+use Aero\Livechat\Classes\AgentBridges;
 use Aero\Livechat\Classes\TenantScope;
 use Aero\Livechat\Models\Conversation;
 use Aero\Livechat\Models\Message;
@@ -77,7 +77,7 @@ class Conversations extends Controller
 
         // Mensajes que llegaron VÍA Telegram nunca pasan por acá (los crea
         // TelegramBridge::handleInbound directo) — sin riesgo de eco.
-        TelegramBridge::relay($conversation, $message, '👨‍💻 Agente (panel):');
+        AgentBridges::relay($conversation, $message, '👨‍💻 Agente (panel):');
 
         return $this->onLoadMessages($recordId);
     }
@@ -115,7 +115,7 @@ class Conversations extends Controller
         $conversation->visitor_unread_count++;
         $conversation->save();
 
-        TelegramBridge::relayAttachment($conversation, $message, '👨‍💻 Agente (panel):');
+        AgentBridges::relayAttachment($conversation, $message, '👨‍💻 Agente (panel):');
 
         return $this->onLoadMessages($recordId);
     }

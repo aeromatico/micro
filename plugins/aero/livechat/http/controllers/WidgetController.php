@@ -3,7 +3,7 @@
 use Aero\Livechat\Classes\AttachmentStorage;
 use Aero\Livechat\Classes\ConversationLifecycle;
 use Aero\Livechat\Classes\HelloBridge;
-use Aero\Livechat\Classes\TelegramBridge;
+use Aero\Livechat\Classes\AgentBridges;
 use Aero\Livechat\Classes\TranscriptMailer;
 use Aero\Livechat\Classes\ValidatesJson;
 use Aero\Livechat\Models\Contact;
@@ -179,7 +179,7 @@ class WidgetController extends Controller
         $conversation->status = Conversation::OPEN;
         $conversation->save();
 
-        TelegramBridge::relay($conversation, $message, "👤 {$contact->display_name}:");
+        AgentBridges::relay($conversation, $message, "👤 {$contact->display_name}:");
         HelloBridge::mirrorInbound($conversation, $message);
 
         return response()->json(['ok' => true, 'messages' => $this->serializeMessages($conversation)]);
@@ -226,7 +226,7 @@ class WidgetController extends Controller
         $conversation->status = Conversation::OPEN;
         $conversation->save();
 
-        TelegramBridge::relayAttachment($conversation, $message, "👤 {$contact->display_name}:");
+        AgentBridges::relayAttachment($conversation, $message, "👤 {$contact->display_name}:");
         HelloBridge::mirrorInbound($conversation, $message);
 
         return response()->json(['ok' => true, 'messages' => $this->serializeMessages($conversation)]);

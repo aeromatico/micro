@@ -5,7 +5,7 @@ use Aero\Hello\Models\Account;
 use Aero\Hello\Models\Conversation as HelloConversation;
 use Aero\Livechat\Classes\AttachmentStorage;
 use Aero\Livechat\Classes\HelloBridge;
-use Aero\Livechat\Classes\TelegramBridge;
+use Aero\Livechat\Classes\AgentBridges;
 use Aero\Livechat\Models\Message;
 
 /**
@@ -91,9 +91,9 @@ class LivechatChannelDriver implements ChannelDriverInterface
         $conversation->save();
 
         if ($message->hasAttachment()) {
-            TelegramBridge::relayAttachment($conversation, $message, $prefix);
+            AgentBridges::relayAttachment($conversation, $message, $prefix);
         } else {
-            TelegramBridge::relay($conversation, $message, $prefix);
+            AgentBridges::relay($conversation, $message, $prefix);
         }
 
         return 'lc-msg-' . $message->id;

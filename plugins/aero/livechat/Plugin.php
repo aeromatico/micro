@@ -47,6 +47,18 @@ class Plugin extends PluginBase
         $this->bootTenantPurgeCleanup();
         $this->bootTelegramBridge();
         $this->bootHelloBridge();
+        $this->bootWhatsappBridge();
+    }
+
+    /**
+     * Respuestas del agente por WhatsApp (cuenta de Hello elegida en
+     * Configuración) → vuelven a la conversación. Ver Classes\WhatsappBridge.
+     */
+    protected function bootWhatsappBridge(): void
+    {
+        Event::listen('aero.hello.messageReceived', function ($message) {
+            \Aero\Livechat\Classes\WhatsappBridge::handleInbound($message);
+        });
     }
 
     /**
@@ -106,7 +118,7 @@ class Plugin extends PluginBase
                 'label'       => 'Livechat',
                 'url'         => Backend::url('aero/livechat/conversations'),
                 'icon'        => 'icon-comment-o',
-                'permissions' => ['aero.livechat.manage_conversations', 'aero.livechat.manage_inboxes'],
+                'permissions' => ['aero.livechat.manage_conversations', 'aero.livechat.manage_inboxes', 'aero.livechat.manage_settings'],
                 'order'       => 170,
                 'sideMenu'    => [
                     'livechat-conversations' => [
@@ -121,6 +133,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/livechat/inboxes'),
                         'permissions' => ['aero.livechat.manage_inboxes'],
                     ],
+                    'livechat-settings' => [
+                        'label'       => 'Configuración',
+                        'icon'        => 'icon-cog',
+                        'url'         => Backend::url('aero/livechat/channelsettings'),
+                        'permissions' => ['aero.livechat.manage_settings'],
+                    ],
                 ],
             ],
         ];
@@ -132,6 +150,10 @@ class Plugin extends PluginBase
             'aero.livechat.manage_inboxes' => [
                 'tab'   => 'Livechat',
                 'label' => 'Gestionar inboxes',
+            ],
+            'aero.livechat.manage_settings' => [
+                'tab'   => 'Livechat',
+                'label' => 'Configurar el puente a WhatsApp',
             ],
             'aero.livechat.manage_conversations' => [
                 'tab'   => 'Livechat',

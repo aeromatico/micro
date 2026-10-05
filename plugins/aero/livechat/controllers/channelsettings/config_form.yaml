@@ -1,0 +1,9 @@
+name: Configuración de Livechat
+form: $/aero/livechat/models/channelsettings/fields.yaml
+modelClass: Aero\Livechat\Models\ChannelSettings
+defaultRedirect: aero/livechat/channelsettings
+
+update:
+    title: Configuración de Livechat
+    redirect: aero/livechat/channelsettings
+    redirectClose: aero/livechat/channelsettings

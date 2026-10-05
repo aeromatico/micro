@@ -20,3 +20,6 @@
 1.6.0:
     - "El widget solo muestra los mensajes de la sesión activa (no el historial completo de sesiones anteriores) — el historial completo sigue visible para los agentes en el panel y el omnichat."
     - add_session_started_at_to_conversations.php
+1.7.0:
+    - "Configuración por tenant del puente a WhatsApp: elegir la cuenta de Hello (wapi o Zernio) por la que se retransmite el chat y activarlo o desactivarlo, desde el backend y desde el omnichat."
+    - create_livechat_settings.php

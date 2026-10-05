@@ -4,6 +4,7 @@ use Aero\Hello\Models\Account;
 use Aero\Hello\Models\Conversation as HelloConversation;
 use Aero\Livechat\Classes\ConversationLifecycle;
 use Aero\Livechat\Classes\HelloBridge;
+use Aero\Livechat\Models\ChannelSettings;
 use Aero\Livechat\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,6 +64,65 @@ class PwaController extends Controller
             'ok'           => true,
             'banned_until' => optional($contact->banned_until)->toIso8601String(),
         ]]);
+    }
+
+    /** GET api/v1/chat/livechat/settings — puente a WhatsApp del tenant y cuentas de Hello elegibles. */
+    public function settings(Request $request): JsonResponse
+    {
+        if ($err = $this->denyUnlessCanConfigure($request)) {
+            return $err;
+        }
+
+        $tenantId = (int) $request->attributes->get('tenant_id');
+
+        return response()->json(['data' => $this->settingsPayload($tenantId)]);
+    }
+
+    /** POST api/v1/chat/livechat/settings {enabled, account_id, to} */
+    public function saveSettings(Request $request): JsonResponse
+    {
+        if ($err = $this->denyUnlessCanConfigure($request)) {
+            return $err;
+        }
+
+        $tenantId = (int) $request->attributes->get('tenant_id');
+        $settings = ChannelSettings::forScope($tenantId);
+
+        $settings->whatsapp_enabled = $request->boolean('enabled');
+        $settings->hello_account_id = $request->input('account_id') ?: null;
+        $settings->whatsapp_to = trim((string) $request->input('to')) ?: null;
+
+        try {
+            $settings->save();
+        } catch (\October\Rain\Database\ModelException|\Illuminate\Validation\ValidationException $e) {
+            $errors = method_exists($e, 'getErrors') ? $e->getErrors()->all() : (method_exists($e, 'errors') ? collect($e->errors())->flatten()->all() : [$e->getMessage()]);
+
+            return response()->json(['error' => 'validation_failed', 'message' => $errors[0] ?? 'Datos inválidos.'], 422);
+        }
+
+        return response()->json(['data' => $this->settingsPayload($tenantId)]);
+    }
+
+    protected function settingsPayload(int $tenantId): array
+    {
+        return [
+            'settings' => ChannelSettings::forScope($tenantId)->toPayload(),
+            'accounts' => ChannelSettings::accountsFor($tenantId)->map(fn ($a) => [
+                'id'     => $a->id,
+                'label'  => $a->label,
+                'driver' => $a->driver,
+                'status' => $a->status,
+            ])->values()->all(),
+        ];
+    }
+
+    protected function denyUnlessCanConfigure(Request $request): ?JsonResponse
+    {
+        $user = $request->attributes->get('chat_user');
+
+        return ($user && $user->hasAccess('aero.livechat.manage_settings'))
+            ? null
+            : response()->json(['error' => 'forbidden', 'message' => 'No tienes permiso para configurar Livechat.'], 403);
     }
 
     /** @return array{0: ?\Aero\Livechat\Models\Conversation, 1: ?JsonResponse} */

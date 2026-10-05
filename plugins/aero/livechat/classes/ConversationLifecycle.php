@@ -27,7 +27,7 @@ class ConversationLifecycle
         $conversation->status = Conversation::RESOLVED;
         $conversation->save();
 
-        TelegramBridge::relay($conversation, $message, 'ℹ️');
+        AgentBridges::relay($conversation, $message, 'ℹ️');
         TelegramBridge::closeThreadIfAny($conversation);
 
         if ($auto) {

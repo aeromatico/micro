@@ -35,4 +35,6 @@ Route::prefix('api/v1/livechat')->middleware(['api', ForceJson::class, Cors::cla
 Route::prefix('api/v1/chat/livechat')->middleware(['api', ChatForceJson::class, AuthenticateChatToken::class])->group(function () {
     Route::post('conversations/{id}/finish', [PwaController::class, 'finish']);
     Route::post('conversations/{id}/ban', [PwaController::class, 'ban']);
+    Route::get('settings', [PwaController::class, 'settings']);
+    Route::post('settings', [PwaController::class, 'saveSettings']);
 });

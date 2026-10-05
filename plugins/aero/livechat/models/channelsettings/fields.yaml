@@ -1,0 +1,20 @@
+fields:
+    whatsapp_enabled:
+        label: Retransmitir chats a WhatsApp
+        type: switch
+        span: full
+        comment: Cada mensaje del chat web se envía también al número indicado, por la cuenta de Hello elegida. Lo que respondas por WhatsApp vuelve al visitante.
+
+    hello_account_id:
+        label: Cuenta de Hello
+        type: dropdown
+        span: auto
+        emptyOption: — Elegir cuenta —
+        comment: Cuenta de WhatsApp conectada en Hello (WhatsApp Web o Cloud API).
+
+    whatsapp_to:
+        label: Número que recibe los chats
+        type: text
+        span: auto
+        placeholder: 59170000000
+        comment: Número del agente, en formato internacional. Para responder una conversación concreta empieza tu mensaje con su código, por ejemplo "#12 hola".
