@@ -16,7 +16,7 @@ function onStart()
     $host = request()->getSchemeAndHttpHost();
     $urls = [];
 
-    $static = ['/', '/comprar', '/api', '/docs', '/guias'];
+    $static = ['/', '/comprar', '/api', '/docs', '/guias', '/privacy'];
     foreach ($static as $path) {
         $urls[] = ['loc' => $host . $path, 'priority' => $path === '/' ? '1.0' : '0.8'];
     }
