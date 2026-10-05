@@ -1,0 +1,2 @@
+1.0.0:
+    - "Servidor MCP sobre JSON-RPC: initialize, tools/list y tools/call sobre AiToolRegistry, con permisos por scope mcp.tool.* y tenant tomado de la API key."
