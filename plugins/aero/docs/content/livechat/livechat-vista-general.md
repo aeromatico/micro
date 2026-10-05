@@ -32,7 +32,7 @@ Visitante
 ## Guías de cada función
 
 - [Inboxes](livechat-inboxes) — crear el widget y conectar Telegram.
-- [Bandeja de conversaciones](livechat-bandeja) — responder, adjuntar y finalizar.
+- [Bandeja de conversaciones](livechat-bandeja) — responder, adjuntar, finalizar, sesión del visitante y banear.
 
 ## Permisos
 
@@ -44,3 +44,5 @@ Visitante
 > [!NOTE]
 > Todo lo que ves aquí es de **tu sitio**. Otros negocios no ven tus inboxes ni
 > tus conversaciones, y tú tampoco ves los suyos.
+
+**Versión documentada:** 1.6.0

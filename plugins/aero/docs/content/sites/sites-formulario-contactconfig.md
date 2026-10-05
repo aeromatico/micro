@@ -41,7 +41,7 @@ presentes.
 - Los envíos del formulario se registran como `ContactSubmission` y se pueden
   ver en la pestaña **Mensajes** de la configuración del sitio.
 - Es uno de los *AI tools* que puede consultar el chatbot del sitio
-  (`get_contact_info`).
+  (`sites_contact_get`).
 
 > [!TIP]
 > Deja el WhatsApp sin espacios y con código de país para que el enlace

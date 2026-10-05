@@ -1,0 +1,217 @@
+<!doctype html>
+<!--guide {"title":"Ver una ejecución","article":"workflows-ejecuciones","sort":20} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Ejecución</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#eceff2; --surface:#fff; --surface-2:#f5f7f9; --ink:#1d2933; --ink-2:#55636f; --line:#d5dce2; --accent:#1f6f8b; --accent-ink:#fff; --accent-soft:#dcecf2; --hint:#b4620a; --hint-soft:#fdf0dc; --ok:#1e7a4c; --ok-soft:#dff2e8; --err:#b3261e; --err-soft:#fbe4e2;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5; margin:0; padding-inline:16px; padding-block:20px 48px; }
+.wrap { max-width:1760px; margin-inline:auto; display:grid; gap:20px; grid-template-columns:minmax(0,1fr); grid-template-areas:"head" "guide" "form"; }
+@media (min-width:940px) { .wrap { grid-template-columns:360px minmax(0,1fr); grid-template-areas:"head head" "guide form"; align-items:start; } }
+header { grid-area:head; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between; }
+h1 { font-size:20px; font-weight:600; margin:0; text-wrap:balance; }
+.crumb { font-family:var(--font-mono); font-size:12px; color:var(--ink-2); overflow-wrap:anywhere; }
+.badge { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:3px; background:var(--hint-soft); color:var(--hint); }
+.guide { grid-area:guide; background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+@media (min-width:940px) { .guide { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; } }
+.g-head { padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.g-eyebrow { font-size:15px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+.g-title { font-size:16px; font-weight:600; margin:14px 0 0; text-wrap:balance; }
+.progress { height:4px; background:var(--surface-2); border-radius:2px; margin-top:10px; overflow:hidden; }
+.progress > i { display:block; height:100%; background:var(--accent); width:0; transition:width .25s; }
+.g-body { padding:14px 16px; display:grid; gap:12px; }
+.g-body p { margin:0; }
+.g-sub { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--ink-2); margin-bottom:2px; }
+.note { padding:10px 12px; border-radius:4px; background:var(--hint-soft); }
+.note b { color:var(--hint); }
+.example { font-family:var(--font-mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:8px 10px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.g-nav { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.g-nav .btn { min-height:44px; padding:10px 14px; font-size:15px; font-weight:600; border-radius:6px; border:2px solid var(--accent); }
+.g-nav #gPrev { background:var(--accent-soft); color:var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background:var(--accent); color:var(--accent-ink); }
+.g-nav #gNext { background:var(--accent); color:var(--accent-ink); }
+.g-nav .btn:disabled { opacity:.4; cursor:not-allowed; }
+:root { --g-surface:#dcecf2; --g-surface-2:#cbe1ea; --g-line:#a9c9d6; --g-ink:#10303c; --g-ink-2:#3a5c6b; --g-accent:#1a6480; --g-accent-ink:#fff; --g-accent-soft:#f4fafc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; } }
+:root[data-theme="dark"] { --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; }
+.guide { --surface:var(--g-surface); --surface-2:var(--g-surface-2); --line:var(--g-line); --ink:var(--g-ink); --ink-2:var(--g-ink-2); --accent:var(--g-accent); --accent-ink:var(--g-accent-ink); --accent-soft:var(--g-accent-soft); color:var(--ink); }
+button { font:inherit; cursor:pointer; }
+.btn { border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:4px; }
+.btn:hover { background:var(--surface-2); }
+.btn.primary { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:500; }
+.btn:focus-visible, input:focus-visible, textarea:focus-visible, .steps button:focus-visible, tr[tabindex]:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.steps { list-style:none; margin:0; padding:8px; border-top:1px solid var(--line); display:grid; gap:2px; }
+.steps button { width:100%; text-align:left; display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; align-items:center; background:transparent; border:0; border-radius:4px; padding:6px 8px; color:var(--ink-2); }
+.steps button:hover { background:var(--surface-2); }
+.steps button[aria-current="step"] { background:var(--accent-soft); color:var(--ink); font-weight:500; }
+.dot { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-size:10px; font-weight:600; }
+.steps .done .dot { background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.formcol { grid-area:form; min-width:0; display:grid; gap:12px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+.card h3 { margin:0; font-size:14px; padding:12px 16px 0; }
+.panel { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; align-items:start; }
+@media (max-width:640px) { .panel { grid-template-columns:minmax(0,1fr); } }
+.field { min-width:0; padding:6px; margin:-6px; border-radius:6px; transition:box-shadow .15s, background .15s; }
+.field.full { grid-column:1 / -1; }
+.field.is-guided, .card.is-guided { box-shadow:0 0 0 2px var(--hint); background:var(--hint-soft); }
+label.lbl { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+input[type=text], textarea { width:100%; font:inherit; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:7px 9px; }
+textarea { resize:none; font-family:var(--font-mono); font-size:12.5px; }
+.tbl-wrap { overflow-x:auto; border-top:1px solid var(--line); }
+table.tx { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+table.tx th { text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-2); background:var(--surface-2); padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+table.tx td { padding:8px 10px; border-bottom:1px solid var(--line); }
+table.tx tr:last-child td { border-bottom:0; }
+table.tx tr.sel td { background:var(--accent-soft); }
+table.tx tbody.pick tr { cursor:pointer; }
+.pill { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); }
+.pill.ok { background:var(--ok-soft); color:var(--ok); border-color:transparent; }
+.pill.error { background:var(--err-soft); color:var(--err); border-color:transparent; }
+code { font-family:var(--font-mono); font-size:12px; }
+.ctx { font-family:var(--font-mono); font-size:11px; color:var(--ink-2); padding:8px 16px 0; }
+.sample { font-size:11px; color:var(--ink-2); font-style:italic; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div><h1>Ejecución</h1><div class="crumb">/backend/aero/workflows/runs/preview · Guía de capacitación</div></div>
+    <span class="badge">Demo: datos de ejemplo</span>
+  </header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn primary" id="gNext" type="button">Siguiente →</button></div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol">
+    <div class="card" id="c-list">
+      <h3>Historial de ejecuciones</h3>
+      <div class="ctx">Solo lectura: las ejecuciones no se crean ni se editan a mano. Pulsa una fila para abrirla.</div>
+      <div class="tbl-wrap"><table class="tx">
+        <thead><tr><th>#</th><th>Workflow</th><th>Estado</th><th>Origen</th><th>Pasos</th></tr></thead>
+        <tbody id="runs" class="pick"></tbody>
+      </table></div>
+    </div>
+    <div class="card" id="c-detail">
+      <h3 id="dTitle">Ejecución</h3>
+      <div class="panel">
+        <div class="field" data-f="status"><label class="lbl" for="status">Estado</label><input type="text" id="status" readonly></div>
+        <div class="field" data-f="source"><label class="lbl" for="source">Origen</label><input type="text" id="source" readonly></div>
+        <div class="field full" data-f="error"><label class="lbl" for="error">Error</label><textarea id="error" rows="2" readonly></textarea></div>
+        <div class="field full" data-f="trigger_payload"><label class="lbl" for="trigger_payload">Entrada</label><textarea id="trigger_payload" rows="4" readonly></textarea></div>
+        <div class="field full" data-f="result"><label class="lbl" for="result">Resultado</label><textarea id="result" rows="4" readonly></textarea></div>
+      </div>
+    </div>
+    <div class="card" id="c-steps">
+      <h3>Pasos</h3>
+      <div class="tbl-wrap"><table class="tx">
+        <thead><tr><th>Nodo</th><th>Tipo</th><th>Estado</th><th>ms</th><th>Salida / error</th></tr></thead>
+        <tbody id="stepRows"></tbody>
+      </table></div>
+    </div>
+    <div class="sample">Ejemplos inventados para capacitación. En la app real los datos vienen de tus propios workflows.</div>
+  </main>
+</div>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var RUNS = [
+    { id: 41, wf: 'Avisar pedido nuevo', status: 'ok', source: 'event', steps: [
+      ['n1', 'trigger', 'ok', 3, '{"order_id":1042}'], ['n2', 'condition', 'ok', 5, 'sí'], ['n3', 'send_message', 'ok', 220, '{"sent":true}'] ],
+      input: '{"order_id":1042,"total":240}', result: '{"sent":true}', error: '' },
+    { id: 40, wf: 'Responder precio', status: 'error', source: 'message', steps: [
+      ['n1', 'trigger', 'ok', 2, '{"text":"precio"}'], ['n2', 'http_request', 'error', 1500, 'Tiempo de espera agotado'] ],
+      input: '{"text":"precio"}', result: '', error: 'Tiempo de espera agotado en el nodo n2' },
+    { id: 39, wf: 'Avisar pedido nuevo', status: 'ok', source: 'manual', steps: [
+      ['n1', 'trigger', 'ok', 2, '{}'], ['n2', 'condition', 'ok', 4, 'no'] ],
+      input: '{}', result: '{}', error: '' }
+  ];
+  var state = { step: 0, sel: -1, seen: {} };
+  function pill(s) { var p = document.createElement('span'); p.className = 'pill ' + s; p.textContent = s; return p; }
+
+  function renderRuns() {
+    var b = $('#runs'); b.innerHTML = '';
+    RUNS.forEach(function (r, i) {
+      var tr = document.createElement('tr'); tr.tabIndex = 0; if (i === state.sel) tr.className = 'sel';
+      [String(r.id), r.wf, null, r.source, String(r.steps.length)].forEach(function (c, j) {
+        var td = document.createElement('td'); if (j === 2) td.appendChild(pill(r.status)); else td.textContent = c; tr.appendChild(td);
+      });
+      var open = function () { openRun(i); };
+      tr.onclick = open; tr.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
+      b.appendChild(tr);
+    });
+  }
+  function openRun(i) {
+    state.sel = i; var r = RUNS[i];
+    $('#dTitle').textContent = 'Ejecución #' + r.id + ' · ' + r.wf;
+    $('#status').value = r.status; $('#source').value = r.source;
+    $('#error').value = r.error; $('#trigger_payload').value = r.input; $('#result').value = r.result;
+    var sb = $('#stepRows'); sb.innerHTML = '';
+    r.steps.forEach(function (s) {
+      var tr = document.createElement('tr');
+      s.forEach(function (c, j) {
+        var td = document.createElement('td');
+        if (j === 2) td.appendChild(pill(c)); else if (j === 4) { var k = document.createElement('code'); k.textContent = c; td.appendChild(k); } else td.textContent = String(c);
+        tr.appendChild(td);
+      });
+      sb.appendChild(tr);
+    });
+    state.seen.open = true; if (r.status === 'error') state.seen.err = true;
+    renderRuns(); renderGuide();
+  }
+
+  var steps = [
+    { id: 'list', target: 'c-list', title: 'Encuentra la ejecución',
+      body: 'En Workflows → Ejecuciones ves el historial de cada vez que corrió uno de tus workflows, con su estado, origen y número de pasos.',
+      tip: 'Estados: queued (en cola), running (ejecutando), waiting (esperando, nodo Esperar), ok y error. Es solo lectura.',
+      ex: 'Origen: manual, evento, mensaje, webhook o herramienta de IA.', done: function () { return state.sel >= 0; } },
+    { id: 'open', target: 'c-detail', title: 'Abre una ejecución', body: 'Pulsa una fila de la lista. Se muestra el detalle: estado, origen, error, entrada y resultado.',
+      tip: 'Todos los campos están bloqueados; no puedes modificar una ejecución.', ex: 'Prueba con la ejecución #41.', done: function () { return state.seen.open; } },
+    { id: 'steps', target: 'c-steps', title: 'Revisa los pasos', body: 'Cada nodo ejecutado aparece con su tipo, estado, duración en milisegundos y su salida (o el error).',
+      tip: 'Si un workflow no hace lo esperado, abre la última ejecución y mira en qué paso se detuvo.', ex: '', done: function () { return state.seen.open; } },
+    { id: 'err', target: 'c-detail', title: 'Lee un error', body: 'Abre la ejecución #40: en el campo Error está el motivo y en Pasos, el nodo que falló.',
+      tip: 'Compara la Entrada con lo que esperaba el nodo: suele ser un dato que no llegó.', ex: 'Tiempo de espera agotado en el nodo n2', done: function () { return state.seen.err; } }
+  ];
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length;
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) { var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div'); l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w); }
+    if (cur.tip) { var n = document.createElement('div'), b = document.createElement('b'); n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0; $('#gNext').disabled = state.step === steps.length - 1;
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button'; if (i === state.step) bt.setAttribute('aria-current', 'step');
+      var dn = s.done(); if (dn) bt.className = 'done';
+      d.className = 'dot'; d.textContent = dn ? '✓' : String(i + 1); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    ['c-list', 'c-detail', 'c-steps'].forEach(function (id) { $('#' + id).classList.toggle('is-guided', id === cur.target); });
+  }
+  function go(i) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i)); renderGuide();
+    $('#' + steps[state.step].target).scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  renderRuns(); renderGuide();
+})();
+</script>
+</body></html>
