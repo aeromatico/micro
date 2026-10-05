@@ -18,7 +18,7 @@ La tienda se **activa por sitio** desde su configuración.
 | **Métodos de pago** | Cómo se cobra (Bolivia Pay u offline). |
 | **Cocina** | Tablero de pedidos del restaurante (solo en tipo *Restaurante*). |
 | **Inventario** | Movimientos de stock (visible si el inventario está activo). |
-| **Configuración de tienda** | Activar la tienda, tipo de tienda (estándar, WhatsApp, restaurante), horario, moneda, inventario e invitados. |
+| **Configuración de tienda** | Activar la tienda, tipo de tienda (estándar, WhatsApp, restaurante), horario, sucursales, moneda, inventario e invitados. |
 
 ## Flujo de una compra
 
@@ -51,4 +51,4 @@ Catálogo  →  Carrito  →  Checkout  →  Pedido (reserva stock)
 | `aero.shop.manage_payment_gateways` | Métodos de pago |
 | `aero.shop.manage_settings` | Configuración de tienda |
 
-**Versión documentada:** 1.7.0
+**Versión documentada:** 1.8.0

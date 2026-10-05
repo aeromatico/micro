@@ -17,6 +17,7 @@ las **notas internas** y las **acciones de estado**.
 | **Estado** | Ver estados abajo. |
 | **Cliente** | Comprador. |
 | **Método de pago** | Cómo se paga. |
+| **Sucursal** | Solo lectura. Nombre de la sucursal elegida en el checkout (si la tienda [maneja sucursales](shop-configuracion)). |
 | **Referencia de pago reportada** | Referencia que dejó el comprador. |
 | **Moneda / Subtotal / Total** | Importes del pedido. |
 | **Comentario del cliente** | Nota del comprador. |
@@ -77,4 +78,4 @@ Registro de cambios de estado, con fecha y nota.
 > Al cambiar de estado se pueden enviar avisos al cliente (pago, envío,
 > cancelación) por el plugin de notificaciones, si están configurados.
 
-**Versión documentada:** 1.7.0
+**Versión documentada:** 1.8.0

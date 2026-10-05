@@ -63,6 +63,18 @@ por mesa listo para imprimir (requiere un dominio principal del sitio).
 
 Fuera de horario la tienda no acepta pedidos: se cierran el checkout y el pedido.
 
+## Sucursales (todos los tipos)
+
+| Campo | Para qué sirve |
+|-------|----------------|
+| **Manejar sucursales** | Apagado, la tienda es un solo negocio. Encendido, el checkout pide elegir una sucursal. |
+| **Sucursales** | Lista con el botón *Agregar sucursal*. Cada una tiene **Nombre**, **Teléfono**, **Dirección**, **Ubicación** (en el mapa, o latitud y longitud como números si no hay selector de mapa) y el interruptor **Activa**. |
+
+- Las filas sin nombre se descartan al guardar.
+- Solo las sucursales **activas** se ofrecen en el checkout; si el interruptor está apagado no se pide nada.
+- El cliente debe elegir una sucursal existente y activa; si no, el checkout responde «Elige la sucursal para tu pedido.».
+- El pedido guarda el **nombre** de la sucursal elegida y lo muestra en [Pedidos](shop-pedidos).
+
 ## Monedas
 
 Además de la moneda base, puedes agregar otras monedas con su **tipo de cambio**.
@@ -81,4 +93,4 @@ Se administran en la misma pantalla:
 > Deja la **compra como invitado** activada para reducir la fricción; puedes
 > vincular al comprador con un cliente después.
 
-**Versión documentada:** 1.7.0
+**Versión documentada:** 1.8.0
