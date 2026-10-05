@@ -47,7 +47,7 @@
             accounts: [], agents: [], convs: [], accountId: null, filter: 'all', q: '', loading: true,
             current: null, quick: [], msgs: [], draft: '', mode: 'reply', sheet: '', delegateNote: '', rowMenuConv: null,
             banForm: { hours: '' }, banBusy: false,
-            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, loc: '' }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
+            crm: null, pay: null, shop: null, shopQ: '', shopResults: [], shopLoading: false, shopBusy: false, shopCart: [], shopForm: { gateway: null, notes: '', addr1: '', city: '', phone: '', notify: true, useLoc: false }, payBusy: false, payForm: { amount: '', description: '', days: 1, bank: null, notify: true }, crmTab: 'contact', cform: { first_name: '', last_name: '', email: '' }, crmLoading: false, crmError: '', crmBusy: false, deptId: null,
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
@@ -702,7 +702,9 @@
                 var d = new Date(l.at), t = isNaN(d) ? '' : d.toLocaleDateString('es', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' }) + ' · ';
                 return t + (l.label ? l.label + ' · ' : '') + l.lat.toFixed(5) + ', ' + l.lng.toFixed(5);
             },
-            get chosenLoc() { var self = this; return (this.shop && this.shop.locations || []).find(function (l) { return String(l.id) === String(self.shopForm.loc); }) || null; },
+            // Solo la última ubicación compartida (la lista llega de la más reciente a la más antigua).
+            get latestLoc() { return (this.shop && this.shop.locations || [])[0] || null; },
+            get chosenLoc() { return this.shopForm.useLoc ? this.latestLoc : null; },
             get cartNeedsShipping() { return this.shopCart.some(function (l) { return l.shipping; }); },
 
 
@@ -738,9 +740,8 @@
                         if (d.gateways.length && !d.gateways.some(function (g) { return g.id == this.shopForm.gateway; }, this)) this.shopForm.gateway = d.gateways[0].id;
                         if (!this.shopResults.length) this.searchProducts();
                     }
-                    // Ubicaciones que compartió el cliente (recientes primero): se preselecciona la última.
-                    var locs = d.locations || [], self = this;
-                    if (!locs.some(function (l) { return String(l.id) === String(self.shopForm.loc); })) this.shopForm.loc = locs.length ? locs[0].id : '';
+                    // Sin ubicación compartida no hay interruptor: se apaga.
+                    if (!(d.locations || []).length) this.shopForm.useLoc = false;
                 } catch (e) {}
             },
             async searchProducts() {
@@ -759,24 +760,32 @@
                 else this.shopCart.push({ key: key, product_id: p.id, variant_id: v ? v.id : null, name: p.name, variantLabel: v ? v.label : '', price: v ? v.price : p.price, qty: 1, shipping: p.requires_shipping });
             },
             cartQty: function (i, d) { var l = this.shopCart[i]; l.qty += d; if (l.qty < 1) this.shopCart.splice(i, 1); },
+            // Con la ubicación compartida, sus coordenadas tienen prioridad; dirección y ciudad solo se envían si se escribieron.
+            shippingPayload: function () {
+                var f = this.shopForm, loc = this.chosenLoc, s = { country_code: 'BO' };
+                if (f.addr1.trim()) s.address_line1 = f.addr1.trim();
+                if (f.city.trim()) s.city = f.city.trim();
+                if (loc) Object.assign(s, { latitude: loc.lat, longitude: loc.lng, location_label: loc.label });
+                return s;
+            },
             async createOrder() {
                 var c = this.current; if (!c || this.shopBusy || !this.shopCart.length) return;
                 var f = this.shopForm;
-                if (this.cartNeedsShipping && (!f.addr1.trim() || !f.city.trim())) { this.notify('Estos productos requieren envío: completa dirección y ciudad.'); return; }
+                if (this.cartNeedsShipping && !this.chosenLoc && (!f.addr1.trim() || !f.city.trim())) { this.notify('Estos productos requieren envío: completa dirección y ciudad, o usa la ubicación compartida.'); return; }
                 if (!this.shop.customer.phone && !f.phone.trim()) { this.notify('Ingresa el teléfono del cliente.'); return; }
                 this.shopBusy = true;
                 try {
                     var body = {
                         items: this.shopCart.map(function (l) { return { product_id: l.product_id, variant_id: l.variant_id, quantity: l.qty }; }),
                         payment_gateway_id: f.gateway, notes: f.notes.trim() || null, notify_on_paid: f.notify,
-                        shipping: this.cartNeedsShipping ? Object.assign({ address_line1: f.addr1.trim(), city: f.city.trim(), country_code: 'BO' }, this.chosenLoc ? { latitude: this.chosenLoc.lat, longitude: this.chosenLoc.lng, location_label: this.chosenLoc.label } : {}) : null,
+                        shipping: this.cartNeedsShipping ? this.shippingPayload() : null,
                         customer: f.phone.trim() ? { phone: f.phone.trim() } : null,
                     };
                     var res = await fetch(API + '/conversations/' + c.id + '/shop/order', { method: 'POST', headers: { Authorization: 'Bearer ' + this.token, Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                     var json = await res.json().catch(function () { return {}; });
                     if (res.status === 401) { this.logout(false); return; }
                     if (!res.ok && res.status !== 207) throw { message: json.message || 'No se pudo crear el pedido.' };
-                    this.shop = json.data; this.shopCart = []; f.notes = ''; f.addr1 = ''; f.city = '';
+                    this.shop = json.data; this.shopCart = []; f.notes = ''; f.addr1 = ''; f.city = ''; f.useLoc = false;
                     this.notify(res.status === 207 ? 'Pedido creado, pero no se pudo enviar: ' + json.data.send_error : 'Pedido creado y enviado al cliente', res.status === 207 ? 8000 : 3200);
                     this.loadMsgs(false); this.searchProducts();
                 } catch (e) { this.notify(e.message, 8000); }
