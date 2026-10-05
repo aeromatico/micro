@@ -13,6 +13,7 @@ sort: 20
 | Llamar URL / Connector | Acción | Connector o URL https, método, datos | Con **Connector**, las credenciales quedan cifradas y no se guardan en el flujo. |
 | Enviar mensaje (Hello) | Acción | Teléfono, mensaje, cuenta | Requiere Hello. La cuenta debe ser tuya. |
 | Notificar (Notify) | Acción | Evento del catálogo, contexto JSON | Requiere Notify. |
+| [Capturar ubicación](workflows-nodo-ubicacion) | Acción | Texto a analizar, latitud/longitud, variable, cobertura | Extrae una coordenada de lo que comparta el cliente. Salidas *con ubicación* y *sin ubicación*. |
 | Responder | Acción | Valor | Es lo que recibe quien llamó al workflow, por ejemplo la IA. |
 
 > [!NOTE]
@@ -21,4 +22,4 @@ sort: 20
 > [!WARNING]
 > Si un nodo falla, la ejecución termina con error y queda registrado el paso que falló.
 
-**Versión documentada:** 1.0.1
+**Versión documentada:** 1.1.0

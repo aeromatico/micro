@@ -25,4 +25,4 @@ Si falta cualquiera de las dos, la IA no ve el workflow.
 > [!NOTE]
 > Cada ejecución cuenta para el límite por hora y puede consumir créditos, además de los de la IA.
 
-**Versión documentada:** 1.0.1
+**Versión documentada:** 1.1.0

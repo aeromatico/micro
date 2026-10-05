@@ -28,4 +28,4 @@ Un **workflow** es un flujo que armas dibujando nodos y conectándolos: algo ocu
 > [!NOTE]
 > Cada ejecución consume créditos si tu plataforma tiene la acción `workflows.run` configurada.
 
-**Versión documentada:** 1.0.1
+**Versión documentada:** 1.1.0

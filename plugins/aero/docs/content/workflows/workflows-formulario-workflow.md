@@ -56,4 +56,4 @@ Plantillas: `{{ trigger.campo }}` (datos de entrada), `{{ vars.nombre }}` (varia
 > [!TIP]
 > El editor avisa si falta el disparador, hay nodos sueltos o hay un ciclo.
 
-**Versión documentada:** 1.0.1
+**Versión documentada:** 1.1.0

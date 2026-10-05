@@ -23,4 +23,4 @@ Al abrir una ejecución ves la entrada, el resultado y cada paso con su estado, 
 > [!TIP]
 > Si un workflow no hace lo esperado, abre la última ejecución y revisa en qué paso se detuvo.
 
-**Versión documentada:** 1.0.1
+**Versión documentada:** 1.1.0
