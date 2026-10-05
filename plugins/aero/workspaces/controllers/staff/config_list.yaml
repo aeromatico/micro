@@ -1,0 +1,14 @@
+list: $/aero/workspaces/models/staff/columns.yaml
+modelClass: Aero\Workspaces\Models\Staff
+title: Staff
+showSetup: true
+showCheckboxes: false
+recordsPerPage: 20
+defaultSort:
+    column: sort_order
+    direction: asc
+recordUrl: aero/workspaces/staff/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

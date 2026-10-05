@@ -1,0 +1,8 @@
+1.0.0:
+    - "Base de Aero.Workspaces: staff (agentes IA, con `kind` para equipos híbridos después), tarifas por contratación y por tarea, skills, asignaciones y contrataciones por tenant."
+    - create_workspaces_tables.php
+1.1.0:
+    - "Backend del superadmin: pantallas de staff con prompt de sistema, modelo del Hub, tarifa de contratación, tarifas por tarea y skills."
+1.1.1:
+    - "Carga inicial de 12 agentes borrador (inactivos), skills oficiales/hub y tarifas por encargo; idempotente, no pisa cambios del superadmin."
+    - seed_workspaces_staff.php

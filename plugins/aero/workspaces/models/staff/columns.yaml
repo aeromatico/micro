@@ -1,0 +1,16 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+    role:
+        label: Rol
+        searchable: true
+    rarity:
+        label: Rareza
+    category:
+        label: Categoría
+    kind:
+        label: Tipo
+    is_active:
+        label: Activo
+        type: switch
