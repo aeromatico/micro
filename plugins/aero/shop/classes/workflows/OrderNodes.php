@@ -9,6 +9,7 @@ use Aero\Shop\Models\ChatSession;
 use Aero\Shop\Models\Collection;
 use Aero\Shop\Models\Product;
 use Aero\Shop\Models\ProductVariant;
+use Aero\Shop\Models\ShopSettings;
 use Db;
 
 /**
@@ -87,10 +88,11 @@ class OrderNodes
                     ['id' => 'needs_address', 'label' => 'falta dirección'], ['id' => 'error', 'label' => 'error'],
                 ],
                 'fields' => [
-                    ['key' => 'location', 'label' => 'Ubicación de entrega', 'type' => 'text', 'hint' => 'Vacío = la capturada con el nodo «Capturar ubicación» ({{ vars.ubicacion }}).'],
-                    ['key' => 'address', 'label' => 'Dirección (texto)', 'type' => 'text'],
+                    ['key' => 'location', 'label' => 'Ubicación de entrega', 'type' => 'text', 'hint' => 'Vacío = la capturada con «Capturar ubicación» o, si no hay, la última que el cliente compartió en el chat (últimas 6 h).'],
+                    ['key' => 'address', 'label' => 'Dirección (texto)', 'type' => 'text', 'hint' => 'Vacío = la que el cliente escribió con el pedido: «confirmar Av. Arce 123, La Paz».'],
                     ['key' => 'city', 'label' => 'Ciudad', 'type' => 'text'],
                     ['key' => 'order_type', 'label' => 'Tipo de pedido (restaurante)', 'type' => 'select', 'options' => [['value' => 'delivery', 'label' => 'Delivery'], ['value' => 'pickup', 'label' => 'Recoger'], ['value' => 'dine_in', 'label' => 'Comer en local']]],
+                    ['key' => 'table', 'label' => 'Mesa (comer en local)', 'type' => 'text', 'hint' => 'Vacío = lo que escribió el cliente: «mesa 5».'],
                     ['key' => 'payment_gateway_id', 'label' => 'ID del método de pago', 'type' => 'number', 'hint' => 'Vacío = queda pendiente, sin cobro.'],
                     ['key' => 'customer_name', 'label' => 'Nombre del cliente', 'type' => 'text', 'hint' => 'Vacío = el nombre de su contacto.'],
                     ['key' => 'notes', 'label' => 'Notas del pedido', 'type' => 'text'],
@@ -581,6 +583,7 @@ class OrderNodes
         if ($action === 'remove') {
             $summary = static::summary($tenantId, $session);
             $ref = trim((string) ($data['item'] ?? '')) ?: CatalogNodes::messageText($ctx);
+            $ref = trim(preg_replace('/^(quitar|quita|quítame|quitame|eliminar|elimina|borrar|borra|sacar|saca)\b\s*(?:(?:el|la|los|las|del|de la)\s+)?(?:(?:producto|plato|linea|línea|numero|número|n)\s+)?#?\s*/iu', '', $ref));
             $index = null;
 
             if (preg_match('/^\s*(\d{1,3})\s*$/', $ref, $m)) {
@@ -618,7 +621,8 @@ class OrderNodes
     protected static function summaryOutput(array $summary): array
     {
         return [
-            'count' => $summary['units'], 'lines' => count($summary['items']), 'total' => $summary['total'], 'total_text' => $summary['total_text'],
+            'count' => $summary['units'], 'lines' => count($summary['items']), 'subtotal' => $summary['subtotal'], 'shipping' => $summary['shipping'],
+            'delivery_fee' => $summary['delivery_fee'], 'total' => $summary['total'], 'total_text' => $summary['total_text'],
             'items' => $summary['items'], 'text' => $summary['text'],
         ];
     }
@@ -646,11 +650,34 @@ class OrderNodes
         }
 
         $shipping = static::shipping($data, $ctx);
+
+        // Sin ubicación en el flujo: la última que el cliente compartió en el chat (últimas 6 h).
+        if ((!$shipping || !isset($shipping['latitude'])) && !empty($contact['contact_id'])) {
+            $recent = static::recentSharedLocation((int) $contact['contact_id']);
+
+            if ($recent) {
+                $shipping = ($shipping ?? []) + $recent;
+            }
+        }
+
+        if ($shipping && !isset($shipping['latitude']) && !empty($shipping['address_line1']) && empty($shipping['city'])) {
+            $shipping['city'] = 'Por coordinar';
+        }
+
+        $orderType = in_array($data['order_type'] ?? '', ['delivery', 'pickup', 'dine_in'], true) ? $data['order_type'] : null;
+        $table = $orderType === 'dine_in' ? static::tableLabel($data, $ctx) : null;
+
+        // Comer en el local sin número de mesa: se pregunta antes de crear nada.
+        if ($orderType === 'dine_in' && !$table) {
+            return static::checkoutError($var, 'needs_address', '¿En qué mesa estás? Escribe *mesa* y el número, por ejemplo *mesa 5*.');
+        }
+
         $options = array_filter([
             'source'         => 'chat',
             'shipping'       => $shipping,
             'customer_notes' => trim((string) ($data['notes'] ?? '')) ?: null,
-            'order_type'     => in_array($data['order_type'] ?? '', ['delivery', 'pickup', 'dine_in'], true) ? $data['order_type'] : null,
+            'order_type'     => $orderType,
+            'table_label'    => $table,
         ]);
         $gatewayId = is_numeric($data['payment_gateway_id'] ?? null) && (int) $data['payment_gateway_id'] > 0 ? (int) $data['payment_gateway_id'] : null;
 
@@ -692,7 +719,10 @@ class OrderNodes
             'output' => [
                 'created' => true, 'order_id' => (int) $order->id, 'order_number' => $order->order_number, 'status' => $order->status,
                 'total' => $total, 'total_text' => $currency->format($total), 'tracking_url' => $url, 'payment_reference' => $order->payment_reference,
-                'text' => "✅ *Pedido {$order->order_number} recibido*\n\n" . implode("\n", $lines) . "\n\n*Total: " . $currency->format($total) . "*\n\nSigue tu pedido aquí: {$url}",
+                'shipping_total' => (float) $order->shipping_total, 'subtotal' => (float) $order->subtotal,
+                'text' => "✅ *Pedido {$order->order_number} recibido*\n\n" . implode("\n", $lines)
+                    . ((float) $order->shipping_total > 0 ? "\n\nEnvío: " . $currency->format((float) $order->shipping_total) : '')
+                    . "\n\n*Total: " . $currency->format($total) . "*\n\nSigue tu pedido aquí: {$url}",
             ],
             'handle' => 'created',
             'var'    => $var,
@@ -702,6 +732,69 @@ class OrderNodes
     protected static function checkoutError(string $var, string $handle, string $reason): array
     {
         return ['output' => ['created' => false, 'reason' => $reason, 'text' => $reason], 'handle' => $handle, 'var' => $var];
+    }
+
+    /**
+     * Dirección escrita en el mismo mensaje: «confirmar Av. Arce 123, La Paz» → «Av. Arce 123, La Paz».
+     * Solo si lo que queda tras quitar la orden parece una dirección (largo razonable y algún número o coma).
+     */
+    protected static function addressFromMessage(array $ctx): ?string
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', CatalogNodes::messageText($ctx)));
+        $text = trim(preg_replace('/^(confirmar|confirmo|comprar|finalizar|terminar|pedir|ordenar|delivery|enviar|envio|envío|mandar|llevar)\b[\s,:]*(?:(?:a|en|para|mi|la|direcci[oó]n|domicilio)\b[\s,:]*)*/iu', '', $text));
+
+        if (mb_strlen($text) < 8 || mb_strlen($text) > 190 || !preg_match('/\d|,/u', $text)) {
+            return null;
+        }
+
+        return $text;
+    }
+
+    /** «mesa 5» → «5»: el campo, o lo que el cliente escribió. */
+    protected static function tableLabel(array $data, array $ctx): ?string
+    {
+        $explicit = trim((string) ($data['table'] ?? ''));
+
+        if ($explicit !== '') {
+            return mb_substr($explicit, 0, 30);
+        }
+
+        return preg_match('/\bmesa\s*(?:n[°ºo.]*\s*)?#?\s*([\p{L}\d]{1,10})/iu', CatalogNodes::messageText($ctx), $m) ? mb_substr($m[1], 0, 30) : null;
+    }
+
+    /**
+     * La última ubicación que el cliente compartió en el chat (mensaje entrante
+     * de tipo location o con «📍 (lat, lng)»), si tiene menos de 6 horas.
+     */
+    protected static function recentSharedLocation(int $contactId): ?array
+    {
+        if (!class_exists(\Aero\Hello\Models\Message::class)) {
+            return null;
+        }
+
+        try {
+            $messages = \Aero\Hello\Models\Message::where('contact_id', $contactId)->where('direction', 'inbound')
+                ->where('created_at', '>=', now()->subHours(6))
+                ->where(fn ($q) => $q->where('type', 'location')->orWhere('body', 'like', '📍%'))
+                ->orderByDesc('id')->limit(5)->get();
+        }
+        catch (\Throwable $e) {
+            return null;
+        }
+
+        foreach ($messages as $message) {
+            $found = \Aero\Workflows\Classes\Nodes\LocationCapture::fromText((string) $message->body);
+
+            if ($found) {
+                return array_filter([
+                    'latitude' => $found['lat'], 'longitude' => $found['lng'],
+                    'location_label' => $found['name'] !== '' ? mb_substr($found['name'], 0, 120) : null,
+                    'address_line1' => $found['name'] !== '' ? mb_substr($found['name'], 0, 190) : null,
+                ], fn ($v) => $v !== null);
+            }
+        }
+
+        return null;
     }
 
     /** Coordenadas de entrega: el campo, o la variable `ubicacion` del nodo «Capturar ubicación». */
@@ -735,6 +828,9 @@ class OrderNodes
 
         if (trim((string) ($data['address'] ?? '')) !== '') {
             $shipping['address_line1'] = mb_substr(trim((string) $data['address']), 0, 190);
+        }
+        elseif (!isset($shipping['latitude']) && ($typed = static::addressFromMessage($ctx))) {
+            $shipping['address_line1'] = $typed;
         }
 
         if (trim((string) ($data['city'] ?? '')) !== '') {
@@ -800,6 +896,29 @@ class OrderNodes
     }
 
     /**
+     * Costo de envío a mostrar, con la misma regla de OrderService: en una tienda normal es el
+     * `shipping_fee` global y se suma cuando algún producto requiere envío (los digitales no);
+     * en un restaurante es el costo de delivery, que solo aplica si el cliente pide delivery,
+     * así que se muestra como aviso sin sumarlo.
+     *
+     * @return array{added: float, note: float}
+     */
+    protected static function shippingInfo(int $tenantId, bool $needsShipping): array
+    {
+        $settings = ShopSettings::forTenant($tenantId)->first();
+
+        if (!$settings) {
+            return ['added' => 0.0, 'note' => 0.0];
+        }
+
+        if ($settings->isRestaurantStore()) {
+            return ['added' => 0.0, 'note' => (float) ($settings->restaurant()['delivery_fee'] ?? 0)];
+        }
+
+        return ['added' => $needsShipping ? (float) $settings->shipping_fee : 0.0, 'note' => 0.0];
+    }
+
+    /**
      * El pedido con precios actuales del catálogo. Las líneas de productos que
      * ya no existen se descartan (y se avisa en el texto).
      *
@@ -814,6 +933,7 @@ class OrderNodes
         $dropped = [];
         $total = 0.0;
         $units = 0;
+        $needsShipping = false;
 
         foreach ($cart as $line) {
             $product = static::findProduct($tenantId, (int) $line['product_id']);
@@ -831,6 +951,7 @@ class OrderNodes
             $lineTotal = round($price * $qty, 4);
             $total += $lineTotal;
             $units += $qty;
+            $needsShipping = $needsShipping || (bool) $product->requires_shipping;
             $kept[] = $line;
             $items[] = [
                 'n' => count($items) + 1, 'product_id' => (int) $product->id, 'variant_id' => $variant ? (int) $variant->id : null,
@@ -843,12 +964,32 @@ class OrderNodes
             $session->setCart($kept);
         }
 
-        $total = round($total, 4);
+        $subtotal = round($total, 4);
+        $shipping = static::shippingInfo($tenantId, $needsShipping);
+        $total = round($subtotal + $shipping['added'], 4);
+
         $lines = array_map(fn ($i) => "{$i['n']}. {$i['quantity']} × {$i['name']} — {$i['line_total_text']}", $items);
+        $totals = '';
+
+        if ($items) {
+            if ($shipping['added'] > 0) {
+                $totals .= "\nEnvío: " . $currency->format($shipping['added']);
+            }
+
+            $totals .= "\n*Total: " . $currency->format($total) . '*';
+
+            if ($shipping['note'] > 0) {
+                $totals .= "\n_Delivery: +" . $currency->format($shipping['note']) . '_';
+            }
+        }
+
         $text = $items
-            ? "🛒 *Tu pedido*\n\n" . implode("\n", $lines) . "\n\n*Total: " . $currency->format($total) . '*' . ($dropped ? "\n\n(Quité " . count($dropped) . ' producto(s) que ya no están disponibles.)' : '')
+            ? "🛒 *Tu pedido*\n\n" . implode("\n", $lines) . "\n" . $totals . ($dropped ? "\n\n(Quité " . count($dropped) . ' producto(s) que ya no están disponibles.)' : '')
             : 'Tu pedido está vacío.';
 
-        return ['items' => $items, 'units' => $units, 'total' => $total, 'total_text' => $currency->format($total), 'text' => $text];
+        return [
+            'items' => $items, 'units' => $units, 'subtotal' => $subtotal, 'shipping' => $shipping['added'], 'delivery_fee' => $shipping['note'],
+            'total' => $total, 'total_text' => $currency->format($total), 'text' => $text,
+        ];
     }
 }

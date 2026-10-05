@@ -8,7 +8,7 @@
 class ChatContact
 {
     /**
-     * @return array{key: string, phone: ?string, name: ?string}|null
+     * @return array{key: string, phone: ?string, name: ?string, contact_id?: int}|null
      */
     public static function resolve(array $data, array $ctx, int $tenantId): ?array
     {
@@ -29,9 +29,11 @@ class ChatContact
                 $identity = $contact->identities->firstWhere('platform', 'whatsapp') ?: $contact->identities->first();
                 $name = $contact->hasPlaceholderName() ? null : trim((string) $contact->name);
 
-                return $identity
+                $resolved = $identity
                     ? static::fromPhone((string) $identity->external_id, $name)
                     : ['key' => 'c:' . $contact->id, 'phone' => null, 'name' => $name];
+
+                return $resolved ? $resolved + ['contact_id' => (int) $contact->id] : null;
             }
         }
 

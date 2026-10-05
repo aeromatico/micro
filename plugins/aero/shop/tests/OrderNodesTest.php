@@ -377,6 +377,165 @@ class OrderNodesTest extends ShopTestCase
         OrderNodes::checkout($this->data(), [], 1);
     }
 
+    public function testRemoveAcceptsNaturalVerbs(): void
+    {
+        $this->seedStore();
+
+        foreach (['quitar 1', 'quita la taza mágica', 'eliminar el producto 1', 'borra camiseta negra'] as $text) {
+            OrderNodes::cartAdd($this->data(['product_id' => $this->ids['taza']]), [], 1);
+            OrderNodes::cartAdd($this->data(['product_id' => $this->ids['negra']]), [], 1);
+
+            $r = OrderNodes::cart($this->data(['action' => 'remove', 'item' => $text]), [], 1);
+
+            $this->assertContains($r['handle'], ['found', 'empty'], $text);
+            $this->assertSame(1, $r['output']['lines'] ?? 0, $text);
+            OrderNodes::cart($this->data(['action' => 'clear']), [], 1);
+        }
+    }
+
+    public function testCheckoutDineInTakesTheTableFromTheMessage(): void
+    {
+        $this->openStore(1, ['store_mode' => 'restaurant']);
+        $plato = $this->product(1, null, 'Silpancho', 38);
+        OrderNodes::cartAdd($this->data(['product_id' => $plato]), [], 1);
+
+        // Sin número de mesa: pregunta y no crea nada.
+        $ask = OrderNodes::checkout($this->data(['order_type' => 'dine_in']), ['trigger' => ['data' => [['body' => 'mesa']]]], 1);
+        $this->assertSame('needs_address', $ask['handle']);
+        $this->assertStringContainsString('¿En qué mesa estás?', $ask['output']['reason']);
+        $this->assertSame(0, DB::table('aero_shop_orders')->count());
+
+        $r = OrderNodes::checkout($this->data(['order_type' => 'dine_in']), ['trigger' => ['data' => [['body' => 'Mesa 5 por favor']]]], 1);
+
+        $this->assertSame('created', $r['handle'], $r['output']['reason'] ?? '');
+        $order = DB::table('aero_shop_orders')->first();
+        $this->assertSame('dine_in', $order->order_type);
+        $this->assertSame('5', $order->table_label);
+        $this->assertSame('new', $order->kitchen_status);
+    }
+
+    public function testCheckoutUsesTheLastLocationSharedInTheChat(): void
+    {
+        $this->helloTables();
+        $this->openStore(1, ['store_mode' => 'restaurant', 'restaurant_config' => json_encode(['delivery_fee' => 5])]);
+        $plato = $this->product(1, null, 'Pique macho', 55, extra: ['requires_shipping' => true]);
+
+        $contactId = DB::table('aero_hello_contacts')->insertGetId(['tenant_id' => 1, 'name' => 'Ana Pérez']);
+        DB::table('aero_hello_contact_identities')->insert(['contact_id' => $contactId, 'platform' => 'whatsapp', 'external_id' => '59170000001']);
+        $ctx = ['trigger' => ['data' => [['body' => 'delivery', 'contact_id' => $contactId]]]];
+
+        OrderNodes::cartAdd(['product_id' => $plato], $ctx, 1);
+
+        // Sin ubicación en el chat: pide la dirección y conserva el pedido.
+        $this->assertSame('needs_address', OrderNodes::checkout(['order_type' => 'delivery'], $ctx, 1)['handle']);
+
+        // Una ubicación de hace 7 horas no cuenta.
+        DB::table('aero_hello_messages')->insert(['contact_id' => $contactId, 'direction' => 'inbound', 'type' => 'location', 'body' => "📍 (-16.5, -68.15)\nCasa vieja", 'created_at' => now()->subHours(7), 'updated_at' => now()->subHours(7)]);
+        $this->assertSame('needs_address', OrderNodes::checkout(['order_type' => 'delivery'], $ctx, 1)['handle']);
+
+        // La reciente sí: se usa con su nombre.
+        DB::table('aero_hello_messages')->insert(['contact_id' => $contactId, 'direction' => 'inbound', 'type' => 'location', 'body' => "📍 (-16.4999, -68.1301)\nCasa de Ana", 'created_at' => now()->subMinutes(10), 'updated_at' => now()->subMinutes(10)]);
+        $ok = OrderNodes::checkout(['order_type' => 'delivery'], $ctx, 1);
+
+        $this->assertSame('created', $ok['handle'], $ok['output']['reason'] ?? '');
+        $address = DB::table('aero_shop_addresses')->first();
+        $this->assertEqualsWithDelta(-16.4999, (float) $address->latitude, 0.00001);
+        $this->assertSame('Casa de Ana', $address->address_line1);
+        $this->assertSame('Ana Pérez', DB::table('aero_shop_customers')->value('first_name'));
+        $this->assertSame('delivery', DB::table('aero_shop_orders')->value('order_type'));
+        $this->assertEquals(5.0, (float) DB::table('aero_shop_orders')->value('shipping_total'), 'Suma el costo de delivery del restaurante.');
+    }
+
+    public function testGlobalShippingFeeAppliesToAnyStoreExceptDigitalProducts(): void
+    {
+        $this->openStore(1, ['shipping_fee' => 8]);
+        $fisico = $this->product(1, null, 'Zapatilla', 100, extra: ['requires_shipping' => true]);
+        $digital = $this->product(1, null, 'Guía en PDF', 20, extra: ['type' => 'digital', 'requires_shipping' => false]);
+
+        // Solo digital: sin envío.
+        OrderNodes::cartAdd($this->data(['product_id' => $digital]), [], 1);
+        $only = OrderNodes::cart($this->data(), [], 1)['output'];
+        $this->assertSame(0.0, $only['shipping']);
+        $this->assertSame(20.0, $only['total']);
+        $this->assertStringNotContainsString('Envío', $only['text']);
+
+        // Físico + digital: el envío se cobra una sola vez.
+        OrderNodes::cartAdd($this->data(['product_id' => $fisico, 'quantity' => 2]), [], 1);
+        $mixed = OrderNodes::cart($this->data(), [], 1)['output'];
+        $this->assertSame(220.0, $mixed['subtotal']);
+        $this->assertSame(8.0, $mixed['shipping']);
+        $this->assertSame(228.0, $mixed['total']);
+        $this->assertStringContainsString('Envío: Bs 8.00', $mixed['text']);
+        $this->assertStringContainsString('*Total: Bs 228.00*', $mixed['text']);
+
+        // El pedido real coincide con lo que vio el cliente.
+        $ctx = ['vars' => ['ubicacion' => ['lat' => -16.5, 'lng' => -68.15, 'name' => 'Mi casa']]];
+        $done = OrderNodes::checkout($this->data(), $ctx, 1);
+        $this->assertSame('created', $done['handle'], $done['output']['reason'] ?? '');
+        $this->assertSame(8.0, $done['output']['shipping_total']);
+        $this->assertSame(228.0, $done['output']['total']);
+        $this->assertStringContainsString('Envío: Bs 8.00', $done['output']['text']);
+        $this->assertEquals(228.0, (float) DB::table('aero_shop_orders')->value('grand_total'));
+    }
+
+    public function testDigitalOnlyOrderNeedsNoAddressAndNoShipping(): void
+    {
+        $this->openStore(1, ['shipping_fee' => 8]);
+        $digital = $this->product(1, null, 'Curso en línea', 90, extra: ['type' => 'digital', 'requires_shipping' => false]);
+        OrderNodes::cartAdd($this->data(['product_id' => $digital]), [], 1);
+
+        $done = OrderNodes::checkout($this->data(), [], 1);
+
+        $this->assertSame('created', $done['handle'], $done['output']['reason'] ?? '');
+        $this->assertSame(0.0, $done['output']['shipping_total']);
+        $this->assertSame(90.0, $done['output']['total']);
+        $this->assertStringNotContainsString('Envío', $done['output']['text']);
+    }
+
+    public function testFreeShippingStoreShowsNoShippingLine(): void
+    {
+        $this->openStore(1);
+        $fisico = $this->product(1, null, 'Camisa', 50, extra: ['requires_shipping' => true]);
+        OrderNodes::cartAdd($this->data(['product_id' => $fisico]), [], 1);
+
+        $view = OrderNodes::cart($this->data(), [], 1)['output'];
+
+        $this->assertSame(0.0, $view['shipping']);
+        $this->assertStringNotContainsString('Envío', $view['text']);
+    }
+
+    public function testRestaurantShowsDeliveryFeeAsANoteWithoutAddingIt(): void
+    {
+        $this->openStore(1, ['store_mode' => 'restaurant', 'restaurant_config' => json_encode(['delivery_fee' => 5])]);
+        $plato = $this->product(1, null, 'Silpancho', 38);
+        OrderNodes::cartAdd($this->data(['product_id' => $plato]), [], 1);
+
+        $view = OrderNodes::cart($this->data(), [], 1)['output'];
+
+        $this->assertSame(38.0, $view['total']);
+        $this->assertSame(5.0, $view['delivery_fee']);
+        $this->assertStringContainsString('_Delivery: +Bs 5.00_', $view['text']);
+    }
+
+    public function testCheckoutTakesTheAddressTypedInTheMessage(): void
+    {
+        $this->openStore(1, ['shipping_fee' => 8]);
+        $fisico = $this->product(1, null, 'Zapatilla', 100, extra: ['requires_shipping' => true]);
+        OrderNodes::cartAdd($this->data(['product_id' => $fisico]), [], 1);
+
+        // «confirmar» a secas: no hay dónde enviar.
+        $this->assertSame('needs_address', OrderNodes::checkout($this->data(), ['trigger' => ['data' => [['body' => 'confirmar']]]], 1)['handle']);
+        $this->assertSame('needs_address', OrderNodes::checkout($this->data(), ['trigger' => ['data' => [['body' => 'confirmar pedido']]]], 1)['handle']);
+
+        $r = OrderNodes::checkout($this->data(), ['trigger' => ['data' => [['body' => 'Confirmar en Av. Arce 123, La Paz']]]], 1);
+
+        $this->assertSame('created', $r['handle'], $r['output']['reason'] ?? '');
+        $address = DB::table('aero_shop_addresses')->first();
+        $this->assertSame('Av. Arce 123, La Paz', $address->address_line1);
+        $this->assertSame('Por coordinar', $address->city);
+        $this->assertSame(108.0, $r['output']['total']);
+    }
+
     public function testNodesAreDeclaredForTheEditor(): void
     {
         $defs = OrderNodes::definitions();

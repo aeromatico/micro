@@ -84,13 +84,41 @@ abstract class ShopTestCase extends PluginTestCase
     }
 
     /** Moneda Bs y tienda activa para el tenant (lo que exige OrderService). */
-    protected function openStore(int $tenant): void
+    protected function openStore(int $tenant, array $settings = []): void
     {
         $currencyId = DB::table('aero_shop_currencies')->where('code', 'BOB')->value('id')
             ?: DB::table('aero_shop_currencies')->insertGetId(['code' => 'BOB', 'name' => 'Boliviano', 'symbol' => 'Bs', 'decimal_places' => 2, 'is_active' => 1, 'created_at' => now(), 'updated_at' => now()]);
 
-        DB::table('aero_shop_settings')->insert([
+        DB::table('aero_shop_settings')->insert($settings + [
             'tenant_id' => $tenant, 'is_enabled' => 1, 'base_currency_id' => $currencyId, 'created_at' => now(), 'updated_at' => now(),
         ]);
     }
-}
+
+    /** Tablas mínimas de Hello (contactos, identidades y mensajes) para probar la lectura del chat. */
+    protected function helloTables(): void
+    {
+        \Schema::create('aero_hello_contacts', function ($t) {
+            $t->id();
+            $t->unsignedBigInteger('tenant_id')->nullable();
+            $t->string('name')->nullable();
+            $t->timestamps();
+        });
+        \Schema::create('aero_hello_contact_identities', function ($t) {
+            $t->id();
+            $t->unsignedBigInteger('contact_id');
+            $t->string('platform');
+            $t->string('external_id');
+            $t->timestamps();
+        });
+        \Schema::create('aero_hello_messages', function ($t) {
+            $t->id();
+            $t->unsignedBigInteger('contact_id');
+            $t->unsignedBigInteger('account_id')->nullable();
+            $t->string('direction');
+            $t->string('type')->default('text');
+            $t->text('body')->nullable();
+            $t->timestamps();
+        });
+    }
+
+    /** Tablas mínimas de Hello (contactos, identidades y mensajes) para probar la lectura del chat. */}
