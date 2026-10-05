@@ -24,6 +24,7 @@ class Triggers
     {
         return Cache::remember(static::CACHE_KEY, 60, function () {
             return Workflow::where('is_active', true)
+                ->where('status', 'published')
                 ->whereIn('trigger_type', ['event', 'message'])
                 ->get()
                 ->map(fn ($w) => [

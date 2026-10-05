@@ -14,7 +14,7 @@ class Workflow extends Model
     public $table = 'aero_workflows_workflows';
 
     public $fillable = [
-        'tenant_id', 'name', 'slug', 'description', 'is_active', 'trigger_type', 'trigger_config',
+        'tenant_id', 'name', 'slug', 'description', 'is_active', 'status', 'trigger_type', 'trigger_config',
         'graph', 'expose_as_tool', 'tool_description', 'tool_schema',
     ];
 
@@ -22,6 +22,7 @@ class Workflow extends Model
         'name'         => 'required',
         'slug'         => 'required|alpha_dash',
         'trigger_type' => 'required|in:manual,event,message,webhook',
+        'status'       => 'in:draft,published,archived',
     ];
 
     public $hasMany = [

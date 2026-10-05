@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
  * o el secreto tal cual en X-Webhook-Token.
  */
 Route::post('workflows/hook/{id}', function (Request $request, int $id) {
-    $workflow = Workflow::where('id', $id)->where('is_active', true)->where('trigger_type', 'webhook')->first();
+    $workflow = Workflow::where('id', $id)->where('is_active', true)->where('status', 'published')->where('trigger_type', 'webhook')->first();
     $secret = (string) ($workflow?->jsonField('trigger_config')['secret'] ?? '');
 
     if (!$workflow || $secret === '') {

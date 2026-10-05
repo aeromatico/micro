@@ -22,6 +22,7 @@ class AiTools
 
         $workflows = Workflow::where('tenant_id', $tenantId)
             ->where('is_active', true)
+            ->where('status', 'published')
             ->where('expose_as_tool', true)
             ->get();
 
@@ -42,7 +43,7 @@ class AiTools
     protected static function run(int $workflowId, array $arguments, int $tenantId): array
     {
         // El tenant que manda es el del bot: si el workflow no coincide, no existe.
-        $workflow = Workflow::where('id', $workflowId)->where('tenant_id', $tenantId)->where('is_active', true)->first();
+        $workflow = Workflow::where('id', $workflowId)->where('tenant_id', $tenantId)->where('is_active', true)->where('status', 'published')->first();
 
         if (!$workflow) {
             return ['error' => 'Workflow no disponible.'];

@@ -10,3 +10,6 @@
     - "«Responder al remitente» funciona en modo prueba: sin mensaje entrante no envía y deja el texto como resultado de la ejecución."
 1.2.0:
     - "Editor visual: pantalla completa (Esc para salir), minimapa y botón «Ordenar» que acomoda los nodos por capas; clase GraphLayout para generar flujos ordenados."
+1.3.0:
+    - "Estado de publicación (draft / published / archived): los borradores no se disparan por eventos, mensajes, webhooks ni tools de IA; los existentes quedan publicados."
+    - add_status_to_workflows.php

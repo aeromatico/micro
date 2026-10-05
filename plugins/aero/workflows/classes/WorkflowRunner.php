@@ -27,6 +27,13 @@ class WorkflowRunner
      */
     public static function start(Workflow $workflow, array $payload, string $source, bool $sync = false): ?Run
     {
+        // Un borrador solo corre a mano (prueba desde el editor). Nunca por evento, mensaje, webhook o IA.
+        if ($workflow->status !== 'published' && $source !== 'manual') {
+            \Log::info('aero.workflows: borrador no ejecutado', ['workflow_id' => $workflow->id, 'source' => $source]);
+
+            return null;
+        }
+
         if (static::$depth >= static::MAX_DEPTH || !static::withinHourlyLimit($workflow)) {
             \Log::warning('aero.workflows: ejecución descartada por límite', ['workflow_id' => $workflow->id]);
 

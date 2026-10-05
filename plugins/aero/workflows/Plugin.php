@@ -23,6 +23,11 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('workflows.skill-catalog', \Aero\Workflows\Console\GenerateSkillCatalog::class);
+    }
+
     public function boot(): void
     {
         $this->app['router']->group([], function () {
