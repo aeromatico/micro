@@ -50,6 +50,9 @@ class BuiltinNodes
                 ['key' => 'body', 'label' => 'Mensaje', 'type' => 'textarea'],
                 ['key' => 'account_id', 'label' => 'ID de cuenta (opcional)', 'type' => 'number'],
             ]],
+            'action.reply' => ['label' => 'Responder al remitente (Hello)', 'category' => 'action', 'handler' => [static::class, 'reply'], 'fields' => [
+                ['key' => 'body', 'label' => 'Mensaje', 'type' => 'textarea', 'hint' => 'Se envía a quien escribió el mensaje que disparó el workflow.'],
+            ]],
             'action.notify' => ['label' => 'Notificar (Notify)', 'category' => 'action', 'handler' => [static::class, 'notify'], 'fields' => [
                 ['key' => 'event', 'label' => 'Evento del catálogo', 'type' => 'text'],
                 ['key' => 'context', 'label' => 'Contexto (JSON)', 'type' => 'json'],
@@ -174,6 +177,38 @@ class BuiltinNodes
         }
 
         $message = \Aero\Hello\Classes\Hello::send($to, $body, $options);
+
+        return ['output' => ['message_id' => $message->id]];
+    }
+
+    /**
+     * data: body. Responde por la misma cuenta y al mismo contacto del mensaje
+     * entrante (trigger.data.0). A diferencia de action.message no necesita teléfono.
+     */
+    public static function reply(array $data, array $ctx, ?int $tenantId): array
+    {
+        if (!class_exists(\Aero\Hello\Classes\Hello::class)) {
+            throw new \RuntimeException('Aero.Hello no está instalado.');
+        }
+
+        $body = trim((string) ($data['body'] ?? ''));
+        $inbound = $ctx['trigger']['data'][0] ?? [];
+        $contactId = (int) ($inbound['contact_id'] ?? 0);
+        $accountId = (int) ($inbound['account_id'] ?? 0);
+
+        if ($body === '' || !$contactId || !$accountId) {
+            throw new \InvalidArgumentException('action.reply necesita un mensaje entrante y un texto.');
+        }
+
+        // Contacto y cuenta deben ser del tenant del workflow (falla cerrado).
+        $contact = \Aero\Hello\Models\Contact::where('id', $contactId)->where('tenant_id', $tenantId ?: 0)->first();
+        $account = \Aero\Hello\Models\Account::where('id', $accountId)->where('tenant_id', $tenantId ?: 0)->first();
+
+        if (!$contact || !$account) {
+            throw new \RuntimeException('El contacto o la cuenta no pertenecen a este tenant.');
+        }
+
+        $message = \Aero\Hello\Classes\Hello::sendToContact($contact, $body, ['tenant_id' => $tenantId, 'account_id' => $account->id]);
 
         return ['output' => ['message_id' => $message->id]];
     }
