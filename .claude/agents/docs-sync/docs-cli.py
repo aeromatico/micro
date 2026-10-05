@@ -10,6 +10,7 @@ Todo lo generado queda como borrador (Docs → Guías interactivas / Artículos 
   docs-cli list [--plugin P] [--all] [--json]
   docs-cli generate <id…> [--note "texto"] [--yes]      ids: guide:guia-pay-x · doc:pay · bootstrap:notify · service:22
   docs-cli generate service:22 --what dgo [--forms all|slug,…] [--apply]   d=documentación g=guías o=página del servicio
+  docs-cli servicio <id> [--si] [--aplicar]             ★ guía paso a paso para completar UN servicio (recomendado)
   docs-cli offer show|apply|revert <id-servicio>         revisar / aplicar / deshacer la propuesta de página
   docs-cli skip <id…>            no necesita guía / actualización (persistente, versionado en git)
   docs-cli unskip <id…>
@@ -357,6 +358,57 @@ def offer_apply(c, service_id, slug):
     return 0
 
 
+def ask_yn(question, default):
+    """Pregunta sí/no con valor por defecto (enter = default)."""
+    hint = "[S/n]" if default else "[s/N]"
+    raw = input(f"{question} {hint} ").strip().lower()
+    if not raw:
+        return default
+    return raw in ("s", "si", "sí", "y", "yes")
+
+
+def servicio_wizard(c, it, assume_yes=False, apply_offer=False):
+    """Guía paso a paso para completar UN servicio: qué falta, qué crear, y aplicar al final."""
+    forms = [f for p in it["plugins"] for f in p["forms"]]
+    todo_docs = [p for p in it["plugins"] if p["doc_state"] != "current"]
+    todo_forms = [f for f in forms if f["state"] != "current"]
+    page_missing = it["offer_state"] == "missing"
+
+    print(f"\n── Servicio #{it['service_id']} · {it['title']} ──")
+    print(f"Plugin «Construido con»: {', '.join(p['code'] for p in it['plugins']) or 'ninguno (¡falta ligarlo en Backend → Servicios!)'}")
+    print(f"Público: {'sí' if it.get('public') else 'no'}")
+    print("Pendiente:")
+    print(f"  · Página de venta: {'vacía' if page_missing else 'ya tiene una versión'}")
+    print(f"  · Documentación: {', '.join(p['plugin'] + ' desactualizada' for p in todo_docs) or 'al día'}")
+    print(f"  · Guías de formularios: {len(todo_forms)} de {len(forms)} por generar")
+
+    if not it["plugins"]:
+        print("\nNo puedo seguir: el servicio no tiene plugin «Construido con». Ligálo primero en el backend.")
+        return 1
+    if not assume_yes and not sys.stdin.isatty():
+        print("Sin terminal interactiva: usa `docs-cli servicio <id> --si` (o `docs-cli generate service:<id> --what o --yes`).")
+        return 1
+    if assume_yes:
+        # sin preguntas: página si falta y documentación si está desactualizada; las guías solo con --forms
+        what = ("o" if page_missing else "") + ("d" if todo_docs else "")
+        guides = []
+    else:
+        print()
+        what = ""
+        if ask_yn("¿Escribir la página de venta (propuesta, no se publica sola)?", page_missing):
+            what += "o"
+        if todo_docs and ask_yn("¿Actualizar la documentación de los plugins?", True):
+            what += "d"
+        guides = []
+        if forms and ask_yn(f"¿Generar guías interactivas de formularios ({len(forms)} disponibles)?", False):
+            what += "g"
+            guides = choose_forms(it, "all" if ask_yn("  ¿Todas las guías?", True) else None)
+    if not what:
+        print("Nada que crear. Listo.")
+        return 0
+    return service_flow(c, it, what, guides, assume_yes=assume_yes, apply_offer=apply_offer)
+
+
 # ─────────────────────────── modo interactivo ───────────────────────────
 HELP = """Comandos:
   <números>        elegir para generar, ej. 1,3,5-7 · all  (en un servicio pregunta: documentación, guías y/o página)
@@ -436,6 +488,10 @@ def main():
     g.add_argument("--what", help="solo servicios: d=documentación g=guías o=página del servicio (ej. dgo)")
     g.add_argument("--forms", help="solo servicios con g: 'all' o lista de slugs/controladores separados por coma")
     g.add_argument("--apply", action="store_true", help="solo servicios con o: aplicar la página al servicio sin preguntar")
+    sv = sub.add_parser("servicio", help="completar un servicio paso a paso")
+    sv.add_argument("service", help="id del servicio (ej. 22)")
+    sv.add_argument("--si", action="store_true", help="sin preguntas: página y documentación pendientes")
+    sv.add_argument("--aplicar", action="store_true", help="aplicar la página al terminar sin preguntar")
     of = sub.add_parser("offer"); of.add_argument("action", choices=["show", "apply", "revert"]); of.add_argument("service")
     sk = sub.add_parser("skip"); sk.add_argument("ids", nargs="+")
     us = sub.add_parser("unskip"); us.add_argument("ids", nargs="+")
@@ -487,6 +543,12 @@ def main():
             rc |= service_flow(c, svc, what, guides, note=args.note, assume_yes=args.yes, apply_offer=args.apply)
         plain = [x for x in chosen if x["kind"] != "service"]
         return rc | (generate(c, W.load_state(), plain, assume_yes=args.yes) if plain else 0)
+    if args.cmd == "servicio":
+        svc = next((i for i in items.values() if i["kind"] == "service" and str(i["service_id"]) == args.service), None)
+        if not svc:
+            print(f"No hay un servicio con id {args.service} en el backlog (usa `docs-cli list --all`).")
+            return 1
+        return servicio_wizard(c, svc, assume_yes=args.si, apply_offer=args.aplicar)
     if args.cmd == "offer":
         sid = args.service if args.service.isdigit() else None
         row = W.artisan_json(c, "services:offer-apply", args.service, "--show") if args.action == "show" else None
