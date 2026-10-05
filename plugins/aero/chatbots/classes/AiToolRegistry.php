@@ -27,28 +27,36 @@ use Aero\Chatbots\Models\Bot;
  */
 class AiToolRegistry
 {
-    protected static ?array $tools = null;
+    /** Cache por tenant: algunas tools (p. ej. workflows) dependen de quién es el dueño del bot. */
+    protected static array $tools = [];
 
-    public static function all(): array
+    /**
+     * Los listeners reciben el tenant_id del bot como argumento (opcional,
+     * `null` = catálogo sin contexto de tenant) para poder declarar tools que
+     * existen solo para ese tenant.
+     */
+    public static function all(?int $tenantId = null): array
     {
-        if (static::$tools !== null) {
-            return static::$tools;
+        $key = $tenantId ?? 0;
+
+        if (isset(static::$tools[$key])) {
+            return static::$tools[$key];
         }
 
         $tools = [];
 
-        foreach ((array) Event::fire('aero.chatbots.registerAiTools') as $result) {
+        foreach ((array) Event::fire('aero.chatbots.registerAiTools', [$tenantId]) as $result) {
             if (is_array($result)) {
                 $tools = array_merge($tools, $result);
             }
         }
 
-        return static::$tools = $tools;
+        return static::$tools[$key] = $tools;
     }
 
-    public static function find(string $name): ?array
+    public static function find(string $name, ?int $tenantId = null): ?array
     {
-        return static::all()[$name] ?? null;
+        return static::all($tenantId)[$name] ?? null;
     }
 
     /**
@@ -59,7 +67,7 @@ class AiToolRegistry
     {
         $enabledCategories = (array) ($bot->ai_tool_categories ?: []);
 
-        return array_filter(static::all(), function (array $tool) use ($enabledCategories) {
+        return array_filter(static::all($bot->tenant_id ? (int) $bot->tenant_id : null), function (array $tool) use ($enabledCategories) {
             $category = $tool['category'] ?? null;
 
             return $category === null || in_array($category, $enabledCategories, true);
@@ -80,7 +88,29 @@ class AiToolRegistry
             }
         }
 
+        foreach (static::categoryLabels() as $category => $label) {
+            $categories[$category] = true;
+        }
+
         return array_keys($categories);
+    }
+
+    /**
+     * Categorías que un plugin declara aunque no tenga tools sin tenant
+     * (evento `aero.chatbots.registerAiToolCategories` → [code => label]),
+     * para que el formulario del Bot las ofrezca como opción.
+     */
+    public static function categoryLabels(): array
+    {
+        $labels = [];
+
+        foreach ((array) Event::fire('aero.chatbots.registerAiToolCategories') as $result) {
+            if (is_array($result)) {
+                $labels = array_merge($labels, $result);
+            }
+        }
+
+        return $labels;
     }
 
     /**
@@ -137,6 +167,6 @@ class AiToolRegistry
 
     public static function flush(): void
     {
-        static::$tools = null;
+        static::$tools = [];
     }
 }

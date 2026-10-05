@@ -257,7 +257,7 @@ class ChatbotEngine
      */
     protected static function executeTool(Bot $bot, ?string $name, array $arguments): mixed
     {
-        $tool = $name ? AiToolRegistry::find($name) : null;
+        $tool = $name ? AiToolRegistry::find($name, $bot->tenant_id ? (int) $bot->tenant_id : null) : null;
 
         if (!$tool || empty($tool['handler']) || !is_callable($tool['handler'])) {
             return ['error' => "Tool desconocida: {$name}"];

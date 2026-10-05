@@ -183,6 +183,8 @@ class Bot extends Model
 
         $options = [];
 
+        $labels = $labels + \Aero\Chatbots\Classes\AiToolRegistry::categoryLabels();
+
         foreach (\Aero\Chatbots\Classes\AiToolRegistry::categories() as $category) {
             $options[$category] = $labels[$category] ?? ucfirst($category);
         }
