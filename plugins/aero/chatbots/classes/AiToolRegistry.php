@@ -27,20 +27,22 @@ use Aero\Chatbots\Models\Bot;
  */
 class AiToolRegistry
 {
-    /** Cache por tenant: algunas tools (p. ej. workflows) dependen de quién es el dueño del bot. */
-    protected static array $tools = [];
+    /** Catálogo sin contexto de tenant: estático, seguro de cachear en el proceso. */
+    protected static ?array $tools = null;
 
     /**
      * Los listeners reciben el tenant_id del bot como argumento (opcional,
      * `null` = catálogo sin contexto de tenant) para poder declarar tools que
      * existen solo para ese tenant.
+     *
+     * Con tenant NO se cachea: depende de datos que cambian (p. ej. workflows
+     * activados o apagados) y el queue worker vive horas; una caché estática
+     * dejaría la lista vieja hasta reiniciarlo.
      */
     public static function all(?int $tenantId = null): array
     {
-        $key = $tenantId ?? 0;
-
-        if (isset(static::$tools[$key])) {
-            return static::$tools[$key];
+        if ($tenantId === null && static::$tools !== null) {
+            return static::$tools;
         }
 
         $tools = [];
@@ -51,7 +53,7 @@ class AiToolRegistry
             }
         }
 
-        return static::$tools[$key] = $tools;
+        return $tenantId === null ? (static::$tools = $tools) : $tools;
     }
 
     public static function find(string $name, ?int $tenantId = null): ?array
@@ -167,6 +169,6 @@ class AiToolRegistry
 
     public static function flush(): void
     {
-        static::$tools = [];
+        static::$tools = null;
     }
 }
