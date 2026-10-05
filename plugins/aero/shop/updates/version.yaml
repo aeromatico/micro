@@ -130,3 +130,6 @@
 1.8.1:
     - "Pedido con la última ubicación compartida por el cliente en el chat: dirección y ciudad opcionales cuando hay coordenadas."
     - make_address_line_city_nullable.php
+
+1.8.2:
+    - "Nodos para Aero.Workflows: «Tienda › Menú de categorías» y «Tienda › Productos de una categoría» (se entienden entre sí por el número del menú)."

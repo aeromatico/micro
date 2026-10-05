@@ -40,6 +40,7 @@ class Plugin extends PluginBase
         $this->bootTenantPurgeCleanup();
         $this->bootPayPaymentBridge();
         $this->bootChatbotsIntegration();
+        $this->bootWorkflowsIntegration();
         $this->bootRestApi();
     }
 
@@ -146,6 +147,18 @@ class Plugin extends PluginBase
                     'handler' => [\Aero\Shop\Classes\Ai\ChatbotTools::class, 'listProducts'],
                 ],
             ];
+        });
+    }
+
+    /**
+     * Nodos de la tienda para Aero.Workflows (menú de categorías y productos
+     * de una categoría). Dependencia blanda: si Aero.Workflows no está
+     * instalado este evento nunca se dispara.
+     */
+    protected function bootWorkflowsIntegration(): void
+    {
+        Event::listen('aero.workflows.registerNodes', function () {
+            return \Aero\Shop\Classes\Workflows\CatalogNodes::definitions();
         });
     }
 
