@@ -132,7 +132,7 @@ class Plugin extends PluginBase
     {
         Event::listen('aero.chatbots.registerAiTools', function () {
             return [
-                'list_products' => [
+                'shop_products_list' => [
                     'description' => 'Lista o busca productos activos del catálogo de la tienda, con precio y disponibilidad.',
                     'category'    => 'shop',
                     'parameters'  => [
