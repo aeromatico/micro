@@ -209,8 +209,17 @@ class BuiltinNodes
         $contactId = (int) ($inbound['contact_id'] ?? 0);
         $accountId = (int) ($inbound['account_id'] ?? 0);
 
-        if ($body === '' || !$contactId || !$accountId) {
-            throw new \InvalidArgumentException('action.reply necesita un mensaje entrante y un texto.');
+        if ($body === '') {
+            throw new \InvalidArgumentException('action.reply necesita un texto.');
+        }
+
+        // Prueba manual (sin mensaje entrante): no hay a quién responder. No se envía nada, pero el
+        // texto queda como resultado de la ejecución para poder ver qué diría el flujo.
+        if (!$contactId || !$accountId) {
+            return [
+                'output'  => ['sent' => false, 'text' => $body, 'reason' => 'Modo prueba: no hay mensaje entrante, no se envió.'],
+                'respond' => $body,
+            ];
         }
 
         // Contacto y cuenta deben ser del tenant del workflow (falla cerrado).

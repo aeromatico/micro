@@ -6,3 +6,7 @@
     - seed_workflows_credit_action.php
 1.1.0:
     - "Nuevo nodo «Capturar ubicación»: extrae lat/lng de la ubicación de WhatsApp, coordenadas escritas o enlaces de Maps; salidas con/sin ubicación y cobertura opcional por radio."
+1.1.1:
+    - "«Responder al remitente» funciona en modo prueba: sin mensaje entrante no envía y deja el texto como resultado de la ejecución."
+1.2.0:
+    - "Editor visual: pantalla completa (Esc para salir), minimapa y botón «Ordenar» que acomoda los nodos por capas; clase GraphLayout para generar flujos ordenados."

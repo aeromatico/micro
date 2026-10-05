@@ -256,4 +256,37 @@ class WorkflowsTest extends PluginTestCase
         $bad = WorkflowRunner::start($wf, ['texto' => 'hola'], 'manual', sync: true);
         $this->assertSame('Comparte tu ubicación', $bad->decoded('result'));
     }
+
+    public function testReplyWithoutInboundMessageIsTestModeNotAnError(): void
+    {
+        $out = \Aero\Workflows\Classes\BuiltinNodes::reply(['body' => 'Hola'], ['trigger' => ['texto' => 'x']], 1);
+
+        $this->assertFalse($out['output']['sent']);
+        $this->assertSame('Hola', $out['respond']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        \Aero\Workflows\Classes\BuiltinNodes::reply(['body' => ''], [], 1);
+    }
+
+    public function testGraphLayoutPutsEachNodeBelowItsParentsWithoutOverlaps(): void
+    {
+        $graph = ['nodes' => [
+            ['id' => 't', 'type' => 'trigger.manual'], ['id' => 'c', 'type' => 'logic.condition'],
+            ['id' => 'a', 'type' => 'action.respond'], ['id' => 'b', 'type' => 'action.respond'], ['id' => 'fin', 'type' => 'action.respond'],
+        ], 'edges' => [
+            ['source' => 't', 'target' => 'c'], ['source' => 'c', 'sourceHandle' => 'true', 'target' => 'a'],
+            ['source' => 'c', 'sourceHandle' => 'false', 'target' => 'b'], ['source' => 'a', 'target' => 'fin'], ['source' => 'b', 'target' => 'fin'],
+            ['source' => 'fin', 'target' => 'c'], // ciclo: no debe colgar ni romper
+        ]];
+
+        $out = \Aero\Workflows\Classes\GraphLayout::apply($graph);
+        $pos = collect($out['nodes'])->mapWithKeys(fn ($n) => [$n['id'] => $n['position']])->all();
+
+        $this->assertLessThan($pos['c']['y'], $pos['t']['y']);
+        $this->assertLessThan($pos['a']['y'], $pos['c']['y']);
+        $this->assertSame($pos['a']['y'], $pos['b']['y']);
+        $this->assertNotSame($pos['a']['x'], $pos['b']['x']);
+        $this->assertCount(5, array_unique(array_map(fn ($p) => $p['x'] . ',' . $p['y'], $pos)), 'Ningún nodo queda encima de otro.');
+        $this->assertSame($graph['edges'], $out['edges'], 'Las conexiones no se tocan.');
+    }
 }

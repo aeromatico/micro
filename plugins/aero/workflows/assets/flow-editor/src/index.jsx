@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  ReactFlow, ReactFlowProvider, Background, Controls, Handle, Position,
-  addEdge, useNodesState, useEdgesState,
+  ReactFlow, ReactFlowProvider, Background, Controls, MiniMap, Handle, Position,
+  addEdge, useNodesState, useEdgesState, useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './editor.css';
@@ -72,6 +72,59 @@ function validate(nodes, edges, catalog) {
   if (hasCycle(nodes, edges)) warnings.push('Hay un ciclo: se cortará a los 50 pasos.');
   nodes.forEach((n) => { if (!catalog[n.data.__type]) warnings.push(`Tipo desconocido: ${n.data.__type}`); });
   return warnings;
+}
+
+/* Acomodo por capas (mismo algoritmo que GraphLayout.php): cada nodo bajo lo que lo alimenta y, dentro de la
+   capa, ordenado por el promedio de posición de sus vecinos para cruzar menos líneas. Solo cambia posiciones. */
+function autoLayout(nodes, edges, gapX = 300, gapY = 150) {
+  const ids = nodes.map((n) => n.id);
+  const known = new Set(ids);
+  const valid = edges.filter((e) => known.has(e.source) && known.has(e.target));
+  const children = {}; const parents = {};
+  ids.forEach((id) => { children[id] = []; parents[id] = []; });
+  valid.forEach((e) => { children[e.source].push(e.target); parents[e.target].push(e.source); });
+
+  // Conexiones que cierran un ciclo: no cuentan para las capas.
+  const state = {}; const back = new Set();
+  const visit = (id) => {
+    state[id] = 1;
+    children[id].forEach((c) => { if (state[c] === 1) back.add(`${id}>${c}`); else if (!state[c]) visit(c); });
+    state[id] = 2;
+  };
+  const triggers = nodes.filter((n) => (n.data.__type || '').startsWith('trigger.')).map((n) => n.id);
+  [...triggers, ...ids].forEach((id) => { if (!state[id]) visit(id); });
+  const forward = valid.filter((e) => !back.has(`${e.source}>${e.target}`));
+
+  const level = {}; ids.forEach((id) => { level[id] = 0; });
+  for (let pass = 0; pass < ids.length; pass++) {
+    let changed = false;
+    forward.forEach((e) => { if (level[e.target] < level[e.source] + 1) { level[e.target] = level[e.source] + 1; changed = true; } });
+    if (!changed) break;
+  }
+
+  const layers = {};
+  ids.forEach((id) => { (layers[level[id]] = layers[level[id]] || []).push(id); });
+  const depths = Object.keys(layers).map(Number).sort((a, b) => a - b);
+  const index = {};
+  depths.forEach((d) => layers[d].forEach((id, i) => { index[id] = i; }));
+
+  for (let sweep = 0; sweep < 4; sweep++) {
+    const down = sweep % 2 === 0;
+    (down ? depths : [...depths].reverse()).forEach((d) => {
+      const bary = {};
+      layers[d].forEach((id, pos) => {
+        const near = (down ? parents : children)[id].filter((n) => level[n] === (down ? d - 1 : d + 1));
+        bary[id] = near.length ? near.reduce((a, n) => a + index[n], 0) / near.length : pos;
+      });
+      layers[d].sort((a, b) => (bary[a] - bary[b]) || (index[a] - index[b]));
+      layers[d].forEach((id, i) => { index[id] = i; });
+    });
+  }
+
+  const pos = {};
+  depths.forEach((d) => layers[d].forEach((id, i) => { pos[id] = { x: Math.round((i - (layers[d].length - 1) / 2) * gapX) + 700, y: d * gapY }; }));
+
+  return nodes.map((n) => ({ ...n, position: pos[n.id] || n.position }));
 }
 
 function parseGraph(raw, catalog) {
@@ -151,7 +204,18 @@ function Editor({ textarea, catalog, connectors }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [selectedId, setSelectedId] = useState(null);
+  const [full, setFull] = useState(false);
+  const { fitView } = useReactFlow();
   const counter = useRef(initial.nodes.length + 1);
+
+  // Pantalla completa: el editor ocupa toda la ventana; Esc la cierra y la página de fondo no se desplaza.
+  React.useEffect(() => {
+    if (!full) return undefined;
+    const onKey = (e) => { if (e.key === 'Escape') setFull(false); };
+    document.addEventListener('keydown', onKey);
+    document.body.classList.add('afe-lock');
+    return () => { document.removeEventListener('keydown', onKey); document.body.classList.remove('afe-lock'); };
+  }, [full]);
 
   const sync = useCallback((n, e) => { textarea.value = serialize(n, e); }, [textarea]);
 
@@ -184,6 +248,11 @@ function Editor({ textarea, catalog, connectors }) {
     }));
   };
 
+  const arrange = () => {
+    setNodes((ns) => autoLayout(ns, edges));
+    setTimeout(() => fitView({ padding: 0.15, duration: 300 }), 50);
+  };
+
   const removeSelected = () => {
     setNodes((ns) => ns.filter((n) => n.id !== selectedId));
     setEdges((es) => es.filter((e) => e.source !== selectedId && e.target !== selectedId));
@@ -197,7 +266,7 @@ function Editor({ textarea, catalog, connectors }) {
   const prior = nodes.filter((n) => n.id !== selectedId).map((n) => n.id);
 
   return (
-    <div className="afe">
+    <div className={`afe${full ? ' afe-full' : ''}`}>
       <div className="afe-side left">
         {['trigger', 'logic', 'action'].map((cat) => (byCategory[cat] ? (
           <div key={cat}>
@@ -224,7 +293,13 @@ function Editor({ textarea, catalog, connectors }) {
         >
           <Background />
           <Controls />
+          <MiniMap pannable zoomable className="afe-minimap" nodeStrokeWidth={2}
+            nodeColor={(n) => ({ trigger: '#16a34a', logic: '#d97706', action: '#2563eb' }[n.data.__category] || '#94a3b8')} />
         </ReactFlow>
+        <button type="button" className="afe-arrangebtn" onClick={arrange} title="Acomoda los nodos por capas para que se crucen menos las líneas">⟲ Ordenar</button>
+        <button type="button" className="afe-fullbtn" onClick={() => setFull((v) => !v)} title={full ? 'Salir de pantalla completa (Esc)' : 'Pantalla completa'}>
+          {full ? '✕ Salir' : '⛶ Pantalla completa'}
+        </button>
       </div>
 
       <div className="afe-side right">
