@@ -55,3 +55,4 @@ plugins/aero/sites/assets/puck-editor/node_modules
 # Python
 __pycache__/
 *.pyc
+plugins/aero/workflows/assets/flow-editor/node_modules
