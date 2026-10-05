@@ -19,7 +19,7 @@ return new class extends Seeder
             return;
         }
 
-        $type = \Aero\Credits\Models\CreditType::where('code', 'azul')->first()
+        $type = \Aero\Credits\Models\CreditType::where('code', 'bronce')->first()
             ?: \Aero\Credits\Models\CreditType::orderBy('sort_order')->first();
 
         if (!$type) {
