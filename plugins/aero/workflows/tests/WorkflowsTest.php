@@ -1,6 +1,7 @@
 <?php namespace Aero\Workflows\Tests;
 
 use Aero\Workflows\Classes\AiTools;
+use Aero\Workflows\Classes\Nodes\LocationCapture;
 use Aero\Workflows\Classes\SafeUrl;
 use Aero\Workflows\Classes\TemplateResolver;
 use Aero\Workflows\Classes\Triggers;
@@ -169,5 +170,90 @@ class WorkflowsTest extends PluginTestCase
         $this->assertSame(1, $wf->runs()->count());
 
         $this->call('POST', "workflows/hook/{$wf->id}", [], [], [], $server + ['HTTP_X_WEBHOOK_TOKEN' => 'mal'], $body)->assertStatus(401);
+    }
+
+    public static function locationProvider(): array
+    {
+        return [
+            'whatsapp nativo'        => ["📍 (-16.500123, -68.150456)\nCasa de Ana Av. Arce 123", -16.500123, -68.150456, 'texto', 'Casa de Ana Av. Arce 123'],
+            'par escrito'            => ['-16.5, -68.15', -16.5, -68.15, 'texto', ''],
+            'texto alrededor'        => ['Estoy en -16.5000, -68.1500 frente a la plaza', -16.5, -68.15, 'texto', 'Estoy en frente a la plaza'],
+            'maps @'                 => ['https://www.google.com/maps/@-16.5,-68.15,17z', -16.5, -68.15, 'enlace', ''],
+            'maps place'             => ['https://www.google.com/maps/place/Casa/@-17.783327,-63.182140,15z/data=x', -17.783327, -63.18214, 'enlace', ''],
+            'maps q'                 => ['mira https://maps.google.com/?q=-16.49,-68.12', -16.49, -68.12, 'enlace', 'mira'],
+            'maps !3d!4d'            => ['https://www.google.com/maps/place/X/data=!3d-16.4!4d-68.1', -16.4, -68.1, 'enlace', ''],
+            'osm'                    => ['https://www.openstreetmap.org/?mlat=-16.5&mlon=-68.1', -16.5, -68.1, 'enlace', ''],
+            'geo uri'                => ['geo:-16.5,-68.15', -16.5, -68.15, 'texto', ''],
+        ];
+    }
+
+    /** @dataProvider locationProvider */
+    public function testLocationParsesFormats(string $text, float $lat, float $lng, string $source, string $name): void
+    {
+        $r = LocationCapture::fromText($text);
+
+        $this->assertNotNull($r, "No detectó: {$text}");
+        $this->assertEqualsWithDelta($lat, $r['lat'], 0.000001);
+        $this->assertEqualsWithDelta($lng, $r['lng'], 0.000001);
+        $this->assertSame($source, $r['source']);
+        $this->assertSame($name, $r['name']);
+    }
+
+    public function testLocationRejectsLookalikes(): void
+    {
+        foreach (['', 'hola', 'mi cel 70123456 y 71234567', 'son 10 y 20', 'total 120.50 bs', '0, 0', '0.0, 0.0', '95.5, 10.5', '-16.5, 190.5', 'https://example.com/?q=hola'] as $text) {
+            $this->assertNull(LocationCapture::fromText($text), "No debía detectar: {$text}");
+        }
+    }
+
+    public function testLocationNodeOutputsZoneAndBranches(): void
+    {
+        $ok = LocationCapture::handle(['source' => '📍 (-16.5, -68.15)', 'center_lat' => -16.49, 'center_lng' => -68.14, 'radius_km' => 5], []);
+        $this->assertSame('found', $ok['handle']);
+        $this->assertTrue($ok['output']['in_zone']);
+        $this->assertSame('-16.5,-68.15', $ok['output']['coords']);
+        $this->assertSame('ubicacion', $ok['var']);
+
+        $far = LocationCapture::handle(['source' => '-17.78, -63.18', 'center_lat' => -16.5, 'center_lng' => -68.15, 'radius_km' => 10], []);
+        $this->assertFalse($far['output']['in_zone']);
+        $this->assertGreaterThan(400, $far['output']['distance_km']);
+
+        $none = LocationCapture::handle(['source' => 'hola'], []);
+        $this->assertSame('not_found', $none['handle']);
+        $this->assertFalse($none['output']['found']);
+
+        // Sin «source»: usa el mensaje que disparó el flujo.
+        $fromTrigger = LocationCapture::handle([], ['trigger' => ['data' => [['body' => "📍 (-16.5, -68.15)\nCasa"]]]]);
+        $this->assertSame('found', $fromTrigger['handle']);
+        $this->assertSame('Casa', $fromTrigger['output']['name']);
+
+        // Campos explícitos (webhook / herramienta de IA).
+        $explicit = LocationCapture::handle(['latitude' => '-16.5', 'longitude' => '-68.15', 'save_as' => 'destino'], []);
+        $this->assertSame('campos', $explicit['output']['source']);
+        $this->assertSame('destino', $explicit['var']);
+    }
+
+    public function testLocationNodeInsideWorkflow(): void
+    {
+        $wf = $this->make(1, 'delivery', ['graph' => json_encode([
+            'nodes' => [
+                ['id' => 't', 'type' => 'trigger.manual'],
+                ['id' => 'loc', 'type' => 'action.location', 'data' => ['source' => '{{ trigger.texto }}', 'center_lat' => -16.5, 'center_lng' => -68.15, 'radius_km' => 10]],
+                ['id' => 'ok', 'type' => 'action.respond', 'data' => ['value' => 'Enviamos a {{ vars.ubicacion.coords }} ({{ vars.ubicacion.distance_km }} km)']],
+                ['id' => 'ko', 'type' => 'action.respond', 'data' => ['value' => 'Comparte tu ubicación']],
+            ],
+            'edges' => [
+                ['source' => 't', 'target' => 'loc'],
+                ['source' => 'loc', 'sourceHandle' => 'found', 'target' => 'ok'],
+                ['source' => 'loc', 'sourceHandle' => 'not_found', 'target' => 'ko'],
+            ],
+        ])]);
+
+        $good = WorkflowRunner::start($wf, ['texto' => "📍 (-16.5, -68.15)\nCasa"], 'manual', sync: true);
+        $this->assertSame('ok', $good->status);
+        $this->assertSame('Enviamos a -16.5,-68.15 (0 km)', $good->decoded('result'));
+
+        $bad = WorkflowRunner::start($wf, ['texto' => 'hola'], 'manual', sync: true);
+        $this->assertSame('Comparte tu ubicación', $bad->decoded('result'));
     }
 }

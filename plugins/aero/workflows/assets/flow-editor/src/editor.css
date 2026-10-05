@@ -14,7 +14,8 @@
 .afe-node.selected { box-shadow: 0 0 0 2px #3b82f6; }
 .afe-node b { display: block; }
 .afe-node small { color: #64748b; }
-.afe-handle-label { position: absolute; font-size: 10px; color: #64748b; bottom: -16px; }
+.afe-node.multi { min-width: 230px; padding-bottom: 14px; }
+.afe-handle-label { position: absolute; font-size: 10px; color: #64748b; bottom: -16px; transform: translateX(-50%); white-space: nowrap; }
 .afe-field { margin-bottom: 8px; }
 .afe-field label { display: block; margin-bottom: 2px; font-weight: 600; }
 .afe-field input, .afe-field select, .afe-field textarea { width: 100%; padding: 4px 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 3px; background: #fff; color: #1e293b; height: auto; }

@@ -193,7 +193,8 @@ class WorkflowRunner
             }
 
             $data = TemplateResolver::resolve((array) ($node['data'] ?? []), $ctx);
-            $out = (array) call_user_func($definition['handler'], $data, $ctx, $run->tenant_id, $run);
+            // El 5.º argumento (el nodo) permite a un nodo mirar su posición en el grafo.
+            $out = (array) call_user_func($definition['handler'], $data, $ctx, $run->tenant_id, $run, $node);
 
             $step->fill([
                 'status'      => 'ok',

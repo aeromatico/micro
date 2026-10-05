@@ -4,3 +4,5 @@
 1.0.1:
     - "Acción facturable workflows.run en Aero.Credits (si está instalado)."
     - seed_workflows_credit_action.php
+1.1.0:
+    - "Nuevo nodo «Capturar ubicación»: extrae lat/lng de la ubicación de WhatsApp, coordenadas escritas o enlaces de Maps; salidas con/sin ubicación y cobertura opcional por radio."

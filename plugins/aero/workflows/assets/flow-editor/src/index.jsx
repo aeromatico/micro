@@ -10,20 +10,23 @@ import './editor.css';
 /* Un nodo del lienzo: color por categoría; la condición tiene dos salidas. */
 function AeroNode({ data, selected }) {
   const cat = data.__category || 'action';
-  const isCondition = data.__type === 'logic.condition';
+  const handles = data.__handles || [];
 
   return (
-    <div className={`afe-node ${cat}${selected ? ' selected' : ''}`}>
+    <div className={`afe-node ${cat}${handles.length ? ' multi' : ''}${selected ? ' selected' : ''}`}>
       {cat !== 'trigger' && <Handle type="target" position={Position.Top} />}
       <b>{data.__label}</b>
       <small>{data.__summary || data.__type}</small>
-      {isCondition ? (
-        <>
-          <Handle type="source" position={Position.Bottom} id="true" style={{ left: '28%' }} />
-          <span className="afe-handle-label" style={{ left: '22%' }}>sí</span>
-          <Handle type="source" position={Position.Bottom} id="false" style={{ left: '72%' }} />
-          <span className="afe-handle-label" style={{ left: '66%' }}>no</span>
-        </>
+      {handles.length ? (
+        handles.map((h, i) => {
+          const left = ((i + 1) / (handles.length + 1)) * 100;
+          return (
+            <React.Fragment key={h.id}>
+              <Handle type="source" position={Position.Bottom} id={h.id} style={{ left: `${left}%` }} />
+              <span className="afe-handle-label" style={{ left: `${left}%` }}>{h.label}</span>
+            </React.Fragment>
+          );
+        })
       ) : (
         <Handle type="source" position={Position.Bottom} />
       )}
@@ -79,7 +82,7 @@ function parseGraph(raw, catalog) {
     const data = n.data || {};
     return {
       id: n.id, type: 'aero', position: n.position || { x: 40 + i * 30, y: 40 + i * 90 },
-      data: { ...data, __type: n.type, __label: def.label, __category: def.category },
+      data: { ...data, __type: n.type, __label: def.label, __category: def.category, __handles: def.handles || [] },
     };
   });
   const edges = (graph.edges || []).map((e) => ({
@@ -164,7 +167,7 @@ function Editor({ textarea, catalog, connectors }) {
     const lowest = nodes.reduce((max, n) => Math.max(max, n.position.y), -60);
     setNodes((ns) => ns.concat({
       id, type: 'aero', position: { x: 80, y: lowest + 110 },
-      data: { __type: type, __label: def.label, __category: def.category },
+      data: { __type: type, __label: def.label, __category: def.category, __handles: def.handles || [] },
     }));
     setSelectedId(id);
   };

@@ -43,14 +43,14 @@ class SafeUrl
     }
 
     /**
-     * @return array{ok: bool, status: ?int, body: mixed, error: ?string}
+     * @return array{ok: bool, status: ?int, body: mixed, error: ?string, headers: array}
      */
     public static function request(string $method, string $url, array $payload = [], array $headers = []): array
     {
         [$ok, $error, $ips] = static::validate($url);
 
         if (!$ok) {
-            return ['ok' => false, 'status' => null, 'body' => null, 'error' => $error];
+            return ['ok' => false, 'status' => null, 'body' => null, 'error' => $error, 'headers' => []];
         }
 
         $parts = parse_url($url);
@@ -80,10 +80,11 @@ class SafeUrl
                 'status' => $response->status(),
                 'body'   => json_decode($raw, true) ?? $raw,
                 'error'  => $response->successful() ? null : 'HTTP ' . $response->status(),
+                'headers' => $response->headers(),
             ];
         }
         catch (Throwable $e) {
-            return ['ok' => false, 'status' => null, 'body' => null, 'error' => $e->getMessage()];
+            return ['ok' => false, 'status' => null, 'body' => null, 'error' => $e->getMessage(), 'headers' => []];
         }
     }
 }

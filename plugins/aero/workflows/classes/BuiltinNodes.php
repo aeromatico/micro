@@ -19,7 +19,9 @@ class BuiltinNodes
             'trigger.event'   => ['label' => 'Evento de la plataforma', 'category' => 'trigger', 'handler' => [static::class, 'trigger'], 'fields' => []],
             'trigger.message' => ['label' => 'Mensaje entrante', 'category' => 'trigger', 'handler' => [static::class, 'trigger'], 'fields' => []],
             'trigger.webhook' => ['label' => 'Webhook entrante', 'category' => 'trigger', 'handler' => [static::class, 'trigger'], 'fields' => []],
-            'logic.condition' => ['label' => 'Condición (sí / no)', 'category' => 'logic', 'handler' => [static::class, 'condition'], 'fields' => [
+            'logic.condition' => ['label' => 'Condición (sí / no)', 'category' => 'logic', 'handler' => [static::class, 'condition'],
+                'handles' => [['id' => 'true', 'label' => 'sí'], ['id' => 'false', 'label' => 'no']],
+                'fields' => [
                 ['key' => 'left', 'label' => 'Valor', 'type' => 'text', 'hint' => 'Ej: {{ trigger.plan }}'],
                 ['key' => 'op', 'label' => 'Operador', 'type' => 'select', 'options' => [
                     ['value' => 'eq', 'label' => 'es igual a'], ['value' => 'neq', 'label' => 'es distinto de'],
@@ -57,6 +59,17 @@ class BuiltinNodes
                 ['key' => 'event', 'label' => 'Evento del catálogo', 'type' => 'text'],
                 ['key' => 'context', 'label' => 'Contexto (JSON)', 'type' => 'json'],
             ]],
+            'action.location' => ['label' => 'Capturar ubicación', 'category' => 'action', 'handler' => [\Aero\Workflows\Classes\Nodes\LocationCapture::class, 'handle'],
+                'handles' => [['id' => 'found', 'label' => 'con ubicación'], ['id' => 'not_found', 'label' => 'sin ubicación']],
+                'fields' => [
+                    ['key' => 'source', 'label' => 'Texto o enlace a analizar', 'type' => 'text', 'hint' => 'Vacío = el mensaje que disparó el flujo (la ubicación de WhatsApp, coordenadas o un enlace de Maps).'],
+                    ['key' => 'latitude', 'label' => 'Latitud (si ya la tienes)', 'type' => 'text'],
+                    ['key' => 'longitude', 'label' => 'Longitud (si ya la tienes)', 'type' => 'text'],
+                    ['key' => 'save_as', 'label' => 'Guardar en la variable', 'type' => 'text', 'hint' => 'Por defecto «ubicacion»: {{ vars.ubicacion.lat }}, .lng, .coords, .maps_url, .name'],
+                    ['key' => 'center_lat', 'label' => 'Cobertura: latitud del centro', 'type' => 'text', 'hint' => 'Opcional. Con centro y radio se calcula in_zone y distance_km.'],
+                    ['key' => 'center_lng', 'label' => 'Cobertura: longitud del centro', 'type' => 'text'],
+                    ['key' => 'radius_km', 'label' => 'Cobertura: radio (km)', 'type' => 'number'],
+                ]],
             'action.respond' => ['label' => 'Responder (valor de retorno)', 'category' => 'action', 'handler' => [static::class, 'respond'], 'fields' => [
                 ['key' => 'value', 'label' => 'Valor', 'type' => 'textarea', 'hint' => 'Es lo que recibe quien llamó (p. ej. la IA).'],
             ]],

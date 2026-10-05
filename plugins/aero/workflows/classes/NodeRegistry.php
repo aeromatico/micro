@@ -10,7 +10,7 @@ use Event;
  *         'crm.create_contact' => [
  *             'label'    => 'CRM › Crear contacto',
  *             'category' => 'action',          // trigger | logic | action
- *             'handler'  => [Clase::class, 'metodo'], // (array $data, array $ctx, ?int $tenantId, Run $run): array
+ *             'handler'  => [Clase::class, 'metodo'], // (array $data, array $ctx, ?int $tenantId, Run $run, array $node): array
  *         ],
  *     ]);
  *
