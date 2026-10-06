@@ -193,7 +193,9 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
     </form>
 
     <form class="sheet" x-show="sheet === 'lcsettings'" x-transition role="dialog" aria-label="Chat web: WhatsApp" @submit.prevent="saveLcSettings()">
-        <h2>Chat web → WhatsApp</h2>
+        <h2>Chat web</h2>
+        <label class="field"><span>Livechat activo (apagado, el widget se oculta del sitio)</span><input type="checkbox" x-model="lcSettings.livechat_enabled"></label>
+        <h3>Retransmitir a WhatsApp</h3>
         <p class="muted">Retransmite los chats web a un WhatsApp por la cuenta que elijas. Lo que respondas por ahí vuelve al visitante. Empieza con el código para elegir el chat, ej. "#12 hola".</p>
         <label class="field"><span>Retransmitir a WhatsApp</span><input type="checkbox" x-model="lcSettings.enabled"></label>
         <label class="field"><span>Cuenta</span>
@@ -490,7 +492,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         <button type="button" class="pick" x-show="pushState !== 'unsupported'" @click="pushState === 'denied' ? notify('Bloqueadas en el navegador: actívalas en los ajustes del sitio.') : togglePush()"><span class="grow"><b>Notificaciones push</b><small x-text="pushState === 'on' ? 'Activadas en este dispositivo' : (pushState === 'denied' ? 'Bloqueadas por el navegador' : 'Desactivadas — toca para activar')"></small></span></button>
         <button type="button" class="pick" @click="askGeo()"><span class="grow"><b>Ubicación</b><small x-text="geoState === 'granted' ? 'Permitida — se usa al enviar tu ubicación' : (geoState === 'denied' ? 'Bloqueada por el navegador' : 'Toca para dar permiso')"></small></span></button>
         <button type="button" class="pick" x-show="pushState === 'on'" @click="sheet = ''; testPush()"><span class="grow"><b>Probar notificación</b><small>Envía una prueba a tus dispositivos y confirma si llega</small></span></button>
-        <button type="button" class="pick" x-show="hasLivechat" @click="openLcSettings()"><span class="grow"><b>Chat web → WhatsApp</b><small x-text="lcSettings.enabled ? 'Activado' : 'Retransmitir los chats web a un WhatsApp'"></small></span></button>
+        <button type="button" class="pick" x-show="hasLivechat" @click="openLcSettings()"><span class="grow"><b>Chat web</b><small x-text="!lcSettings.livechat_enabled ? 'Livechat apagado' : (lcSettings.enabled ? 'Retransmisión a WhatsApp activada' : 'Configurar el chat web y su WhatsApp')"></small></span></button>
         <button type="button" class="pick" x-show="installPrompt" @click="install()"><span class="grow"><b>Instalar app</b><small>Agregar a la pantalla de inicio</small></span></button>
         <button type="button" class="pick danger" @click="logout(true)"><span class="grow"><b>Cerrar sesión</b></span></button>
     </div>
