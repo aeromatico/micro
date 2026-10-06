@@ -1,4 +1,10 @@
 fields:
+    livechat_enabled:
+        label: Livechat activo
+        type: switch
+        span: full
+        comment: Apaga por completo el chat en vivo de este tenant — el widget se oculta en los sitios y no entran mensajes nuevos. Las conversaciones existentes se conservan.
+
     whatsapp_enabled:
         label: Retransmitir chats a WhatsApp
         type: switch

@@ -15,14 +15,16 @@ class ChannelSettings extends Model
 
     public $table = 'aero_livechat_settings';
 
-    public $fillable = ['tenant_id', 'whatsapp_enabled', 'hello_account_id', 'whatsapp_to'];
+    public $fillable = ['tenant_id', 'livechat_enabled', 'whatsapp_enabled', 'hello_account_id', 'whatsapp_to'];
 
     public $rules = [
         'hello_account_id' => 'nullable|integer',
         'whatsapp_to'      => 'nullable|string|max:32',
     ];
 
-    protected $casts = ['whatsapp_enabled' => 'boolean'];
+    protected $casts = ['livechat_enabled' => 'boolean', 'whatsapp_enabled' => 'boolean'];
+
+    public $attributes = ['livechat_enabled' => true];
 
     public static function forScope(?int $tenantId): static
     {
@@ -33,6 +35,14 @@ class ChannelSettings extends Model
     public static function lookup(?int $tenantId): ?static
     {
         return static::where('tenant_id', $tenantId)->first();
+    }
+
+    /** Interruptor general del tenant. Sin registro guardado, el livechat está activo. */
+    public static function livechatEnabled(?int $tenantId): bool
+    {
+        $settings = static::lookup($tenantId);
+
+        return $settings ? (bool) $settings->livechat_enabled : true;
     }
 
     /** Cuentas de WhatsApp (wapi/Zernio) que este ámbito puede usar. */
@@ -77,6 +87,7 @@ class ChannelSettings extends Model
     public function toPayload(): array
     {
         return [
+            'livechat_enabled' => (bool) $this->livechat_enabled,
             'enabled'    => (bool) $this->whatsapp_enabled,
             'account_id' => $this->hello_account_id ? (int) $this->hello_account_id : null,
             'to'         => $this->whatsapp_to,

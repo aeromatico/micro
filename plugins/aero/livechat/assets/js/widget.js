@@ -668,10 +668,23 @@
         if (state.pollTimer) { clearInterval(state.pollTimer); state.pollTimer = null; }
     }
 
+    // Interruptor general (Livechat → Configuración): apagado, el widget se
+    // oculta; al volver a encenderse reaparece en el siguiente chequeo.
+    function applyEnabled(enabled) {
+        var bubble = document.getElementById('aero-livechat-bubble');
+        var panel = document.getElementById('aero-livechat-panel');
+        if (bubble) bubble.style.display = enabled ? '' : 'none';
+        if (panel && !enabled) panel.style.display = 'none';
+    }
+
     function pollUnread() {
         var token = getToken();
-        if (!token || state.open) return;
-        api('unread?widget_key=' + widgetKey + '&visitor_token=' + token).then(function (res) {
+        if (state.open) return;
+        // Sin token (visitante nuevo) igual se consulta, con uno de relleno, para saber si el chat está activo.
+        api('unread?widget_key=' + widgetKey + '&visitor_token=' + (token || '-')).then(function (res) {
+            if (res.enabled === false) { applyEnabled(false); return; }
+            if (res.enabled === true) { applyEnabled(true); }
+            if (!token) return;
             if (res.status === 'resolved') { handleResolvedElsewhere(); return; }
 
             var badge = document.getElementById('aero-livechat-badge');

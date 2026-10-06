@@ -78,7 +78,7 @@ class PwaController extends Controller
         return response()->json(['data' => $this->settingsPayload($tenantId)]);
     }
 
-    /** POST api/v1/chat/livechat/settings {enabled, account_id, to} */
+    /** POST api/v1/chat/livechat/settings {livechat_enabled?, enabled, account_id, to} */
     public function saveSettings(Request $request): JsonResponse
     {
         if ($err = $this->denyUnlessCanConfigure($request)) {
@@ -88,6 +88,9 @@ class PwaController extends Controller
         $tenantId = (int) $request->attributes->get('tenant_id');
         $settings = ChannelSettings::forScope($tenantId);
 
+        if ($request->has('livechat_enabled')) {
+            $settings->livechat_enabled = $request->boolean('livechat_enabled');
+        }
         $settings->whatsapp_enabled = $request->boolean('enabled');
         $settings->hello_account_id = $request->input('account_id') ?: null;
         $settings->whatsapp_to = trim((string) $request->input('to')) ?: null;

@@ -38,6 +38,9 @@ class WidgetController extends Controller
         if (!$inbox) {
             return response()->json(['error' => 'inbox_not_found'], 404);
         }
+        if (!$inbox->isServing()) {
+            return response()->json(['error' => 'livechat_disabled', 'message' => 'El chat no está disponible por ahora.'], 403);
+        }
 
         $contact = null;
         if (!empty($data['visitor_token'])) {
@@ -324,6 +327,7 @@ class WidgetController extends Controller
         [$inbox, $contact, $conversation] = $this->resolveConversation($data['widget_key'], $data['visitor_token']);
 
         return response()->json([
+            'enabled' => (bool) $inbox?->isServing(),
             'unread' => $conversation?->visitor_unread_count ?? 0,
             'status' => $conversation?->status,
         ]);
@@ -335,6 +339,11 @@ class WidgetController extends Controller
         $inbox = Inbox::where('widget_key', $widgetKey)->first();
         if (!$inbox) {
             return [null, null, null];
+        }
+        // Apagado desde Configuración: sin conversación resoluble, así message/
+        // attachment/messages responden "no encontrada" y unread avisa al widget.
+        if (!$inbox->isServing()) {
+            return [$inbox, null, null];
         }
 
         $contact = Contact::where('tenant_id', $inbox->tenant_id)->where('visitor_token', $visitorToken)->first();

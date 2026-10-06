@@ -75,6 +75,12 @@ class Inbox extends Model
             ->orderBy('name')->pluck('name', 'id')->all();
     }
 
+    /** ¿Atiende visitantes? Activo el inbox y el interruptor general del tenant (Configuración). */
+    public function isServing(): bool
+    {
+        return (bool) $this->is_active && ChannelSettings::livechatEnabled($this->tenant_id ? (int) $this->tenant_id : null);
+    }
+
     public function scopeInScope($query, ?int $tenantId)
     {
         return $tenantId ? $query->where('tenant_id', $tenantId) : $query->whereNull('tenant_id');
