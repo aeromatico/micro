@@ -18,6 +18,7 @@ Route::prefix('api/v1/livechat')->middleware(['api', ForceJson::class, Cors::cla
     // Laravel corta con una excepción que se salta el middleware Cors por
     // prioridad fija del Kernel, y esa respuesta 429 sin headers de CORS
     // queda bloqueada por el navegador (el widget la veía como error de red).
+    Route::get('config', [WidgetController::class, 'config'])->middleware(ThrottleJson::class . ':120,1');
     Route::post('start', [WidgetController::class, 'start'])->middleware(ThrottleJson::class . ':60,1');
     Route::post('message', [WidgetController::class, 'message'])->middleware(ThrottleJson::class . ':60,1');
     Route::get('messages', [WidgetController::class, 'messages'])->middleware(ThrottleJson::class . ':120,1');

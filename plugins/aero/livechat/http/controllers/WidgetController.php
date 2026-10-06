@@ -8,6 +8,7 @@ use Aero\Livechat\Classes\TranscriptMailer;
 use Aero\Livechat\Classes\ValidatesJson;
 use Aero\Livechat\Models\Contact;
 use Aero\Livechat\Models\Conversation;
+use Aero\Livechat\Models\ChannelSettings;
 use Aero\Livechat\Models\Inbox;
 use Aero\Livechat\Models\Message;
 use Illuminate\Http\Request;
@@ -22,6 +23,28 @@ use Storage;
 class WidgetController extends Controller
 {
     use ValidatesJson;
+
+    /**
+     * Público: cómo debe pintarse el widget (modo, número de WhatsApp o código
+     * personalizado). Solo sale lo que el modo del tenant usa. Un inbox
+     * inexistente o desactivado devuelve enabled=false — el script no pinta nada.
+     */
+    public function config(Request $request)
+    {
+        $data = $this->check($request, ['widget_key' => 'required|uuid']);
+
+        $inbox = Inbox::where('widget_key', $data['widget_key'])->where('is_active', true)->first();
+        if (!$inbox) {
+            return response()->json(['enabled' => false]);
+        }
+
+        $config = ChannelSettings::widgetConfig($inbox->tenant_id ? (int) $inbox->tenant_id : null);
+        if ($config['whatsapp']) {
+            $config['whatsapp'] = \Aero\Hello\Classes\PhoneNumber::normalize($config['whatsapp']);
+        }
+
+        return response()->json($config);
+    }
 
     public function start(Request $request)
     {

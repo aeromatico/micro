@@ -91,6 +91,11 @@ class PwaController extends Controller
         if ($request->has('livechat_enabled')) {
             $settings->livechat_enabled = $request->boolean('livechat_enabled');
         }
+        if ($request->has('widget_mode')) {
+            $settings->widget_mode = (string) $request->input('widget_mode');
+            $settings->widget_whatsapp = trim((string) $request->input('widget_whatsapp')) ?: null;
+            $settings->custom_code = $request->input('custom_code') ?: null;
+        }
         $settings->whatsapp_enabled = $request->boolean('enabled');
         $settings->hello_account_id = $request->input('account_id') ?: null;
         $settings->whatsapp_to = trim((string) $request->input('to')) ?: null;

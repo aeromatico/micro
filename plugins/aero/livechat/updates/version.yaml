@@ -26,3 +26,6 @@
 1.8.0:
     - "Interruptor general por tenant: apaga o enciende por completo el chat en vivo (el widget se oculta y no acepta mensajes nuevos)."
     - add_livechat_enabled_to_settings.php
+1.9.0:
+    - "Modos del widget por tenant: Livechat (Hello), WhatsApp (icono flotante que abre wa.me), Livechat + WhatsApp, o Personalizado (código de terceros incrustado en el sitio)."
+    - add_widget_mode_to_settings.php
