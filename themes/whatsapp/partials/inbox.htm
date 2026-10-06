@@ -195,7 +195,16 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
     <form class="sheet" x-show="sheet === 'lcsettings'" x-transition role="dialog" aria-label="Chat web: WhatsApp" @submit.prevent="saveLcSettings()">
         <h2>Chat web</h2>
         <label class="field"><span>Livechat activo (apagado, el widget se oculta del sitio)</span><input type="checkbox" x-model="lcSettings.livechat_enabled"></label>
-        <h3>Retransmitir a WhatsApp</h3>
+        <label class="field"><span>Modo del widget</span>
+            <select x-model="lcSettings.widget_mode">
+                <option value="livechat">Livechat (chat en vivo)</option>
+                <option value="whatsapp">WhatsApp (icono flotante)</option>
+                <option value="both">Livechat + WhatsApp</option>
+                <option value="custom">Personalizado (código de terceros)</option>
+            </select></label>
+        <label class="field" x-show="lcSettings.widget_mode === 'whatsapp' || lcSettings.widget_mode === 'both'"><span>Número de WhatsApp del icono</span><input type="tel" x-model="lcSettings.widget_whatsapp" placeholder="59170000000"></label>
+        <label class="field" x-show="lcSettings.widget_mode === 'custom'"><span>Código personalizado (se ejecuta tal cual en tu sitio)</span><textarea rows="6" x-model="lcSettings.custom_code" spellcheck="false"></textarea></label>
+        <h3 x-show="lcSettings.widget_mode === 'livechat' || lcSettings.widget_mode === 'both'">Retransmitir a WhatsApp</h3>
         <p class="muted">Retransmite los chats web a un WhatsApp por la cuenta que elijas. Lo que respondas por ahí vuelve al visitante. Empieza con el código para elegir el chat, ej. "#12 hola".</p>
         <label class="field"><span>Retransmitir a WhatsApp</span><input type="checkbox" x-model="lcSettings.enabled"></label>
         <label class="field"><span>Cuenta</span>
