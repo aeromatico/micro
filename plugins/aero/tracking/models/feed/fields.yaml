@@ -1,0 +1,51 @@
+fields:
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: full
+        context: create
+        placeholder: -- elegir --
+    url:
+        label: Enlace público de rastreo
+        type: text
+        context: create
+        required: true
+        placeholder: https://web-apps.pedidosya.com/shared-order-state/…
+        comment: Pega el enlace «compartir pedido». Hoy se admite PedidosYa.
+    label:
+        label: Nombre (opcional)
+        type: text
+        span: full
+    provider_label:
+        label: Proveedor
+        span: left
+        disabled: true
+        context: update
+    status_label:
+        label: Estado del seguimiento
+        span: right
+        disabled: true
+        context: update
+    phase_label:
+        label: Fase del pedido
+        span: left
+        disabled: true
+        context: update
+    eta_text:
+        label: Hora estimada
+        span: right
+        disabled: true
+        context: update
+    message:
+        label: Mensaje del proveedor
+        span: full
+        disabled: true
+        context: update
+    links:
+        type: partial
+        path: links
+        context: update
+    timeline:
+        type: partial
+        path: timeline
+        context: update

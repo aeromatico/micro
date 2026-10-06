@@ -1,0 +1,9 @@
+columns:
+    display_name: {label: Seguimiento, sortable: false}
+    provider_label: {label: Proveedor, sortable: false}
+    phase_label: {label: Fase, sortable: false}
+    eta_text: {label: Hora estimada}
+    status_label: {label: Estado, sortable: false}
+    tenant_id: {label: Tenant, sortable: false}
+    last_polled_at: {label: Última lectura, type: timetense}
+    created_at: {label: Creado, type: timetense}

@@ -38,6 +38,7 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('aero.tracking.prune', \Aero\Tracking\Console\PrunePositions::class);
+        $this->registerConsoleCommand('aero.tracking.feeds', \Aero\Tracking\Console\PollFeeds::class);
     }
 
     public function boot(): void
@@ -169,6 +170,7 @@ class Plugin extends PluginBase
     public function registerSchedule($schedule): void
     {
         $schedule->command('aero.tracking:prune')->dailyAt('03:30');
+        $schedule->command('aero.tracking:feeds')->everyMinute();
     }
 
     public function registerPermissions(): array
@@ -200,6 +202,7 @@ class Plugin extends PluginBase
                 'sideMenu'    => [
                     'livemap' => ['label' => 'Mapa en vivo', 'icon' => 'icon-map-marker', 'url' => Backend::url('aero/tracking/livemap'), 'permissions' => $perms],
                     'jobs'    => ['label' => 'Trabajos', 'icon' => 'icon-list', 'url' => Backend::url('aero/tracking/jobs'), 'permissions' => $perms],
+                    'feeds'   => ['label' => 'Seguimiento externo', 'icon' => 'icon-paper-plane', 'url' => Backend::url('aero/tracking/feeds'), 'permissions' => $perms],
                     'assets'  => ['label' => 'Activos', 'icon' => 'icon-truck', 'url' => Backend::url('aero/tracking/assets'), 'permissions' => $perms],
                 ],
             ],
