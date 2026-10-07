@@ -21,3 +21,10 @@
 1.5.1:
     - "Los enlaces al editor que entrega el agente apuntan al panel del propio tenant (master.…, no panel.…); el skill de diseño lo indica."
     - seed_workflow_designer_agent.php
+1.6.0:
+    - "Los agentes EDITAN workflows existentes (workflows_update, también publicados) con copia de seguridad y deshacer (workflows_revert), y recuerdan en qué flujo se está trabajando."
+    - create_workflow_revisions_table.php
+    - seed_workflow_designer_agent.php
+1.6.1:
+    - "Link recibe las herramientas de edición (workflows_update y workflows_revert) en su skill de diseño."
+    - seed_workflow_designer_agent.php

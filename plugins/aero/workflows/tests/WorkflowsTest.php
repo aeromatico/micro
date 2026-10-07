@@ -779,4 +779,102 @@ class WorkflowsTest extends PluginTestCase
         $this->assertTrue($k('', 'cualquier cosa'), 'sin palabra clave responde a todo');
         $this->assertTrue($k(' , ', 'cualquier cosa'), 'solo separadores = sin filtro');
     }
+
+    // --- Editar workflows existentes (workflows_update / workflows_revert) ---
+
+    protected function changed(): array
+    {
+        $g = $this->builderGraph();
+        $g['nodes'][2]['data']['value'] = 'Grande (editado)';
+
+        return $g;
+    }
+
+    public function testUpdateEditsThePublishedWorkflowInPlaceAndKeepsItLive(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+        $w = $this->make(7, 'en-vivo', ['status' => 'published', 'is_active' => true, 'graph' => json_encode($this->builderGraph())]);
+        $before = $w->version;
+
+        $r = $B::update(['workflow_id' => $w->id, 'agreed_plan' => 'Cambiar el texto de la respuesta grande a «Grande (editado)».', 'graph' => $this->changed()], 7);
+
+        $this->assertTrue($r['updated'], json_encode($r));
+        $this->assertSame($w->id, $r['id'], 'se edita el MISMO workflow, no se crea otro');
+        $this->assertTrue($r['live']);
+        $this->assertStringContainsString('en vivo', $r['note']);
+
+        $fresh = Workflow::find($w->id);
+        $this->assertSame('published', $fresh->status);
+        $this->assertTrue((bool) $fresh->is_active);
+        $this->assertGreaterThan($before, $fresh->version);
+        $this->assertSame('Grande (editado)', $fresh->jsonField('graph')['nodes'][2]['data']['value']);
+        $this->assertSame(1, Workflow::where('tenant_id', 7)->count());
+        $this->assertSame(1, \Aero\Workflows\Models\Revision::where('workflow_id', $w->id)->count(), 'queda la copia para deshacer');
+    }
+
+    public function testUpdateRefusesWhatItShouldNotTouch(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+        $mine = $this->make(7, 'mio', ['graph' => json_encode($this->builderGraph())]);
+        $foreign = $this->make(8, 'ajeno');
+        $archived = $this->make(7, 'archivado', ['status' => 'archived']);
+        $plan = 'Cambiar el texto de la respuesta grande a otra cosa.';
+
+        $this->assertFalse($B::update(['workflow_id' => $mine->id, 'agreed_plan' => 'corto', 'graph' => $this->changed()], 7)['updated'], 'sin plan acordado');
+        $this->assertFalse($B::update(['workflow_id' => $foreign->id, 'agreed_plan' => $plan, 'graph' => $this->changed()], 7)['updated'], 'workflow de otro tenant');
+        $this->assertFalse($B::update(['workflow_id' => $archived->id, 'agreed_plan' => $plan, 'graph' => $this->changed()], 7)['updated'], 'archivado');
+
+        $bad = $this->changed();
+        array_pop($bad['edges']);
+        $r = $B::update(['workflow_id' => $mine->id, 'agreed_plan' => $plan, 'graph' => $bad], 7);
+        $this->assertFalse($r['updated']);
+        $this->assertNotEmpty($r['errors']);
+        $this->assertSame(0, \Aero\Workflows\Models\Revision::count(), 'un cambio rechazado no deja copias ni toca nada');
+        $this->assertSame('Grande', Workflow::find($mine->id)->jsonField('graph')['nodes'][2]['data']['value']);
+    }
+
+    public function testUpdateKeepsTheWebhookSecretAndRevertUndoesTheLastChange(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+        $graph = ['nodes' => [['id' => 't', 'type' => 'trigger.webhook', 'data' => []], ['id' => 'r', 'type' => 'action.respond', 'data' => ['value' => 'ok']]], 'edges' => [['source' => 't', 'target' => 'r']]];
+        $w = $this->make(7, 'hook', ['trigger_type' => 'webhook', 'trigger_config' => json_encode(['secret' => 'S3CRETO']), 'graph' => json_encode($graph)]);
+
+        $changed = $graph;
+        $changed['nodes'][1]['data']['value'] = 'nuevo';
+        $B::update(['workflow_id' => $w->id, 'agreed_plan' => 'Cambiar la respuesta del webhook a «nuevo».', 'graph' => $changed, 'trigger_type' => 'webhook', 'trigger_config' => ['secret' => 'HACKEADO']], 7);
+
+        $fresh = Workflow::find($w->id);
+        $this->assertSame('S3CRETO', $fresh->jsonField('trigger_config')['secret'], 'el secreto no se toca desde los agentes');
+        $this->assertSame('nuevo', $fresh->jsonField('graph')['nodes'][1]['data']['value']);
+
+        $r = $B::revert(['workflow_id' => $w->id], 7);
+        $this->assertTrue($r['reverted']);
+        $this->assertSame('ok', Workflow::find($w->id)->jsonField('graph')['nodes'][1]['data']['value'], 'quedó como antes');
+        $this->assertSame('S3CRETO', Workflow::find($w->id)->jsonField('trigger_config')['secret']);
+
+        $this->assertFalse($B::revert(['workflow_id' => $w->id], 7)['reverted'], 'ya no hay más que deshacer');
+        $this->assertFalse($B::revert(['workflow_id' => $w->id], 8)['reverted'], 'otro tenant no puede deshacer');
+    }
+
+    public function testOnlyTheLastRevisionsAreKept(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+        $w = $this->make(7, 'muchos', ['graph' => json_encode($this->builderGraph())]);
+
+        foreach (range(1, \Aero\Workflows\Models\Revision::KEEP + 3) as $i) {
+            $g = $this->builderGraph();
+            $g['nodes'][2]['data']['value'] = "v{$i}";
+            $this->assertTrue($B::update(['workflow_id' => $w->id, 'agreed_plan' => "Cambio número {$i} acordado con la persona.", 'graph' => $g], 7)['updated']);
+        }
+
+        $this->assertSame(\Aero\Workflows\Models\Revision::KEEP, \Aero\Workflows\Models\Revision::where('workflow_id', $w->id)->count());
+    }
+
+    public function testBuilderRegistersTheEditingTools(): void
+    {
+        $tools = \Aero\Chatbots\Classes\AiToolRegistry::all(1);
+
+        $this->assertSame('workflows_builder', $tools['workflows_update']['category'] ?? null);
+        $this->assertSame('workflows_builder', $tools['workflows_revert']['category'] ?? null);
+    }
 }

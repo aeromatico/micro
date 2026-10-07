@@ -84,7 +84,7 @@ class BuilderTools
                 ['graph', 'trigger_type'], 'validate'
             ),
             'workflows_save_draft' => $tool(
-                'Guarda el diseño como BORRADOR desactivado para que una persona lo revise y publique. SOLO después de que la persona haya confirmado el plan con sus palabras. Si es válido devuelve el id y el enlace del editor; si no, devuelve los errores y no guarda nada. Con `workflow_id` reemplaza un borrador existente (nunca uno publicado).',
+                'Guarda el diseño como BORRADOR desactivado para que una persona lo revise y publique. SOLO después de que la persona haya confirmado el plan con sus palabras. Si es válido devuelve el id y el enlace del editor; si no, devuelve los errores y no guarda nada. Para un flujo NUEVO. Con `workflow_id` reemplaza un borrador existente; para editar uno ya publicado usa workflows_update.',
                 [
                     'name'             => ['type' => 'string', 'description' => 'Nombre claro, hasta 190 caracteres.'],
                     'description'      => ['type' => 'string', 'description' => 'Qué hace el flujo, en una o dos frases.'],
@@ -95,6 +95,23 @@ class BuilderTools
                     'tool_schema'      => ['type' => 'object', 'description' => 'Opcional, solo trigger manual: JSON Schema de los parámetros que recibe.'],
                 ] + $trigger,
                 ['name', 'agreed_plan', 'graph', 'trigger_type'], 'saveDraft'
+            ),
+            'workflows_update' => $tool(
+                'EDITA un workflow que el cliente YA tiene (también uno publicado y en vivo): úsala cuando la persona quiere cambiar, ampliar o corregir un flujo existente o «el que estamos trabajando». NUNCA crees otro para eso. Antes lee el actual con workflows_get; envía el grafo COMPLETO ya modificado. Guarda una copia para poder deshacer. SOLO tras acordar el cambio con la persona; envía el cambio acordado en `agreed_plan`.',
+                [
+                    'workflow_id'    => ['type' => 'integer', 'description' => 'Id del workflow a editar (de workflows_list o del contexto).'],
+                    'agreed_plan'    => ['type' => 'string', 'description' => 'El cambio que la persona aprobó, en pasos simples. Obligatorio.'],
+                    'graph'          => $graph,
+                    'name'           => ['type' => 'string', 'description' => 'Opcional: nuevo nombre.'],
+                    'trigger_type'   => $trigger['trigger_type'],
+                    'trigger_config' => $trigger['trigger_config'],
+                ],
+                ['workflow_id', 'agreed_plan', 'graph'], 'update'
+            ),
+            'workflows_revert' => $tool(
+                'Deshace el último cambio hecho con workflows_update en un workflow: lo deja como estaba antes. Úsala si la persona dice «deshaz eso» o el cambio no le gustó.',
+                ['workflow_id' => ['type' => 'integer']],
+                ['workflow_id'], 'revert'
             ),
         ];
     }
@@ -222,6 +239,8 @@ class BuilderTools
             return [
                 'id'           => $w->id,
                 'name'         => $w->name,
+                'version'      => (int) $w->version,
+                'updated_at'   => optional($w->updated_at)->toDateTimeString(),
                 'status'       => $w->status,
                 'active'       => (bool) $w->is_active,
                 'trigger_type' => $w->trigger_type,
@@ -430,6 +449,136 @@ class BuilderTools
             'warnings'  => $warnings,
             'next_steps' => 'Una persona debe abrirlo en el editor, revisar cada nodo, probarlo con «Probar» y publicarlo. Nada se ejecuta solo hasta entonces.',
         ];
+    }
+
+    // ---------------------------------------------------------------- edición
+
+    public static function update(array $args, int $tenantId): array
+    {
+        $plan = trim((string) ($args['agreed_plan'] ?? ''));
+
+        if (mb_strlen($plan) < 20) {
+            return ['updated' => false, 'errors' => ['Falta agreed_plan: acuerda el cambio con la persona y envíalo aquí en pasos simples.']];
+        }
+
+        $w = Workflow::where('tenant_id', $tenantId)->find((int) ($args['workflow_id'] ?? 0));
+
+        if (!$w) {
+            return ['updated' => false, 'errors' => ['Ese workflow no existe en este cliente.']];
+        }
+
+        if ($w->status === 'archived') {
+            return ['updated' => false, 'errors' => ['Ese workflow está archivado: una persona debe desarchivarlo antes.']];
+        }
+
+        $merged = $args + ['trigger_type' => $w->trigger_type];
+        $merged['trigger_config'] = array_key_exists('trigger_config', $args) ? $args['trigger_config'] : $w->jsonField('trigger_config');
+
+        [$errors, $warnings] = static::check($merged, $tenantId);
+
+        if ($errors) {
+            return ['updated' => false, 'errors' => $errors, 'warnings' => $warnings];
+        }
+
+        $graph = $args['graph'];
+
+        if (array_filter((array) $graph['nodes'], fn ($n) => !isset($n['position']))) {
+            $graph = GraphLayout::apply($graph);
+        }
+
+        try {
+            \DB::transaction(function () use ($w, $tenantId, $merged, $graph, $args, $plan) {
+                // Copia de seguridad ANTES de tocar nada (permite deshacer aunque esté en vivo).
+                \Aero\Workflows\Models\Revision::create([
+                    'workflow_id' => $w->id, 'tenant_id' => $tenantId, 'version' => (int) $w->version, 'name' => $w->name,
+                    'trigger_type' => $w->trigger_type, 'trigger_config' => json_encode($w->jsonField('trigger_config'), JSON_UNESCAPED_UNICODE),
+                    'graph' => json_encode($w->jsonField('graph'), JSON_UNESCAPED_UNICODE), 'source' => 'agent', 'note' => $plan,
+                ]);
+
+                // Solo se conservan las últimas copias (se recorta en PHP: OFFSET sin LIMIT no existe en MySQL).
+                $stale = \Aero\Workflows\Models\Revision::where('workflow_id', $w->id)->orderByDesc('id')->pluck('id')->slice(\Aero\Workflows\Models\Revision::KEEP);
+                if ($stale->isNotEmpty()) {
+                    \Aero\Workflows\Models\Revision::whereIn('id', $stale)->delete();
+                }
+
+                $config = static::cleanConfig($merged);
+
+                // El secreto de un webhook existente NO se toca (nadie por aquí puede verlo ni definirlo).
+                if ($merged['trigger_type'] === 'webhook' && !empty($w->jsonField('trigger_config')['secret'])) {
+                    $config['secret'] = $w->jsonField('trigger_config')['secret'];
+                }
+
+                $w->fill(array_filter([
+                    'name'         => isset($args['name']) && trim((string) $args['name']) !== '' ? mb_substr(trim((string) $args['name']), 0, 190) : null,
+                    'trigger_type' => $merged['trigger_type'],
+                    'graph'        => json_encode($graph, JSON_UNESCAPED_UNICODE),
+                ], fn ($v) => $v !== null));
+
+                $w->trigger_config = $config ? json_encode($config, JSON_UNESCAPED_UNICODE) : null;
+
+                $w->save();
+            });
+        }
+        catch (\Throwable $e) {
+            return ['updated' => false, 'errors' => ['No se pudo guardar: ' . $e->getMessage()]];
+        }
+
+        $w->refresh();
+        $live = $w->status === 'published' && $w->is_active;
+
+        return [
+            'updated'    => true,
+            'id'         => $w->id,
+            'name'       => $w->name,
+            'version'    => (int) $w->version,
+            'status'     => $w->status,
+            'active'     => (bool) $w->is_active,
+            'live'       => $live,
+            'editor_url' => static::tenantUrl($tenantId, \Backend::url('aero/workflows/workflows/update/' . $w->id)),
+            'warnings'   => $warnings,
+            'note'       => ($live ? 'OJO: este workflow está publicado y activo, el cambio ya está en vivo. ' : 'El workflow no está en vivo (borrador o apagado). ')
+                . 'Si el cambio no le gusta a la persona, puedes deshacerlo con workflows_revert.',
+        ];
+    }
+
+    public static function revert(array $args, int $tenantId): array
+    {
+        $w = Workflow::where('tenant_id', $tenantId)->find((int) ($args['workflow_id'] ?? 0));
+
+        if (!$w) {
+            return ['reverted' => false, 'errors' => ['Ese workflow no existe en este cliente.']];
+        }
+
+        $rev = \Aero\Workflows\Models\Revision::where('workflow_id', $w->id)->where('tenant_id', $tenantId)->orderByDesc('id')->first();
+
+        if (!$rev) {
+            return ['reverted' => false, 'errors' => ['No hay cambios anteriores que deshacer en ese workflow.']];
+        }
+
+        try {
+            \DB::transaction(function () use ($w, $rev) {
+                $config = json_decode((string) $rev->trigger_config, true) ?: [];
+
+                // Un secreto de webhook que una persona cambió después NO se pisa con el viejo.
+                if ($rev->trigger_type === 'webhook' && !empty($w->jsonField('trigger_config')['secret'])) {
+                    $config['secret'] = $w->jsonField('trigger_config')['secret'];
+                }
+
+                $w->fill(['name' => $rev->name, 'trigger_type' => $rev->trigger_type, 'graph' => $rev->graph]);
+                $w->trigger_config = $config ? json_encode($config, JSON_UNESCAPED_UNICODE) : null;
+                $w->save();
+                $rev->delete();
+            });
+        }
+        catch (\Throwable $e) {
+            return ['reverted' => false, 'errors' => ['No se pudo deshacer: ' . $e->getMessage()]];
+        }
+
+        $w->refresh();
+
+        return ['reverted' => true, 'id' => $w->id, 'name' => $w->name, 'version' => (int) $w->version, 'status' => $w->status,
+            'editor_url' => static::tenantUrl($tenantId, \Backend::url('aero/workflows/workflows/update/' . $w->id)),
+            'note' => 'Quedó como estaba antes del último cambio.'];
     }
 
     /** Enlace del backend en el host del tenant (master.…, no panel.…), si Sites está instalado. */

@@ -41,7 +41,7 @@ TXT;
         'workflow-designer' => [
             'name' => 'Diseño de flujos',
             'file' => 'SKILL.md',
-            'tools' => ['workflows_context', 'workflows_list', 'workflows_get', 'workflows_catalog', 'workflows_validate', 'workflows_save_draft'],
+            'tools' => ['workflows_context', 'workflows_list', 'workflows_get', 'workflows_catalog', 'workflows_validate', 'workflows_save_draft', 'workflows_update', 'workflows_revert'],
         ],
         'workflow-nodes' => [
             'name' => 'Catálogo de nodos de workflows',
