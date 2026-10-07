@@ -51,6 +51,14 @@ class ChatbotEngine
             return;
         }
 
+        // Falla cerrado: un bot nunca contesta por una cuenta de otro cliente (sus herramientas
+        // leerían los datos de un cliente y responderían desde el número de otro).
+        if (!$bot->accountBelongsToTenant()) {
+            \Log::warning('aero.chatbots: bot ignorado, su cuenta es de otro cliente', ['bot_id' => $bot->id, 'bot_tenant' => $bot->tenant_id, 'account_id' => $message->account_id]);
+
+            return;
+        }
+
         $state = ConversationState::where('conversation_id', $message->conversation_id)->first();
         if ($state && $state->isPaused()) {
             return;

@@ -85,6 +85,14 @@ class Bot extends Model
         // para que "Desactivar" corte las respuestas automáticas del todo.
         $this->is_active = $this->reply_mode !== 'disabled';
 
+        // Un bot activo solo puede atender cuentas de SU cliente. Desactivarlo siempre se permite
+        // (así se arreglan los bots que quedaron enlazados a una cuenta ajena).
+        if ($this->is_active && $this->account_id && !$this->accountBelongsToTenant()) {
+            throw new \October\Rain\Exception\ValidationException([
+                'account_id' => 'Esa cuenta pertenece a otro cliente: un bot solo puede atender cuentas de su propio cliente.',
+            ]);
+        }
+
         // Super Chatbot IA puede ser PRO (Settings → Sites). El bloqueo del
         // form es solo visual: acá se rechaza al guardar. Solo si el modo
         // cambió, para no romper bots existentes de un tenant que bajó de plan.
@@ -98,6 +106,25 @@ class Bot extends Model
                 'reply_mode' => 'Super Chatbot IA es parte del plan PRO. Mejorá tu plan para activarlo.',
             ]);
         }
+    }
+
+    /**
+     * ¿Puede un bot de `$botTenant` contestar por una cuenta cuyo cliente es `$accountTenant`?
+     * Un bot de cliente solo atiende cuentas de ese mismo cliente (si la cuenta no tiene cliente,
+     * no); un bot de plataforma (sin cliente) puede atender cualquiera. Falla cerrado.
+     */
+    public static function tenantsMatch(?int $botTenant, ?int $accountTenant): bool
+    {
+        return \Aero\Chatbots\Classes\TenantGuard::matches($botTenant, $accountTenant);
+    }
+
+    /** El cliente de la cuenta es el mismo que el del bot (tenant efectivo: directo o por su perfil). */
+    public function accountBelongsToTenant(): bool
+    {
+        return static::tenantsMatch(
+            $this->tenant_id ? (int) $this->tenant_id : null,
+            $this->account?->effective_tenant_id
+        );
     }
 
     public function scopeForTenant($query, int $tenantId)
