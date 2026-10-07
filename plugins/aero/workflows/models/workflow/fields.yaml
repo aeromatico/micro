@@ -2,9 +2,10 @@ fields:
     name: {label: Nombre, span: left, required: true}
     slug: {label: Código, span: right, required: true, preset: {field: name, type: slug}}
     description: {label: Descripción, type: textarea, size: tiny}
-    is_active: {label: Activo, type: switch, span: left, comment: 'Solo los workflows activos se disparan solos.'}
-    trigger_type: {label: Disparador, type: dropdown, span: right}
-    trigger_config: {label: 'Configuración del disparador (JSON)', type: textarea, size: small, comment: 'event: {"event":"aero.shop.orderCreated"} · message: {"keyword":"hola","account_id":1,"interactive_id":"ver_precios_1"} (interactive_id: solo si tocó ese botón/opción; admite una lista) · webhook: {"secret":"opcional"}'}
+    status: {label: Estado, type: dropdown, span: left, default: published, comment: 'Solo se disparan solos los PUBLICADOS y ACTIVOS. Un borrador (p. ej. el que crea un agente) solo corre con «Probar».'}
+    is_active: {label: Activo, type: switch, span: right, comment: 'Interruptor para encender o apagar un workflow publicado.'}
+    trigger_type: {label: Disparador, type: dropdown, span: left}
+    trigger_config: {label: 'Configuración del disparador (JSON)', type: textarea, size: small, comment: 'event: {"event":"aero.shop.orderCreated"} · message: {"keyword":"hola, menú","account_id":1,"interactive_id":"ver_precios_1"} (keyword: una o varias palabras separadas por coma; sin distinguir mayúsculas ni acentos) (interactive_id: solo si tocó ese botón/opción; admite una lista) · webhook: {"secret":"opcional"}'}
     graph: {label: Diseño, type: workflowEditor, span: full}
     _tool_section: {label: 'Super Chatbot IA (opcional)', type: section}
     expose_as_tool:

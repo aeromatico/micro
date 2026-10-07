@@ -222,13 +222,8 @@ class BuiltinNodes
             ];
         }
 
-        // Contacto y cuenta deben ser del tenant del workflow (falla cerrado).
-        $contact = \Aero\Hello\Models\Contact::where('id', $contactId)->where('tenant_id', $tenantId ?: 0)->first();
-        $account = \Aero\Hello\Models\Account::where('id', $accountId)->where('tenant_id', $tenantId ?: 0)->first();
-
-        if (!$contact || !$account) {
-            throw new \RuntimeException('El contacto o la cuenta no pertenecen a este tenant.');
-        }
+        // Solo se responde a quien escribió a una cuenta de este cliente (falla cerrado).
+        [$contact, $account] = \Aero\Hello\Classes\Workflows\Sender::resolve($inbound, $tenantId);
 
         $message = \Aero\Hello\Classes\Hello::sendToContact($contact, $body, ['tenant_id' => $tenantId, 'account_id' => $account->id]);
 

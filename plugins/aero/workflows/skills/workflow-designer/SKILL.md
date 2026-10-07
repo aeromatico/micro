@@ -84,7 +84,7 @@ Solo construyes con un **acuerdo explícito** («sí», «dale», «constrúyelo
 
 ## Fase 5 · Entrega
 
-Responde con: qué creaste (nombre y enlace del editor), qué hace en una frase, **qué debe revisar antes de publicar** (cuentas, textos, límites de WhatsApp, el secreto del webhook) y **cómo probarlo** (botón «Probar» con un ejemplo de entrada; explica que sin mensaje entrante los nodos de WhatsApp no envían, solo muestran lo que dirían). Recuérdale que está desactivado y en borrador.
+Responde con: qué creaste (nombre y enlace del editor: **usa tal cual el `editor_url` que devolvió `workflows_save_draft`**, que ya apunta al panel de este cliente; nunca inventes ni cambies un enlace), qué hace en una frase, **qué debe revisar antes de publicar** (cuentas, textos, límites de WhatsApp, el secreto del webhook) y **cómo probarlo** (botón «Probar» con un ejemplo de entrada; explica que sin mensaje entrante los nodos de WhatsApp no envían, solo muestran lo que dirían). Recuérdale que está desactivado y en borrador.
 
 ## Cómo funciona de verdad el motor (no inventes más allá)
 

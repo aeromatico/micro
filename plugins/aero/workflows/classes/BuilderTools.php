@@ -426,10 +426,21 @@ class BuilderTools
             'id'        => $workflow->id,
             'status'    => 'draft',
             'active'    => false,
-            'editor_url' => \Backend::url('aero/workflows/workflows/update/' . $workflow->id),
+            'editor_url' => static::tenantUrl($tenantId, \Backend::url('aero/workflows/workflows/update/' . $workflow->id)),
             'warnings'  => $warnings,
             'next_steps' => 'Una persona debe abrirlo en el editor, revisar cada nodo, probarlo con «Probar» y publicarlo. Nada se ejecuta solo hasta entonces.',
         ];
+    }
+
+    /** Enlace del backend en el host del tenant (master.…, no panel.…), si Sites está instalado. */
+    protected static function tenantUrl(int $tenantId, string $url): string
+    {
+        try {
+            return class_exists(\Aero\Sites\Models\Tenant::class) ? \Aero\Sites\Models\Tenant::localizeBackendUrls($tenantId, $url) : $url;
+        }
+        catch (\Throwable) {
+            return $url; // sin datos de tenant, el enlace general sigue sirviendo
+        }
     }
 
     /** Solo claves de configuración conocidas; el secreto del webhook nunca se guarda desde aquí. */

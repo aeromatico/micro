@@ -729,4 +729,54 @@ class WorkflowsTest extends PluginTestCase
 
         $this->assertSame(2, \Aero\Workflows\Models\RunStep::where('run_id', $run->id)->where('node_id', 'j')->count());
     }
+
+    public function testPublishingADraftRequiresAFullyValidGraphAndThenItFires(): void
+    {
+        $broken = $this->make(1, 'a-medias', ['status' => 'draft', 'graph' => json_encode([
+            'nodes' => [['id' => 't', 'type' => 'trigger.manual', 'data' => []], ['id' => 'c', 'type' => 'logic.condition', 'data' => ['left' => '1', 'op' => 'eq', 'right' => '1']]],
+            'edges' => [['source' => 't', 'target' => 'c']],
+        ])]);
+        $this->assertSame('draft', $broken->status);
+
+        $broken->status = 'published';
+        try {
+            $broken->save();
+            $this->fail('un diseño con salidas sin conectar no se publica');
+        }
+        catch (\ApplicationException $e) {
+            $this->assertStringContainsString('No se puede publicar', $e->getMessage());
+        }
+        $this->assertSame('draft', Workflow::find($broken->id)->status);
+
+        $ok = $this->make(1, 'listo', ['status' => 'draft']);
+        $ok->status = 'published';
+        $ok->save();
+        $this->assertSame('published', Workflow::find($ok->id)->status);
+
+        // Un workflow ya publicado se puede seguir editando sin revalidar todo el diseño.
+        $ok->description = 'editado';
+        $ok->save();
+        $this->assertSame('editado', Workflow::find($ok->id)->description);
+    }
+
+    public function testNewWorkflowsCanBeSavedWithAnEmptyGraphFromTheForm(): void
+    {
+        $w = Workflow::create(['tenant_id' => 1, 'name' => 'Nuevo', 'slug' => 'nuevo', 'trigger_type' => 'manual']);
+
+        $this->assertTrue($w->exists);
+        $this->assertSame('published', $w->fresh()->status);
+    }
+
+    public function testKeywordsAcceptSeveralWordsAndIgnoreCaseAndAccents(): void
+    {
+        $k = fn (string $keywords, string $text) => Triggers::keywordMatches($keywords, $text);
+
+        $this->assertTrue($k('hola, menú', 'Hola buenas'));
+        $this->assertTrue($k('hola, menú', 'quiero el MENU'), 'sin tilde y en mayúsculas');
+        $this->assertTrue($k('menu', 'Dime el menú por favor'), 'la palabra clave sin tilde encuentra el texto con tilde');
+        $this->assertTrue($k('precios|horario', 'cuál es el horario'));
+        $this->assertFalse($k('hola, menú', 'adiós'));
+        $this->assertTrue($k('', 'cualquier cosa'), 'sin palabra clave responde a todo');
+        $this->assertTrue($k(' , ', 'cualquier cosa'), 'solo separadores = sin filtro');
+    }
 }

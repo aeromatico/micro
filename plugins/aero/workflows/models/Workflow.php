@@ -68,6 +68,18 @@ class Workflow extends Model
             }
         }
 
+        // Al PUBLICAR (pasar a «publicado») el diseño debe ser válido de punta a punta: estructura, salidas
+        // conectadas y límites. Los ya publicados no se revalidan entero al editarlos (solo sus límites).
+        $publishing = $this->exists && $this->status === 'published' && ($this->original['status'] ?? null) !== 'published';
+
+        if ($publishing) {
+            $errors = \Aero\Workflows\Classes\GraphValidator::validate($this->jsonField('graph'));
+
+            if ($errors) {
+                throw new \ApplicationException("No se puede publicar todavía:\n- " . implode("\n- ", array_slice($errors, 0, 8)));
+            }
+        }
+
         // Un borrador a medias puede guardarse; uno publicado no puede romper los límites de sus nodos.
         if ($this->status === 'published') {
             $errors = \Aero\Workflows\Classes\GraphValidator::nodeLimitErrors($this->jsonField('graph'));
@@ -100,6 +112,11 @@ class Workflow extends Model
     public function afterDelete(): void
     {
         \Aero\Workflows\Classes\Triggers::flush();
+    }
+
+    public function getStatusOptions(): array
+    {
+        return ['draft' => 'Borrador', 'published' => 'Publicado', 'archived' => 'Archivado'];
     }
 
     public function getTriggerTypeOptions(): array

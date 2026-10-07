@@ -90,8 +90,9 @@ class Triggers
             elseif (is_object($arg)) {
                 $id = $arg->tenant_id ?? null;
 
+                // Las cuentas de Zernio heredan el tenant de su perfil (tenant_id nulo): se usa el efectivo.
                 if (!$id && isset($arg->account_id) && class_exists(\Aero\Hello\Models\Account::class)) {
-                    $id = \Aero\Hello\Models\Account::where('id', $arg->account_id)->value('tenant_id');
+                    $id = \Aero\Hello\Models\Account::find($arg->account_id)?->effective_tenant_id;
                 }
             }
 
@@ -125,9 +126,31 @@ class Triggers
             }
         }
 
-        $keyword = trim((string) ($config['keyword'] ?? ''));
+        return static::keywordMatches((string) ($config['keyword'] ?? ''), (string) $message->body);
+    }
 
-        return $keyword === '' || stripos((string) $message->body, $keyword) !== false;
+    /**
+     * ¿El texto contiene alguna de las palabras clave? Varias separadas por coma o barra («hola, menú»).
+     * Sin distinguir mayúsculas ni acentos (la gente escribe «menu» sin tilde). Vacío = cualquier mensaje.
+     */
+    public static function keywordMatches(string $keywords, string $text): bool
+    {
+        $norm = fn (string $v) => mb_strtolower(\Illuminate\Support\Str::ascii(trim($v)));
+        $list = array_values(array_filter(array_map($norm, preg_split('/[,|]/', $keywords) ?: []), fn ($k) => $k !== ''));
+
+        if (!$list) {
+            return true;
+        }
+
+        $haystack = $norm($text);
+
+        foreach ($list as $word) {
+            if (str_contains($haystack, $word)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Solo datos serializables y acotados: nunca objetos completos. */
