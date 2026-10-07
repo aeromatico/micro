@@ -156,4 +156,15 @@ class StaffTest extends PluginTestCase
 
         $this->assertEquals(0, Staff::find($staff->id)->hire_fee);
     }
+
+    public function testListasVaciasDelFormularioSeGuardanComoJsonValido(): void
+    {
+        $staff = $this->makeStaff(['slug' => 'vacias', 'tags' => '', 'guide' => '', 'capabilities' => '']);
+        $staff->fill(['tags' => '', 'guide' => '']);
+        $staff->save();
+
+        $fresh = Staff::find($staff->id);
+        $this->assertSame([], $fresh->tags);
+        $this->assertSame([], $fresh->guide);
+    }
 }

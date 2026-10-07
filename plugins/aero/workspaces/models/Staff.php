@@ -91,6 +91,31 @@ class Staff extends Model
         }
     }
 
+    /** Un taglist vacío llega como '' y la columna JSON lo rechaza (CHECK json_valid): se guarda como []. */
+    public function setTagsAttribute($value): void
+    {
+        $this->attributes['tags'] = json_encode($this->normalizeJsonList($value), JSON_UNESCAPED_UNICODE);
+    }
+
+    public function setGuideAttribute($value): void
+    {
+        $this->attributes['guide'] = json_encode($this->normalizeJsonList($value), JSON_UNESCAPED_UNICODE);
+    }
+
+    public function setCapabilitiesAttribute($value): void
+    {
+        $this->attributes['capabilities'] = json_encode(is_array($value) ? $value : [], JSON_UNESCAPED_UNICODE);
+    }
+
+    protected function normalizeJsonList($value): array
+    {
+        if (is_string($value)) {
+            $value = trim($value) === '' ? [] : (json_decode($value, true) ?? array_map('trim', explode(',', $value)));
+        }
+
+        return array_values(array_filter((array) $value, fn ($v) => $v !== '' && $v !== null));
+    }
+
     public function getHireFeeAttribute(): float
     {
         return (float) (StaffRate::where('staff_id', $this->id)->value('hire_fee') ?? 0);
