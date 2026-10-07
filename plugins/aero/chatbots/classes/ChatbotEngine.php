@@ -237,7 +237,7 @@ class ChatbotEngine
                 $cacheKey = $call['name'] . ':' . json_encode($call['arguments']);
 
                 if (!array_key_exists($cacheKey, $callCache)) {
-                    $callCache[$cacheKey] = static::executeTool($bot, $call['name'], $call['arguments']);
+                    $callCache[$cacheKey] = static::executeTool($bot, $call['name'], $call['arguments'], $message);
                 }
 
                 $results[] = ['id' => $call['id'], 'result' => $callCache[$cacheKey]];
@@ -263,7 +263,7 @@ class ChatbotEngine
      * `$arguments`, aunque la IA lo mande, para no abrir una fuga de datos
      * entre tenants.
      */
-    protected static function executeTool(Bot $bot, ?string $name, array $arguments): mixed
+    protected static function executeTool(Bot $bot, ?string $name, array $arguments, Message $message): mixed
     {
         $tool = $name ? AiToolRegistry::find($name, $bot->tenant_id ? (int) $bot->tenant_id : null) : null;
 
@@ -273,8 +273,17 @@ class ChatbotEngine
 
         unset($arguments['tenant_id']);
 
+        // Contexto de la conversación en curso (no viene de $arguments: la IA no
+        // debe poder decidir a quién le llega nada). Las tools que lo necesitan
+        // (p. ej. enviar un menú nativo de WhatsApp) lo declaran como 3er parámetro.
+        $context = [
+            'contact_id'      => $message->contact_id,
+            'account_id'      => $message->account_id,
+            'conversation_id' => $message->conversation_id,
+        ];
+
         try {
-            return call_user_func($tool['handler'], $arguments, $bot->tenant_id);
+            return call_user_func($tool['handler'], $arguments, $bot->tenant_id, $context);
         }
         catch (\Throwable $e) {
             \Log::error('aero.chatbots: falló la ejecución de una AI tool', [
@@ -533,14 +542,26 @@ class ChatbotEngine
 
     protected static function sendAsBot(Bot $bot, Message $inbound, string $responseText): ?Message
     {
+        return static::withoutHandoff(fn () => Hello::sendToContact(
+            \Aero\Hello\Models\Contact::find($inbound->contact_id),
+            $responseText,
+            ['account_id' => $bot->account_id]
+        ));
+    }
+
+    /**
+     * Envía dentro de este callback cualquier mensaje que el motor origine él
+     * mismo (la respuesta normal, o una AI tool que manda un mensaje nativo de
+     * WhatsApp) para que `handleOutbound` no lo confunda con una respuesta
+     * humana y pause el bot. Pública: las tools de otros plugins (p. ej.
+     * Aero.Hello) la usan para envolver su propio envío.
+     */
+    public static function withoutHandoff(callable $fn): mixed
+    {
         static::$sending = true;
 
         try {
-            return Hello::sendToContact(
-                \Aero\Hello\Models\Contact::find($inbound->contact_id),
-                $responseText,
-                ['account_id' => $bot->account_id]
-            );
+            return $fn();
         }
         finally {
             static::$sending = false;
