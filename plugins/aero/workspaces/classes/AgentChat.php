@@ -68,12 +68,23 @@ class AgentChat
                 'id'        => (int) $m->id,
                 'role'      => $m->role,
                 'status'    => $m->status,
-                'content'   => (string) $m->content,
+                'content'   => static::local($tenantId, (string) $m->content),
                 'error'     => $m->error,
-                'workflows' => (array) ($m->meta['workflows'] ?? []),
+                'workflows' => array_map(fn ($w) => ['url' => isset($w['url']) ? static::local($tenantId, (string) $w['url']) : null] + $w, (array) ($m->meta['workflows'] ?? [])),
                 'tools'     => array_values(array_unique(array_column((array) ($m->meta['tools'] ?? []), 'name'))),
             ])->all(),
         ];
+    }
+
+    /** Los enlaces al backend siempre apuntan al panel del propio tenant (master.…), aun en mensajes viejos. */
+    protected static function local(int $tenantId, string $text): string
+    {
+        try {
+            return class_exists(\Aero\Sites\Models\Tenant::class) ? \Aero\Sites\Models\Tenant::localizeBackendUrls($tenantId, $text) : $text;
+        }
+        catch (\Throwable) {
+            return $text;
+        }
     }
 
     /** El agente debe estar en el equipo del tenant (el orquestador siempre) y tener herramientas reales. */

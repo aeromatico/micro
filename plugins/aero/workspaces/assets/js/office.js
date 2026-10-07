@@ -363,7 +363,7 @@ window.WsOfficeInit = function () {
 
   /* ---------- chat real con un agente que trabaja de verdad ---------- */
   const logLive = byId('log-live');
-  const bold = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const bold = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">$1</a>');
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
   function setBusy(slug, on) {
     const a = agents.find(x => x.slug === slug); if (!a) return;
