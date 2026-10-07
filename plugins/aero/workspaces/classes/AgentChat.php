@@ -32,7 +32,7 @@ class AgentChat
 
         static::expireStale($tenantId, $staff->id);
 
-        if (Message::thread($tenantId, $staff->id)->where('status', 'pending')->exists()) {
+        if (Message::thread($tenantId, $staff->id)->whereIn('status', ['pending', 'running'])->exists()) {
             throw new \DomainException("{$staff->name} todavía está trabajando en tu mensaje anterior.");
         }
 
@@ -63,11 +63,13 @@ class AgentChat
 
         return [
             'agent'    => ['slug' => $staff->slug, 'name' => $staff->name],
-            'pending'  => $rows->contains(fn ($m) => $m->status === 'pending'),
+            'pending'  => $rows->contains(fn ($m) => in_array($m->status, ['pending', 'running'], true)),
+            // Agentes que están trabajando por encargo de este (p. ej. Link mientras Katy le delega).
+            'working'  => array_values(array_unique(array_filter((array) ($rows->first(fn ($m) => in_array($m->status, ['pending', 'running'], true))?->meta['working'] ?? [])))),
             'messages' => $rows->map(fn (Message $m) => [
                 'id'        => (int) $m->id,
                 'role'      => $m->role,
-                'status'    => $m->status,
+                'status'    => $m->status === 'running' ? 'pending' : $m->status,
                 'content'   => static::local($tenantId, (string) $m->content),
                 'error'     => $m->error,
                 'workflows' => array_map(fn ($w) => ['url' => isset($w['url']) ? static::local($tenantId, (string) $w['url']) : null] + $w, (array) ($m->meta['workflows'] ?? [])),
@@ -106,8 +108,8 @@ class AgentChat
     /** Un job caído no debe dejar la conversación «pendiente» para siempre. */
     protected static function expireStale(int $tenantId, int $staffId): void
     {
-        Message::thread($tenantId, $staffId)->where('status', 'pending')
+        Message::thread($tenantId, $staffId)->whereIn('status', ['pending', 'running'])
             ->where('created_at', '<', now()->subMinutes(AgentRunner::STALE_MINUTES))
-            ->update(['status' => 'error', 'error' => 'La respuesta tardó demasiado. Vuelve a intentarlo.']);
+            ->update(['status' => 'error', 'error' => 'La respuesta tardó demasiado. Vuelve a intentarlo.', 'meta' => null]);
     }
 }

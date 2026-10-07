@@ -344,7 +344,8 @@ window.WsOfficeInit = function () {
 
   const SIM_IDEAS = ['Video de 5 minutos sobre cómo se cultiva el café en los Yungas', 'Calendario de contenido para YouTube, 4 semanas'];
   const LIVE_IDEAS = ['Quiero que mis clientes elijan con botones: precios o hablar con un asesor', 'Necesito un menú desplegable con mis servicios', 'Quiero saber si llego a la zona de un cliente cuando comparte su ubicación'];
-  const chat = { mode: 'sim', agent: null, timer: null, pending: false };
+  const LEAD_IDEAS = ['Quiero que mi WhatsApp presente mis servicios con un menú y responda cada opción', 'Necesito automatizar la bienvenida de mis clientes por WhatsApp', '¿Qué puede hacer mi equipo por mí ahora mismo?'];
+  const chat = { mode: 'sim', agent: null, timer: null, pending: false, busy: new Set() };
 
   function setIdeas(list) {
     const box = byId('ideas'); box.innerHTML = '';
@@ -365,15 +366,17 @@ window.WsOfficeInit = function () {
   const logLive = byId('log-live');
   const bold = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">$1</a>');
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-  function setBusy(slug, on) {
+  function setBusy(slug, on, label) {
     const a = agents.find(x => x.slug === slug); if (!a) return;
-    if (on) { a.mode = 'work'; a.cur = { label: 'Trabajando contigo', dur: 1e9, prog: .4, done: 'Listo' }; goTo(a, a.seat, 'toDesk'); say(a, 'Pensando…', 2.5); }
+    if (on) { a.mode = 'work'; a.cur = { label: label || 'Trabajando contigo', dur: 1e9, prog: .4, done: 'Listo' }; goTo(a, a.seat, 'toDesk'); say(a, label ? 'Manos a la obra' : 'Pensando…', 2.5); }
     else if (a.cur && a.cur.dur === 1e9) { a.cur = null; a.mode = 'idle'; a.lastDone = 'Respondió'; say(a, '✓ Listo', 2.5); }
     ui();
   }
   function renderLive(data) {
     logLive.innerHTML = '';
-    if (!data.messages.length) logLive.innerHTML = '<li><b class="who">' + esc(data.agent.name) + '</b>Hola, soy ' + esc(data.agent.name) + '. Cuéntame qué quieres automatizar y lo diseñamos juntos; cuando estemos de acuerdo, lo dejo como borrador para que lo revises.</li>';
+    if (!data.messages.length) logLive.innerHTML = '<li><b class="who">' + esc(data.agent.name) + '</b>' + (chat.agent && chat.agent.orchestrator
+      ? 'Hola, soy ' + esc(data.agent.name) + ', la orquestadora. Cuéntame qué quieres lograr: veo quién de tu equipo puede hacerlo de verdad, te propongo un plan y, cuando lo acordemos, reparto el trabajo.'
+      : 'Hola, soy ' + esc(data.agent.name) + '. Cuéntame qué quieres automatizar y lo diseñamos juntos; cuando estemos de acuerdo, lo dejo como borrador para que lo revises.') + '</li>';
     data.messages.forEach(m => {
       const li = document.createElement('li');
       if (m.role === 'user') { li.className = 'user'; li.textContent = m.content; }
@@ -388,10 +391,15 @@ window.WsOfficeInit = function () {
       logLive.appendChild(li);
     });
     logLive.scrollTop = logLive.scrollHeight;
-    const was = chat.pending; chat.pending = data.pending;
+    chat.pending = data.pending;
     byId('send').disabled = data.pending;
-    if (was && !data.pending) setBusy(chat.agent.slug, false);
-    if (!was && data.pending) setBusy(chat.agent.slug, true);
+    // Quién está trabajando ahora: el agente del chat y los que él reparte (Katy → Link).
+    const want = new Set();
+    if (data.pending) want.add(chat.agent.slug);
+    (data.working || []).forEach(sl => want.add(sl));
+    chat.busy.forEach(sl => { if (!want.has(sl)) setBusy(sl, false); });
+    want.forEach(sl => { if (!chat.busy.has(sl)) setBusy(sl, true, sl === chat.agent.slug ? null : 'Trabajando en el encargo'); });
+    chat.busy = want;
     est();
     clearTimeout(chat.timer);
     if (data.pending) chat.timer = setTimeout(pollLive, 1800);
@@ -402,18 +410,23 @@ window.WsOfficeInit = function () {
   }
   function openChat(tab) {
     clearTimeout(chat.timer);
+    chat.busy.forEach(sl => setBusy(sl, false)); chat.busy = new Set();
     chat.mode = tab.live ? 'live' : 'sim'; chat.agent = tab.live ? tab : null; chat.pending = false;
     document.querySelectorAll('#chat-tabs .chat-tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.slug === tab.slug)));
     log.hidden = tab.live; logLive.hidden = !tab.live;
     byId('prompt').placeholder = tab.live ? 'Cuéntale a ' + tab.name + ' qué quieres lograr' : 'Cuéntale qué quieres lograr';
     byId('send').textContent = tab.live ? 'Enviar mensaje' : 'Enviar encargo';
     byId('send').disabled = !tab.live && !!job;
-    setIdeas(tab.live ? LIVE_IDEAS : SIM_IDEAS); est();
+    setIdeas(tab.live ? (tab.orchestrator ? LEAD_IDEAS : LIVE_IDEAS) : SIM_IDEAS); est();
     if (tab.live) pollLive();
   }
   const tabs = byId('chat-tabs');
-  const tabList = [{ slug: '_sim', name: lead ? lead.name : 'Equipo', live: false, label: (lead ? lead.name : 'Equipo'), note: 'simulado' }]
-    .concat(WS.team.filter(m => m.live).map(m => ({ slug: m.slug, name: m.name.split(' ')[0], live: true, label: m.name.split(' ')[0], note: 'real' })));
+  // Si la orquestadora trabaja de verdad, su chat real reemplaza al simulado; si no, queda el simulado primero.
+  const liveMembers = WS.team.filter(m => m.live).sort((x, y) => (y.orchestrator ? 1 : 0) - (x.orchestrator ? 1 : 0));
+  const leadLive = liveMembers.some(m => m.orchestrator);
+  const tabList = (leadLive ? [] : [{ slug: '_sim', name: lead ? lead.name : 'Equipo', live: false, label: (lead ? lead.name : 'Equipo'), note: 'simulado' }])
+    .concat(liveMembers.map(m => ({ slug: m.slug, name: m.name.split(' ')[0], live: true, orchestrator: m.orchestrator, label: m.name.split(' ')[0], note: m.orchestrator ? 'orquestadora' : 'real' })));
+  if (leadLive) byId('history').closest('.card').hidden = true;
   tabList.forEach(t => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chat-tab'; b.dataset.slug = t.slug; b.setAttribute('role', 'tab');
     b.innerHTML = esc(t.label) + '<small>' + t.note + '</small>';

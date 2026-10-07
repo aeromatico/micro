@@ -14,7 +14,7 @@ class RunAgentTurnJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 1;
-    public int $timeout = 170;
+    public int $timeout = 280;
 
     public function __construct(public int $messageId)
     {
@@ -22,9 +22,11 @@ class RunAgentTurnJob implements ShouldQueue
 
     public function handle(): void
     {
-        $reply = Message::find($this->messageId);
+        // La cola vuelve a ofrecer un trabajo que pasa de su `retry_after` (90 s): quien lo reclama primero
+        // lo ejecuta y el otro lo descarta, así una respuesta nunca se genera dos veces.
+        $claimed = Message::where('id', $this->messageId)->where('status', 'pending')->update(['status' => 'running']);
 
-        if ($reply && $reply->status === 'pending') {
+        if ($claimed && ($reply = Message::find($this->messageId))) {
             AgentRunner::run($reply);
         }
     }

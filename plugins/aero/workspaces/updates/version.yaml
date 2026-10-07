@@ -12,3 +12,9 @@
 1.3.0:
     - "Agentes que trabajan de verdad: conversación persistida con Link, motor de herramientas por skills, ejecución en cola y chat real en la Oficina."
     - create_agent_messages_table.php
+1.4.0:
+    - "La orquestadora trabaja de verdad: skill de orquestación con herramientas para ver el equipo, sugerir contrataciones y delegar pasos a los agentes reales."
+    - seed_orchestrator_agent.php
+1.5.0:
+    - "La orquestadora ve los workflows del cliente y los edita en lugar de duplicarlos."
+    - seed_orchestrator_agent.php
