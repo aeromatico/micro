@@ -57,6 +57,12 @@ class PlatformServicesBlock
             return null;
         }
 
+        return self::forEditorOptions();
+    }
+
+    /** Opciones de categorías, conexiones y servicios (sin comprobar permisos: quien llama ya lo hizo). */
+    public static function forEditorOptions(): array
+    {
         $services = \Aero\Services\Models\Service::active()->orderBy('name')->get(['id', 'name', 'slug', 'plugin_links']);
 
         $plugins = [];
@@ -77,19 +83,31 @@ class PlatformServicesBlock
         ];
     }
 
-    /** HTML del bloque. $attrs son los data-* del marcador, ya decodificados. */
-    public static function render(array $attrs = []): string
+    /** Id del tenant master (null si no existe). */
+    public static function masterTenantId(): ?int
+    {
+        $id = Tenant::where('handle', self::MASTER_HANDLE)->value('id');
+
+        return $id ? (int) $id : null;
+    }
+
+    /**
+     * Servicios activos que cumplen la configuración (categories, plugins,
+     * allow, deny: cadenas "a,b,c" o arreglos). Lo usan el bloque del editor
+     * visual y el nodo de Workflows, así ambos filtran idéntico.
+     */
+    public static function select(array $attrs = []): \Illuminate\Support\Collection
     {
         if (!self::servicesAvailable()) {
-            return '';
+            return collect();
         }
 
-        $tenant = Tenant::resolveFromDomain(request()->getHost());
-        if (!self::isMaster($tenant)) {
-            return '';
-        }
+        $list = function (string $key) use ($attrs) {
+            $raw = $attrs[$key] ?? '';
+            $items = is_array($raw) ? $raw : explode(',', (string) $raw);
 
-        $list = fn (string $key) => array_values(array_filter(array_map('trim', explode(',', (string) ($attrs[$key] ?? '')))));
+            return array_values(array_filter(array_map('trim', $items)));
+        };
         $categories = $list('categories');
         $plugins    = $list('plugins');
         $allow      = $list('allow');
@@ -97,7 +115,7 @@ class PlatformServicesBlock
 
         $services = \Aero\Services\Models\Service::active()->with('categories')->orderBy('sort_order')->orderBy('name')->get();
 
-        $services = $services->filter(function ($s) use ($categories, $plugins, $allow, $deny) {
+        return $services->filter(function ($s) use ($categories, $plugins, $allow, $deny) {
             if (in_array($s->slug, $deny, true)) {
                 return false;
             }
@@ -117,6 +135,29 @@ class PlatformServicesBlock
 
             return $okCats && $okPlugins;
         })->values();
+    }
+
+    /** Enlace público absoluto de un servicio (para canales fuera del sitio, como WhatsApp). */
+    public static function serviceUrl($service): string
+    {
+        $root = \Aero\Sites\Models\RootDomain::active()->orderBy('id')->value('domain');
+
+        return $root ? 'https://' . $root . '/plugin/' . $service->slug : url('plugin/' . $service->slug);
+    }
+
+    /** HTML del bloque. $attrs son los data-* del marcador, ya decodificados. */
+    public static function render(array $attrs = []): string
+    {
+        if (!self::servicesAvailable()) {
+            return '';
+        }
+
+        $tenant = Tenant::resolveFromDomain(request()->getHost());
+        if (!self::isMaster($tenant)) {
+            return '';
+        }
+
+        $services = self::select($attrs);
 
         if ($services->isEmpty()) {
             return '';
