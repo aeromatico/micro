@@ -1,0 +1,24 @@
+fields:
+    charge_enabled:
+        label: Cobrar puntos
+        type: switch
+        default: false
+        comment: 'Cobra la contratación y los encargos con créditos del tenant. Déjalo apagado mientras los encargos sean una simulación (no entregan resultados).'
+    credit_type:
+        label: Tipo de crédito que hace de «puntos»
+        type: text
+        default: azul
+        comment: 'Código del tipo de crédito de Aero.Credits (por ejemplo azul o rojo).'
+    agent_connector_id:
+        label: Conector de IA de los agentes reales
+        type: number
+        comment: 'ID de un Connector de IA (OpenAI-compatible o Anthropic) con llamadas a herramientas. Vacío = el del propio agente si es de IA, o el primero activo.'
+    agent_model:
+        label: Modelo de IA de los agentes reales
+        type: text
+        comment: 'Vacío = el modelo predeterminado del conector.'
+    agent_turns_per_hour:
+        label: Turnos de chat con agentes por tenant y hora
+        type: number
+        default: 60
+        comment: 'Cada turno puede costar varias llamadas al modelo; este tope protege el gasto.'

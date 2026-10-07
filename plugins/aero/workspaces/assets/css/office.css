@@ -1,0 +1,98 @@
+/* Generado a partir del prototipo (artifact) y acotado a .ws-office. */
+.ws-office{
+  /* Neutros del backend (claro/oscuro automático por data-bs-theme): sin fondo propio. */
+  --bg: transparent;
+  --fg: var(--bs-body-color, #333);
+  --muted: var(--bs-secondary-color, rgba(51, 51, 51, .75));
+  --line: var(--bs-border-color, #dee2e6);
+  --field: var(--bs-body-bg, #fff);
+  --panel: color-mix(in srgb, var(--fg) 3%, var(--field));
+  --chip: color-mix(in srgb, var(--fg) 8%, var(--field));
+  --accent: #d9501a;
+  --accent-fg: #ffffff;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-px: "Pixelify Sans", ui-monospace, monospace;
+  --good-fg: #178250;
+  --warn-fg: #9a6a00;
+}
+[data-bs-theme="dark"] .ws-office{
+  --accent: #ff7a3d; --accent-fg: #1a0e07;
+  --good-fg: #4fd69a; --warn-fg: #e5b23c;
+}
+.ws-office *{ box-sizing: border-box; }
+.ws-office{ color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.45; padding: 20px 16px 28px; }
+.ws-office h1, .ws-office h2, .ws-office p{ margin: 0; }
+.ws-office .app{ max-width: 1240px; margin-inline: auto; display: grid; gap: 16px; grid-template-columns: 340px minmax(0, 1fr); grid-template-areas: "top top" "side stage"; align-items: start; }
+.ws-office .top{ grid-area: top; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ws-office .top h1{ font-family: var(--font-px); font-weight: 600; font-size: 24px; letter-spacing: .01em; }
+.ws-office .top p{ color: var(--muted); font-size: 13px; }
+.ws-office .stats{ display: flex; gap: 8px; flex-wrap: wrap; }
+.ws-office .stat{ background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; display: grid; min-width: 96px; }
+.ws-office .stat b{ font-size: 18px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.ws-office .stat span{ font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.ws-office .card{ background: var(--panel); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.ws-office .stage{ grid-area: stage; display: grid; }
+.ws-office .stage-head{ display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.ws-office .stage-head h2{ font-size: 14px; font-weight: 600; }
+.ws-office .chip{ font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+.ws-office .chip.live{ background: var(--accent); color: var(--accent-fg); }
+.ws-office .stage-body{ padding: 12px; }
+.ws-office #office{ display: block; width: 100%; height: auto; aspect-ratio: 400 / 256; image-rendering: pixelated; border-radius: 6px; cursor: pointer; background: #d39b66; }
+.ws-office .stage-foot{ padding: 0 14px 12px; color: var(--muted); font-size: 12px; }
+.ws-office .side{ grid-area: side; display: grid; gap: 16px; min-width: 0; }
+.ws-office .card h2{ font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 12px 14px 8px; }
+.ws-office .team ul{ list-style: none; margin: 0; padding: 0 6px 8px; display: grid; }
+.ws-office .row{ display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 7px 8px; border-radius: 8px; cursor: pointer; border: 0; background: none; color: inherit; font: inherit; text-align: left; width: 100%; }
+.ws-office .row:hover{ background: var(--chip); }
+.ws-office .row[aria-pressed="true"]{ background: var(--chip); outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-office .row:focus-visible{ outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws-office .av{ width: 28px; height: 28px; border-radius: 6px; grid-row: span 2; background-repeat: no-repeat; border: 1px solid var(--line); }
+.ws-office .who{ min-width: 0; }
+.ws-office .who b{ font-weight: 600; }
+.ws-office .who small{ color: var(--muted); margin-left: 6px; font-size: 12px; }
+.ws-office .task{ font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.ws-office .pill{ font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); white-space: nowrap; grid-row: span 2; }
+.ws-office .pill.work{ background: var(--accent); color: var(--accent-fg); }
+.ws-office .pill.walk{ color: var(--warn-fg); }
+.ws-office .pill.meet, .ws-office .pill.break{ color: var(--good-fg); }
+.ws-office .bar{ grid-column: 2 / 4; height: 3px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.ws-office .bar i{ display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s linear; }
+.ws-office .chat{ display: grid; grid-template-rows: auto 1fr auto; }
+.ws-office #log{ margin: 0; padding: 0 14px 8px; list-style: none; display: grid; gap: 8px; align-content: start; max-height: 250px; overflow-y: auto; }
+.ws-office #log li{ max-width: 92%; padding: 8px 11px; border-radius: 10px; background: var(--chip); font-size: 13px; overflow-wrap: anywhere; }
+.ws-office #log li.user{ justify-self: end; background: var(--accent); color: var(--accent-fg); }
+.ws-office #log li.sys{ background: none; padding: 0 2px; color: var(--muted); font-size: 12px; max-width: 100%; }
+.ws-office #log li.octo b{ display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.ws-office .compose{ padding: 8px 14px 14px; border-top: 1px solid var(--line); display: grid; gap: 8px; }
+.ws-office .compose textarea{ width: 100%; resize: none; min-height: 62px; font: inherit; color: var(--fg); background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.ws-office .compose textarea:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px; }
+.ws-office .compose-row{ display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ws-office .est{ font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ws-office button.send{ font: inherit; font-weight: 600; background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 8px; padding: 7px 16px; cursor: pointer; }
+.ws-office button.send:disabled{ opacity: .45; cursor: not-allowed; }
+.ws-office button.send:focus-visible{ outline: 2px solid var(--fg); outline-offset: 2px; }
+.ws-office .ideas{ display: flex; flex-wrap: wrap; gap: 6px; }
+.ws-office .ideas button{ font: inherit; font-size: 12px; color: var(--fg); background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+.ws-office .ideas button:hover{ border-color: var(--accent); }
+@media (max-width: 860px){.ws-office .app{ grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "stage" "side"; }}
+.ws-office .history ul { list-style: none; margin: 0; padding: 0 14px 12px; display: grid; gap: 8px; }
+.ws-office .history li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; font-size: 12.5px; }
+.ws-office .history li span.b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-office .history li small { grid-column: 1 / -1; color: var(--muted); }
+.ws-office .history .none { color: var(--muted); font-size: 12.5px; }
+.ws-office .avs { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background-repeat: no-repeat; image-rendering: pixelated; }
+.ws-office .chat-tabs { display: flex; gap: 4px; padding: 10px 14px 0; flex-wrap: wrap; }
+.ws-office .chat-tab { font: inherit; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--chip); border: 1px solid transparent; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.ws-office .chat-tab[aria-selected="true"] { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--field)); }
+.ws-office .chat-tab small { font-weight: 500; opacity: .75; margin-left: 4px; }
+.ws-office #log-live { margin: 0; padding: 8px 14px; list-style: none; display: grid; gap: 8px; align-content: start; max-height: 320px; overflow-y: auto; }
+.ws-office #log-live[hidden] { display: none; }
+.ws-office #log-live li { max-width: 94%; padding: 8px 11px; border-radius: 10px; background: var(--chip); font-size: 13px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.ws-office #log-live li.user { justify-self: end; background: var(--accent); color: var(--accent-fg); }
+.ws-office #log-live li.err { background: color-mix(in srgb, #b83a2e 18%, var(--field)); }
+.ws-office #log-live li.wait { color: var(--muted); font-style: italic; }
+.ws-office #log-live li b.who { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.ws-office #log-live li .made { display: inline-block; margin-top: 6px; margin-right: 6px; padding: 4px 10px; border-radius: 8px; background: var(--ink, var(--fg)); color: var(--field); font-weight: 600; text-decoration: none; white-space: normal; }
+.ws-office #log-live li small.tools { display: block; margin-top: 4px; color: var(--muted); }
+.ws-office .ws-livetag { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--good-fg); font-weight: 700; }
+.ws-office #log[hidden] { display: none; }

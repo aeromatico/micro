@@ -59,6 +59,12 @@ tabs:
             type: number
             span: right
 
+        is_orchestrator:
+            tab: Agente
+            label: Es el orquestador
+            type: switch
+            comment: 'El agente especial que siempre está en el equipo de todos los tenants (no se contrata ni se cobra), recibe cada encargo y lo reparte. Solo puede haber uno: marcarlo desmarca al anterior.'
+
         system_prompt:
             tab: Agente
             label: Prompt de sistema

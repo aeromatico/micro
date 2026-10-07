@@ -14,7 +14,7 @@ class Staff extends Model
 
     public $fillable = [
         'name', 'slug', 'role', 'kind', 'rarity', 'category', 'bio', 'system_prompt',
-        'tags', 'capabilities', 'guide', 'connector_id', 'avatar', 'is_active', 'sort_order',
+        'tags', 'capabilities', 'guide', 'connector_id', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
         'hire_fee', 'task_rates',
     ];
 
@@ -56,8 +56,19 @@ class Staff extends Model
         ],
     ];
 
+    /** El orquestador activo (a lo sumo uno). */
+    public static function orchestrator(): ?self
+    {
+        return static::where('is_orchestrator', true)->where('is_active', true)->first();
+    }
+
     public function afterSave(): void
     {
+        // Un solo orquestador: marcar uno desmarca a los demás.
+        if ($this->is_orchestrator) {
+            static::where('id', '!=', $this->id)->where('is_orchestrator', true)->update(['is_orchestrator' => false]);
+        }
+
         // Ningún agente queda sin tarifa: si no se define, la contratación es gratis.
         // Se consulta la tabla directo: la relación `rate` pudo quedar cacheada como null antes de existir.
         $current = StaffRate::where('staff_id', $this->id)->value('hire_fee');
