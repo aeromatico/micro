@@ -451,6 +451,30 @@ class Tenant extends Model
         return request()->getScheme() . '://' . $host . parse_url(\Backend::url($path), PHP_URL_PATH);
     }
 
+    /**
+     * Cambia el host general del panel (panel.…) por el del tenant en los enlaces
+     * del backend de un texto o URL: así cada cliente recibe siempre enlaces a SU
+     * panel ({handle}.{dominio}). Sin handle o dominio raíz devuelve el texto igual.
+     */
+    public static function localizeBackendUrls(int $tenantId, string $text): string
+    {
+        $tenant = static::with('rootDomain')->find($tenantId);
+
+        if (!$tenant || !$tenant->handle || !$tenant->rootDomain?->domain) {
+            return $text;
+        }
+
+        $panel = parse_url(\Backend::url('/'), PHP_URL_HOST);
+
+        if (!$panel) {
+            return $text;
+        }
+
+        $host = $tenant->handle . '.' . $tenant->rootDomain->domain;
+
+        return preg_replace('#(https?://)' . preg_quote($panel, '#') . '(/backend/)#i', '$1' . $host . '$2', $text);
+    }
+
     public function isAccessibleBy(\Backend\Models\User $user): bool
     {
         return (int) $this->backend_user_id === (int) $user->id
