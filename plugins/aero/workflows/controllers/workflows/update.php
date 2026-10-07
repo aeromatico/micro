@@ -6,6 +6,7 @@
     <div class="form-buttons">
         <button type="submit" data-request="onSave" data-request-data="close:1" data-hotkey="ctrl+enter, cmd+enter" class="btn btn-primary">Guardar</button>
         <a href="<?= Backend::url('aero/workflows/workflows') ?>" class="btn btn-default">Cancelar</a>
+        <a href="<?= Backend::url('aero/workflows/workflows/export/' . $formModel->id) ?>" class="btn btn-default oc-icon-download" title="Descarga el workflow como archivo para guardarlo o llevarlo a otro tenant">Exportar</a>
         <button type="button" class="btn btn-danger oc-icon-trash-o" data-request="onDelete"
             data-request-confirm="¿Eliminar este workflow con todas sus ejecuciones? No se puede deshacer.">Eliminar</button>
         <span class="m-l">

@@ -430,4 +430,303 @@ class WorkflowsTest extends PluginTestCase
         $this->assertNotNull(\Aero\Workflows\Models\Run::find($runB->id), 'las ejecuciones de otros workflows no se tocan');
         $this->assertGreaterThan(0, \Aero\Workflows\Models\RunStep::where('run_id', $runB->id)->count());
     }
+
+    // --- Exportar / importar ---
+
+    protected function porterWorkflow(array $extra = []): Workflow
+    {
+        $graph = [
+            'nodes' => [
+                ['id' => 't', 'type' => 'trigger.message', 'data' => []],
+                ['id' => 'm', 'type' => 'action.message', 'data' => ['to' => '{{ trigger.phone }}', 'body' => 'Hola', 'account_id' => 7]],
+                ['id' => 'h', 'type' => 'action.http', 'data' => [
+                    'connector_id' => 3, 'url' => 'https://example.com', 'method' => 'POST',
+                    'payload' => ['Authorization' => 'Bearer abc123', 'max_tokens' => 50, 'tenant' => 'x'],
+                ]],
+                ['id' => 'd', 'type' => 'action.message', 'data' => ['to' => '1', 'body' => 'x', 'account_id' => '{{ vars.cuenta }}']],
+            ],
+            'edges' => [['source' => 't', 'target' => 'm'], ['source' => 'm', 'target' => 'h'], ['source' => 'h', 'target' => 'd']],
+        ];
+
+        return Workflow::create($extra + [
+            'tenant_id' => 1, 'name' => 'Ventas', 'slug' => 'ventas', 'description' => 'Responde ventas',
+            'is_active' => true, 'status' => 'published', 'trigger_type' => 'message',
+            'trigger_config' => json_encode(['keyword' => 'hola', 'account_id' => 7]), 'graph' => json_encode($graph),
+            'expose_as_tool' => true, 'tool_description' => 'Úsalo para ventas',
+        ]);
+    }
+
+    public function testExportStripsTenantIdsAndSecrets(): void
+    {
+        $export = \Aero\Workflows\Classes\WorkflowPorter::export($this->porterWorkflow());
+        $json = json_encode($export);
+
+        $this->assertSame('aero.workflow', $export['format']);
+        $this->assertStringNotContainsString('abc123', $json, 'el token no viaja');
+        $this->assertArrayNotHasKey('account_id', $export['workflow']['trigger_config']);
+        $this->assertArrayNotHasKey('tenant_id', $export['workflow']);
+        $this->assertArrayNotHasKey('is_active', $export['workflow']);
+
+        $nodes = array_column($export['workflow']['graph']['nodes'], null, 'id');
+        $this->assertArrayNotHasKey('account_id', $nodes['m']['data']);
+        $this->assertArrayNotHasKey('connector_id', $nodes['h']['data']);
+        $this->assertSame(50, $nodes['h']['data']['payload']['max_tokens'], 'max_tokens no es una credencial');
+        $this->assertSame('{{ vars.cuenta }}', $nodes['d']['data']['account_id'], 'una plantilla no es un id fijo');
+        $this->assertGreaterThanOrEqual(4, count($export['reconnect']));
+    }
+
+    public function testImportCreatesInactiveDraftInTheImportersTenantOnly(): void
+    {
+        $porter = \Aero\Workflows\Classes\WorkflowPorter::class;
+        $export = $porter::export($this->porterWorkflow());
+        $export['workflow']['tenant_id'] = 99;
+        $export['workflow']['is_active'] = true;
+        $export['workflow']['status'] = 'published';
+        $export['workflow']['expose_as_tool'] = true;
+
+        $result = $porter::import($porter::parse(json_encode($export))[0], 2);
+        $w = $result['workflow'];
+
+        $this->assertSame(2, (int) $w->tenant_id, 'el tenant lo pone quien importa, nunca el archivo');
+        $this->assertFalse((bool) $w->is_active);
+        $this->assertSame('draft', $w->status);
+        $this->assertFalse((bool) $w->expose_as_tool);
+        $this->assertStringContainsString('Pendiente tras importar', (string) $w->description);
+        $this->assertNotEmpty($result['reconnect']);
+
+        $again = $porter::import($porter::parse(json_encode($export))[0], 2)['workflow'];
+        $this->assertNotSame($w->slug, $again->slug, 'el código no se repite en el tenant');
+    }
+
+    public function testImportRejectsUnknownNodesBadFilesAndNewerFormats(): void
+    {
+        $porter = \Aero\Workflows\Classes\WorkflowPorter::class;
+        $export = $porter::export($this->porterWorkflow());
+
+        $unknown = $export;
+        $unknown['workflow']['graph']['nodes'][] = ['id' => 'z', 'type' => 'plugin.inexistente', 'data' => []];
+
+        try {
+            $porter::import($unknown, 1);
+            $this->fail('debía rechazar un nodo desconocido');
+        }
+        catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('plugin.inexistente', $e->getMessage());
+        }
+
+        foreach (['', 'no es json', '{"format":"otra.cosa","version":1}', json_encode(['format' => 'aero.workflow', 'version' => 99])] as $bad) {
+            try {
+                $porter::parse($bad);
+                $this->fail('debía rechazar: ' . $bad);
+            }
+            catch (\InvalidArgumentException $e) {
+                $this->assertNotSame('', $e->getMessage());
+            }
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        $porter::parse(str_repeat('a', $porter::MAX_BYTES + 1));
+    }
+
+    public function testBundleRoundTripAndLimit(): void
+    {
+        $porter = \Aero\Workflows\Classes\WorkflowPorter::class;
+        $one = $porter::export($this->porterWorkflow());
+        $two = $porter::export($this->porterWorkflow(['slug' => 'ventas-2', 'name' => 'Ventas 2']));
+
+        $this->assertCount(2, $porter::parse(json_encode($porter::bundle([$one, $two]))));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $porter::parse(json_encode($porter::bundle(array_fill(0, $porter::MAX_WORKFLOWS + 1, $one))));
+    }
+
+    // --- Herramientas del constructor (agente que diseña workflows) ---
+
+    protected function builderGraph(): array
+    {
+        return [
+            'nodes' => [
+                ['id' => 'n1', 'type' => 'trigger.manual', 'data' => []],
+                ['id' => 'n2', 'type' => 'logic.condition', 'data' => ['left' => '{{ trigger.monto }}', 'op' => 'gt', 'right' => '100']],
+                ['id' => 'n3', 'type' => 'action.respond', 'data' => ['value' => 'Grande']],
+                ['id' => 'n4', 'type' => 'action.respond', 'data' => ['value' => 'Pequeño']],
+            ],
+            'edges' => [
+                ['source' => 'n1', 'target' => 'n2'],
+                ['source' => 'n2', 'target' => 'n3', 'sourceHandle' => 'true'],
+                ['source' => 'n2', 'target' => 'n4', 'sourceHandle' => 'false'],
+            ],
+        ];
+    }
+
+    protected function draftArgs(array $extra = []): array
+    {
+        return $extra + [
+            'name' => 'Clasificar monto', 'description' => 'Clasifica por monto',
+            'agreed_plan' => '1. Recibe el monto. 2. Si pasa de 100 responde Grande, si no Pequeño.',
+            'trigger_type' => 'manual', 'graph' => $this->builderGraph(),
+        ];
+    }
+
+    public function testBuilderToolsAreRegisteredInTheirOwnCategoryAndStayOptIn(): void
+    {
+        $tools = \Aero\Chatbots\Classes\AiToolRegistry::all(1);
+
+        foreach (['workflows_context', 'workflows_catalog', 'workflows_list', 'workflows_get', 'workflows_validate', 'workflows_save_draft'] as $name) {
+            $this->assertSame('workflows_builder', $tools[$name]['category'] ?? null, $name);
+        }
+
+        $this->assertArrayHasKey('workflows_builder', \Aero\Chatbots\Classes\AiToolRegistry::categoryLabels());
+    }
+
+    public function testBuilderContextAndCatalog(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+
+        $ctx = $B::context([], 1);
+        $this->assertSame(60, $ctx['limits']['max_nodes']);
+        $this->assertArrayHasKey('message', $ctx['triggers']);
+
+        $short = $B::catalog([], 1);
+        $this->assertContains('logic.condition', array_column($short['nodes'], 'type'));
+
+        $detail = $B::catalog(['types' => ['logic.condition', 'no.existe']], 1);
+        $this->assertSame(['true', 'false'], array_column($detail['nodes']['logic.condition']['outputs'], 'id'));
+        $this->assertSame(['no.existe'], $detail['unknown_types']);
+        $this->assertArrayNotHasKey('handler', $detail['nodes']['logic.condition']);
+    }
+
+    public function testBuilderValidateUsesEditorRules(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+
+        $ok = $B::validate(['graph' => $this->builderGraph(), 'trigger_type' => 'manual'], 1);
+        $this->assertTrue($ok['valid'], json_encode($ok));
+
+        $mismatch = $B::validate(['graph' => $this->builderGraph(), 'trigger_type' => 'message'], 1);
+        $this->assertFalse($mismatch['valid']);
+
+        $loose = $this->builderGraph();
+        array_pop($loose['edges']);
+        $this->assertFalse($B::validate(['graph' => $loose, 'trigger_type' => 'manual'], 1)['valid'], 'salida sin conectar');
+
+        $this->assertFalse($B::validate(['graph' => $this->builderGraph(), 'trigger_type' => 'event'], 1)['valid'], 'event sin nombre de evento');
+    }
+
+    public function testBuilderSaveDraftRequiresAgreementAndAlwaysSavesInactiveDraftForTheEngineTenant(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+
+        $noPlan = $B::saveDraft($this->draftArgs(['agreed_plan' => '']), 7);
+        $this->assertFalse($noPlan['saved']);
+
+        $saved = $B::saveDraft($this->draftArgs(['tenant_id' => 99, 'is_active' => true, 'status' => 'published', 'expose_as_tool' => true]), 7);
+        $this->assertTrue($saved['saved'], json_encode($saved));
+
+        $w = Workflow::find($saved['id']);
+        $this->assertSame(7, (int) $w->tenant_id, 'el tenant lo pone el motor, no los argumentos');
+        $this->assertSame('draft', $w->status);
+        $this->assertFalse((bool) $w->is_active);
+        $this->assertFalse((bool) $w->expose_as_tool);
+        $this->assertStringContainsString('Plan acordado', (string) $w->description);
+        $this->assertNotNull($w->jsonField('graph')['nodes'][0]['position'] ?? null, 'se acomoda por capas');
+    }
+
+    public function testBuilderSaveDraftRejectsInvalidGraphsAndNeverTouchesPublishedOrForeignWorkflows(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+
+        $bad = $this->builderGraph();
+        array_pop($bad['edges']);
+        $r = $B::saveDraft($this->draftArgs(['graph' => $bad]), 7);
+        $this->assertFalse($r['saved']);
+        $this->assertNotEmpty($r['errors']);
+        $this->assertSame(0, Workflow::where('tenant_id', 7)->count(), 'un grafo inválido no se guarda');
+
+        $published = $this->make(7, 'publicado', ['status' => 'published']);
+        $foreign = $this->make(8, 'ajeno', ['status' => 'draft']);
+
+        $r = $B::saveDraft($this->draftArgs(['workflow_id' => $published->id]), 7);
+        $this->assertFalse($r['saved']);
+        $this->assertStringContainsString('borradores', $r['errors'][0]);
+
+        $r = $B::saveDraft($this->draftArgs(['workflow_id' => $foreign->id]), 7);
+        $this->assertFalse($r['saved'], 'no se puede reemplazar el de otro tenant');
+        $this->assertSame('ajeno', Workflow::find($foreign->id)->name);
+
+        $mine = $this->make(7, 'mio', ['status' => 'draft']);
+        $r = $B::saveDraft($this->draftArgs(['workflow_id' => $mine->id, 'name' => 'Renombrado']), 7);
+        $this->assertTrue($r['saved']);
+        $this->assertSame('Renombrado', Workflow::find($mine->id)->name);
+
+        $this->assertSame(['error' => 'No existe ese workflow en este cliente.'], $B::get(['id' => $foreign->id], 7));
+        $this->assertSame([], array_filter($B::listing([], 7)['workflows'], fn ($w) => $w['id'] === $foreign->id));
+    }
+
+    public function testBuilderDropsWebhookSecretsAndUnknownTriggerConfig(): void
+    {
+        $B = \Aero\Workflows\Classes\BuilderTools::class;
+        $graph = ['nodes' => [['id' => 't', 'type' => 'trigger.webhook', 'data' => []], ['id' => 'r', 'type' => 'action.respond', 'data' => ['value' => 'ok']]], 'edges' => [['source' => 't', 'target' => 'r']]];
+
+        $r = $B::saveDraft($this->draftArgs(['trigger_type' => 'webhook', 'graph' => $graph, 'trigger_config' => ['secret' => 'abc', 'otro' => 1]]), 7);
+        $this->assertTrue($r['saved'], json_encode($r));
+        $this->assertSame([], Workflow::find($r['id'])->jsonField('trigger_config'));
+    }
+
+    /** Los patrones del skill del agente diseñador deben seguir siendo válidos con el editor real. */
+    public function testEveryPatternInTheDesignerSkillValidates(): void
+    {
+        $this->useInteractiveNodes();
+
+        if (class_exists(\Aero\Shop\Classes\Workflows\CatalogNodes::class)) {
+            \Event::listen('aero.workflows.registerNodes', fn () => \Aero\Shop\Classes\Workflows\CatalogNodes::definitions());
+            \Aero\Workflows\Classes\NodeRegistry::flush();
+        }
+
+        $md = file_get_contents(__DIR__ . '/../skills/workflow-designer/references/patterns.md');
+        preg_match_all('/```json\n(.*?)\n```/s', $md, $blocks);
+        $this->assertGreaterThanOrEqual(8, count($blocks[1]));
+
+        foreach ($blocks[1] as $i => $json) {
+            $block = json_decode($json, true);
+            $this->assertIsArray($block, "bloque #{$i} no es JSON válido");
+
+            $graph = $block['graph'] ?? $block;
+            $trigger = $block['trigger_type'] ?? null;
+
+            foreach ($graph['nodes'] as $node) {
+                if (str_starts_with($node['type'], 'trigger.')) {
+                    $trigger ??= substr($node['type'], 8);
+                }
+            }
+
+            $result = \Aero\Workflows\Classes\BuilderTools::validate(
+                ['graph' => $graph, 'trigger_type' => $trigger, 'trigger_config' => $block['trigger_config'] ?? []],
+                1
+            );
+
+            $this->assertTrue($result['valid'], "patrón #{$i} (" . ($block['name'] ?? 'sin nombre') . ') inválido: ' . json_encode($result['errors'], JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    public function testParallelBranchesThatJoinRunTheJoinNodeTwice(): void
+    {
+        // Lo que el skill le advierte al agente: la unión tras ramas paralelas se ejecuta una vez por rama.
+        $wf = $this->make(1, 'paralelo', ['graph' => json_encode([
+            'nodes' => [
+                ['id' => 't', 'type' => 'trigger.manual', 'data' => []],
+                ['id' => 'a', 'type' => 'logic.set', 'data' => ['name' => 'a', 'value' => '1']],
+                ['id' => 'b', 'type' => 'logic.set', 'data' => ['name' => 'b', 'value' => '1']],
+                ['id' => 'j', 'type' => 'action.respond', 'data' => ['value' => 'fin']],
+            ],
+            'edges' => [
+                ['source' => 't', 'target' => 'a'], ['source' => 't', 'target' => 'b'],
+                ['source' => 'a', 'target' => 'j'], ['source' => 'b', 'target' => 'j'],
+            ],
+        ])]);
+
+        $run = WorkflowRunner::start($wf, [], 'manual', sync: true);
+
+        $this->assertSame(2, \Aero\Workflows\Models\RunStep::where('run_id', $run->id)->where('node_id', 'j')->count());
+    }
 }

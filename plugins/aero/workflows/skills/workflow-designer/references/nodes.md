@@ -4,7 +4,7 @@
 
 Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de la tabla. Las conexiones (`edges`) pueden llevar `sourceHandle` para elegir la salida.
 
-⚠ = nodo con efectos (cobra, envía o llama URLs). En un **borrador automático** no se permite; lo aprueba una persona.
+⚠ = nodo con efectos reales (cobra, envía o llama URLs). Solo se usa después de que la persona aprobó el plan; el workflow siempre queda en borrador hasta que ella lo publique.
 
 ## `trigger.event`
 
@@ -139,6 +139,7 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 
 - **Nombre:** Hello › Responder con botones
 - **Categoría:** action
+- **Importante:** Responde al remitente del mensaje que disparó el flujo, solo dentro de las 24 h de su último mensaje y con una cuenta de la API oficial de WhatsApp.
 - **Salidas:** una sola; la conexión no lleva `sourceHandle`.
 
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |
@@ -150,6 +151,7 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 
 - **Nombre:** Hello › Responder con botón de llamada
 - **Categoría:** action
+- **Importante:** Responde al remitente del mensaje que disparó el flujo, solo dentro de las 24 h de su último mensaje y con una cuenta de la API oficial de WhatsApp.
 - **Salidas:** una sola; la conexión no lleva `sourceHandle`.
 
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |
@@ -161,6 +163,7 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 
 - **Nombre:** Hello › Responder con enlace
 - **Categoría:** action
+- **Importante:** Responde al remitente del mensaje que disparó el flujo, solo dentro de las 24 h de su último mensaje y con una cuenta de la API oficial de WhatsApp.
 - **Salidas:** una sola; la conexión no lleva `sourceHandle`.
 
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |
@@ -173,6 +176,7 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 
 - **Nombre:** Hello › Responder con menú
 - **Categoría:** action
+- **Importante:** Responde al remitente del mensaje que disparó el flujo, solo dentro de las 24 h de su último mensaje y con una cuenta de la API oficial de WhatsApp.
 - **Salidas:** una sola; la conexión no lleva `sourceHandle`.
 
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |
@@ -186,6 +190,7 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 
 - **Nombre:** Hello › Pedir ubicación
 - **Categoría:** action
+- **Importante:** Responde al remitente del mensaje que disparó el flujo, solo dentro de las 24 h de su último mensaje y con una cuenta de la API oficial de WhatsApp.
 - **Salidas:** una sola; la conexión no lleva `sourceHandle`.
 
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |

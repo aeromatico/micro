@@ -41,11 +41,15 @@ class Plugin extends PluginBase
 
         // Integración opcional con el Super Chatbot IA.
         Event::listen('aero.chatbots.registerAiTools', function (?int $tenantId = null) {
-            return \Aero\Workflows\Classes\AiTools::tools($tenantId);
+            // Las del cliente (workflows ofrecidos como herramienta) + las del constructor de workflows.
+            return \Aero\Workflows\Classes\AiTools::tools($tenantId) + \Aero\Workflows\Classes\BuilderTools::tools();
         });
 
         Event::listen('aero.chatbots.registerAiToolCategories', function () {
-            return [\Aero\Workflows\Classes\AiTools::CATEGORY => 'Workflows (automatizaciones)'];
+            return [
+                \Aero\Workflows\Classes\AiTools::CATEGORY => 'Workflows (automatizaciones)',
+                \Aero\Workflows\Classes\BuilderTools::CATEGORY => 'Diseñar workflows (constructor guiado)',
+            ];
         });
     }
 

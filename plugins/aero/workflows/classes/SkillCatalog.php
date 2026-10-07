@@ -27,7 +27,7 @@ class SkillCatalog
             '',
             'Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de la tabla. Las conexiones (`edges`) pueden llevar `sourceHandle` para elegir la salida.',
             '',
-            '⚠ = nodo con efectos (cobra, envía o llama URLs). En un **borrador automático** no se permite; lo aprueba una persona.',
+            '⚠ = nodo con efectos reales (cobra, envía o llama URLs). Solo se usa después de que la persona aprobó el plan; el workflow siempre queda en borrador hasta que ella lo publique.',
             '',
         ];
 
@@ -37,6 +37,10 @@ class SkillCatalog
             $out[] = '';
             $out[] = "- **Nombre:** " . ($def['label'] ?? $type);
             $out[] = '- **Categoría:** ' . ($def['category'] ?? '—');
+
+            if (!empty($def['note'])) {
+                $out[] = '- **Importante:** ' . $def['note'];
+            }
 
             if (!empty($def['handles'])) {
                 $handles = array_map(fn ($h) => "`{$h['id']}` ({$h['label']})", $def['handles']);

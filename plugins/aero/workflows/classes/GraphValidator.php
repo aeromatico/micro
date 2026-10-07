@@ -170,6 +170,56 @@ class GraphValidator
     }
 
     /**
+     * Lo mínimo para que el editor pueda abrir el grafo (lista de nodos con id,
+     * tipo conocido y «data» como objeto). Lo usa la importación: un flujo con
+     * conexiones sueltas se importa como borrador, uno con nodos que este
+     * sistema no conoce, no.
+     */
+    public static function integrityErrors(array $graph): array
+    {
+        $nodes = $graph['nodes'] ?? null;
+
+        if (!is_array($nodes) || $nodes === []) {
+            return ['El flujo no tiene nodos.'];
+        }
+
+        if (count($nodes) > static::MAX_NODES) {
+            return ['El flujo tiene más de ' . static::MAX_NODES . ' nodos.'];
+        }
+
+        $registry = NodeRegistry::all();
+        $errors = [];
+        $seen = [];
+
+        foreach ($nodes as $i => $node) {
+            $id = is_array($node) ? ($node['id'] ?? null) : null;
+            $type = is_array($node) ? ($node['type'] ?? null) : null;
+
+            if (!is_string($id) || $id === '' || isset($seen[$id])) {
+                $errors[] = "El nodo #{$i} no tiene un id válido o está repetido.";
+                continue;
+            }
+
+            $seen[$id] = true;
+
+            if (!is_string($type) || !isset($registry[$type])) {
+                $errors[] = 'Este sistema no tiene el nodo «' . (is_string($type) ? $type : 'vacío') . '» (¿falta instalar un plugin?).';
+            }
+            elseif (!is_array($node['data'] ?? null)) {
+                $errors[] = "El nodo «{$id}» debe tener «data» como objeto.";
+            }
+        }
+
+        $edges = $graph['edges'] ?? [];
+
+        if (!is_array($edges)) {
+            $errors[] = 'Las conexiones (edges) deben ser una lista.';
+        }
+
+        return array_values(array_unique($errors));
+    }
+
+    /**
      * Solo los límites propios de cada nodo (p. ej. máximo de botones de
      * WhatsApp), sin las reglas estructurales del grafo. Es lo que se exige al
      * publicar: un borrador a medias puede guardarse, uno publicado no.

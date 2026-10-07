@@ -1,5 +1,16 @@
 <div data-control="toolbar">
     <a href="<?= Backend::url('aero/workflows/workflows/create') ?>" class="btn btn-primary oc-icon-plus">Nuevo workflow</a>
+    <a href="<?= Backend::url('aero/workflows/workflows/import') ?>" class="btn btn-default oc-icon-upload">Importar</a>
+    <button
+        type="button"
+        class="btn btn-default oc-icon-download"
+        disabled="disabled"
+        onclick="window.location = '<?= Backend::url('aero/workflows/workflows/export') ?>?ids=' + $('.control-list').listWidget('getChecked').join(',')"
+        data-trigger-action="enable"
+        data-trigger=".control-list input[type=checkbox]"
+        data-trigger-condition="checked">
+        Exportar seleccionados
+    </button>
     <button
         class="btn btn-default oc-icon-trash-o"
         disabled="disabled"

@@ -15,3 +15,6 @@
     - add_status_to_workflows.php
 1.4.0:
     - "Nodos interactivos de Hello en el editor (botones, menú, enlace, pedir ubicación, llamada): contadores y avisos de límites, validación al publicar y filtro «interactive_id» en el disparador de mensaje."
+1.5.0:
+    - "Constructor guiado de workflows: herramientas para agentes (contexto, catálogo vivo, validar, listar, guardar borrador con plan acordado), importar/exportar, eliminar, y agente Link con skills que descubren, proponen, acuerdan y construyen."
+    - seed_workflow_designer_agent.php
