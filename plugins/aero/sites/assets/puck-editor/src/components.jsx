@@ -2117,6 +2117,76 @@ export const DynamicBlock = {
   ),
 };
 
+
+// Lista de casillas (selección múltiple) para campos que guardan "a,b,c".
+// Las opciones llegan del servidor y las inyecta index.jsx (buildConfig).
+function checkListField(label, options = []) {
+  return {
+    type: 'custom',
+    render: ({ value, onChange }) => {
+      const selected = new Set(String(value || '').split(',').map((v) => v.trim()).filter(Boolean));
+      const toggle = (v) => {
+        const next = new Set(selected);
+        if (next.has(v)) next.delete(v); else next.add(v);
+        onChange(Array.from(next).join(','));
+      };
+      return (
+        <FieldLabel label={label}>
+          <div style={{ maxHeight: '160px', overflowY: 'auto', ...TEXT_INPUT_STYLE }}>
+            {options.length === 0 && <span style={{ opacity: 0.6 }}>Sin opciones</span>}
+            {options.map((o) => (
+              <label key={o.value} style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '2px 0' }}>
+                <input type="checkbox" checked={selected.has(o.value)} onChange={() => toggle(o.value)} />
+                <span>{o.label}</span>
+              </label>
+            ))}
+          </div>
+        </FieldLabel>
+      );
+    },
+  };
+}
+
+// Servicios de la plataforma (Aero.Services). Solo se ofrece a superadmins y
+// admins del tenant master (index.jsx lo agrega únicamente si el servidor
+// manda el catálogo). El HTML guardado es un marcador con la configuración en
+// data-*; el servidor lo reemplaza por las tarjetas vivas (PlatformServicesBlock).
+export const makeServicesBlock = (catalog = {}) => ({
+  label: 'Servicios de la plataforma',
+  desc: 'Muestra los servicios del catálogo de la plataforma, filtrados por categoría o conexión, con lista blanca y negra. Se llena al ver la página publicada.',
+  fields: {
+    categories: checkListField('Categorías (vacío = todas)', catalog.categories),
+    plugins: checkListField('Conexiones con plugins (vacío = todas)', catalog.plugins),
+    allow: checkListField('Lista blanca: incluir siempre', catalog.services),
+    deny: checkListField('Lista negra: nunca mostrar', catalog.services),
+    variant: {
+      type: 'select',
+      label: 'Presentación',
+      options: [
+        { label: 'Cuadrícula', value: '1' },
+        { label: 'Lista', value: '2' },
+      ],
+    },
+  },
+  defaultProps: { categories: '', plugins: '', allow: '', deny: '', variant: '1' },
+  render: ({ categories, plugins, allow, deny, variant }) => {
+    const count = (v) => String(v || '').split(',').filter(Boolean).length;
+    return (
+      <div
+        data-aero-dynamic="servicios"
+        data-categories={categories || ''}
+        data-plugins={plugins || ''}
+        data-allow={allow || ''}
+        data-deny={deny || ''}
+        data-variant={variant || '1'}
+        className="rounded-brand border-2 border-dashed border-surface-border p-6 text-center text-sm text-ink-muted"
+      >
+        {`Servicios de la plataforma · ${count(categories)} categorías · ${count(plugins)} conexiones · +${count(allow)} / −${count(deny)}`}
+      </div>
+    );
+  },
+});
+
 // Convierte "Texto | URL" (una por línea) en [{label, url}] — mismo patrón
 // que parsePlanFeatures() en Pricing, reutilizado para enlaces de FAQ.
 function parseFaqLinks(text) {

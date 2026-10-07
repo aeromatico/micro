@@ -47,6 +47,8 @@ class PuckEditor extends FormWidgetBase
         $page = $this->model;
         $pageIsPublic = $page->exists && (bool) $page->is_published;
         $this->vars['dynamicSources'] = \Aero\Sites\Classes\DynamicSources::forEditor();
+        // Bloque «Servicios de la plataforma»: null salvo superadmin/admin del tenant master.
+        $this->vars['servicesCatalog'] = \Aero\Sites\Classes\PlatformServicesBlock::forEditor(\BackendAuth::getUser(), $tenant);
         $this->vars['siteUrl'] = $tenant && $pageIsPublic
             ? rtrim('https://' . $tenant->primary_domain . '/' . trim((string) $page->slug, '/'), '/')
             : null;

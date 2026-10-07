@@ -167,7 +167,8 @@ $safeJson = $puckJson
                 '<?= $contentId ?>',
                 existingData,
                 siteUrl,
-                dynamicSources
+                dynamicSources,
+                <?= json_encode($servicesCatalog, JSON_HEX_TAG | JSON_HEX_AMP) ?>
             );
 
             // Flush pending (debounced) editor data before the form serializes,

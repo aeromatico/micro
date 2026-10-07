@@ -34,6 +34,15 @@ class DynamicSources
                 'handler'  => [self::class, 'renderCatalogo'],
                 'variantes' => ['1' => 'Variante 1', '2' => 'Variante 2', '3' => 'Variante 3'],
             ],
+            // Solo render: lo ofrece el bloque propio «Servicios de la plataforma»
+            // (PlatformServicesBlock), no el selector de «Contenido dinámico».
+            'servicios' => [
+                'label'    => 'Servicios de la plataforma',
+                'plugin'   => \Aero\Services\Plugin::class,
+                'handler'  => [PlatformServicesBlock::class, 'render'],
+                'editor'   => false,
+                'variantes' => [],
+            ],
         ];
     }
 
@@ -42,7 +51,7 @@ class DynamicSources
     {
         $options = [];
         foreach (self::registry() as $key => $def) {
-            if (class_exists($def['plugin'])) {
+            if (($def['editor'] ?? true) && class_exists($def['plugin'])) {
                 $variants = [];
                 foreach ($def['variantes'] as $value => $label) {
                     $variants[] = ['label' => $label, 'value' => (string) $value];
@@ -66,6 +75,16 @@ class DynamicSources
                 }
                 // La variante es opcional: si falta o no existe, cada fuente usa su presentación por defecto.
                 preg_match('/\bdata-variant="([a-z0-9_-]*)"/', $match[0], $variant);
+                // Los handlers que lo necesitan reciben además todos los data-* del marcador.
+                $attrs = [];
+                if (preg_match_all('/\bdata-([a-z-]+)="([^"]*)"/', strtok($match[0], '>'), $pairs, PREG_SET_ORDER)) {
+                    foreach ($pairs as $pair) {
+                        $attrs[$pair[1]] = html_entity_decode($pair[2], ENT_QUOTES);
+                    }
+                }
+                if (($def['editor'] ?? true) === false) {
+                    return (string) call_user_func($def['handler'], $attrs);
+                }
                 return (string) call_user_func($def['handler'], $variant[1] ?? '');
             },
             $html

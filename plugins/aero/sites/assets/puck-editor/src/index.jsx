@@ -3,11 +3,26 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { Puck, Render, Button } from '@puckeditor/core';
 import '@puckeditor/core/puck.css';
-import { components, categories, DynamicBlock } from './components';
+import { components, categories, DynamicBlock, makeServicesBlock } from './components';
 
 // Config de Puck. El bloque «Contenido dinámico» toma sus fuentes del servidor
 // (DynamicSources::forEditor). Sin fuentes, el bloque no se ofrece.
-function buildConfig(sources) {
+function buildConfig(sources, servicesCatalog) {
+  const base = withServices(servicesCatalog);
+  return buildDynamic(sources, base.components, base.categories);
+}
+
+// «Servicios de la plataforma»: solo si el servidor mandó el catálogo
+// (superadmin / admin del tenant master).
+function withServices(catalog) {
+  if (!catalog) return { components, categories };
+  return {
+    components: { ...components, ServicesBlock: makeServicesBlock(catalog) },
+    categories: { ...categories, platform: { title: 'Plataforma', components: ['ServicesBlock'] } },
+  };
+}
+
+function buildDynamic(sources, components, categories) {
   const list = Array.isArray(sources) ? sources : [];
   if (!list.length) {
     const { DynamicBlock: _unused, ...rest } = components;
@@ -33,7 +48,7 @@ function buildConfig(sources) {
   };
 }
 
-let config = buildConfig([]);
+let config = buildConfig([], null);
 
 function generateHtml(data) {
   const container = document.createElement('div');
@@ -88,11 +103,11 @@ function normalizeIds(data) {
 window.AeroPuckEditor = {
   instances: {},
 
-  init(containerId, puckDataId, contentId, existingData, siteUrl, dynamicSources) {
+  init(containerId, puckDataId, contentId, existingData, siteUrl, dynamicSources, servicesCatalog) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    config = buildConfig(dynamicSources);
+    config = buildConfig(dynamicSources, servicesCatalog);
 
     // Evita montar dos veces el mismo editor (ej. si el partial se vuelve a
     // ejecutar) — createRoot() sobre un contenedor ya montado duplica el render.
