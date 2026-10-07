@@ -21,6 +21,11 @@ class GraphValidator
         'action.reply',
         'action.notify',
         'action.http',
+        'hello.reply_buttons',
+        'hello.reply_list',
+        'hello.reply_link',
+        'hello.reply_location_request',
+        'hello.reply_call',
     ];
 
     public const MAX_NODES = 60;
@@ -80,6 +85,10 @@ class GraphValidator
                 if (is_string($value) && substr_count($value, '{{') !== substr_count($value, '}}')) {
                     $errors[] = "En el nodo «{$id}», el campo «{$key}» tiene una plantilla {{ }} sin cerrar.";
                 }
+            }
+
+            foreach (static::limitErrors($id, $type, $node, $registry) as $message) {
+                $errors[] = $message;
             }
 
             if (($registry[$type]['category'] ?? null) === 'trigger') {
@@ -158,6 +167,45 @@ class GraphValidator
         }
 
         return $errors;
+    }
+
+    /**
+     * Solo los límites propios de cada nodo (p. ej. máximo de botones de
+     * WhatsApp), sin las reglas estructurales del grafo. Es lo que se exige al
+     * publicar: un borrador a medias puede guardarse, uno publicado no.
+     */
+    public static function nodeLimitErrors(array $graph): array
+    {
+        $registry = NodeRegistry::all();
+        $errors = [];
+
+        foreach ((array) ($graph['nodes'] ?? []) as $node) {
+            $id = $node['id'] ?? null;
+            $type = $node['type'] ?? null;
+
+            if (is_string($id) && is_string($type) && isset($registry[$type])) {
+                array_push($errors, ...static::limitErrors($id, $type, $node, $registry));
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Un tipo de nodo puede declarar `'validate' => callable(array $data, string $type): string[]`
+     * con sus propios límites; los mensajes salen con el nombre del nodo.
+     */
+    protected static function limitErrors(string $id, string $type, array $node, array $registry): array
+    {
+        $hook = $registry[$type]['validate'] ?? null;
+
+        if (!is_callable($hook) || !is_array($node['data'] ?? null)) {
+            return [];
+        }
+
+        $label = $registry[$type]['label'] ?? $type;
+
+        return array_map(fn ($m) => "Nodo «{$id}» ({$label}): {$m}", (array) call_user_func($hook, $node['data'], $type));
     }
 
     protected static function hasCycle(array $outgoing, array $ids): bool

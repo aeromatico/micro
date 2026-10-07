@@ -68,12 +68,33 @@ class Workflow extends Model
             }
         }
 
+        // Un borrador a medias puede guardarse; uno publicado no puede romper los límites de sus nodos.
+        if ($this->status === 'published') {
+            $errors = \Aero\Workflows\Classes\GraphValidator::nodeLimitErrors($this->jsonField('graph'));
+
+            if ($errors) {
+                throw new \ApplicationException("No se puede publicar el workflow:\n- " . implode("\n- ", array_slice($errors, 0, 8)));
+            }
+        }
+
         $this->version = (int) $this->version + ($this->exists && $this->isDirty('graph') ? 1 : 0);
     }
 
     public function afterSave(): void
     {
         \Aero\Workflows\Classes\Triggers::flush();
+    }
+
+    /** Sin claves foráneas en las tablas: se borran a mano las ejecuciones y sus pasos para no dejar huérfanos. */
+    public function beforeDelete(): void
+    {
+        $runIds = Run::where('workflow_id', $this->id)->pluck('id');
+
+        foreach ($runIds->chunk(500) as $chunk) {
+            RunStep::whereIn('run_id', $chunk)->delete();
+        }
+
+        Run::where('workflow_id', $this->id)->delete();
     }
 
     public function afterDelete(): void

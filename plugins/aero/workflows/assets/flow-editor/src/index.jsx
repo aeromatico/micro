@@ -61,6 +61,26 @@ function hasCycle(nodes, edges) {
   return nodes.some((n) => visit(n.id));
 }
 
+/* Límites declarados por el nodo (`max`, `max_lines`, `max_line`). Las plantillas {{ }} cuentan como 1 carácter:
+   su largo real se comprueba al ejecutar. Devuelve mensajes en español. */
+function fieldIssues(def, data) {
+  const issues = [];
+  (def.fields || []).forEach((f) => {
+    const raw = typeof data[f.key] === 'string' ? data[f.key] : '';
+    const value = raw.replace(/\{\{.*?\}\}/g, 'x');
+    if (f.max && value.length > f.max) issues.push(`«${f.label}» supera ${f.max} caracteres (${value.length}).`);
+    if (f.max_lines || f.max_line) {
+      const lines = value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      if (f.max_lines && lines.length > f.max_lines) issues.push(`«${f.label}» admite hasta ${f.max_lines} líneas (hay ${lines.length}).`);
+      if (f.max_line) {
+        const long = lines.filter((l) => l.split('|')[0].trim().length > f.max_line).length;
+        if (long) issues.push(`«${f.label}»: ${long} texto(s) superan ${f.max_line} caracteres.`);
+      }
+    }
+  });
+  return issues;
+}
+
 function validate(nodes, edges, catalog) {
   const warnings = [];
   const triggers = nodes.filter((n) => (n.data.__type || '').startsWith('trigger.'));
@@ -71,6 +91,10 @@ function validate(nodes, edges, catalog) {
   if (loose.length) warnings.push(`${loose.length} nodo(s) sin conectar.`);
   if (hasCycle(nodes, edges)) warnings.push('Hay un ciclo: se cortará a los 50 pasos.');
   nodes.forEach((n) => { if (!catalog[n.data.__type]) warnings.push(`Tipo desconocido: ${n.data.__type}`); });
+  nodes.forEach((n) => {
+    const d = catalog[n.data.__type];
+    if (d) fieldIssues(d, n.data).forEach((m) => warnings.push(`${d.label} (${n.id}): ${m}`));
+  });
   return warnings;
 }
 
@@ -190,10 +214,19 @@ function Field({ field, value, onChange, connectors }) {
     control = <input type={field.type === 'number' ? 'number' : 'text'} {...common} />;
   }
 
+  const text = typeof value === 'string' ? value.replace(/\{\{.*?\}\}/g, 'x') : '';
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).length;
+  const over = (field.max && text.length > field.max) || (field.max_lines && lines > field.max_lines);
+
   return (
     <div className="afe-field">
       <label>{field.label}</label>
       {control}
+      {(field.max || field.max_lines) && (
+        <div className={`counter${over ? ' over' : ''}`}>
+          {field.max ? `${text.length}/${field.max} caracteres` : `${lines}/${field.max_lines} líneas`}
+        </div>
+      )}
       {field.hint && <div className="hint">{field.hint}</div>}
     </div>
   );
@@ -307,6 +340,7 @@ function Editor({ textarea, catalog, connectors }) {
         {selected && def ? (
           <>
             <h5>{def.label} · {selected.id}</h5>
+            {def.note && <div className="afe-note">{def.note}</div>}
             {(def.fields || []).map((f) => (
               <Field key={f.key} field={f} value={selected.data[f.key]} onChange={(v) => updateData(f.key, v)} connectors={connectors} />
             ))}

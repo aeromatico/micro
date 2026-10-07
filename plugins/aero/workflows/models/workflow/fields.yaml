@@ -4,7 +4,7 @@ fields:
     description: {label: Descripción, type: textarea, size: tiny}
     is_active: {label: Activo, type: switch, span: left, comment: 'Solo los workflows activos se disparan solos.'}
     trigger_type: {label: Disparador, type: dropdown, span: right}
-    trigger_config: {label: 'Configuración del disparador (JSON)', type: textarea, size: small, comment: 'event: {"event":"aero.shop.orderCreated"} · message: {"keyword":"hola","account_id":1} · webhook: {"secret":"opcional"}'}
+    trigger_config: {label: 'Configuración del disparador (JSON)', type: textarea, size: small, comment: 'event: {"event":"aero.shop.orderCreated"} · message: {"keyword":"hola","account_id":1,"interactive_id":"ver_precios_1"} (interactive_id: solo si tocó ese botón/opción; admite una lista) · webhook: {"secret":"opcional"}'}
     graph: {label: Diseño, type: workflowEditor, span: full}
     _tool_section: {label: 'Super Chatbot IA (opcional)', type: section}
     expose_as_tool:

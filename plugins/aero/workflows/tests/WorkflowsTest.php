@@ -289,4 +289,145 @@ class WorkflowsTest extends PluginTestCase
         $this->assertCount(5, array_unique(array_map(fn ($p) => $p['x'] . ',' . $p['y'], $pos)), 'Ningún nodo queda encima de otro.');
         $this->assertSame($graph['edges'], $out['edges'], 'Las conexiones no se tocan.');
     }
+
+    // --- Nodos interactivos de Hello (botones, menú, enlace, ubicación, llamada) ---
+
+    protected function useInteractiveNodes(): void
+    {
+        if (!class_exists(\Aero\Hello\Classes\Workflows\InteractiveNodes::class)) {
+            $this->markTestSkipped('Aero.Hello no está instalado.');
+        }
+
+        \Event::listen('aero.workflows.registerNodes', fn () => \Aero\Hello\Classes\Workflows\InteractiveNodes::definitions());
+        \Aero\Workflows\Classes\NodeRegistry::flush();
+    }
+
+    protected function interactiveGraph(string $type, array $data): array
+    {
+        return [
+            'nodes' => [
+                ['id' => 't', 'type' => 'trigger.message', 'data' => []],
+                ['id' => 'x', 'type' => $type, 'data' => $data],
+            ],
+            'edges' => [['source' => 't', 'target' => 'x']],
+        ];
+    }
+
+    public function testInteractiveNodesEnforceWhatsappLimits(): void
+    {
+        $this->useInteractiveNodes();
+        $v = fn (string $type, array $data) => \Aero\Workflows\Classes\GraphValidator::validate($this->interactiveGraph($type, $data));
+
+        $this->assertSame([], $v('hello.reply_buttons', ['body' => 'Hola {{ vars.nombre }}', 'buttons' => "Precios\nAsesor | asesor"]));
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => 'x', 'buttons' => "a\nb\nc\nd"]), 'máx. 3 botones');
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => 'x', 'buttons' => str_repeat('a', 21)]), 'botón > 20');
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => '', 'buttons' => 'a']), 'texto obligatorio');
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => str_repeat('a', 1025), 'buttons' => 'a']), 'texto > 1024');
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => 'x', 'buttons' => "a | mismo\nb | mismo"]), 'ids repetidos');
+        $this->assertNotEmpty($v('hello.reply_buttons', ['body' => 'x', 'buttons' => 'a | id con espacio']), 'id inválido');
+
+        $rows = implode("\n", array_map(fn ($i) => "Opción {$i}", range(1, 11)));
+        $this->assertNotEmpty($v('hello.reply_list', ['body' => 'x', 'list_rows' => $rows]), 'máx. 10 filas');
+        $this->assertSame([], $v('hello.reply_list', ['body' => 'x', 'list_rows' => "Pizza | Desde Bs 40 | pizza\nCafé"]));
+        $this->assertNotEmpty($v('hello.reply_list', ['body' => 'x', 'list_rows' => 'Pizza | ' . str_repeat('d', 73)]), 'descripción > 72');
+
+        $this->assertNotEmpty($v('hello.reply_link', ['body' => 'x', 'cta_text' => 'Ver', 'cta_url' => 'javascript:alert(1)']));
+        $this->assertNotEmpty($v('hello.reply_link', ['body' => 'x', 'cta_text' => '', 'cta_url' => 'https://a.com']));
+        $this->assertSame([], $v('hello.reply_link', ['body' => 'x', 'cta_text' => 'Ver', 'cta_url' => 'https://a.com/{{ vars.id }}']));
+        $this->assertSame([], $v('hello.reply_location_request', ['body' => 'Comparte tu ubicación']));
+        $this->assertSame([], $v('hello.reply_call', ['body' => 'Llámanos']));
+    }
+
+    public function testInteractiveNodesAreSideEffectsAndNeverInAutomaticDrafts(): void
+    {
+        $this->useInteractiveNodes();
+
+        $errors = \Aero\Workflows\Classes\GraphValidator::validate(
+            $this->interactiveGraph('hello.reply_location_request', ['body' => 'x']),
+            draft: true
+        );
+
+        $this->assertNotEmpty($errors);
+    }
+
+    public function testInteractiveNodeWithoutInboundMessageOnlyPreviews(): void
+    {
+        $this->useInteractiveNodes();
+
+        $out = \Aero\Hello\Classes\Workflows\InteractiveNodes::buttons(['body' => 'Elige', 'buttons' => "Sí\nNo"], ['trigger' => []], 1);
+
+        $this->assertFalse($out['output']['sent']);
+        $this->assertStringContainsString('Elige', $out['respond']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        \Aero\Hello\Classes\Workflows\InteractiveNodes::buttons(['body' => 'x', 'buttons' => "a\nb\nc\nd"], ['trigger' => []], 1);
+    }
+
+    public function testInteractiveNodeRejectsForeignContactFailClosed(): void
+    {
+        $this->useInteractiveNodes();
+
+        $this->expectException(\RuntimeException::class);
+        \Aero\Hello\Classes\Workflows\InteractiveNodes::buttons(
+            ['body' => 'x', 'buttons' => 'a'],
+            ['trigger' => ['data' => [['contact_id' => 999, 'account_id' => 999]]]],
+            1
+        );
+    }
+
+    public function testPublishedWorkflowCannotSaveBrokenInteractiveNodeButDraftCan(): void
+    {
+        $this->useInteractiveNodes();
+        $graph = json_encode($this->interactiveGraph('hello.reply_buttons', ['body' => 'x', 'buttons' => "a\nb\nc\nd"]));
+
+        $draft = Workflow::create([
+            'tenant_id' => 1, 'name' => 'b1', 'slug' => 'b1', 'is_active' => false, 'status' => 'draft',
+            'trigger_type' => 'manual', 'graph' => $graph,
+        ]);
+        $this->assertTrue($draft->exists);
+
+        $this->expectException(\ApplicationException::class);
+        Workflow::create([
+            'tenant_id' => 1, 'name' => 'b2', 'slug' => 'b2', 'is_active' => true, 'status' => 'published',
+            'trigger_type' => 'manual', 'graph' => $graph,
+        ]);
+    }
+
+    public function testMessageTriggerCanFilterByTappedOptionId(): void
+    {
+        $pass = new \ReflectionMethod(Triggers::class, 'messagePasses');
+        $pass->setAccessible(true);
+
+        $tap = fn (?string $id) => (object) [
+            'direction' => 'inbound', 'account_id' => 1, 'body' => 'Ver precios',
+            'provider_payload' => $id ? ['interactive_type' => 'button_reply', 'interactive_id' => $id] : null,
+        ];
+
+        $config = ['interactive_id' => ['ver_precios_1', 'asesor']];
+
+        $this->assertTrue($pass->invoke(null, $config, $tap('asesor')));
+        $this->assertFalse($pass->invoke(null, $config, $tap('otro')));
+        $this->assertFalse($pass->invoke(null, $config, $tap(null)), 'un mensaje de texto no es un toque');
+        $this->assertTrue($pass->invoke(null, ['interactive_id' => 'asesor'], $tap('asesor')), 'acepta un solo id');
+        $this->assertTrue($pass->invoke(null, ['keyword' => 'precios'], $tap(null)), 'sin interactive_id no cambia nada');
+    }
+
+    public function testDeletingWorkflowRemovesItsRunsAndStepsOnly(): void
+    {
+        $a = $this->make(1, 'borrar-a');
+        $b = $this->make(1, 'conservar-b');
+
+        $runA = WorkflowRunner::start($a, ['plan' => 'pro', 'name' => 'Ana'], 'manual', sync: true);
+        $runB = WorkflowRunner::start($b, ['plan' => 'pro', 'name' => 'Beto'], 'manual', sync: true);
+
+        $this->assertGreaterThan(0, \Aero\Workflows\Models\RunStep::where('run_id', $runA->id)->count());
+
+        $a->delete();
+
+        $this->assertNull(Workflow::find($a->id));
+        $this->assertSame(0, \Aero\Workflows\Models\Run::where('workflow_id', $a->id)->count());
+        $this->assertSame(0, \Aero\Workflows\Models\RunStep::where('run_id', $runA->id)->count());
+        $this->assertNotNull(\Aero\Workflows\Models\Run::find($runB->id), 'las ejecuciones de otros workflows no se tocan');
+        $this->assertGreaterThan(0, \Aero\Workflows\Models\RunStep::where('run_id', $runB->id)->count());
+    }
 }

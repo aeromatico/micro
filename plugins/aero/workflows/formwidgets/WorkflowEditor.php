@@ -31,6 +31,7 @@ class WorkflowEditor extends FormWidgetBase
                 'category' => $node['category'] ?? 'action',
                 'fields'   => $node['fields'] ?? [],
                 'handles'  => $node['handles'] ?? [],
+                'note'     => $node['note'] ?? null,
             ];
         }
 

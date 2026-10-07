@@ -113,6 +113,18 @@ class Triggers
             return false;
         }
 
+        // Solo si tocó una opción concreta de un menú/botón (provider_payload.interactive_id).
+        $wanted = array_values(array_filter(array_map('trim', (array) ($config['interactive_id'] ?? [])), fn ($v) => $v !== ''));
+
+        if ($wanted) {
+            $payload = $message->provider_payload ?? [];
+            $given = is_array($payload) ? (string) ($payload['interactive_id'] ?? '') : '';
+
+            if ($given === '' || !in_array($given, $wanted, true)) {
+                return false;
+            }
+        }
+
         $keyword = trim((string) ($config['keyword'] ?? ''));
 
         return $keyword === '' || stripos((string) $message->body, $keyword) !== false;

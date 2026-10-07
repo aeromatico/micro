@@ -32,6 +32,27 @@ class Workflows extends Controller
         }
     }
 
+    /** Eliminación masiva desde la lista: solo workflows del tenant del usuario (falla cerrado). */
+    public function index_onDelete()
+    {
+        $ids = array_filter((array) post('checked'), 'is_numeric');
+
+        if ($ids) {
+            $workflows = $this->scopeToTenant(Workflow::query())->whereIn('id', $ids)->get();
+
+            foreach ($workflows as $workflow) {
+                $workflow->delete();
+            }
+
+            Flash::success($workflows->count() === 1 ? 'Workflow eliminado.' : $workflows->count() . ' workflows eliminados.');
+        }
+        else {
+            Flash::error('Selecciona al menos un workflow.');
+        }
+
+        return $this->listRefresh();
+    }
+
     /** Ejecución de prueba (síncrona) con un payload JSON opcional. */
     public function update_onTestRun($recordId = null)
     {

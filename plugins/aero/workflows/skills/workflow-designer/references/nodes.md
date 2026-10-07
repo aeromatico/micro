@@ -135,6 +135,63 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 |---|---|---|---|
 | `value` (Valor) | textarea |  | Es lo que recibe quien llamó (p. ej. la IA). |
 
+## `hello.reply_buttons` ⚠
+
+- **Nombre:** Hello › Responder con botones
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
+| `buttons` (Botones (uno por línea)) | textarea |  | De 1 a 3, hasta 20 caracteres cada uno. Formato: «Texto» o «Texto \| id». El id es lo que llega cuando lo tocan (si no lo pones, se genera del texto). |
+
+## `hello.reply_call` ⚠
+
+- **Nombre:** Hello › Responder con botón de llamada
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
+| `call_text` (Texto del botón (opcional)) | text |  | Hasta 20 caracteres. Requiere WhatsApp Business Calling activado en el número. |
+
+## `hello.reply_link` ⚠
+
+- **Nombre:** Hello › Responder con enlace
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
+| `cta_text` (Texto del botón) | text |  | Obligatorio, hasta 20 caracteres. |
+| `cta_url` (Enlace) | text |  | URL que empiece con http:// o https://. |
+
+## `hello.reply_list` ⚠
+
+- **Nombre:** Hello › Responder con menú
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
+| `list_button` (Texto del botón que abre el menú) | text |  | Hasta 20 caracteres. Por defecto «Ver opciones». |
+| `list_section` (Título de la sección (opcional)) | text |  |  |
+| `list_rows` (Opciones (una por línea)) | textarea |  | De 1 a 10. Formato: «Título \| Descripción \| id». Título hasta 24 y descripción hasta 72 caracteres; descripción e id son opcionales («Título \|\| id» para poner solo el id). |
+
+## `hello.reply_location_request` ⚠
+
+- **Nombre:** Hello › Pedir ubicación
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
+
 ## `shop.cart`
 
 - **Nombre:** Tienda › Ver o editar pedido
