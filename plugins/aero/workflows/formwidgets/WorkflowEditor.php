@@ -25,7 +25,9 @@ class WorkflowEditor extends FormWidgetBase
         $json = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) : (string) $value;
 
         $catalog = [];
-        foreach (NodeRegistry::all() as $type => $node) {
+        $tenantId = $this->model->tenant_id ?: (CurrentTenant::isAdmin() ? null : CurrentTenant::id());
+
+        foreach (NodeRegistry::availableFor($tenantId ? (int) $tenantId : null) as $type => $node) {
             $catalog[$type] = [
                 'label'    => $node['label'] ?? $type,
                 'category' => $node['category'] ?? 'action',

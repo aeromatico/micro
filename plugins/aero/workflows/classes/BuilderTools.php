@@ -186,7 +186,7 @@ class BuilderTools
 
     public static function catalog(array $args, int $tenantId): array
     {
-        $registry = NodeRegistry::all();
+        $registry = NodeRegistry::availableFor($tenantId);
         $types = array_values(array_filter((array) ($args['types'] ?? []), 'is_string'));
 
         if (!$types) {

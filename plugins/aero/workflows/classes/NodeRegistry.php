@@ -38,6 +38,21 @@ class NodeRegistry
         return static::$nodes = $nodes;
     }
 
+    /**
+     * Nodos que este tenant puede usar. Un nodo puede declarar
+     * `'available' => callable(?int $tenantId): bool` (p. ej. solo para el master);
+     * sin esa clave está disponible para todos. El editor y el constructor con IA
+     * ofrecen solo estos; el handler del nodo vuelve a comprobarlo al ejecutar.
+     */
+    public static function availableFor(?int $tenantId): array
+    {
+        return array_filter(static::all(), function ($node) use ($tenantId) {
+            $gate = $node['available'] ?? null;
+
+            return !is_callable($gate) || (bool) call_user_func($gate, $tenantId);
+        });
+    }
+
     public static function find(string $type): ?array
     {
         return static::all()[$type] ?? null;

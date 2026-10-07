@@ -191,6 +191,25 @@ function Field({ field, value, onChange, connectors }) {
         {(field.options || []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     );
+  } else if (field.type === 'checklist') {
+    // Selección múltiple: se guarda como "a,b,c".
+    const selected = new Set(String(value || '').split(',').map((v) => v.trim()).filter(Boolean));
+    const toggle = (v) => {
+      const next = new Set(selected);
+      if (next.has(v)) next.delete(v); else next.add(v);
+      onChange(Array.from(next).join(','));
+    };
+    control = (
+      <div style={{ maxHeight: 150, overflowY: 'auto', border: '1px solid #d8dee9', borderRadius: 6, padding: '4px 8px' }}>
+        {(field.options || []).length === 0 && <span style={{ opacity: 0.6 }}>Sin opciones</span>}
+        {(field.options || []).map((o) => (
+          <label key={o.value} style={{ display: 'flex', gap: 6, alignItems: 'center', padding: '2px 0' }}>
+            <input type="checkbox" checked={selected.has(o.value)} onChange={() => toggle(o.value)} />
+            <span>{o.label}</span>
+          </label>
+        ))}
+      </div>
+    );
   } else if (field.type === 'connector') {
     control = (
       <select {...common}>
