@@ -229,6 +229,50 @@ class GraphValidatorTest extends PluginTestCase
         $this->assertSame([], GraphValidator::validate($readOnly, true), 'consultar no tiene efectos');
     }
 
+    /** Nodos de pagos a la plataforma: la recarga cobra (efectos); saldo y estado del plan solo leen. */
+    public function testNodosDeMonedasYPlanValidanYSoloLaRecargaTieneEfectos(): void
+    {
+        foreach ([\Aero\Credits\Classes\Workflows\CreditNodes::class, \Aero\Sites\Classes\Workflows\PlanNodes::class] as $nodes) {
+            if (!class_exists($nodes)) {
+                $this->markTestSkipped("{$nodes} no está instalado.");
+            }
+
+            Event::listen('aero.workflows.registerNodes', fn () => $nodes::definitions());
+        }
+
+        NodeRegistry::flush();
+
+        $read = [
+            'nodes' => [
+                $this->node('n1', 'trigger.manual'),
+                $this->node('n2', 'credits.balance'),
+                $this->node('n3', 'sites.plan_status'),
+                $this->node('n4', 'action.respond', ['value' => '{{ vars.saldo.text }} {{ vars.plan.text }}']),
+            ],
+            'edges' => [
+                $this->edge('n1', 'n2'), $this->edge('n2', 'n3'),
+                $this->edge('n3', 'n4', 'active'), $this->edge('n3', 'n4', 'expiring'), $this->edge('n3', 'n4', 'overdue'), $this->edge('n3', 'n4', 'no_plan'),
+            ],
+        ];
+        $this->assertSame([], GraphValidator::validate($read, true), 'consultar no tiene efectos');
+
+        $recharge = [
+            'nodes' => [
+                $this->node('n1', 'trigger.manual'),
+                $this->node('n2', 'credits.recharge', ['amount' => '100']),
+                $this->node('n3', 'credits.purchase_status', ['reference' => '{{ vars.recarga.reference }}']),
+                $this->node('n4', 'action.respond', ['value' => 'ok']),
+            ],
+            'edges' => [
+                $this->edge('n1', 'n2'), $this->edge('n2', 'n3', 'created'), $this->edge('n2', 'n4', 'failed'),
+                $this->edge('n3', 'n4', 'paid'), $this->edge('n3', 'n4', 'pending'), $this->edge('n3', 'n4', 'expired'),
+                $this->edge('n3', 'n4', 'review'), $this->edge('n3', 'n4', 'not_found'),
+            ],
+        ];
+        $this->assertSame([], GraphValidator::validate($recharge), 'publicado puede recargar');
+        $this->assertStringContainsString('credits.recharge', implode(' ', GraphValidator::validate($recharge, true)));
+    }
+
     public function testPatronDecisionConCondicionEsValidoComoBorrador(): void
     {
         $graph = [

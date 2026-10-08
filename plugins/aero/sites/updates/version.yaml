@@ -373,3 +373,5 @@
 1.58.0:
     - "El rol tenant_admin recibe aero.workspaces.use (Mercado y Oficina de agentes)."
     - grant_workspaces_to_tenant_admin.php
+1.59.0:
+    - "Aero.Workflows: nodo «Suscripción › Estado del plan del tenant» (plan, vencimiento, días restantes y cobro de renovación pendiente con su QR). Solo lectura."

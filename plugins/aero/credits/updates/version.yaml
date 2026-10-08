@@ -62,3 +62,5 @@
 1.14.0:
     - "Regalos: pantalla de auditoría (Créditos → Regalos de suscripción) y vencimiento automático de los QR sin pagar (credits:expire-gifts). Canje de cupones por un tenant existente desde Mis invitaciones (un canje por tenant y cupón; solo del mismo plan que ya tiene o si no tiene plan vigente; nunca el Trial)."
     - create_credit_coupon_redemptions_table.php
+1.15.0:
+    - "Aero.Workflows: nodos de Monedas para el editor visual (Saldo del tenant, Generar recarga con QR y Estado de una recarga). Solo operan sobre el tenant del workflow; las monedas se acreditan únicamente al confirmarse el pago."

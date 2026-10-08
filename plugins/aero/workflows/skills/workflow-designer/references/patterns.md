@@ -266,6 +266,84 @@ Notas:
 - Para reaccionar apenas llega el pago, no esperes: usa otro workflow con el disparador de evento `aero.pay.paymentReceived`.
 - `pay.summary` («cuánto cobré hoy») es **dato interno del negocio**: úsalo para el dueño, nunca para responder a clientes.
 
+## 8. Estado del plan y renovación (para el dueño del negocio)
+
+Responde «mi plan» con el estado de la suscripción del tenant a la plataforma. Si hay una renovación pendiente, manda el QR como imagen. `sites.plan_status` es de solo lectura: el cobro de la renovación lo genera la plataforma antes del vencimiento.
+
+```json
+{
+  "name": "Mi plan",
+  "trigger_type": "message",
+  "trigger_config": {"keyword": "mi plan"},
+  "graph": {
+    "nodes": [
+      {"id": "n1", "type": "trigger.message", "data": {}},
+      {"id": "n2", "type": "sites.plan_status", "data": {"save_as": "plan"}},
+      {"id": "n3", "type": "action.reply", "data": {"body": "{{ vars.plan.text }}"}},
+      {"id": "n4", "type": "logic.condition", "data": {"left": "{{ vars.plan.renewal_pending }}", "op": "eq", "right": "1"}},
+      {"id": "n5", "type": "action.reply_media", "data": {"media_url": "{{ vars.plan.renewal_image_url }}", "media_type": "image", "body": "{{ vars.plan.text }}"}},
+      {"id": "n6", "type": "action.reply", "data": {"body": "Este negocio todavía no tiene un plan asignado."}}
+    ],
+    "edges": [
+      {"id": "e1", "source": "n1", "target": "n2"},
+      {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": "active"},
+      {"id": "e3", "source": "n2", "target": "n4", "sourceHandle": "expiring"},
+      {"id": "e4", "source": "n2", "target": "n4", "sourceHandle": "overdue"},
+      {"id": "e5", "source": "n2", "target": "n6", "sourceHandle": "no_plan"},
+      {"id": "e6", "source": "n4", "target": "n5", "sourceHandle": "true"},
+      {"id": "e7", "source": "n4", "target": "n3", "sourceHandle": "false"}
+    ]
+  }
+}
+```
+
+Notas:
+- Es información **interna del negocio**: acota el disparador (`keyword`) y úsalo solo en cuentas del dueño; nunca como respuesta pública a clientes.
+- Si la renovación aún no se generó, `renewal_pending` es falso y solo se manda el texto.
+
+## 9. Recargar monedas con QR y confirmar la acreditación
+
+El dueño escribe «recargar», se genera el QR de la recarga de la plataforma y se lo manda como imagen; a los 3 minutos se comprueba si pagó. Las monedas **las acredita únicamente el pago confirmado**; el flujo solo informa.
+
+```json
+{
+  "name": "Recargar monedas",
+  "trigger_type": "message",
+  "trigger_config": {"keyword": "recargar"},
+  "graph": {
+    "nodes": [
+      {"id": "n1", "type": "trigger.message", "data": {}},
+      {"id": "n2", "type": "credits.recharge", "data": {"amount": "100", "save_as": "recarga"}},
+      {"id": "n3", "type": "action.reply_media", "data": {"media_url": "{{ vars.recarga.image_url }}", "media_type": "image", "body": "{{ vars.recarga.text }}"}},
+      {"id": "n4", "type": "logic.delay", "data": {"seconds": "180"}},
+      {"id": "n5", "type": "credits.purchase_status", "data": {"reference": "{{ vars.recarga.reference }}", "save_as": "recarga"}},
+      {"id": "n6", "type": "action.reply", "data": {"body": "¡Recarga recibida! Tus monedas ya están acreditadas."}},
+      {"id": "n7", "type": "action.reply", "data": {"body": "Todavía no vemos el pago. Cuando se confirme, las monedas se acreditan solas."}},
+      {"id": "n8", "type": "action.reply", "data": {"body": "Esa recarga venció. Escribe «recargar» para generar otra."}},
+      {"id": "n9", "type": "action.reply", "data": {"body": "Tu pago está en revisión: te avisaremos cuando se acredite."}},
+      {"id": "n10", "type": "action.reply", "data": {"body": "No pudimos generar la recarga ahora. Intenta de nuevo en unos minutos."}}
+    ],
+    "edges": [
+      {"id": "e1", "source": "n1", "target": "n2"},
+      {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": "created"},
+      {"id": "e3", "source": "n2", "target": "n10", "sourceHandle": "failed"},
+      {"id": "e4", "source": "n3", "target": "n4"},
+      {"id": "e5", "source": "n4", "target": "n5"},
+      {"id": "e6", "source": "n5", "target": "n6", "sourceHandle": "paid"},
+      {"id": "e7", "source": "n5", "target": "n7", "sourceHandle": "pending"},
+      {"id": "e8", "source": "n5", "target": "n8", "sourceHandle": "expired"},
+      {"id": "e9", "source": "n5", "target": "n9", "sourceHandle": "review"},
+      {"id": "e10", "source": "n5", "target": "n8", "sourceHandle": "not_found"}
+    ]
+  }
+}
+```
+
+Notas:
+- `credits.recharge` **cobra al tenant** (⚠): solo con el plan aprobado. El monto debe ser uno de los que ofrece la plataforma; generar otra recarga **anula la pendiente**.
+- La imagen del QR viaja en `{{ vars.recarga.image_url }}`; `action.reply_media` la manda como imagen por WhatsApp.
+- Para el cobro que el tenant hace a **sus clientes** (QR del negocio) usa el patrón 7 (`pay.*`).
+
 ## Lista de revisión antes de guardar
 
 - [ ] La persona confirmó el plan y lo guardaste en `agreed_plan`.

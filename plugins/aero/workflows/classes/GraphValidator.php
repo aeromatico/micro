@@ -21,6 +21,8 @@ class GraphValidator
         'pay.cancel',
         'action.message',
         'action.reply',
+        'action.reply_media',
+        'credits.recharge',
         'action.notify',
         'action.http',
         'hello.reply_buttons',

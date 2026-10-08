@@ -53,6 +53,17 @@ class Plugin extends PluginBase
         $this->bootConnectorIntegration();
         $this->bootPurchaseIntegration();
         $this->bootGiftIntegration();
+        $this->bootWorkflowsIntegration();
+    }
+
+    /**
+     * Nodos de Aero.Workflows para consultar el saldo y recargar monedas.
+     * Dependencia blanda: si Aero.Workflows no está instalado este evento
+     * nunca se dispara.
+     */
+    protected function bootWorkflowsIntegration(): void
+    {
+        Event::listen('aero.workflows.registerNodes', fn () => \Aero\Credits\Classes\Workflows\CreditNodes::definitions());
     }
 
     /**

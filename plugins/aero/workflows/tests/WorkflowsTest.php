@@ -683,6 +683,13 @@ class WorkflowsTest extends PluginTestCase
             \Aero\Workflows\Classes\NodeRegistry::flush();
         }
 
+        foreach ([\Aero\Credits\Classes\Workflows\CreditNodes::class, \Aero\Sites\Classes\Workflows\PlanNodes::class] as $nodes) {
+            if (class_exists($nodes)) {
+                \Event::listen('aero.workflows.registerNodes', fn () => $nodes::definitions());
+                \Aero\Workflows\Classes\NodeRegistry::flush();
+            }
+        }
+
         if (class_exists(\Aero\Pay\Classes\Workflows\PaymentNodes::class)) {
             \Event::listen('aero.workflows.registerNodes', fn () => \Aero\Pay\Classes\Workflows\PaymentNodes::definitions());
             \Aero\Workflows\Classes\NodeRegistry::flush();
@@ -712,6 +719,34 @@ class WorkflowsTest extends PluginTestCase
 
             $this->assertTrue($result['valid'], "patrón #{$i} (" . ($block['name'] ?? 'sin nombre') . ') inválido: ' . json_encode($result['errors'], JSON_UNESCAPED_UNICODE));
         }
+    }
+
+    public function testReplyMediaNeedsAnHttpsLinkAndOnlyPreviewsWithoutAnInboundMessage(): void
+    {
+        if (!class_exists(\Aero\Hello\Classes\Hello::class)) {
+            $this->markTestSkipped('Aero.Hello no está instalado.');
+        }
+
+        $B = \Aero\Workflows\Classes\BuiltinNodes::class;
+
+        foreach (['', 'http://x.test/a.png', 'javascript:alert(1)', 'https://user:pw@x.test/a.png', 'no-es-url'] as $bad) {
+            try {
+                $B::replyMedia(['media_url' => $bad], [], 1);
+                $this->fail("«{$bad}» no debería aceptarse");
+            }
+            catch (\InvalidArgumentException $e) {
+                $this->assertStringContainsString('https', $e->getMessage());
+            }
+        }
+
+        // Sin mensaje entrante (Probar): no envía, muestra lo que enviaría.
+        $r = $B::replyMedia(['media_url' => 'https://x.test/qr.png', 'media_type' => 'raro', 'body' => 'Tu QR'], [], 1);
+        $this->assertFalse($r['output']['sent']);
+        $this->assertSame('image', $r['output']['media_type'], 'un tipo desconocido cae a imagen');
+        $this->assertStringContainsString('https://x.test/qr.png', $r['respond']);
+
+        $this->assertContains('action.reply_media', \Aero\Workflows\Classes\GraphValidator::SIDE_EFFECT_TYPES);
+        $this->assertArrayHasKey('action.reply_media', \Aero\Workflows\Classes\NodeRegistry::all());
     }
 
     public function testParallelBranchesThatJoinRunTheJoinNodeTwice(): void

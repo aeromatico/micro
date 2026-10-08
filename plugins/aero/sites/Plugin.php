@@ -53,6 +53,7 @@ class Plugin extends PluginBase
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
         $this->bootChatbotsIntegration();
+        $this->bootWorkflowsIntegration();
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
         $this->bootPayRenewalBridge();
@@ -274,6 +275,15 @@ class Plugin extends PluginBase
                 \Log::error("Aero\\Sites: fallo procesando renovación pagada (tenant {$renewal->tenant_id}): " . $e->getMessage());
             }
         });
+    }
+
+    /**
+     * Nodo de Aero.Workflows con el estado del plan del tenant. Dependencia
+     * blanda: si Aero.Workflows no está instalado este evento nunca se dispara.
+     */
+    protected function bootWorkflowsIntegration(): void
+    {
+        Event::listen('aero.workflows.registerNodes', fn () => \Aero\Sites\Classes\Workflows\PlanNodes::definitions());
     }
 
     /**

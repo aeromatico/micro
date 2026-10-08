@@ -55,6 +55,11 @@ class BuiltinNodes
             'action.reply' => ['label' => 'Responder al remitente (Hello)', 'category' => 'action', 'handler' => [static::class, 'reply'], 'fields' => [
                 ['key' => 'body', 'label' => 'Mensaje', 'type' => 'textarea', 'hint' => 'Se envía a quien escribió el mensaje que disparó el workflow.'],
             ]],
+            'action.reply_media' => ['label' => 'Responder con imagen o archivo (Hello)', 'category' => 'action', 'handler' => [static::class, 'replyMedia'], 'fields' => [
+                ['key' => 'media_url', 'label' => 'Enlace de la imagen o archivo', 'type' => 'text', 'hint' => 'Debe empezar con https://. Ej: {{ vars.cobro.image_url }} para mandar el QR de un cobro.'],
+                ['key' => 'media_type', 'label' => 'Tipo', 'type' => 'select', 'options' => [['value' => 'image', 'label' => 'Imagen'], ['value' => 'document', 'label' => 'Documento (PDF, etc.)'], ['value' => 'video', 'label' => 'Video']], 'hint' => 'Por defecto: Imagen.'],
+                ['key' => 'body', 'label' => 'Texto que acompaña (opcional)', 'type' => 'textarea', 'hint' => 'Se envía a quien escribió el mensaje que disparó el workflow.'],
+            ]],
             'action.notify' => ['label' => 'Notificar (Notify)', 'category' => 'action', 'handler' => [static::class, 'notify'], 'fields' => [
                 ['key' => 'event', 'label' => 'Evento del catálogo', 'type' => 'text'],
                 ['key' => 'context', 'label' => 'Contexto (JSON)', 'type' => 'json'],
@@ -228,6 +233,46 @@ class BuiltinNodes
         $message = \Aero\Hello\Classes\Hello::sendToContact($contact, $body, ['tenant_id' => $tenantId, 'account_id' => $account->id]);
 
         return ['output' => ['message_id' => $message->id]];
+    }
+
+    /**
+     * data: media_url (https), media_type (image|document|video), body (opcional).
+     * Igual que `reply`: solo a quien escribió a una cuenta de este cliente.
+     */
+    public static function replyMedia(array $data, array $ctx, ?int $tenantId): array
+    {
+        if (!class_exists(\Aero\Hello\Classes\Hello::class)) {
+            throw new \RuntimeException('Aero.Hello no está instalado.');
+        }
+
+        $url = trim((string) ($data['media_url'] ?? ''));
+        $parts = parse_url($url);
+
+        if (!$parts || strtolower($parts['scheme'] ?? '') !== 'https' || empty($parts['host']) || isset($parts['user']) || isset($parts['pass'])) {
+            throw new \InvalidArgumentException('action.reply_media necesita un enlace https a la imagen o archivo.');
+        }
+
+        $type = in_array($data['media_type'] ?? '', ['image', 'document', 'video'], true) ? $data['media_type'] : 'image';
+        $body = trim((string) ($data['body'] ?? ''));
+        $inbound = $ctx['trigger']['data'][0] ?? [];
+        $contactId = (int) ($inbound['contact_id'] ?? 0);
+        $accountId = (int) ($inbound['account_id'] ?? 0);
+
+        // Prueba manual (sin mensaje entrante): no hay a quién responder; se muestra qué enviaría.
+        if (!$contactId || !$accountId) {
+            return [
+                'output'  => ['sent' => false, 'media_url' => $url, 'media_type' => $type, 'text' => $body, 'reason' => 'Modo prueba: no hay mensaje entrante, no se envió.'],
+                'respond' => trim($body . "\n" . $url),
+            ];
+        }
+
+        [$contact, $account] = \Aero\Hello\Classes\Workflows\Sender::resolve($inbound, $tenantId);
+
+        $message = \Aero\Hello\Classes\Hello::sendToContact($contact, $body, [
+            'tenant_id' => $tenantId, 'account_id' => $account->id, 'media_url' => $url, 'media_type' => $type,
+        ]);
+
+        return ['output' => ['sent' => true, 'message_id' => $message->id, 'media_type' => $type]];
     }
 
     /** data: event (código del catálogo de Notify), context. */

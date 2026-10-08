@@ -125,6 +125,18 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 |---|---|---|---|
 | `body` (Mensaje) | textarea |  | Se envía a quien escribió el mensaje que disparó el workflow. |
 
+## `action.reply_media` ⚠
+
+- **Nombre:** Responder con imagen o archivo (Hello)
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `media_url` (Enlace de la imagen o archivo) | text |  | Debe empezar con https://. Ej: {{ vars.cobro.image_url }} para mandar el QR de un cobro. |
+| `media_type` (Tipo) | select | `image`, `document`, `video` | Por defecto: Imagen. |
+| `body` (Texto que acompaña (opcional)) | textarea |  | Se envía a quien escribió el mensaje que disparó el workflow. |
+
 ## `action.respond`
 
 - **Nombre:** Responder (valor de retorno)
@@ -134,6 +146,40 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 | Campo (`data.key`) | Tipo | Opciones | Ayuda |
 |---|---|---|---|
 | `value` (Valor) | textarea |  | Es lo que recibe quien llamó (p. ej. la IA). |
+
+## `credits.balance`
+
+- **Nombre:** Monedas › Saldo del tenant
+- **Categoría:** action
+- **Salidas:** una sola; la conexión no lleva `sourceHandle`.
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `save_as` (Guardar en la variable) | text |  | Por defecto «saldo»: {{ vars.saldo.text }}, .balances, .wallet_bob. Dato interno del negocio: no lo envíes a clientes. |
+
+## `credits.purchase_status`
+
+- **Nombre:** Monedas › Estado de una recarga
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `paid` (pagada), `pending` (pendiente), `expired` (vencida o anulada), `review` (en revisión), `not_found` (no existe)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `reference` (Referencia de la recarga) | text |  | Ej: {{ vars.recarga.reference }} (la que devuelve «Generar recarga»). |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «recarga». |
+
+## `credits.recharge` ⚠
+
+- **Nombre:** Monedas › Generar recarga (QR)
+- **Categoría:** action
+- **Importante:** Cobra al tenant: genera un QR a nombre de la plataforma. Las monedas llegan solo cuando el pago se confirma. Anula la recarga pendiente que el tenant tuviera.
+- **Salidas (`sourceHandle`):** `created` (recarga creada), `failed` (no se pudo)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `amount` (Monto en Bs) | number |  | Uno de los montos de recarga que ofrece la plataforma (por defecto 20, 50, 100, 200 o 1000). |
+| `coin` (Moneda (código)) | text |  | Vacío = todo el monto va a la billetera de Bs. O el código de la moneda a comprar. |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «recarga»: {{ vars.recarga.reference }}, .image_url, .text, .expires_at |
 
 ## `hello.reply_buttons` ⚠
 
@@ -357,3 +403,12 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 | `contact` (Cliente (teléfono)) | text |  | Vacío = el cliente que escribió. Para pruebas: un teléfono, ej. 59170000000. |
 | `save_as` (Guardar en la variable) | text |  | Por defecto «busqueda»: {{ vars.busqueda.text }}, .items |
 
+## `sites.plan_status`
+
+- **Nombre:** Suscripción › Estado del plan del tenant
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `active` (vigente), `expiring` (por vencer), `overdue` (vencido o suspendido), `no_plan` (sin plan)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `save_as` (Guardar en la variable) | text |  | Por defecto «plan»: {{ vars.plan.plan_name }}, .expires_at, .days_left, .text, .renewal_amount, .renewal_image_url. Dato interno del negocio: no lo envíes a clientes. |
