@@ -33,3 +33,6 @@
 1.10.0:
     - "Modelos especializados: catálogo en Ajustes con repetidor (código máx./normal con DeepSeek V4 Pro y V4.1 Flash, imagen, audio y video), el agente elige uno, y el conector de los agentes es el AI Gateway de Cloudflare."
     - add_model_profiles.php
+1.11.0:
+    - "Modelo de respaldo por agente (Staff → Agente): si el principal falla, el turno continúa con el respaldo del catálogo de Ajustes; el mensaje queda marcado."
+    - add_fallback_model_code.php

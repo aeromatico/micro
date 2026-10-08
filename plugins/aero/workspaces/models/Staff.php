@@ -14,7 +14,7 @@ class Staff extends Model
 
     public $fillable = [
         'name', 'slug', 'role', 'kind', 'rarity', 'category', 'bio', 'system_prompt',
-        'tags', 'capabilities', 'guide', 'connector_id', 'model_code', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
+        'tags', 'capabilities', 'guide', 'connector_id', 'model_code', 'fallback_model_code', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
         'hire_fee', 'task_rates',
     ];
 
@@ -30,6 +30,7 @@ class Staff extends Model
 
     public $rules = [
         'name'     => 'required|max:120',
+        'fallback_model_code' => 'nullable|max:40',
         'slug'     => 'required|alpha_dash|max:120',
         'role'     => 'required|max:120',
         'kind'     => 'required|in:ai',
@@ -156,6 +157,12 @@ class Staff extends Model
     public function setTaskRatesAttribute($value): void
     {
         $this->pendingTaskRates = is_array($value) ? $value : [];
+    }
+
+    /** Modelo de respaldo: las mismas opciones, pidiendo uno distinto al principal. */
+    public function getFallbackModelCodeOptions(): array
+    {
+        return array_merge(['' => '(sin respaldo)'], array_slice($this->getModelCodeOptions(), 1, null, true));
     }
 
     /** Modelos especializados de Ajustes con los que puede conversar un agente (código y texto). */

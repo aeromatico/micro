@@ -1,6 +1,7 @@
 <?php namespace Aero\Workspaces\Classes;
 
 use Aero\Workspaces\Classes\Llm\ConnectorLlm;
+use Aero\Workspaces\Classes\Llm\FallbackLlm;
 use Aero\Workspaces\Classes\Llm\LlmDriver;
 use Aero\Workspaces\Models\Message;
 use Aero\Workspaces\Models\Settings;
@@ -138,7 +139,7 @@ class AgentRunner
                         throw new \RuntimeException('El agente no devolvió una respuesta.');
                     }
 
-                    $reply->update(['content' => $text, 'status' => 'done', 'meta' => ['tools' => $trace, 'workflows' => $workflows, 'working' => []]]);
+                    $reply->update(['content' => $text, 'status' => 'done', 'meta' => ['tools' => $trace, 'workflows' => $workflows, 'working' => []] + ($llm instanceof FallbackLlm && $llm->usedFallback() ? ['fallback' => true] : [])]);
                     Billing::chargeTurn($reply, $staff);
 
                     return;
@@ -295,10 +296,13 @@ class AgentRunner
     }
 
     /**
-     * El conector y el modelo de un agente. Conector: el de su modelo especializado
-     * (Ajustes), si no el de Ajustes, si no el propio del agente, si no el primero
-     * activo. El modelo especializado solo se pide al conector para el que está
-     * escrito (un ID de gateway no vale en otro proveedor).
+     * El modelo de un agente, con su respaldo si lo tiene. Conector: el de su modelo
+     * especializado (Ajustes), si no el de Ajustes, si no el propio del agente, si no
+     * el primero activo. El modelo especializado solo se pide al conector para el que
+     * está escrito (un ID de gateway no vale en otro proveedor).
+     *
+     * El respaldo (otro modelo del catálogo) solo se usa si habla el mismo formato que
+     * el principal (mismo tipo de conector): el historial del turno no se traduce.
      */
     public static function driverFor(Staff $staff): LlmDriver
     {
@@ -310,10 +314,31 @@ class AgentRunner
             throw new \RuntimeException('Faltan Aero.Connector y Aero.Chatbots para ejecutar agentes.');
         }
 
+        [$connector, $model] = static::resolveModel($staff, $staff->model_code);
+        $primary = new ConnectorLlm($connector, $model);
+
+        $code = trim((string) $staff->fallback_model_code);
+
+        if ($code === '' || !Settings::modelProfile($code)) {
+            return $primary;
+        }
+
+        [$spare, $spareModel] = static::resolveModel($staff, $code);
+
+        if ($spare->type !== $connector->type || ($spare->id === $connector->id && $spareModel === $model)) {
+            return $primary;
+        }
+
+        return new FallbackLlm($primary, new ConnectorLlm($spare, $spareModel));
+    }
+
+    /** @return array{0: \Aero\Connector\Models\Connector, 1: ?string} conector y modelo a pedir */
+    protected static function resolveModel(Staff $staff, ?string $code): array
+    {
         $ai = fn ($q) => $q->whereIn('type', ['ai_openai_compatible', 'ai_anthropic'])->where('is_enabled', true);
         $find = fn (?int $id) => $id ? $ai(\Aero\Connector\Models\Connector::where('id', $id))->first() : null;
 
-        $profile = Settings::modelProfile($staff->model_code);
+        $profile = Settings::modelProfile($code);
         $profile = $profile && in_array($profile['kind'], Settings::CHAT_KINDS, true) ? $profile : null;
 
         $connector = $find($profile['connector_id'] ?? null) ?: $find(Settings::agentConnectorId());
@@ -324,6 +349,6 @@ class AgentRunner
             throw new \RuntimeException('No hay un modelo de IA configurado para los agentes (Ajustes → Workspaces).');
         }
 
-        return new ConnectorLlm($connector, ($intended && $profile ? $profile['model'] : null) ?: ($intended ? Settings::agentModel() : null));
+        return [$connector, ($intended && $profile ? $profile['model'] : null) ?: ($intended ? Settings::agentModel() : null)];
     }
 }
