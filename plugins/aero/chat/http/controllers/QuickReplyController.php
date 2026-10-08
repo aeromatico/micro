@@ -6,7 +6,7 @@ use Illuminate\Routing\Controller;
 
 class QuickReplyController extends Controller
 {
-    /** GET quick-replies — respuestas activas del tenant, para el menú "/" y los atajos. */
+    /** GET quick-replies?account_id= — respuestas activas del tenant, filtradas por la cuenta de la conversación, para el menú "/" y los atajos. */
     public function index(Request $request)
     {
         if (!class_exists(QuickReply::class)) {
@@ -14,6 +14,7 @@ class QuickReplyController extends Controller
         }
 
         $rows = QuickReply::inScope($this->tenantId($request))->active()
+            ->forAccount((int) $request->query('account_id') ?: null)
             ->orderBy('sort_order')->orderBy('shortcut')
             ->get(['id', 'shortcut', 'title', 'area', 'body', 'sort_order', 'uses_count']);
 
