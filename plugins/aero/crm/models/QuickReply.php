@@ -34,6 +34,41 @@ class QuickReply extends Model
         'tenant' => [\Aero\Sites\Models\Tenant::class],
     ];
 
+    /** Cuentas Hello a las que se limita (vacío = todas). Acoplamiento blando: la clase puede no existir. */
+    public $belongsToMany = [
+        'accounts' => [
+            \Aero\Hello\Models\Account::class,
+            'table'    => 'aero_crm_quick_reply_account',
+            'key'      => 'quick_reply_id',
+            'otherKey' => 'account_id',
+        ],
+    ];
+
+    public function getAccountsOptions(): array
+    {
+        if (!class_exists(\Aero\Hello\Models\Account::class)) {
+            return [];
+        }
+        $q = \Aero\Hello\Models\Account::query()->orderBy('label');
+        if ($this->tenant_id) {
+            $q->forTenant((int) $this->tenant_id);
+        }
+
+        return $q->get()->mapWithKeys(fn ($a) => [$a->id => $a->label . ($a->external_username ? ' (' . $a->external_username . ')' : '')])->all();
+    }
+
+    /** Respuestas que aplican a una cuenta: las sin restricción y las que la incluyen. */
+    public function scopeForAccount($query, ?int $accountId)
+    {
+        if (!$accountId) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($accountId) {
+            $q->whereDoesntHave('accounts')->orWhereHas('accounts', fn ($a) => $a->where('aero_hello_accounts.id', $accountId));
+        });
+    }
+
     public static function areaOptions(): array
     {
         return [

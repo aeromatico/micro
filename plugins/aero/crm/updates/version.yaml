@@ -145,3 +145,7 @@
 1.9.0:
     - "Sistema de tickets del sitio: interruptor en CRM > Configuración (desactivado por defecto). Mientras esté apagado, Soporte no aparece en el menú ni en el pie del micrositio y sus páginas responden 404."
     - add_tickets_enabled_to_crm_settings_table.php
+
+1.10.0:
+    - "Respuestas rápidas: relación opcional con cuentas Hello. Sin cuentas = vale para todas; con cuentas, solo se ofrece en las conversaciones de esas cuentas."
+    - create_quick_reply_accounts_table.php

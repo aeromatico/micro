@@ -39,6 +39,12 @@ fields:
         type: switch
         span: auto
 
+    accounts:
+        label: Cuentas Hello
+        type: checkboxlist
+        span: full
+        comment: Opcional. Sin marcar ninguna, la respuesta aparece en todas las cuentas; si marcas algunas, solo en las conversaciones de esas cuentas.
+
     body:
         label: Mensaje
         type: textarea

@@ -21,6 +21,13 @@ columns:
         searchable: true
         limit: 80
 
+    accounts:
+        label: Cuentas
+        relation: accounts
+        select: label
+        sortable: false
+        width: 180px
+
     sort_order:
         label: Orden
         type: number
