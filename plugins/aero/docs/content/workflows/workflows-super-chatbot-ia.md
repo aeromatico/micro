@@ -17,7 +17,7 @@ Si falta cualquiera de las dos, la IA no ve el workflow.
 
 - Los parámetros que decide la IA llegan al workflow en `{{ trigger.pedido }}`.
 - Se ejecuta en el momento y la IA recibe lo que devuelva el nodo **Responder** (o la salida del último nodo).
-- Solo se ofrecen workflows **activos y de tu cuenta**.
+- Solo se ofrecen workflows **publicados, activos y de tu cuenta** (los borradores no se ofrecen).
 
 > [!IMPORTANT]
 > La IA decide cuándo ejecutar el workflow. No expongas flujos que envíen mensajes o modifiquen datos sin revisar bien su descripción y parámetros.
@@ -25,4 +25,4 @@ Si falta cualquiera de las dos, la IA no ve el workflow.
 > [!NOTE]
 > Cada ejecución cuenta para el límite por hora y puede consumir créditos, además de los de la IA.
 
-**Versión documentada:** 1.1.0
+**Versión documentada:** 1.6.1

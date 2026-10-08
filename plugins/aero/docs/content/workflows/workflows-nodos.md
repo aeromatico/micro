@@ -21,6 +21,7 @@ sort: 20
 | [Tienda › Agregar al pedido](workflows-nodos-tienda-pedido) | Acción | Producto, cantidad | Agrega al pedido del cliente: «2», «2 x3» o «quiero una taza». Requiere Tienda. |
 | [Tienda › Ver o editar pedido](workflows-nodos-tienda-pedido) | Acción | Acción, producto a quitar | Muestra, quita un producto o vacía el pedido. Requiere Tienda. |
 | [Tienda › Confirmar pedido](workflows-nodos-tienda-pedido) | Acción | Ubicación, dirección, método de pago | Crea el pedido real de la tienda. Requiere Tienda. |
+| [Hello › Botones, menú, enlace, pedir ubicación, llamada](workflows-nodos-interactivos) | Acción | Texto, botones u opciones, enlace | Mensajes interactivos de WhatsApp. Requiere Hello. |
 | Responder | Acción | Valor | Es lo que recibe quien llamó al workflow, por ejemplo la IA. |
 
 > [!NOTE]
@@ -29,4 +30,4 @@ sort: 20
 > [!WARNING]
 > Si un nodo falla, la ejecución termina con error y queda registrado el paso que falló.
 
-**Versión documentada:** 1.1.0
+**Versión documentada:** 1.6.1

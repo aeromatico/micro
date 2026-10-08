@@ -18,7 +18,8 @@ Aquí creas y editas un flujo de automatización.
 | **Nombre** | Cómo lo reconoces en la lista. |
 | **Código** | Identificador único dentro de tu cuenta (letras, números, guiones). |
 | **Descripción** | Nota interna. |
-| **Activo** | Solo los workflows activos se disparan solos. La prueba manual funciona siempre. |
+| **Estado** | Borrador, Publicado o Archivado. Solo los **publicados** y activos se disparan solos (por evento, mensaje, webhook o como herramienta de IA). Un borrador solo corre con **Probar**. |
+| **Activo** | Interruptor para encender o apagar un workflow publicado. La prueba manual funciona siempre. |
 | **Disparador** | Manual, evento de la plataforma, mensaje entrante o webhook. |
 | **Configuración del disparador (JSON)** | Ver abajo. |
 | **Diseño** | El editor visual con los nodos. |
@@ -29,7 +30,7 @@ Aquí creas y editas un flujo de automatización.
 | Disparador | Ejemplo |
 |------------|---------|
 | Evento | `{"event":"aero.shop.orderCreated"}` (admite `*` como comodín) |
-| Mensaje entrante | `{"keyword":"precio","account_id":1}` (ambos opcionales) |
+| Mensaje entrante | `{"keyword":"precio","account_id":1,"interactive_id":"ver_precios_1"}` (todos opcionales; `keyword` admite varias palabras separadas por coma, sin distinguir mayúsculas ni acentos; `interactive_id` dispara solo si el cliente tocó ese botón u opción y admite una lista) |
 | Webhook | `{"secret":"clave-larga"}` (obligatorio) |
 
 > [!IMPORTANT]
@@ -59,7 +60,19 @@ Plantillas: `{{ trigger.campo }}` (datos de entrada), `{{ vars.nombre }}` (varia
 - **⟲ Ordenar:** acomoda los nodos por capas, cada uno debajo de lo que lo alimenta, para que se crucen menos las líneas. Solo cambia las posiciones, no las conexiones.
 - **Minimapa:** en la esquina; arrástralo para moverte por el flujo.
 
+## Publicar y borradores
+
+Un workflow puede ser **borrador** (por ejemplo, los que deja un agente: ver [Construir con un agente](workflows-agente-constructor)). Los borradores no se disparan por eventos, mensajes, webhooks ni herramientas de IA. Al publicar se revisan los límites de cada nodo, incluidos los [nodos interactivos de Hello](workflows-nodos-interactivos): un borrador a medias se puede guardar, uno publicado no. Los workflows anteriores quedaron como publicados.
+
+## Importar, exportar y eliminar
+
+En la lista de workflows:
+
+- **Importar:** sube un archivo JSON exportado. Entra siempre como **borrador, desactivado** y sin ofrecerse a la IA; revísalo, reconecta lo indicado y publícalo. Se rechazan archivos mal formados o con nodos que esta plataforma no tiene.
+- **Exportar seleccionados:** marca uno o varios y descarga el JSON. No viajan datos de tu cuenta (cuentas de WhatsApp, Connectors, categorías, productos, métodos de pago) ni secretos; quedan listados como «por reconectar».
+- **Eliminar seleccionados:** borra los marcados **con todas sus ejecuciones**. No se puede deshacer.
+
 > [!TIP]
 > El editor avisa si falta el disparador, hay nodos sueltos o hay un ciclo.
 
-**Versión documentada:** 1.2.0
+**Versión documentada:** 1.6.1

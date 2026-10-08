@@ -16,6 +16,8 @@ Un **workflow** es un flujo que armas dibujando nodos y conectándolos: algo ocu
 | [Workflow](workflows-formulario-workflow) | Nombre, disparador, diseño visual y opciones para el Super Chatbot IA. |
 | [Nodos disponibles](workflows-nodos) | Disparadores, condiciones, variables, esperas y acciones. |
 | [Ejecuciones](workflows-ejecuciones) | Historial paso a paso de cada vez que corrió un workflow. |
+| [Nodos interactivos de Hello](workflows-nodos-interactivos) | Botones, menús, enlaces, pedir ubicación y llamada por WhatsApp. |
+| [Construir con un agente](workflows-agente-constructor) | Un agente de IA diseña, edita y deshace cambios en tus workflows. |
 | [Usarlo desde el Super Chatbot IA](workflows-super-chatbot-ia) | Opcional: la IA puede ejecutar un workflow durante una conversación. |
 
 ## Límites de seguridad
@@ -28,4 +30,4 @@ Un **workflow** es un flujo que armas dibujando nodos y conectándolos: algo ocu
 > [!NOTE]
 > Cada ejecución consume créditos si tu plataforma tiene la acción `workflows.run` configurada.
 
-**Versión documentada:** 1.1.0
+**Versión documentada:** 1.6.1
