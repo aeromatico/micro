@@ -387,3 +387,6 @@
 1.62.0:
     - "El plan PRO incluye Aero.Finance (contabilidad por negocio, independiente de la del portal)."
     - add_finance_to_pro_plan.php
+
+1.63.0:
+    - "Planes: cada característica puede marcarse como «Destacada»; la tabla de precios de la landing master lee los planes de la BD."

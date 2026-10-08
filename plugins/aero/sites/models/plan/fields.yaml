@@ -120,3 +120,14 @@ tabs:
                     text:
                         label: Texto
                         type: text
+                        span: left
+                    featured:
+                        label: Destacada
+                        type: switch
+                        span: right
+                        comment: Se resalta en la tabla de precios de la landing.
+                    description:
+                        label: Descripción
+                        type: text
+                        span: full
+                        comment: Opcional. Línea de detalle bajo el texto en la tabla de precios.
