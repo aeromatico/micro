@@ -25,6 +25,9 @@ tabs:
                 ppt: Presentaciones
                 info: Investigación
                 automatizacion: Automatización
+                ecommerce: eCommerce
+                web: Desarrollo Web
+                integraciones: Integraciones y APIs
         rarity:
             tab: Perfil
             label: Rareza

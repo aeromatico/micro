@@ -23,8 +23,11 @@ class Plugin extends PluginBase
         // Herramientas del Mercado y la Oficina para el Super Chatbot IA y el MCP (acoplamiento blando: solo escucha el evento).
         \Event::listen('aero.chatbots.registerAiTools', fn (?int $tenantId = null) => \Aero\Workspaces\Classes\Tools::tools());
 
+        \Event::listen('aero.chatbots.registerAiTools', fn (?int $tenantId = null) => \Aero\Workspaces\Classes\ApiTools::tools());
+
         \Event::listen('aero.chatbots.registerAiToolCategories', fn () => [
             \Aero\Workspaces\Classes\Tools::CATEGORY => 'Workspaces: mercado y oficina de agentes',
+            \Aero\Workspaces\Classes\ApiTools::CATEGORY => 'Catálogo de la API de la plataforma',
         ]);
     }
 

@@ -29,7 +29,7 @@ class Tools
             'workspaces_market' => $tool(
                 'Mercado de agentes: los agentes de IA que el cliente puede contratar (rol, rareza, skills, precio de contratación y por encargo, y si ya están en su equipo). Admite filtros.',
                 [
-                    'category' => ['type' => 'string', 'enum' => ['video', 'imagen', 'contenido', 'ppt', 'info', 'automatizacion']],
+                    'category' => ['type' => 'string', 'enum' => ['video', 'imagen', 'contenido', 'ppt', 'info', 'automatizacion', 'ecommerce', 'web', 'integraciones']],
                     'rarity'   => ['type' => 'string', 'enum' => ['r', 'sr', 'ssr']],
                     'q'        => ['type' => 'string', 'description' => 'Busca en nombre, rol, descripción y etiquetas.'],
                     'sort'     => ['type' => 'string', 'enum' => ['hires', 'cost', 'name'], 'description' => 'Más contratados, menor costo o nombre.'],

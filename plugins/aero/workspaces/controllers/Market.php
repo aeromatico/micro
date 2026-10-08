@@ -22,7 +22,7 @@ class Market extends Controller
         BackendMenu::setContext('Aero.Workspaces', 'workspaces', 'market');
         $this->pageTitle = 'Mercado de agentes';
         $this->addCss('/plugins/aero/workspaces/assets/css/market.css?v=6');
-        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=6');
+        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=9');
     }
 
     public function index(): void

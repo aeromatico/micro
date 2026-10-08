@@ -21,3 +21,9 @@
 1.6.0:
     - "Superpoderes para los agentes activos: sus skills (web, seo, guion, img, orquestación) ganan herramientas reales de lectura del negocio del cliente."
     - seed_agent_powers.php
+1.7.0:
+    - "Poderes para los agentes de eCommerce y Desarrollo Web: los skills clip y mon ganan lectura de catálogo y contacto del cliente."
+    - seed_agent_powers_ecommerce_web.php
+1.8.0:
+    - "Categoría Integraciones y APIs: herramienta api_catalog (catálogo público de la API), skill «Integraciones y APIs» y Bruno reconvertido en el especialista."
+    - seed_integrations_specialist.php

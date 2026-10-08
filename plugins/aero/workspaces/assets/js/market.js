@@ -9,7 +9,7 @@ window.WsMarketInit = function () {
   window.WsMarketCleanup = () => offs.forEach(f => f());
 
   const AXES = [['creatividad', 'Creatividad'], ['viralidad', 'Viralidad'], ['ejecucion', 'Ejecución'], ['narrativa', 'Narrativa'], ['estetica', 'Estética'], ['eficiencia', 'Eficiencia']];
-  const CATS = { all: 'Todos', video: 'Video', imagen: 'Imagen', contenido: 'Contenido', ppt: 'Presentaciones', info: 'Investigación', automatizacion: 'Automatización' };
+  const CATS = { all: 'Todos', video: 'Video', imagen: 'Imagen', contenido: 'Contenido', ppt: 'Presentaciones', info: 'Investigación', automatizacion: 'Automatización', ecommerce: 'eCommerce', web: 'Desarrollo Web', integraciones: 'Integraciones y APIs' };
   const byId = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + 'K' : String(n);

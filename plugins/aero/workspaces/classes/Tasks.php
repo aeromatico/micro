@@ -25,6 +25,9 @@ class Tasks
         'info'           => ['Investigando el tema', 'Investigación lista'],
         'ppt'            => ['Maquetando la presentación', 'Presentación lista'],
         'automatizacion' => ['Diseñando el flujo', 'Flujo listo'],
+        'ecommerce'      => ['Preparando la tienda', 'Tienda lista'],
+        'web'            => ['Desarrollando el sitio', 'Sitio listo'],
+        'integraciones' => ['Conectando los sistemas', 'Integración lista'],
     ];
 
     /** 1 + largo/400: los encargos largos cuestan más (igual que el prototipo). */
