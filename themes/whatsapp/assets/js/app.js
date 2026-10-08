@@ -267,7 +267,16 @@
                 else { this.current = null; if (location.pathname !== '/' + this.handle) history.replaceState(null, '', '/' + this.handle); }
             },
             // ---------- respuestas rápidas ("/") ----------
-            async loadQuick() { try { this.quick = await this.api('/quick-replies'); } catch (e) {} },
+            async loadQuick() {
+                // Se vacía al cambiar de conversación y se descarta toda respuesta que llegue de otra cuenta.
+                var acc = this.current && this.current.account_id ? this.current.account_id : 0;
+                this.quick = [];
+                try {
+                    var rows = await this.api('/quick-replies' + (acc ? '?account_id=' + acc : ''));
+                    var now = this.current && this.current.account_id ? this.current.account_id : 0;
+                    if (now === acc) this.quick = rows;
+                } catch (e) {}
+            },
             get topQuick() {
                 return this.quick.slice().sort(function (a, b) { return b.uses_count - a.uses_count || a.sort_order - b.sort_order; }).slice(0, 100);
             },
