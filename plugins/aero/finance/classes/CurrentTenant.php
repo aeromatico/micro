@@ -16,6 +16,30 @@ class CurrentTenant
         return (bool) BackendAuth::getUser()?->hasAccess('aero.finance.superadmin');
     }
 
+    /** Descripción del libro en pantalla: «portal» (tenant master) o un negocio. */
+    public static function booksLabel(): string
+    {
+        $id = self::id();
+        if (!$id || !class_exists(\Aero\Sites\Models\Tenant::class)) {
+            return 'No se pudo determinar el libro contable.';
+        }
+
+        $name = \Aero\Sites\Models\Tenant::whereKey($id)->value('name') ?: ('#' . $id);
+
+        return self::isPortal($id)
+            ? 'Está en la contabilidad del PORTAL (' . $name . '). Es independiente de la de los tenants.'
+            : 'Está en la contabilidad del negocio «' . $name . '», NO en la del portal. Cada tenant gobierna la suya.';
+    }
+
+    /** ¿Es el libro del portal (tenant master)? */
+    public static function isPortal(?int $tenantId = null): bool
+    {
+        $tenantId ??= self::id();
+
+        return $tenantId && class_exists(\Aero\Sites\Classes\PlatformServicesBlock::class)
+            && \Aero\Sites\Classes\PlatformServicesBlock::masterTenantId() === (int) $tenantId;
+    }
+
     public static function id(): ?int
     {
         if (self::$resolved) {

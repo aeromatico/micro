@@ -1,11 +1,4 @@
 fields:
-  tenant_id:
-    label: Negocio (tenant)
-    type: dropdown
-    span: auto
-    permissions:
-    - aero.finance.superadmin
-    emptyOption: — Elegir —
   code:
     label: Código
     span: left

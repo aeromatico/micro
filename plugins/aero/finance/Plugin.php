@@ -54,6 +54,7 @@ class Plugin extends PluginBase
                 'order'       => 523,
                 'sideMenu'    => [
                     'movements' => $item('Ingresos y egresos', 'icon-list', 'movements'),
+                    'pettycash' => $item('Caja chica', 'icon-money', 'pettycash'),
                     'entries'   => $item('Libro diario', 'icon-file-text', 'entries'),
                     'reports'   => $item('Libro mayor y reportes', 'icon-bar-chart', 'reports'),
                     'accounts'  => $item('Plan de cuentas', 'icon-sitemap', 'accounts'),

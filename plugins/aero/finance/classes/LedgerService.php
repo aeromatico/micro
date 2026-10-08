@@ -1,6 +1,7 @@
 <?php namespace Aero\Finance\Classes;
 
 use Aero\Finance\Models\Account;
+use Aero\Finance\Models\FinanceSettings;
 use Aero\Finance\Models\JournalEntry;
 use Aero\Finance\Models\JournalLine;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,10 @@ class LedgerService
      */
     public function post(int $tenantId, $date, string $description, array $lines, ?array $source = null, ?int $reversalOf = null): JournalEntry
     {
+        if (!FinanceSettings::isEnabled($tenantId)) {
+            throw new FinanceException('Finanzas está desactivado. Actívelo en Configuración para registrar movimientos.');
+        }
+
         if ($source && ($existing = $this->findBySource($tenantId, $source))) {
             return $existing; // idempotente
         }

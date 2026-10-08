@@ -169,4 +169,44 @@ class LedgerTest extends PluginTestCase
         $this->assertEquals(['income' => 200.0, 'expense' => 50.0, 'result' => 150.0], $m['2026-10']);
         $this->assertCount(2, $r->byCategory($from, $to));
     }
+
+    public function testSwitchOffBlocksEveryWriteAndKeepsData(): void
+    {
+        $m = $this->income(1, 40.00);
+        \Aero\Finance\Models\FinanceSettings::forTenant(1)->update(['enabled' => false]);
+
+        try {
+            $this->income(1, 10.00);
+            $this->fail('Debió rechazar el movimiento con Finanzas apagado');
+        } catch (FinanceException $e) {
+            $this->assertStringContainsString('desactivado', $e->getMessage());
+        }
+
+        // Automático también: el evento no registra nada ni rompe a quien lo dispara.
+        \Event::fire('aero.shop.orderPaid', [(object) ['id' => 1, 'tenant_id' => 1, 'order_number' => 'X', 'grand_total' => 5, 'tax_total' => 0,
+            'exchange_rate_snapshot' => 1, 'paid_at' => now(), 'currency' => (object) ['code' => 'BOB'], 'payment_gateway' => null]]);
+        $this->assertEquals(1, \Aero\Finance\Models\Movement::count());
+
+        // Los datos se conservan y otro tenant no se ve afectado.
+        $this->assertEquals(40.00, $m->entry->fresh()->lines->sum('debit'));
+        $this->assertNotNull($this->income(2, 5.00));
+    }
+
+    public function testPortalAccountsAreCreatedLazilyOnAlreadySeededTenants(): void
+    {
+        \Aero\Finance\Models\Account::where('tenant_id', 1)->whereIn('system_key', ['plan_subscriptions', 'credit_sales'])->delete();
+
+        $a = AccountSeeder::system(1, 'plan_subscriptions');
+        $this->assertSame('4.1.03', $a->code);
+        $this->assertSame('income', $a->type);
+        $this->assertSame($a->id, AccountSeeder::system(1, 'plan_subscriptions')->id); // no duplica
+    }
+
+    public function testPortalSwitchDefaultsOnAndCanBeTurnedOff(): void
+    {
+        $this->assertTrue(\Aero\Finance\Models\FinanceSettings::allows(1, 'portal'));
+        \Aero\Finance\Models\FinanceSettings::forTenant(1)->update(['post_portal' => false]);
+        $this->assertFalse(\Aero\Finance\Models\FinanceSettings::allows(1, 'portal'));
+        $this->assertTrue(\Aero\Finance\Models\FinanceSettings::allows(2, 'portal')); // otro libro no cambia
+    }
 }

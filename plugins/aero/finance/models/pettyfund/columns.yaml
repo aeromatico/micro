@@ -1,0 +1,17 @@
+columns:
+  name:
+    label: Caja chica
+    searchable: true
+  custodian:
+    label: Responsable
+  balance:
+    label: Saldo (Bs)
+    valueFrom: balance
+    type: number
+    sortable: false
+  imprest_amount:
+    label: Monto fijo
+    type: number
+  is_active:
+    label: Activa
+    type: switch

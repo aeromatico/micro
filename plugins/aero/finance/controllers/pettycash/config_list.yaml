@@ -1,0 +1,11 @@
+title: Caja chica
+list: $/aero/finance/models/pettyfund/columns.yaml
+modelClass: Aero\Finance\Models\PettyFund
+recordUrl: aero/finance/pettycash/update/:id
+noRecordsMessage: No hay cajas chicas. Cree la primera con «Nuevo».
+recordsPerPage: 30
+showSetup: false
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

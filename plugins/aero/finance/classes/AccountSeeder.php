@@ -24,6 +24,8 @@ class AccountSeeder
         ['3.2.01', 'Resultados acumulados', 'equity', null],
         ['4.1.01', 'Ventas', 'income', 'sales'],
         ['4.1.02', 'Membresías y servicios', 'income', 'memberships'],
+        ['4.1.03', 'Suscripciones de planes (portal)', 'income', 'plan_subscriptions'],
+        ['4.1.04', 'Recargas de créditos (portal)', 'income', 'credit_sales'],
         ['4.9.99', 'Otros ingresos', 'income', 'other_income'],
         ['5.1.01', 'Compras y costo de ventas', 'expense', 'purchases'],
         ['5.2.01', 'Sueldos y cargas sociales', 'expense', null],
@@ -54,6 +56,21 @@ class AccountSeeder
     {
         self::ensure($tenantId);
 
-        return Account::where('tenant_id', $tenantId)->where('system_key', $key)->firstOrFail();
+        $found = Account::where('tenant_id', $tenantId)->where('system_key', $key)->first();
+        if ($found) {
+            return $found;
+        }
+
+        // Cuenta del plan añadida después de sembrar este tenant.
+        foreach (self::CHART as [$code, $name, $type, $k]) {
+            if ($k === $key) {
+                return Account::firstOrCreate(
+                    ['tenant_id' => $tenantId, 'code' => $code],
+                    ['name' => $name, 'type' => $type, 'system_key' => $key, 'is_active' => true]
+                );
+            }
+        }
+
+        throw new FinanceException("Cuenta de sistema desconocida: {$key}");
     }
 }

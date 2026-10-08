@@ -1,11 +1,13 @@
 fields:
-  tenant_id:
-    label: Negocio (tenant)
-    type: dropdown
-    span: auto
-    permissions:
-    - aero.finance.superadmin
-    emptyOption: — Elegir —
+  scope_note:
+    type: partial
+    path: $/aero/finance/models/financesettings/_scope_note.php
+    span: full
+  enabled:
+    label: Sistema activo
+    type: switch
+    default: true
+    comment: "Apagado, Finanzas deja de operar: no se registra ningún movimiento, caja chica ni asiento (manual o automático). Los datos y los libros se conservan para consulta."
   auto_post:
     label: Registrar automáticamente
     type: switch
@@ -17,6 +19,12 @@ fields:
     type: switch
     span: left
     default: true
+  post_portal:
+    label: Cobros del portal (planes y créditos)
+    type: switch
+    span: left
+    default: true
+    comment: Solo en el libro del portal. Asienta cada renovación de plan y recarga de créditos que paga un tenant.
   post_gym:
     label: Membresías del gimnasio
     type: switch

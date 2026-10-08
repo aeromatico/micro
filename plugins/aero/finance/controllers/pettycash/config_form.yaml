@@ -1,0 +1,10 @@
+name: Caja chica
+form: $/aero/finance/models/pettyfund/fields.yaml
+modelClass: Aero\Finance\Models\PettyFund
+defaultRedirect: aero/finance/pettycash
+create:
+  redirect: aero/finance/pettycash/update/:id
+  redirectClose: aero/finance/pettycash
+update:
+  redirect: aero/finance/pettycash/update/:id
+  redirectClose: aero/finance/pettycash

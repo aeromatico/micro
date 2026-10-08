@@ -26,15 +26,16 @@ class Settings extends Controller
     /** Lo que crea un tenant es suyo; el superadmin elige el negocio en el formulario. */
     public function formBeforeCreate($model): void
     {
-        if (!CurrentTenant::isAdmin()) {
-            $model->tenant_id = CurrentTenant::id();
+        $model->tenant_id = CurrentTenant::id();
+        if (!$model->tenant_id) {
+            throw new \ApplicationException('No se pudo determinar el negocio de este libro.');
         }
     }
 
     /** Primer uso: siembra el plan de cuentas del tenant. */
     protected function ensureChart(): void
     {
-        if (!CurrentTenant::isAdmin() && ($id = CurrentTenant::id())) {
+        if ($id = CurrentTenant::id()) {
             AccountSeeder::ensure($id);
         }
     }
@@ -42,22 +43,39 @@ class Settings extends Controller
     /** El tenant tiene una sola configuración: se abre directo (se crea al primer uso). */
     public function index()
     {
-        if (!CurrentTenant::isAdmin()) {
-            $id = CurrentTenant::id();
-            if (!$id) {
-                throw new \ApplicationException('No se pudo determinar su negocio.');
-            }
-            $row = \Aero\Finance\Models\FinanceSettings::forTenant($id);
-
-            return \Backend::redirect('aero/finance/settings/update/' . $row->id);
+        $id = CurrentTenant::id();
+        if (!$id) {
+            throw new \ApplicationException('No se pudo determinar su negocio.');
         }
+        $row = \Aero\Finance\Models\FinanceSettings::forTenant($id);
 
-        $this->asExtension('ListController')->index();
+        return \Backend::redirect('aero/finance/settings/update/' . $row->id);
     }
 
     public function create()
     {
         $this->ensureChart();
         $this->asExtension('FormController')->create();
+    }
+
+    /** Cobros del portal solo en el libro del portal; Shop/Gimnasio solo tienen sentido en negocios. */
+    public function formExtendFields($form): void
+    {
+        $portal = CurrentTenant::isPortal();
+        if (!$portal) {
+            $form->removeField('post_portal');
+        }
+    }
+
+    /** Avisa de las consecuencias al cambiar el interruptor general. */
+    public function formAfterSave($model): void
+    {
+        if (!$model->wasChanged('enabled')) {
+            return;
+        }
+
+        \Flash::warning($model->enabled
+            ? 'Finanzas activado. Lo cobrado mientras estuvo apagado NO se registró: cárguelo a mano como ingreso.'
+            : 'Finanzas apagado: no se registrará nada (manual ni automático) hasta que lo active de nuevo.');
     }
 }

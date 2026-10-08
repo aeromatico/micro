@@ -26,22 +26,31 @@ class Movements extends Controller
     /** Lo que crea un tenant es suyo; el superadmin elige el negocio en el formulario. */
     public function formBeforeCreate($model): void
     {
-        if (!CurrentTenant::isAdmin()) {
-            $model->tenant_id = CurrentTenant::id();
+        $model->tenant_id = CurrentTenant::id();
+        if (!$model->tenant_id) {
+            throw new \ApplicationException('No se pudo determinar el negocio de este libro.');
         }
     }
 
     /** Primer uso: siembra el plan de cuentas del tenant. */
     protected function ensureChart(): void
     {
-        if (!CurrentTenant::isAdmin() && ($id = CurrentTenant::id())) {
+        if ($id = CurrentTenant::id()) {
             AccountSeeder::ensure($id);
+        }
+    }
+
+    protected function warnIfDisabled(): void
+    {
+        if (!\Aero\Finance\Models\FinanceSettings::isEnabled(CurrentTenant::id())) {
+            \Flash::warning('Finanzas está desactivado: solo consulta. Actívelo en Configuración.');
         }
     }
 
     public function index()
     {
         $this->ensureChart();
+        $this->warnIfDisabled();
         $this->asExtension('ListController')->index();
     }
 

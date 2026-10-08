@@ -75,6 +75,15 @@ class MovementService
             throw new FinanceException('La cuenta de cobro/pago debe ser de Activo (Caja, Bancos…).');
         }
 
+        // Una caja chica no puede quedar en negativo (es efectivo físico).
+        if ($m->kind === 'expense' && $cash->system_key === 'petty_cash') {
+            $bal = (float) \Aero\Finance\Models\JournalLine::where('tenant_id', $tenantId)->where('account_id', $cash->id)
+                ->selectRaw('COALESCE(SUM(debit - credit), 0) as b')->value('b');
+            if ($base > round($bal, 2) + 0.004) {
+                throw new FinanceException('La caja chica solo tiene Bs ' . number_format($bal, 2) . '; reponga el fondo.');
+            }
+        }
+
         $memo = $m->description;
         if ($m->kind === 'income') {
             $lines = [

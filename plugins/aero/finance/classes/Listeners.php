@@ -15,6 +15,86 @@ class Listeners
         \Event::listen('aero.shop.orderPaid', fn ($order) => self::safely(fn () => self::shopPaid($order)));
         \Event::listen('aero.shop.orderRefunded', fn ($order) => self::safely(fn () => self::voidBySource('shop_order', $order->id, $order->tenant_id, 'Pedido reembolsado')));
         \Event::listen('aero.gym.membershipActivated', fn ($m) => self::safely(fn () => self::gymActivated($m)));
+
+        self::registerPortalSources();
+    }
+
+    /**
+     * Contabilidad del PORTAL (tenant master): lo que cobra la plataforma a los
+     * tenants. Es un libro aparte del de cada negocio. Se engancha al pasar a
+     * «pagado» (el mismo cambio que hacen los puentes de Sites y Credits).
+     */
+    protected static function registerPortalSources(): void
+    {
+        if (class_exists(\Aero\Sites\Models\PlanRenewal::class)) {
+            \Aero\Sites\Models\PlanRenewal::extend(function ($model) {
+                $model->bindEvent('model.afterUpdate', function () use ($model) {
+                    if ($model->wasChanged('status') && $model->status === 'paid') {
+                        self::safely(fn () => self::portalRenewal($model));
+                    }
+                });
+            });
+        }
+
+        if (class_exists(\Aero\Credits\Models\CreditPurchase::class)) {
+            \Aero\Credits\Models\CreditPurchase::extend(function ($model) {
+                $model->bindEvent('model.afterUpdate', function () use ($model) {
+                    if ($model->wasChanged('status') && $model->status === \Aero\Credits\Models\CreditPurchase::PAID) {
+                        self::safely(fn () => self::portalCreditPurchase($model));
+                    }
+                });
+            });
+        }
+    }
+
+    protected static function portalTenantId(): ?int
+    {
+        if (!class_exists(\Aero\Sites\Classes\PlatformServicesBlock::class)) {
+            return null;
+        }
+        $id = \Aero\Sites\Classes\PlatformServicesBlock::masterTenantId();
+
+        return $id && FinanceSettings::allows($id, 'portal') ? $id : null;
+    }
+
+    protected static function portalRenewal($renewal): void
+    {
+        $master = self::portalTenantId();
+        if (!$master || (float) $renewal->amount <= 0 || self::exists($master, 'plan_renewal', $renewal->id)) {
+            return;
+        }
+
+        $tenant = $renewal->tenant?->name ?? ('tenant #' . $renewal->tenant_id);
+        app(MovementService::class)->record($master, [
+            'kind'                => 'income',
+            'date'                => ($renewal->paid_at ?: now())->toDateString(),
+            'amount'              => round((float) $renewal->amount, 2),
+            'currency'            => $renewal->currency ?: 'BOB',
+            'category_account_id' => AccountSeeder::system($master, 'plan_subscriptions')->id,
+            'cash_account_id'     => AccountSeeder::system($master, 'bank')->id,
+            'description'         => 'Renovación de plan ' . ($renewal->plan?->name ?? '') . ' — ' . $tenant,
+            'counterparty'        => $tenant,
+        ], ['type' => 'plan_renewal', 'id' => $renewal->id]);
+    }
+
+    protected static function portalCreditPurchase($purchase): void
+    {
+        $master = self::portalTenantId();
+        if (!$master || (float) $purchase->amount_bob <= 0 || self::exists($master, 'credit_purchase', $purchase->id)) {
+            return;
+        }
+
+        $tenant = \Aero\Sites\Models\Tenant::whereKey($purchase->tenant_id)->value('name') ?? ('tenant #' . $purchase->tenant_id);
+        app(MovementService::class)->record($master, [
+            'kind'                => 'income',
+            'date'                => ($purchase->paid_at ?: now())->toDateString(),
+            'amount'              => round((float) $purchase->amount_bob, 2),
+            'currency'            => 'BOB',
+            'category_account_id' => AccountSeeder::system($master, 'credit_sales')->id,
+            'cash_account_id'     => AccountSeeder::system($master, 'bank')->id,
+            'description'         => 'Recarga de créditos #' . $purchase->id . ' — ' . $tenant,
+            'counterparty'        => $tenant,
+        ], ['type' => 'credit_purchase', 'id' => $purchase->id]);
     }
 
     protected static function safely(callable $fn): void

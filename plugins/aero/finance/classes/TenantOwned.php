@@ -9,16 +9,16 @@ trait TenantOwned
     public static function bootTenantOwned(): void
     {
         static::creating(function ($model) {
-            if (empty($model->tenant_id) && !CurrentTenant::isAdmin()) {
+            if (empty($model->tenant_id)) {
                 $model->tenant_id = CurrentTenant::id();
             }
         });
     }
 
-    /** Lo que el usuario del panel puede ver: todo (superadmin) o solo su tenant (falla cerrado). */
+    /** Lo que el usuario del panel puede ver: solo el libro del negocio actual (falla cerrado, también para el superadmin). */
     public function scopeVisible($query)
     {
-        return CurrentTenant::isAdmin() ? $query : $this->scopeForTenant($query, CurrentTenant::id());
+        return $this->scopeForTenant($query, CurrentTenant::id());
     }
 
     public function getTenantIdOptions(): array

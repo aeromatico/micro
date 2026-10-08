@@ -26,6 +26,7 @@ class Entries extends Controller
 
     public function listExtendQuery($query): void
     {
+        $this->announceBooks();
         $this->scopeToTenant($query);
         $query->orderByDesc('date')->orderByDesc('number');
     }

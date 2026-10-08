@@ -33,13 +33,14 @@ class Reports extends Controller
             $from = $to->copy()->startOfMonth();
         }
 
-        // Falla cerrado: sin tenant y sin ser superadmin, no hay reporte.
-        $tenantId = CurrentTenant::isAdmin() ? null : CurrentTenant::id();
-        if (!CurrentTenant::isAdmin() && !$tenantId) {
+        // Un reporte es de UN libro (portal o un negocio); falla cerrado sin tenant.
+        $tenantId = CurrentTenant::id();
+        if (!$tenantId) {
             throw new \ApplicationException('No se pudo determinar su negocio.');
         }
-        if ($tenantId) {
-            AccountSeeder::ensure($tenantId);
+        AccountSeeder::ensure($tenantId);
+        if (CurrentTenant::isAdmin()) {
+            \Flash::info(CurrentTenant::booksLabel());
         }
 
         $r = new ReportService($tenantId);

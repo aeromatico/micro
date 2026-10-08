@@ -4,7 +4,7 @@ use Aero\Finance\Models\Account;
 use Aero\Finance\Models\JournalLine;
 use Illuminate\Support\Facades\DB;
 
-/** Reportes del libro. Recibe el tenant ya resuelto; null = superadmin (todo). */
+/** Reportes de UN libro (el de un tenant; el portal es el tenant master). Sin tenant no devuelve nada. */
 class Reports
 {
     public function __construct(protected ?int $tenantId)
@@ -17,7 +17,7 @@ class Reports
             ->join('aero_finance_journal_entries as e', 'e.id', '=', 'aero_finance_journal_lines.entry_id')
             ->join('aero_finance_accounts as a', 'a.id', '=', 'aero_finance_journal_lines.account_id');
 
-        return $this->tenantId ? $q->where('aero_finance_journal_lines.tenant_id', $this->tenantId) : $q;
+        return $q->where('aero_finance_journal_lines.tenant_id', $this->tenantId ?: 0);
     }
 
     /** Ingresos, egresos y resultado por mes (base de efectivo, anulaciones incluidas: se netean solas). */
@@ -62,7 +62,7 @@ class Reports
     /** Libro mayor de una cuenta: movimientos del rango con saldo corrido (parte del saldo anterior). */
     public function ledger(int $accountId, $from, $to): array
     {
-        $account = Account::query()->when($this->tenantId, fn ($q) => $q->where('tenant_id', $this->tenantId))->find($accountId);
+        $account = Account::where('tenant_id', $this->tenantId ?: 0)->find($accountId);
         if (!$account) {
             return ['account' => null, 'opening' => 0.0, 'rows' => [], 'closing' => 0.0];
         }
