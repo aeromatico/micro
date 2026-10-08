@@ -379,3 +379,7 @@
 1.60.0:
     - "El rol tenant_admin recibe aero.gym.use (Gimnasio: socios, membresías, clases, acceso, rutinas y reportes)."
     - grant_gym_to_tenant_admin.php
+
+1.61.0:
+    - "El rol tenant_admin recibe aero.finance.use (Finanzas: ingresos, egresos, libro diario, mayor y reportes)."
+    - grant_finance_to_tenant_admin.php
