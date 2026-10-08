@@ -46,6 +46,12 @@
                 Soporte
             </a>
             {% endif %}
+            {% if gym_enabled() %}
+            <a href="/gym"
+               class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
+                Mi gimnasio
+            </a>
+            {% endif %}
             {% if sitesSeo.isShopEnabled %}
             <a href="/tienda"
                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
@@ -132,6 +138,13 @@
            @click="$store.nav.close()"
            class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
             Soporte
+        </a>
+        {% endif %}
+        {% if gym_enabled() %}
+        <a href="/gym"
+           @click="$store.nav.close()"
+           class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
+            Mi gimnasio
         </a>
         {% endif %}
         {% if sitesSeo.isShopEnabled %}

@@ -1,4 +1,4 @@
-url = "/gimnasio"
+url = "/gym"
 layout = "base"
 title = "Mi gimnasio"
 description = "Tu membresía, tu QR de ingreso, tus clases y tu rutina."
@@ -26,7 +26,7 @@ excludeHome = 1
     </header>
     {% partial 'help/auth-flash' %}
     <form data-request="authentication::onLogin" data-request-flash class="flex flex-col gap-4 rounded-brand border border-surface-border bg-surface-alt p-6">
-        <input type="hidden" name="redirect" value="/gimnasio">
+        <input type="hidden" name="redirect" value="/gym{{ input('checkin') ? '?checkin=' ~ input('checkin') }}">
         <input type="email" name="email" required autocomplete="email" placeholder="Correo"
             class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
         <input type="password" name="password" required autocomplete="current-password" placeholder="Contraseña"
@@ -46,7 +46,7 @@ excludeHome = 1
             <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest">Hola</p>
             <h1 class="text-2xl font-extrabold text-ink tracking-tight">{{ s.first }}</h1>
         </div>
-        <button type="button" data-request="session::onLogout" data-request-data="redirect: '/gimnasio'"
+        <button type="button" data-request="session::onLogout" data-request-data="redirect: '/gym'"
             class="text-xs font-semibold text-ink-muted hover:text-ink transition-colors">Salir</button>
     </header>
 
@@ -54,6 +54,13 @@ excludeHome = 1
 
     {# ---------- Inicio: estado + QR ---------- #}
     <div x-show="tab === 'inicio'" class="flex flex-col gap-4">
+        {% if gymPortal.checkin %}
+        {% set ck = gymPortal.checkin %}
+        <div class="rounded-brand p-5 text-center text-white {{ ck.granted ? 'bg-green-600' : 'bg-red-600' }}">
+            <p class="text-2xl font-extrabold">{{ ck.granted ? 'Acceso permitido' : 'Acceso denegado' }}</p>
+            <p class="mt-1 text-sm opacity-90">{{ ck.granted ? '¡Buen entrenamiento!' : ck.reason }}</p>
+        </div>
+        {% endif %}
         <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest">Membresía</p>
@@ -76,12 +83,20 @@ excludeHome = 1
             {% if s.classes_per_week %}<p class="mt-1 text-xs text-ink-muted">Hasta {{ s.classes_per_week }} clases por semana</p>{% endif %}
         </div>
 
+        {% if gymPortal.accessMode == 'gym_qr' %}
+        <div class="rounded-brand border border-surface-border bg-surface-alt p-6 text-center">
+            <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-3">Cómo entrar</p>
+            <p class="text-lg font-bold text-ink">Escanea el QR de la entrada</p>
+            <p class="mt-2 text-sm text-ink-muted">Abre la cámara de tu móvil y apunta al código de la pantalla del gimnasio. Se abrirá esta página y quedará registrado tu ingreso.</p>
+        </div>
+        {% else %}
         <div class="rounded-brand border border-surface-border bg-surface-alt p-6 text-center">
             <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-4">Tu pase de ingreso</p>
             {# El QR siempre se pinta sobre blanco: un lector no lo lee en modo oscuro #}
             <div class="mx-auto w-56 max-w-full rounded-2xl bg-white p-3 [&>svg]:h-auto [&>svg]:w-full">{{ gymPortal.qrSvg|raw }}</div>
             <p class="mt-4 font-mono text-sm tracking-widest text-ink-muted">{{ s.token }}</p>
         </div>
+        {% endif %}
 
         {% if gymPortal.mine %}
         <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
@@ -133,6 +148,7 @@ excludeHome = 1
             <button type="button" @click="tab = '{{ t.k }}'" class="flex-1 py-3.5 text-xs font-semibold transition-colors"
                 :class="tab === '{{ t.k }}' ? 'text-brand-primary' : 'text-ink-muted'">{{ t.l }}</button>
             {% endfor %}
+            <a href="/gym/progreso" class="flex-1 py-3.5 text-center text-xs font-semibold text-ink-muted transition-colors hover:text-brand-primary">Progreso</a>
         </div>
     </nav>
     <div class="h-16"></div>
