@@ -1,0 +1,10 @@
+name: Socios
+form: $/aero/gym/models/member/fields.yaml
+modelClass: Aero\Gym\Models\Member
+defaultRedirect: aero/gym/members
+create:
+  redirect: aero/gym/members/update/:id
+  redirectClose: aero/gym/members
+update:
+  redirect: aero/gym/members
+  redirectClose: aero/gym/members

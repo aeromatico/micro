@@ -1,0 +1,10 @@
+name: Medida
+form: $/aero/gym/models/measurement/fields.yaml
+modelClass: Aero\Gym\Models\Measurement
+defaultRedirect: aero/gym/measurements
+create:
+    redirect: aero/gym/measurements/update/:id
+    redirectClose: aero/gym/measurements
+update:
+    redirect: aero/gym/measurements
+    redirectClose: aero/gym/measurements

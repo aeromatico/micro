@@ -1,0 +1,13 @@
+columns:
+  name:
+    label: Clase
+    searchable: true
+  duration_minutes:
+    label: Min
+    type: number
+  default_capacity:
+    label: Cupo
+    type: number
+  is_active:
+    label: Activa
+    type: switch

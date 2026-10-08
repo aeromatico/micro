@@ -1,0 +1,11 @@
+title: Configuración
+list: $/aero/gym/models/gymsettings/columns.yaml
+modelClass: Aero\Gym\Models\GymSettings
+recordUrl: aero/gym/settings/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

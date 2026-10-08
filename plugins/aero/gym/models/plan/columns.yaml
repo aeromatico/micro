@@ -1,0 +1,15 @@
+columns:
+  name:
+    label: Plan
+    searchable: true
+  price:
+    label: Precio
+    type: number
+  duration_days:
+    label: Días
+    type: number
+  classes_per_week:
+    label: Clases/sem.
+  is_active:
+    label: Activo
+    type: switch

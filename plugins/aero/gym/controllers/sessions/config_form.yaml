@@ -1,0 +1,10 @@
+name: Clases
+form: $/aero/gym/models/classsession/fields.yaml
+modelClass: Aero\Gym\Models\ClassSession
+defaultRedirect: aero/gym/sessions
+create:
+  redirect: aero/gym/sessions/update/:id
+  redirectClose: aero/gym/sessions
+update:
+  redirect: aero/gym/sessions
+  redirectClose: aero/gym/sessions

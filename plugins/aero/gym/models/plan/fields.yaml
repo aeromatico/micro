@@ -1,0 +1,41 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  is_active:
+    label: Activo
+    type: switch
+    span: right
+    default: true
+  price:
+    label: Precio
+    type: number
+    span: left
+    step: 0.01
+  duration_days:
+    label: Duración (días)
+    type: number
+    span: right
+    default: 30
+  classes_per_week:
+    label: Clases por semana
+    type: number
+    span: left
+    comment: Vacío = ilimitadas.
+  shop_product_id:
+    label: Producto de la tienda
+    type: number
+    span: right
+    comment: ID opcional del producto en Aero Shop.
+  description:
+    label: Descripción
+    type: textarea
+    size: small

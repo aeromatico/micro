@@ -1,0 +1,40 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  is_active:
+    label: Activa
+    type: switch
+    span: right
+    default: true
+  duration_minutes:
+    label: Duración (min)
+    type: number
+    span: left
+    default: 60
+  default_capacity:
+    label: Cupo por defecto
+    type: number
+    span: right
+    default: 20
+  color:
+    label: Color
+    type: colorpicker
+    span: left
+  page_id:
+    label: Página que la explica
+    type: dropdown
+    span: right
+    comment: Página de Aero Sites que presenta y promociona esta clase.
+  description:
+    label: Descripción corta
+    type: textarea
+    size: small

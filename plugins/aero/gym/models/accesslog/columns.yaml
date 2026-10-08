@@ -1,0 +1,20 @@
+columns:
+  created_at:
+    label: Fecha
+    type: datetime
+    sortable: true
+  member:
+    label: Socio
+    relation: member
+    select: name
+    searchable: true
+  method:
+    label: Medio
+  granted:
+    label: Concedido
+    type: switch
+  reason:
+    label: Motivo
+  credential:
+    label: Credencial
+    searchable: true

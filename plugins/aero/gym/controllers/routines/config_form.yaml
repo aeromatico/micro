@@ -1,0 +1,10 @@
+name: Rutinas
+form: $/aero/gym/models/routine/fields.yaml
+modelClass: Aero\Gym\Models\Routine
+defaultRedirect: aero/gym/routines
+create:
+  redirect: aero/gym/routines/update/:id
+  redirectClose: aero/gym/routines
+update:
+  redirect: aero/gym/routines
+  redirectClose: aero/gym/routines

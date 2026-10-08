@@ -1,0 +1,10 @@
+name: Tipos de clase
+form: $/aero/gym/models/classtype/fields.yaml
+modelClass: Aero\Gym\Models\ClassType
+defaultRedirect: aero/gym/classtypes
+create:
+  redirect: aero/gym/classtypes/update/:id
+  redirectClose: aero/gym/classtypes
+update:
+  redirect: aero/gym/classtypes
+  redirectClose: aero/gym/classtypes

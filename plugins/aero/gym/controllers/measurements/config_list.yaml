@@ -1,0 +1,12 @@
+title: Medidas
+list: $/aero/gym/models/measurement/columns.yaml
+modelClass: Aero\Gym\Models\Measurement
+recordUrl: aero/gym/measurements/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
+filter: $/aero/gym/models/measurement/filters.yaml

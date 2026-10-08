@@ -1,0 +1,55 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre completo
+    span: left
+    required: true
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    default: active
+  phone:
+    label: Teléfono / WhatsApp
+    span: left
+    comment: 'Con código de país: 59170000000'
+  email:
+    label: Correo
+    span: right
+  document:
+    label: Documento
+    span: left
+  birthdate:
+    label: Nacimiento
+    type: datepicker
+    mode: date
+    span: right
+  card_number:
+    label: N.º de carnet
+    span: left
+    comment: 'Opcional: carnet físico leído por lector de código.'
+  qr_token:
+    label: Código QR
+    span: right
+    disabled: true
+    context:
+    - update
+    - preview
+    comment: Se genera solo al crear.
+  groups:
+    label: Grupos
+    type: checkboxlist
+    context:
+    - update
+    - create
+    commentAbove: Grupos a los que pertenece.
+  notes:
+    label: Notas
+    type: textarea
+    size: small

@@ -1,0 +1,10 @@
+name: Membresías
+form: $/aero/gym/models/membership/fields.yaml
+modelClass: Aero\Gym\Models\Membership
+defaultRedirect: aero/gym/memberships
+create:
+  redirect: aero/gym/memberships/update/:id
+  redirectClose: aero/gym/memberships
+update:
+  redirect: aero/gym/memberships
+  redirectClose: aero/gym/memberships

@@ -1,0 +1,10 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      pending: Pendiente de pago
+      active: Activa
+      expired: Vencida
+      cancelled: Cancelada

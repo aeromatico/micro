@@ -1,0 +1,26 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+    sortable: true
+  phone:
+    label: Teléfono
+    searchable: true
+  email:
+    label: Correo
+    searchable: true
+  document:
+    label: Documento
+    searchable: true
+  card_number:
+    label: Carnet
+    searchable: true
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/gym/models/member/_status.php
+    sortable: true
+  created_at:
+    label: Alta
+    type: date
+    invisible: true

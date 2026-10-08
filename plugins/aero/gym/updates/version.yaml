@@ -1,0 +1,12 @@
+1.0.0:
+    - "Primera versión: socios (RainLab.User), planes y membresías con cobro por QR, acceso por QR/carnet, clases con cupo y lista de espera, pantalla en vivo, rutinas, grupos, recordatorios por WhatsApp y reportes."
+    - create_gym_tables.php
+1.1.0:
+    - "Interruptor general en Configuración: activa o desactiva el sistema del gimnasio (acceso, reservas y recordatorios)."
+    - add_enabled_to_settings.php
+1.2.0:
+    - "Historial de progreso: medidas corporales por fecha (peso, estatura, % de grasa, cintura, pecho, cadera, brazo, muslo), IMC calculado y gráficos; el socio las registra desde su portal y el gimnasio desde el panel."
+    - create_measurements_table.php
+1.3.0:
+    - "Modo de acceso configurable: el socio muestra su QR (clásico) o escanea con su móvil el QR rotativo que muestra el gimnasio."
+    - add_access_mode_to_settings.php

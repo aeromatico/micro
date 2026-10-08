@@ -1,0 +1,27 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  is_active:
+    label: Activo
+    type: switch
+    span: right
+    default: true
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo
+    span: right
+  bio:
+    label: Presentación
+    type: textarea
+    size: small

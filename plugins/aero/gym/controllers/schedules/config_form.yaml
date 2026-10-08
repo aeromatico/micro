@@ -1,0 +1,10 @@
+name: Horarios
+form: $/aero/gym/models/schedule/fields.yaml
+modelClass: Aero\Gym\Models\Schedule
+defaultRedirect: aero/gym/schedules
+create:
+  redirect: aero/gym/schedules/update/:id
+  redirectClose: aero/gym/schedules
+update:
+  redirect: aero/gym/schedules
+  redirectClose: aero/gym/schedules

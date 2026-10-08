@@ -1,0 +1,10 @@
+name: Grupos
+form: $/aero/gym/models/group/fields.yaml
+modelClass: Aero\Gym\Models\Group
+defaultRedirect: aero/gym/groups
+create:
+  redirect: aero/gym/groups/update/:id
+  redirectClose: aero/gym/groups
+update:
+  redirect: aero/gym/groups
+  redirectClose: aero/gym/groups

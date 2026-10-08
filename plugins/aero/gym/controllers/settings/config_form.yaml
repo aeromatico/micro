@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/gym/models/gymsettings/fields.yaml
+modelClass: Aero\Gym\Models\GymSettings
+defaultRedirect: aero/gym/settings
+create:
+  redirect: aero/gym/settings/update/:id
+  redirectClose: aero/gym/settings
+update:
+  redirect: aero/gym/settings
+  redirectClose: aero/gym/settings

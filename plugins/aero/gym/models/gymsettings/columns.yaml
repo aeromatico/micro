@@ -1,0 +1,8 @@
+columns:
+  tenant_id:
+    label: Tenant
+  currency:
+    label: Moneda
+  reminders_enabled:
+    label: Recordatorios
+    type: switch

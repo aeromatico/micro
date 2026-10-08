@@ -1,0 +1,70 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  enabled:
+    label: Sistema activo
+    type: switch
+    default: true
+    comment: Apagado, el gimnasio deja de operar&#58; no se valida el acceso, no se aceptan reservas y no se envían recordatorios. Los datos se conservan.
+  access_mode:
+    label: Modo de acceso
+    type: dropdown
+    default: member_qr
+    comment: Elige el que mejor se adapte a tu entrada. Con el QR del gimnasio, la pantalla de Acceso muestra el código que se renueva solo.
+  qr_rotation_seconds:
+    label: El QR del gimnasio cambia cada (segundos)
+    type: number
+    default: 30
+    comment: Entre 10 y 600. Más corto = más seguro frente a capturas de pantalla.
+    trigger:
+      action: show
+      field: access_mode
+      condition: value[gym_qr]
+  bank_account_id:
+    label: Cuenta para cobrar membresías (Aero Pay)
+    type: dropdown
+    span: left
+    comment: Sin cuenta, el cobro es manual.
+  currency:
+    label: Moneda
+    span: right
+    default: BOB
+  reminders_enabled:
+    label: Recordar vencimientos por WhatsApp
+    type: switch
+    span: left
+    default: true
+  reminder_days:
+    label: Días antes de vencer
+    span: right
+    default: 3,1,0
+    comment: Separados por coma. 0 = el día del vencimiento.
+  reminder_template:
+    label: Mensaje del recordatorio
+    type: textarea
+    size: small
+    comment: 'Variables: {nombre} {plan} {cuando} {fecha} {precio} {moneda}. Vacío = mensaje por defecto.'
+  grace_days:
+    label: Días de gracia
+    type: number
+    span: left
+    default: 0
+    comment: Días con acceso después de vencer.
+  cancel_window_hours:
+    label: Cancelar hasta (h antes)
+    type: number
+    span: right
+    default: 2
+  waitlist_auto_promote:
+    label: Subir automáticamente de la lista de espera
+    type: switch
+    default: true
+  shop_collection_id:
+    label: Colección de la tienda
+    type: dropdown
+    comment: Productos del gimnasio (suplementos, accesorios) en Aero Shop.

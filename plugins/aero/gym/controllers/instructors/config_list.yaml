@@ -1,0 +1,11 @@
+title: Instructores
+list: $/aero/gym/models/instructor/columns.yaml
+modelClass: Aero\Gym\Models\Instructor
+recordUrl: aero/gym/instructors/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

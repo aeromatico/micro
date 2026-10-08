@@ -1,0 +1,56 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  member_id:
+    label: Socio
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  plan_id:
+    label: Plan
+    type: dropdown
+    span: right
+    emptyOption: — Elegir —
+    comment: Completa precio y fecha de fin si se dejan vacíos.
+  starts_on:
+    label: Inicia
+    type: datepicker
+    mode: date
+    span: left
+    required: true
+    default: today
+  ends_on:
+    label: Vence
+    type: datepicker
+    mode: date
+    span: right
+  price:
+    label: Precio
+    type: number
+    span: left
+    step: 0.01
+  currency:
+    label: Moneda
+    span: right
+    default: BOB
+  status:
+    label: Estado
+    type: dropdown
+    span: left
+    default: pending
+  payment_reference:
+    label: Referencia de pago
+    span: right
+    disabled: true
+    context:
+    - update
+  cancel_reason:
+    label: Motivo de cancelación
+    context:
+    - update

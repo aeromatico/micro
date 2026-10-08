@@ -1,0 +1,11 @@
+title: Ingresos
+list: $/aero/gym/models/accesslog/columns.yaml
+modelClass: Aero\Gym\Models\AccessLog
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/gym/models/accesslog/filters.yaml

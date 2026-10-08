@@ -1,0 +1,8 @@
+scopes:
+    source:
+        label: Origen
+        type: dropdown
+        conditions: source = :value
+        options:
+            member: El socio
+            staff: El gimnasio

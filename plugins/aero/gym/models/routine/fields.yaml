@@ -1,0 +1,70 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  member_id:
+    label: Socio
+    type: dropdown
+    span: right
+    comment: Sin socio = plantilla para copiar a varios.
+  goal:
+    label: Objetivo
+    span: left
+  instructor_id:
+    label: Instructor
+    type: dropdown
+    span: right
+  starts_on:
+    label: Desde
+    type: datepicker
+    mode: date
+    span: left
+  ends_on:
+    label: Hasta
+    type: datepicker
+    mode: date
+    span: right
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+  notes:
+    label: Notas
+    type: textarea
+    size: small
+  items_data:
+    label: Ejercicios
+    type: repeater
+    prompt: Añadir ejercicio
+    form:
+      fields:
+        day_label:
+          label: Día / bloque
+          span: auto
+          placeholder: Lunes · Pecho
+        exercise:
+          label: Ejercicio
+          span: auto
+        sets:
+          label: Series
+          type: number
+          span: auto
+        reps:
+          label: Repeticiones
+          span: auto
+          placeholder: 12 ó 8-10
+        rest_seconds:
+          label: Descanso (s)
+          type: number
+          span: auto
+        notes:
+          label: Notas
+          span: auto

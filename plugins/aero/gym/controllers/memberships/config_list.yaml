@@ -1,0 +1,12 @@
+title: Membresías
+list: $/aero/gym/models/membership/columns.yaml
+modelClass: Aero\Gym\Models\Membership
+recordUrl: aero/gym/memberships/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/gym/models/membership/filters.yaml

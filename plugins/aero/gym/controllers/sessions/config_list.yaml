@@ -1,0 +1,12 @@
+title: Clases
+list: $/aero/gym/models/classsession/columns.yaml
+modelClass: Aero\Gym\Models\ClassSession
+recordUrl: aero/gym/sessions/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/gym/models/classsession/filters.yaml

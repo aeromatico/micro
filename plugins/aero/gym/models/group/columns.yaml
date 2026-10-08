@@ -1,0 +1,14 @@
+columns:
+  name:
+    label: Grupo
+    searchable: true
+  purpose:
+    label: Fin
+    searchable: true
+  members_count:
+    label: Socios
+    type: number
+    relationCount: members
+  is_active:
+    label: Activo
+    type: switch

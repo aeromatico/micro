@@ -1,0 +1,26 @@
+columns:
+  starts_at:
+    label: Inicia
+    type: datetime
+    sortable: true
+  classType:
+    label: Clase
+    relation: classType
+    select: name
+    searchable: true
+  instructor:
+    label: Instructor
+    relation: instructor
+    select: name
+  occupancy:
+    label: Ocupación
+    valueFrom: id
+    sortable: false
+    type: partial
+    path: ~/plugins/aero/gym/models/classsession/_occupancy.php
+  room:
+    label: Sala
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/gym/models/classsession/_status.php

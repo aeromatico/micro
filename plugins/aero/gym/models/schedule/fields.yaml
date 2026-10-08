@@ -1,0 +1,41 @@
+fields:
+  tenant_id:
+    label: Gimnasio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.gym.superadmin
+    emptyOption: — Elegir —
+  class_type_id:
+    label: Clase
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  instructor_id:
+    label: Instructor
+    type: dropdown
+    span: right
+  weekday:
+    label: Día de la semana
+    type: dropdown
+    span: left
+    required: true
+  start_time:
+    label: Hora (HH:MM)
+    span: right
+    required: true
+    placeholder: '18:30'
+    comment: Formato 24 h.
+  capacity:
+    label: Cupo
+    type: number
+    span: left
+    comment: Vacío = el de la clase.
+  room:
+    label: Sala
+    span: right
+  is_active:
+    label: Activo
+    type: switch
+    default: true

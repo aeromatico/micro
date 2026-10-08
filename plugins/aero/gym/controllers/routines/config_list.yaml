@@ -1,0 +1,11 @@
+title: Rutinas
+list: $/aero/gym/models/routine/columns.yaml
+modelClass: Aero\Gym\Models\Routine
+recordUrl: aero/gym/routines/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

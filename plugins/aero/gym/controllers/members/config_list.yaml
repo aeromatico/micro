@@ -1,0 +1,12 @@
+title: Socios
+list: $/aero/gym/models/member/columns.yaml
+modelClass: Aero\Gym\Models\Member
+recordUrl: aero/gym/members/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/gym/models/member/filters.yaml

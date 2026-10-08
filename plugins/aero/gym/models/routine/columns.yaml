@@ -1,0 +1,18 @@
+columns:
+  name:
+    label: Rutina
+    searchable: true
+  member:
+    label: Socio
+    relation: member
+    select: name
+    searchable: true
+  goal:
+    label: Objetivo
+  instructor:
+    label: Instructor
+    relation: instructor
+    select: name
+  is_active:
+    label: Activa
+    type: switch

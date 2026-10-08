@@ -1,0 +1,10 @@
+name: Planes
+form: $/aero/gym/models/plan/fields.yaml
+modelClass: Aero\Gym\Models\Plan
+defaultRedirect: aero/gym/plans
+create:
+  redirect: aero/gym/plans/update/:id
+  redirectClose: aero/gym/plans
+update:
+  redirect: aero/gym/plans
+  redirectClose: aero/gym/plans

@@ -1,0 +1,7 @@
+scopes:
+  granted:
+    label: Concedido
+    type: switch
+    conditions:
+    - granted <> 1
+    - granted = 1

@@ -1,0 +1,10 @@
+name: Instructores
+form: $/aero/gym/models/instructor/fields.yaml
+modelClass: Aero\Gym\Models\Instructor
+defaultRedirect: aero/gym/instructors
+create:
+  redirect: aero/gym/instructors/update/:id
+  redirectClose: aero/gym/instructors
+update:
+  redirect: aero/gym/instructors
+  redirectClose: aero/gym/instructors

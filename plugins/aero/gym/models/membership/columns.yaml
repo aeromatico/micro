@@ -1,0 +1,29 @@
+columns:
+  member:
+    label: Socio
+    relation: member
+    select: name
+    searchable: true
+  plan:
+    label: Plan
+    relation: plan
+    select: name
+  starts_on:
+    label: Desde
+    type: date
+  ends_on:
+    label: Vence
+    type: date
+    sortable: true
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/gym/models/membership/_status.php
+    sortable: true
+  price:
+    label: Precio
+    type: number
+  paid_at:
+    label: Pagada
+    type: date
+    invisible: true

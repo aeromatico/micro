@@ -1,0 +1,33 @@
+{% for day in __SELF__.days %}
+<section class="mb-6">
+    <h3 class="text-xs font-semibold uppercase tracking-widest text-ink-muted mb-2">{{ day.label }}</h3>
+    <ul class="flex flex-col gap-2">
+    {% for c in day.items %}
+        <li class="flex items-center gap-3 rounded-brand border border-surface-border bg-surface-alt p-3">
+            <div class="w-14 shrink-0 text-center">
+                <div class="text-base font-bold text-ink leading-none">{{ c.time }}</div>
+                <div class="text-[11px] text-ink-muted mt-1">{{ c.ends }}</div>
+            </div>
+            <span class="w-1 self-stretch rounded-full" style="background: {{ c.color ?: 'var(--color-primary, #6366f1)' }}"></span>
+            <div class="min-w-0 flex-1">
+                <p class="font-semibold text-ink truncate">{{ c.name }}</p>
+                <p class="text-xs text-ink-muted truncate">{{ c.instructor }}{{ c.instructor and c.room ? ' · ' }}{{ c.room }} · {{ c.free > 0 ? c.free ~ ' cupos' : 'completa' }}</p>
+            </div>
+            {% if c.mine %}
+                <button type="button" data-request="{{ __SELF__ }}::onCancel" data-request-data="session_id: {{ c.id }}" data-request-flash data-request-confirm="¿Cancelar tu reserva?"
+                    class="shrink-0 rounded-brand border border-surface-border px-3 py-2 text-xs font-semibold text-ink hover:border-brand-primary transition-colors">
+                    {{ c.mine == 'waitlist' ? 'En espera ✕' : 'Reservada ✕' }}
+                </button>
+            {% else %}
+                <button type="button" data-request="{{ __SELF__ }}::onBook" data-request-data="session_id: {{ c.id }}" data-request-flash data-attach-loading
+                    class="shrink-0 rounded-brand bg-brand-primary px-4 py-2 text-xs font-semibold text-white hover:opacity-90 transition-all">
+                    {{ c.free > 0 ? 'Reservar' : 'Lista de espera' }}
+                </button>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+</section>
+{% else %}
+<p class="text-sm text-ink-muted py-10 text-center">No hay clases programadas esta semana.</p>
+{% endfor %}

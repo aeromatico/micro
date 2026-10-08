@@ -1,0 +1,30 @@
+columns:
+    measured_on:
+        label: Fecha
+        type: date
+        sortable: true
+    member:
+        label: Socio
+        relation: member
+        select: name
+        searchable: true
+    weight_kg:
+        label: Peso (kg)
+        type: number
+    height_cm:
+        label: Estatura (cm)
+        type: number
+    bmi:
+        label: IMC
+        valueFrom: bmi
+        sortable: false
+    body_fat_pct:
+        label: '% grasa'
+        type: number
+    waist_cm:
+        label: Cintura
+        type: number
+    source:
+        label: Origen
+        type: partial
+        path: ~/plugins/aero/gym/models/measurement/_source.php

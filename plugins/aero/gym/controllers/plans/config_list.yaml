@@ -1,0 +1,11 @@
+title: Planes
+list: $/aero/gym/models/plan/columns.yaml
+modelClass: Aero\Gym\Models\Plan
+recordUrl: aero/gym/plans/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

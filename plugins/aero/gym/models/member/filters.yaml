@@ -1,0 +1,9 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      active: Activo
+      suspended: Suspendido
+      inactive: Inactivo

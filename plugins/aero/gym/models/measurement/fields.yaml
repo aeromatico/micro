@@ -1,0 +1,76 @@
+fields:
+    tenant_id:
+        label: Gimnasio (tenant)
+        type: dropdown
+        span: auto
+        permissions: [aero.gym.superadmin]
+        emptyOption: '— Elegir —'
+    member_id:
+        label: Socio
+        type: dropdown
+        span: left
+        required: true
+        emptyOption: '— Elegir —'
+    measured_on:
+        label: Fecha
+        type: datepicker
+        mode: date
+        span: right
+        required: true
+        default: today
+    weight_kg:
+        label: Peso (kg)
+        type: number
+        step: 0.01
+        span: left
+        required: true
+    height_cm:
+        label: Estatura (cm)
+        type: number
+        step: 0.1
+        span: right
+        comment: Vacío = la última conocida del socio.
+    body_fat_pct:
+        label: Grasa corporal (%)
+        type: number
+        step: 0.1
+        span: left
+    muscle_pct:
+        label: Músculo (%)
+        type: number
+        step: 0.1
+        span: right
+    waist_cm:
+        label: Cintura (cm)
+        type: number
+        step: 0.1
+        span: left
+    chest_cm:
+        label: Pecho (cm)
+        type: number
+        step: 0.1
+        span: right
+    hip_cm:
+        label: Cadera (cm)
+        type: number
+        step: 0.1
+        span: left
+    arm_cm:
+        label: Brazo (cm)
+        type: number
+        step: 0.1
+        span: right
+    thigh_cm:
+        label: Muslo (cm)
+        type: number
+        step: 0.1
+        span: left
+    notes:
+        label: Notas
+        type: textarea
+        size: small
+    source:
+        label: Origen
+        type: dropdown
+        default: staff
+        span: left

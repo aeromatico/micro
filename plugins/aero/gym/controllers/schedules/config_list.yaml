@@ -1,0 +1,11 @@
+title: Horarios
+list: $/aero/gym/models/schedule/columns.yaml
+modelClass: Aero\Gym\Models\Schedule
+recordUrl: aero/gym/schedules/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

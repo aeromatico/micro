@@ -1,0 +1,11 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+  phone:
+    label: Teléfono
+  email:
+    label: Correo
+  is_active:
+    label: Activo
+    type: switch

@@ -1,0 +1,22 @@
+columns:
+  classType:
+    label: Clase
+    relation: classType
+    select: name
+  weekday:
+    label: Día
+    type: partial
+    path: ~/plugins/aero/gym/models/schedule/_weekday.php
+  start_time:
+    label: Hora
+  instructor:
+    label: Instructor
+    relation: instructor
+    select: name
+  capacity:
+    label: Cupo
+  room:
+    label: Sala
+  is_active:
+    label: Activo
+    type: switch
