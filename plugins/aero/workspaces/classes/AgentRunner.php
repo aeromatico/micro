@@ -294,7 +294,12 @@ class AgentRunner
             . 'solo creas uno nuevo si pide algo distinto o lo dice expresamente. Ante la duda, pregúntale cuál.';
     }
 
-    /** El conector de IA del agente: el suyo si es de chat; si no, el de Ajustes; si no, el primero activo. */
+    /**
+     * El conector y el modelo de un agente. Conector: el de su modelo especializado
+     * (Ajustes), si no el de Ajustes, si no el propio del agente, si no el primero
+     * activo. El modelo especializado solo se pide al conector para el que está
+     * escrito (un ID de gateway no vale en otro proveedor).
+     */
     public static function driverFor(Staff $staff): LlmDriver
     {
         if (static::$driverFactory) {
@@ -306,14 +311,19 @@ class AgentRunner
         }
 
         $ai = fn ($q) => $q->whereIn('type', ['ai_openai_compatible', 'ai_anthropic'])->where('is_enabled', true);
-        $connector = ($staff->connector_id ? $ai(\Aero\Connector\Models\Connector::where('id', $staff->connector_id))->first() : null)
-            ?: (Settings::agentConnectorId() ? $ai(\Aero\Connector\Models\Connector::where('id', Settings::agentConnectorId()))->first() : null)
-            ?: $ai(\Aero\Connector\Models\Connector::query())->orderBy('id')->first();
+        $find = fn (?int $id) => $id ? $ai(\Aero\Connector\Models\Connector::where('id', $id))->first() : null;
+
+        $profile = Settings::modelProfile($staff->model_code);
+        $profile = $profile && in_array($profile['kind'], Settings::CHAT_KINDS, true) ? $profile : null;
+
+        $connector = $find($profile['connector_id'] ?? null) ?: $find(Settings::agentConnectorId());
+        $intended = $connector !== null;
+        $connector ??= $find($staff->connector_id) ?: $ai(\Aero\Connector\Models\Connector::query())->orderBy('id')->first();
 
         if (!$connector) {
             throw new \RuntimeException('No hay un modelo de IA configurado para los agentes (Ajustes → Workspaces).');
         }
 
-        return new ConnectorLlm($connector, Settings::agentModel());
+        return new ConnectorLlm($connector, ($intended && $profile ? $profile['model'] : null) ?: ($intended ? Settings::agentModel() : null));
     }
 }

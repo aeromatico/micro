@@ -30,3 +30,6 @@
 1.9.0:
     - "Cobro completo: tarifa por mensaje real (chat_turn) con tarifas por defecto según rareza, reembolso al cancelar encargos, despedir agentes, pantalla de Cobros y eventos aero.workspaces.charged/refunded."
     - add_billing_columns_and_default_rates.php
+1.10.0:
+    - "Modelos especializados: catálogo en Ajustes con repetidor (código máx./normal con DeepSeek V4 Pro y V4.1 Flash, imagen, audio y video), el agente elige uno, y el conector de los agentes es el AI Gateway de Cloudflare."
+    - add_model_profiles.php

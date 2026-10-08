@@ -14,7 +14,7 @@ class Staff extends Model
 
     public $fillable = [
         'name', 'slug', 'role', 'kind', 'rarity', 'category', 'bio', 'system_prompt',
-        'tags', 'capabilities', 'guide', 'connector_id', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
+        'tags', 'capabilities', 'guide', 'connector_id', 'model_code', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
         'hire_fee', 'task_rates',
     ];
 
@@ -156,6 +156,20 @@ class Staff extends Model
     public function setTaskRatesAttribute($value): void
     {
         $this->pendingTaskRates = is_array($value) ? $value : [];
+    }
+
+    /** Modelos especializados de Ajustes con los que puede conversar un agente (código y texto). */
+    public function getModelCodeOptions(): array
+    {
+        $options = ['' => '(el modelo por defecto de Ajustes)'];
+
+        foreach (Settings::models() as $code => $profile) {
+            if (in_array($profile['kind'], Settings::CHAT_KINDS, true)) {
+                $options[$code] = $profile['label'] . ' — ' . $profile['model'];
+            }
+        }
+
+        return $options;
     }
 
     /** Conectores del Hub disponibles (si aero/connector está instalado). */

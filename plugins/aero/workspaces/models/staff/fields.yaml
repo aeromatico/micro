@@ -80,11 +80,17 @@ tabs:
             type: dropdown
             span: left
             comment: El costo de tokens sale de este conector.
+        model_code:
+            tab: Agente
+            label: Modelo especializado
+            type: dropdown
+            span: right
+            comment: 'Elige uno del catálogo de Ajustes → Workspaces. Vacío = el modelo por defecto.'
         kind:
             tab: Agente
             label: Tipo
             type: dropdown
-            span: right
+            span: left
             options:
                 ai: Agente IA
 
