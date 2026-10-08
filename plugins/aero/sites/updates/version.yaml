@@ -383,3 +383,7 @@
 1.61.0:
     - "El rol tenant_admin recibe aero.finance.use (Finanzas: ingresos, egresos, libro diario, mayor y reportes)."
     - grant_finance_to_tenant_admin.php
+
+1.62.0:
+    - "El plan PRO incluye Aero.Finance (contabilidad por negocio, independiente de la del portal)."
+    - add_finance_to_pro_plan.php

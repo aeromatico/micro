@@ -108,7 +108,7 @@ tabs:
             type: checkboxlist
             quickselect: true
             options: getPluginsOptions
-            comment: Un tenant solo accede a las pantallas de los plugins marcados; las de plugins desmarcados le muestran la invitación a mejorar su plan. El superadmin nunca se ve afectado.
+            comment: "Un tenant solo accede a las pantallas de los plugins marcados; las de plugins desmarcados le muestran la invitación a mejorar su plan. El superadmin nunca se ve afectado. Aviso sobre Finanzas: es una contabilidad por negocio (independiente de la del portal, que es la del tenant master); quitarla del plan deja al tenant sin acceso a sus pantallas, pero su libro se conserva y los registros automáticos de Shop/Gimnasio siguen asentándose mientras él no la apague."
 
         features:
             tab: Características
