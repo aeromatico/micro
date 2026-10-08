@@ -1,0 +1,14 @@
+#!/bin/bash
+# Respaldo: empuja main (submódulos primero) a GitHub. Corre como root (tiene las credenciales).
+# Sin --force: si el remoto divergió, falla y queda en el log. Los commits los hace git-agent (www).
+cd /www/wwwroot/micro.clouds.com.bo || exit 1
+LOG=.git/git-agent/backup-push.log
+{
+  echo "== $(date '+%F %T')"
+  for s in $(git submodule --quiet foreach 'echo $sm_path'); do
+    [ "$(git -C "$s" rev-list --count @{u}..HEAD 2>/dev/null)" -gt 0 ] && git -C "$s" push origin HEAD:main 2>&1 | tail -2
+  done
+  git push origin main 2>&1 | tail -2
+} >> "$LOG" 2>&1
+tail -n 300 "$LOG" > "$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+chown -R www:www .git 2>/dev/null
