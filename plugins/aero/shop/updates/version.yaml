@@ -151,3 +151,6 @@
 
 1.9.4:
     - "Pedido por chat con costo de envío global: el carrito y la confirmación muestran el envío de la tienda (se suma a productos físicos, no a digitales; en restaurante es un aviso de delivery) y el checkout entiende la dirección escrita («confirmar Av. Arce 123, La Paz»)."
+
+1.9.5:
+    - "Eventos aero.shop.orderPaid y aero.shop.orderRefunded (para que Aero.Finance registre ventas y reembolsos en el libro)."

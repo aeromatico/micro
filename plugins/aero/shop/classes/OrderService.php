@@ -11,6 +11,7 @@ use Aero\Shop\Models\Product;
 use Aero\Shop\Models\ProductVariant;
 use Aero\Shop\Models\ShopSettings;
 use Db;
+use Event;
 
 /**
  * Crea y cancela pedidos reales de la tienda de un tenant. Es el único
@@ -169,6 +170,9 @@ class OrderService
         });
 
         $order = $order->fresh();
+        if ($order->status === 'refunded') {
+            Event::fire('aero.shop.orderRefunded', [$order]);
+        }
         OrderNotifier::fire($order, 'cancelled');
 
         return $order;
@@ -304,6 +308,7 @@ class OrderService
         });
 
         $order = $order->fresh();
+        Event::fire('aero.shop.orderPaid', [$order]);
         if ($notify) {
             OrderNotifier::fire($order, 'paid');
         }
