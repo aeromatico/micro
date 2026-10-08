@@ -36,3 +36,6 @@
 1.11.0:
     - "Modelo de respaldo por agente (Staff → Agente): si el principal falla, el turno continúa con el respaldo del catálogo de Ajustes; el mensaje queda marcado."
     - add_fallback_model_code.php
+1.12.0:
+    - "Catálogo de modelos: se agregan modelos frontera (Claude Opus/Sonnet/Fable/Haiku 5.x, GPT-6 Astra, Gemini 4 Argon, Grok 4.7) y abiertos de alto nivel (Kimi K3, GLM-5.3). Los no verificados en el gateway quedan inactivos."
+    - add_frontier_models.php
