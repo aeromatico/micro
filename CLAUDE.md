@@ -33,6 +33,7 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 - **NUNCA** `plugin:refresh` ni `plugin:rollback`/`rollbackPlugin()`: ignoran la versión y ejecutan el `down()` de casi todo (13 tablas de Sites perdidas el 2026-09-21). Para cambiar esquema: nueva versión en `version.yaml` + `october:migrate`.
 - No correr artisan/tinker que escriba en `storage/` como root: deja archivos `root:root` y PHP-FPM (`www`) responde 500. Si pasa: `chown -R www:www storage/`.
 - No poner secretos en `SettingsModel` (sin cifrado) ni en el repo.
+- **Sin worktrees ni ramas por tarea**: trabajar y commitear directo sobre `main` en este checkout (una sesión en worktree no puede mergear ni migrar y obliga a interrumpir al usuario). El respaldo a GitHub lo hace el cron de root `bin/git-backup-push` cada 15 min (log en `.git/git-agent/backup-push.log`).
 - No tocar la rama con `reset`/`rebase`: otras sesiones de Claude escriben en el mismo repo. Verificar con `git log` antes de asumir que un commit propio sigue ahí.
 
 ## Reglas de código October (fallan en silencio si se ignoran)
