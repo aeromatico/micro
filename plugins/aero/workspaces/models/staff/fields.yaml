@@ -86,11 +86,17 @@ tabs:
             type: dropdown
             span: right
             comment: 'Elige uno del catálogo de Ajustes → Workspaces. Vacío = el modelo por defecto.'
+        fallback_model_code:
+            tab: Agente
+            label: Modelo de respaldo
+            type: dropdown
+            span: left
+            comment: 'Si el modelo principal falla, el turno continúa con este. Debe usar el mismo tipo de conector (OpenAI-compatible o Anthropic); si no, se ignora.'
         kind:
             tab: Agente
             label: Tipo
             type: dropdown
-            span: left
+            span: right
             options:
                 ai: Agente IA
 
