@@ -2,6 +2,7 @@
 
 use Http;
 use Throwable;
+use Aero\Connector\Classes\AiGateway;
 use Aero\Connector\Classes\ConnectorResponse;
 use Aero\Connector\Contracts\ConnectorDriver;
 use Aero\Connector\Models\Connector;
@@ -11,6 +12,9 @@ use Aero\Connector\Models\Connector;
  * OpenAI, OpenRouter, GLM, LM Studio/Ollama expuestos como OpenAI-compatible, etc.
  * `base_url` es la raíz de la API (ej. https://api.openai.com/v1); se le
  * agrega `/chat/completions`.
+ *
+ * También atiende a los gateways Portkey y Cloudflare AI Gateway (proveedores
+ * de este mismo tipo): AiGateway aporta sus cabeceras y la URL; el protocolo es el mismo.
  */
 class AiOpenAiCompatibleDriver implements ConnectorDriver
 {
@@ -48,7 +52,7 @@ class AiOpenAiCompatibleDriver implements ConnectorDriver
         $apiKey = $connector->credentials['api_key'] ?? null;
         $model = $payload['model'] ?? null;
         $model = $model ?: ($config['model'] ?? 'gpt-4o-mini');
-        $baseUrl = rtrim($connector->resolvedBaseUrl() ?: 'https://api.openai.com/v1', '/');
+        $baseUrl = rtrim(AiGateway::baseUrl($connector) ?: 'https://api.openai.com/v1', '/');
 
         $body = [
             'model'    => $model,
@@ -64,10 +68,21 @@ class AiOpenAiCompatibleDriver implements ConnectorDriver
             $body['tool_choice'] = $payload['tool_choice'] ?? 'auto';
         }
 
+        if ($missing = AiGateway::missing($connector)) {
+            return ConnectorResponse::fromError($missing);
+        }
+
         $started = microtime(true);
 
         try {
-            $response = Http::withToken($apiKey)
+            $request = Http::withHeaders(AiGateway::headers($connector));
+
+            // Con Portkey (virtual key) o BYOK de Cloudflare no hay llave de proveedor: no se manda «Bearer » vacío.
+            if ($apiKey) {
+                $request = $request->withToken($apiKey);
+            }
+
+            $response = $request
                 // 30s por defecto de Laravel se queda corto con modelos
                 // "reasoning" (gastan tokens de pensamiento del mismo
                 // presupuesto antes de escribir la respuesta) o con

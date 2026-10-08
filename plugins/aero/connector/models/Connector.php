@@ -60,6 +60,7 @@ class Connector extends Model
         'openai'       => 'https://api.openai.com/v1',
         'anthropic'    => 'https://api.anthropic.com',
         'deepseek'     => 'https://api.deepseek.com',
+        'portkey'      => 'https://api.portkey.ai/v1',
     ];
 
     protected $hidden = ['credentials_encrypted'];
@@ -135,7 +136,7 @@ class Connector extends Model
         if ($this->provider_hint === 'anthropic') {
             return 'ai_anthropic';
         }
-        if (in_array($this->provider_hint, ['openrouter', 'opencode_zen', 'kilocode', 'openai', 'deepseek', 'ai_custom'], true)) {
+        if (in_array($this->provider_hint, ['openrouter', 'opencode_zen', 'kilocode', 'openai', 'deepseek', 'ai_custom', 'portkey', 'cloudflare_ai_gateway'], true)) {
             return 'ai_openai_compatible';
         }
         if ($this->provider_hint === 'http') {
@@ -240,6 +241,8 @@ class Connector extends Model
             'openai'       => trans('aero.connector::lang.connector.provider_openai'),
             'anthropic'    => trans('aero.connector::lang.connector.provider_anthropic'),
             'deepseek'     => trans('aero.connector::lang.connector.provider_deepseek'),
+            'portkey'      => trans('aero.connector::lang.connector.provider_portkey'),
+            'cloudflare_ai_gateway' => trans('aero.connector::lang.connector.provider_cloudflare_ai_gateway'),
             'ai_custom'    => trans('aero.connector::lang.connector.provider_ai_custom'),
             'http'         => trans('aero.connector::lang.connector.provider_http'),
         ];

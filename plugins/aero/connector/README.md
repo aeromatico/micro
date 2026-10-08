@@ -21,6 +21,31 @@ pensado para reutilizarse tal cual en otros proyectos OctoberCMS 4 / Laravel 12.
 - `ai_anthropic` — API de Claude (`/v1/messages`).
 - `telegram` — Bot API de Telegram (mensajes salientes + registro de webhook).
 
+## Gateways de IA: Portkey y Cloudflare AI Gateway
+
+No son tipos nuevos: son **proveedores** del tipo `ai_openai_compatible` (el
+mismo protocolo `/chat/completions`), así que Chatbots, Workspaces y el resto
+los usan sin cambios. Se eligen en el selector «Proveedor» y la lógica vive en
+`Classes/AiGateway.php`.
+
+**Portkey** (cloud `https://api.portkey.ai/v1`, o el gateway open source
+desplegado en un Worker de Cloudflare: pon la URL del Worker en «URL base»):
+
+| Campo | Uso |
+|---|---|
+| API Key | llave del proveedor de IA (`Authorization: Bearer`); opcional con virtual key |
+| Secret | llave de Portkey (`x-portkey-api-key`), solo Portkey cloud |
+| config | `portkey_provider`, `portkey_virtual_key`, `portkey_config` (id `pc-…`), `portkey_metadata` |
+
+**Cloudflare AI Gateway** (endpoint `/compat`; el modelo se escribe
+`proveedor/modelo`, p. ej. `openai/gpt-4o-mini`):
+
+| Campo | Uso |
+|---|---|
+| API Key | llave del proveedor; opcional si la guardaste en Cloudflare (BYOK) |
+| Secret | token del gateway autenticado (`cf-aig-authorization`) |
+| config | `account_id` + `gateway_id` (arman la URL si «URL base» está vacía), `cf_cache_ttl`, `cf_skip_cache`, `cf_max_attempts`, `cf_timeout_ms`, `cf_metadata` |
+
 ## Agregar un tipo nuevo (desde otro plugin)
 
 ```php

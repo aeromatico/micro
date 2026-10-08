@@ -40,6 +40,8 @@
         'provider_openai'       => 'OpenAI',
         'provider_anthropic'    => 'Anthropic (Claude)',
         'provider_deepseek'     => 'DeepSeek',
+        'provider_portkey'      => 'Portkey AI Gateway (cloud or on Cloudflare Workers)',
+        'provider_cloudflare_ai_gateway' => 'Cloudflare AI Gateway',
         'provider_ai_custom'    => 'Custom AI (OpenAI compatible)',
         'provider_http'         => 'Generic HTTP / REST',
         'config'          => 'Advanced configuration (JSON)',

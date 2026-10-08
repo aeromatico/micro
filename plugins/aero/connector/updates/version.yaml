@@ -30,3 +30,6 @@
       moda (frontera + chinos) vía OpenRouter, deshabilitados hasta cargarles
       la API key."
     - seed_showcase_ai_models.php
+
+1.5.0:
+    - "Portkey AI Gateway y Cloudflare AI Gateway como proveedores de IA (tipo ai_openai_compatible con cabeceras propias: x-portkey-*, cf-aig-*), URL del gateway de Cloudflare armada con cuenta + gateway, y el driver ya no manda un Bearer vacío cuando no hay llave."
