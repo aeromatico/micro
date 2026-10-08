@@ -7,7 +7,7 @@ class Message extends Model
 {
     public $table = 'aero_workspaces_messages';
 
-    public $fillable = ['tenant_id', 'staff_id', 'user_id', 'role', 'content', 'status', 'meta', 'error'];
+    public $fillable = ['tenant_id', 'staff_id', 'user_id', 'role', 'content', 'status', 'meta', 'error', 'charged_points', 'credit_transaction_id'];
 
     public $jsonable = ['meta'];
 

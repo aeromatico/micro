@@ -56,6 +56,13 @@ TXT;
             return ['error' => "{$target->name} todavía está ocupado con otro mensaje. Espera a que termine."];
         }
 
+        try {
+            Billing::assertCanAffordTurn($tenantId, $target);
+        }
+        catch (\DomainException $e) {
+            return ['error' => $e->getMessage() . ' Avísale a la persona.'];
+        }
+
         static::working($parent, [$target->slug]);
 
         $text = "📋 Encargo de {$orchestrator->name} (orquestadora):\n{$brief}\n\nPlan acordado con la persona:\n{$plan}";

@@ -22,7 +22,7 @@ class Office extends Controller
         BackendMenu::setContext('Aero.Workspaces', 'workspaces', 'office');
         $this->pageTitle = 'Oficina de agentes';
         $this->addCss('/plugins/aero/workspaces/assets/css/office.css?v=6');
-        $this->addJs('/plugins/aero/workspaces/assets/js/office.js?v=6');
+        $this->addJs('/plugins/aero/workspaces/assets/js/office.js?v=7');
     }
 
     public function index(): void
@@ -61,6 +61,21 @@ class Office extends Controller
         }
 
         return ['task' => Tasks::payload($task), 'summary' => Workspace::summary($tenantId), 'tasks' => Tasks::recent($tenantId, 8)];
+    }
+
+    /** Cancela el encargo en curso y devuelve los puntos cobrados. */
+    public function onCancelTask(): array
+    {
+        $tenantId = $this->tenantOrFail();
+
+        try {
+            $task = Tasks::cancel($tenantId, (int) post('id'));
+        }
+        catch (\DomainException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+
+        return ['task' => $task, 'summary' => Workspace::summary($tenantId), 'tasks' => Tasks::recent($tenantId, 8)];
     }
 
     /** Conversación con un agente que trabaja de verdad (también sirve para consultar si ya respondió). */

@@ -62,7 +62,7 @@ window.WsMarketInit = function () {
     byId('pts').title = state.summary.charging ? 'Puntos disponibles' : 'El cobro de puntos está apagado: contratar y enviar encargos no cuesta.';
   }
   const ribbon = q => '<span class="ribbon">' + (q || '').toUpperCase() + '</span>';
-  const costText = a => a.task_fee + ' <small>pts / encargo</small>' + (a.hire_fee ? ' · <small>contratar ' + a.hire_fee + ' pts</small>' : '');
+  const costText = a => a.task_fee + ' <small>pts / encargo</small>' + (a.chat_fee ? ' · <small>' + a.chat_fee + ' pts / mensaje</small>' : '') + (a.hire_fee ? ' · <small>contratar ' + a.hire_fee + ' pts</small>' : '');
   function hireBtn(a, full) {
     if (a.orchestrator) return '<button class="btn hired" disabled' + (full ? ' style="width:100%"' : '') + '>Siempre en tu equipo</button>';
     if (a.hired) return '<button class="btn hired" disabled' + (full ? ' style="width:100%"' : '') + '>En tu equipo</button>';
@@ -120,7 +120,7 @@ window.WsMarketInit = function () {
   function hire(slug) {
     const a = agentBySlug(slug);
     if (!a || a.hired) return;
-    if (a.hire_fee > 0 && state.summary.charging && !confirm('Contratar a ' + a.name + ' cuesta ' + a.hire_fee + ' pts. ¿Continuar?')) return;
+    if (a.hire_fee > 0 && state.summary.charging && !confirm('Contratar a ' + a.name + ' cuesta ' + a.hire_fee + ' pts' + (a.chat_fee ? ' y cada mensaje ' + a.chat_fee + ' pts' : '') + '. Si luego lo despides no se reembolsa. ¿Continuar?')) return;
     $.request('onHire', {
       data: { slug },
       success: function (r) {

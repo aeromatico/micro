@@ -333,9 +333,18 @@ window.WsOfficeInit = function () {
     tasks.forEach(t => {
       const li = document.createElement('li');
       const b = document.createElement('span'); b.className = 'b'; b.textContent = t.brief; b.title = t.brief;
-      const chip = document.createElement('span'); chip.className = 'chip' + (t.status === 'running' ? ' live' : ''); chip.textContent = t.status === 'running' ? 'En curso' : 'Terminado';
+      const chip = document.createElement('span'); chip.className = 'chip' + (t.status === 'running' ? ' live' : ''); chip.textContent = t.status === 'running' ? 'En curso' : (t.status === 'cancelled' ? (t.refunded ? 'Cancelado · reembolsado' : 'Cancelado') : 'Terminado');
       const s = document.createElement('small'); s.textContent = '#' + t.id + ' · ' + t.steps.length + ' agentes · ' + (t.charged_points ? t.charged_points + ' pts' : 'sin cobro') + ' · simulación';
-      li.appendChild(b); li.appendChild(chip); li.appendChild(s); ul.appendChild(li);
+      li.appendChild(b); li.appendChild(chip); li.appendChild(s);
+      if (t.status === 'running') {
+        const x = document.createElement('button'); x.type = 'button'; x.className = 'btn-cancel'; x.textContent = 'Cancelar' + (t.charged_points ? ' y reembolsar' : '');
+        x.addEventListener('click', function () {
+          if (!confirm('¿Cancelar el encargo #' + t.id + '?' + (t.charged_points ? ' Se te devuelven ' + t.charged_points + ' pts.' : ''))) return;
+          $.request('onCancelTask', { data: { id: t.id }, success: function (r) { summary = r.summary; renderHistory(r.tasks); ui(); } });
+        });
+        li.appendChild(x);
+      }
+      ul.appendChild(li);
     });
   }
   function refresh() {

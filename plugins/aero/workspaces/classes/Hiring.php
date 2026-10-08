@@ -33,36 +33,63 @@ class Hiring
             \DB::transaction(function () use ($tenantId, $staff, $fee, $userId, &$charged) {
                 $tx = null;
 
-                if ($fee > 0 && Settings::chargeEnabled() && class_exists(\Aero\Credits\Classes\Credits::class)) {
-                    $type = \Aero\Credits\Models\CreditType::findByCode(Settings::creditTypeCode());
-
-                    if (!$type) {
-                        throw new \DomainException('El tipo de crédito de Workspaces no está configurado.');
-                    }
-
-                    $tx = \Aero\Credits\Classes\Credits::chargeRaw($tenantId, $type, $fee, 'workspaces.hire', [
-                        'source_plugin'   => 'Aero.Workspaces',
-                        'reason'          => "Contratación de {$staff->name}",
-                        'idempotency_key' => "workspaces.hire.{$tenantId}.{$staff->id}",
-                    ]);
+                if ($fee > 0 && Billing::active()) {
+                    $tx = Billing::charge($tenantId, $fee, 'workspaces.hire', "Contratación de {$staff->name}",
+                        // Con la hora: quien se despidió y se vuelve a contratar paga de nuevo.
+                        "workspaces.hire.{$tenantId}.{$staff->id}." . now()->timestamp, ['staff_id' => $staff->id]);
                     $charged = $fee;
                 }
 
-                Hire::create(['tenant_id' => $tenantId, 'staff_id' => $staff->id, 'fee_charged' => $charged, 'hired_at' => now()]);
+                Hire::create(['tenant_id' => $tenantId, 'staff_id' => $staff->id, 'fee_charged' => $charged, 'hired_at' => now(), 'credit_transaction_id' => $tx]);
             });
         }
         catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             throw new \DomainException("No tienes puntos suficientes para contratar a {$staff->name} ({$fee} pts).");
         }
         catch (\Illuminate\Database\QueryException $e) {
-            throw new \DomainException("{$staff->name} ya está en tu equipo.");
+            // Solo la carrera de dos contrataciones a la vez es «ya está»; cualquier otro fallo de BD no se disfraza.
+            if (Hire::forTenant($tenantId)->where('staff_id', $staff->id)->exists()) {
+                throw new \DomainException("{$staff->name} ya está en tu equipo.");
+            }
+
+            throw $e;
         }
 
         \Event::fire('aero.workspaces.staffHired', [$tenantId, $staff->id, $charged]);
 
+        if ($charged > 0) {
+            \Event::fire('aero.workspaces.charged', [$tenantId, 'hire', $charged, (int) $staff->id, (int) $staff->id]);
+        }
+
         $staff->load(['skills', 'rate', 'taskRateRows']);
 
         return ['agent' => Workspace::agent($staff, true), 'charged' => $charged];
+    }
+
+    /**
+     * Despedir: el agente sale del equipo y se pierde lo pagado (la contratación
+     * no se reembolsa). Volver a contratarlo cobra de nuevo.
+     *
+     * @throws \DomainException
+     */
+    public static function dismiss(int $tenantId, string $slug): array
+    {
+        $staff = Staff::where('slug', $slug)->first();
+
+        if (!$staff || $staff->is_orchestrator) {
+            throw new \DomainException('Ese agente no se puede despedir.');
+        }
+
+        $hire = Hire::forTenant($tenantId)->where('staff_id', $staff->id)->first();
+
+        if (!$hire) {
+            throw new \DomainException("{$staff->name} no está en tu equipo.");
+        }
+
+        $hire->delete();
+        \Event::fire('aero.workspaces.staffDismissed', [$tenantId, (int) $staff->id]);
+
+        return ['dismissed' => $staff->name, 'refunded' => 0];
     }
 
     /** Qué pasaría al contratar, sin hacerlo (para confirmar antes). */
@@ -74,6 +101,7 @@ class Hiring
             'agent'       => $staff->name,
             'already'     => Hire::forTenant($tenantId)->where('staff_id', $staff->id)->exists(),
             'hire_fee'    => (int) round((float) $staff->hire_fee),
+            'chat_fee'    => Billing::rate($staff, Billing::TURN),
             'would_charge' => Settings::chargeEnabled() ? (int) round((float) $staff->hire_fee) : 0,
             'points'      => Workspace::points($tenantId),
         ];

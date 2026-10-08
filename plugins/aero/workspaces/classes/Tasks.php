@@ -124,20 +124,11 @@ class Tasks
                     'source' => $source, 'started_at' => now(), 'finished_at' => now()->addSeconds($plan['total_seconds']),
                 ]);
 
-                if ($total > 0 && Settings::chargeEnabled() && class_exists(\Aero\Credits\Classes\Credits::class)) {
-                    $type = \Aero\Credits\Models\CreditType::findByCode(Settings::creditTypeCode());
+                if ($total > 0 && Billing::active()) {
+                    $tx = Billing::charge($tenantId, $total, 'workspaces.task', 'Encargo #' . $task->id, 'workspaces.task.' . $task->id);
 
-                    if (!$type) {
-                        throw new \DomainException('El tipo de crédito de Workspaces no está configurado.');
-                    }
-
-                    $tx = \Aero\Credits\Classes\Credits::chargeRaw($tenantId, $type, $total, 'workspaces.task', [
-                        'source_plugin'   => 'Aero.Workspaces',
-                        'reason'          => 'Encargo #' . $task->id,
-                        'idempotency_key' => 'workspaces.task.' . $task->id,
-                    ]);
-
-                    $task->update(['charged_points' => $total, 'credit_transaction_id' => $tx->id]);
+                    $task->update(['charged_points' => $total, 'credit_transaction_id' => $tx]);
+                    \Event::fire('aero.workspaces.charged', [$tenantId, 'task', $total, null, (int) $task->id]);
                 }
 
                 return $task;
@@ -146,6 +137,16 @@ class Tasks
         catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             throw new \DomainException("No tienes puntos suficientes para este encargo ({$total} pts).");
         }
+    }
+
+    /**
+     * Cancela un encargo en curso y devuelve los puntos cobrados.
+     *
+     * @throws \DomainException
+     */
+    public static function cancel(int $tenantId, int $id): array
+    {
+        return static::payload(Billing::cancelTask($tenantId, $id)) + ['refunded' => true];
     }
 
     public static function recent(int $tenantId, int $limit = 10): array
@@ -176,6 +177,7 @@ class Tasks
             'simulated'        => true,
             'estimated_points' => (int) $task->estimated_points,
             'charged_points'   => (int) $task->charged_points,
+            'refunded'         => (bool) $task->refunded_at,
             'steps'            => $plan['steps'] ?? [],
             'meet_seconds'     => (int) ($plan['meet_seconds'] ?? static::MEET_SECONDS),
             'total_seconds'    => (int) ($plan['total_seconds'] ?? 0),

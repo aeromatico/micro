@@ -31,6 +31,7 @@ class AgentChat
         }
 
         static::expireStale($tenantId, $staff->id);
+        Billing::assertCanAffordTurn($tenantId, $staff);
 
         if (Message::thread($tenantId, $staff->id)->whereIn('status', ['pending', 'running'])->exists()) {
             throw new \DomainException("{$staff->name} todavía está trabajando en tu mensaje anterior.");

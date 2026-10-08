@@ -12,12 +12,12 @@ class Task extends Model
 
     public $fillable = [
         'tenant_id', 'user_id', 'orchestrator_id', 'brief', 'status', 'estimated_points', 'charged_points',
-        'credit_transaction_id', 'plan', 'source', 'started_at', 'finished_at',
+        'credit_transaction_id', 'plan', 'source', 'started_at', 'finished_at', 'refunded_at',
     ];
 
     public $jsonable = ['plan'];
 
-    protected $dates = ['started_at', 'finished_at'];
+    protected $dates = ['started_at', 'finished_at', 'refunded_at'];
 
     public function scopeForTenant($query, int $tenantId)
     {

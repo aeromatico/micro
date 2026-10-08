@@ -55,6 +55,12 @@ class Plugin extends PluginBase
                         'url'         => \Backend::url('aero/workspaces/office'),
                         'permissions' => $use,
                     ],
+                    'charges' => [
+                        'label'       => 'Cobros',
+                        'icon'        => 'icon-money',
+                        'url'         => \Backend::url('aero/workspaces/charges'),
+                        'permissions' => ['aero.workspaces.superadmin'],
+                    ],
                     'staff' => [
                         'label'       => 'Staff (catálogo)',
                         'icon'        => 'icon-user',

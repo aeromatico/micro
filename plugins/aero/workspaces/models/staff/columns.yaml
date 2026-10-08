@@ -9,6 +9,15 @@ columns:
         label: Rareza
     category:
         label: Categoría
+    hire_fee:
+        label: Contratación (pts)
+        sortable: false
+    encargo_fee:
+        label: Encargo (pts)
+        sortable: false
+    chat_fee:
+        label: Mensaje (pts)
+        sortable: false
     kind:
         label: Tipo
     is_active:

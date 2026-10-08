@@ -9,7 +9,7 @@ class Hire extends Model
 
     public $table = 'aero_workspaces_hires';
 
-    public $fillable = ['tenant_id', 'staff_id', 'fee_charged', 'hired_at'];
+    public $fillable = ['tenant_id', 'staff_id', 'fee_charged', 'hired_at', 'credit_transaction_id'];
 
     protected $dates = ['hired_at'];
 

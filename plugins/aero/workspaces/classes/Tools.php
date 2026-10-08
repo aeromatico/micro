@@ -59,6 +59,16 @@ class Tools
                 ['brief' => ['type' => 'string', 'description' => 'Qué se quiere lograr, con público y formato si aplica (máx. 2000 caracteres).']] + $confirm,
                 ['brief'], 'submitTask'
             ),
+            'workspaces_dismiss' => $tool(
+                'Despide a un agente del equipo del cliente. La contratación pagada NO se reembolsa y volver a contratarlo se cobra de nuevo. Sin confirm:true solo avisa.',
+                ['slug' => ['type' => 'string']] + $confirm,
+                ['slug'], 'dismiss'
+            ),
+            'workspaces_cancel_task' => $tool(
+                'Cancela un encargo en curso del cliente y le devuelve los puntos cobrados.',
+                ['id' => ['type' => 'integer']] + $confirm,
+                ['id'], 'cancelTask'
+            ),
             'workspaces_tasks' => $tool(
                 'Encargos recientes del cliente y su estado (en curso o terminado). Con `id` devuelve uno solo, con el detalle de quién hace qué.',
                 ['id' => ['type' => 'integer'], 'limit' => ['type' => 'integer', 'description' => 'Cuántos devolver (1 a 50, por defecto 10).']],
@@ -128,6 +138,36 @@ class Tools
         }
     }
 
+    public static function dismiss(array $args, int $tenantId): array
+    {
+        $slug = (string) ($args['slug'] ?? '');
+
+        try {
+            if (empty($args['confirm'])) {
+                return ['confirmed' => false, 'warning' => 'Se pierde lo pagado por la contratación y recontratarlo se cobra de nuevo.', 'next' => 'Pídele confirmación a la persona y repite con confirm:true.'];
+            }
+
+            return ['confirmed' => true] + Hiring::dismiss($tenantId, $slug);
+        }
+        catch (\DomainException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public static function cancelTask(array $args, int $tenantId): array
+    {
+        try {
+            if (empty($args['confirm'])) {
+                return ['confirmed' => false, 'next' => 'Pídele confirmación a la persona y repite con confirm:true. Se devuelven los puntos cobrados.'];
+            }
+
+            return ['confirmed' => true, 'task' => Tasks::cancel($tenantId, (int) ($args['id'] ?? 0))];
+        }
+        catch (\DomainException $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
     public static function skills(array $args, int $tenantId): array
     {
         return ['skills' => Workspace::skills($tenantId)];
@@ -164,7 +204,7 @@ class Tools
     /** Resumen sin biografía larga ni guía (para listas). */
     protected static function brief(array $a): array
     {
-        return array_intersect_key($a, array_flip(['slug', 'name', 'role', 'category', 'rarity', 'orchestrator', 'hired', 'hire_fee', 'task_fee', 'contracts']))
+        return array_intersect_key($a, array_flip(['slug', 'name', 'role', 'category', 'rarity', 'orchestrator', 'hired', 'hire_fee', 'task_fee', 'chat_fee', 'contracts']))
             + ['skills' => array_column($a['skills'], 'name')];
     }
 }

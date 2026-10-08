@@ -27,3 +27,6 @@
 1.8.0:
     - "Categoría Integraciones y APIs: herramienta api_catalog (catálogo público de la API), skill «Integraciones y APIs» y Bruno reconvertido en el especialista."
     - seed_integrations_specialist.php
+1.9.0:
+    - "Cobro completo: tarifa por mensaje real (chat_turn) con tarifas por defecto según rareza, reembolso al cancelar encargos, despedir agentes, pantalla de Cobros y eventos aero.workspaces.charged/refunded."
+    - add_billing_columns_and_default_rates.php

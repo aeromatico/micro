@@ -93,7 +93,7 @@ tabs:
             label: Tarifa por contratación (pts)
             type: number
             span: left
-            comment: 0 = el tenant no paga al contratar.
+            comment: '0 = el tenant no paga al contratar. Despedir no reembolsa; recontratar cobra de nuevo.'
         task_rates:
             tab: Tarifas
             label: Tarifa por tarea
@@ -103,8 +103,11 @@ tabs:
                 fields:
                     task_type:
                         label: Tipo de tarea
-                        type: text
+                        type: dropdown
                         span: left
+                        options:
+                            encargo: 'Encargo a la Oficina (se multiplica por el largo del brief)'
+                            chat_turn: 'Mensaje de chat (cada respuesta real del agente)'
                     fee:
                         label: Puntos por tarea
                         type: number

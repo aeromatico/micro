@@ -137,6 +137,17 @@ class Staff extends Model
         $this->pendingHireFee = (float) $value;
     }
 
+    /** Tarifas rápidas para la lista del catálogo. */
+    public function getEncargoFeeAttribute(): float
+    {
+        return (float) (TaskRate::where('staff_id', $this->id)->where('task_type', 'encargo')->value('fee') ?? 0);
+    }
+
+    public function getChatFeeAttribute(): float
+    {
+        return (float) (TaskRate::where('staff_id', $this->id)->where('task_type', 'chat_turn')->value('fee') ?? 0);
+    }
+
     public function getTaskRatesAttribute(): array
     {
         return $this->taskRateRows()->orderBy('task_type')->get(['task_type', 'fee'])->toArray();

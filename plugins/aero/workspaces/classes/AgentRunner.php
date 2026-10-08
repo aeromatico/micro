@@ -139,6 +139,7 @@ class AgentRunner
                     }
 
                     $reply->update(['content' => $text, 'status' => 'done', 'meta' => ['tools' => $trace, 'workflows' => $workflows, 'working' => []]]);
+                    Billing::chargeTurn($reply, $staff);
 
                     return;
                 }

@@ -36,7 +36,7 @@ class Workspace
     /** Tarifa por encargo (puntos) de un agente. */
     public static function taskFee(Staff $staff): int
     {
-        return (int) round((float) ($staff->taskRateRows->firstWhere('task_type', 'encargo')->fee ?? 0));
+        return Billing::rate($staff, Billing::TASK);
     }
 
     /**
@@ -62,6 +62,7 @@ class Workspace
             'hired'        => $hired || (bool) $staff->is_orchestrator,
             'hire_fee'     => (int) round((float) $staff->hire_fee),
             'task_fee'     => static::taskFee($staff),
+            'chat_fee'     => Billing::rate($staff, Billing::TURN),
             'contracts'    => $contracts ?? 0,
             'skills'       => $staff->skills->map(fn (Skill $s) => static::skill($s))->values()->all(),
         ];

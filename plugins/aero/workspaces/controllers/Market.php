@@ -22,7 +22,7 @@ class Market extends Controller
         BackendMenu::setContext('Aero.Workspaces', 'workspaces', 'market');
         $this->pageTitle = 'Mercado de agentes';
         $this->addCss('/plugins/aero/workspaces/assets/css/market.css?v=6');
-        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=9');
+        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=10');
     }
 
     public function index(): void
@@ -45,6 +45,20 @@ class Market extends Controller
 
         try {
             $result = Hiring::hire($tenantId, (string) post('slug'), BackendAuth::getUser()?->id);
+        }
+        catch (\DomainException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+
+        return $result + ['team' => Workspace::team($tenantId), 'summary' => Workspace::summary($tenantId)];
+    }
+
+    public function onDismiss(): array
+    {
+        $tenantId = $this->tenantOrFail();
+
+        try {
+            $result = Hiring::dismiss($tenantId, (string) post('slug'));
         }
         catch (\DomainException $e) {
             throw new \ApplicationException($e->getMessage());

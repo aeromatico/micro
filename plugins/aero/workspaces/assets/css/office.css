@@ -96,3 +96,7 @@
 .ws-office #log-live li small.tools { display: block; margin-top: 4px; color: var(--muted); }
 .ws-office .ws-livetag { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--good-fg); font-weight: 700; }
 .ws-office #log[hidden] { display: none; }
+
+/* Cancelar un encargo en curso */
+.btn-cancel{margin-left:8px;font:inherit;font-size:12px;padding:2px 8px;border:1px solid currentColor;border-radius:6px;background:transparent;color:#b3261e;cursor:pointer}
+.btn-cancel:hover{background:#b3261e;color:#fff}
