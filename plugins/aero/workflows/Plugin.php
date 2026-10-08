@@ -47,8 +47,8 @@ class Plugin extends PluginBase
 
         Event::listen('aero.chatbots.registerAiToolCategories', function () {
             return [
-                \Aero\Workflows\Classes\AiTools::CATEGORY => 'Workflows (automatizaciones)',
-                \Aero\Workflows\Classes\BuilderTools::CATEGORY => 'Diseñar workflows (constructor guiado)',
+                \Aero\Workflows\Classes\AiTools::CATEGORY => 'Automatizaciones: ejecutar workflows existentes',
+                \Aero\Workflows\Classes\BuilderTools::CATEGORY => 'Automatizaciones: diseñar workflows nuevos (quedan en borrador)',
             ];
         });
     }

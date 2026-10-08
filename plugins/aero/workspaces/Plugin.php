@@ -24,7 +24,7 @@ class Plugin extends PluginBase
         \Event::listen('aero.chatbots.registerAiTools', fn (?int $tenantId = null) => \Aero\Workspaces\Classes\Tools::tools());
 
         \Event::listen('aero.chatbots.registerAiToolCategories', fn () => [
-            \Aero\Workspaces\Classes\Tools::CATEGORY => 'Workspaces (mercado y oficina de agentes)',
+            \Aero\Workspaces\Classes\Tools::CATEGORY => 'Workspaces: mercado y oficina de agentes',
         ]);
     }
 

@@ -204,13 +204,12 @@ class Bot extends Model
     public function getAiToolCategoriesOptions(): array
     {
         // Etiquetas de la UI: todas "Área: qué hace el bot". Mandan sobre las que
-        // declare cada plugin, así el listado queda homogéneo y agrupado.
+        // declare el plugin (hello es submódulo y no se toca desde acá); el resto
+        // de plugins declara la suya con el mismo formato.
         $labels = [
-            'site'              => 'Sitio web: consultar landing y contenido',
-            'shop'              => 'Tienda: consultar catálogo y pedidos',
-            'hello'             => 'WhatsApp: enviar menús y botones nativos',
-            'workflows'         => 'Automatizaciones: ejecutar workflows existentes',
-            'workflows_builder' => 'Automatizaciones: diseñar workflows nuevos (quedan en borrador)',
+            'site' => 'Sitio web: consultar landing y contenido',
+            'shop' => 'Tienda: consultar catálogo y pedidos',
+            'hello' => 'WhatsApp: enviar menús y botones nativos',
         ] + \Aero\Chatbots\Classes\AiToolRegistry::categoryLabels();
 
         $options = [];
