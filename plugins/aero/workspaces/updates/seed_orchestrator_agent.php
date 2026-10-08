@@ -59,7 +59,7 @@ TXT;
         $skill = Skill::firstOrNew(['tenant_id' => null, 'slug' => 'team-orchestration']);
         $skill->forceFill([
             'kind' => 'official', 'name' => 'Orquestación del equipo', 'description' => mb_substr($description, 0, 1000),
-            'body' => trim($raw), 'tools' => ['workspaces_team', 'workspaces_market', 'workflows_list', 'workflows_get', 'team_delegate'],
+            'body' => trim($raw), 'tools' => ['workspaces_team', 'workspaces_market', 'workspaces_agent', 'workspaces_tasks', 'workspaces_skills', 'workflows_list', 'workflows_get', 'team_delegate'],
         ])->save();
 
         $prompt = trim((string) $orchestrator->system_prompt);

@@ -18,3 +18,6 @@
 1.5.0:
     - "La orquestadora ve los workflows del cliente y los edita en lugar de duplicarlos."
     - seed_orchestrator_agent.php
+1.6.0:
+    - "Superpoderes para los agentes activos: sus skills (web, seo, guion, img, orquestación) ganan herramientas reales de lectura del negocio del cliente."
+    - seed_agent_powers.php
