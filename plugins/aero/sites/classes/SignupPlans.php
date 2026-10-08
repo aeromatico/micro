@@ -48,6 +48,7 @@ class SignupPlans
             'featured'    => $plan->is_featured,
             'is_pro'      => $plan->is_pro,
             'features'    => $plan->featureList(),
+            'feature_items' => $plan->featureItems(),
             'credits'     => static::creditBadges($plan),
         ];
     }

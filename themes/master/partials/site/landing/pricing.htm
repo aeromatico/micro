@@ -1,4 +1,12 @@
-{# Pricing #}
+==
+<?php
+function onStart()
+{
+    $this['plans'] = \Aero\Sites\Classes\SignupPlans::all();
+    $this['hasAnnual'] = collect($this['plans'])->contains(fn ($p) => isset($p['periods']['annual']));
+}
+?>
+==
 <section id="precios" class="bg-canvas-elev scroll-mt-14">
     <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
         <div class="max-w-[600px] mx-auto mb-12 text-center">
@@ -7,6 +15,7 @@
         </div>
 
         <div x-data="{ period: 'monthly' }" class="flex flex-col items-center gap-8">
+            {% if hasAnnual %}
             <div class="inline-flex items-center gap-1 p-1 border border-edge rounded-full bg-canvas">
                 <button type="button" @click="period = 'monthly'"
                         :class="period === 'monthly' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
@@ -15,70 +24,60 @@
                         :class="period === 'annual' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
                         class="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Anual</button>
             </div>
+            {% endif %}
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch max-w-[760px] mx-auto w-full">
-            <div class="relative flex flex-col gap-5 p-8 border border-edge rounded-2xl bg-canvas">
-                <div class="flex flex-col gap-1.5">
-                    <h3 class="text-lg font-bold uppercase">Negocio</h3>
-                    <p class="text-[13px] text-ink-dim">Para vender y cobrar sin fricción.</p>
-                </div>
-                <div class="flex items-baseline gap-1.5">
-                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 499' : 'Bs 49'">Bs 49</span>
-                    <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
-                </div>
-                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 89 al año pagando anual</p>
-                <div class="h-px bg-edge"></div>
-                <div class="flex flex-col gap-3">
-                    <p class="text-sm text-ink-dim">Sitio web con generador de IA</p>
-                    <p class="text-sm text-ink-dim">Tienda online e inventario</p>
-                    <p class="text-sm text-ink-dim">CRM y cobranzas por WhatsApp</p>
-                    <p class="text-sm text-ink-dim">Pagos QR propios</p>
-                </div>
-                <div class="flex flex-col gap-1.5">
-                    <span class="text-[11px] text-ink-dim">De regalo en cada suscripción y renovación</span>
-                    <div class="flex flex-wrap gap-1.5">
-                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
-                            <span class="w-2 h-2 rounded-full" style="background:#cd7f32"></span>500 monedas de bronce
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
-                            <span class="w-2 h-2 rounded-full" style="background:#c0c0c0"></span>50 monedas de plata
-                        </span>
-                    </div>
-                </div>
-                <a href="/comprar/negocio" class="mt-auto inline-flex justify-center items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Elegir Negocio</a>
-            </div>
-
-            <div class="relative flex flex-col gap-5 p-8 border border-accent rounded-2xl bg-canvas">
+        <div class="grid grid-cols-1 sm:grid-cols-2 {{ plans|length > 2 ? 'lg:grid-cols-3 max-w-5xl' : 'max-w-[760px]' }} gap-5 items-stretch mx-auto w-full">
+            {% for code, plan in plans %}
+            {% set monthly = plan.periods.monthly %}
+            {% set annual = plan.periods.annual ?? null %}
+            <div class="relative flex flex-col gap-5 p-8 border {{ plan.featured ? 'border-accent' : 'border-edge' }} rounded-2xl bg-canvas">
+                {% if plan.featured %}
                 <span class="absolute -top-3 left-8 bg-accent text-accent-fg text-[11px] font-bold px-3 py-1 rounded-full">Más elegido</span>
+                {% endif %}
                 <div class="flex flex-col gap-1.5">
-                    <h3 class="text-lg font-bold uppercase">Pro</h3>
-                    <p class="text-[13px] text-ink-dim">Para negocios en crecimiento.</p>
+                    <h3 class="text-lg font-bold uppercase">{{ plan.label }}</h3>
+                    {% if plan.description %}<p class="text-[13px] text-ink-dim">{{ plan.description }}</p>{% endif %}
                 </div>
                 <div class="flex items-baseline gap-1.5">
-                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 999' : 'Bs 99'">Bs 99</span>
+                    {% if annual %}
+                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs {{ annual|number_format(0, ',', '.') }}' : 'Bs {{ monthly|number_format(0, ',', '.') }}'">Bs {{ monthly|number_format(0, ',', '.') }}</span>
                     <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
+                    {% else %}
+                    <span class="font-display text-4xl font-bold">Bs {{ monthly|number_format(0, ',', '.') }}</span>
+                    <span class="text-[13px] text-ink-dim">/ mes</span>
+                    {% endif %}
                 </div>
-                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 189 al año pagando anual</p>
+                {% if annual and (monthly * 12 - annual) > 0 %}
+                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs {{ (monthly * 12 - annual)|number_format(0, ',', '.') }} al año pagando anual</p>
+                {% endif %}
                 <div class="h-px bg-edge"></div>
                 <div class="flex flex-col gap-3">
-                    <p class="text-sm text-ink-dim">Todo lo de Negocio</p>
-                    <p class="text-sm text-ink-dim">WhatsApp Business sin límites</p>
-                    <p class="text-sm text-ink-dim">Chatbots y automatización con IA</p>
-                    <p class="text-sm text-ink-dim">Soporte prioritario</p>
+                    {% for item in plan.feature_items %}
+                    {% if item.featured %}
+                    <p class="flex items-start gap-2 text-sm font-semibold text-ink">
+                        <svg class="w-4 h-4 mt-0.5 shrink-0 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6L12 2z"/></svg>
+                        <span>{{ item.text }}</span>
+                    </p>
+                    {% else %}
+                    <p class="text-sm text-ink-dim">{{ item.text }}</p>
+                    {% endif %}
+                    {% endfor %}
                 </div>
+                {% if plan.credits %}
                 <div class="flex flex-col gap-1.5">
                     <span class="text-[11px] text-ink-dim">De regalo en cada suscripción y renovación</span>
                     <div class="flex flex-wrap gap-1.5">
+                        {% for badge in plan.credits %}
                         <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
-                            <span class="w-2 h-2 rounded-full" style="background:#cd7f32"></span>6000 monedas de bronce
+                            <span class="w-2 h-2 rounded-full" style="background:{{ badge.color }}"></span>{{ badge.amount|number_format(0, ',', '.') }} {{ badge.label }}
                         </span>
-                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
-                            <span class="w-2 h-2 rounded-full" style="background:#c0c0c0"></span>600 monedas de plata
-                        </span>
+                        {% endfor %}
                     </div>
                 </div>
-                <a href="/comprar/pro" class="mt-auto inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg">Elegir Pro</a>
+                {% endif %}
+                <a href="/comprar/{{ code }}" class="mt-auto inline-flex justify-center items-center font-semibold text-sm px-5 py-3 rounded-lg {{ plan.featured ? 'bg-accent text-accent-fg font-bold' : 'bg-transparent text-ink border border-edge hover:bg-canvas-elev2 transition-colors' }}">Elegir {{ plan.label }}</a>
             </div>
+            {% endfor %}
         </div>
         </div>
 

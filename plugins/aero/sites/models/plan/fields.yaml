@@ -120,3 +120,9 @@ tabs:
                     text:
                         label: Texto
                         type: text
+                        span: left
+                    featured:
+                        label: Destacada
+                        type: switch
+                        span: right
+                        comment: Se resalta en la tabla de precios de la landing.
