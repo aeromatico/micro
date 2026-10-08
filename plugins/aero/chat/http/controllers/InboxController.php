@@ -272,14 +272,23 @@ class InboxController extends Controller
         };
 
         // Lo que graba el navegador (webm) no lo reproduce WhatsApp: se pasa a ogg/opus.
-        // Livechat no tiene ese problema (el <audio> del widget reproduce cualquier
-        // formato que entienda el navegador) y exec() está deshabilitado en el pool de
-        // PHP-FPM (aaPanel, disable_functions) — intentarlo acá tumbaba el envío con un
-        // 500 "Call to undefined function exec()" para cualquier nota de voz a un chat web.
+        // Livechat no necesita conversión. exec() está deshabilitado en PHP-FPM (aaPanel,
+        // disable_functions), así que ffmpeg corre en el worker de la cola (CLI) y acá se
+        // espera su resultado por Cache.
         if ($kind === 'audio' && $conversation->account->driver !== 'livechat' && !preg_match('#^audio/(ogg|mpeg|mp3|mp4|aac|x-m4a|amr)#', $mime)) {
+            $src = tempnam(sys_get_temp_dir(), 'chatin');
+            copy($path, $src);
+            chmod($src, 0644);
             $tmp = tempnam(sys_get_temp_dir(), 'chat') . '.ogg';
-            exec('ffmpeg -y -loglevel error -i ' . escapeshellarg($path) . ' -vn -c:a libopus -b:a 32k ' . escapeshellarg($tmp) . ' 2>&1', $out, $code);
-            if ($code !== 0 || !is_file($tmp)) {
+            $token = bin2hex(random_bytes(8));
+            \Aero\Chat\Jobs\ConvertAudio::dispatch($src, $tmp, $token);
+            $result = null;
+            for ($i = 0; $i < 60 && !$result; $i++) {
+                usleep(250000);
+                $result = \Illuminate\Support\Facades\Cache::pull('chat:audio:' . $token);
+            }
+            @unlink($src);
+            if ($result !== 'ok' || !is_file($tmp)) {
                 @unlink($tmp);
                 return $this->error('convert_failed', 'No se pudo procesar el audio.', 422);
             }
