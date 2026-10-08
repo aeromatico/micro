@@ -5,6 +5,7 @@ use Backend;
 use BackendAuth;
 use Cache;
 use Event;
+use Route;
 use System\Classes\PluginBase;
 
 /**
@@ -33,13 +34,17 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('credits:expire-purchases', \Aero\Credits\Console\ExpirePurchases::class);
         $this->registerConsoleCommand('credits:verify', \Aero\Credits\Console\Verify::class);
         $this->registerConsoleCommand('credits:reset-ledger', \Aero\Credits\Console\ResetLedger::class);
+        $this->registerConsoleCommand('credits:expire-plan-grants', \Aero\Credits\Console\ExpirePlanGrants::class);
+        $this->registerConsoleCommand('credits:expire-gifts', \Aero\Credits\Console\ExpireGifts::class);
     }
 
     public function registerSchedule($schedule): void
     {
         $schedule->command('credits:sweep-holds')->everyFiveMinutes();
         $schedule->command('credits:expire-purchases')->everyMinute();
+        $schedule->command('credits:expire-gifts')->everyFiveMinutes();
         $schedule->command('credits:verify')->dailyAt('04:10');
+        $schedule->command('credits:expire-plan-grants')->dailyAt('04:05')->withoutOverlapping()->onOneServer();
     }
 
     public function boot(): void
@@ -47,16 +52,23 @@ class Plugin extends PluginBase
         $this->bootNavbarWidget();
         $this->bootConnectorIntegration();
         $this->bootPurchaseIntegration();
+        $this->bootGiftIntegration();
     }
 
     /**
      * Inyecta un pill compacto de consumo global justo al lado del site
      * switcher nativo (mismo punto de extensión que usa October core:
      * modules/backend/layouts/_mainmenu.php → backend.layout.extendMainMenuToolbar).
-     * Solo superadmins lo ven.
+     * El pill (renderNavbarCoins) se refresca solo cada 15s vía una ruta liviana
+     * (navbarLiveUrl), sin recargar la página — el link/Wallet quedan estáticos,
+     * solo cambian los números.
      */
     protected function bootNavbarWidget(): void
     {
+        Route::get(Backend::uri() . '/' . $this->navbarLiveSegment(), function () {
+            return response($this->renderNavbarCoins());
+        })->middleware('web');
+
         Event::listen('backend.layout.extendMainMenuToolbar', function () {
             $user = BackendAuth::getUser();
 
@@ -64,56 +76,123 @@ class Plugin extends PluginBase
                 return '';
             }
 
-            if ($user->is_superuser) {
-                // Vista de plataforma: monedas ACTIVAS entre todos los tenants
-                // (lo que hoy está en circulación) + detalle de lo otorgado.
-                $rows = Cache::remember('aero.credits.navbar_summary', 30, function () {
-                    return collect(Credits::summary())->map(function ($s) {
-                        return [
-                            'color' => $s['color'],
-                            'value' => $s['active'],
-                            'title' => "{$s['label']}\nActivas: " . number_format($s['active'], 0, ',', '.')
-                                . "\nVendidas: " . number_format($s['sold'], 0, ',', '.')
-                                . "\nRegaladas: " . number_format($s['gifted'] + $s['plan_grant'], 0, ',', '.')
-                                . "\nConsumidas hoy: " . number_format($s['consumed_today'], 0, ',', '.'),
-                        ];
-                    })->values()->all();
-                });
+            $html = $this->renderNavbarCoins();
 
-                return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
-                    'rows'      => $rows,
-                    'link'      => Backend::url('aero/credits/summary'),
-                    'plusUrl'   => Backend::url('aero/credits/creditaccounts'),
-                    'plusTitle' => 'Otorgar monedas',
-                    'title'     => 'Monedas activas entre todos los tenants',
-                ]);
-            }
-
-            // Vista del tenant: su saldo exacto, siempre en vivo (sin caché).
-            $tenantId = Credits::resolveCurrentTenantId();
-
-            if (!$tenantId) {
+            if ($html === '') {
                 return '';
             }
 
-            $balances = Credits::balances($tenantId);
-            $rows = \Aero\Credits\Models\CreditType::active()->get()->map(fn ($t) => [
-                'color' => $t->color,
-                'value' => $balances[$t->code] ?? 0,
-                'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0, 0, ',', '.'),
-            ])->all();
+            if ($user->is_superuser) {
+                return $html . $this->navbarPollScript();
+            }
 
-            // "Wallet" vive en el menú inferior (antes era «Mis monedas» en el menú lateral).
+            // "Wallet" e "Invitaciones" viven en el menú inferior (antes «Mis
+            // monedas» estaba en el menú lateral). "App Store" (Aero.Services,
+            // opcional) va ANTES de Wallet: se arma acá y no en Aero.Services
+            // para que el orden no dependa de en qué secuencia arrancan los plugins.
+            $appStoreItem = class_exists(\Aero\Services\Classes\Storefront::class) ? \Aero\Services\Classes\Storefront::navbarItem() : '';
             $walletItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Wallet"><a href="' . e(Backend::url('aero/credits/wallet')) . '"><span class="nav-icon"><i class="icon-money"></i></span><span class="nav-label">Wallet</span></a></li></ul></div>';
+            $inviteItem = '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Invitaciones"><a href="' . e(Backend::url('aero/credits/myinvitations')) . '"><span class="nav-icon"><i class="icon-user-plus"></i></span><span class="nav-label">Invitar</span></a></li></ul></div>';
+
+            return $html . $appStoreItem . $walletItem . $inviteItem . $this->navbarPollScript();
+        });
+    }
+
+    /**
+     * Renderiza solo el pill de monedas (sin el botón Wallet, que es estático).
+     * Única fuente de verdad: la usan tanto el layout inicial como el refresco en vivo.
+     */
+    protected function renderNavbarCoins(): string
+    {
+        $user = BackendAuth::getUser();
+
+        if (!$user) {
+            return '';
+        }
+
+        if ($user->is_superuser) {
+            // Vista de plataforma: monedas ACTIVAS entre todos los tenants
+            // (lo que hoy está en circulación) + detalle de lo otorgado.
+            $rows = Cache::remember('aero.credits.navbar_summary', 30, function () {
+                return collect(Credits::summary())->map(function ($s) {
+                    return [
+                        'color' => $s['color'],
+                        'value' => $s['active'],
+                        'title' => "{$s['label']}\nActivas: " . number_format($s['active'], 0, ',', '.')
+                            . "\nVendidas: " . number_format($s['sold'], 0, ',', '.')
+                            . "\nRegaladas: " . number_format($s['gifted'] + $s['plan_grant'], 0, ',', '.')
+                            . "\nConsumidas hoy: " . number_format($s['consumed_today'], 0, ',', '.'),
+                    ];
+                })->values()->all();
+            });
 
             return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
                 'rows'      => $rows,
-                'link'      => Backend::url('aero/credits/wallet'),
-                'plusUrl'   => Backend::url('aero/credits/wallet'),
-                'plusTitle' => 'Recargar monedas',
-                'title'     => 'Tu saldo de monedas',
-            ]) . $walletItem;
-        });
+                'link'      => Backend::url('aero/credits/summary'),
+                'plusUrl'   => Backend::url('aero/credits/creditaccounts'),
+                'plusTitle' => 'Otorgar monedas',
+                'title'     => 'Monedas activas entre todos los tenants',
+            ]);
+        }
+
+        // Vista del tenant: su saldo exacto, siempre en vivo (sin caché).
+        $tenantId = Credits::resolveCurrentTenantId();
+
+        if (!$tenantId) {
+            return '';
+        }
+
+        $balances = Credits::balances($tenantId);
+        $rows = \Aero\Credits\Models\CreditType::active()->get()->map(fn ($t) => [
+            'color' => $t->color,
+            'value' => $balances[$t->code] ?? 0,
+            'title' => "{$t->label}: " . number_format($balances[$t->code] ?? 0, 0, ',', '.'),
+        ])->all();
+
+        return (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_navbar_widget.htm', [
+            'rows'      => $rows,
+            'link'      => Backend::url('aero/credits/wallet'),
+            'plusUrl'   => Backend::url('aero/credits/wallet'),
+            'plusTitle' => 'Recargar monedas',
+            'title'     => 'Tu saldo de monedas',
+        ]);
+    }
+
+    protected function navbarLiveSegment(): string
+    {
+        return 'aero-credits/navbar-live';
+    }
+
+    /**
+     * Refresca el pill (id="aero-credits-navbar") cada 15s sin recargar la
+     * página: pide renderNavbarCoins() de nuevo y reemplaza solo ese <li>. Un
+     * solo intervalo por carga de página (el menú principal no se re-renderiza
+     * con la navegación AJAX del backend, así que esto no se acumula).
+     */
+    protected function navbarPollScript(): string
+    {
+        $url = Backend::url($this->navbarLiveSegment());
+
+        return <<<HTML
+<script>(function () {
+    if (window.__aeroCreditsPoll) return;
+    window.__aeroCreditsPoll = setInterval(function () {
+        var current = document.getElementById('aero-credits-navbar');
+        if (!current) return;
+        fetch('{$url}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.ok ? r.text() : null; })
+            .then(function (html) {
+                if (!html) return;
+                var tmp = document.createElement('template');
+                tmp.innerHTML = html.trim();
+                var fresh = tmp.content.firstElementChild;
+                var el = document.getElementById('aero-credits-navbar');
+                if (fresh && el && el.parentNode) el.parentNode.replaceChild(fresh, el);
+            })
+            .catch(function () {});
+    }, 15000);
+})();</script>
+HTML;
     }
 
     /**
@@ -206,6 +285,32 @@ class Plugin extends PluginBase
         });
     }
 
+    public function registerComponents(): array
+    {
+        return [
+            \Aero\Credits\Components\GiftForm::class => 'giftForm',
+        ];
+    }
+
+    /** Pago confirmado de un regalo de suscripción (/regalar) → emite y envía el cupón. */
+    protected function bootGiftIntegration(): void
+    {
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
+            $gift = \Aero\Credits\Models\CreditGift::where('payment_reference', $qrCode->internal_reference)->first();
+
+            if (!$gift) {
+                return;
+            }
+
+            try {
+                \Aero\Credits\Classes\Gifts::settle($gift);
+            }
+            catch (\Throwable $e) {
+                \Log::error("Aero.Credits: fallo al procesar el regalo #{$gift->id} tras pago confirmado: " . $e->getMessage());
+            }
+        });
+    }
+
     public function registerPermissions(): array
     {
         return [
@@ -270,6 +375,30 @@ class Plugin extends PluginBase
                         'label'       => 'aero.credits::lang.menu.credittypes',
                         'icon'        => 'icon-paint-brush',
                         'url'         => Backend::url('aero/credits/credittypes'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditcoupons' => [
+                        'label'       => 'aero.credits::lang.menu.creditcoupons',
+                        'icon'        => 'icon-ticket',
+                        'url'         => Backend::url('aero/credits/creditcoupons'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditinvitationquotas' => [
+                        'label'       => 'aero.credits::lang.menu.creditinvitationquotas',
+                        'icon'        => 'icon-user-plus',
+                        'url'         => Backend::url('aero/credits/creditinvitationquotas'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditinvitations' => [
+                        'label'       => 'aero.credits::lang.menu.creditinvitations',
+                        'icon'        => 'icon-envelope-open',
+                        'url'         => Backend::url('aero/credits/creditinvitations'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
+                    'creditgifts' => [
+                        'label'       => 'Regalos de suscripción',
+                        'icon'        => 'icon-gift',
+                        'url'         => Backend::url('aero/credits/creditgifts'),
                         'permissions' => ['aero.credits.superadmin'],
                     ],
                 ],

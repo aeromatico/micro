@@ -1,0 +1,26 @@
+columns:
+    code:
+        label: Código
+    plan_name:
+        label: Plan
+        searchable: false
+    period_count:
+        label: Periodos
+        select: 'concat(period_count, " ", if(period_unit = "annual", "año(s)", if(period_unit = "daily", "día(s)", "mes(es)")))'
+        searchable: false
+    times_redeemed:
+        label: Canjes
+        select: 'concat(times_redeemed, "/", ifnull(max_redemptions, "∞"))'
+        searchable: false
+    expires_at:
+        label: Vence
+        type: datetime
+        invisible: true
+    is_active:
+        label: Activo
+        type: switch
+        sortable: false
+    created_at:
+        label: Creado
+        type: datetime
+        invisible: true

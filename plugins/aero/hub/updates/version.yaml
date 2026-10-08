@@ -1,0 +1,15 @@
+1.0.0:
+    - "Primera versión — proxy de YepAPI (Modelos IA + APIs) bajo /hub, con
+      catálogo de 155 endpoints, cobro por Aero.Credits y autenticación por
+      Aero.Api. Requiere Aero.Connector."
+    - create_hub_endpoints_table.php
+    - create_hub_media_jobs_table.php
+    - seed_yepapi_connector.php
+    - seed_endpoints_from_openapi.php
+1.1.0:
+    - "Ganancia configurable sobre el costo real: margen global (Sistema →
+      Hub pricing, % o monto fijo) con override por endpoint, y botón
+      'Recalcular costos' en el listado para aplicarlo en masa a Modelos IA
+      y APIs existentes. credit_cost pasa a calcularse solo cuando hay
+      reference_cost_usd + color de crédito elegidos."
+    - add_margin_to_hub_endpoints.php

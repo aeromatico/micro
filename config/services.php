@@ -47,6 +47,13 @@ return [
         ],
     ],
 
+    'meta_pixel' => [
+        'pixel_id' => env('META_PIXEL_ID'),
+        'access_token' => env('META_CAPI_ACCESS_TOKEN'),
+        'api_version' => env('META_GRAPH_API_VERSION', 'v21.0'),
+        'test_event_code' => env('META_CAPI_TEST_EVENT_CODE'),
+    ],
+
     'master_ads_meta' => [
         'app_id' => env('META_APP_ID'),
         'app_secret' => env('META_APP_SECRET'),

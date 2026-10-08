@@ -3,12 +3,52 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { Puck, Render, Button } from '@puckeditor/core';
 import '@puckeditor/core/puck.css';
-import { components, categories } from './components';
+import { components, categories, DynamicBlock, makeServicesBlock } from './components';
 
-const config = {
-  components,
-  categories,
-};
+// Config de Puck. El bloque «Contenido dinámico» toma sus fuentes del servidor
+// (DynamicSources::forEditor). Sin fuentes, el bloque no se ofrece.
+function buildConfig(sources, servicesCatalog) {
+  const base = withServices(servicesCatalog);
+  return buildDynamic(sources, base.components, base.categories);
+}
+
+// «Servicios de la plataforma»: solo si el servidor mandó el catálogo
+// (superadmin / admin del tenant master).
+function withServices(catalog) {
+  if (!catalog) return { components, categories };
+  return {
+    components: { ...components, ServicesBlock: makeServicesBlock(catalog) },
+    categories: { ...categories, platform: { title: 'Plataforma', components: ['ServicesBlock'] } },
+  };
+}
+
+function buildDynamic(sources, components, categories) {
+  const list = Array.isArray(sources) ? sources : [];
+  if (!list.length) {
+    const { DynamicBlock: _unused, ...rest } = components;
+    return { components: rest, categories };
+  }
+  const labelOf = (value) => (list.find((s) => s.value === value) || {}).label || value;
+  const dynamic = {
+    ...DynamicBlock,
+    fields: { ...DynamicBlock.fields, source: { ...DynamicBlock.fields.source, options: list } },
+    // Las variantes son siempre 3, pero sus nombres cambian según la fuente elegida.
+    resolveFields: (data, { fields }) => {
+      const source = list.find((s) => s.value === data.props?.source);
+      return {
+        ...fields,
+        variant: { ...fields.variant, options: source?.variantes || fields.variant.options },
+      };
+    },
+    render: (props) => DynamicBlock.render({ ...props, label: labelOf(props.source) }),
+  };
+  return {
+    components: { ...components, DynamicBlock: dynamic },
+    categories: { ...categories, dynamic: { title: 'Dinámico', components: ['DynamicBlock'] } },
+  };
+}
+
+let config = buildConfig([], null);
 
 function generateHtml(data) {
   const container = document.createElement('div');
@@ -63,9 +103,11 @@ function normalizeIds(data) {
 window.AeroPuckEditor = {
   instances: {},
 
-  init(containerId, puckDataId, contentId, existingData, siteUrl) {
+  init(containerId, puckDataId, contentId, existingData, siteUrl, dynamicSources, servicesCatalog) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    config = buildConfig(dynamicSources, servicesCatalog);
 
     // Evita montar dos veces el mismo editor (ej. si el partial se vuelve a
     // ejecutar) — createRoot() sobre un contenedor ya montado duplica el render.
@@ -96,15 +138,18 @@ window.AeroPuckEditor = {
 
     const syncData = debounce(writeToDom, 400);
 
-    // Triggers the same form submit as the "Guardar" button. The form uses
-    // October's data-request, so this performs the AJAX save (onSaveIndex).
+    // Dispara el mismo guardado que el botón «Guardar» de October. Ese botón
+    // tiene data-request="onSave" (AJAX): un form.requestSubmit() nativo no
+    // guarda nada, October lo trata como una visita y re-renderiza la página.
+    // La barra de acciones vive fuera del <form>, por eso se busca en el documento.
     const submitForm = () => {
       if (!form) return;
-      if (typeof form.requestSubmit === 'function') {
+      const save = Array.from(document.querySelectorAll('[data-request="onSave"]'))
+        .find((btn) => btn.getAttribute('data-tooltip-text') === 'Guardar');
+      if (save) {
+        save.click();
+      } else if (typeof form.requestSubmit === 'function') {
         form.requestSubmit();
-      } else {
-        const submit = form.querySelector('button[type="submit"]');
-        if (submit) submit.click();
       }
     };
 
@@ -136,25 +181,53 @@ window.AeroPuckEditor = {
         overrides: {
           // Puck's built-in Publish button text is hardcoded ("Publish") with
           // no label override prop, so the only way to relabel it is to
-          // replace the header actions entirely. We also add "Ver sitio"
-          // here, next to it.
-          headerActions: () => (
-            <>
-              {siteUrl && (
-                <Button href={siteUrl} newTab variant="secondary">
-                  Ver sitio
+          // replace the header actions entirely. También agregamos "Ver
+          // sitio" y "Pantalla completa" acá al lado.
+          //
+          // headerActions se invoca como componente de React (ver
+          // CustomHeaderActions en @puckeditor/core), así que puede usar
+          // hooks — el toggle de fullscreen necesita estado propio para
+          // refrescar la etiqueta del botón.
+          headerActions: () => {
+            const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+            // Escape ya cierra paneles propios de Puck; acá además sale de
+            // nuestro overlay de fullscreen si estaba activo.
+            React.useEffect(() => {
+              if (!isFullscreen) return undefined;
+              const onKeyDown = (e) => {
+                if (e.key === 'Escape') setIsFullscreen(false);
+              };
+              document.addEventListener('keydown', onKeyDown);
+              return () => document.removeEventListener('keydown', onKeyDown);
+            }, [isFullscreen]);
+
+            React.useEffect(() => {
+              container.classList.toggle('is-puck-fullscreen', isFullscreen);
+              document.body.classList.toggle('aero-puck-fullscreen-lock', isFullscreen);
+            }, [isFullscreen]);
+
+            return (
+              <>
+                {siteUrl && (
+                  <Button href={siteUrl} newTab variant="secondary">
+                    Ver sitio
+                  </Button>
+                )}
+                <Button variant="secondary" onClick={() => setIsFullscreen((v) => !v)}>
+                  {isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
                 </Button>
-              )}
-              <Button
-                onClick={() => {
-                  writeToDom(latestData);
-                  submitForm();
-                }}
-              >
-                Publicar
-              </Button>
-            </>
-          ),
+                <Button
+                  onClick={() => {
+                    writeToDom(latestData);
+                    submitForm();
+                  }}
+                >
+                  Publicar
+                </Button>
+              </>
+            );
+          },
         },
       })
     );

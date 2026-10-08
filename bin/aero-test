@@ -1,0 +1,11 @@
+#!/bin/bash
+# Tests de un plugin Aero.*, aislados: SQLite en memoria, cache/sesión/cola/mail en array, como `www`.
+#   bin/aero-test sms [filtro]      →  phpunit -c plugins/aero/sms/phpunit.xml [--filter filtro]
+set -e
+cd "$(dirname "$0")/.."
+p="${1:?uso: bin/aero-test <plugin> [filtro]}"
+cfg="plugins/aero/$p/phpunit.xml"
+[ -f "$cfg" ] || { echo "No hay $cfg (ver .claude/skills/aero-plugin/templates/phpunit.xml.tpl)"; exit 2; }
+grep -q 'force="true"' "$cfg" || { echo "$cfg sin aislamiento force=\"true\": no se ejecuta (podría tocar producción)"; exit 2; }
+f=(); [ -n "${2:-}" ] && f=(--filter "$2")
+exec sudo -u www /www/server/php/84/bin/php vendor/bin/phpunit -c "$cfg" --do-not-cache-result "${f[@]}"

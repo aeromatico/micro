@@ -19,7 +19,7 @@ Muestra el balance de cada tipo de moneda activa:
 | Dato | Descripción |
 |------|-------------|
 | **Color** | Indicador visual del tipo de moneda |
-| **Nombre** | Etiqueta de la moneda (ej. "Azul", "Rojo") |
+| **Nombre** | Etiqueta de la moneda (ej. "Bronce", "Plata", "Oro") |
 | **Saldo** | Cantidad de monedas disponibles |
 | **Precio** | Valor en Bs por unidad (solo si es comprable) |
 
@@ -129,4 +129,5 @@ La tabla muestra los últimos 100 movimientos:
 
 **Artículos relacionados:**
 - [Vista general del sistema de monedas](credits-vista-general)
+- [Tarifas: ¿dónde y cuánto te cobramos?](credits-tarifas)
 - [Widget de dashboard](credits-widget-dashboard)

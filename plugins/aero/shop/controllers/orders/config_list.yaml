@@ -24,6 +24,16 @@ filter:
                 cancelled: Cancelado
                 refunded: Reembolsado
 
+        kitchen_status:
+            label: Cocina
+            type: group
+            conditions: kitchen_status in (:filtered)
+            options:
+                new: Nuevo
+                preparing: Preparando
+                ready: Listo
+                delivered: Entregado
+
 defaultSort:
     column: created_at
     direction: desc

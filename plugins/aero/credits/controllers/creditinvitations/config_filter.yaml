@@ -1,0 +1,11 @@
+scopes:
+    status:
+        label: Estado
+        type: dropdown
+        conditions: status in (:filtered)
+        options:
+            pending: Pendiente
+            sent: Enviada
+            redeemed: Canjeada
+            expired: Vencida
+            revoked: Revocada

@@ -18,9 +18,10 @@ class InboxController extends Controller
     /** GET accounts — los números conectados del tenant. */
     public function accounts(Request $request)
     {
-        $accounts = Account::with('profile')->forTenant($this->tenantId($request))->enabled()->orderBy('label')->get();
+        $accounts = Account::with('profile')->forTenant($this->tenantId($request))->enabled()->orderBy('sort_order')->orderBy('label')->get();
 
-        $pending = Conversation::whereIn('account_id', $accounts->pluck('id'))->where('unread_count', '>', 0)->get(['id', 'account_id', 'unread_count']);
+        // is_archived=false: un chat archivado no debe sumar al badge de la cuenta ni al total del riel.
+        $pending = Conversation::whereIn('account_id', $accounts->pluck('id'))->where('is_archived', false)->where('unread_count', '>', 0)->get(['id', 'account_id', 'unread_count']);
         $lastOut = $this->lastMessages($pending->pluck('id'))->filter(fn ($m) => $m->direction === 'outbound')->keys();
         $unread = $pending->reject(fn ($c) => $lastOut->contains($c->id))->groupBy('account_id')->map(fn ($g) => $g->sum('unread_count'));
 
@@ -52,9 +53,16 @@ class InboxController extends Controller
             $query->where('account_id', $accountId);
         }
 
+        // Los chats archivados solo aparecen en filter=archived; el resto de vistas los oculta.
+        $query->where('is_archived', $request->query('filter') === 'archived');
+
         match ($request->query('filter')) {
             'mine' => $query->where('assigned_to', $me->id),
             'free' => $query->whereNull('assigned_to'),
+            // Pendientes: con no leídos y cuyo último mensaje lo escribió el cliente (igual que la insignia de la lista).
+            'unread' => $query->where('unread_count', '>', 0)->whereRaw(
+                "(select m.direction from aero_hello_messages m where m.conversation_id = {$query->getModel()->getTable()}.id order by m.id desc limit 1) = 'inbound'"
+            ),
             default => null,
         };
 
@@ -63,7 +71,10 @@ class InboxController extends Controller
                 ->orWhereHas('identities', fn ($i) => $i->where('external_id', 'like', '%' . $q . '%')));
         }
 
-        $page = $query->orderByDesc('last_message_at')->paginate(30);
+        // Manda el último mensaje real (entrante o saliente), no last_message_at: varios envíos no lo actualizan.
+        $table = $query->getModel()->getTable();
+        $page = $query->orderByRaw("coalesce((select max(m.created_at) from aero_hello_messages m where m.conversation_id = {$table}.id), {$table}.last_message_at) desc")
+            ->orderByDesc("{$table}.id")->paginate(30);
         $agents = User::whereIn('id', collect($page->items())->pluck('assigned_to')->filter()->unique())->get()->keyBy('id');
 
         $lastByConv = $this->lastMessages(collect($page->items())->pluck('id'));
@@ -71,6 +82,19 @@ class InboxController extends Controller
         $rows = collect($page->items())->map(fn (Conversation $c) => $this->row($c, $agents->get($c->assigned_to), $lastByConv->get($c->id)))->all();
 
         return $this->data($rows, 200, ['current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'total' => $page->total()]);
+    }
+
+    /** GET conversations/code/{code} — recupera una conversación por su código público. */
+    public function byCode(Request $request, $code)
+    {
+        $c = $this->scoped($request)->with(['contact.identities', 'account'])->where('code', $code)->first();
+        if (!$c) {
+            return $this->error('not_found', 'No encontrado.', 404);
+        }
+
+        $agent = $c->assigned_to ? User::find($c->assigned_to) : null;
+
+        return $this->data($this->row($c, $agent, $this->lastMessages(collect([$c->id]))->get($c->id)));
     }
 
     /** POST conversations/new {account_id, phone, body, name?} — abre una conversación con un número nuevo. */
@@ -84,6 +108,11 @@ class InboxController extends Controller
         $account = Account::forTenant($this->tenantId($request))->enabled()->find($data['account_id']);
         if (!$account) {
             return $this->error('invalid_account', 'Esa cuenta no pertenece a este espacio.', 422);
+        }
+
+        // Un chat web solo lo abre el visitante desde el widget; no hay "número" al que escribirle en frío.
+        if ($account->driver === 'livechat') {
+            return $this->error('unsupported', 'No se puede iniciar una conversación nueva desde un chat web.', 422);
         }
 
         $phone = preg_replace('/\D+/', '', $data['phone']);
@@ -183,7 +212,7 @@ class InboxController extends Controller
         }
 
         try {
-            $tx = ApiCredits::charge($this->tenantId($request));
+            $tx = $this->chargeIfExternal($conversation->account, $request);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return $this->error('insufficient_credits', $e->getMessage(), 402);
         }
@@ -243,7 +272,11 @@ class InboxController extends Controller
         };
 
         // Lo que graba el navegador (webm) no lo reproduce WhatsApp: se pasa a ogg/opus.
-        if ($kind === 'audio' && !preg_match('#^audio/(ogg|mpeg|mp3|mp4|aac|x-m4a|amr)#', $mime)) {
+        // Livechat no tiene ese problema (el <audio> del widget reproduce cualquier
+        // formato que entienda el navegador) y exec() está deshabilitado en el pool de
+        // PHP-FPM (aaPanel, disable_functions) — intentarlo acá tumbaba el envío con un
+        // 500 "Call to undefined function exec()" para cualquier nota de voz a un chat web.
+        if ($kind === 'audio' && $conversation->account->driver !== 'livechat' && !preg_match('#^audio/(ogg|mpeg|mp3|mp4|aac|x-m4a|amr)#', $mime)) {
             $tmp = tempnam(sys_get_temp_dir(), 'chat') . '.ogg';
             exec('ffmpeg -y -loglevel error -i ' . escapeshellarg($path) . ' -vn -c:a libopus -b:a 32k ' . escapeshellarg($tmp) . ' 2>&1', $out, $code);
             if ($code !== 0 || !is_file($tmp)) {
@@ -268,7 +301,7 @@ class InboxController extends Controller
         $url = $file->getPath();
 
         try {
-            $tx = ApiCredits::charge($this->tenantId($request));
+            $tx = $this->chargeIfExternal($conversation->account, $request);
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             return $this->error('insufficient_credits', $e->getMessage(), 402);
         }
@@ -346,16 +379,16 @@ class InboxController extends Controller
             return $this->notFound();
         }
 
-        if (!$conversation->account->can('location')) {
-            return $this->error('unsupported', 'Este número no admite enviar ubicaciones (solo WhatsApp Web).', 422);
-        }
-
         $data = $this->check($request, ['latitude' => 'required|numeric|between:-90,90', 'longitude' => 'required|numeric|between:-180,180']);
 
-        try {
-            $structured = \Aero\Hello\Classes\StructuredMessage::build('location', $data);
-        } catch (\InvalidArgumentException $e) {
-            return $this->error('validation_failed', $e->getMessage(), 422);
+        // Sin pin nativo (p. ej. Zernio): se manda como texto con enlace al mapa, que el cliente abre igual.
+        $native = $conversation->account->can('location');
+        if ($native) {
+            try {
+                $structured = \Aero\Hello\Classes\StructuredMessage::build('location', $data);
+            } catch (\InvalidArgumentException $e) {
+                return $this->error('validation_failed', $e->getMessage(), 422);
+            }
         }
 
         try {
@@ -365,8 +398,11 @@ class InboxController extends Controller
         }
 
         try {
-            $message = MessageComposer::sendToContact($conversation->account, $conversation->contact_id, $structured['body'],
-                ['type' => 'location', 'provider_payload' => $structured['payload'], 'credit_transaction_id' => $tx]);
+            $message = $native
+                ? MessageComposer::sendToContact($conversation->account, $conversation->contact_id, $structured['body'],
+                    ['type' => 'location', 'provider_payload' => $structured['payload'], 'credit_transaction_id' => $tx])
+                : MessageComposer::sendToContact($conversation->account, $conversation->contact_id,
+                    "📍 Mi ubicación: https://www.google.com/maps?q={$data['latitude']},{$data['longitude']}", ['credit_transaction_id' => $tx]);
         } catch (\Throwable $e) {
             return $this->error('send_failed', $e->getMessage(), 422);
         }
@@ -378,7 +414,7 @@ class InboxController extends Controller
         $conversation->update($update);
 
         return $this->data([
-            'kind' => 'message', 'id' => 'm' . $message->id, 'direction' => 'outbound', 'type' => 'location',
+            'kind' => 'message', 'id' => 'm' . $message->id, 'direction' => 'outbound', 'type' => $native ? 'location' : 'text',
             'body' => $message->body, 'status' => $message->status, 'at' => optional($message->created_at)->toIso8601String(),
         ], 202);
     }
@@ -408,6 +444,38 @@ class InboxController extends Controller
         $conversation->update(['unread_count' => 0]);
 
         return $this->data(['ok' => true]);
+    }
+
+    /** POST conversations/{id}/archive {archived: bool} — archivar silencia; desarchivar reactiva. */
+    public function archive(Request $request, $id)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        $data = $this->check($request, ['archived' => 'required|boolean']);
+        $conversation->update(['is_archived' => $data['archived'], 'is_muted' => $data['archived']]);
+
+        return $this->data(['is_archived' => (bool) $conversation->is_archived, 'is_muted' => (bool) $conversation->is_muted]);
+    }
+
+    /** POST conversations/{id}/mute {muted: bool} — no aplica si el chat está archivado (ya está silenciado). */
+    public function mute(Request $request, $id)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        if ($conversation->is_archived) {
+            return $this->error('archived', 'Este chat está archivado: se reactiva al desarchivarlo.', 422);
+        }
+
+        $data = $this->check($request, ['muted' => 'required|boolean']);
+        $conversation->update(['is_muted' => $data['muted']]);
+
+        return $this->data(['is_muted' => (bool) $conversation->is_muted]);
     }
 
     /** POST conversations/{id}/delegate {agent_id|null, note?} — null la deja sin asignar. */
@@ -457,19 +525,33 @@ class InboxController extends Controller
     {
         return [
             'id'              => $c->id,
+            'code'            => $c->code,
             'account_id'      => $c->account_id,
             'status'          => $c->status,
+            'is_archived'     => (bool) $c->is_archived,
+            'is_muted'        => (bool) $c->is_muted,
             'unread_count'    => $last && $last->direction === 'outbound' ? 0 : (int) $c->unread_count,
-            'last_message_at' => optional($c->last_message_at)->toIso8601String(),
+            'last_message_at' => optional($last?->created_at ?? $c->last_message_at)->toIso8601String(),
             'contact'         => [
                 'id'    => $c->contact_id,
                 'name'  => $c->contact?->name,
-                'phone' => $c->contact?->identities->first()?->external_id,
+                // Un chat web identifica al visitante por un token opaco, no un teléfono: no tiene sentido mostrarlo.
+                'phone' => $c->account?->platform === 'livechat' ? null : $c->contact?->identities->first()?->external_id,
                 'avatar_url' => $c->contact?->avatar_url,
             ],
             'last_message'    => $last ? ['body' => $last->body, 'direction' => $last->direction, 'media_type' => $last->media_type, 'type' => $last->type] : null,
             'assigned_to'     => $agent ? AuthController::user($agent) : null,
         ];
+    }
+
+    /**
+     * Un chat web (driver 'livechat') no llama a ninguna API externa de pago
+     * por mensaje — cobrar créditos ahí sería cobrar por algo gratis. Los
+     * demás drivers (Zernio, wapi) sí cargan al proveedor real.
+     */
+    protected function chargeIfExternal(Account $account, Request $request): ?int
+    {
+        return $account->driver === 'livechat' ? null : ApiCredits::charge($this->tenantId($request));
     }
 
     protected function tenantId(Request $request): int

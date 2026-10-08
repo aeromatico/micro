@@ -14,7 +14,7 @@ class Product extends Model
         'tenant_id', 'collection_id', 'type', 'name', 'slug', 'description', 'sku',
         'has_variants', 'base_price', 'compare_at_price', 'cost_price', 'weight_grams',
         'requires_shipping', 'track_inventory', 'stock_quantity', 'allow_backorder',
-        'status', 'is_featured', 'published_at', 'seo_title', 'seo_description',
+        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'barcode', 'is_internal', 'seo_title', 'seo_description',
     ];
 
     protected $dates = ['deleted_at', 'published_at'];
@@ -36,6 +36,7 @@ class Product extends Model
     public $hasMany = [
         'options'  => [ProductOption::class],
         'variants' => [ProductVariant::class],
+        'modifier_groups' => [ModifierGroup::class, 'order' => 'sort_order'],
     ];
 
     public $belongsToMany = [
@@ -55,8 +56,34 @@ class Product extends Model
 
     public function beforeValidate()
     {
+        // Los campos numéricos vacíos del formulario llegan como null: las columnas
+        // obligatorias toman su valor por defecto en vez de fallar en la base de datos.
+        foreach (['stock_quantity' => 0, 'min_quantity' => 1, 'base_price' => 0] as $field => $default) {
+            if ($this->{$field} === null || $this->{$field} === '') {
+                $this->{$field} = $default;
+            }
+        }
+        foreach (['compare_at_price', 'cost_price', 'weight_grams', 'prep_minutes', 'sku'] as $field) {
+            if ($this->{$field} === '') {
+                $this->{$field} = null;
+            }
+        }
+
         if (!$this->slug && $this->name) {
             $this->slug = Str::slug($this->name);
+        }
+        // Dos platos con el mismo nombre no deben chocar: el identificador se hace único por tienda.
+        if ($this->slug && $this->tenant_id && ($this->isDirty('slug') || !$this->exists)) {
+            $base = $this->slug;
+            $n = 2;
+            while (static::withTrashed()->where('tenant_id', $this->tenant_id)->where('slug', $this->slug)
+                ->when($this->exists, fn ($q) => $q->where('id', '!=', $this->id))->exists()) {
+                $this->slug = $base . '-' . $n++;
+            }
+        }
+        // Restaurante: todo es físico (platos); sin tipo definido, también.
+        if (!$this->type || ($this->tenant_id && ShopSettings::isRestaurantForTenant((int) $this->tenant_id))) {
+            $this->type = 'physical';
         }
         if ($this->type === 'digital') {
             $this->requires_shipping = false;
@@ -68,9 +95,10 @@ class Product extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
+    /** Publicados y visibles: excluye los productos internos (ej. «Venta libre» del POS). */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', 'active')->where('is_internal', false);
     }
 
     public function getCollectionIdOptions(): array

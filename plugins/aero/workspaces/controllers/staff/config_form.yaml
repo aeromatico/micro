@@ -1,0 +1,11 @@
+name: Staff
+form: $/aero/workspaces/models/staff/fields.yaml
+modelClass: Aero\Workspaces\Models\Staff
+defaultRedirect: aero/workspaces/staff
+create:
+    redirect: aero/workspaces/staff/update/:id
+    redirectClose: aero/workspaces/staff
+update:
+    redirect: aero/workspaces/staff
+    redirectClose: aero/workspaces/staff
+

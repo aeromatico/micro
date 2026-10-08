@@ -1,0 +1,25 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+
+    color:
+        label: ' '
+        type: colorpicker
+        width: 40px
+
+    conversations_count:
+        label: Conversaciones
+        type: number
+        sortable: false
+        width: 140px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 90px
+
+    created_at:
+        label: Creado
+        type: datetime
+        width: 160px

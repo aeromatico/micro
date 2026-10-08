@@ -1,0 +1,44 @@
+{% set order = __SELF__.order %}
+{% if order.kitchen_status and order.status != 'cancelled' %}
+{% set steps = {'new': 'Recibido', 'preparing': 'Preparando', 'ready': 'Listo', 'delivered': 'Entregado'} %}
+{% set keys = ['new', 'preparing', 'ready', 'delivered'] %}
+{% set current = {'new': 0, 'preparing': 1, 'ready': 2, 'delivered': 3}[order.kitchen_status] %}
+<div class="card p-5 mb-6">
+    <div class="flex items-center justify-between gap-1">
+        {% for k in keys %}
+        <div class="flex-1 text-center">
+            <div class="mx-auto w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold {{ loop.index0 <= current ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted' }}">
+                {% if loop.index0 < current %}<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>{% else %}{{ loop.index }}{% endif %}
+            </div>
+            <p class="text-xs mt-1.5 {{ loop.index0 == current ? 'font-semibold text-ink' : 'text-ink-muted' }}">{{ steps[k] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {# El tiempo se muestra recién cuando la cocina acepta el pedido. #}
+    {% set tz = __SELF__.timezone %}
+    {% if order.kitchen_status == 'new' %}
+        <p class="text-sm text-ink-muted text-center mt-4">
+            {% if order.scheduled_for %}Tu pedido está programado para las {{ order.scheduled_for|date('H:i', tz) }}.{% else %}Esperando la confirmación del restaurante…{% endif %}
+        </p>
+    {% elseif order.kitchen_status == 'preparing' and order.promised_at %}
+        {% set overdue = order.promised_at|date('U') + 300 < 'now'|date('U') %}
+        <div class="text-center mt-4">
+            {% if overdue %}
+            <p class="text-sm font-semibold text-amber-600">Está tomando unos minutos más. Gracias por tu paciencia.</p>
+            {% elseif order.order_type == 'delivery' %}
+            <p class="text-xs text-ink-muted">Llegará aproximadamente entre</p>
+            <p class="text-lg font-bold text-ink">{{ order.promised_at|date('H:i', tz) }} y {{ order.promised_at|date_modify('+10 minutes')|date('H:i', tz) }}</p>
+            {% else %}
+            <p class="text-xs text-ink-muted">Estará listo a las</p>
+            <p class="text-lg font-bold text-ink">{{ order.promised_at|date('H:i', tz) }}</p>
+            {% endif %}
+        </div>
+    {% elseif order.kitchen_status == 'ready' %}
+    <p class="text-sm font-semibold text-green-600 text-center mt-4">
+        {{ order.order_type == 'pickup' ? '¡Tu pedido está listo, pasa a recogerlo!' : (order.order_type == 'dine_in' ? '¡Tu pedido está listo, ya te lo llevamos!' : '¡Tu pedido está listo y sale hacia tu dirección!') }}
+    </p>
+    {% elseif order.kitchen_status == 'delivered' %}
+    <p class="text-sm text-ink-muted text-center mt-4">¡Buen provecho!</p>
+    {% endif %}
+</div>
+{% endif %}

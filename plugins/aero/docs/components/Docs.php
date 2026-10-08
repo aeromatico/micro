@@ -2,6 +2,7 @@
 
 use Aero\Docs\Models\Article;
 use Aero\Docs\Models\Category;
+use Aero\Docs\Models\Guide;
 use Cms\Classes\ComponentBase;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -27,6 +28,9 @@ class Docs extends ComponentBase
     public array $featured = [];
     public array $versions = [];
 
+    /** Guías interactivas publicadas visibles en este sitio: alimenta el acceso del menú lateral. */
+    public int $guidesCount = 0;
+
     /** Estado del bloque "¿te resultó útil?". */
     public int $helpfulYes = 0;
     public int $helpfulNo = 0;
@@ -49,8 +53,8 @@ class Docs extends ComponentBase
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'home',
                 'options' => ['home' => 'Portada', 'category' => 'Categoría', 'article' => 'Artículo']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
-            'base' => ['title' => 'Ruta base', 'type' => 'string', 'default' => 'documentacion',
-                'description' => 'Prefijo de las URLs (ej. "documentacion" o "ayuda").'],
+            'base' => ['title' => 'Ruta base', 'type' => 'string', 'default' => 'docs',
+                'description' => 'Prefijo de las URLs (ej. "docs").'],
         ];
     }
 
@@ -63,12 +67,18 @@ class Docs extends ComponentBase
     /** Prefijo de las URLs del centro de ayuda. */
     protected function base(): string
     {
-        return trim((string) $this->property('base'), '/') ?: 'documentacion';
+        return trim((string) $this->property('base'), '/') ?: 'docs';
     }
 
     public function onRun()
     {
+        // Un tenant solo tiene documentación si el superadmin lo activó (desactivado por defecto).
+        if (!\Aero\Docs\Models\TenantSetting::enabledFor($this->tenantId())) {
+            abort(404);
+        }
+
         $this->buildTree();
+        $this->guidesCount = Guide::published()->visibleIn($this->tenantId())->count();
         $this->q = trim((string) request()->query('q', ''));
 
         switch ($this->property('mode')) {
@@ -236,6 +246,11 @@ class Docs extends ComponentBase
         $chain = $this->ancestry($id);
         $this->openIds = array_column($chain, 'id');
         $this->breadcrumbs = $this->crumbs($chain);
+
+        $this->page->title = $this->category['name'] . ' — Documentación — Market';
+        if ($this->category['description']) {
+            $this->page->description = $this->category['description'];
+        }
     }
 
     protected function loadArticle()

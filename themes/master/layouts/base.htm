@@ -1,11 +1,37 @@
 description = "Layout base — dark-first (con toggle claro/oscuro), Alpine.js"
+
+[services menuServices]
+mode = "menu"
+==
+<?php
+
+/**
+ * Resuelve el archivo real (con hash) que dejó `npm run build` (Vite) en
+ * assets/dist/.vite/manifest.json — así el navegador/Cloudflare cachean para
+ * siempre (nombre distinto en cada build) sin depender de acordarse de subir
+ * un `?v=` a mano.
+ */
+function onStart()
+{
+    $manifestPath = themes_path('master/assets/dist/.vite/manifest.json');
+    $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
+    $entry = $manifest['assets/src/app.js'] ?? null;
+
+    $this['appJs'] = $entry['file'] ?? null;
+    $this['appCss'] = $entry['css'][0] ?? null;
+
+    // El ID del Pixel no es secreto (queda expuesto en el propio HTML del
+    // fbq base code de cualquier sitio) — el access_token de la Conversions
+    // API sí lo es y nunca sale del backend (ver services.meta_pixel /
+    // Aero\Sites\Classes\Meta\ConversionsApiClient).
+    $this['metaPixelId'] = config('services.meta_pixel.pixel_id');
+}
 ==
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     {# Anti-parpadeo: fija .dark en <html> de forma síncrona ANTES de pintar,
        leyendo la preferencia guardada (default 'dark', el tema es dark-first). #}
@@ -16,18 +42,96 @@ description = "Layout base — dark-first (con toggle claro/oscuro), Alpine.js"
         })();
     </script>
 
-    <title>{{ this.page.title ?: 'Market — el sistema operativo de tu negocio digital' }}</title>
-    {% if this.page.description %}<meta name="description" content="{{ this.page.description }}">{% endif %}
+    {% set pageTitle = this.page.title ?: 'Market — el sistema operativo de tu negocio digital' %}
+    {% set pageDescription = this.page.description ?: 'Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectados entre sí y potenciados con inteligencia artificial.' %}
+    {% set canonicalUrl = this.request.getSchemeAndHttpHost() ~ this.request.getPathInfo() %}
+    {% set ogImage = 'assets/images/favicon.png' | theme %}
+
+    <title>{{ pageTitle }}</title>
+    <meta name="description" content="{{ pageDescription }}">
+    <link rel="canonical" href="{{ canonicalUrl }}">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:site_name" content="Market">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_BO">
+    <meta property="og:title" content="{{ pageTitle }}">
+    <meta property="og:description" content="{{ pageDescription }}">
+    <meta property="og:url" content="{{ canonicalUrl }}">
+    <meta property="og:image" content="{{ ogImage }}">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ pageTitle }}">
+    <meta name="twitter:description" content="{{ pageDescription }}">
+    <meta name="twitter:image" content="{{ ogImage }}">
+
+    <meta name="theme-color" content="#0a0a0f">
+
+    <link rel="icon" type="image/png" href="{{ 'assets/images/favicon.png' | theme }}?v=1">
+    <link rel="apple-touch-icon" href="{{ 'assets/images/favicon.png' | theme }}?v=1">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Urbanist:wght@300;600;700;800;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ 'assets/css/app.min.css' | theme }}?v=10">
+    {% if appCss %}<link rel="stylesheet" href="{{ ('assets/dist/' ~ appCss) | theme }}">{% endif %}
 
-    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=3.16.3"></script>
+    {% if appJs %}<script type="module" src="{{ ('assets/dist/' ~ appJs) | theme }}"></script>{% endif %}
+
+    {% if this.page.id == 'index' %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Market",
+        "url": "{{ this.request.getSchemeAndHttpHost() }}",
+        "logo": "{{ ogImage }}",
+        "description": "{{ pageDescription }}"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Market",
+        "url": "{{ this.request.getSchemeAndHttpHost() }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ this.request.getSchemeAndHttpHost() }}/docs?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    {% endif %}
 
     {% placeholder head %}
+
+    {% if metaPixelId %}
+    {# Meta Pixel — base code + PageView. Los eventos de conversión
+       (Lead, StartTrial, Purchase, CompleteRegistration) se disparan desde
+       signup.js/regalar con el MISMO event_id que ya mandó el servidor por
+       la Conversions API (ver Aero\Sites\Classes\Meta\ConversionsApiClient),
+       para que Meta deduplique en vez de contar el evento dos veces. #}
+    <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{ metaPixelId }}');
+        fbq('track', 'PageView');
+
+        // Dispara un evento del Pixel con el mismo event_id que su par del
+        // servidor (CAPI) — window.metaTrack('Lead', {...}, 'lead_tenant_5').
+        window.metaTrack = function (eventName, params, eventId) {
+            try {
+                fbq('track', eventName, params || {}, eventId ? { eventID: eventId } : undefined);
+            } catch (e) {}
+        };
+    </script>
+    <noscript><img height="1" width="1" style="display:none" alt=""
+        src="https://www.facebook.com/tr?id={{ metaPixelId }}&ev=PageView&noscript=1" /></noscript>
+    {% endif %}
 
     {% framework extras %}
 </head>
@@ -40,6 +144,9 @@ description = "Layout base — dark-first (con toggle claro/oscuro), Alpine.js"
     </main>
 
     {% partial 'site/footer' %}
+
+    {# Livechat de soporte (aero/livechat) — fase 1, plataforma. Inbox "Soporte plataforma". #}
+    <script src="https://panel.market.com.bo/plugins/aero/livechat/assets/js/widget.js?v=1791320285" charset="utf-8" data-livechat-key="24cec4b9-43e5-4381-834c-5b5b8e0430d2" data-livechat-base="https://panel.market.com.bo" async></script>
 
 </body>
 </html>

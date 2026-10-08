@@ -1,0 +1,14 @@
+title: Cajeros
+list: $/aero/pos/models/cashier/columns.yaml
+modelClass: Aero\Pos\Models\Cashier
+recordUrl: aero/pos/cashiers/update/:id
+noRecordsMessage: Todavía no hay registros.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: id
+    direction: asc

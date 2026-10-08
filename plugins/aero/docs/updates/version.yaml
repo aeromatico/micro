@@ -40,3 +40,28 @@
     - "Documentación de las funciones del panel (tenant) de Aero.Docs y Aero.Sms."
     - seed_docs_docs.php
     - seed_sms_docs.php
+1.1.3:
+    - "Guía pública de la API de Market (Aero.Api): autenticación, permisos, límites y webhooks salientes."
+    - seed_api_docs.php
+1.1.4:
+    - "Documento de Bolivia Pay sobre el plugin de WordPress/WooCommerce, en una nueva categoría 'Integraciones' paralela a 'Funciones del panel'."
+    - seed_pay_wordpress_plugin_doc.php
+1.1.5:
+    - "Documentación de las funciones del panel (tenant) de Aero.Livechat."
+    - seed_livechat_docs.php
+1.1.6:
+    - "Documentación de las funciones del panel (tenant) de Aero.Tracking."
+    - seed_tracking_docs.php
+1.1.7:
+    - "Documentación de las funciones del panel (tenant) de Aero.Credits. (Este seed existía en el plugin desde antes pero nunca se había enlazado en version.yaml, así que nunca había corrido.)"
+    - seed_credits_docs.php
+1.1.8:
+    - "Página de tarifas de Aero.Credits (dónde y cuánto se cobra en cada plugin) y corrección de los colores de moneda mencionados en los artículos existentes (bronce/plata/oro, ya no azul/rojo)."
+    - seed_credits_tarifas_docs.php
+1.2.0:
+    - "Guías interactivas (tabla aero_docs_guides) y cambios pendientes de revisión en artículos, para el flujo de documentación automática con Claude."
+    - create_aero_docs_guides_table.php
+    - add_pending_changes_to_aero_docs_articles.php
+1.3.0:
+    - "Interruptor de documentación por tenant (desactivado por defecto) y redirección 301 de /documentacion a /docs."
+    - create_tenant_settings_table.php

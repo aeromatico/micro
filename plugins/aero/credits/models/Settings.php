@@ -60,4 +60,47 @@ class Settings extends Model
 
         return \Aero\Pay\Models\BankAccount::active()->pluck('label', 'id')->all();
     }
+
+    /** Cuota de invitaciones que recibe cualquier tenant al primer uso (setup normal o invitado). */
+    public static function defaultInviteQuota(): int
+    {
+        return max(0, (int) self::get('default_invite_quota', 3));
+    }
+
+    /** Por defecto, el plan con prueba (Trial), que puede estar inactivo en la tabla de precios. */
+    public static function defaultInvitePlanId()
+    {
+        $id = self::get('default_invite_plan_id');
+        if ($id) {
+            return $id;
+        }
+
+        return class_exists(\Aero\Sites\Models\Plan::class)
+            ? \Aero\Sites\Models\Plan::where('trial_days', '>', 0)->orderBy('id')->value('id')
+            : null;
+    }
+
+    public static function defaultInvitePeriodUnit(): string
+    {
+        $unit = (string) self::get('default_invite_period_unit', 'daily');
+
+        return in_array($unit, ['daily', 'monthly', 'annual'], true) ? $unit : 'daily';
+    }
+
+    public static function defaultInvitePeriodCount(): int
+    {
+        return max(1, (int) self::get('default_invite_period_count', 7));
+    }
+
+    public function getDefaultInvitePlanIdOptions(): array
+    {
+        return class_exists(\Aero\Sites\Models\Plan::class)
+            ? \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'id')->all()
+            : [];
+    }
+
+    public function getDefaultInvitePeriodUnitOptions(): array
+    {
+        return ['daily' => 'Días', 'monthly' => 'Meses', 'annual' => 'Años'];
+    }
 }

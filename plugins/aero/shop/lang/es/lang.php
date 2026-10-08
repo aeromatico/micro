@@ -9,9 +9,10 @@
         'collections'       => 'Colecciones',
         'orders'            => 'Pedidos',
         'customers'         => 'Clientes',
+        'kitchen'           => 'Cocina',
         'inventory'         => 'Inventario',
         'payment_gateways'  => 'Métodos de pago',
-        'settings'          => 'Configuración de tienda',
+        'settings'          => 'Configuración',
     ],
     'permissions' => [
         'manage_products'          => 'Gestionar productos',

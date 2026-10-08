@@ -1,13 +1,18 @@
-url = "/documentacion/:slug"
+url = "/docs/:slug"
 layout = "base"
 title = "Documentación — Market"
 
 [docs]
 mode = "article"
 slug = "{{ :slug }}"
+
+[guides]
+mode = "article"
+slug = "{{ :slug }}"
 ==
 {% put head %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="print" onload="this.media='all'">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 {% endput %}
 
@@ -23,6 +28,16 @@ slug = "{{ :slug }}"
                 {{ docs.article.reading_minutes }} min de lectura · v{{ docs.article.version }} · Actualizado {{ docs.article.updated_at|date('d/m/Y') }} · {{ docs.article.views|number_format(0, ',', '.') }} visitas
             </p>
         </header>
+
+        {% if guides.guide %}
+        <a href="{{ guides.guide.url }}" class="group flex items-center justify-between gap-4 mb-8 p-4 border border-accent rounded-xl bg-canvas-elev hover:bg-canvas-elev2 transition-colors">
+            <span>
+                <span class="text-xs tracking-wide text-accent uppercase font-bold">Guía interactiva</span>
+                <span class="block font-semibold mt-0.5">Practica este formulario paso a paso</span>
+            </span>
+            <span class="text-accent font-semibold shrink-0">Abrir →</span>
+        </a>
+        {% endif %}
 
         <div class="docs-prose" id="docs-body">{{ docs.article.content_html|raw }}</div>
 

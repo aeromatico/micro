@@ -16,6 +16,7 @@ class TenantSeo extends ComponentBase
     public string $cssVersion = '1';
     public string $jsVersion = '1';
     public bool $isShopEnabled = false;
+    public bool $isRestaurant = false;
 
     public function componentDetails(): array
     {
@@ -71,6 +72,7 @@ class TenantSeo extends ComponentBase
         // instalado, isShopEnabled queda en false sin error.
         if (class_exists(\Aero\Shop\Models\ShopSettings::class)) {
             $this->isShopEnabled = (bool) \Aero\Shop\Models\ShopSettings::where('tenant_id', $this->tenant->id)->value('is_enabled');
+            $this->isRestaurant = \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($this->tenant->id);
         }
     }
 

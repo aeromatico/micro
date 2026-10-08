@@ -1,0 +1,22 @@
+columns:
+    id:
+        label: '#'
+    mapping:
+        label: Mapeo
+        relation: mapping
+        select: name
+    direction:
+        label: Dirección
+    status:
+        label: Estado
+    rows_read:
+        label: Leídas
+    created:
+        label: Creadas
+    updated:
+        label: Actualizadas
+    failed:
+        label: Errores
+    created_at:
+        label: Cuándo
+        type: datetime

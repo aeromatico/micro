@@ -70,6 +70,7 @@ class PayController extends Controller
                 externalReference: 'chat-' . $conv->id . '-' . now()->timestamp,
                 origin: 'chat',
                 dueDate: now()->addDays((int) $data['days'])->toDateString(),
+                tenantId: $tenantId,
             );
         } catch (\Throwable $e) {
             return $this->fail('qr_failed', 'El banco no pudo generar el QR: ' . $e->getMessage(), 422);
@@ -90,7 +91,7 @@ class PayController extends Controller
         $body = $data['description'] . "\nMonto: " . $amount . "\nVálido " . ($days === 1 ? 'por 1 día' : "por $days días") . '. Paga escaneando este QR desde tu app bancaria.';
 
         try {
-            $tx = ApiCredits::charge($tenantId);
+            $tx = $conv->account?->driver === 'livechat' ? null : ApiCredits::charge($tenantId);
             MessageComposer::sendToContact($conv->account, $conv->contact_id, $body, [
                 'media_url' => url('/api/v1/pay/public/qr/' . $qr->internal_reference . '/image'), 'media_type' => 'image', 'credit_transaction_id' => $tx,
             ]);

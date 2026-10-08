@@ -21,7 +21,7 @@ $short = function ($n) {
         $coins = array_filter($rows, fn ($r) => !isset($r['text']));
         $bs    = array_filter($rows, fn ($r) => isset($r['text']));
     ?>
-    <li class="mainmenu-item hidden-xs cw-item" title="<?= e($title) ?>">
+    <li id="aero-credits-navbar" class="mainmenu-item hidden-xs cw-item" title="<?= e($title) ?>">
         <a href="<?= e($link) ?>" class="cw-link">
             <span class="cw-coins">
                 <?php foreach ($coins as $row): ?>

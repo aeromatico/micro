@@ -1,0 +1,31 @@
+1.0.0:
+    - "Primera versión: inboxes, widget embebible, conversaciones y mensajes. Fase 1 aislada, sin integración con CRM/Notify."
+    - create_livechat_tables.php
+1.1.0:
+    - "Puente con Telegram (Aero.Connector): responder conversaciones citando mensajes desde un chat/grupo de Telegram, ida y vuelta."
+    - add_telegram_bridge.php
+    - seed_telegram_webhook_endpoint.php
+1.2.0:
+    - "Formulario previo del widget: pide nombre, correo y celular antes de habilitar el chat."
+    - add_phone_to_contacts.php
+1.3.0:
+    - "Adjuntar un archivo por mensaje (widget y panel) y enviar la transcripción por correo al visitante."
+    - add_attachments_to_messages.php
+1.4.0:
+    - "Finalizar chat (widget y panel) y Topics de Telegram: cada conversación abre su propio hilo dentro del mismo grupo, para manejar varios chats simultáneos sin mezclarlos."
+    - add_telegram_thread.php
+1.5.0:
+    - "Ban de visitantes (temporal o permanente) y acciones de Finalizar/Banear desde el PWA de aero/chat (tema whatsapp) para el canal de chat web."
+    - add_ban_fields_to_contacts.php
+1.6.0:
+    - "El widget solo muestra los mensajes de la sesión activa (no el historial completo de sesiones anteriores) — el historial completo sigue visible para los agentes en el panel y el omnichat."
+    - add_session_started_at_to_conversations.php
+1.7.0:
+    - "Configuración por tenant del puente a WhatsApp: elegir la cuenta de Hello (wapi o Zernio) por la que se retransmite el chat y activarlo o desactivarlo, desde el backend y desde el omnichat."
+    - create_livechat_settings.php
+1.8.0:
+    - "Interruptor general por tenant: apaga o enciende por completo el chat en vivo (el widget se oculta y no acepta mensajes nuevos)."
+    - add_livechat_enabled_to_settings.php
+1.9.0:
+    - "Modos del widget por tenant: Livechat (Hello), WhatsApp (icono flotante que abre wa.me), Livechat + WhatsApp, o Personalizado (código de terceros incrustado en el sitio)."
+    - add_widget_mode_to_settings.php

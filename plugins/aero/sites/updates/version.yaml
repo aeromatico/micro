@@ -317,3 +317,59 @@
 1.44.0:
     - "El rol tenant_admin recibe el permiso de Tracking (aero.tracking.use)."
     - grant_tracking_to_tenant_admin.php
+
+1.45.0:
+    - "Lead de plataforma (no de tenant): componente platformLeadForm — modal de Trial / Gran Empresa del landing (themes/master), con verificación de correo corporativo y notificación a superadmins vía Aero.Notify (sites.platform_lead.created)."
+    - create_platform_leads_table.php
+
+1.46.0:
+    - "El rol tenant_admin recibe los permisos de Livechat (aero.livechat.manage_inboxes/manage_conversations): cada tenant puede crear su propio inbox de chat en vivo."
+    - grant_livechat_to_tenant_admin.php
+
+1.47.0:
+    - "Precio de renovación por plan (price_renewal / price_renewal_annual), separado del precio de alta — vacío usa el mismo precio. Los créditos por color ahora admiten un modo (acumulable o vencible al renovar). Solo esquema y formulario: el cobro recurrente que los use todavía no existe."
+    - add_plan_renewal_pricing.php
+
+1.48.0:
+    - "Motor de renovación de planes mensual/anual: aero.sites:generate-renewals genera el cobro QR unos días antes del vencimiento (reutiliza la cuenta bancaria del alta), el pago confirmado extiende plan_expires_at y regala los créditos del ciclo, y aero.sites:expire-renewals suspende al tenant tras 5 días de gracia sin pagar. Nueva pantalla Sites → Renovaciones (solo lectura)."
+    - create_plan_renewals_table.php
+
+1.49.0:
+    - "Otorga a tenant_admin el tab Webhooks del gateway Aero.Api (suscripciones salientes a eventos aero.*, ver Aero.Api 1.2.0)."
+    - grant_api_webhooks_to_tenant_admin.php
+
+1.50.0:
+    - "Otorga a tenant_admin la pantalla 'Motor del sitio' de Aero.WpFlash (WordPress Flash): activar/desactivar el childsite de WordPress y ver sus credenciales."
+    - grant_wpflash_to_tenant_admin.php
+
+1.51.0:
+    - "Contacto: switch «No tiene una dirección física» (negocios digitales, oculta dirección y mapa), ciudad y departamento de Bolivia por separado de la dirección."
+    - add_location_fields_to_contact_configs.php
+
+1.52.0:
+    - "Contacto: interruptor para activar/desactivar el área de contacto en el sitio (página, enlaces y envío de mensajes). Activado por defecto."
+    - add_contact_enabled_to_contact_configs.php
+
+1.53.0:
+    - "Páginas: interruptor «Mostrar como público» (is_published) e «Incluir en menús» con posiciones: top, navbar (menú principal), sidebar (menú móvil) y footer. Las páginas existentes conservan navbar, sidebar y footer."
+    - add_menu_fields_to_pages.php
+
+1.54.0:
+    - "El rol tenant_admin recibe aero.oauth.use (vincular su cuenta de Google)."
+    - grant_oauth_to_tenant_admin.php
+
+1.55.0:
+    - "El rol tenant_admin recibe aero.sheets.use (sincronizar sus datos con Google Sheets)."
+    - grant_sheets_to_tenant_admin.php
+
+1.56.0:
+    - "El rol tenant_admin recibe aero.workflows.use (crear y ver sus workflows)."
+    - grant_workflows_to_tenant_admin.php
+
+1.57.0:
+    - "El rol tenant_admin recibe aero.livechat.manage_settings (configurar el puente de Livechat a WhatsApp)."
+    - grant_livechat_settings_to_tenant_admin.php
+
+1.58.0:
+    - "El rol tenant_admin recibe aero.workspaces.use (Mercado y Oficina de agentes)."
+    - grant_workspaces_to_tenant_admin.php

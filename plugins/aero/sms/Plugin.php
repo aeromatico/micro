@@ -37,6 +37,83 @@ class Plugin extends PluginBase
                 'scopes' => \Aero\Sms\Classes\Api\Scopes::all(),
             ]];
         });
+
+        if (!class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
+            return;
+        }
+
+        Event::listen('aero.api.registerEndpoints', function () {
+            $scopes = \Aero\Sms\Classes\Api\Scopes::class;
+
+            return ['sms' => [
+                'label' => 'SMS',
+                'endpoints' => [
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/sms/messages', 'scope' => $scopes::SEND,
+                        'summary' => 'Envía un SMS simple.',
+                        'body_example' => "{\n    \"to\": \"+59170000000\",\n    \"body\": \"Hola, este es un SMS de prueba.\"\n}",
+                        'credit_action' => \Aero\Sms\Classes\Billing::ACTION,
+                        'credit_note'   => 'por segmento — un SMS puede usar varios',
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/sms/messages/{uuid}/cancel', 'scope' => $scopes::SEND,
+                        'summary' => 'Cancela un mensaje en cola.',
+                        'path_params' => [['name' => 'uuid', 'type' => 'string', 'required' => true, 'help' => 'UUID del mensaje.']],
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/sms/batches', 'scope' => $scopes::SEND,
+                        'summary' => 'Envía un lote de SMS a varios destinatarios.',
+                        'body_example' => "{\n    \"name\": \"Campaña de prueba\",\n    \"body\": \"Hola {{nombre}}\",\n    \"recipients\": [\n        {\"to\": \"+59170000000\", \"vars\": {\"nombre\": \"Ana\"}}\n    ]\n}",
+                        'credit_action' => \Aero\Sms\Classes\Billing::ACTION,
+                        'credit_note'   => 'por segmento, por destinatario — un SMS puede usar varios segmentos',
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/sms/batches/{uuid}/cancel', 'scope' => $scopes::SEND,
+                        'summary' => 'Cancela un lote (mensajes aún no enviados).',
+                        'path_params' => [['name' => 'uuid', 'type' => 'string', 'required' => true, 'help' => 'UUID del lote.']],
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/sms/quote', 'scope' => $scopes::SEND,
+                        'summary' => 'Cotiza segmentos y créditos sin enviar nada.',
+                        'body_example' => "{\n    \"body\": \"Hola, este es un SMS de prueba.\",\n    \"recipients\": 1\n}",
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/sms/messages', 'scope' => $scopes::READ,
+                        'summary' => 'Lista de mensajes.',
+                        'query' => [
+                            ['name' => 'status', 'type' => 'string', 'help' => 'queued, sent, delivered, failed…'],
+                            ['name' => 'reference', 'type' => 'string'],
+                            ['name' => 'to', 'type' => 'string'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 50, 'help' => 'Máx. 200.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/sms/messages/{uuid}', 'scope' => $scopes::READ,
+                        'summary' => 'Detalle de un mensaje.',
+                        'path_params' => [['name' => 'uuid', 'type' => 'string', 'required' => true, 'help' => 'UUID del mensaje.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/sms/batches/{uuid}', 'scope' => $scopes::READ,
+                        'summary' => 'Detalle de un lote.',
+                        'path_params' => [['name' => 'uuid', 'type' => 'string', 'required' => true, 'help' => 'UUID del lote.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/sms/batches/{uuid}/messages', 'scope' => $scopes::READ,
+                        'summary' => 'Mensajes de un lote.',
+                        'path_params' => [['name' => 'uuid', 'type' => 'string', 'required' => true, 'help' => 'UUID del lote.']],
+                        'query' => [['name' => 'per_page', 'type' => 'integer', 'default' => 100, 'help' => 'Máx. 500.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/sms/usage', 'scope' => $scopes::READ,
+                        'summary' => 'Consumo diario en un rango (30 días por defecto).',
+                        'query' => [
+                            ['name' => 'from', 'type' => 'date'],
+                            ['name' => 'to', 'type' => 'date'],
+                        ],
+                    ],
+                ],
+            ]];
+        });
     }
 
     public function registerSchedule($schedule): void

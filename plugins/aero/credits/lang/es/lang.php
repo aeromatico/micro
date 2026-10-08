@@ -9,6 +9,9 @@
         'credittransactions'  => 'Movimientos',
         'creditactions'       => 'Acciones facturables',
         'credittypes'         => 'Tipos de crédito',
+        'creditcoupons'       => 'Cupones',
+        'creditinvitationquotas' => 'Cuotas de invitación',
+        'creditinvitations'   => 'Invitaciones',
     ],
     'permissions' => [
         'superadmin' => 'Administrar el sistema de créditos',

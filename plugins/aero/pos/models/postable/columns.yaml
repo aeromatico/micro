@@ -1,0 +1,14 @@
+columns:
+    name:
+        label: Mesa
+        type: text
+        sortable: true
+    zone:
+        label: Zona
+        type: text
+    seats:
+        label: Asientos
+        type: number
+    is_active:
+        label: Activa
+        type: switch

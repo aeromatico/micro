@@ -7,13 +7,32 @@ use Aero\Shop\Models\Order;
  * evento shop.order.* en Aero.Notify. Nunca lanza: un fallo de notificación no
  * puede romper la creación, el pago ni la cancelación de un pedido.
  *
- * Eventos: placed, paid, shipped (pedido 'fulfilled'), cancelled.
+ * Eventos: placed, paid, shipped (pedido 'fulfilled'), ready (restaurante: listo para
+ * servir/recoger), cancelled.
  */
 class OrderNotifier
 {
+    protected static function posShouldNotify(Order $order, string $event): bool
+    {
+        if ($event !== 'ready' || !in_array($order->order_type, ['pickup', 'delivery'], true)) {
+            return false;
+        }
+
+        $customer = $order->customer ?: $order->customer()->first();
+        $realEmail = $customer && $customer->email && !str_ends_with($customer->email, '.invalid');
+
+        return $realEmail || !empty($customer?->phone);
+    }
+
     public static function fire(Order $order, string $event, array $extra = []): void
     {
         if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
+            return;
+        }
+
+        // Ventas del POS: el personal ya sabe lo que pasa; al cliente solo se le avisa que su
+        // pedido está listo (recoger/delivery) y únicamente si dejó un contacto real.
+        if (($order->source ?? 'web') === 'pos' && !self::posShouldNotify($order, $event)) {
             return;
         }
 
@@ -30,8 +49,14 @@ class OrderNotifier
                 'total'         => number_format((float) $order->grand_total, 2),
                 'currency'      => $order->currency?->code,
                 'items'         => $order->items
-                    ->map(fn ($i) => $i->quantity . '× ' . $i->product_name_snapshot)
+                    ->map(fn ($i) => $i->quantity . '× ' . $i->product_name_snapshot
+                        . ($i->modifiers ? ' (' . RestaurantService::modifiersText($i->modifiers) . ')' : '')
+                        . ($i->note ? ' «' . $i->note . '»' : ''))
                     ->implode(', '),
+                'order_type'    => \Aero\Shop\Models\ShopSettings::ORDER_TYPES[$order->order_type] ?? null,
+                'table_label'   => $order->table_label,
+                'scheduled_for' => $order->scheduled_for?->format('d/m H:i'),
+                'customer_notes' => $order->customer_notes,
                 'tenant_name'   => $tenant?->name,
                 'url'           => \Aero\Shop\Classes\OrderService::publicUrl($order),
                 'shipping_address' => $addr ? trim($addr->address_line1 . ', ' . $addr->city, ', ') : null,

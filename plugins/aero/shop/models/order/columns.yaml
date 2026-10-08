@@ -9,6 +9,30 @@ columns:
         select: email
         type: text
 
+    order_type:
+        label: Tipo
+        type: selectable
+        options:
+            dine_in: Comer en local
+            pickup: Recoger
+            delivery: Delivery
+        width: 110px
+
+    kitchen_status:
+        label: Cocina
+        type: selectable
+        options:
+            new: Nuevo
+            preparing: Preparando
+            ready: Listo
+            delivered: Entregado
+        width: 110px
+
+    table_label:
+        label: Mesa
+        type: text
+        width: 70px
+
     status:
         label: Estado
         type: selectable

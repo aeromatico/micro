@@ -1,0 +1,56 @@
+.aero-pay-box {
+	max-width: 360px;
+	margin: 2em auto;
+	padding: 1.5em;
+	text-align: center;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.aero-pay-box h2 {
+	margin-top: 0;
+	font-size: 1.1em;
+}
+
+.aero-pay-qr-image {
+	max-width: 260px;
+	width: 100%;
+	height: auto;
+	margin: 0 auto;
+	display: block;
+}
+
+.aero-pay-amount {
+	font-size: 1.4em;
+	font-weight: bold;
+	margin: 0.5em 0 0;
+}
+
+.aero-pay-waiting {
+	color: #666;
+	margin-top: 0.75em;
+}
+
+.aero-pay-box--paid .aero-pay-waiting {
+	color: #2a8f3f;
+	font-weight: bold;
+}
+
+.aero-pay-box--expired .aero-pay-qr-image {
+	opacity: 0.3;
+}
+
+.aero-pay-box--expired .aero-pay-waiting {
+	color: #c0392b;
+	font-weight: bold;
+}
+
+.aero-pay-status--paid {
+	max-width: 360px;
+	margin: 2em auto;
+	padding: 1em;
+	text-align: center;
+	color: #2a8f3f;
+	font-weight: bold;
+}

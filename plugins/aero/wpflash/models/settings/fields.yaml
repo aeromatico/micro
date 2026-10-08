@@ -1,0 +1,19 @@
+fields:
+    wp_path:
+        label: "Ruta del WordPress Multisite"
+        default: "/www/wwwroot/wp.market.com.bo"
+        span: left
+    wp_network_domain:
+        label: "Dominio de la red"
+        default: "wp.market.com.bo"
+        span: right
+        comment: "Cada childsite nuevo nace en {slug}.<este dominio> antes de apuntarlo al dominio del tenant."
+    wp_cli_binary:
+        label: "Binario de WP-CLI"
+        default: "/usr/local/bin/wp"
+        span: left
+    php_binary:
+        label: "Binario de PHP para WP-CLI"
+        default: "/www/server/php/84/bin/php"
+        span: right
+        comment: "Debe coincidir con la versión de PHP de wp.market.com.bo."

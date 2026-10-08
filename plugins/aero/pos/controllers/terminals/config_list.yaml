@@ -1,0 +1,14 @@
+title: Terminales
+list: $/aero/pos/models/terminal/columns.yaml
+modelClass: Aero\Pos\Models\Terminal
+recordUrl: aero/pos/terminals/update/:id
+noRecordsMessage: Todavía no hay registros.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: name
+    direction: asc

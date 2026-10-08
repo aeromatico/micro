@@ -356,6 +356,81 @@ class PuckHtmlRenderer
                 . '</div></section>';
         }
 
+        // ---- imagen-arriba: banner de imagen full-width, texto abajo ------
+        if ($variant === 'imagen-arriba') {
+            $imgHtml = $image
+                ? '<div class="w-full aspect-video sm:aspect-[21/9] overflow-hidden mb-10"><img src="' . $this->e($image) . '" alt="" class="w-full h-full object-cover"></div>'
+                : '';
+            $bgStyleAttr = $resolved['styleAttr'] ? ' style="' . $resolved['styleAttr'] . '"' : '';
+            return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' pb-20 text-center') . '"' . $bgStyleAttr . '>'
+                . $imgHtml
+                . '<div class="relative max-w-3xl mx-auto px-4">'
+                . '<h1 class="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">' . $title . '</h1>'
+                . '<p class="text-xl mb-6 opacity-90 leading-relaxed">' . $subtitle . '</p>'
+                . $descHtml
+                . $this->heroButtons($p, 'justify-center')
+                . '</div></section>';
+        }
+
+        // ---- panel-elevado: tarjeta centrada con borde/sombra ---------------
+        if ($variant === 'panel-elevado') {
+            $descHtmlPanel = $description !== '' ? '<p class="text-lg mb-8 opacity-75 leading-relaxed">' . $this->e($description) . '</p>' : '';
+            return '<section class="reveal relative py-20 px-4 text-center">'
+                . '<div class="' . trim('relative max-w-3xl mx-auto rounded-2xl border border-surface-border shadow-lg p-10 sm:p-14 bg-cover bg-center ' . $resolved['class']) . '"' . $style . '>'
+                . ($bgImage ? '<div class="absolute inset-0 rounded-2xl bg-black/50"></div>' : '')
+                . '<div class="relative">'
+                . '<h1 class="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">' . $title . '</h1>'
+                . '<p class="text-xl mb-6 opacity-90 leading-relaxed">' . $subtitle . '</p>'
+                . $descHtmlPanel
+                . $this->heroButtons($p, 'justify-center')
+                . '</div></div></section>';
+        }
+
+        // ---- editorial-izquierda: texto a la izquierda, tipografía grande --
+        if ($variant === 'editorial-izquierda') {
+            $descHtmlEd = $description !== '' ? '<p class="text-lg mb-10 opacity-75 leading-relaxed max-w-2xl">' . $this->e($description) . '</p>' : '';
+            return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' py-24 px-4 bg-cover bg-center') . '"' . $style . '>'
+                . $overlay
+                . '<div class="relative max-w-5xl mx-auto text-left">'
+                . '<h1 class="font-heading text-5xl md:text-7xl font-bold mb-8 leading-none">' . $title . '</h1>'
+                . '<p class="text-xl md:text-2xl mb-6 opacity-90 leading-relaxed max-w-2xl">' . $subtitle . '</p>'
+                . $descHtmlEd
+                . $this->heroButtons($p, 'justify-start')
+                . '</div></section>';
+        }
+
+        // ---- fondo-texto-abajo: bgImage full-bleed, contenido anclado abajo -
+        if ($variant === 'fondo-texto-abajo') {
+            $posterOverlay = $bgImage ? '<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>' : '';
+            return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' min-h-[520px] flex items-end px-4 pb-16 bg-cover bg-center') . '"' . $style . '>'
+                . $posterOverlay
+                . '<div class="relative max-w-4xl mx-auto text-center w-full">'
+                . '<h1 class="font-heading text-4xl md:text-6xl font-bold mb-6 leading-tight">' . $title . '</h1>'
+                . '<p class="text-xl mb-6 opacity-90 leading-relaxed">' . $subtitle . '</p>'
+                . $descHtml
+                . $this->heroButtons($p, 'justify-center')
+                . '</div></section>';
+        }
+
+        // ---- panel-imagen-grande: split 60/40, imagen a la derecha --------
+        if ($variant === 'panel-imagen-grande') {
+            $descHtmlPig = $description !== '' ? '<p class="text-lg mb-8 opacity-75 leading-relaxed">' . $this->e($description) . '</p>' : '';
+            $imageColPig = $image
+                ? '<div class="rounded-2xl overflow-hidden shadow-md aspect-[4/3]"><img src="' . $this->e($image) . '" alt="" class="w-full h-full object-cover"></div>'
+                : '<div></div>';
+            return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' py-20 px-4 bg-cover bg-center') . '"' . $style . '>'
+                . $overlay
+                . '<div class="relative max-w-6xl mx-auto grid md:grid-cols-5 gap-10 items-center">'
+                . '<div class="md:col-span-2 text-left">'
+                . '<h1 class="font-heading text-4xl md:text-5xl font-bold mb-6 leading-tight">' . $title . '</h1>'
+                . '<p class="text-xl mb-6 opacity-90 leading-relaxed">' . $subtitle . '</p>'
+                . $descHtmlPig
+                . $this->heroButtons($p, 'justify-start')
+                . '</div>'
+                . '<div class="md:col-span-3">' . $imageColPig . '</div>'
+                . '</div></section>';
+        }
+
         // ---- centrado: layout clásico (default) ----------------------------
         return '<section class="' . trim('reveal relative ' . $resolved['class'] . ' py-24 px-4 text-center bg-cover bg-center') . '"' . $style . '>'
             . $overlay
@@ -504,6 +579,87 @@ class PuckHtmlRenderer
                 . '</section>';
         }
 
+        // ---- grid-iconos-circulares: ícono en badge circular grande --------
+        if ($variant === 'grid-iconos-circulares') {
+            $head = ($title ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-4' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>' : '')
+                . ($subtitle ? '<p class="text-lg text-center max-w-2xl mx-auto mb-12' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($subtitle) . '</p>' : '');
+            $cards = '';
+            foreach ($features as $f) {
+                $f = is_array($f) ? $f : [];
+                $cards .= '<div><div class="w-16 h-16 mx-auto rounded-full bg-brand-primary text-white flex items-center justify-center mb-4">' . $this->pickedIconHtml($this->attr($f, 'icon', ''), 'leading-none', 28) . '</div>'
+                    . '<h3 class="font-heading2 text-lg font-bold mb-2' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
+                    . '<p' . ($textOverride ? '' : ' class="text-ink-muted leading-relaxed"') . '>' . $this->e($this->attr($f, 'description', '')) . '</p></div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 ' . $colClass . ' gap-10 text-center">' . $cards . '</div></div></section>';
+        }
+
+        // ---- linea-tiempo: vertical con línea conectora + burbuja numerada -
+        if ($variant === 'linea-tiempo') {
+            $head = ($title ? '<h2 class="font-heading2 text-3xl font-bold mb-4' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>' : '')
+                . ($subtitle ? '<p class="text-lg mb-12' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($subtitle) . '</p>' : '');
+            $rows = '';
+            foreach (array_values($features) as $i => $f) {
+                $f = is_array($f) ? $f : [];
+                $rows .= '<div class="relative">'
+                    . '<div class="absolute -left-9 top-0 w-6 h-6 rounded-full bg-brand-primary text-white text-xs font-bold flex items-center justify-center">' . ($i + 1) . '</div>'
+                    . '<h3 class="font-heading2 text-lg font-bold mb-1' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
+                    . '<p' . ($textOverride ? '' : ' class="text-ink-muted leading-relaxed"') . '>' . $this->e($this->attr($f, 'description', '')) . '</p></div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto">' . $head . '<div class="border-l-2 border-brand-primary/30 pl-8 flex flex-col gap-10">' . $rows . '</div></div></section>';
+        }
+
+        // ---- comparacion-dividida: texto+CTA a la izquierda, checklist a la
+        //      derecha (sin imagen, a diferencia de imagen-lateral) --------
+        if ($variant === 'comparacion-dividida') {
+            $head = ($title ? '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $this->e($title) . '</h2>' : '')
+                . ($subtitle ? '<p class="text-lg opacity-75 leading-relaxed mb-8">' . $this->e($subtitle) . '</p>' : '');
+            $rows = '';
+            foreach ($features as $f) {
+                $f = is_array($f) ? $f : [];
+                $rows .= '<div class="flex items-start gap-3 bg-surface-alt p-4 rounded-xl">'
+                    . $this->pickedIconHtml($this->attr($f, 'icon', ''), 'mt-0.5 text-brand-primary shrink-0', 20)
+                    . '<div><span class="font-semibold block">' . $this->e($this->attr($f, 'title', '')) . '</span>'
+                    . '<span class="text-sm text-ink-muted">' . $this->e($this->attr($f, 'description', '')) . '</span></div></div>';
+            }
+            return '<section class="' . trim('reveal py-20 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">'
+                . '<div>' . $head . $button . '</div>'
+                . '<div class="flex flex-col gap-4">' . $rows . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- mosaico-alterno: filas zigzag ícono/texto alternando de lado --
+        if ($variant === 'mosaico-alterno') {
+            $head = ($title ? '<h2 class="font-heading2 text-3xl font-bold text-center mb-4' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($title) . '</h2>' : '')
+                . ($subtitle ? '<p class="text-lg text-center max-w-2xl mx-auto mb-14' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($subtitle) . '</p>' : '');
+            $rows = '';
+            foreach (array_values($features) as $i => $f) {
+                $f = is_array($f) ? $f : [];
+                $rowClass = trim('flex items-center gap-6' . ($i % 2 === 1 ? ' flex-row-reverse text-right' : ''));
+                $rows .= '<div class="' . $rowClass . '">'
+                    . '<div class="shrink-0 w-14 h-14 rounded-2xl bg-brand-primary/10 flex items-center justify-center">' . $this->pickedIconHtml($this->attr($f, 'icon', ''), 'leading-none', 28) . '</div>'
+                    . '<div><h3 class="font-heading2 text-lg font-bold mb-1' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($f, 'title', '')) . '</h3>'
+                    . '<p' . ($textOverride ? '' : ' class="text-ink-muted leading-relaxed"') . '>' . $this->e($this->attr($f, 'description', '')) . '</p></div></div>';
+            }
+            return '<section class="' . trim('reveal py-20 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto">' . $head . '<div class="flex flex-col gap-10">' . $rows . '</div></div></section>';
+        }
+
+        // ---- franja-horizontal: badges compactos en una sola fila --------
+        if ($variant === 'franja-horizontal') {
+            $cards = '';
+            foreach ($features as $f) {
+                $f = is_array($f) ? $f : [];
+                $cards .= '<div class="flex items-center gap-3">' . $this->pickedIconHtml($this->attr($f, 'icon', ''), 'leading-none', 22)
+                    . '<span class="font-semibold">' . $this->e($this->attr($f, 'title', '')) . '</span></div>';
+            }
+            $sectionClass = trim('reveal py-10 px-4 ' . ($resolved['class'] ?: 'bg-surface-alt'));
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-10 gap-y-6">' . $cards . '</div></section>';
+        }
+
         // ---- tarjetas: layout clásico (default) -----------------------------
         $cards = '';
         foreach ($features as $f) {
@@ -632,6 +788,71 @@ class PuckHtmlRenderer
                 . '<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">'
                 . '<div class="flex items-center gap-3">' . $this->pickedIconHtml($icon, 'leading-none', 28)
                 . '<h2 class="font-heading2 text-xl font-bold">' . $heading . '</h2></div>'
+                . $button1
+                . '</div></section>';
+        }
+
+        // ---- apilado-icono-2botones: ícono + título+descripción+2 botones --
+        if ($variant === 'apilado-icono-2botones') {
+            $subtitleHtml = $subtitle !== '' ? '<p class="text-xl mb-4 opacity-90 leading-relaxed">' . $this->e($subtitle) . '</p>' : '';
+            return '<section class="reveal ' . $section . ' py-20 px-4 text-center"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto">' . $this->pickedIconHtml($icon, 'leading-none block mx-auto mb-6', 48)
+                . '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $heading . '</h2>'
+                . $subtitleHtml
+                . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
+                . '<div class="flex flex-col sm:flex-row gap-4 justify-center">' . $button1 . $button2 . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- imagen-fondo: `image` como fondo completo con overlay oscuro --
+        if ($variant === 'imagen-fondo') {
+            $subtitleHtml = $subtitle !== '' ? '<p class="text-xl mb-4 opacity-90 leading-relaxed">' . $this->e($subtitle) . '</p>' : '';
+            $bgStyle = $image ? ' style="background-image:url(\'' . $this->e($image) . '\');"' : $style;
+            return '<section class="reveal relative py-24 px-4 text-center text-white bg-cover bg-center"' . $bgStyle . '>'
+                . ($image ? '<div class="absolute inset-0 bg-black/60"></div>' : '')
+                . '<div class="relative max-w-2xl mx-auto"><h2 class="font-heading2 text-3xl md:text-4xl font-bold mb-4">' . $heading . '</h2>'
+                . $subtitleHtml
+                . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
+                . '<div class="flex flex-col sm:flex-row gap-4 justify-center">' . $button1 . $button2 . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- tarjeta-borde: contenido en tarjeta con borde/sombra ----------
+        if ($variant === 'tarjeta-borde') {
+            return '<section class="reveal py-20 px-4 text-center">'
+                . '<div class="' . trim('max-w-2xl mx-auto rounded-2xl border border-surface-border shadow-lg p-10 sm:p-14 ' . $section) . '"' . $style . '>'
+                . $this->pickedIconHtml($icon, 'leading-none block mx-auto mb-5', 40)
+                . '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $heading . '</h2>'
+                . '<p class="text-lg mb-8 opacity-90 leading-relaxed">' . $body . '</p>'
+                . $button1
+                . '</div></section>';
+        }
+
+        // ---- imagen-arriba: imagen banner arriba, contenido debajo --------
+        if ($variant === 'imagen-arriba') {
+            $subtitleHtml = $subtitle !== '' ? '<p class="text-xl mb-4 opacity-90 leading-relaxed">' . $this->e($subtitle) . '</p>' : '';
+            $imgHtml = $image
+                ? '<div class="w-full aspect-video sm:aspect-[21/9] overflow-hidden mb-10"><img src="' . $this->e($image) . '" alt="" class="w-full h-full object-cover"></div>'
+                : '';
+            return '<section class="reveal ' . $section . ' pb-16 text-center"' . $style . '>'
+                . $imgHtml
+                . '<div class="max-w-2xl mx-auto px-4"><h2 class="font-heading2 text-3xl font-bold mb-4">' . $heading . '</h2>'
+                . $subtitleHtml
+                . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
+                . '<div class="flex flex-col sm:flex-row gap-4 justify-center">' . $button1 . $button2 . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- acento-superior: badge con ícono arriba del título, un botón --
+        if ($variant === 'acento-superior') {
+            $eyebrow = $subtitle !== '' ? $subtitle : $heading;
+            return '<section class="reveal ' . $section . ' py-20 px-4 text-center"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto">'
+                . '<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-current/30 mb-5">'
+                . $this->pickedIconHtml($icon, 'leading-none', 16)
+                . '<span class="text-xs font-semibold uppercase tracking-wide">' . $this->e($eyebrow) . '</span></div>'
+                . '<h2 class="font-heading2 text-3xl font-bold mb-4">' . $heading . '</h2>'
+                . '<p class="text-lg mb-10 opacity-90 leading-relaxed">' . $body . '</p>'
                 . $button1
                 . '</div></section>';
         }
@@ -790,6 +1011,117 @@ class PuckHtmlRenderer
                 . $this->planFeatureListHtml($this->attr($plan, 'features', ''), 'mb-8' . ($textOverride ? '' : ' text-ink-muted'))
                 . $this->planButtonHtml($plan, $background)
                 . '</div></section>';
+        }
+
+        // ---- cuatro-planes: 4 columnas ---------------------------------------
+        if ($variant === 'cuatro-planes') {
+            $cards = '';
+            foreach (array_slice($plans, 0, 4) as $plan) {
+                $hl = $this->attr($plan, 'highlighted', 'no') === 'yes';
+                $cardClass = 'bg-surface-alt ' . ($hl ? 'border-2 border-brand-primary shadow-lg' : 'border border-surface-border');
+                $period = $this->attr($plan, 'period', '');
+                $cards .= '<div class="p-6 rounded-2xl ' . $cardClass . '">'
+                    . '<h3 class="font-heading2 text-lg font-bold mb-2' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($plan, 'name', '')) . '</h3>'
+                    . '<div class="mb-4"><span class="font-heading2 text-3xl font-bold text-brand-primary">' . $this->e($this->attr($plan, 'price', '')) . '</span>'
+                    . ($period !== '' ? '<span' . ($textOverride ? '' : ' class="text-ink-muted"') . '>' . $this->e($period) . '</span>' : '') . '</div>'
+                    . $this->planFeatureListHtml($this->attr($plan, 'features', ''), 'mb-6 text-sm' . ($textOverride ? '' : ' text-ink-muted'))
+                    . $this->planButtonHtml($plan, $background)
+                    . '</div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">' . $cards . '</div></div></section>';
+        }
+
+        // ---- filas-comparacion: planes como filas horizontales ---------------
+        if ($variant === 'filas-comparacion') {
+            $rows = '';
+            foreach ($plans as $plan) {
+                $descHtml = $this->attr($plan, 'description', '') !== '' ? '<p class="text-sm' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($this->attr($plan, 'description', '')) . '</p>' : '';
+                $period = $this->attr($plan, 'period', '');
+                $rows .= '<div class="flex flex-col sm:flex-row items-center gap-4 p-6 bg-surface-alt">'
+                    . '<div class="flex-1 text-left"><h3 class="font-heading2 text-lg font-bold' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($plan, 'name', '')) . '</h3>' . $descHtml . '</div>'
+                    . '<div class="shrink-0 text-center"><span class="font-heading2 text-2xl font-bold text-brand-primary">' . $this->e($this->attr($plan, 'price', '')) . '</span>'
+                    . ($period !== '' ? '<span class="text-sm' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($period) . '</span>' : '') . '</div>'
+                    . '<div class="shrink-0">' . $this->planButtonHtml($plan, $background) . '</div>'
+                    . '</div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto">' . $head . '<div class="flex flex-col divide-y divide-surface-border border border-surface-border rounded-2xl overflow-hidden">' . $rows . '</div></div></section>';
+        }
+
+        // ---- precio-lateral: tarjetas horizontales, precio a la izquierda ---
+        if ($variant === 'precio-lateral') {
+            $cards = '';
+            foreach (array_slice($plans, 0, 3) as $plan) {
+                $hl = $this->attr($plan, 'highlighted', 'no') === 'yes';
+                $cardClass = $hl ? 'border-2 border-brand-primary shadow-lg' : 'border border-surface-border';
+                $descHtml = $this->attr($plan, 'description', '') !== '' ? '<p class="mb-4' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($this->attr($plan, 'description', '')) . '</p>' : '';
+                $period = $this->attr($plan, 'period', '');
+                $cards .= '<div class="flex flex-col sm:flex-row gap-6 p-8 rounded-2xl bg-surface-alt ' . $cardClass . '">'
+                    . '<div class="sm:w-40 shrink-0 text-center sm:border-r sm:border-surface-border sm:pr-6">'
+                    . '<span class="font-heading2 text-3xl font-bold text-brand-primary block">' . $this->e($this->attr($plan, 'price', '')) . '</span>'
+                    . ($period !== '' ? '<span' . ($textOverride ? '' : ' class="text-ink-muted"') . '>' . $this->e($period) . '</span>' : '') . '</div>'
+                    . '<div class="flex-1"><h3 class="font-heading2 text-xl font-bold mb-2' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($plan, 'name', '')) . '</h3>'
+                    . $descHtml
+                    . $this->planFeatureListHtml($this->attr($plan, 'features', ''), 'mb-4 sm:grid sm:grid-cols-2 sm:gap-2' . ($textOverride ? '' : ' text-ink-muted'))
+                    . '</div>'
+                    . '<div class="sm:w-48 shrink-0 flex items-center">' . $this->planButtonHtml($plan, $background, $hl) . '</div>'
+                    . '</div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto flex flex-col gap-6">' . $head . $cards . '</div></section>';
+        }
+
+        // ---- destacado-grande: plan central más grande, laterales chicos ----
+        if ($variant === 'destacado-grande') {
+            $cards = '';
+            foreach (array_values(array_slice($plans, 0, 3)) as $i => $plan) {
+                $center = $i === 1;
+                $period = $this->attr($plan, 'period', '');
+                if ($center) {
+                    $cardClass = 'p-10 rounded-2xl bg-brand-primary text-white shadow-2xl md:scale-110 relative z-10 text-center';
+                    $nameClass = 'text-2xl';
+                    $priceClass = 'text-5xl';
+                    $periodClass = 'opacity-80';
+                    $listClass = 'mb-6 justify-center';
+                } else {
+                    $cardClass = 'p-6 rounded-2xl bg-surface-alt border border-surface-border text-center opacity-90';
+                    $nameClass = 'text-lg' . ($textOverride ? '' : ' text-ink');
+                    $priceClass = 'text-3xl text-brand-primary';
+                    $periodClass = $textOverride ? '' : 'text-ink-muted';
+                    $listClass = 'mb-6 justify-center' . ($textOverride ? '' : ' text-ink-muted');
+                }
+                $cards .= '<div class="' . $cardClass . '">'
+                    . '<h3 class="font-heading2 font-bold mb-2 ' . $nameClass . '">' . $this->e($this->attr($plan, 'name', '')) . '</h3>'
+                    . '<div class="mb-4"><span class="font-heading2 font-bold ' . $priceClass . '">' . $this->e($this->attr($plan, 'price', '')) . '</span>'
+                    . ($period !== '' ? '<span class="' . $periodClass . '">' . $this->e($period) . '</span>' : '') . '</div>'
+                    . $this->planFeatureListHtml($this->attr($plan, 'features', ''), $listClass)
+                    . $this->planButtonHtml($plan, $background, $center)
+                    . '</div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">' . $cards . '</div></div></section>';
+        }
+
+        // ---- minimalista-lista: sin tarjetas, solo divisores -----------------
+        if ($variant === 'minimalista-lista') {
+            $rows = '';
+            foreach ($plans as $plan) {
+                $descHtml = $this->attr($plan, 'description', '') !== '' ? '<p class="text-sm' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($this->attr($plan, 'description', '')) . '</p>' : '';
+                $period = $this->attr($plan, 'period', '');
+                $ctaLabel = $this->attr($plan, 'ctaLabel', '');
+                $ctaUrl = $this->attr($plan, 'ctaUrl', '');
+                $link = ($ctaLabel && $ctaUrl)
+                    ? '<a href="' . $this->e($ctaUrl) . '" class="text-sm font-semibold text-brand-primary hover:underline">' . $this->e($ctaLabel) . '</a>'
+                    : '';
+                $rows .= '<div class="flex items-center justify-between gap-4 py-6">'
+                    . '<div><h3 class="font-heading2 text-lg font-bold' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($plan, 'name', '')) . '</h3>' . $descHtml . '</div>'
+                    . '<div class="text-right shrink-0"><div><span class="font-heading2 text-2xl font-bold text-brand-primary">' . $this->e($this->attr($plan, 'price', '')) . '</span>'
+                    . ($period !== '' ? '<span class="text-sm' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($period) . '</span>' : '') . '</div>' . $link . '</div>'
+                    . '</div>';
+            }
+            return '<section class="' . trim('reveal py-16 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto">' . $head . '<div class="flex flex-col divide-y divide-surface-border">' . $rows . '</div></div></section>';
         }
 
         // ---- tres-planes: layout clásico en tarjetas (default) --------------
@@ -993,6 +1325,117 @@ class PuckHtmlRenderer
                 . '</div></section>';
         }
 
+        // ---- numerada-lista: todas abiertas, numeradas, sin acordeón -----
+        if ($variant === 'numerada-lista') {
+            $rows = '';
+            foreach (array_values($items) as $i => $item) {
+                $item = is_array($item) ? $item : [];
+                $rows .= '<div><div class="flex items-center gap-3 mb-2">'
+                    . '<span class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-bold flex items-center justify-center">' . ($i + 1) . '</span>'
+                    . '<span class="font-semibold text-lg' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($item, 'question', '')) . '</span></div>'
+                    . '<div class="ml-11 prose prose-sm dark:prose-invert max-w-none' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->raw($item, 'answer', '') . '</div>'
+                    . '<div class="ml-11">' . $this->faqLinksHtml($this->attr($item, 'links', '')) . '</div></div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-3xl mx-auto">' . $head . '<div class="flex flex-col gap-8">' . $rows . '</div></div></section>';
+        }
+
+        // ---- grid-iconos: ícono grande centrado, sin tarjetas/bordes -----
+        if ($variant === 'grid-iconos') {
+            $cards = '';
+            foreach ($items as $item) {
+                $item = is_array($item) ? $item : [];
+                $iconValue = $this->attr($item, 'icon', '');
+                $iconHtml = $iconValue !== ''
+                    ? '<div class="w-14 h-14 mx-auto rounded-full bg-brand-primary/10 flex items-center justify-center mb-4">' . $this->pickedIconHtml($iconValue, 'text-brand-primary', 26) . '</div>'
+                    : '';
+                $cards .= '<div>' . $iconHtml
+                    . '<h3 class="font-heading2 text-lg font-bold mb-2' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($item, 'question', '')) . '</h3>'
+                    . '<div class="prose prose-sm dark:prose-invert max-w-none' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->raw($item, 'answer', '') . '</div>'
+                    . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-5xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center">' . $cards . '</div></div></section>';
+        }
+
+        // ---- acordeon-minimalista: sin tarjetas, divisores + indicador +/- -
+        if ($variant === 'acordeon-minimalista') {
+            $list = '';
+            foreach ($items as $item) {
+                $item = is_array($item) ? $item : [];
+                $icon = $this->pickedIconHtml($this->attr($item, 'icon', ''), 'text-brand-primary flex-shrink-0', 18);
+                $list .= '<details class="group py-5">'
+                    . '<summary class="flex items-center justify-between gap-3 cursor-pointer font-semibold list-none' . ($textOverride ? '' : ' text-ink') . '">'
+                    . '<span>' . $this->e($this->attr($item, 'question', '')) . '</span>'
+                    . '<span class="text-brand-primary text-xl leading-none flex-shrink-0 group-open:rotate-45 transition-transform">+</span>'
+                    . '</summary>'
+                    . '<div class="mt-3 prose prose-sm dark:prose-invert max-w-none' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->raw($item, 'answer', '') . '</div>'
+                    . $this->faqLinksHtml($this->attr($item, 'links', ''))
+                    . '</details>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-3xl mx-auto">' . $head . '<div class="divide-y divide-surface-border border-t border-b border-surface-border">' . $list . '</div></div></section>';
+        }
+
+        // ---- columnas-alternado: dos columnas, items pares/impares -------
+        if ($variant === 'columnas-alternado') {
+            $left = '';
+            $right = '';
+            foreach (array_values($items) as $i => $item) {
+                $item = is_array($item) ? $item : [];
+                $icon = $this->pickedIconHtml($this->attr($item, 'icon', ''), 'text-brand-primary flex-shrink-0', 20);
+                $card = '<div class="bg-surface-alt rounded-xl border border-surface-border p-6">'
+                    . '<div class="flex items-center gap-3 mb-2">' . $icon
+                    . '<h3 class="font-heading2 text-base font-bold' . ($textOverride ? '' : ' text-ink') . '">' . $this->e($this->attr($item, 'question', '')) . '</h3></div>'
+                    . '<div class="prose prose-sm dark:prose-invert max-w-none' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->raw($item, 'answer', '') . '</div>'
+                    . $this->faqLinksHtml($this->attr($item, 'links', ''))
+                    . '</div>';
+                if ($i % 2 === 0) {
+                    $left .= $card;
+                } else {
+                    $right .= $card;
+                }
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-5xl mx-auto">' . $head
+                . '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">'
+                . '<div class="flex flex-col gap-6">' . $left . '</div>'
+                . '<div class="flex flex-col gap-6">' . $right . '</div>'
+                . '</div></div></section>';
+        }
+
+        // ---- banda-destacada: primera pregunta grande, resto compacto ----
+        if ($variant === 'banda-destacada') {
+            $itemsList = array_values($items);
+            $first = $itemsList[0] ?? null;
+            $rest = array_slice($itemsList, 1);
+            $firstHtml = '';
+            if (is_array($first)) {
+                $iconValue = $this->attr($first, 'icon', '');
+                $iconHtml = $iconValue !== '' ? $this->pickedIconHtml($iconValue, '', 24) : '';
+                $firstHtml = '<div class="bg-brand-primary text-white rounded-2xl p-8 mb-6">'
+                    . '<div class="flex items-center gap-3 mb-3">' . $iconHtml . '<h3 class="font-heading2 text-xl font-bold">' . $this->e($this->attr($first, 'question', '')) . '</h3></div>'
+                    . '<div class="prose prose-sm dark:prose-invert max-w-none opacity-90">' . $this->raw($first, 'answer', '') . '</div>'
+                    . $this->faqLinksHtml($this->attr($first, 'links', ''))
+                    . '</div>';
+            }
+            $list = '';
+            foreach ($rest as $item) {
+                $item = is_array($item) ? $item : [];
+                $icon = $this->pickedIconHtml($this->attr($item, 'icon', ''), 'text-brand-primary flex-shrink-0', 18);
+                $list .= '<details class="group bg-surface-alt rounded-xl border border-surface-border px-6 py-4">'
+                    . '<summary class="flex items-center justify-between gap-3 cursor-pointer font-semibold text-ink list-none">'
+                    . '<span class="flex items-center gap-3">' . $icon . '<span>' . $this->e($this->attr($item, 'question', '')) . '</span></span>'
+                    . '<span class="text-ink-muted group-open:rotate-180 transition-transform flex-shrink-0">▾</span>'
+                    . '</summary>'
+                    . '<div class="mt-3 text-ink-muted prose prose-sm dark:prose-invert max-w-none">' . $this->raw($item, 'answer', '') . '</div>'
+                    . $this->faqLinksHtml($this->attr($item, 'links', ''))
+                    . '</details>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-3xl mx-auto">' . $head . $firstHtml . '<div class="space-y-3">' . $list . '</div></div></section>';
+        }
+
         // ---- acordeon-clasico: layout original (default) -----------------
         $list = '';
         foreach ($items as $item) {
@@ -1115,6 +1558,92 @@ class PuckHtmlRenderer
                 . '<div class="flex flex-wrap justify-center gap-6 mb-10">' . $nav . '</div>'
                 . '<div class="max-w-3xl mx-auto bg-surface-alt border border-surface-border rounded-2xl p-8">' . $panels . '</div>'
                 . '</div></section>';
+        }
+
+        // ---- apiladas-acordeon: label+panel apilados (reusa el resaltado
+        //      de "clasicas") -----------------------------------------------
+        if ($variant === 'apiladas-acordeon') {
+            $rows = '';
+            foreach ($tabs as $i => $tab) {
+                $tab = is_array($tab) ? $tab : [];
+                $icon = $this->pickedIconHtml($this->attr($tab, 'icon', ''), 'flex-shrink-0', 18);
+                $rows .= '<div>'
+                    . '<label for="' . $this->e($groupName) . '-' . $i . '" class="puck-tabs-label puck-tabs-label-' . $i . ' flex items-center gap-3 cursor-pointer px-6 py-4 font-semibold text-ink-muted bg-surface-alt border-b-2 border-transparent">'
+                    . $icon . '<span>' . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</span></label>'
+                    . '<div class="puck-tabs-panel puck-tabs-panel-' . $i . ' text-ink-muted prose prose-sm dark:prose-invert max-w-none px-6 py-5">' . $this->raw($tab, 'content', '') . '</div>'
+                    . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto puck-tabs" data-variant="clasicas">' . $radios . $titleHtml
+                . '<div class="flex flex-col divide-y divide-surface-border border border-surface-border rounded-2xl overflow-hidden">' . $rows . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- iconos-circulares: ícono en botón circular (reusa "tarjetas") -
+        if ($variant === 'iconos-circulares') {
+            $nav = '';
+            foreach ($tabs as $i => $tab) {
+                $tab = is_array($tab) ? $tab : [];
+                $iconValue = $this->attr($tab, 'icon', '');
+                $inner = $iconValue !== '' ? $this->pickedIconHtml($iconValue, '', 28) : '<span class="font-bold">' . ($i + 1) . '</span>';
+                $nav .= '<label for="' . $this->e($groupName) . '-' . $i . '" class="puck-tabs-label puck-tabs-label-' . $i . ' cursor-pointer flex flex-col items-center gap-2 text-center">'
+                    . '<span class="w-16 h-16 rounded-full bg-surface-alt border-2 border-surface-border flex items-center justify-center">' . $inner . '</span>'
+                    . '<span class="text-sm font-semibold text-ink-muted">' . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</span></label>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto puck-tabs" data-variant="tarjetas">' . $radios . $titleHtml
+                . '<div class="flex flex-wrap justify-center gap-6 mb-8">' . $nav . '</div>'
+                . '<div class="max-w-3xl mx-auto bg-surface-alt border border-surface-border rounded-2xl p-8">' . $panels . '</div>'
+                . '</div></section>';
+        }
+
+        // ---- deslizante: nav en una fila con scroll horizontal (reusa
+        //      "píldoras") -------------------------------------------------
+        if ($variant === 'deslizante') {
+            $nav = '';
+            foreach ($tabs as $i => $tab) {
+                $tab = is_array($tab) ? $tab : [];
+                $icon = $this->pickedIconHtml($this->attr($tab, 'icon', ''), 'flex-shrink-0', 16);
+                $nav .= '<label for="' . $this->e($groupName) . '-' . $i . '" class="puck-tabs-label puck-tabs-label-' . $i . ' inline-flex items-center gap-2 cursor-pointer px-5 py-2 rounded-full text-sm font-semibold border border-surface-border text-ink-muted whitespace-pre-line">'
+                    . $icon . '<span>' . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</span></label>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto puck-tabs" data-variant="pildoras">' . $radios . $titleHtml
+                . '<div class="flex gap-2 mb-8 overflow-x-auto pb-2">' . $nav . '</div>' . $panels . '</div></section>';
+        }
+
+        // ---- lateral-derecha: espejo de "verticales", nav a la derecha -----
+        if ($variant === 'lateral-derecha') {
+            $nav = '';
+            foreach ($tabs as $i => $tab) {
+                $tab = is_array($tab) ? $tab : [];
+                $icon = $this->pickedIconHtml($this->attr($tab, 'icon', ''), 'flex-shrink-0', 18);
+                $nav .= '<label for="' . $this->e($groupName) . '-' . $i . '" class="puck-tabs-label puck-tabs-label-' . $i . ' flex items-center gap-3 cursor-pointer px-4 py-3 rounded-xl border border-transparent text-ink-muted font-semibold">'
+                    . $icon . '<span>' . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</span></label>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto puck-tabs" data-variant="verticales">' . $radios . $titleHtml
+                . '<div class="grid grid-cols-1 md:grid-cols-4 gap-8">'
+                . '<div class="md:col-span-3 md:order-1">' . $panels . '</div>'
+                . '<div class="flex md:flex-col gap-2 md:col-span-1 md:order-2">' . $nav . '</div>'
+                . '</div></div></section>';
+        }
+
+        // ---- numeradas-vertical: pasos numerados en columna ----------------
+        if ($variant === 'numeradas-vertical') {
+            $nav = '';
+            foreach ($tabs as $i => $tab) {
+                $tab = is_array($tab) ? $tab : [];
+                $nav .= '<label for="' . $this->e($groupName) . '-' . $i . '" class="puck-tabs-label puck-tabs-label-' . $i . ' cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl">'
+                    . '<span class="w-10 h-10 rounded-full bg-surface-alt border-2 border-surface-border text-ink-muted font-bold flex items-center justify-center flex-shrink-0">' . ($i + 1) . '</span>'
+                    . '<span class="text-sm font-semibold text-ink-muted">' . $this->e($this->attr($tab, 'label', 'Pestaña')) . '</span></label>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto puck-tabs" data-variant="numeradas">' . $radios . $titleHtml
+                . '<div class="grid grid-cols-1 md:grid-cols-3 gap-10">'
+                . '<div class="md:col-span-1 flex flex-col gap-2">' . $nav . '</div>'
+                . '<div class="md:col-span-2 bg-surface-alt border border-surface-border rounded-2xl p-8">' . $panels . '</div>'
+                . '</div></div></section>';
         }
 
         // ---- clasicas: nav subrayada (default) -------------------------------
@@ -1265,6 +1794,78 @@ class PuckHtmlRenderer
             }
             return '<section class="' . $sectionClass . '"' . $style . '>'
                 . '<div class="max-w-5xl mx-auto">' . $head . '<div class="grid grid-cols-2 gap-4">' . $imgs . '</div></div></section>';
+        }
+
+        // ---- destacada-miniaturas: primera imagen grande, resto en grid chico
+        if ($variant === 'destacada-miniaturas') {
+            $imagesList = array_values($images);
+            $first = $imagesList[0] ?? null;
+            $rest = array_slice($imagesList, 1, 4);
+            $firstHtml = '';
+            if (is_array($first)) {
+                $firstHtml = '<div class="md:col-span-2"><img src="' . $this->e($this->attr($first, 'url', '')) . '" alt="' . $this->e($this->attr($first, 'alt', 'Imagen')) . '" class="w-full h-full rounded-xl object-cover aspect-video md:aspect-auto"></div>';
+            }
+            $thumbs = '';
+            foreach ($rest as $img) {
+                $img = is_array($img) ? $img : [];
+                $thumbs .= '<img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full aspect-square rounded-xl object-cover">';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head
+                . '<div class="grid md:grid-cols-3 gap-4">' . $firstHtml . '<div class="grid grid-cols-2 md:grid-cols-1 gap-4">' . $thumbs . '</div></div>'
+                . '</div></section>';
+        }
+
+        // ---- circular: imágenes en avatares circulares, en fila --------------
+        if ($variant === 'circular') {
+            $imgs = '';
+            foreach ($images as $img) {
+                $img = is_array($img) ? $img : [];
+                $caption = $this->attr($img, 'caption', '');
+                $capHtml = $caption !== '' ? '<p class="text-sm mt-2' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($caption) . '</p>' : '';
+                $imgs .= '<div><img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-24 h-24 rounded-full object-cover mx-auto">' . $capHtml . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto text-center">' . $head . '<div class="flex flex-wrap justify-center gap-6">' . $imgs . '</div></div></section>';
+        }
+
+        // ---- leyenda-visible: grid con leyenda siempre visible debajo -------
+        if ($variant === 'leyenda-visible') {
+            $imgs = '';
+            foreach ($images as $img) {
+                $img = is_array($img) ? $img : [];
+                $caption = $this->attr($img, 'caption', '');
+                $capHtml = $caption !== '' ? '<p class="text-sm' . ($textOverride ? '' : ' text-ink-muted') . '">' . $this->e($caption) . '</p>' : '';
+                $imgs .= '<div><img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full aspect-video rounded-xl object-cover mb-2">' . $capHtml . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">' . $imgs . '</div></div></section>';
+        }
+
+        // ---- panoramica: una sola fila, ancho completo, sin scroll -----------
+        if ($variant === 'panoramica') {
+            $imgs = '';
+            foreach ($images as $img) {
+                $img = is_array($img) ? $img : [];
+                $imgs .= '<div class="flex-1 min-w-0"><img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full aspect-square rounded-xl object-cover"></div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="flex gap-3">' . $imgs . '</div></div></section>';
+        }
+
+        // ---- overlay-degradado: leyenda siempre visible sobre gradiente -----
+        if ($variant === 'overlay-degradado') {
+            $imgs = '';
+            foreach ($images as $img) {
+                $img = is_array($img) ? $img : [];
+                $caption = $this->attr($img, 'caption', '');
+                $overlay = $caption !== ''
+                    ? '<div class="absolute inset-0 flex items-end rounded-xl bg-gradient-to-t from-black/70 via-black/10 to-transparent"><span class="text-white text-sm font-semibold p-3">' . $this->e($caption) . '</span></div>'
+                    : '';
+                $imgs .= '<div class="relative"><img src="' . $this->e($this->attr($img, 'url', '')) . '" alt="' . $this->e($this->attr($img, 'alt', 'Imagen')) . '" class="w-full aspect-square rounded-xl object-cover">' . $overlay . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">' . $imgs . '</div></div></section>';
         }
 
         // ---- grid-uniforme: layout original (default) --------------------------
@@ -1446,6 +2047,91 @@ class PuckHtmlRenderer
                 . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">' . $items . '</div></div></section>';
         }
 
+        // ---- linea-horizontal: fila compacta, separadores implícitos ---------
+        if ($variant === 'linea-horizontal') {
+            $items = '';
+            foreach ($stats as $s) {
+                $s = is_array($s) ? $s : [];
+                $items .= '<div class="flex items-baseline gap-2">'
+                    . '<span class="text-2xl font-bold">' . $this->e($this->attr($s, 'value', '')) . '</span>'
+                    . '<span class="text-sm opacity-75">' . $this->e($this->attr($s, 'label', '')) . '</span></div>';
+            }
+            return '<section class="' . trim('reveal py-8 px-4 ' . $resolved['class']) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">' . $items . '</div></div></section>';
+        }
+
+        // ---- circulos-icono: ícono+valor dentro de un círculo con borde ------
+        if ($variant === 'circulos-icono') {
+            $items = '';
+            foreach ($stats as $s) {
+                $s = is_array($s) ? $s : [];
+                $icon = $this->pickedIconHtml($this->attr($s, 'icon', ''), 'mb-0.5', 20);
+                $desc = $this->attr($s, 'description', '');
+                $descHtml = $desc !== '' ? '<div class="text-sm opacity-75 mt-1">' . $this->e($desc) . '</div>' : '';
+                $items .= '<div>'
+                    . '<div class="w-28 h-28 mx-auto rounded-full border-2 border-brand-primary flex flex-col items-center justify-center mb-3">' . $icon
+                    . '<span class="text-xl font-bold">' . $this->e($this->attr($s, 'value', '')) . '</span></div>'
+                    . '<div class="text-lg opacity-90">' . $this->e($this->attr($s, 'label', '')) . '</div>'
+                    . $descHtml . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">' . $items . '</div></div></section>';
+        }
+
+        // ---- lista-vertical-icono: ícono izq., valor+label a la derecha ------
+        if ($variant === 'lista-vertical-icono') {
+            $items = '';
+            foreach ($stats as $s) {
+                $s = is_array($s) ? $s : [];
+                $iconValue = $this->attr($s, 'icon', '');
+                $iconHtml = $iconValue !== ''
+                    ? '<div class="flex-shrink-0 w-14 h-14 rounded-brand bg-brand-primary/10 flex items-center justify-center">' . $this->pickedIconHtml($iconValue, '', 28) . '</div>'
+                    : '';
+                $desc = $this->attr($s, 'description', '');
+                $descHtml = $desc !== '' ? '<div class="text-sm opacity-75">' . $this->e($desc) . '</div>' : '';
+                $items .= '<div class="flex items-center gap-4">' . $iconHtml
+                    . '<div><div class="text-3xl font-bold leading-tight">' . $this->e($this->attr($s, 'value', '')) . '</div>'
+                    . '<div class="opacity-90">' . $this->e($this->attr($s, 'label', '')) . '</div>'
+                    . $descHtml . '</div></div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-2xl mx-auto">' . $head . '<div class="flex flex-col gap-6">' . $items . '</div></div></section>';
+        }
+
+        // ---- dos-columnas-grande: 2 números protagonistas, muy grandes -------
+        if ($variant === 'dos-columnas-grande') {
+            $items = '';
+            foreach (array_slice($stats, 0, 2) as $s) {
+                $s = is_array($s) ? $s : [];
+                $icon = $this->pickedIconHtml($this->attr($s, 'icon', ''), 'mx-auto mb-3', 36);
+                $desc = $this->attr($s, 'description', '');
+                $descHtml = $desc !== '' ? '<div class="text-sm opacity-75 mt-1">' . $this->e($desc) . '</div>' : '';
+                $items .= '<div>' . $icon
+                    . '<div class="text-7xl font-bold mb-2">' . $this->e($this->attr($s, 'value', '')) . '</div>'
+                    . '<div class="text-xl opacity-90">' . $this->e($this->attr($s, 'label', '')) . '</div>'
+                    . $descHtml . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-4xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-2 gap-10 text-center">' . $items . '</div></div></section>';
+        }
+
+        // ---- tarjetas-borde-color: tarjetas planas con borde superior --------
+        if ($variant === 'tarjetas-borde-color') {
+            $items = '';
+            foreach ($stats as $s) {
+                $s = is_array($s) ? $s : [];
+                $icon = $this->pickedIconHtml($this->attr($s, 'icon', ''), 'mx-auto mb-2 text-brand-primary', 28);
+                $desc = $this->attr($s, 'description', '');
+                $descHtml = $desc !== '' ? '<div class="text-sm opacity-75 mt-1">' . $this->e($desc) . '</div>' : '';
+                $items .= '<div class="border-t-2 border-brand-primary bg-surface-alt p-6 text-center">' . $icon
+                    . '<div class="text-4xl font-bold mb-1">' . $this->e($this->attr($s, 'value', '')) . '</div>'
+                    . '<div class="opacity-90">' . $this->e($this->attr($s, 'label', '')) . '</div>'
+                    . $descHtml . '</div>';
+            }
+            return '<section class="' . $sectionClass . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">' . $head . '<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">' . $items . '</div></div></section>';
+        }
+
         // ---- tres-columnas: layout original (default) --------------------------
         $items = '';
         foreach ($stats as $s) {
@@ -1548,6 +2234,86 @@ class PuckHtmlRenderer
                 . '<div class="mt-10 pt-6 border-t border-surface-border">' . $copyEl . '</div></div></footer>';
         }
 
+        // ---- simple-linea: una sola barra, sin columnas visibles ------------
+        if ($variant === 'simple-linea') {
+            return '<footer class="' . trim('py-6 px-4 ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">' . $copyEl
+                . '<div class="flex flex-wrap justify-center gap-x-6 gap-y-2">' . $this->footerAllLinksHtml($cols) . '</div>'
+                . '</div></footer>';
+        }
+
+        // ---- pila-centrada: todo apilado y centrado, una sola columna -------
+        if ($variant === 'pila-centrada') {
+            $lis = '';
+            foreach (array_filter(array_map('trim', explode("\n", $contact))) as $l) {
+                $lis .= '<li class="text-sm opacity-90">' . $this->e($l) . '</li>';
+            }
+            $contactHtml = $lis !== '' ? '<ul class="mt-5 space-y-1">' . $lis . '</ul>' : '';
+            return '<footer class="' . trim('py-14 px-4 text-center ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-md mx-auto">' . $brandEl . $taglineEl . $contactHtml
+                . '<div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6">' . $this->footerAllLinksHtml($cols) . '</div>'
+                . '<div class="mt-6">' . $copyEl . '</div></div></footer>';
+        }
+
+        // ---- panel-dividido: panel de marca con fondo de contraste + columnas
+        if ($variant === 'panel-dividido') {
+            $lis = '';
+            foreach (array_filter(array_map('trim', explode("\n", $contact))) as $l) {
+                $lis .= '<li class="text-sm opacity-90">' . $this->e($l) . '</li>';
+            }
+            $contactHtml = $lis !== '' ? '<ul class="mt-5 space-y-1">' . $lis . '</ul>' : '';
+            return '<footer class="' . $cls . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3">'
+                . '<div class="bg-brand-primary text-white p-10 md:col-span-1">'
+                . '<div class="font-heading2 text-xl font-bold">' . $this->e($brand) . '</div>'
+                . ($tagline !== '' ? '<p class="text-sm opacity-90 mt-3">' . $this->e($tagline) . '</p>' : '')
+                . $contactHtml
+                . '</div>'
+                . '<div class="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-8 p-10">' . $colBlocks . '</div>'
+                . '</div>'
+                . '<div class="max-w-6xl mx-auto px-10 pb-6">' . $copyEl . '</div></footer>';
+        }
+
+        // ---- acordeon-movil: columnas colapsables en móvil, grid en desktop -
+        if ($variant === 'acordeon-movil') {
+            $accordion = '';
+            foreach ($cols as $c) {
+                $c = is_array($c) ? $c : [];
+                $lis = '';
+                foreach ($this->parseFaqLinks($this->attr($c, 'links', '')) as $l) {
+                    $lis .= '<li><a href="' . $this->e($l['url']) . '" class="text-sm opacity-80 hover:opacity-100">' . $this->e($l['label']) . '</a></li>';
+                }
+                $accordion .= '<details class="group py-3">'
+                    . '<summary class="flex items-center justify-between cursor-pointer font-semibold list-none">'
+                    . '<span>' . $this->e($this->attr($c, 'title', '')) . '</span>'
+                    . '<span class="opacity-60 group-open:rotate-180 transition-transform">▾</span>'
+                    . '</summary>'
+                    . '<div class="mt-3"><ul class="space-y-2">' . $lis . '</ul></div>'
+                    . '</details>';
+            }
+            return '<footer class="' . trim('py-14 px-4 ' . $cls) . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto">'
+                . '<div class="mb-8">' . $brandEl . $taglineEl . '</div>'
+                . '<div class="hidden md:grid grid-cols-2 sm:grid-cols-3 gap-8">' . $colBlocks . '</div>'
+                . '<div class="md:hidden flex flex-col divide-y divide-surface-border border-t border-b border-surface-border">' . $accordion . '</div>'
+                . '</div>'
+                . '<div class="max-w-6xl mx-auto mt-10 pt-6 border-t border-surface-border">' . $copyEl . '</div></footer>';
+        }
+
+        // ---- tres-niveles: aviso arriba, columnas al medio, barra abajo -----
+        if ($variant === 'tres-niveles') {
+            $contactLines = array_filter(array_map('trim', explode("\n", $contact)));
+            $firstContact = reset($contactLines) ?: '';
+            return '<footer class="' . $cls . '"' . $style . '>'
+                . '<div class="max-w-6xl mx-auto px-4 py-8 text-center border-b border-surface-border">' . $brandEl . $taglineEl . '</div>'
+                . '<div class="max-w-6xl mx-auto px-4 py-10 grid grid-cols-2 sm:grid-cols-3 gap-8">' . $colBlocks . '</div>'
+                . '<div class="bg-brand-primary text-white py-4 px-4">'
+                . '<div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">'
+                . ($copyright !== '' ? '<p class="text-sm">' . $this->e($copyright) . '</p>' : '')
+                . ($firstContact !== '' ? '<p class="text-sm opacity-90">' . $this->e($firstContact) . '</p>' : '')
+                . '</div></div></footer>';
+        }
+
         // ---- columnas: layout clásico (default) ---------------------------------
         return '<footer class="' . trim('py-14 px-4 ' . $cls) . '"' . $style . '>'
             . '<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10"><div>' . $brandEl . $taglineEl . '</div>' . $colBlocks . '</div>'
@@ -1640,6 +2406,42 @@ class PuckHtmlRenderer
 
         if ($variant === 'flotante') {
             return '<header class="relative z-40 px-4 pt-4"><nav class="' . trim('mx-auto max-w-5xl flex h-14 items-center justify-between gap-4 px-5 rounded-full shadow-lg border border-surface-border ' . $cls) . '"' . $style . '>'
+                . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl) . $mobile . '</div></nav></header>';
+        }
+
+        // ---- apilado-cta: marca arriba, enlaces al medio, botón abajo -----
+        if ($variant === 'apilado-cta') {
+            return '<header class="' . trim('relative z-40 border-b border-surface-border ' . $cls) . '"' . $style . '>'
+                . '<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-5 flex flex-col items-center gap-3">'
+                . '<div class="w-full flex items-center justify-between md:justify-center">' . $brandEl . $mobile . '</div>'
+                . $linksEl
+                . $this->headerCtaHtml($ctaLabel, $ctaUrl)
+                . '</div></header>';
+        }
+
+        // ---- minimalista-enlaces: solo marca + enlaces, sin botón ---------
+        if ($variant === 'minimalista-enlaces') {
+            return '<header class="' . trim('relative z-40 ' . $cls) . '"' . $style . '><nav class="' . $navInner . '">'
+                . $brandEl . $linksEl . $mobile . '</nav></header>';
+        }
+
+        // ---- marca-derecha: espejo del clásico, logo a la derecha ---------
+        if ($variant === 'marca-derecha') {
+            return '<header class="' . trim('relative z-40 border-b border-surface-border ' . $cls) . '"' . $style . '><nav class="' . $navInner . '">'
+                . '<div class="flex items-center gap-2">' . $mobile . $this->headerCtaHtml($ctaLabel, $ctaUrl) . '</div>'
+                . $linksEl . $brandEl
+                . '</nav></header>';
+        }
+
+        // ---- transparente-superpuesto: sin fondo, position absolute -------
+        if ($variant === 'transparente-superpuesto') {
+            return '<header class="absolute inset-x-0 top-0 z-40 text-white"><nav class="' . $navInner . '">'
+                . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl, true) . $mobile . '</div></nav></header>';
+        }
+
+        // ---- borde-redondeado-inferior: barra ancha, esquinas redondeadas -
+        if ($variant === 'borde-redondeado-inferior') {
+            return '<header class="' . trim('relative z-40 rounded-b-3xl shadow-lg ' . $cls) . '"' . $style . '><nav class="' . $navInner . '">'
                 . $brandEl . $linksEl . '<div class="flex items-center gap-2">' . $this->headerCtaHtml($ctaLabel, $ctaUrl) . $mobile . '</div></nav></header>';
         }
 

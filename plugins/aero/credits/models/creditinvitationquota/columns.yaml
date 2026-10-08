@@ -1,0 +1,20 @@
+columns:
+    tenant_name:
+        label: Tenant
+        searchable: false
+    invites_allowed:
+        label: Cuota asignada
+        sortable: false
+    used:
+        label: Usadas
+        type: partial
+        path: ~/plugins/aero/credits/controllers/creditinvitationquotas/_used_column.htm
+        sortable: false
+    grant_period_count:
+        label: Regalo
+        select: 'concat(ifnull(grant_period_count, "—"), " ", if(grant_period_unit = "annual", "año(s)", if(grant_period_unit = "monthly", "mes(es)", if(grant_period_unit = "daily", "día(s)", ""))))'
+        searchable: false
+    updated_at:
+        label: Actualizado
+        type: datetime
+        invisible: true

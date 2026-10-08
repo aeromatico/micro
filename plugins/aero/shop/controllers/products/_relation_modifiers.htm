@@ -1,0 +1,11 @@
+<?php if (\Aero\Shop\Models\ShopSettings::isRestaurantForTenant((int) ($formModel->tenant_id ?: $this->getCurrentTenantId()))): ?>
+    <h4>Extras y modificadores (restaurante)</h4>
+    <p class="help-block">Crea grupos como «Tamaño» o «Adicionales». El cliente los elige al pedir el plato.</p>
+    <?php if ($formModel->exists): ?>
+        <?= $this->relationRender('modifier_groups') ?>
+    <?php else: ?>
+        <p class="help-block">Guarda el plato primero para poder agregar extras.</p>
+    <?php endif ?>
+<?php else: ?>
+    <p class="help-block">Esta pestaña está disponible cuando el tipo de tienda es «Restaurante» (Configuración → Tipo de tienda).</p>
+<?php endif ?>

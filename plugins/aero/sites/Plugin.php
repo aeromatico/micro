@@ -39,6 +39,8 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
         $this->registerConsoleCommand('aero.sites:release-expired-signups', \Aero\Sites\Console\ReleaseExpiredSignups::class);
         $this->registerConsoleCommand('aero.sites:expire-trials', \Aero\Sites\Console\ExpireTrials::class);
+        $this->registerConsoleCommand('aero.sites:generate-renewals', \Aero\Sites\Console\GenerateRenewals::class);
+        $this->registerConsoleCommand('aero.sites:expire-renewals', \Aero\Sites\Console\ExpireRenewals::class);
     }
 
     public function boot(): void
@@ -51,11 +53,36 @@ class Plugin extends PluginBase
         $this->bootHelloIntegration();
         $this->bootApiIntegration();
         $this->bootChatbotsIntegration();
-        $this->registerConfigMenuTab();
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
+        $this->bootPayRenewalBridge();
         $this->bootZeptomailMailer();
         $this->bootProFeaturesGate();
+        $this->bootHideSystemMenuForTenants();
+    }
+
+    /**
+     * El menú "Ajustes" (October.System → system) se registra con
+     * `permissions => []`, así que el núcleo lo muestra a CUALQUIER usuario
+     * del backend sin filtrar por permiso — incluidos los tenants, que no
+     * deberían ver la configuración global de la plataforma (solo la suya,
+     * en "Sitio Web → Configuración"). Se oculta para cualquier usuario que
+     * resuelva a un tenant y no sea superadmin (tenant_admin, tenant_admin_pro
+     * o un rol a medida asignado a un tenant).
+     */
+    protected function bootHideSystemMenuForTenants(): void
+    {
+        Event::listen('backend.menu.extendItems', function ($manager) {
+            $user = \BackendAuth::getUser();
+
+            if (!$user || $user->is_superuser) {
+                return;
+            }
+
+            if (\Aero\Sites\Models\Tenant::resolveForBackendUser($user)) {
+                $manager->removeMainMenuItem('October.System', 'system');
+            }
+        });
     }
 
     /**
@@ -146,6 +173,14 @@ class Plugin extends PluginBase
             ->everyMinute()
             ->withoutOverlapping()
             ->onOneServer();
+        $schedule->command('aero.sites:generate-renewals')
+            ->dailyAt('03:50')
+            ->withoutOverlapping()
+            ->onOneServer();
+        $schedule->command('aero.sites:expire-renewals')
+            ->dailyAt('03:55')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
     /**
@@ -185,6 +220,63 @@ class Plugin extends PluginBase
     }
 
     /**
+     * Espejo de bootPaySignupBridge() para renovaciones: cuando se confirma
+     * el pago de un QR generado por Console\GenerateRenewals, marca la
+     * PlanRenewal como pagada, extiende plan_expires_at del tenant desde su
+     * fecha anterior (no desde now(), para no perder/regalar días según
+     * cuándo exactamente pague dentro de la ventana de 5 días) y otorga los
+     * créditos del ciclo. Mismo evento que el puente de alta —cada uno
+     * revisa si la referencia le pertenece, sin pisarse— y nunca deja
+     * escapar una excepción por el mismo motivo que el otro puente.
+     */
+    protected function bootPayRenewalBridge(): void
+    {
+        if (!class_exists(\Aero\Pay\Models\QrCode::class)) {
+            return;
+        }
+
+        Event::listen('aero.pay.paymentReceived', function ($payment, $qrCode) {
+            $renewal = \Aero\Sites\Models\PlanRenewal::where('payment_reference', $qrCode->internal_reference)
+                ->where('status', 'pending')
+                ->first();
+
+            if (!$renewal) {
+                return;
+            }
+
+            try {
+                $tenant = $renewal->tenant;
+                if (!$tenant) {
+                    return;
+                }
+
+                $renewal->status = 'paid';
+                $renewal->paid_at = now();
+                $renewal->save();
+
+                $base = ($tenant->plan_expires_at && $tenant->plan_expires_at->gt(now())) ? $tenant->plan_expires_at : now();
+                $tenant->plan_expires_at = $renewal->period === 'annual' ? $base->copy()->addYear() : $base->copy()->addMonth();
+                $tenant->save();
+
+                \Aero\Sites\Classes\PlanCredits::grant($tenant, "renewal:{$renewal->id}");
+
+                if (class_exists(\Aero\Notify\Classes\Notify::class)) {
+                    try {
+                        \Aero\Notify\Classes\Notify::fire('sites.tenant.plan_renewed', [
+                            'tenant_name'     => $tenant->name,
+                            'plan_expires_at' => $tenant->plan_expires_at->toFormattedDateString(),
+                        ], ['tenant_id' => $tenant->id]);
+                    } catch (\Throwable $e) {
+                        \Log::error('Aero.Sites: fallo notificando sites.tenant.plan_renewed: ' . $e->getMessage());
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::error("Aero\\Sites: fallo procesando renovación pagada (tenant {$renewal->tenant_id}): " . $e->getMessage());
+            }
+        });
+    }
+
+    /**
      * Aero.Chatbots no conoce el contenido del microsite ni los datos de
      * contacto de un tenant — pregunta por evento qué "AI tools" hay
      * disponibles para el modo Súper IA. Dependencia blanda: si
@@ -195,13 +287,13 @@ class Plugin extends PluginBase
     {
         Event::listen('aero.chatbots.registerAiTools', function () {
             return [
-                'get_contact_info' => [
+                'sites_contact_get' => [
                     'description' => 'Obtiene los datos de contacto del negocio: nombre, teléfono, WhatsApp, email y dirección.',
                     'category'    => 'site',
                     'parameters'  => ['type' => 'object', 'properties' => []],
                     'handler'     => [\Aero\Sites\Classes\Ai\ChatbotTools::class, 'getContactInfo'],
                 ],
-                'get_landing_content' => [
+                'sites_landing_get' => [
                     'description' => 'Obtiene el contenido publicado de una página del sitio web del negocio (por defecto, la página de inicio).',
                     'category'    => 'site',
                     'parameters'  => [
@@ -265,28 +357,6 @@ class Plugin extends PluginBase
             if ($tenantId) {
                 $owner = ['type' => \Aero\Sites\Models\Tenant::class, 'id' => $tenantId];
             }
-        });
-    }
-
-    /**
-     * Espejo de "Sitio Web → Configuración" como tab del menú central
-     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
-     * un solo lugar. El menú propio de Sitio Web sigue existiendo tal cual —
-     * esto solo agrega un acceso más al mismo controlador, no lo mueve.
-     */
-    protected function registerConfigMenuTab(): void
-    {
-        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
-            return;
-        }
-
-        Event::listen('backend.menu.extendItems', function ($manager) {
-            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'site-settings', [
-                'label'       => 'aero.sites::lang.menu.settings',
-                'icon'        => 'icon-globe',
-                'url'         => Backend::url('aero/sites/sitesettings'),
-                'permissions' => ['aero.sites.manage_seo'],
-            ]);
         });
     }
 
@@ -484,6 +554,25 @@ class Plugin extends PluginBase
         ];
     }
 
+    /** Para los temas: {% if contact_enabled() %}. Resuelve el tenant por el dominio del request. */
+    public function registerMarkupTags(): array
+    {
+        return [
+            'functions' => [
+                'contact_enabled' => function () {
+                    $tenant = \Aero\Sites\Models\Tenant::resolveFromDomain(request()->getHost());
+
+                    return $tenant ? \Aero\Sites\Models\ContactConfig::isEnabledFor($tenant->id) : false;
+                },
+            ],
+            // Uso: {{ page.content | aeroDynamic | raw }} — resuelve los marcadores
+            // data-aero-dynamic (ver Classes\DynamicSources).
+            'filters' => [
+                'aeroDynamic' => fn ($html) => \Aero\Sites\Classes\DynamicSources::render((string) $html),
+            ],
+        ];
+    }
+
     public function registerComponents(): array
     {
         return [
@@ -492,6 +581,9 @@ class Plugin extends PluginBase
             \Aero\Sites\Components\PageDetail::class    => 'sitesPageDetail',
             \Aero\Sites\Components\ContactSection::class => 'sitesContact',
             \Aero\Sites\Components\SignupWizard::class   => 'signupWizard',
+            \Aero\Sites\Components\PlatformLeadForm::class => 'platformLeadForm',
+            \Aero\Sites\Components\BlocksGallery::class  => 'sitesBlocksGallery',
+            \Aero\Sites\Components\BlocksPreview::class  => 'sitesBlocksPreview',
         ];
     }
 
@@ -556,6 +648,12 @@ class Plugin extends PluginBase
                         'url'         => Backend::url('aero/sites/plans'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
+                    'planrenewals' => [
+                        'label'       => 'Renovaciones',
+                        'icon'        => 'icon-refresh',
+                        'url'         => Backend::url('aero/sites/planrenewals'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
                     'rootdomains' => [
                         'label'       => 'aero.sites::lang.menu.root_domains',
                         'icon'        => 'icon-server',
@@ -584,6 +682,12 @@ class Plugin extends PluginBase
                         'label'       => 'aero.sites::lang.menu.submissions',
                         'icon'        => 'icon-envelope',
                         'url'         => Backend::url('aero/sites/contactsubmissions'),
+                        'permissions' => ['aero.sites.superadmin'],
+                    ],
+                    'platformleads' => [
+                        'label'       => 'Leads (Trial / Empresa)',
+                        'icon'        => 'icon-bullhorn',
+                        'url'         => Backend::url('aero/sites/platformleads'),
                         'permissions' => ['aero.sites.superadmin'],
                     ],
                     'apitokens' => [

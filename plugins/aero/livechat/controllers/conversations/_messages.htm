@@ -1,0 +1,87 @@
+<div id="livechat-messages-log" style="max-height:420px;overflow-y:auto;padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#fafafa;margin-bottom:12px;">
+    <?= $this->makePartial('messages_log', ['model' => $model]) ?>
+</div>
+
+<div class="form-group">
+    <textarea id="livechat-reply-body" name="reply_body" class="form-control" rows="2" placeholder="Escribe una respuesta..."></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+        <button
+            type="button"
+            class="btn btn-primary oc-icon-send"
+            data-request="onReply"
+            data-request-data="record_id: <?= $model->id ?>"
+            data-request-success="$('#livechat-reply-body').val('')">
+            Enviar
+        </button>
+
+        <input type="file" id="livechat-attach-input" style="display:none;"
+            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ogg,.mp3,.m4a,.webm,.mp4">
+        <button type="button" class="btn btn-secondary oc-icon-paperclip" id="livechat-attach-btn" title="Adjuntar archivo"
+            onclick="document.getElementById('livechat-attach-input').click()">Adjuntar</button>
+
+        <span id="livechat-attach-msg" class="text-muted" style="font-size:12px;"></span>
+
+        <button
+            type="button"
+            class="btn btn-secondary oc-icon-lock"
+            data-request="onFinish"
+            data-request-data="record_id: <?= $model->id ?>"
+            data-request-confirm="¿Finalizar esta conversación?"
+            style="margin-left:auto;">
+            Finalizar
+        </button>
+    </div>
+</div>
+
+<script>
+(function () {
+    var recordId = <?= (int) $model->id ?>;
+    if (window.__livechatPoll) { clearInterval(window.__livechatPoll); }
+    window.__livechatPoll = setInterval(function () {
+        $.request('onLoadMessages', { data: { record_id: recordId } });
+    }, 4000);
+
+    var attachInput = document.getElementById('livechat-attach-input');
+    if (attachInput && !attachInput.dataset.bound) {
+        attachInput.dataset.bound = '1';
+        attachInput.addEventListener('change', function () {
+            var file = this.files[0];
+            this.value = '';
+            if (!file) return;
+
+            var msgEl = document.getElementById('livechat-attach-msg');
+            msgEl.textContent = 'Subiendo...';
+
+            var formData = new FormData();
+            formData.append('record_id', recordId);
+            formData.append('attachment', file);
+
+            var csrf = document.querySelector('meta[name="csrf-token"]');
+
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-AJAX-HANDLER': 'onAttach',
+                    'X-CSRF-TOKEN': csrf ? csrf.getAttribute('content') : '',
+                },
+                body: formData,
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    msgEl.textContent = '';
+                    var ops = (data && data.__ajax && data.__ajax.ops) || [];
+                    ops.forEach(function (op) {
+                        if (op.op === 'patchDom') {
+                            var el = document.querySelector(op.selector);
+                            if (el) { el.innerHTML = op.html; }
+                        }
+                    });
+                })
+                .catch(function () {
+                    msgEl.textContent = 'No se pudo subir el archivo.';
+                });
+        });
+    }
+})();
+</script>

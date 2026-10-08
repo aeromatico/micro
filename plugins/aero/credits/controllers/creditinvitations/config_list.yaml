@@ -1,0 +1,12 @@
+list: $/aero/credits/models/creditinvitation/columns.yaml
+modelClass: Aero\Credits\Models\CreditInvitation
+title: aero.credits::lang.menu.creditinvitations
+showSetup: true
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+toolbar:
+    search:
+        prompt: backend::lang.list.search_prompt
+filter: config_filter.yaml

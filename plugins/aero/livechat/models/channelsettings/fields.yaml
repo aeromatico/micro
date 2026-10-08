@@ -1,0 +1,76 @@
+fields:
+    livechat_enabled:
+        label: Livechat activo
+        type: switch
+        span: full
+        comment: Apaga por completo el chat en vivo de este tenant — el widget se oculta en los sitios y no entran mensajes nuevos. Las conversaciones existentes se conservan.
+
+    _embed_snippets:
+        type: partial
+        path: embed_snippets
+        span: full
+
+    widget_mode:
+        label: Modo del widget
+        type: dropdown
+        span: full
+        options:
+            livechat: Livechat (chat en vivo gestionado por Hello)
+            whatsapp: WhatsApp (icono flotante que abre WhatsApp)
+            both: Livechat + WhatsApp (los dos botones)
+            custom: Personalizado (código de terceros)
+        comment: Qué se muestra en tu sitio donde esté incrustado el script del inbox.
+
+    widget_whatsapp:
+        label: Número de WhatsApp del icono
+        type: text
+        span: full
+        placeholder: 59170000000
+        comment: El icono abre https://wa.me/ con este número en una pestaña nueva. Formato internacional.
+        trigger:
+            action: show
+            field: widget_mode
+            condition: value[whatsapp][both]
+
+    custom_code:
+        label: Código personalizado
+        type: textarea
+        size: huge
+        span: full
+        comment: HTML y scripts de terceros (otro chat, pixel, etc.) que se incrustan en el sitio. Se ejecutan tal cual en las páginas donde esté el script del inbox — pega solo código en el que confíes.
+        trigger:
+            action: show
+            field: widget_mode
+            condition: value[custom]
+
+    whatsapp_enabled:
+        label: Retransmitir chats a WhatsApp
+        type: switch
+        span: full
+        comment: Cada mensaje del chat web se envía también al número indicado, por la cuenta de Hello elegida. Lo que respondas por WhatsApp vuelve al visitante.
+        trigger:
+            action: show
+            field: widget_mode
+            condition: value[livechat][both]
+
+    hello_account_id:
+        label: Cuenta de Hello
+        type: dropdown
+        span: auto
+        emptyOption: — Elegir cuenta —
+        comment: Cuenta de WhatsApp conectada en Hello (WhatsApp Web o Cloud API).
+        trigger:
+            action: show
+            field: widget_mode
+            condition: value[livechat][both]
+
+    whatsapp_to:
+        label: Número que recibe los chats
+        type: text
+        span: auto
+        placeholder: 59170000000
+        comment: Número del agente, en formato internacional. Para responder una conversación concreta empieza tu mensaje con su código, por ejemplo "#12 hola".
+        trigger:
+            action: show
+            field: widget_mode
+            condition: value[livechat][both]

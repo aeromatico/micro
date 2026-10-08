@@ -5,6 +5,7 @@ recordUrl: aero/docs/articles/update/:id
 noRecordsMessage: No hay registros.
 recordsPerPage: 50
 showSorting: true
+showSetup: true
 defaultSort:
     column: updated_at
     direction: desc

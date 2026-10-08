@@ -46,3 +46,19 @@
 1.10.0:
     - "Aviso de recarga acreditada: se dispara desde el listener del pago (fuera de la transacción), con tenant_name y registro en el log; plantillas de bandeja y push para los avisos de recarga."
     - seed_purchase_inapp_push_templates.php
+
+1.11.0:
+    - "Créditos de regalo de plan con vencimiento (Aero.Sites Plan.credits mode=expiring): topUp() admite $expiresAt y crea un CreditPlanGrantLot; chargeRaw() descuenta primero del lote más próximo a vencer (solo contabilidad auxiliar, el saldo real no cambia); credits:expire-plan-grants postea kind=expiry por lo que quede sin usar al vencer el ciclo. No cambia nada para los colores en modo acumulable (el default de siempre)."
+    - create_credit_plan_grant_lots_table.php
+
+1.12.0:
+    - "Cupones e invitaciones: cupones públicos (código, plan + periodo gratis, tope de canjes, vencimiento) y cuotas de invitación por tenant (el superadmin asigna en cualquier momento cuántas invitaciones y con qué plan/periodo se benefician sus invitados; por defecto 3, igual para los tenants invitados). Las invitaciones se mandan por WhatsApp (Aero.Hello, por defecto) o correo, con código de canje. Grants::apply() extiende plan_expires_at del tenant y le pone el plan del regalo; Coupons/Invitations::preview()+consume() resuelven el canje sin tocar nada si Aero.Sites no está instalado. Pantallas: Créditos → Cupones, Cuotas de invitación, Invitaciones (auditoría); Mis invitaciones (autoservicio del tenant, enlace en el navbar junto a Wallet)."
+    - create_credit_coupons_table.php
+    - create_credit_invitation_quotas_table.php
+    - create_credit_invitations_table.php
+1.13.0:
+    - "Regalar una suscripción (/regalar): el comprador paga un QR y al confirmarse se emite un cupón de un solo uso que se envía al destinatario (WhatsApp o correo) con el enlace de canje. Tabla aero_credits_gifts, componente giftForm."
+    - create_credit_gifts_table.php
+1.14.0:
+    - "Regalos: pantalla de auditoría (Créditos → Regalos de suscripción) y vencimiento automático de los QR sin pagar (credits:expire-gifts). Canje de cupones por un tenant existente desde Mis invitaciones (un canje por tenant y cupón; solo del mismo plan que ya tiene o si no tiene plan vigente; nunca el Trial)."
+    - create_credit_coupon_redemptions_table.php

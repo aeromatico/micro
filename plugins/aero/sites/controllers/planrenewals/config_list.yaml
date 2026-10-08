@@ -1,0 +1,13 @@
+title: Renovaciones
+list: $/aero/sites/models/planrenewal/columns.yaml
+modelClass: Aero\Sites\Models\PlanRenewal
+noRecordsMessage: No hay renovaciones generadas todavía.
+recordsPerPage: 30
+
+toolbar:
+    search:
+        prompt: Buscar renovación...
+
+defaultSort:
+    column: cycle_due_at
+    direction: desc

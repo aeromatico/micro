@@ -1,0 +1,10 @@
+title: Seguimiento externo
+list: $/aero/tracking/models/feed/columns.yaml
+modelClass: Aero\Tracking\Models\Feed
+recordUrl: aero/tracking/feeds/update/:id
+noRecordsMessage: Aún no sigues ningún enlace. Pega uno con «Seguir enlace».
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

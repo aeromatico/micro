@@ -17,20 +17,37 @@ trait InDocsScope
     }
 
     /**
-     * Ámbito de lectura pública: lo propio del tenant MÁS lo marcado como
-     * global (uso general). En la plataforma (null) se ve lo de la plataforma,
-     * que ya incluye lo global. A diferencia de inScope(), este scope es solo
-     * para mostrar; editar/validar sigue usando inScope().
+     * Ámbito de lectura pública. Cada sitio ve SOLO lo suyo: la plataforma
+     * (tenant_id NULL) es nuestra documentación y es el portal; los tenants no
+     * la ven, aunque esté marcada como global. A diferencia de inScope(), este
+     * scope es solo para mostrar; editar/validar sigue usando inScope().
      */
     public function scopeVisibleIn($query, ?int $tenantId)
     {
-        if ($tenantId) {
-            return $query->where(fn ($q) => $q
-                ->where($this->getTable() . '.tenant_id', $tenantId)
-                ->orWhere($this->getTable() . '.is_global', true));
+        return $this->scopeInScope($query, $tenantId);
+    }
+
+    /**
+     * Ámbito de quien REVISA: con el permiso `aero.docs.guides.review` (personal de la plataforma) se ve
+     * además lo de la plataforma (tenant_id NULL), donde cae lo que genera docs-sync, aunque el usuario
+     * pertenezca a un tenant. Sin ese permiso, solo el ámbito propio.
+     */
+    public function scopeInReviewerScope($query)
+    {
+        $user = \BackendAuth::getUser();
+        if (!$user || !$user->hasAccess('aero.docs.guides.review')) {
+            return $query->inCurrentScope();
         }
 
-        return $query->whereNull($this->getTable() . '.tenant_id');
+        $tenantId = DocsScope::currentTenantId();
+        $table = $this->getTable();
+
+        return $query->where(function ($q) use ($tenantId, $table) {
+            $q->whereNull($table . '.tenant_id');
+            if ($tenantId) {
+                $q->orWhere($table . '.tenant_id', $tenantId);
+            }
+        });
     }
 
     /** Ámbito del sitio o usuario actual. */

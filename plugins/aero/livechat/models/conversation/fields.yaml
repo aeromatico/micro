@@ -1,0 +1,36 @@
+fields:
+    contact_label:
+        label: Visitante
+        type: text
+        disabled: true
+        span: left
+
+    inbox:
+        label: Inbox
+        type: relation
+        select: name
+        disabled: true
+        span: right
+
+    status:
+        label: Estado
+        type: dropdown
+        span: left
+
+    assigned_to:
+        label: Asignado a
+        type: dropdown
+        span: right
+        emptyOption: Sin asignar
+
+    page_url:
+        label: Página de origen
+        type: text
+        disabled: true
+        span: full
+
+    _messages:
+        label: Conversación
+        type: partial
+        path: messages
+        span: full

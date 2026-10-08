@@ -1,0 +1,3 @@
+1.0.0:
+    - "Primera versión: fuentes sincronizables (modelos y campos que define el superadmin), perfiles de mapeo con Google Sheets, importar/exportar con filas de inicio, cabeceras y límites, historial de ejecuciones."
+    - create_sheets_tables.php

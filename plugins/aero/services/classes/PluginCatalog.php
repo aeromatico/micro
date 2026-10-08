@@ -6,8 +6,7 @@ use System\Classes\PluginManager;
 class PluginCatalog
 {
     public const RELATIONS = [
-        'requires'    => 'Requiere el plugin',
-        'includes'    => 'Incluye / configura el plugin',
+        'built_with'  => 'Construido con el plugin',
         'integrates'  => 'Se integra con el plugin',
         'recommended' => 'Recomendado para el plugin',
     ];

@@ -21,6 +21,12 @@
                 {% if line.label %}
                 <p class="text-sm text-ink-muted">{{ line.label }}</p>
                 {% endif %}
+                {% if line.modifiers %}
+                <p class="text-sm text-ink-muted">{% for m in line.modifiers %}{{ m.name }}{{ not loop.last ? ', ' : '' }}{% endfor %}</p>
+                {% endif %}
+                {% if line.note %}
+                <p class="text-xs text-ink-muted italic">“{{ line.note }}”</p>
+                {% endif %}
                 {% if not line.in_stock %}
                 <p class="text-sm text-red-500 font-medium mt-1">
                     {{ line.max_available > 0 ? 'Solo quedan ' ~ line.max_available ~ ' disponibles' : 'Sin stock' }}

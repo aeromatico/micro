@@ -4,6 +4,7 @@ use Aero\Credits\Classes\Exceptions\InsufficientCreditsException;
 use Aero\Credits\Models\CreditAccount;
 use Aero\Credits\Models\CreditAction;
 use Aero\Credits\Models\CreditHold;
+use Aero\Credits\Models\CreditPlanGrantLot;
 use Aero\Credits\Models\CreditTransaction;
 use Aero\Credits\Models\CreditType;
 use Aero\Credits\Models\Settings;
@@ -204,6 +205,16 @@ class Credits
                     ]);
                 }
 
+                // Descuenta primero de los regalos de plan con vencimiento más
+                // próximo (si el tenant tiene alguno) — es solo contabilidad
+                // auxiliar (cuánto del regalo sigue "sin usar"), nunca debe
+                // poder tumbar un cobro real que ya se posteó bien.
+                try {
+                    static::consumeFromLots($tenantId, $type->id, $amount);
+                } catch (Throwable $e) {
+                    \Log::error('Aero.Credits: fallo descontando lotes de regalo de plan (no afecta el cobro): ' . $e->getMessage());
+                }
+
                 // Después del commit: si la transacción hace rollback no se
                 // quema el throttle ni se avisa de un saldo que nunca existió.
                 DB::afterCommit(fn () => static::maybeAlertLowBalance($tenantId, $type, $tx->balance_after));
@@ -218,6 +229,38 @@ class Credits
             }
 
             throw $e;
+        }
+    }
+
+    /**
+     * Descuenta $amount de los lotes de regalo de plan activos de este
+     * color, del más próximo a vencer al más lejano, hasta agotar el monto
+     * o los lotes. No cambia el saldo real (eso ya lo hizo post()) — solo
+     * lleva la cuenta de cuánto de cada regalo sigue sin gastarse.
+     */
+    protected static function consumeFromLots(int $tenantId, int $creditTypeId, int $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        $remaining = $amount;
+
+        $lots = CreditPlanGrantLot::where('tenant_id', $tenantId)
+            ->where('credit_type_id', $creditTypeId)
+            ->active()
+            ->orderBy('expires_at')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($lots as $lot) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $take = min($lot->remaining_amount, $remaining);
+            $lot->decrement('remaining_amount', $take);
+            $remaining -= $take;
         }
     }
 
@@ -267,9 +310,12 @@ class Credits
     /**
      * Entrada de monedas. $kind: purchase (venta), gift (regalo), plan_grant
      * (incluidas en un plan) o adjust_in (ajuste manual). Con $idempotencyKey,
-     * repetir la recarga devuelve el movimiento original.
+     * repetir la recarga devuelve el movimiento original. Con $expiresAt, esta
+     * entrada es un regalo con vencimiento (ver Aero.Sites\Classes\PlanCredits):
+     * se crea además un CreditPlanGrantLot que chargeRaw() descuenta primero y
+     * que credits:expire-plan-grants vence en esa fecha si sigue sin gastarse.
      */
-    public static function topUp(int $tenantId, string $creditTypeCode, int $amount, string $reason, ?int $byUserId = null, ?string $idempotencyKey = null, string $kind = 'adjust_in', array $meta = []): CreditTransaction
+    public static function topUp(int $tenantId, string $creditTypeCode, int $amount, string $reason, ?int $byUserId = null, ?string $idempotencyKey = null, string $kind = 'adjust_in', array $meta = [], $expiresAt = null): CreditTransaction
     {
         if (!in_array($kind, ['purchase', 'gift', 'plan_grant', 'adjust_in'], true)) {
             throw new \InvalidArgumentException("Aero.Credits: tipo de recarga '{$kind}' no válido.");
@@ -289,14 +335,35 @@ class Credits
             throw new \RuntimeException("Aero.Credits: tipo de crédito '{$creditTypeCode}' no existe.");
         }
 
+        $attrs = [
+            'source_plugin'      => 'Aero.Credits',
+            'reason'             => $reason,
+            'meta'               => $meta ?: null,
+            'idempotency_key'    => $idempotencyKey,
+            'created_by_user_id' => $byUserId,
+        ];
+
         try {
-            $tx = static::post($tenantId, $type, $amount, $kind, [
-                'source_plugin'      => 'Aero.Credits',
-                'reason'             => $reason,
-                'meta'               => $meta ?: null,
-                'idempotency_key'    => $idempotencyKey,
-                'created_by_user_id' => $byUserId,
-            ]);
+            if ($expiresAt) {
+                $tx = DB::transaction(function () use ($tenantId, $type, $amount, $kind, $attrs, $expiresAt) {
+                    $tx = static::post($tenantId, $type, $amount, $kind, $attrs);
+
+                    CreditPlanGrantLot::firstOrCreate(
+                        ['transaction_id' => $tx->id],
+                        [
+                            'tenant_id'        => $tenantId,
+                            'credit_type_id'   => $type->id,
+                            'granted_amount'   => $amount,
+                            'remaining_amount' => $amount,
+                            'expires_at'       => $expiresAt,
+                        ]
+                    );
+
+                    return $tx;
+                });
+            } else {
+                $tx = static::post($tenantId, $type, $amount, $kind, $attrs);
+            }
         }
         catch (QueryException $e) {
             if ($idempotencyKey && $existing = CreditTransaction::where('idempotency_key', $idempotencyKey)->first()) {
@@ -313,6 +380,49 @@ class Credits
         }
 
         return $tx;
+    }
+
+    /**
+     * Vence créditos de un regalo de plan que no se usaron durante el ciclo
+     * (ver credits:expire-plan-grants). Nunca vence más de lo que realmente
+     * hay en el saldo (por si algo lo descontó ya por otra vía). Idempotente
+     * por $idempotencyKey.
+     */
+    public static function expire(int $tenantId, string $creditTypeCode, int $amount, string $reason, ?string $idempotencyKey = null): ?CreditTransaction
+    {
+        if ($amount <= 0) {
+            return null;
+        }
+
+        $type = CreditType::findByCode($creditTypeCode);
+
+        if (!$type) {
+            return null;
+        }
+
+        if ($idempotencyKey && $existing = CreditTransaction::where('idempotency_key', $idempotencyKey)->first()) {
+            return $existing;
+        }
+
+        $amount = min($amount, static::balance($tenantId, $creditTypeCode));
+
+        if ($amount <= 0) {
+            return null;
+        }
+
+        try {
+            return static::post($tenantId, $type, -$amount, 'expiry', [
+                'reason'          => $reason,
+                'idempotency_key' => $idempotencyKey,
+            ]);
+        }
+        catch (QueryException $e) {
+            if ($idempotencyKey && $existing = CreditTransaction::where('idempotency_key', $idempotencyKey)->first()) {
+                return $existing;
+            }
+
+            throw $e;
+        }
     }
 
     /** Ajuste manual con signo (superadmin): + suma (adjust_in), − resta (adjust_out). */

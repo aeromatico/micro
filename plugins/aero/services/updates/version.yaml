@@ -8,3 +8,30 @@
 1.2.0:
     - "Pestana Documentacion: enlaza uno o mas articulos de Aero.Docs a cada servicio."
     - create_service_article_table.php
+1.3.0:
+    - "Relaciones plugin-servicio: Construido con / Se integra con / Recomendado para."
+    - migrate_plugin_link_relations.php
+1.4.0:
+    - "Campo code (HTML de la pagina de la oferta) y generador de ofertas con IA a partir de los plugins ligados."
+    - add_code_to_services.php
+1.5.0:
+    - "Switch Publico (is_active) y En el megamenu (in_megamenu); componente Services para el megamenu y la pagina /servicio/{slug}."
+    - add_in_megamenu_to_services.php
+1.6.0:
+    - "Colecciones de servicios: agrupan servicios afines (un servicio puede estar en varias), con su propia seccion en el menu."
+    - create_service_collections_table.php
+1.7.0:
+    - "Pestana Precio y entrega: ahora es un repetidor de Planes (varios planes por servicio, cada uno con su modalidad, precio y entrega)."
+    - add_plans_to_services.php
+1.8.0:
+    - "Compra de servicios: el tenant paga un plan con sus créditos o su saldo en Bs (Aero.Credits) desde el nuevo panel «Servicios» (sin permiso, como Wallet); el superadmin entrega o cancela cada compra desde Servicios → Compras. plan_snapshot congela el plan comprado aunque el catálogo cambie después."
+    - create_service_purchases_table.php
+1.9.0:
+    - "Un servicio puede tener varias categorías (tabla pivote; se migran las existentes). Formulario reorganizado por pestañas: General, Contenido, Planes, Página, Plataforma, Publicación."
+    - create_category_service_table.php
+1.10.0:
+    - "Jerarquía Colección → Categorías → Servicios (ambas múltiples). El vínculo directo colección↔servicio se migra a categorías y se elimina."
+    - create_collection_category_table.php
+1.11.0:
+    - "Guías interactivas en el servicio: pestaña Documentación con relación múltiple a las guías de Aero.Docs; las publicadas se muestran dentro de /servicio/{slug}."
+    - create_service_guide_table.php

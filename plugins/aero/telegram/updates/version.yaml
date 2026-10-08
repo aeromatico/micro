@@ -1,0 +1,3 @@
+1.0.0:
+    - "Primera versión: chats privados de Telegram con un bot propio (Bot API directa, sin Zernio). Driver 'telegram' en Aero.Hello, webhook entrante y alta de bots desde el backend."
+    - create_telegram_bots_table.php

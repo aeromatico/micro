@@ -29,6 +29,36 @@ class CrmController extends Controller
         return $this->ok($this->panel($request, $conv, $this->crmContact($request, $conv, false)));
     }
 
+    /** POST conversations/{id}/crm/contact {first_name?, last_name?, email?} — completa los datos que llegan por chat. */
+    public function updateContact(Request $request, $id)
+    {
+        [$conv, $err, $contact] = $this->ready($request, $id);
+        if ($err) {
+            return $err;
+        }
+
+        $data = $this->check($request, [
+            'first_name' => 'nullable|string|max:255', 'last_name' => 'nullable|string|max:255', 'email' => 'nullable|email|max:255',
+        ]);
+
+        $fields = [];
+        foreach (['first_name', 'last_name', 'email'] as $key) {
+            if (array_key_exists($key, $data)) {
+                $fields[$key] = trim((string) $data[$key]) ?: null;
+            }
+        }
+
+        $contact->fill($fields);
+        if (!$contact->first_name && !$contact->last_name) {
+            return $this->fail('name_required', 'Escribe al menos un nombre o apellido.', 422);
+        }
+
+        $contact->save();
+        $this->log($request, $conv, 'contact', 'Datos del contacto actualizados', ['contact_id' => $contact->id]);
+
+        return $this->ok($this->panel($request, $conv, $contact));
+    }
+
     /** POST conversations/{id}/crm/lists {list_id, on} */
     public function list(Request $request, $id)
     {
@@ -281,7 +311,7 @@ class CrmController extends Controller
             return $out;
         }
 
-        $out['contact'] = ['id' => $contact->id, 'name' => $contact->full_name, 'phone' => $contact->phone, 'email' => $contact->email];
+        $out['contact'] = ['id' => $contact->id, 'name' => $contact->full_name, 'first_name' => $contact->first_name, 'last_name' => $contact->last_name, 'phone' => $contact->phone, 'email' => $contact->email];
         $out['list_ids'] = $contact->contactLists()->pluck('aero_crm_contact_lists.id')->all();
 
         $t = \Aero\Crm\Models\Ticket::with(['department', 'assignee'])->where('tenant_id', $tenantId)->where('contact_id', $contact->id)

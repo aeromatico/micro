@@ -1,0 +1,154 @@
+url = "/hub"
+layout = "base"
+title = "Aero Hub — Modelos IA y APIs en un solo panel | Market"
+description = "155 modelos de IA y APIs de datos (SEO, scraping, redes sociales, email) bajo un solo panel, con tu propia API key y pagando en créditos. Sin cuentas sueltas por proveedor."
+
+[hubCatalog]
+==
+<div x-data="{ init() {
+    const el = this.$root;
+    const items = el.querySelectorAll(':scope > section');
+    if (!('IntersectionObserver' in window) || !items.length) return;
+    items.forEach((n, i) => { n.classList.add('reveal'); n.style.setProperty('--i', Math.min(i, 4)); });
+    document.documentElement.classList.add('js-reveal');
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    items.forEach(n => io.observe(n));
+} }">
+
+<section class="max-w-6xl mx-auto px-6 sm:px-10 pt-16 pb-20">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-6">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+        <span class="text-xs tracking-wide text-ink-dim uppercase">Aero Hub</span>
+    </div>
+    <h1 class="text-4xl sm:text-6xl font-bold text-pretty max-w-3xl">Modelos de IA y APIs de datos, bajo un solo panel.</h1>
+    <p class="text-lg text-ink-dim mt-5 max-w-2xl leading-relaxed">
+        Chat con decenas de modelos de IA, scraping, SEO, SERP y datos de redes sociales — todo con la
+        <strong class="text-ink font-semibold">misma API key</strong> que ya usas en Market y pagando con tus
+        <strong class="text-ink font-semibold">créditos</strong>. Sin cuentas ni tarjetas sueltas por cada proveedor.
+    </p>
+
+    <div class="flex flex-wrap gap-3 mt-8">
+        <a href="/docs/api-vista-general" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg hover:-translate-y-px transition-transform">Cómo empezar</a>
+        <a href="/api" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Probar en el explorador de API</a>
+    </div>
+
+    {% if hubCatalog.stats.total > 0 %}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-14">
+        <div class="p-5 border border-edge rounded-2xl">
+            <div class="text-3xl font-bold">{{ hubCatalog.stats.total }}</div>
+            <div class="text-xs text-ink-dim mt-1 uppercase tracking-wide">Servicios activos</div>
+        </div>
+        <div class="p-5 border border-edge rounded-2xl">
+            <div class="text-3xl font-bold">{{ hubCatalog.stats.ai_models }}</div>
+            <div class="text-xs text-ink-dim mt-1 uppercase tracking-wide">Modelos IA</div>
+        </div>
+        <div class="p-5 border border-edge rounded-2xl">
+            <div class="text-3xl font-bold">{{ hubCatalog.stats.apis }}</div>
+            <div class="text-xs text-ink-dim mt-1 uppercase tracking-wide">APIs de datos</div>
+        </div>
+        <div class="p-5 border border-edge rounded-2xl">
+            <div class="text-3xl font-bold">{{ hubCatalog.stats.categories }}</div>
+            <div class="text-xs text-ink-dim mt-1 uppercase tracking-wide">Categorías</div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section id="modelos-ia" class="max-w-6xl mx-auto px-6 sm:px-10 py-20 scroll-mt-14">
+    <div class="max-w-[640px] mb-10">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Dos catálogos, un solo panel</span>
+        <h2 class="text-3xl font-bold mt-3">¿Qué necesitas resolver?</h2>
+        <p class="text-base text-ink-dim mt-3">Elige según lo que quieres lograr. Los dos usan la misma API key y se cobran en tus créditos.</p>
+    </div>
+
+    {% set check = '<svg class="w-4 h-4 shrink-0 mt-0.5 text-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>' %}
+    {% set aiCats = hubCatalog.catalog.ai_models.categories %}
+    {% set apiCats = hubCatalog.catalog.apis.categories %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <a href="/hub/modelos" class="group flex flex-col gap-5 p-7 border border-accent rounded-2xl bg-canvas hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <span class="text-xs tracking-wide text-accent uppercase font-bold">Modelos IA</span>
+                    <h3 class="text-2xl font-bold mt-2">Quiero que mi producto razone, escriba o genere.</h3>
+                </div>
+                {% if hubCatalog.stats.ai_models > 0 %}<span class="shrink-0 text-xs font-semibold border border-edge rounded-full px-2.5 py-1 text-ink-dim">{{ hubCatalog.stats.ai_models }} activos</span>{% endif %}
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-wide text-ink-dim font-bold mb-3">Elígelo si necesitas…</p>
+                <ul class="flex flex-col gap-2.5 text-sm text-ink-dim">
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Un asistente o chatbot con respuestas en lenguaje natural</span></li>
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Resumir, traducir, clasificar o redactar textos a escala</span></li>
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Generar imágenes, video o audio sin montar tu propia infraestructura</span></li>
+                </ul>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for cat in aiCats %}{% for ep in cat.endpoints %}
+                {% if 'List ' not in ep.summary and 'Status' not in ep.summary %}<span class="text-[11px] bg-canvas-elev2 border border-edge rounded-full px-2.5 py-1">{{ ep.summary }}</span>{% endif %}
+                {% endfor %}{% endfor %}
+            </div>
+            <p class="text-xs text-ink-dim">Compatible con OpenAI: cambias solo el nombre del modelo, no tu código.</p>
+            <span class="inline-flex items-center text-sm font-bold text-accent mt-auto">Ver modelos y precios <span class="group-hover:translate-x-0.5 transition-transform ml-1">→</span></span>
+        </a>
+
+        <a href="/hub/apis" class="group flex flex-col gap-5 p-7 border border-edge rounded-2xl bg-canvas hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <span class="text-xs tracking-wide text-ink-dim uppercase font-bold" id="apis">APIs de datos</span>
+                    <h3 class="text-2xl font-bold mt-2">Quiero datos del mundo real, ya extraídos.</h3>
+                </div>
+                {% if hubCatalog.stats.apis > 0 %}<span class="shrink-0 text-xs font-semibold border border-edge rounded-full px-2.5 py-1 text-ink-dim">{{ hubCatalog.stats.apis }} activas</span>{% endif %}
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-wide text-ink-dim font-bold mb-3">Elígelo si necesitas…</p>
+                <ul class="flex flex-col gap-2.5 text-sm text-ink-dim">
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Posicionar tu web: palabras clave, backlinks y competidores</span></li>
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Monitorear resultados de Google/Bing o extraer el contenido de cualquier URL</span></li>
+                    <li class="flex items-start gap-2">{{ check|raw }}<span>Analizar productos, creadores y videos en Amazon, Instagram, TikTok y YouTube</span></li>
+                </ul>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for cat in apiCats %}
+                <span class="text-[11px] bg-canvas-elev2 border border-edge rounded-full px-2.5 py-1">{{ cat.label == 'Other' ? 'Contacto y otros' : cat.label }}</span>
+                {% endfor %}
+            </div>
+            <p class="text-xs text-ink-dim">Sin negociar acceso con cada plataforma: una sola llamada, un solo cobro.</p>
+            <span class="inline-flex items-center text-sm font-bold text-ink mt-auto">Ver APIs y documentación <span class="group-hover:translate-x-0.5 transition-transform ml-1">→</span></span>
+        </a>
+    </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-6 sm:px-10 py-20">
+    <div class="max-w-[640px] mb-10">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Cómo funciona</span>
+        <h2 class="text-3xl font-bold mt-3">Tres pasos, sin nueva cuenta.</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl">
+            <span class="text-xs font-bold text-accent">01</span>
+            <h3 class="text-sm font-bold">Genera tu API key</h3>
+            <p class="text-[13px] text-ink-dim">Desde tu panel de Market, con el permiso de la categoría que necesites (Modelos IA o APIs).</p>
+        </div>
+        <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl">
+            <span class="text-xs font-bold text-accent">02</span>
+            <h3 class="text-sm font-bold">Llama al mismo path de siempre</h3>
+            <p class="text-[13px] text-ink-dim">Cada endpoint vive en <code class="font-mono text-ink">/hub/v1/...</code> — el mismo path que documentamos, solo cambia el dominio.</p>
+        </div>
+        <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl">
+            <span class="text-xs font-bold text-accent">03</span>
+            <h3 class="text-sm font-bold">Se cobra en tus créditos</h3>
+            <p class="text-[13px] text-ink-dim">Sin sorpresas: si la llamada falla, no se cobra. Tú controlas el saldo desde el mismo panel.</p>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-6xl mx-auto px-6 sm:px-10 pb-24">
+    <div class="border border-edge rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8 justify-between">
+        <div class="flex flex-col gap-1.5">
+            <h3 class="text-lg font-bold">¿Listo para probarlo?</h3>
+            <p class="text-sm text-ink-dim max-w-[440px]">Genera tu API key y prueba cualquier endpoint activo directo desde el navegador, sin escribir código.</p>
+        </div>
+        <a href="/api" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg hover:-translate-y-px transition-transform shrink-0">Ir al explorador de API</a>
+    </div>
+</section>
+
+</div>

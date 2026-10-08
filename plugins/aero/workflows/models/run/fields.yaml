@@ -1,0 +1,6 @@
+fields:
+    status: {label: Estado, span: left, disabled: true}
+    source: {label: Origen, span: right, disabled: true}
+    error: {label: Error, type: textarea, size: tiny, disabled: true}
+    trigger_payload: {label: Entrada, type: textarea, size: small, disabled: true}
+    result: {label: Resultado, type: textarea, size: small, disabled: true}

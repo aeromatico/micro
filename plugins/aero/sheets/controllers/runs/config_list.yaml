@@ -1,0 +1,9 @@
+title: Historial
+list: $/aero/sheets/models/run/columns.yaml
+modelClass: Aero\Sheets\Models\Run
+recordUrl: aero/sheets/runs/view/:id
+noRecordsMessage: Aún no hay ejecuciones.
+recordsPerPage: 30
+defaultSort:
+    column: id
+    direction: desc

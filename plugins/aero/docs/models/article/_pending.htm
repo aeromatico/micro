@@ -1,0 +1,18 @@
+<?php if (!$formModel->exists || !$formModel->has_pending): ?>
+    <p class="text-muted">Este artículo no tiene cambios pendientes de aprobar.</p>
+<?php else: ?>
+    <?php $out = \Aero\Docs\Classes\Markdown::render($formModel->pending_content); ?>
+    <div class="callout callout-warning no-subheader">
+        <div class="header"><h3>Edición propuesta por la IA</h3>
+            <p>Generada<?= $formModel->pending_at ? ' el ' . e($formModel->pending_at->format('d/m/Y H:i')) : '' ?>
+            para la versión <?= e($formModel->pending_plugin_version ?: '—') ?> del plugin. El público sigue viendo el contenido actual hasta que la apruebes.</p>
+        </div>
+    </div>
+    <div style="margin:12px 0">
+        <button type="button" class="btn btn-success" data-request="onApprovePending" data-request-data="record_id: <?= (int) $formModel->id ?>"
+            data-request-confirm="¿Aprobar los cambios? Se publican como una versión nueva.">Aprobar cambios</button>
+        <button type="button" class="btn btn-default" data-request="onRejectPending" data-request-data="record_id: <?= (int) $formModel->id ?>"
+            data-request-confirm="¿Descartar los cambios propuestos?">Descartar</button>
+    </div>
+    <div style="border:1px solid rgba(128,128,128,.35);border-radius:4px;padding:16px;max-height:70vh;overflow:auto"><?= $out['html'] ?></div>
+<?php endif ?>

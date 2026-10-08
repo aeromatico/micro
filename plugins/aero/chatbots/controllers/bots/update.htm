@@ -1,59 +1,7 @@
 <?= Form::open(['class' => 'layout']) ?>
 
-<div class="control-tabs master-tabs" data-control="tab">
-
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a href="#tab-config" data-toggle="tab">
-                <i class="icon-cog"></i> Configuración
-            </a>
-        </li>
-        <li>
-            <a href="#tab-chatbot" data-toggle="tab">
-                <i class="icon-android"></i> Chatbot
-            </a>
-        </li>
-        <li>
-            <a href="#tab-chatbot-ia" data-toggle="tab">
-                <i class="icon-magic"></i> Chatbot IA
-            </a>
-        </li>
-        <li>
-            <a href="#tab-super-chatbot-ia" data-toggle="tab">
-                <i class="icon-rocket"></i> Super Chatbot IA
-            </a>
-        </li>
-    </ul>
-
-    <div class="tab-content">
-        <div id="tab-config" class="tab-pane active">
-            <div class="layout-row">
-                <?= $this->formRender(['section' => 'outside']) ?>
-            </div>
-        </div>
-
-        <div id="tab-chatbot" class="tab-pane">
-            <div class="layout-row">
-                <?= $this->formRender(['section' => 'primary']) ?>
-            </div>
-            <div class="padded-container">
-                <?= $this->relationRender('rules') ?>
-            </div>
-        </div>
-
-        <div id="tab-chatbot-ia" class="tab-pane">
-            <div class="layout-row">
-                <?= $this->formRenderField('handoff_minutes') ?>
-            </div>
-        </div>
-
-        <div id="tab-super-chatbot-ia" class="tab-pane">
-            <div class="layout-row">
-                <?= $this->formRenderField('ai_tool_categories') ?>
-            </div>
-        </div>
-    </div>
-
+<div class="layout-row">
+    <?= $this->formRender() ?>
 </div>
 
 <div class="form-buttons">

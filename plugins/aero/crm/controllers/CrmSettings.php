@@ -46,6 +46,7 @@ class CrmSettings extends Controller
         $data = post('CrmSettings', []);
 
         $settings->is_enabled = (bool) ($data['is_enabled'] ?? false);
+        $settings->tickets_enabled = (bool) ($data['tickets_enabled'] ?? false);
         $settings->collections_enabled = (bool) ($data['collections_enabled'] ?? false);
         $settings->reminder_interval_days = (int) ($data['reminder_interval_days'] ?? 3) ?: 3;
         $settings->reminder_message_template = $data['reminder_message_template'] ?? null;
@@ -73,6 +74,13 @@ class CrmSettings extends Controller
                 'span'    => 'full',
                 'default' => false,
                 'comment' => 'Al activarlo se crea el pipeline de ventas por defecto para este tenant.',
+            ],
+            'tickets_enabled' => [
+                'label'   => 'Sistema de tickets (soporte del sitio) activado',
+                'type'    => 'switch',
+                'span'    => 'full',
+                'default' => false,
+                'comment' => 'Muestra "Soporte" en el menú y el pie del micrositio, y habilita /soporte para que los clientes abran y sigan tickets. Apagado, esas páginas responden 404.',
             ],
             'collections_enabled' => [
                 'label'   => 'Recordatorios automáticos de cobranza activados',

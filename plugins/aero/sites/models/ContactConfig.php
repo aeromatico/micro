@@ -10,7 +10,23 @@ class ContactConfig extends Model
 
     public $fillable = [
         'tenant_id', 'contact_email', 'phone', 'whatsapp',
-        'address', 'lat', 'lng', 'form_enabled', 'success_message',
+        'contact_enabled', 'no_physical_address', 'city', 'region', 'address', 'lat', 'lng',
+        'form_enabled', 'success_message',
+    ];
+
+    /** Por ahora solo Bolivia: el país es fijo y los departamentos son la región. */
+    public const COUNTRY_CODE = 'BO';
+
+    public const BO_DEPARTMENTS = [
+        'chuquisaca' => 'Chuquisaca',
+        'la_paz'     => 'La Paz',
+        'cochabamba' => 'Cochabamba',
+        'oruro'      => 'Oruro',
+        'potosi'     => 'Potosí',
+        'tarija'     => 'Tarija',
+        'santa_cruz' => 'Santa Cruz',
+        'beni'       => 'Beni',
+        'pando'      => 'Pando',
     ];
 
     public $rules = [
@@ -31,8 +47,31 @@ class ContactConfig extends Model
         return "https://wa.me/{$number}";
     }
 
+    /** Sin fila todavía, el área de contacto está activa (mismo comportamiento de siempre). */
+    public static function isEnabledFor(int $tenantId): bool
+    {
+        $row = static::where('tenant_id', $tenantId)->first(['contact_enabled']);
+
+        return $row ? (bool) $row->contact_enabled : true;
+    }
+
+    /** Negocio sin local: no hay dirección ni mapa que mostrar. */
+    public function hasPhysicalAddress(): bool
+    {
+        return !$this->no_physical_address;
+    }
+
     public function hasLocation(): bool
     {
-        return $this->lat !== null && $this->lng !== null;
+        return $this->hasPhysicalAddress() && $this->lat !== null && $this->lng !== null;
+    }
+
+    /** "Ciudad, Departamento" para mostrar; null si no hay ninguno. */
+    public function getCityRegionLabelAttribute(): ?string
+    {
+        $region = self::BO_DEPARTMENTS[$this->region] ?? null;
+        $parts = array_filter([$this->city, $region]);
+
+        return $parts ? implode(', ', $parts) : null;
     }
 }

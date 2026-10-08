@@ -1,0 +1,14 @@
+title: Turnos de caja
+list: $/aero/pos/models/shift/columns.yaml
+modelClass: Aero\Pos\Models\Shift
+recordUrl: aero/pos/shifts/view/:id
+noRecordsMessage: Todavía no hay turnos. Abre el primero para empezar a vender.
+recordsPerPage: 30
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: opened_at
+    direction: desc

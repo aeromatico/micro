@@ -1,0 +1,25 @@
+fields:
+    name:
+        label: Mesa
+        type: text
+        span: left
+        required: true
+        comment: "Ej: 1, 2, Barra 1, VIP"
+    zone:
+        label: Zona
+        type: text
+        span: right
+        comment: "Ej: Salón, Terraza, Barra"
+    seats:
+        label: Asientos
+        type: number
+        span: left
+    sort_order:
+        label: Orden
+        type: number
+        span: right
+        default: 0
+    is_active:
+        label: Activa
+        type: switch
+        default: true

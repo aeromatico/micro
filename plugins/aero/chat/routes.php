@@ -24,6 +24,7 @@ Route::prefix('api/v1/chat')->middleware(['api', ForceJson::class])->group(funct
         Route::get('agents', [InboxController::class, 'agents']);
         Route::get('conversations', [InboxController::class, 'conversations']);
         Route::post('conversations/new', [InboxController::class, 'start']);
+        Route::get('conversations/code/{code}', [InboxController::class, 'byCode']);
         Route::get('conversations/{id}/messages', [InboxController::class, 'messages']);
         Route::post('conversations/{id}/reply', [InboxController::class, 'reply']);
         Route::post('conversations/{id}/attachment', [InboxController::class, 'attachment']);
@@ -31,6 +32,8 @@ Route::prefix('api/v1/chat')->middleware(['api', ForceJson::class])->group(funct
         Route::post('conversations/{id}/location', [InboxController::class, 'location']);
         Route::post('conversations/{id}/note', [InboxController::class, 'note']);
         Route::post('conversations/{id}/read', [InboxController::class, 'markRead']);
+        Route::post('conversations/{id}/archive', [InboxController::class, 'archive']);
+        Route::post('conversations/{id}/mute', [InboxController::class, 'mute']);
         Route::post('conversations/{id}/delegate', [InboxController::class, 'delegate']);
 
         Route::get('push/key', [PushController::class, 'key']);
@@ -54,6 +57,7 @@ Route::prefix('api/v1/chat')->middleware(['api', ForceJson::class])->group(funct
         Route::post('conversations/{id}/pay/charge', [PayController::class, 'charge']);
 
         Route::get('conversations/{id}/crm', [CrmController::class, 'show']);
+        Route::post('conversations/{id}/crm/contact', [CrmController::class, 'updateContact']);
         Route::post('conversations/{id}/crm/lists', [CrmController::class, 'list']);
         Route::post('conversations/{id}/crm/ticket', [CrmController::class, 'createTicket']);
         Route::post('conversations/{id}/crm/ticket/{ticketId}', [CrmController::class, 'updateTicket']);

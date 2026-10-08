@@ -141,3 +141,7 @@
 1.8.0:
     - "Soporte de plataforma para tenants: los tenants abren y siguen tickets en la mesa de ayuda de la plataforma (origin_tenant_id), separado del CRM propio del tenant."
     - add_origin_tenant_to_tickets.php
+
+1.9.0:
+    - "Sistema de tickets del sitio: interruptor en CRM > Configuración (desactivado por defecto). Mientras esté apagado, Soporte no aparece en el menú ni en el pie del micrositio y sus páginas responden 404."
+    - add_tickets_enabled_to_crm_settings_table.php

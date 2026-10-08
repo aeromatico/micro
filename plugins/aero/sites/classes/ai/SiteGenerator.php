@@ -42,6 +42,35 @@ class SiteGenerator
 
     protected ?array $catalogCache = null;
 
+    /**
+     * Nombres válidos para campos de ícono (type "custom" en el catálogo Puck,
+     * ver arrayFields.icon / icon suelto). Debe reflejar las claves de
+     * TABLER_ICONS en assets/puck-editor/src/icons.js — si se agrega un
+     * ícono nuevo ahí, agregarlo también acá o la IA no podrá usarlo.
+     * Sin esta lista, translateFieldsForPrompt() no tenía forma de indicarle
+     * a la IA el formato "tabler:nombre" y terminaba escribiendo emojis
+     * (PickedIcon en components.jsx cae a mostrar el string literal cuando
+     * no matchea un ícono Tabler conocido).
+     */
+    protected const ICON_NAMES = [
+        'star', 'rocket', 'bolt', 'heart', 'shield-check', 'shield', 'truck', 'truck-delivery',
+        'gift', 'phone', 'phone-call', 'mail', 'map-pin', 'clock', 'users', 'user', 'home',
+        'shopping-cart', 'shopping-bag', 'thumb-up', 'thumb-up-filled', 'award', 'check',
+        'circle-check', 'sparkles', 'trending-up', 'target', 'diamond', 'crown', 'flame', 'leaf',
+        'recycle', 'credit-card', 'wallet', 'calendar', 'camera', 'wifi', 'lock', 'key', 'tool',
+        'settings', 'chart-bar', 'chart-line', 'message-circle', 'headset', 'bell', 'flag',
+        'coffee', 'pizza', 'car', 'plane', 'bike', 'dumbbell', 'scissors', 'palette', 'code',
+        'device-laptop', 'device-mobile', 'cloud', 'sun', 'moon', 'umbrella', 'tree',
+        'baby-carriage', 'school', 'book', 'certificate', 'briefcase', 'building',
+        'building-store', 'hammer', 'bulb', 'medal', 'trophy', 'mood-smile', 'hand-stop',
+        'checklist', 'rosette-discount-check', 'infinity', 'eye', 'search', 'filter', 'download',
+        'upload', 'share', 'link', 'world', 'info-circle', 'help-circle', 'alert-triangle',
+        'arrow-right', 'external-link', 'percentage', 'tag', 'tags', 'box', 'package',
+        'stethoscope', 'first-aid-kit', 'dental', 'pill', 'building-hospital', 'chef-hat',
+        'glass-full', 'cake', 'paw', 'scale', 'gavel', 'calculator', 'chart-pie',
+        'chart-infographic', 'rosette', 'heart-handshake',
+    ];
+
     protected function componentCatalog(): array
     {
         if ($this->catalogCache !== null) {
@@ -83,21 +112,47 @@ class SiteGenerator
         $out = [];
 
         foreach ($fields as $key => $def) {
-            $type  = $def['type'] ?? 'text';
-            $label = mb_strtolower($def['label'] ?? '');
-            $nullable = str_contains($label, 'opcional');
-
-            $hint = match ($type) {
-                'radio', 'select' => implode('|', array_column($def['options'] ?? [], 'value')),
-                'array'            => 'array[{' . implode(', ', array_keys($def['arrayFields'] ?? [])) . '}]',
-                'textarea'         => str_contains($label, 'html') ? 'string (HTML)' : 'string',
-                default            => 'string',
-            };
-
-            $out[$key] = $nullable ? "{$hint}|null" : $hint;
+            $out[$key] = $this->fieldHint($key, $def);
         }
 
         return $out;
+    }
+
+    /**
+     * Hint de un solo campo. Se usa tanto para los campos de primer nivel de
+     * un componente como para los arrayFields dentro de un campo "array"
+     * (features, plans, items, tabs, stats, etc.) — antes solo se listaban
+     * los NOMBRES de los arrayFields sin su tipo ("array[{icon, title,
+     * description}]"), así que un "icon" adentro de un array (el caso más
+     * común: FeatureGrid, PricingTable, FAQ, Tabs, Stats) nunca recibía el
+     * hint de formato tabler: y la IA seguía llenándolo con emojis.
+     */
+    protected function fieldHint(string $key, array $def): string
+    {
+        $type     = $def['type'] ?? 'text';
+        $label    = mb_strtolower($def['label'] ?? '');
+        $nullable = str_contains($label, 'opcional');
+
+        // Campos de ícono son type:"custom" en el editor Puck (widget de
+        // selección Tabler) — sin este caso especial caían al 'string'
+        // genérico de más abajo y la IA, sin ninguna pista de formato,
+        // terminaba escribiendo emojis.
+        if ($key === 'icon' && $type === 'custom') {
+            return 'string ("tabler:<nombre>" — ver "Íconos disponibles" al final de este prompt, NUNCA un emoji)';
+        }
+
+        $hint = match ($type) {
+            'radio', 'select' => implode('|', array_column($def['options'] ?? [], 'value')),
+            'array'            => 'array[{' . implode(', ', array_map(
+                fn ($subKey, $subDef) => "{$subKey}: {$this->fieldHint($subKey, $subDef)}",
+                array_keys($def['arrayFields'] ?? []),
+                array_values($def['arrayFields'] ?? [])
+            )) . '}]',
+            'textarea'         => str_contains($label, 'html') ? 'string (HTML)' : 'string',
+            default            => 'string',
+        };
+
+        return $nullable ? "{$hint}|null" : $hint;
     }
 
     /**
@@ -199,6 +254,7 @@ class SiteGenerator
         }
 
         $paletteGuidance = $this->buildPaletteGuidance($tenant, $theme);
+        $iconNames       = implode(', ', self::ICON_NAMES);
 
         return <<<PROMPT
 Eres un diseñador de sitios web. Debes generar una página de inicio (landing page) profesional
@@ -222,9 +278,13 @@ Reglas:
 - Usa valores realistas y coherentes con el negocio descrito.
 - Usa nombres de marca reales en lugar de placeholders.
 - NO uses comillas dobles dentro de strings (escapar si es necesario).
+- NUNCA uses emojis en ningún prop (títulos, descripciones, textos de botón, etc.) — se ve poco profesional. Para transmitir una idea visual usa el campo de ícono cuando el componente lo ofrezca, con el formato exacto indicado para ese campo (prefijo "tabler:" + uno de los nombres provistos, nunca inventado).
 
 Catálogo de componentes disponibles:
 {$catalog}
+
+Íconos disponibles (para cualquier campo de ícono, con el prefijo "tabler:"):
+{$iconNames}
 
 Negocio: {$businessName}
 Rubro / nicho: {$nicheLabel}

@@ -181,6 +181,7 @@ class Recharges
                 currency: 'BOB',
                 description: "Recarga de monedas #{$purchase->id} — tenant {$tenantId}",
                 origin: 'credits',
+                tenantId: $tenantId,
             );
         }
         catch (\Throwable $e) {

@@ -33,8 +33,11 @@ class PagosQrGateway
             throw new \RuntimeException('El plugin de Bolivia Pay no está disponible en este momento.');
         }
 
+        // Sin el where('tenant_id', ...): la autorización real es que la
+        // PASARELA de este tenant apunte a esta cuenta — el dueño de la
+        // cuenta puede ser otro tenant del mismo dueño (comparten un solo
+        // API bancario). Ver QrIssuer::issue()/tenantId.
         $bankAccount = \Aero\Pay\Models\BankAccount::active()
-            ->where('tenant_id', $order->tenant_id)
             ->find($gateway->qrbo_bank_account_id);
 
         if (!$bankAccount) {
@@ -56,6 +59,7 @@ class PagosQrGateway
                 origin: 'shop',
                 returnUrl: $confirmationUrl,
                 cancelUrl: $confirmationUrl,
+                tenantId: $order->tenant_id,
             );
         } catch (\Aero\Pay\Classes\Exceptions\QrboException $e) {
             throw new \RuntimeException('No se pudo generar el pago: ' . $e->getMessage(), 0, $e);

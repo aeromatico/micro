@@ -1,0 +1,126 @@
+{# Plugins — carrusel edge-to-edge con el mismo mecanismo de movimiento que
+   industry.htm (casos de uso) pero en sentido contrario, alimentado por los
+   servicios activos que NO son de la categoría "rubros" (items = pluginServices).
+   Cada tarjeta enlaza a /plugin/{slug}. #}
+<section id="plugins" class="py-24 scroll-mt-14 overflow-x-hidden border-y border-edge bg-canvas-elev">
+    <div class="max-w-6xl mx-auto px-6 sm:px-10 mb-12">
+        <div class="max-w-[600px]">
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Plugins</span>
+            <h2 class="text-3xl sm:text-4xl font-bold mt-3">Todo lo que tu negocio necesita, en un solo lugar.</h2>
+            <p class="text-base text-ink-dim mt-3">Cada plugin funciona solo o combinado con el resto. Arrastra o toca uno para ver el detalle.</p>
+        </div>
+    </div>
+
+    {% set icons = {
+        'hello': 'M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z',
+        'bolivia-pay': 'M3 7h18v10H3z M3 11h18 M7 15h3',
+        'crm': 'M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1 M9.5 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z M21 20v-1a4 4 0 00-3-3.9 M16 4.1a3.5 3.5 0 010 6.8',
+        'chatbots': 'M12 3v3 M7 8h10a3 3 0 013 3v5a3 3 0 01-3 3H7a3 3 0 01-3-3v-5a3 3 0 013-3z M9 13h.01M15 13h.01 M9 17h6',
+        'omnichat': 'M4 5h12v9H8l-4 3V5z M20 9v9l-3-2h-5',
+        'sitios': 'M3 5h18v14H3z M3 9h18 M6 7h.01M9 7h.01',
+        'wordpress-flash': 'M13 2L4 14h7l-1 8 9-12h-7l1-8z',
+    } %}
+    {% set fallbackIcon = 'M4 4h16v16H4z M4 9h16 M8 4v5' %}
+
+    <div
+        x-data="{
+            paused: false,
+            dragging: false,
+            moved: false,
+            startX: 0,
+            startScroll: 0,
+            period: 0,
+            pos: 0,
+            ready: false,
+            resumeTimer: null,
+            init() {
+                const t = this.$refs.track;
+                const measure = () => {
+                    const n = t.children.length / 3;
+                    this.period = t.children[n].offsetLeft - t.children[0].offsetLeft;
+                    if (!this.ready) { this.pos = this.period; t.scrollLeft = this.pos; this.ready = true; }
+                };
+                measure();
+                window.addEventListener('resize', measure);
+                window.addEventListener('load', measure);
+                requestAnimationFrame(() => this.tick());
+            },
+            tick() {
+                if (!this.paused && this.period) {
+                    this.pos += 0.6;
+                    this.$refs.track.scrollLeft = this.pos;
+                    this.wrap();
+                }
+                requestAnimationFrame(() => this.tick());
+            },
+            wrap() {
+                const p = this.period;
+                let shift = 0;
+                if (this.pos < p * 0.5) shift = p;
+                else if (this.pos >= p * 1.5) shift = -p;
+                if (shift) {
+                    this.pos += shift;
+                    this.$refs.track.scrollLeft = this.pos;
+                    if (this.dragging) this.startScroll += shift;
+                }
+            },
+            dragStart(e) {
+                this.dragging = true;
+                this.moved = false;
+                this.paused = true;
+                clearTimeout(this.resumeTimer);
+                this.startX = e.clientX;
+                this.startScroll = this.pos = this.$refs.track.scrollLeft;
+            },
+            dragMove(e) {
+                if (!this.dragging) return;
+                const delta = e.clientX - this.startX;
+                if (Math.abs(delta) > 4) this.moved = true;
+                this.pos = this.startScroll - delta;
+                this.$refs.track.scrollLeft = this.pos;
+                this.wrap();
+            },
+            dragEnd() {
+                if (!this.dragging) return;
+                this.dragging = false;
+                this.pos = this.$refs.track.scrollLeft;
+                this.resumeTimer = setTimeout(() => this.paused = false, 1500);
+            }
+        }"
+    >
+    <div class="relative w-screen left-1/2 -translate-x-1/2">
+        <div
+            x-ref="track"
+            @pointerdown="dragStart($event)"
+            @pointermove.window="dragMove($event)"
+            @pointerup.window="dragEnd()"
+            @pointercancel.window="dragEnd()"
+            @click.capture="if (moved) { $event.stopPropagation(); $event.preventDefault(); }"
+            @mouseenter="paused = true"
+            @mouseleave="!dragging && (paused = false)"
+            class="flex gap-5 overflow-x-auto pt-2 pb-3 [scrollbar-width:none] [touch-action:pan-y] cursor-grab active:cursor-grabbing select-none px-6 sm:px-[max(1.5rem,calc((100vw-72rem)/2+2.5rem))]"
+        >
+            {% for n in 1..3 %}
+                {% for item in items %}
+                {% set icon = icons[item.slug] ?? fallbackIcon %}
+                <a href="/plugin/{{ item.slug }}" draggable="false"
+                   {% if n > 1 %}aria-hidden="true" tabindex="-1"{% endif %}
+                   class="group shrink-0 w-72 sm:w-80 flex flex-col gap-4 p-6 rounded-3xl border border-edge bg-canvas outline-none focus-visible:ring-1 focus-visible:ring-edge hover:bg-canvas-elev2 hover:-translate-y-0.5 transition-all">
+                    <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-canvas-elev2 text-accent">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                            {% for d in icon|split(' M') %}<path d="{{ loop.first ? d : 'M' ~ d }}"/>{% endfor %}
+                        </svg>
+                    </span>
+                    <h3 class="text-lg font-bold leading-snug">{{ item.name }}</h3>
+                    <p class="text-sm text-ink-dim flex-1 line-clamp-3">{{ item.summary }}</p>
+                    <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                        Ver plugin
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    </span>
+                </a>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+</section>

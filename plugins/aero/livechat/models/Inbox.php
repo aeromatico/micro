@@ -1,0 +1,114 @@
+<?php namespace Aero\Livechat\Models;
+
+use Aero\Sites\Models\Tenant;
+use Model;
+use Str;
+
+/**
+ * Un inbox = un widget embebible. tenant_id NULL = mesa de soporte de la
+ * plataforma; con valor = inbox propio del tenant. widget_key es público (va
+ * en el <script> del sitio del tenant), nunca un secreto.
+ */
+class Inbox extends Model
+{
+    use \October\Rain\Database\Traits\Validation;
+    use \October\Rain\Database\Traits\Purgeable;
+
+    public $table = 'aero_livechat_inboxes';
+
+    public $fillable = [
+        'tenant_id', 'name', 'welcome_message', 'color', 'is_active',
+        'telegram_connector_id', 'telegram_chat_id',
+    ];
+
+    /**
+     * `embed_snippet` es un accessor puro (sin columna): el Form widget
+     * asigna cada campo del form como atributo directo del modelo, sin
+     * respetar $fillable (eso solo aplica a fill()/create()) — sin purgarlo,
+     * Eloquent intenta insertarlo como columna real y el UPDATE explota.
+     */
+    protected $purgeable = ['embed_snippet', 'telegram_bot_token'];
+
+    public $attributes = ['color' => '#4f46e5', 'is_active' => true];
+
+    public $rules = [
+        'tenant_id'              => 'nullable|exists:aero_sites_tenants,id',
+        'name'                   => 'required|max:255',
+        'telegram_connector_id'  => 'nullable|exists:aero_connector_connectors,id',
+    ];
+
+    public $belongsTo = [
+        'tenant'            => [Tenant::class],
+        'telegramConnector' => [\Aero\Connector\Models\Connector::class, 'key' => 'telegram_connector_id'],
+    ];
+
+    public $hasMany = [
+        'conversations' => [Conversation::class],
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (self $inbox) {
+            $inbox->widget_key = $inbox->widget_key ?: (string) Str::uuid();
+        });
+
+        static::saving(function (self $inbox) {
+            if ($inbox->telegram_connector_id === '' || $inbox->telegram_connector_id === '0') {
+                $inbox->telegram_connector_id = null;
+            }
+        });
+
+        // Cada inbox tiene su cuenta espejo en Aero.Hello, para que el PWA de
+        // aero/chat (tema whatsapp) lo muestre como un canal más — ver
+        // HelloBridge. Se sincroniza en cada guardado (nombre/estado/tenant
+        // pueden cambiar desde el form).
+        static::saved(function (self $inbox) {
+            \Aero\Livechat\Classes\HelloBridge::account($inbox);
+        });
+    }
+
+    public function getTelegramConnectorIdOptions(): array
+    {
+        return \Aero\Connector\Models\Connector::where('type', 'telegram')
+            ->orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /** ¿Atiende chats de visitantes? Inbox activo, interruptor general encendido y modo con chat (livechat o livechat+WhatsApp). */
+    public function isServing(): bool
+    {
+        return (bool) $this->is_active && ChannelSettings::chatAvailable($this->tenant_id ? (int) $this->tenant_id : null);
+    }
+
+    public function scopeInScope($query, ?int $tenantId)
+    {
+        return $tenantId ? $query->where('tenant_id', $tenantId) : $query->whereNull('tenant_id');
+    }
+
+    public function getConversationsCountAttribute(): int
+    {
+        return $this->conversations()->count();
+    }
+
+    /** Snippet listo para pegar en el <head> del sitio del tenant. */
+    public function getEmbedSnippetAttribute(): string
+    {
+        $base = rtrim(\Config::get('app.url'), '/');
+        // Cloudflare cachea el asset 7 días (immutable en la práctica): sin
+        // ?v= un cambio en widget.js queda invisible para todos los tenants
+        // hasta que expire el cache. Ver feedback_cloudflare_asset_cache_busting.
+        $version = filemtime(base_path('plugins/aero/livechat/assets/js/widget.js')) ?: time();
+
+        // charset explícito: el navegador si no, decodifica widget.js con el
+        // charset de la página del tenant — si esa página no declara UTF-8,
+        // los acentos del widget salen con mojibake.
+        return sprintf(
+            '<script src="%s/plugins/aero/livechat/assets/js/widget.js?v=%s" charset="utf-8" data-livechat-key="%s" data-livechat-base="%s" async></script>',
+            $base,
+            $version,
+            $this->widget_key,
+            $base
+        );
+    }
+}

@@ -38,9 +38,9 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         $this->bootTenantPurgeCleanup();
-        $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
         $this->bootChatbotsIntegration();
+        $this->bootWorkflowsIntegration();
         $this->bootRestApi();
     }
 
@@ -63,6 +63,63 @@ class Plugin extends PluginBase
         Event::listen('aero.api.registerScopes', function () {
             return ['shop' => ['label' => 'Tienda', 'scopes' => \Aero\Shop\Classes\Api\Scopes::all()]];
         });
+
+        if (!class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
+            return;
+        }
+
+        Event::listen('aero.api.registerEndpoints', function () {
+            $scopes = \Aero\Shop\Classes\Api\Scopes::class;
+
+            return ['shop' => [
+                'label' => 'Tienda',
+                'endpoints' => [
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/products', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Buscar productos del catálogo.',
+                        'query' => [
+                            ['name' => 'q', 'type' => 'string', 'help' => 'Texto libre sobre nombre/descripción.'],
+                            ['name' => 'collection_id', 'type' => 'integer', 'help' => 'Filtra por colección.'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 20, 'help' => 'Resultados por página.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/products/{id}', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Detalle de un producto.',
+                        'path_params' => [['name' => 'id', 'type' => 'integer', 'required' => true, 'help' => 'ID del producto.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/payment-methods', 'scope' => $scopes::PRODUCTS_READ,
+                        'summary' => 'Métodos de pago activos de la tienda.',
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/orders', 'scope' => $scopes::ORDERS_READ,
+                        'summary' => 'Lista de pedidos.',
+                        'query' => [
+                            ['name' => 'status', 'type' => 'string', 'help' => 'Ej: pending, paid, cancelled.'],
+                            ['name' => 'phone', 'type' => 'string', 'help' => 'Teléfono del cliente.'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 20, 'help' => 'Máx. 100.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/shop/orders/{ref}', 'scope' => $scopes::ORDERS_READ,
+                        'summary' => 'Detalle de un pedido, por ID o número.',
+                        'path_params' => [['name' => 'ref', 'type' => 'string', 'required' => true, 'help' => 'ID o número de pedido (ej. #1024).']],
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/shop/orders', 'scope' => $scopes::ORDERS_WRITE,
+                        'summary' => 'Crea un pedido nuevo.',
+                        'body_example' => "{\n    \"customer\": {\n        \"first_name\": \"Ana\",\n        \"phone\": \"70000000\"\n    },\n    \"items\": [\n        {\"product_id\": 1, \"quantity\": 2}\n    ],\n    \"notes\": \"Entregar en la tarde\"\n}",
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/shop/orders/{ref}/cancel', 'scope' => $scopes::ORDERS_WRITE,
+                        'summary' => 'Cancela un pedido.',
+                        'path_params' => [['name' => 'ref', 'type' => 'string', 'required' => true, 'help' => 'ID o número de pedido.']],
+                        'body_example' => "{\n    \"reason\": \"El cliente lo pidió\"\n}",
+                    ],
+                ],
+            ]];
+        });
     }
 
     /**
@@ -75,7 +132,7 @@ class Plugin extends PluginBase
     {
         Event::listen('aero.chatbots.registerAiTools', function () {
             return [
-                'list_products' => [
+                'shop_products_list' => [
                     'description' => 'Lista o busca productos activos del catálogo de la tienda, con precio y disponibilidad.',
                     'category'    => 'shop',
                     'parameters'  => [
@@ -94,24 +151,15 @@ class Plugin extends PluginBase
     }
 
     /**
-     * Espejo de "Tienda → Configuración" como tab del menú central
-     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
-     * un solo lugar. El menú propio de Tienda sigue existiendo tal cual —
-     * esto solo agrega un acceso más al mismo controlador, no lo mueve.
+     * Nodos de la tienda para Aero.Workflows (menú de categorías y productos
+     * de una categoría). Dependencia blanda: si Aero.Workflows no está
+     * instalado este evento nunca se dispara.
      */
-    protected function registerConfigMenuTab(): void
+    protected function bootWorkflowsIntegration(): void
     {
-        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
-            return;
-        }
-
-        Event::listen('backend.menu.extendItems', function ($manager) {
-            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'shop-settings', [
-                'label'       => 'aero.shop::lang.menu.settings',
-                'icon'        => 'icon-shopping-cart',
-                'url'         => Backend::url('aero/shop/shopsettings'),
-                'permissions' => ['aero.shop.manage_settings'],
-            ]);
+        Event::listen('aero.workflows.registerNodes', function () {
+            return \Aero\Shop\Classes\Workflows\CatalogNodes::definitions() + \Aero\Shop\Classes\Workflows\OrderNodes::definitions()
+                + \Aero\Shop\Classes\Workflows\ProductNodes::definitions();
         });
     }
 
@@ -220,6 +268,15 @@ class Plugin extends PluginBase
                 ],
             ];
 
+            if ($this->isRestaurantForCurrentTenant()) {
+                $sideMenu['shop-cocina'] = [
+                    'label'       => 'aero.shop::lang.menu.kitchen',
+                    'icon'        => 'icon-cutlery',
+                    'url'         => Backend::url('aero/shop/kitchen'),
+                    'permissions' => ['aero.shop.manage_orders'],
+                ];
+            }
+
             if ($this->isInventoryEnabledForCurrentTenant()) {
                 $sideMenu['shop-inventario'] = [
                     'label'       => 'aero.shop::lang.menu.inventory',
@@ -273,6 +330,13 @@ class Plugin extends PluginBase
         }
 
         return \Aero\Shop\Models\ShopSettings::inventoryEnabledForTenant($tenantId);
+    }
+
+    protected function isRestaurantForCurrentTenant(): bool
+    {
+        $tenantId = $this->resolveCurrentBackendTenantId();
+
+        return $tenantId && \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
     }
 
     protected function resolveCurrentBackendTenantId(): ?int

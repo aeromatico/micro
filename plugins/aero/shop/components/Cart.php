@@ -85,10 +85,23 @@ class Cart extends ComponentBase
             return $this->errorResponse('No hay suficiente stock disponible.');
         }
 
-        $this->cart($tenant->id)->add($productId, $variantId, $qty);
+        $modifiers = array_map('strval', (array) post('modifiers', []));
+        $note = post('note');
+        try {
+            if (StorefrontContext::settings()?->isRestaurantStore() || $modifiers) {
+                \Aero\Shop\Classes\RestaurantService::resolve($product, $modifiers); // valida mín/máx y opciones
+            }
+        } catch (\Aero\Shop\Classes\Exceptions\OrderException $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+
+        $added = $this->cart($tenant->id)->add($productId, $variantId, $qty, $modifiers, $note);
         $this->hydrate();
 
-        return $this->renderUpdates();
+        // Datos para el aviso «Deshacer»: la línea y la cantidad que tenía antes de agregar.
+        return $this->renderUpdates() + [
+            '#rest-last' => '<span data-key="' . e($added['key']) . '" data-prev="' . $added['previous'] . '" data-name="' . e($product->name) . '" data-qty="' . $qty . '"></span>',
+        ];
     }
 
     public function onUpdateQuantity()
@@ -122,11 +135,17 @@ class Cart extends ComponentBase
 
     protected function renderUpdates(): array
     {
-        return [
+        $updates = [
             '#cart-badge'   => $this->renderPartial('@badge'),
             '#cart-content' => $this->renderPartial('@content'),
             '#cart-error'   => '',
         ];
+
+        if (StorefrontContext::settings()?->isRestaurantStore()) {
+            $updates['#rest-cartbar'] = $this->renderPartial('@restaurantbar');
+        }
+
+        return $updates;
     }
 
     protected function errorResponse(string $message): array

@@ -4,10 +4,10 @@ description = "Pantalla para ingresar el subdominio (sin handle en la URL)"
     <form class="card" @submit.prevent="submitGate()">
         <div class="logo" aria-hidden="true">ae</div>
         <h1>Chat de tu equipo</h1>
-        <p class="muted">Ingresa el nombre de tu espacio para continuar. Por ejemplo <strong>boliviahost</strong> o <strong>demo</strong>.</p>
+        <p class="muted">Ingresa el nombre de tu espacio para continuar.</p>
         <label class="field">
             <span>Tu espacio</span>
-            <div class="prefix"><span>whatsapp.market.com.bo/</span><input type="text" x-model="gateInput" placeholder="id" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" required></div>
+            <div class="prefix"><span>chat.market.com.bo/</span><input type="text" x-model="gateInput" placeholder="id" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" required></div>
         </label>
         <p class="error" x-show="gateError" x-text="gateError"></p>
         <button class="btn primary" type="submit" :disabled="busy">Continuar</button>

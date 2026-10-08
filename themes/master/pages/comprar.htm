@@ -5,7 +5,17 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
 [signupWizard]
 ==
-<script src="{{ 'assets/js/signup.js' | theme }}?v=10"></script>
+<?php
+
+function onStart()
+{
+    $manifestPath = themes_path('master/assets/dist/.vite/manifest.json');
+    $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
+
+    $this['signupJs'] = $manifest['assets/src/signup.js']['file'] ?? null;
+}
+==
+{% if signupJs %}<script type="module" src="{{ ('assets/dist/' ~ signupJs) | theme }}"></script>{% endif %}
 
 <section class="max-w-6xl mx-auto px-6 sm:px-10 py-14 sm:py-16" x-data='signupWizard({{ signupConfigJson | raw }})'>
 
@@ -117,8 +127,26 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     </div>
                 </div>
 
+                <!-- Código de invitación / cupón -->
+                <div>
+                    <label for="signup-promo" class="block text-[13px] font-bold mb-2">¿Tienes un código de invitación o cupón?</label>
+                    <div class="flex items-stretch gap-2">
+                        <input id="signup-promo" type="text" x-model="promoCode" @input="promoStatus = 'idle'; promoMessage = ''" @keydown.enter.prevent="checkPromo()"
+                               placeholder="Ej. T28VBNKG" autocomplete="off" spellcheck="false" maxlength="40"
+                               class="flex-1 min-w-0 bg-canvas border rounded-xl px-4 py-3 text-[15px] font-display uppercase outline-none transition-colors"
+                               :class="promoStatus === 'valid' ? 'border-accent' : (promoStatus === 'invalid' ? 'border-red-400/70' : 'border-edge focus:border-accent')" />
+                        <button type="button" @click="checkPromo()" :disabled="!promoCode.trim() || promoStatus === 'checking'"
+                                class="border border-edge rounded-xl px-5 text-sm font-bold hover:border-ink-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span x-show="promoStatus !== 'checking'">Aplicar</span>
+                            <span x-show="promoStatus === 'checking'" x-cloak>…</span>
+                        </button>
+                    </div>
+                    <p class="text-xs mt-2" x-show="promoMessage" x-cloak x-text="promoMessage"
+                       :class="promoStatus === 'valid' ? 'text-accent' : 'text-red-400'"></p>
+                </div>
+
                 <!-- Dominio propio (opcional, solo plan Pro) -->
-                <div x-show="isPro && !isTrial" x-cloak class="border border-edge rounded-xl p-4 bg-canvas flex flex-col gap-2.5">
+                <div x-show="isPro && !isFree" x-cloak class="border border-edge rounded-xl p-4 bg-canvas flex flex-col gap-2.5">
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input type="radio" :checked="domainMode === ''" @change="setDomainMode('')"
                                class="mt-0.5 w-4 h-4 accent-accent flex-shrink-0" />
@@ -241,8 +269,8 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     </div>
                     <button type="button" @click="goToPayment()" :disabled="!canContinue"
                             class="w-full inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span x-show="!creating" x-text="isTrial ? 'Empezar prueba gratis' : 'Continuar al pago'"></span>
-                        <span x-show="creating" x-cloak x-text="isTrial ? 'Creando tu sitio…' : 'Preparando tu QR…'"></span>
+                        <span x-show="!creating" x-text="isPromo ? 'Activar con mi código' : (isTrial ? 'Empezar prueba gratis' : 'Continuar al pago')"></span>
+                        <span x-show="creating" x-cloak x-text="isFree ? 'Creando tu sitio…' : 'Preparando tu QR…'"></span>
                     </button>
                     <p class="text-xs text-red-400 mt-2 text-center" x-show="createError" x-cloak x-text="createError"></p>
                     <p class="text-xs text-ink-dim mt-3 text-center">Sin tarjeta de crédito requerida en este paso</p>
@@ -270,7 +298,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
 
                         <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-5 items-center">
                             <div class="bg-white rounded-2xl p-3 w-40 h-40 flex items-center justify-center border border-edge">
-                                <img :src="payment.qr_image" alt="QR de cobro" class="w-full h-full object-contain" />
+                                <img :src="payment.qr_image" alt="QR de cobro" width="160" height="160" decoding="async" class="w-full h-full object-contain" />
                             </div>
                             <div class="flex flex-col gap-1.5">
                                 <div class="font-display text-3xl font-bold">Bs <span x-text="payment.amount"></span><span class="text-sm font-semibold text-ink-dim" x-text="payment.period === 'annual' ? ' / primer año' : ' / primer mes'"></span></div>
@@ -310,7 +338,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     <div class="flex flex-col gap-6">
                         <div class="flex items-center gap-3 text-accent">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6"/></svg>
-                            <span class="text-sm font-bold">Pago confirmado</span>
+                            <span class="text-sm font-bold"><span x-text="payment.free ? 'Sitio activado' : 'Pago confirmado'"></span></span>
                         </div>
                         <div>
                             <span class="text-xs tracking-wide text-accent uppercase font-bold">Último paso</span>
@@ -376,7 +404,7 @@ description = "Elige el nombre y el rubro de tu negocio, paga con QR y activa tu
                     <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-edge"></span>
-                    <span class="flex-1 bg-canvas rounded px-2.5 py-1 text-[11px] text-ink-dim truncate" x-text="(payment ? payment.domain : (handle || 'tunegocio')) + '.market.com.bo'"></span>
+                    <span class="flex-1 bg-canvas rounded px-2.5 py-1 text-[11px] text-ink-dim truncate" x-text="payment ? payment.domain : ((handle || 'tunegocio') + '.market.com.bo')"></span>
                 </div>
                 <div class="p-4 flex flex-col gap-3">
                     <div class="h-16 rounded-xl bg-canvas-elev2 flex items-center gap-2.5 px-3.5">

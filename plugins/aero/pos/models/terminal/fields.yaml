@@ -1,0 +1,16 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        required: true
+        comment: "Ej: Caja principal, Barra, Terraza"
+    code:
+        label: Código
+        type: text
+        span: right
+        comment: "Vacío = se genera del nombre"
+    is_active:
+        label: Activa
+        type: switch
+        default: true

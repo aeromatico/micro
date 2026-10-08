@@ -1,0 +1,13 @@
+title: Guías interactivas
+list: $/aero/docs/models/guide/columns.yaml
+modelClass: Aero\Docs\Models\Guide
+recordUrl: aero/docs/guides/update/:id
+noRecordsMessage: Aún no hay guías. docs-sync las genera al detectar cambios en un plugin.
+recordsPerPage: 50
+showSorting: true
+defaultSort:
+    column: updated_at
+    direction: desc
+toolbar:
+    search:
+        prompt: Buscar

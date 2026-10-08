@@ -1,4 +1,4 @@
-url = "/documentacion/categoria/:slug"
+url = "/docs/categoria/:slug"
 layout = "base"
 title = "Documentación — Market"
 
@@ -11,7 +11,7 @@ slug = "{{ :slug }}"
 {% partial 'docs/crumbs' %}
 
 <header class="mb-10">
-    <div class="text-4xl mb-3">{{ docs.category.icon }}</div>
+    <span class="inline-grid place-items-center w-14 h-14 rounded-2xl bg-canvas-elev2 text-accent mb-4">{% partial 'docs/cat-icon' url=docs.category.url class='w-7 h-7' %}</span>
     <h1 class="text-4xl font-bold">{{ docs.category.name }}</h1>
     {% if docs.category.description %}<p class="text-lg text-ink-dim mt-2 max-w-2xl">{{ docs.category.description }}</p>{% endif %}
 </header>
@@ -20,7 +20,7 @@ slug = "{{ :slug }}"
     <div class="grid sm:grid-cols-2 gap-4 mb-10">
         {% for c in docs.category.children %}
             <a href="{{ c.url }}" class="group p-5 bg-canvas-elev border border-edge rounded-xl hover:border-accent transition-colors">
-                <div class="font-display font-semibold text-lg group-hover:text-accent">{{ c.icon }} {{ c.name }}</div>
+                <div class="flex items-center gap-2.5 font-display font-semibold text-lg group-hover:text-accent"><span class="text-accent">{% partial 'docs/cat-icon' url=c.url class='w-5 h-5' %}</span>{{ c.name }}</div>
                 {% if c.description %}<p class="text-sm text-ink-dim mt-1">{{ c.description }}</p>{% endif %}
                 <div class="text-xs text-ink-dim mt-3">{{ c.count }} artículo{{ c.count == 1 ? '' : 's' }}</div>
             </a>

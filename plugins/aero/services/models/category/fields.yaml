@@ -22,6 +22,16 @@ fields:
         label: Descripción
         type: textarea
         size: small
+    services:
+        label: Servicios
+        commentAbove: Servicios de esta categoría (un servicio puede estar en varias).
+        type: relation
+        nameFrom: name
+    collections:
+        label: Colecciones
+        commentAbove: Colecciones en las que aparece esta categoría.
+        type: relation
+        nameFrom: name
     is_active:
         label: Activa
         type: switch

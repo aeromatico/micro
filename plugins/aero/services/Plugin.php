@@ -19,6 +19,19 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('services.build-offer', \Aero\Services\Console\BuildOffer::class);
+        $this->registerConsoleCommand('services.offer-proposal', \Aero\Services\Console\OfferProposal::class);
+        $this->registerConsoleCommand('services.offer-apply', \Aero\Services\Console\OfferApply::class);
+        $this->registerConsoleCommand('services.link-docs', \Aero\Services\Console\LinkDocs::class);
+    }
+
+    public function registerComponents(): array
+    {
+        return [\Aero\Services\Components\Services::class => 'services'];
+    }
+
     public function registerPermissions(): array
     {
         return [
@@ -31,6 +44,11 @@ class Plugin extends PluginBase
 
     public function registerNavigation(): array
     {
+        // El panel del tenant (App Store, comprar servicios) NO vive acá: es un
+        // ícono del menú inferior (ver Aero.Credits\Plugin::bootNavbarWidget()),
+        // igual que Wallet. Un ítem de sideMenu sin permisos lo haría "administrable
+        // por plan" (Aero\Sites\Classes\ProFeatures::manageablePlugins()) y algún
+        // plan podría terminar bloqueándolo por accidente.
         return [
             'services' => [
                 'label'       => 'aero.services::lang.menu.services',
@@ -49,6 +67,18 @@ class Plugin extends PluginBase
                         'label'       => 'aero.services::lang.menu.categories',
                         'icon'        => 'icon-folder-open-o',
                         'url'         => Backend::url('aero/services/categories'),
+                        'permissions' => ['aero.services.manage'],
+                    ],
+                    'collections' => [
+                        'label'       => 'aero.services::lang.menu.collections',
+                        'icon'        => 'icon-th-large',
+                        'url'         => Backend::url('aero/services/collections'),
+                        'permissions' => ['aero.services.manage'],
+                    ],
+                    'purchases' => [
+                        'label'       => 'aero.services::lang.menu.purchases',
+                        'icon'        => 'icon-shopping-basket',
+                        'url'         => Backend::url('aero/services/purchases'),
                         'permissions' => ['aero.services.manage'],
                     ],
                 ],

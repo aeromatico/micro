@@ -1,0 +1,48 @@
+{
+  "$comment": "Permisos del agente docs-sync (claude -p en cron). Se usa con --setting-sources project + --permission-mode dontAsk: lo que no está en allow queda denegado. No hereda .claude/settings.local.json.",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git ls-files:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(find plugins/aero/:*)",
+      "Bash(cat plugins/aero/:*)",
+      "Bash(head plugins/aero/:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir -p plugins/aero/docs/content/:*)",
+      "Bash(sudo -u www /www/server/php/84/bin/php artisan docs:import:*)",
+      "Bash(sudo -u www /www/server/php/84/bin/php artisan docs:guides:*)",
+      "Bash(sudo -u www /www/server/php/84/bin/php artisan docs:versions)",
+      "Edit(//www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/content/**)",
+      "Write(//www/wwwroot/micro.clouds.com.bo/plugins/aero/docs/content/**)",
+      "Bash(sudo -u www /www/server/php/84/bin/php artisan services:offer-proposal:*)"
+    ],
+    "deny": [
+      "Read(//www/wwwroot/micro.clouds.com.bo/.env)",
+      "Read(//www/wwwroot/micro.clouds.com.bo/.env.*)",
+      "Read(//www/wwwroot/micro.clouds.com.bo/auth.json)",
+      "Edit(//www/wwwroot/micro.clouds.com.bo/.env*)",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)",
+      "Bash(git stash:*)",
+      "Bash(git clean:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+      "Bash(rm:*)"
+    ]
+  }
+}

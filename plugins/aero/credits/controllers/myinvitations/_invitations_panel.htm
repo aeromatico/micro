@@ -1,0 +1,25 @@
+<table class="table data">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Canal</th>
+            <th>Destinatario</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if ($invitations->isEmpty()): ?>
+            <tr><td colspan="5" class="text-muted">Todavía no enviaste ninguna invitación.</td></tr>
+        <?php endif ?>
+        <?php foreach ($invitations as $inv): ?>
+            <tr>
+                <td><?= e($inv->code) ?></td>
+                <td><?= $inv->channel === 'whatsapp' ? 'WhatsApp' : 'Correo' ?></td>
+                <td><?= e($inv->recipient) ?></td>
+                <td><?= e($statusLabels[$inv->status] ?? $inv->status) ?></td>
+                <td><?= $inv->created_at->toFormattedDateString() ?></td>
+            </tr>
+        <?php endforeach ?>
+    </tbody>
+</table>

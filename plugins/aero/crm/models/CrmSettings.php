@@ -9,7 +9,7 @@ class CrmSettings extends Model
     public $table = 'aero_crm_settings';
 
     public $fillable = [
-        'tenant_id', 'is_enabled',
+        'tenant_id', 'is_enabled', 'tickets_enabled',
         'collections_enabled', 'reminder_interval_days', 'reminder_message_template',
         'collections_bank_account_id',
     ];
@@ -25,6 +25,15 @@ class CrmSettings extends Model
     public function scopeForTenant($query, int $tenantId)
     {
         return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Sistema de tickets del sitio (portal /soporte). Apagado por defecto:
+     * sin fila o con el interruptor en false, el portal no se expone.
+     */
+    public static function ticketsEnabledFor(int $tenantId): bool
+    {
+        return (bool) static::where('tenant_id', $tenantId)->value('tickets_enabled');
     }
 
     /**

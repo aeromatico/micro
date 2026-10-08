@@ -1,0 +1,12 @@
+columns:
+    name:
+        label: Grupo
+        type: text
+    min_select:
+        label: Mínimo
+        type: number
+        width: 90px
+    max_select:
+        label: Máximo
+        type: number
+        width: 90px

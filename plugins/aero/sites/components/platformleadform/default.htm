@@ -1,0 +1,92 @@
+{#
+    Modal reutilizable para "Trial" y "Gran Empresa". Se abre disparando el
+    evento window `open-lead-modal` con { plan: 'trial' | 'enterprise' } desde
+    cualquier botón de la página, ej:
+    @click="$dispatch('open-lead-modal', { plan: 'trial' })"
+#}
+<div
+    x-data="{
+        open: false,
+        sending: false,
+        plan: 'trial',
+        email: '',
+        showVerification: false,
+        freeDomains: ['gmail.com','googlemail.com','hotmail.com','hotmail.es','outlook.com','outlook.es','live.com','yahoo.com','yahoo.es','icloud.com','me.com','aol.com','protonmail.com','proton.me','gmx.com','mail.com'],
+        checkEmail() {
+            const domain = (this.email.split('@')[1] || '').toLowerCase().trim();
+            this.showVerification = domain !== '' && this.freeDomains.includes(domain);
+        }
+    }"
+    @open-lead-modal.window="open = true; plan = $event.detail.plan"
+    @keydown.escape.window="open = false"
+>
+    <div x-show="open" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div x-show="open" x-transition.opacity @click="open = false" class="absolute inset-0 bg-black/70"></div>
+
+        <div x-show="open" x-transition class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-canvas border border-edge rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <button type="button" @click="open = false" aria-label="Cerrar" class="absolute top-5 right-5 text-ink-dim hover:text-ink transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+
+            <span class="text-xs tracking-wide text-accent uppercase font-bold" x-text="plan === 'trial' ? 'Solicitar Trial' : 'Solicitar propuesta Empresa'"></span>
+            <h3 class="text-2xl font-bold mt-2" x-text="plan === 'trial' ? '¿Recién empiezas? Cuéntanos de tu negocio.' : '¿Necesitas algo más grande? Hablemos.'"></h3>
+            <p class="text-sm text-ink-dim mt-3">Por la alta demanda que estamos teniendo, de momento solo ofrecemos esta opción a negocios que podamos verificar. Completa el formulario y te contactaremos.</p>
+
+            <div id="platform-lead-response" class="mt-4"></div>
+
+            <div id="platform-lead-fields">
+                <form
+                    data-request="{{ __SELF__ ~ '::onSend' }}"
+                    @ajax-before="sending = true"
+                    @ajax-done="sending = false"
+                    @ajax-fail="sending = false"
+                    class="flex flex-col gap-4 mt-5"
+                >
+                    <input type="hidden" name="plan" :value="plan">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-ink-dim uppercase tracking-wider mb-1.5">Nombre *</label>
+                        <input type="text" name="name" required
+                            class="w-full bg-canvas-elev2 border border-edge text-ink rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent placeholder-ink-dim transition"
+                            placeholder="Tu nombre">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-ink-dim uppercase tracking-wider mb-1.5">Correo corporativo *</label>
+                        <input type="email" name="email" required x-model="email" @input="checkEmail()"
+                            class="w-full bg-canvas-elev2 border border-edge text-ink rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent placeholder-ink-dim transition"
+                            placeholder="tu@tuempresa.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-ink-dim uppercase tracking-wider mb-1.5">Celular *</label>
+                        <input type="tel" name="phone" required
+                            class="w-full bg-canvas-elev2 border border-edge text-ink rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent placeholder-ink-dim transition"
+                            placeholder="+591 70000000">
+                    </div>
+
+                    <div x-show="showVerification" x-cloak x-transition>
+                        <label class="block text-xs font-semibold text-ink-dim uppercase tracking-wider mb-1.5">Sitio web o red social de tu negocio *</label>
+                        <input type="url" name="verification_url" :required="showVerification"
+                            class="w-full bg-canvas-elev2 border border-edge text-ink rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent placeholder-ink-dim transition"
+                            placeholder="https://instagram.com/tunegocio">
+                        <p class="text-xs text-ink-dim mt-1.5">Tu correo no parece ser de una empresa — compártenos dónde podemos verificar tu negocio.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-ink-dim uppercase tracking-wider mb-1.5">¿Qué quieres resolver con Market? *</label>
+                        <textarea name="message" rows="4" required
+                            class="w-full bg-canvas-elev2 border border-edge text-ink rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent placeholder-ink-dim transition resize-none"
+                            placeholder="Cuéntanos tu negocio y qué te gustaría lograr..."></textarea>
+                    </div>
+
+                    <button type="submit" :disabled="sending"
+                        class="inline-flex items-center justify-center gap-2 bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg disabled:opacity-60 hover:-translate-y-px transition-transform mt-1">
+                        <svg x-show="sending" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        <span x-text="sending ? 'Enviando...' : 'Enviar solicitud'"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

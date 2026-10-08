@@ -1,0 +1,14 @@
+list: $/aero/services/models/collection/columns.yaml
+modelClass: Aero\Services\Models\Collection
+title: Colecciones
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+defaultSort:
+    column: sort_order
+    direction: asc
+recordUrl: aero/services/collections/update/:id
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: backend::lang.list.search_prompt

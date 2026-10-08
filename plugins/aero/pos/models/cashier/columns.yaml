@@ -1,0 +1,12 @@
+columns:
+    user:
+        label: Usuario
+        relation: user
+        select: concat(first_name, ' ', last_name)
+        type: text
+    is_supervisor:
+        label: Supervisor
+        type: switch
+    is_active:
+        label: Activo
+        type: switch

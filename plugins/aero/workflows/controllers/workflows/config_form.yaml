@@ -1,0 +1,10 @@
+name: Workflow
+form: $/aero/workflows/models/workflow/fields.yaml
+modelClass: Aero\Workflows\Models\Workflow
+defaultRedirect: aero/workflows/workflows
+create:
+    redirect: aero/workflows/workflows/update/:id
+    redirectClose: aero/workflows/workflows
+update:
+    redirect: aero/workflows/workflows
+    redirectClose: aero/workflows/workflows

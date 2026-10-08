@@ -1,0 +1,100 @@
+fields:
+    name:
+        label: Nombre del mapeo
+        span: left
+        required: true
+    source_id:
+        label: Fuente de datos
+        type: dropdown
+        span: right
+        required: true
+        comment: Si la cambias, se vacían las columnas y el campo clave.
+    direction:
+        label: Dirección
+        type: dropdown
+        span: left
+        options:
+            import: 'Importar: hoja → sistema'
+            export: 'Exportar: sistema → hoja'
+    spreadsheet_id:
+        label: Hoja de cálculo (URL o ID)
+        span: right
+        comment: Pega la URL completa de Google Sheets.
+    sheet_title:
+        label: Pestaña
+        type: dropdown
+        span: left
+        context: update
+        emptyOption: — elige la pestaña —
+    header_row:
+        label: Fila de cabeceras
+        type: number
+        span: auto
+        default: 1
+        context: update
+        comment: 0 si la hoja no tiene cabeceras.
+    start_row:
+        label: Empezar en la fila
+        type: number
+        span: auto
+        default: 2
+        context: update
+        comment: Primera fila de datos (salta cabeceras o filas de título).
+    max_rows:
+        label: Máximo de filas
+        type: number
+        span: auto
+        context: update
+        comment: Vacío = todas (tope de seguridad 10 000).
+    import_mode:
+        label: Al importar
+        type: dropdown
+        span: auto
+        context: update
+        options:
+            upsert: Crear o actualizar
+            create: Solo crear nuevos
+            update: Solo actualizar existentes
+        trigger:
+            action: show
+            field: direction
+            condition: value[import]
+    key_field:
+        label: Campo clave
+        type: dropdown
+        span: auto
+        context: update
+        comment: Identifica un registro (p. ej. email). Obligatorio para actualizar; en exportar define el orden.
+    write_headers:
+        label: Escribir cabeceras
+        type: switch
+        span: auto
+        context: update
+        trigger:
+            action: show
+            field: direction
+            condition: value[export]
+    clear_before_export:
+        label: Limpiar columnas mapeadas antes
+        type: switch
+        span: auto
+        context: update
+        comment: Borra solo las columnas mapeadas, no el resto de la hoja.
+        trigger:
+            action: show
+            field: direction
+            condition: value[export]
+    columns:
+        label: Columnas
+        type: repeater
+        context: update
+        prompt: Añadir columna
+        form:
+            fields:
+                field:
+                    label: Campo del sistema
+                    type: dropdown
+                    span: left
+                column:
+                    label: Columna de la hoja (letra o cabecera)
+                    span: right

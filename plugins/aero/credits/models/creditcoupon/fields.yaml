@@ -1,0 +1,46 @@
+fields:
+    code:
+        label: Código
+        type: text
+        span: left
+        comment: Se guarda en mayúsculas, sin espacios. Ej. LANZAMIENTO2026.
+
+    is_active:
+        label: Activo
+        type: switch
+        span: right
+        default: true
+
+    plan_id:
+        label: Plan gratis
+        type: dropdown
+        span: left
+
+    period_unit:
+        label: Unidad del periodo
+        type: dropdown
+        span: right
+
+    period_count:
+        label: Cantidad de periodos
+        type: number
+        span: left
+        default: 1
+
+    max_redemptions:
+        label: Máximo de canjes
+        type: number
+        span: right
+        comment: Vacío = ilimitado.
+
+    expires_at:
+        label: Vence
+        type: datepicker
+        mode: datetime
+        span: left
+        comment: Vacío = no vence.
+
+    note:
+        label: Nota interna
+        type: text
+        span: full

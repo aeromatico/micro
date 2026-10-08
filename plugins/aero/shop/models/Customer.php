@@ -8,7 +8,7 @@ class Customer extends Model
 
     public $table = 'aero_shop_customers';
 
-    public $fillable = ['tenant_id', 'user_id', 'email', 'first_name', 'last_name', 'phone', 'is_guest'];
+    public $fillable = ['tenant_id', 'user_id', 'email', 'first_name', 'last_name', 'phone', 'is_guest', 'tax_id', 'tax_name'];
 
     public $rules = [
         'tenant_id' => 'required|exists:aero_sites_tenants,id',

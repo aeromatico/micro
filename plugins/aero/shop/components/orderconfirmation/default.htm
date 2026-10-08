@@ -14,6 +14,62 @@
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
     </div>
 
+    {# Guardar el enlace para volver al seguimiento #}
+    <div class="card p-4 mb-6 text-sm" x-data="orderLink()" x-init="remember()">
+        <p class="font-semibold text-ink">Guarda este enlace para ver el estado de tu pedido cuando quieras</p>
+        <p class="text-ink-muted mt-1">También lo encontrarás en la carta, en «Tus pedidos en curso», y con tu número de pedido y celular.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            <button type="button" @click="copy()" class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 font-semibold text-ink hover:bg-surface-alt">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span x-text="copied ? '¡Enlace copiado!' : 'Copiar enlace'">Copiar enlace</span>
+            </button>
+            <a :href="'https://wa.me/?text=' + encodeURIComponent('Mi pedido {{ order.order_number }}: ' + location.href)" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 border border-surface-border rounded-brand px-4 py-2 font-semibold text-ink hover:bg-surface-alt">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>
+                Enviármelo por WhatsApp
+            </a>
+        </div>
+    </div>
+    <script>
+    function orderLink() {
+        return {
+            copied: false,
+            remember() {
+                try {
+                    const t = '{{ order.access_token }}';
+                    const list = JSON.parse(localStorage.getItem('aero_shop_orders') || '[]').filter(x => x !== t);
+                    list.unshift(t);
+                    localStorage.setItem('aero_shop_orders', JSON.stringify(list.slice(0, 5)));
+                } catch (e) {}
+            },
+            async copy() {
+                try { await navigator.clipboard.writeText(location.href); }
+                catch (e) { const i = document.createElement('input'); i.value = location.href; document.body.appendChild(i); i.select(); document.execCommand('copy'); i.remove(); }
+                this.copied = true; setTimeout(() => this.copied = false, 2500);
+            },
+        };
+    }
+    </script>
+
+    {% if order.order_type %}
+    <div class="card p-5 mb-6 text-sm">
+        <p class="font-semibold text-ink">
+            {% if order.order_type == 'dine_in' %}<svg class="inline w-4 h-4 -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>Comer en local{% elseif order.order_type == 'pickup' %}<svg class="inline w-4 h-4 -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Recoger en el local{% else %}<svg class="inline w-4 h-4 -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>Delivery{% endif %}
+            {% if order.table_label %} · Mesa {{ order.table_label }}{% endif %}
+        </p>
+        {% if order.scheduled_for %}
+        <p class="text-ink-muted mt-1">Programado para {{ order.scheduled_for|date('d/m H:i') }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if order.kitchen_status %}
+    <div x-data x-init="setInterval(() => { if (!document.hidden && $refs.poll) $refs.poll.click() }, 10000)">
+        <button type="button" x-ref="poll" class="hidden" data-request="shopOrderConfirmation::onRefreshKitchen" aria-hidden="true" tabindex="-1"></button>
+        <div id="order-kitchen">{% partial __SELF__~"::kitchenStatus" %}</div>
+    </div>
+    {% endif %}
+
     <div id="order-payment-status">
         {% partial __SELF__~"::paymentStatus" %}
     </div>
@@ -25,11 +81,16 @@
             <div class="flex justify-between gap-3 text-sm">
                 <span class="text-ink-muted">
                     {{ item.quantity }}× {{ item.product_name_snapshot }}{% if item.variant_label_snapshot %} <span class="text-xs">({{ item.variant_label_snapshot }})</span>{% endif %}
+                    {% if item.modifiers %}<span class="block text-xs">{% for m in item.modifiers %}{{ m.name }}{{ not loop.last ? ', ' : '' }}{% endfor %}</span>{% endif %}
+                    {% if item.note %}<span class="block text-xs italic">“{{ item.note }}”</span>{% endif %}
                 </span>
                 <span class="text-ink font-medium shrink-0">{{ currency.format(item.line_total) }}</span>
             </div>
             {% endfor %}
         </div>
+        {% if order.shipping_total > 0 %}
+        <div class="flex justify-between text-sm text-ink-muted mb-3"><span>Delivery</span><span>{{ currency.format(order.shipping_total) }}</span></div>
+        {% endif %}
         <div class="border-t border-surface-border pt-4 flex justify-between items-center">
             <span class="font-semibold text-ink">Total</span>
             <span class="text-xl font-bold text-ink">{{ currency.format(order.grand_total) }}</span>
@@ -46,7 +107,7 @@
         </p>
         {% if order.shipping_address.latitude %}
         <p class="text-sm mt-2">
-            <a class="underline" href="https://www.google.com/maps?q={{ order.shipping_address.latitude }},{{ order.shipping_address.longitude }}" target="_blank" rel="noopener">📍 Ver ubicación en el mapa</a>
+            <a class="underline" href="https://www.google.com/maps?q={{ order.shipping_address.latitude }},{{ order.shipping_address.longitude }}" target="_blank" rel="noopener"><svg class="inline w-4 h-4 -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Ver ubicación en el mapa</a>
         </p>
         {% endif %}
     </div>

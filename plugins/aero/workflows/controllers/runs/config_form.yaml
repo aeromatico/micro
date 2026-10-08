@@ -1,0 +1,6 @@
+name: Ejecución
+form: $/aero/workflows/models/run/fields.yaml
+modelClass: Aero\Workflows\Models\Run
+defaultRedirect: aero/workflows/runs
+preview:
+    title: Ejecución

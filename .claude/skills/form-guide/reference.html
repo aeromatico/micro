@@ -1,0 +1,710 @@
+<!doctype html>
+<!--guide {"title":"Nueva cuenta bancaria","article":"pay-cuentas-bancarias","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nueva cuenta bancaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: guía de pasos (izquierda en escritorio) + réplica del formulario del backend (derecha). En móvil la guía va arriba. */
+:root {
+  --bg: #eceff2;
+  --surface: #ffffff;
+  --surface-2: #f5f7f9;
+  --ink: #1d2933;
+  --ink-2: #55636f;
+  --line: #d5dce2;
+  --accent: #1f6f8b;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcecf2;
+  --hint: #b4620a;
+  --hint-soft: #fdf0dc;
+  --ok: #1e7a4c;
+  --ok-soft: #dff2e8;
+  --err: #b3261e;
+  --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 48px; }
+* { box-sizing: border-box; }
+.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+
+/* Guía */
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: env(safe-area-inset-top, 0px); top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.g-title { font-size: 16px; font-weight: 600; margin: 4px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); border: 1px solid transparent; }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+
+/* Navegación de pasos: bajo el eyebrow, dos botones grandes y de igual peso */
+.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--accent); }
+.g-nav #gPrev { background: var(--accent-soft); color: var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
+.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
+.g-title { margin-top: 14px !important; }
+
+/* Barra de guía con color propio (distinta del formulario), claro y oscuro */
+:root {
+  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
+  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+  }
+}
+:root[data-theme="dark"] {
+  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+}
+.guide { --surface: var(--g-surface); --surface-2: var(--g-surface-2); --line: var(--g-line); --ink: var(--g-ink); --ink-2: var(--g-ink-2);
+  --accent: var(--g-accent); --accent-ink: var(--g-accent-ink); --accent-soft: var(--g-accent-soft); color: var(--ink); }
+.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .tab:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.steps [aria-current="step"] .dot { border-color: var(--accent); color: var(--accent); }
+.steps .opt { font-size: 11px; color: var(--ink-2); font-weight: 400; }
+
+/* Formulario estilo backend */
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.tabs { display: flex; gap: 2px; padding: 8px 8px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { background: transparent; border: 0; padding: 8px 14px; border-bottom: 2px solid transparent; color: var(--ink-2); font-weight: 500; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+.field[hidden] { display: none !important; }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=password], input[type=date], select, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+textarea { resize: vertical; font-family: var(--font-mono); font-size: 12.5px; }
+textarea.small { min-height: 84px; }
+input.err, select.err, textarea.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.help button { color: var(--accent); background: none; border: 0; padding: 0; text-decoration: underline; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.drop { border: 1.5px dashed var(--line); border-radius: 4px; padding: 18px; text-align: center; color: var(--ink-2); background: var(--surface-2); }
+.drop.has { border-style: solid; color: var(--ink); display: flex; gap: 12px; align-items: center; justify-content: center; }
+.drop img { width: 72px; height: 72px; border-radius: 4px; object-fit: cover; }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; vertical-align: 1px; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
+.upd h4 { margin: 0; font-size: 13px; }
+.result { padding: 8px 10px; border-radius: 4px; background: var(--ok-soft); color: var(--ink); }
+.ro { font-family: var(--font-mono); font-size: 12px; }
+.locked { color: var(--ink-2); font-size: 12px; padding: 10px 12px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 4px; grid-column: 1 / -1; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; grid-column: 1 / -1; }
+table.tx { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 720px; }
+table.tx th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2); background: var(--surface-2); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.tx td { padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.tx tr:last-child td { border-bottom: 0; }
+table.tx .num { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.pill.manual { background: var(--hint-soft); color: var(--hint); border-color: transparent; }
+tr.new td { background: var(--ok-soft); }
+.sample { font-size: 11px; color: var(--ink-2); font-style: italic; }
+.txhead { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.newform { grid-column: 1 / -1; border: 1px solid var(--accent); border-radius: 6px; padding: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; background: var(--surface); }
+@media (max-width: 640px) { .newform { grid-template-columns: minmax(0, 1fr); } }
+.newform h4 { grid-column: 1 / -1; margin: 0; font-size: 14px; }
+.newform .row { display: flex; gap: 8px; grid-column: 1 / -1; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Nueva cuenta bancaria</h1>
+      <div class="crumb">/backend/aero/pay/bankaccounts/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card" id="formCard">
+      <div class="ctx" id="ctxLine"></div>
+      <div class="tabs" role="tablist" id="tabs"></div>
+
+      <!-- Pestaña Configuración -->
+      <div class="panel" id="tab-conf" role="tabpanel">
+        <div class="field" data-f="label">
+          <label class="lbl" for="label">Etiqueta<span class="req">*</span></label>
+          <input type="text" id="label" autocomplete="off">
+          <div class="help">Nombre para identificar esta cuenta, ej. 'Cuenta principal BNB'</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="bank_code" style="grid-row: span 1">
+          <label class="lbl" for="bank_code">Banco<span class="req">*</span></label>
+          <select id="bank_code">
+            <option value="">— seleccionar —</option>
+            <option value="bnb">BNB — Banco Nacional de Bolivia</option>
+            <option value="banco_economico">Banco Económico</option>
+            <option value="email_gmail">QR generado por mí. (Sin API bancario)</option>
+            <option value="paypal">PayPal</option>
+            <option value="nowpayments">NOWPayments (cripto)</option>
+          </select>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="status">
+          <label class="lbl" for="status">Estado</label>
+          <select id="status">
+            <option value="active">Activa</option>
+            <option value="inactive">Inactiva</option>
+          </select>
+        </div>
+        <div class="field" data-f="environment">
+          <label class="lbl" for="environment">Entorno<span class="req">*</span></label>
+          <select id="environment">
+            <option value="sandbox">Sandbox / Certificación</option>
+            <option value="production">Producción</option>
+          </select>
+        </div>
+
+        <div class="field full" data-f="credentials_json">
+          <label class="lbl" for="credentials_json">Credenciales (JSON)</label>
+          <textarea id="credentials_json" class="small" spellcheck="false"></textarea>
+          <div class="help" id="credHelp"></div>
+          <div class="errmsg" hidden></div>
+        </div>
+
+        <div class="field" data-f="bank_profile" hidden>
+          <label class="lbl" for="bank_profile">Banco / billetera<span class="trig">show si bank_code = email_gmail</span></label>
+          <select id="bank_profile">
+            <option value="">-- Patrón manual (avanzado) --</option>
+            <option value="takenos">Takenos</option>
+            <option value="peso">Peso</option>
+          </select>
+          <div class="help">Elegí de la lista si ya está catalogado — nada de regex a mano. 'Patrón manual' si no está, cargando los campos avanzados en el JSON de arriba.</div>
+        </div>
+        <div class="field" data-f="imap_username" hidden>
+          <label class="lbl" for="imap_username">Correo Gmail<span class="trig">show si email_gmail</span></label>
+          <input type="text" id="imap_username" placeholder="tu-cuenta@gmail.com" autocomplete="off">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field full" data-f="imap_password" hidden>
+          <label class="lbl" for="imap_password">App Password de Gmail<span class="trig">show si email_gmail</span></label>
+          <input type="password" id="imap_password" placeholder="xxxx xxxx xxxx xxxx" autocomplete="new-password">
+          <div class="help">Contraseña de aplicación de 16 caracteres (myaccount.google.com/apppasswords) — no la contraseña normal de la cuenta. Requiere verificación en 2 pasos activada.</div>
+        </div>
+        <div class="field full" data-f="qr_image" hidden>
+          <label class="lbl">Imagen del QR<span class="trig">show si email_gmail</span></label>
+          <div class="drop" id="drop">
+            <span id="dropTxt">Soltá una imagen o </span><label for="qrFile" style="color:var(--accent);cursor:pointer;text-decoration:underline">elegí un archivo</label>
+            <input type="file" id="qrFile" accept="image/*" hidden>
+          </div>
+          <div class="help">El QR fijo del comercio (interbancario o de cobro personal) — se muestra igual a todos los pagadores. El pago se confirma solo cuando llega el aviso del banco al correo de arriba.</div>
+        </div>
+        <div class="field" data-f="static_qr_expires_at" hidden>
+          <label class="lbl" for="static_qr_expires_at">Vencimiento del QR<span class="trig">show si email_gmail</span></label>
+          <input type="date" id="static_qr_expires_at">
+          <div class="help">Si el QR de la billetera trae impresa una fecha de vencimiento, cargala acá — al vencer hay que renovarlo (nueva imagen).</div>
+        </div>
+        <div class="field" data-f="manual_fallback_instructions" hidden>
+          <label class="lbl" for="manual_fallback_instructions">Instrucciones si no se detecta el pago<span class="trig">show si email_gmail</span></label>
+          <textarea id="manual_fallback_instructions" class="small" style="font-family:var(--font-body);font-size:14px"></textarea>
+          <div class="help">Qué debe hacer el comercio si le pagaron pero el correo de aviso no llegó o no se detectó (ej. avisar por WhatsApp al número tal, o registrar el pago manualmente en tal lugar).</div>
+        </div>
+
+        <div class="upd" id="testConn" hidden>
+          <h4>Probar conexión</h4>
+          <div><button class="btn" type="button" id="btnTest">Probar conexión</button></div>
+          <div class="help">Prueba las credenciales ya guardadas en esta cuenta (no las que estés editando sin guardar aún).</div>
+          <div class="result" id="testRes" hidden></div>
+        </div>
+        <div class="locked" id="lockTest">Al crear no aparece «Probar conexión»: el campo es <code>context: update</code>. Guardá para verlo.</div>
+      </div>
+
+      <!-- Pestaña Webhooks -->
+      <div class="panel" id="tab-web" role="tabpanel" hidden>
+        <div class="locked" id="lockWeb">El panel de webhook entrante (URL + secreto) también es <code>context: update</code>: aparece después de guardar.</div>
+        <div class="upd" id="webIn" hidden>
+          <h4>Confirmación instantánea de pago (webhook)</h4>
+          <div class="help">Sin esto, el pago tarda hasta 1 minuto en reflejarse (el ciclo de respaldo <code>qrbo:reconcile</code>). Con el webhook activo en el banco, se confirma al toque.</div>
+          <div><span class="lbl" style="display:block;font-weight:600;font-size:13px;margin-bottom:4px">URL del webhook</span><input class="ro" type="text" readonly id="whUrl"></div>
+          <div id="whSecretWrap"></div>
+        </div>
+        <div class="field full" data-f="outbound_webhook_url">
+          <label class="lbl" for="outbound_webhook_url">Webhook saliente — URL de tu sistema</label>
+          <input type="text" id="outbound_webhook_url" placeholder="https://tu-sistema.com/webhooks/pagos" autocomplete="off">
+          <div class="help">A esta URL se manda un POST cuando un QR de esta cuenta se paga, se anula o vence. Requiere el secreto de abajo para validar la firma — ver la documentación en la pestaña 'Tokens de API'.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="upd" id="webOut" hidden>
+          <h4>Secreto del webhook saliente</h4>
+          <div id="outSecretWrap"></div>
+        </div>
+      </div>
+
+      <!-- Pestaña Transacciones (solo update) -->
+      <div class="panel" id="tab-tx" role="tabpanel" hidden>
+        <div class="txhead">
+          <div>
+            <h4 style="margin:0 0 4px">Transacciones detectadas</h4>
+            <div class="help" style="margin:0;max-width:62ch">En caso de que el banco no mande la alerta de pago por cualquier motivo, el pago debe procesarse manualmente tras verificarlo (ver las instrucciones cargadas en la pestaña Configuración) — usá el botón «Nuevo» de la lista de abajo.</div>
+          </div>
+          <button class="btn primary" type="button" id="btnNewTx" data-f="tx_new">Nuevo</button>
+        </div>
+        <form class="newform" id="txForm" hidden>
+          <h4>Registrar pago manual</h4>
+          <div class="field" data-f="tx_amount"><label class="lbl" for="tx_amount">Monto recibido<span class="req">*</span></label><input type="text" inputmode="decimal" id="tx_amount" placeholder="0.00"><div class="errmsg" hidden></div></div>
+          <div class="field" data-f="tx_currency"><label class="lbl" for="tx_currency">Moneda</label><select id="tx_currency"><option value="BOB">Bolivianos (BOB)</option><option value="USD">Dólares (USD)</option></select></div>
+          <div class="field" data-f="tx_sender"><label class="lbl" for="tx_sender">Pagador</label><input type="text" id="tx_sender"><div class="help">Quién hizo la transferencia, si lo sabés.</div></div>
+          <div class="field" data-f="tx_date"><label class="lbl" for="tx_date">Fecha del pago<span class="req">*</span></label><input type="date" id="tx_date"><div class="errmsg" hidden></div></div>
+          <div class="field" data-f="tx_time"><label class="lbl" for="tx_time">Hora aproximada</label><input type="text" id="tx_time" placeholder="14:30"></div>
+          <div class="field" data-f="tx_ref"><label class="lbl" for="tx_ref">Referencia (opcional)</label><input type="text" id="tx_ref"><div class="help">Si tenés algún dato que identifique cuál QR se pagó (varios QR estáticos en la misma cuenta).</div></div>
+          <div class="row"><button class="btn primary" type="submit">Crear</button><button class="btn" type="button" id="btnCancelTx">Cancelar</button></div>
+        </form>
+        <div class="tbl-wrap"><table class="tx">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Origen</th><th>Tipo de QR</th><th class="num">Monto</th><th>Moneda</th><th>Pagador</th><th>Ref. del QR</th></tr></thead>
+          <tbody id="txBody"></tbody>
+        </table></div>
+        <div class="sample">Filas de ejemplo para la capacitación. En la app real vienen de los avisos del banco por correo y de los pagos registrados a mano.</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var EMAIL_ONLY = ['bank_profile', 'imap_username', 'imap_password', 'qr_image', 'static_qr_expires_at', 'manual_fallback_instructions'];
+
+  // Ejemplos y claves requeridas, tomados de BankAccount / drivers de aero/pay.
+  var DRIVERS = {
+    bnb: { label: 'BNB', keys: 'accountId, authorizationId, destinationAccountId', opt: 'auth_base_url, qr_base_url, webhook_secret',
+      ex: '{\n  "accountId": "1234567",\n  "authorizationId": "AUTH-0001",\n  "destinationAccountId": "9876543"\n}' },
+    banco_economico: { label: 'Banco Económico', keys: 'username, password, aes_key, account_credit', opt: 'base_url, webhook_secret',
+      ex: '{\n  "username": "comercio",\n  "password": "********",\n  "aes_key": "0123456789abcdef",\n  "account_credit": "1000123456"\n}' },
+    paypal: { label: 'PayPal', keys: 'client_id, client_secret', opt: "mode ('sandbox' o 'live'), webhook_id",
+      ex: '{\n  "client_id": "AbC...",\n  "client_secret": "EFg...",\n  "mode": "sandbox"\n}' },
+    nowpayments: { label: 'NOWPayments', keys: 'api_key, ipn_secret', opt: '',
+      ex: '{\n  "api_key": "XXXX-XXXX",\n  "ipn_secret": "s3cr3t"\n}' },
+    email_gmail: { label: 'Correo', keys: '', opt: 'imap_host, sender_filter, subject_contains, amount_pattern, sender_name_pattern, static_qr_image (base64)', ex: '' }
+  };
+  var COMMENT_FULL = 'Pega aquí las credenciales en formato JSON. Campos requeridos por banco — BNB: accountId, authorizationId, destinationAccountId (cuenta que recibe el pago); acepta opcionalmente auth_base_url y qr_base_url para apuntar a un entorno distinto del sandbox. Banco Económico: username, password, aes_key, account_credit; acepta opcionalmente base_url. Ambos aceptan opcionalmente webhook_secret. branchCode NO va aquí: es un dato por transacción. Correo (sin API de banco): usá los campos de abajo en vez de este JSON. PayPal: client_id, client_secret, mode y webhook_id. NOWPayments: api_key e ipn_secret.';
+
+  var state = { txAdded: false, mode: 'create', tab: 'conf', step: 0, secretIn: null, secretOut: null, qrData: null };
+
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function bank() { return val('bank_code'); }
+
+  // ---- Pasos de la guía (dependen del banco elegido, igual que los trigger del YAML)
+  function buildSteps() {
+    var b = bank();
+    var s = [
+      { id: 'label', fields: ['label'], title: 'Ponle una etiqueta reconocible', req: true,
+        body: 'Es el nombre que verá tu equipo en listas y pantallas de cobro. Máximo 150 caracteres.',
+        tip: 'Incluye banco y propósito. Si mañana hay dos cuentas del mismo banco, la etiqueta las distingue.',
+        ex: 'Cuenta principal BNB', fill: function () { set('label', 'Cuenta principal BNB'); },
+        done: function () { return val('label').length > 0; } },
+      { id: 'bank_code', fields: ['bank_code'], title: 'Elige el banco o proveedor', req: true,
+        body: 'Esta elección decide qué campos aparecen debajo. Cámbiala y mira cómo se muestran u ocultan.',
+        tip: '«QR generado por mí (Sin API bancario)» es para quien cobra con un QR fijo y confirma el pago por el aviso que llega al correo.',
+        ex: 'BNB — Banco Nacional de Bolivia', fill: function () { set('bank_code', 'bnb'); },
+        done: function () { return !!bank(); } },
+      { id: 'environment', fields: ['environment'], title: 'Define el entorno', req: true,
+        body: 'Sandbox / Certificación sirve para probar sin mover dinero. Producción cobra de verdad.',
+        tip: 'Empieza siempre en Sandbox. Cambia a Producción solo cuando el banco te haya entregado credenciales reales.',
+        ex: 'Sandbox / Certificación', fill: function () { set('environment', 'sandbox'); }, done: function () { return true; } },
+      { id: 'status', fields: ['status'], title: 'Estado de la cuenta', body: 'Activa: se puede usar para generar QR. Inactiva: queda guardada pero sin usarse.',
+        tip: 'Deja «Activa» al crear, salvo que estés cargando la cuenta por adelantado.', ex: 'Activa', fill: function () { set('status', 'active'); }, done: function () { return true; } }
+    ];
+    if (b === 'email_gmail') {
+      s.push(
+        { id: 'bank_profile', fields: ['bank_profile'], title: 'Elige la billetera que te avisa', opt: true,
+          body: 'Si tu billetera ya está catalogada (Takenos, Peso), el sistema conoce el formato del correo de aviso. Sin catálogo, usa «Patrón manual».',
+          tip: 'Patrón manual obliga a completar sender_filter, subject_contains y amount_pattern en el JSON. Evítalo si tu billetera está en la lista.',
+          ex: 'Takenos', fill: function () { set('bank_profile', 'takenos'); }, done: function () { return true; } },
+        { id: 'imap_username', fields: ['imap_username'], title: 'Correo Gmail que recibe los avisos', req: true,
+          body: 'Es el buzón que el sistema revisa para detectar pagos entrantes.', tip: 'Usa una cuenta dedicada al negocio, no tu correo personal.',
+          ex: 'cobros.mitienda@gmail.com', fill: function () { set('imap_username', 'cobros.mitienda@gmail.com'); }, done: function () { return /.+@.+\..+/.test(val('imap_username')); } },
+        { id: 'imap_password', fields: ['imap_password'], title: 'App Password, no tu contraseña', req: true,
+          body: 'Gmail exige una contraseña de aplicación de 16 caracteres. Se crea en myaccount.google.com/apppasswords.',
+          tip: 'Requiere verificación en 2 pasos activada. Con la contraseña normal la conexión falla.',
+          ex: 'abcd efgh ijkl mnop', fill: function () { set('imap_password', 'abcd efgh ijkl mnop'); }, done: function () { return val('imap_password').length >= 16; } },
+        { id: 'qr_image', fields: ['qr_image'], title: 'Sube la imagen del QR', req: true,
+          body: 'Es el QR fijo del comercio. Todos los pagadores ven el mismo. Recorte sugerido: 400×400.',
+          tip: 'Sin monto impreso en el QR: el monto se valida contra el correo de aviso.', ex: 'Cualquier imagen (PNG o JPG)',
+          fill: function () { setQr(sampleQr(), 'qr-ejemplo.png'); }, done: function () { return !!state.qrData; } },
+        { id: 'static_qr_expires_at', fields: ['static_qr_expires_at'], title: 'Vencimiento del QR', opt: true,
+          body: 'Solo si la billetera imprime una fecha de vencimiento en el QR.', tip: 'Al vencer hay que subir una imagen nueva.',
+          ex: '31/12/2026', fill: function () { set('static_qr_expires_at', '2026-12-31'); }, done: function () { return true; } },
+        { id: 'manual_fallback_instructions', fields: ['manual_fallback_instructions'], title: 'Plan B si no llega el aviso', opt: true,
+          body: 'Texto que se muestra al comercio cuando le pagaron pero el correo no se detectó.', tip: 'Da un número de WhatsApp o un lugar concreto donde registrar el pago a mano.',
+          ex: 'Escribe al +591 700 00000 con el comprobante.', fill: function () { set('manual_fallback_instructions', 'Escribe al +591 700 00000 con el comprobante.'); }, done: function () { return true; } }
+      );
+    } else if (DRIVERS[b]) {
+      var d = DRIVERS[b];
+      s.push({ id: 'credentials_json', fields: ['credentials_json'], title: 'Pega las credenciales de ' + d.label, req: true,
+        body: 'JSON con las claves requeridas: ' + d.keys + '.' + (d.opt ? ' Opcionales: ' + d.opt + '.' : ''),
+        tip: 'Debe ser un JSON válido: comillas dobles, sin coma final. Pruébalo pegando el ejemplo y rompiéndolo a propósito.',
+        ex: d.ex, fill: function () { set('credentials_json', d.ex); }, done: function () { return validJson(val('credentials_json')); } });
+    } else {
+      s.push({ id: 'credentials_json', fields: ['credentials_json'], title: 'Credenciales (JSON)', opt: true,
+        body: 'Cuando elijas un banco, aquí verás qué claves pide. Elige uno en el paso 2.', tip: '', ex: '', fill: function () {}, done: function () { return false; } });
+    }
+    s.push(
+      { id: 'webhook_out', tab: 'web', fields: ['outbound_webhook_url'], title: 'Webhook saliente (opcional)', opt: true,
+        body: 'URL de tu sistema que recibe un POST cuando un QR se paga, se anula o vence.',
+        tip: 'Usa https. Tras guardar aparece el secreto para validar la firma X-Pay-Signature.',
+        ex: 'https://tu-sistema.com/webhooks/pagos', fill: function () { set('outbound_webhook_url', 'https://tu-sistema.com/webhooks/pagos'); }, done: function () { return val('outbound_webhook_url').length > 0; } },
+      { id: 'save', tab: 'conf', fields: [], title: 'Guardar y probar', last: true,
+        body: 'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición.',
+        tip: 'En edición aparecen «Probar conexión», la URL de webhook del banco y los secretos. Genera el secreto solo si el banco puede recibirlo.',
+        ex: '', fill: function () { save(false); }, done: function () { return state.mode === 'update'; } }
+    );
+    if (state.mode === 'update') {
+      s.push({ id: 'tx', tab: 'tx', fields: ['tx_new'], title: 'Registrar un pago a mano', opt: true,
+        body: 'Si el banco no avisó un pago que sí recibiste, verifícalo y regístralo desde la pestaña Transacciones con el botón «Nuevo».',
+        tip: 'Solo Monto y Fecha son obligatorios. Añade Pagador y Referencia: te ayudan a conciliar después.',
+        ex: 'Monto 150.00 BOB · Pagador Juan Pérez', fill: function () { openTx(true); }, done: function () { return state.txAdded; } });
+    }
+    return s;
+  }
+  var steps = buildSteps();
+
+  function set(id, v) {
+    var el = $('#' + id); el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  function validJson(t) { if (!t) return false; try { var o = JSON.parse(t); return o && typeof o === 'object'; } catch (e) { return false; } }
+
+  // ---- Lógica de trigger (bank_code -> campos de correo)
+  function applyTriggers() {
+    var show = bank() === 'email_gmail';
+    EMAIL_ONLY.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el) el.hidden = !show; });
+    var d = DRIVERS[bank()];
+    var h = $('#credHelp');
+    h.innerHTML = '';
+    var span = document.createElement('span');
+    var full = false;
+    function render() {
+      var t = COMMENT_FULL;
+      var text = full ? t : t.slice(0, 150) + '… ';
+      span.textContent = text;
+    }
+    render();
+    var more = document.createElement('button'); more.type = 'button'; more.textContent = 'ver más';
+    more.onclick = function () { full = !full; render(); more.textContent = full ? 'ver menos' : 'ver más'; };
+    h.appendChild(span); h.appendChild(more);
+    if (d && d.ex) $('#credentials_json').placeholder = d.ex.replace(/\n\s*/g, ' ');
+    else $('#credentials_json').placeholder = '';
+  }
+
+  // ---- Render de la guía
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var html = '<p></p>';
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'); var l = document.createElement('div'); l.className = 'g-sub'; l.textContent = 'Ejemplo';
+      var e = document.createElement('div'); e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) { var n = document.createElement('div'); n.className = 'note'; var b = document.createElement('b'); b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var okCount = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * okCount / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'); var bt = document.createElement('button'); bt.type = 'button';
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      if (s.done() && s.id !== 'save' || (s.id === 'save' && state.mode === 'update')) bt.className = 'done';
+      var d = document.createElement('span'); d.className = 'dot'; d.textContent = (s.done() && (s.id !== 'save' || state.mode === 'update')) ? '✓' : String(i + 1);
+      var t = document.createElement('span'); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t);
+      if (s.done() && !bt.className) bt.className = 'done';
+      bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    // Resalta los campos del paso
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    if (cur.tab) selectTab(cur.tab);
+    cur.fields.forEach(function (f) {
+      var el = $('[data-f="' + f + '"]'); if (el && !el.hidden) el.classList.add('is-guided');
+    });
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i));
+    renderGuide();
+    if (scroll !== false) {
+      var f = steps[state.step].fields[0]; var el = f && $('[data-f="' + f + '"]');
+      if (el && !el.hidden) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+  function refreshSteps() {
+    var curId = steps[state.step].id;
+    steps = buildSteps();
+    var idx = steps.map(function (s) { return s.id; }).indexOf(curId);
+    state.step = idx >= 0 ? idx : Math.min(state.step, steps.length - 1);
+    renderGuide();
+  }
+
+  // ---- Pestañas
+  function renderTabs() {
+    var tabs = $('#tabs'); tabs.innerHTML = '';
+    [['conf', 'Configuración']].concat([['web', 'Webhooks']]).forEach(function (t) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(state.tab === t[0])); b.textContent = t[1]; b.onclick = function () { selectTab(t[0]); };
+      tabs.appendChild(b);
+    });
+    if (state.mode === 'update') {
+      var b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'tab'; b2.setAttribute('role', 'tab');
+      b2.setAttribute('aria-selected', String(state.tab === 'tx')); b2.textContent = 'Transacciones'; b2.onclick = function () { selectTab('tx'); };
+      tabs.appendChild(b2);
+    }
+  }
+  function selectTab(t) {
+    state.tab = t; $('#tab-conf').hidden = t !== 'conf'; $('#tab-web').hidden = t !== 'web'; $('#tab-tx').hidden = t !== 'tx'; renderTabs();
+  }
+
+  // ---- Validación y guardado
+  function showErr(f, msg) {
+    var box = $('[data-f="' + f + '"]'); if (!box) return;
+    var m = $('.errmsg', box), inp = $('input,select,textarea', box);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = [];
+    ['label', 'bank_code', 'credentials_json', 'imap_username', 'outbound_webhook_url'].forEach(function (f) { showErr(f, ''); });
+    if (!val('label')) errs.push(['label', 'El campo Etiqueta es obligatorio.']);
+    else if (val('label').length > 150) errs.push(['label', 'Etiqueta no puede superar 150 caracteres.']);
+    if (!bank()) errs.push(['bank_code', 'El campo Banco es obligatorio.']);
+    var cj = val('credentials_json');
+    if (cj && !validJson(cj)) errs.push(['credentials_json', 'JSON inválido. Revisa comillas dobles y comas.']);
+    if (cj === '' && DRIVERS[bank()] && bank() !== 'email_gmail') errs.push(['credentials_json', 'Faltan las credenciales de ' + DRIVERS[bank()].label + ': ' + DRIVERS[bank()].keys + '.']);
+    if (bank() === 'email_gmail' && !val('imap_username')) errs.push(['imap_username', 'Indica el correo Gmail que recibe los avisos.']);
+    var u = val('outbound_webhook_url');
+    if (u && !/^https?:\/\//.test(u)) errs.push(['outbound_webhook_url', 'La URL debe empezar con https://']);
+    return errs;
+  }
+  function save(close) {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      selectTab(errs[0][0] === 'outbound_webhook_url' ? 'web' : 'conf');
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0]);
+      if (idx >= 0) go(idx);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    if (close) { flash('Cuenta creada. En la app real vuelves a la lista de cuentas.'); goUpdate(true); return; }
+    goUpdate(false);
+    flash('Cuenta bancaria creada. Ahora estás en la pantalla de edición.');
+  }
+  function goUpdate() {
+    state.mode = 'update';
+    $('h1').textContent = 'Editar cuenta bancaria';
+    $('.crumb').textContent = '/backend/aero/pay/bankaccounts/update/7 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#testConn').hidden = false; $('#lockTest').hidden = true;
+    $('#webIn').hidden = false; $('#webOut').hidden = false; $('#lockWeb').hidden = true;
+    var slug = bank() === 'email_gmail' ? 'offline' : bank();
+    $('#whUrl').value = 'https://tu-dominio.com/api/v1/qrbo/webhooks/' + slug;
+    renderSecrets(); renderTabs(); refreshSteps();
+  }
+  function renderSecrets() {
+    function box(secret, hint, btnId, label) {
+      if (!secret) return '<button class="btn" type="button" id="' + btnId + '">' + label + '</button>';
+      return '<input class="ro" type="text" readonly value="' + secret + '"><div class="help">' + hint + '</div>';
+    }
+    $('#whSecretWrap').innerHTML = box(state.secretIn, 'Mándale al banco esta URL y este secreto (encabezado <code>X-Qrbo-Webhook-Secret</code>) para que active las notificaciones push.', 'btnGenIn', 'Generar secreto');
+    $('#outSecretWrap').innerHTML = box(state.secretOut, 'Con cada POST se manda <code>X-Pay-Signature: sha256=&lt;hmac&gt;</code>: el HMAC-SHA256 del body crudo (JSON) con este secreto como clave. Valídalo antes de confiar en el payload.', 'btnGenOut', 'Generar secreto');
+    var a = $('#btnGenIn'), b = $('#btnGenOut');
+    if (a) a.onclick = function () { state.secretIn = rnd(32); renderSecrets(); flash('Secreto generado. Mándale al banco la URL y el secreto.'); };
+    if (b) b.onclick = function () { state.secretOut = rnd(40); renderSecrets(); flash('Secreto generado. Úsalo para validar X-Pay-Signature.'); };
+  }
+  function rnd(n) { var c = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = ''; for (var i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+
+  // ---- Subida de QR
+  function setQr(dataUrl, name) {
+    state.qrData = dataUrl;
+    var d = $('#drop'); d.className = 'drop has';
+    d.innerHTML = '<img alt="Vista previa del QR" src="' + dataUrl + '"><span>' + name + ' · <a href="#" id="qrRemove" style="color:var(--accent)">quitar</a></span>';
+    $('#qrRemove').onclick = function (e) { e.preventDefault(); clearQr(); };
+    refreshSteps();
+  }
+  function clearQr() {
+    state.qrData = null; var d = $('#drop'); d.className = 'drop';
+    d.innerHTML = '<span>Soltá una imagen o </span><label for="qrFile" style="color:var(--accent);cursor:pointer;text-decoration:underline">elegí un archivo</label><input type="file" id="qrFile" accept="image/*" hidden>';
+    bindFile(); refreshSteps();
+  }
+  function bindFile() {
+    var f = $('#qrFile'); if (!f) return;
+    f.onchange = function () { var file = f.files[0]; if (!file) return; var r = new FileReader(); r.onload = function () { setQr(r.result, file.name); }; r.readAsDataURL(file); };
+  }
+  function sampleQr() {
+    var c = document.createElement('canvas'); c.width = c.height = 160; var x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, 160, 160); x.fillStyle = '#000';
+    var seed = 7; for (var i = 0; i < 20; i++) for (var j = 0; j < 20; j++) { seed = (seed * 9301 + 49297) % 233280; if (seed / 233280 > .52) x.fillRect(i * 8, j * 8, 8, 8); }
+    [[0, 0], [136, 0], [0, 136]].forEach(function (p) { x.fillStyle = '#000'; x.fillRect(p[0], p[1], 24, 24); x.fillStyle = '#fff'; x.fillRect(p[0] + 4, p[1] + 4, 16, 16); x.fillStyle = '#000'; x.fillRect(p[0] + 8, p[1] + 8, 8, 8); });
+    return c.toDataURL('image/png');
+  }
+
+  // ---- Prueba de conexión simulada
+  $('#btnTest').onclick = function () {
+    var r = $('#testRes'); r.hidden = false; r.textContent = 'Probando conexión...';
+    setTimeout(function () { r.textContent = 'Conexión correcta con ' + (DRIVERS[bank()] ? DRIVERS[bank()].label : 'el proveedor') + ' (' + val('environment') + '). Resultado simulado.'; flash('Conexión correcta (simulada).'); }, 700);
+  };
+
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200);
+  }
+
+  // ---- Eventos
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') { refreshSteps(); } };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+
+  $$('.field input, .field select, .field textarea').forEach(function (el) {
+    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refreshSteps(); });
+    el.addEventListener('change', function () { if (el.id === 'bank_code') applyTriggers(); refreshSteps(); });
+    el.addEventListener('focus', function () {
+      var box = el.closest('.field'); if (!box) return;
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(box.getAttribute('data-f'));
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+
+  // ---- Transacciones (datos de ejemplo)
+  var TX = [
+    ['28/09/2026', '16:42', 'Tienda (aero/shop)', 'QR estático', '240.00', 'BOB', 'María Quispe', 'PED-1042'],
+    ['28/09/2026', '11:05', 'Cobranzas (aero/crm)', 'QR estático', '1,150.00', 'BOB', 'Distribuidora Andina', 'COB-0317'],
+    ['27/09/2026', '09:18', 'API externa', 'QR estático', '89.90', 'BOB', 'Carlos Mamani', ''],
+    ['26/09/2026', '19:30', 'Sistema (Pagos)', 'Registrado a mano', '50.00', 'USD', 'Juan Pérez', 'PED-1031']
+  ];
+  function renderTx(newIdx) {
+    var b = $('#txBody'); b.innerHTML = '';
+    TX.forEach(function (r, i) {
+      var tr = document.createElement('tr'); if (i === newIdx) tr.className = 'new';
+      r.forEach(function (c, j) {
+        var td = document.createElement('td');
+        if (j === 4) td.className = 'num';
+        if (j === 3) { var sp = document.createElement('span'); sp.className = 'pill' + (c === 'Registrado a mano' ? ' manual' : ''); sp.textContent = c; td.appendChild(sp); }
+        else td.textContent = c || '—';
+        tr.appendChild(td);
+      });
+      b.appendChild(tr);
+    });
+  }
+  function openTx(fill) {
+    $('#txForm').hidden = false;
+    if (fill) { set('tx_amount', '150.00'); set('tx_sender', 'Juan Pérez'); set('tx_date', '2026-09-29'); set('tx_time', '14:30'); set('tx_ref', 'PED-1050'); }
+    else if (!val('tx_date')) $('#tx_date').value = '2026-09-29';
+    $('#tx_amount').focus();
+  }
+  $('#btnNewTx').onclick = function () { openTx(false); };
+  $('#btnCancelTx').onclick = function () { $('#txForm').hidden = true; };
+  $('#txForm').onsubmit = function (e) {
+    e.preventDefault();
+    var amt = parseFloat(val('tx_amount').replace(',', '.')); var bad = false;
+    showErr('tx_amount', ''); showErr('tx_date', '');
+    if (!(amt > 0)) { showErr('tx_amount', 'El campo Monto recibido es obligatorio y debe ser mayor que 0.'); bad = true; }
+    if (!val('tx_date')) { showErr('tx_date', 'El campo Fecha del pago es obligatorio.'); bad = true; }
+    if (bad) return;
+    var d = val('tx_date').split('-');
+    TX.unshift([d[2] + '/' + d[1] + '/' + d[0], val('tx_time'), 'Sistema (Pagos)', 'Registrado a mano', amt.toFixed(2), val('tx_currency'), val('tx_sender'), val('tx_ref')]);
+    state.txAdded = true; renderTx(0);
+    ['tx_amount', 'tx_sender', 'tx_time', 'tx_ref'].forEach(function (i) { $('#' + i).value = ''; });
+    $('#txForm').hidden = true; flash('Pago registrado a mano.'); refreshSteps();
+  };
+  renderTx(-1);
+
+  // Arranque: estado de trabajo realista, con el paso 1 abierto
+  $('#ctxLine').textContent = 'context: create · los campos con context: update no se muestran';
+  bindFile(); applyTriggers(); renderTabs(); selectTab('conf'); renderGuide();
+})();
+</script>
+
+</body></html>

@@ -9,25 +9,30 @@ fields:
         preset:
             field: name
             type: slug
-    category_id:
-        label: Categoría
-        type: dropdown
-        emptyOption: '— Sin categoría —'
-        span: left
-    summary:
-        label: Resumen
-        comment: Una línea para tarjetas y listados.
-        span: right
-        type: text
+
 tabs:
     fields:
+        categories:
+            tab: General
+            label: Categorías
+            commentAbove: Puede pertenecer a varias; aparece en el megamenú bajo cada una. Las categorías se agrupan en colecciones.
+            type: relation
+            nameFrom: name
+            span: left
+        summary:
+            tab: General
+            label: Resumen
+            comment: Una línea para tarjetas y listados.
+            type: textarea
+            size: small
+            span: right
         description:
-            tab: Descripción
+            tab: Contenido
             label: Descripción completa
             type: markdown
             size: giant
         features:
-            tab: Descripción
+            tab: Contenido
             label: Qué incluye
             type: repeater
             prompt: Agregar ítem
@@ -37,7 +42,7 @@ tabs:
                         label: Ítem
                         type: text
         requirements:
-            tab: Descripción
+            tab: Contenido
             label: Qué necesitamos del cliente
             type: repeater
             prompt: Agregar requisito
@@ -46,103 +51,121 @@ tabs:
                     text:
                         label: Requisito
                         type: text
+        code:
+            tab: Página
+            label: Página de la oferta (HTML)
+            commentAbove: Contenido HTML de la página del servicio. Lo genera «Generar oferta con IA» (php artisan services:build-offer) y se puede editar a mano.
+            type: codeeditor
+            language: html
+            size: giant
+            stretch: true
         cover:
-            tab: Descripción
+            tab: General
             label: Imagen de portada
             type: fileupload
             mode: image
             imageWidth: 240
             imageHeight: 160
 
-        type:
+        plans:
             tab: Precio y entrega
-            label: Modalidad de cobro
-            type: dropdown
-            span: left
-            default: one_time
-        billing_period:
-            tab: Precio y entrega
-            label: Periodo de cobro
-            type: dropdown
-            span: right
-            trigger:
-                action: show
-                field: type
-                condition: value[recurring]
-        pricing_mode:
-            tab: Precio y entrega
-            label: Se ofrece en
-            type: dropdown
-            default: money
-        price:
-            tab: Precio y entrega
-            label: Precio
-            comment: Déjalo vacío para "a cotizar".
-            type: number
-            step: 0.01
-            span: left
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        currency:
-            tab: Precio y entrega
-            label: Moneda
-            type: dropdown
-            span: right
-            default: BOB
-            options:
-                BOB: Bolivianos (BOB)
-                USD: Dólares (USD)
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        price_from:
-            tab: Precio y entrega
-            label: Mostrar como "desde"
-            type: switch
-            span: left
-        setup_fee:
-            tab: Precio y entrega
-            label: Costo de implementación (una vez)
-            type: number
-            step: 0.01
-            span: right
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[money] value[both]
-        credit_price:
-            tab: Precio y entrega
-            label: Precio en créditos
-            comment: Créditos por cobro (por periodo si es recurrente).
-            type: number
-            span: left
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[credits] value[both]
-        credit_type:
-            tab: Precio y entrega
-            label: Tipo de crédito
-            type: dropdown
-            emptyOption: '— Elige —'
-            span: right
-            trigger:
-                action: show
-                field: pricing_mode
-                condition: value[credits] value[both]
-        delivery_days:
-            tab: Precio y entrega
-            label: Plazo de entrega (días)
-            type: number
-            span: left
+            label: Planes
+            commentAbove: Uno o más planes que el cliente puede elegir para este servicio (p. ej. Básico / PRO, o Mensual / Anual).
+            type: repeater
+            prompt: Agregar plan
+            titleFrom: name
+            form:
+                fields:
+                    name:
+                        label: Nombre del plan
+                        span: left
+                        required: true
+                    price_from:
+                        label: Mostrar como "desde"
+                        type: switch
+                        span: right
+                    type:
+                        label: Modalidad de cobro
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::typeOptions
+                        span: left
+                        default: one_time
+                    billing_period:
+                        label: Periodo de cobro
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::billingPeriodOptions
+                        span: right
+                        trigger:
+                            action: show
+                            field: type
+                            condition: value[recurring]
+                    pricing_mode:
+                        label: Se ofrece en
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::pricingModeOptions
+                        default: money
+                        span: left
+                        trigger:
+                            action: hide
+                            field: type
+                            condition: value[free]
+                    delivery_days:
+                        label: Plazo de entrega (días)
+                        type: number
+                        span: right
+                    price:
+                        label: Precio
+                        comment: Déjalo vacío para "a cotizar".
+                        type: number
+                        step: 0.01
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    currency:
+                        label: Moneda
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::currencyOptions
+                        default: BOB
+                        span: right
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    setup_fee:
+                        label: Costo de implementación (una vez)
+                        type: number
+                        step: 0.01
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
+                    credit_price:
+                        label: Precio en créditos
+                        comment: Créditos por cobro (por periodo si es recurrente).
+                        type: number
+                        span: right
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
+                    credit_type:
+                        label: Tipo de crédito
+                        type: dropdown
+                        options: Aero\Services\Classes\PlanOptions::creditTypeOptions
+                        emptyOption: '— Elige —'
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
 
         plugin_links:
             tab: Plataforma
             label: Plugins ligados
-            commentAbove: Opcional. Deja vacío si el servicio es genérico; agrega uno o varios si depende de la plataforma.
+            commentAbove: 'Opcional; vacío = servicio genérico. Se lee siempre desde el servicio: «Este servicio está CONSTRUIDO CON el plugin X» (es su base) · «se INTEGRA CON el plugin X» (se conecta, pero funciona sin él) · «es RECOMENDADO PARA quienes usan el plugin X» (le conviene a esos clientes).'
             type: repeater
             prompt: Ligar un plugin
             form:
@@ -161,7 +184,7 @@ tabs:
                         span: right
                     note:
                         label: Nota
-                        comment: Cómo se relaciona (opcional).
+                        comment: Detalle opcional, p. ej. qué parte se integra.
                         type: text
 
         articles:
@@ -169,15 +192,30 @@ tabs:
             label: Documentos del servicio
             commentAbove: Artículos de Aero.Docs que explican o acompañan este servicio. Se pueden elegir varios.
             type: relation
-            nameFrom: title
+            nameFrom: select_label
+            scope: platform
+
+        guides:
+            tab: Documentación
+            label: Guías interactivas del servicio
+            commentAbove: Guías de Aero.Docs que se muestran dentro de la página pública del servicio, una debajo de otra. Se pueden elegir varias; solo se ven las que están publicadas.
+            type: relation
+            nameFrom: select_label
             scope: platform
 
         is_active:
             tab: Publicación
-            label: Activo
+            label: Público
+            comment: Visible en el sitio, en /plugin/{slug}. Apagado = borrador.
             type: switch
             default: true
             span: left
+        in_megamenu:
+            tab: Publicación
+            label: Mostrar en el megamenú
+            comment: Aparece en el menú «Servicios» del sitio (solo si es público).
+            type: switch
+            span: right
         has_pro:
             tab: Publicación
             label: Tiene funciones PRO
@@ -202,7 +240,7 @@ tabs:
             tab: Publicación
             label: Destacado
             type: switch
-            span: right
+            span: left
         sort_order:
             tab: Publicación
             label: Orden

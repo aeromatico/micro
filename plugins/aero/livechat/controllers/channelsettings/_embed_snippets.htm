@@ -1,0 +1,75 @@
+<?php
+/** @var Aero\Livechat\Models\ChannelSettings $formModel */
+// Del propio ámbito de la configuración (el modelo ya viene filtrado por tenant): nunca inboxes ajenos.
+$inboxes = \Aero\Livechat\Models\Inbox::inScope($formModel->tenant_id ? (int) $formModel->tenant_id : null)->orderBy('name')->get();
+?>
+<div class="form-group span-full">
+    <label>Código para incrustar</label>
+
+    <?php if ($inboxes->isEmpty()): ?>
+        <div class="callout callout-warning">
+            <div class="header"><i class="icon-warning"></i><h3>Aún no tienes un inbox</h3></div>
+            <div class="content">
+                El código lo genera tu inbox.
+                <a href="<?= Backend::url('aero/livechat/inboxes/create') ?>">Crea uno en Livechat → Inboxes</a>.
+            </div>
+        </div>
+    <?php else: ?>
+        <p class="help-block">
+            Pega este código antes de <code>&lt;/head&gt;</code> en cualquier sitio web, tuyo o de un tercero — es un solo script
+            y no hace falta nada más. Lo que se muestra (chat, WhatsApp, ambos o código personalizado) se decide aquí arriba:
+            si cambias el modo no tienes que volver a pegarlo.
+        </p>
+
+        <?php foreach ($inboxes as $inbox): ?>
+            <?php $uid = 'lc-embed-' . $inbox->id; ?>
+            <div class="form-group" style="margin-bottom:14px">
+                <?php if ($inboxes->count() > 1): ?>
+                    <label for="<?= $uid ?>" style="font-weight:600"><?= e($inbox->name) ?><?= $inbox->is_active ? '' : ' (inactivo)' ?></label>
+                <?php elseif (!$inbox->is_active): ?>
+                    <p class="text-warning">Este inbox está inactivo: no se mostrará nada en el sitio hasta activarlo.</p>
+                <?php endif; ?>
+                <div style="display:flex;gap:8px;align-items:flex-start">
+                    <textarea id="<?= $uid ?>" class="form-control" rows="4" readonly spellcheck="false"
+                        style="font-family:monospace;font-size:12px;flex:1"
+                        onclick="this.select()"><?= e($inbox->embed_snippet) ?></textarea>
+                    <button type="button" class="btn btn-default" data-lc-copy="<?= $uid ?>">
+                        <i class="icon-copy"></i> <span>Copiar</span>
+                    </button>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <script>
+            (function () {
+                if (window.__lcCopyBound) return;
+                window.__lcCopyBound = true;
+
+                document.addEventListener('click', function (ev) {
+                    var btn = ev.target.closest('[data-lc-copy]');
+                    if (!btn) return;
+
+                    var area = document.getElementById(btn.getAttribute('data-lc-copy'));
+                    if (!area) return;
+
+                    var label = btn.querySelector('span');
+                    var done = function (ok) {
+                        label.textContent = ok ? '¡Copiado!' : 'Selecciona y copia (Ctrl+C)';
+                        setTimeout(function () { label.textContent = 'Copiar'; }, 2000);
+                    };
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(area.value).then(function () { done(true); }, function () { done(false); });
+                        return;
+                    }
+
+                    // Sin contexto seguro (http) no hay Clipboard API: se cae al método antiguo.
+                    area.focus(); area.select();
+                    var ok = false;
+                    try { ok = document.execCommand('copy'); } catch (e) {}
+                    done(ok);
+                });
+            })();
+        </script>
+    <?php endif; ?>
+</div>

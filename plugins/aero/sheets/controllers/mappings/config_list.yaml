@@ -1,0 +1,10 @@
+title: Mapeos
+list: $/aero/sheets/models/mapping/columns.yaml
+modelClass: Aero\Sheets\Models\Mapping
+recordUrl: aero/sheets/mappings/update/:id
+noRecordsMessage: No hay mapeos todavía.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

@@ -80,7 +80,7 @@ descripción comercial general.
 
 ## Hello
 
-**Qué es:** Centro de mensajes y notificaciones multicanal sobre Zernio.
+**Qué es:** Centro de mensajes y notificaciones multicanal sobre Hello.
 **Versión documentada:** 1.21.0
 
 | Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
@@ -113,6 +113,30 @@ descripción comercial general.
 | Plantillas | Mensajes reutilizables | Estandariza la comunicación | Recordatorios |
 | Consumo y créditos | Uso por tenant y cobro en créditos | Control de gasto | Monetizar envíos |
 | Bajas (opt-outs) | Gestión de desuscripciones | Cumplimiento y buena práctica | Listas responsables |
+
+## Livechat
+
+**Qué es:** Chat en vivo embebible por tenant: widget en tu web, bandeja de agentes y puente con Telegram.
+**Versión documentada:** 1.4.0
+
+| Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
+|---------------|-------------------|-----------------------|--------------|
+| Inboxes | Widgets embebibles por sitio o marca | Código listo para pegar; color y mensaje de bienvenida propios | Chat en WordPress o web propia |
+| Bandeja de conversaciones | Atención de chats con asignación y adjuntos | No leídos, refresco automático y finalizar | Atención al cliente en vivo |
+| Bot de Telegram | Recibe y responde desde un chat o grupo | Un hilo por conversación (Topics) | Contestar desde el móvil |
+| Transcripción por correo | Envía el historial al visitante | Registro de la conversación | Seguimiento y respaldo |
+
+## Tracking
+
+**Qué es:** Seguimiento en tiempo real de flotas, personas y trabajos en movimiento.
+**Versión documentada:** 1.0.0
+
+| Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
+|---------------|-------------------|-----------------------|--------------|
+| Activos | Vehículos o personas con URL de ingesta propia | Estado en línea/sin señal y batería | Rastrear flota |
+| Ingesta OwnTracks / API | Posiciones por URL del activo o API REST | Funciona con apps y dispositivos existentes | Trackers propios o móviles |
+| Trabajos y paradas | Recorrido con paradas y contactos | Trabajos abiertos visibles junto al activo | Entregas y traslados |
+| Mapa en vivo | Última posición, velocidad y trabajos abiertos | Refresco cada pocos segundos | Monitoreo operativo |
 
 ## Chat
 
@@ -192,7 +216,7 @@ descripción comercial general.
 ## Docs
 
 **Qué es:** Documentación en Markdown con categorías multinivel y multi-sitio.
-**Versión documentada:** 1.1.1
+**Versión documentada:** 1.1.6
 
 | Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
 |---------------|-------------------|-----------------------|--------------|

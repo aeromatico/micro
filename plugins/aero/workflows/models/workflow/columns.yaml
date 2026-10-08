@@ -1,0 +1,9 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    slug: {label: Código, searchable: true}
+    trigger_type: {label: Disparador, type: partial, path: ~/plugins/aero/workflows/models/workflow/_col_trigger.php, sortable: false}
+    expose_as_tool: {label: IA, type: switch}
+    status: {label: Estado, type: partial, path: ~/plugins/aero/workflows/models/workflow/_col_status.php}
+    is_active: {label: Activo, type: switch}
+    version: {label: Versión}
+    updated_at: {label: Actualizado, type: datetime}

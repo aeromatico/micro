@@ -2,9 +2,14 @@
 {% set currency = __SELF__.currency %}
 {% set user = __SELF__.authUser %}
 
+<style>[x-cloak]{display:none!important}</style>
 <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 
     <h1 class="text-3xl font-extrabold text-ink tracking-tight mb-8">Finalizar compra</h1>
+
+    {% if not __SELF__.isOpen and not __SELF__.restaurantStore %}
+    <p class="bg-red-100 text-red-800 text-sm rounded-brand px-4 py-3 mb-6">La tienda está cerrada en este momento. Vuelve en nuestro horario de atención para completar tu pedido.</p>
+    {% endif %}
 
     {% if not lines|length %}
     <div class="text-center py-20">
@@ -15,17 +20,171 @@
     </div>
     {% else %}
 
-    <div class="grid lg:grid-cols-[1fr_360px] gap-10">
+    {% set rest = __SELF__.restaurant %}
+    <div class="grid lg:grid-cols-[1fr_360px] gap-10"
+         x-data="{ sending: false, gateway: null, type: '{{ __SELF__.orderTypes|keys|first }}', fee: {{ __SELF__.deliveryFee }}, noTypes: {{ __SELF__.orderTypes|length ? 'false' : 'true' }}, subtotal: {{ __SELF__.subtotal }}, symbol: '{{ currency.symbol|e('js') }}' }">
 
-        <div x-data="{ sending: false, gateway: null }">
+        <div>
             <div id="checkout-error"></div>
 
             <form data-request="shopCheckout::onPlaceOrder"
-                  @ajax-before="sending = true"
-                  @ajax-done="sending = false"
-                  @ajax-fail="sending = false"
+                  @ajax:setup="sending = true"
+                  @ajax:done="sending = false"
+                  @ajax:fail="sending = false"
                   class="space-y-8">
 
+                {% if __SELF__.whatsappStore %}
+                {# Tienda para WhatsApp: solo celular #}
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Tu celular</h2>
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Número de WhatsApp *</label>
+                    <input type="tel" name="phone" required inputmode="numeric" value="{{ user and user.phone ? user.phone : '591' }}"
+                        class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                    <p class="text-xs text-ink-muted mt-1.5">Con prefijo de país (591 = Bolivia). Te enviaremos el pedido por WhatsApp.</p>
+                </section>
+
+                {% if __SELF__.requiresShipping %}
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Ubicación de entrega</h2>
+                    {% if __SELF__.pickerAssets %}
+                    {{ __SELF__.pickerAssets|raw }}
+                    <input type="hidden" name="latitude" id="co-lat">
+                    <input type="hidden" name="longitude" id="co-lng">
+                    <div data-aero-location-picker data-lat-input="#co-lat" data-lng-input="#co-lng" data-height="300"></div>
+                    <p class="text-xs text-ink-muted mt-1.5 mb-3">Detectamos tu ubicación; arrastra el pin para dejarla exacta.</p>
+                    {% endif %}
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Dirección o referencia {{ __SELF__.pickerAssets ? '(opcional si marcaste el mapa)' : '*' }}</label>
+                    <input type="text" name="address_line1" {{ __SELF__.pickerAssets ? '' : 'required' }}
+                        class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                </section>
+                {% endif %}
+
+                <section>
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Comentario (opcional)</label>
+                    <textarea name="customer_notes" rows="3"
+                        class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition resize-none"
+                        placeholder="Instrucciones adicionales para tu pedido"></textarea>
+                </section>
+
+                <button type="submit" :disabled="sending {{ __SELF__.isOpen ? '' : '|| true' }}"
+                        class="w-full bg-brand-primary hover:opacity-90 disabled:opacity-60 text-white font-semibold py-4 rounded-brand text-sm transition-all flex items-center justify-center gap-2">
+                    <span x-text="sending ? 'Enviando...' : 'Enviar pedido por WhatsApp'">Enviar pedido por WhatsApp</span>
+                </button>
+                {% elseif __SELF__.restaurantStore %}
+                {# Restaurante: tipo de pedido primero, el formulario se adapta #}
+                {% if not __SELF__.isOpen and not rest.accept_closed %}
+                <p class="bg-red-100 text-red-800 text-sm rounded-brand px-4 py-3">El restaurante está cerrado en este momento. Vuelve en nuestro horario de atención.</p>
+                {% endif %}
+
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">¿Cómo quieres tu pedido?</h2>
+                    <div class="grid gap-3" style="grid-template-columns: repeat({{ __SELF__.orderTypes|length }}, minmax(0, 1fr))">
+                        {% for key, label in __SELF__.orderTypes %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="order_type" value="{{ key }}" x-model="type" class="sr-only peer">
+                            <div class="card text-center py-4 px-2 border-2 border-transparent peer-checked:border-brand-primary peer-checked:text-brand-primary transition-colors">
+                                {% if key == 'dine_in' %}<svg class="w-7 h-7 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>{% elseif key == 'pickup' %}<svg class="w-7 h-7 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>{% else %}<svg class="w-7 h-7 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>{% endif %}
+                                <p class="text-sm font-semibold mt-1">{{ label }}</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                {% if __SELF__.branches %}
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Sucursal</h2>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        {% for branch in __SELF__.branches %}
+                        <label class="cursor-pointer">
+                            <input type="radio" name="branch_id" value="{{ branch.id }}" required {{ loop.first ? 'checked' : '' }} class="sr-only peer">
+                            <div class="card py-3 px-4 border-2 border-transparent peer-checked:border-brand-primary transition-colors">
+                                <p class="text-sm font-semibold text-ink">{{ branch.name }}</p>
+                                {% if branch.address %}<p class="text-xs text-ink-muted mt-1">{{ branch.address }}</p>{% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <section class="space-y-4">
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Tu nombre *</label>
+                            <input type="text" name="first_name" required value="{{ user ? user.first_name : '' }}"
+                                class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Celular *</label>
+                            <input type="tel" name="phone" required inputmode="tel" value="{{ user and user.phone ? user.phone : '' }}"
+                                class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                        </div>
+                    </div>
+
+                    <div x-show="type === 'dine_in'" x-cloak>
+                        <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Número de mesa</label>
+                        <input type="text" name="table_label" maxlength="30" value="{{ __SELF__.table }}" placeholder="Ej: 5"
+                            class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                        {% if __SELF__.table %}<p class="text-xs text-ink-muted mt-1.5">Detectamos tu mesa por el código QR.</p>{% endif %}
+                    </div>
+
+                    <div x-show="type === 'delivery'" x-cloak>
+                        {% if __SELF__.pickerAssets %}
+                        {{ __SELF__.pickerAssets|raw }}
+                        <input type="hidden" name="latitude" id="co-lat">
+                        <input type="hidden" name="longitude" id="co-lng">
+                        <div data-aero-location-picker data-lat-input="#co-lat" data-lng-input="#co-lng" data-height="280"></div>
+                        <p class="text-xs text-ink-muted mt-1.5 mb-3">Detectamos tu ubicación; arrastra el pin para dejarla exacta.</p>
+                        {% endif %}
+                        <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Dirección o referencia</label>
+                        <input type="text" name="address_line1" placeholder="Calle, número, color de la casa…"
+                            class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                    </div>
+
+                    <div x-show="type !== 'dine_in'" x-cloak>
+                        <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">
+                            {{ __SELF__.isOpen ? 'Hora (opcional, para programar)' : 'Hora de entrega (estamos cerrados)' }}
+                        </label>
+                        <input type="datetime-local" name="scheduled_for" {{ __SELF__.isOpen ? '' : 'required' }}
+                            class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition">
+                        {% if __SELF__.isOpen %}<p class="text-xs text-ink-muted mt-1.5">Déjalo vacío para recibirlo lo antes posible. El restaurante te confirmará el tiempo al aceptar tu pedido.</p>{% endif %}
+                    </div>
+                </section>
+
+                {% if __SELF__.paymentGateways|length %}
+                <section>
+                    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Cómo pagas</h2>
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 p-4 card cursor-pointer">
+                            <input type="radio" name="payment_gateway_id" value="" checked class="accent-brand-primary">
+                            <span class="text-sm font-semibold text-ink">Pago al recibir / en el local</span>
+                        </label>
+                        {% for pg in __SELF__.paymentGateways %}
+                        <label class="flex items-start gap-3 p-4 card cursor-pointer">
+                            <input type="radio" name="payment_gateway_id" value="{{ pg.id }}" class="mt-1 accent-brand-primary">
+                            <div>
+                                <p class="font-semibold text-ink text-sm">{{ pg.name }}</p>
+                                {% if pg.instructions %}<div class="text-xs text-ink-muted mt-1 prose prose-sm max-w-none">{{ pg.instructions | raw }}</div>{% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <section>
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Comentario general (opcional)</label>
+                    <textarea name="customer_notes" rows="2"
+                        class="w-full bg-surface-alt border border-surface-border text-ink rounded-brand px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary transition resize-none"
+                        placeholder="Instrucciones para tu pedido"></textarea>
+                </section>
+
+                <button type="submit" :disabled="sending {{ (not __SELF__.isOpen and not rest.accept_closed) ? '|| true' : '' }}"
+                        class="w-full bg-brand-primary hover:opacity-90 disabled:opacity-60 text-white font-semibold py-4 rounded-brand text-sm transition-all">
+                    <span x-text="sending ? 'Enviando...' : 'Enviar pedido'">Enviar pedido</span>
+                </button>
+                {% else %}
                 {# Contacto #}
                 <section>
                     <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-4">Datos de contacto</h2>
@@ -128,7 +287,7 @@
                 </section>
 
                 <button type="submit"
-                        :disabled="sending || !{{ __SELF__.paymentGateways|length ? 'true' : 'false' }}"
+                        :disabled="sending || {{ __SELF__.isOpen ? 'false' : 'true' }} || !{{ __SELF__.paymentGateways|length ? 'true' : 'false' }}"
                         class="w-full bg-brand-primary hover:opacity-90 disabled:opacity-60 text-white font-semibold py-4 rounded-brand text-sm transition-all flex items-center justify-center gap-2">
                     <svg x-show="sending" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -136,6 +295,7 @@
                     </svg>
                     <span x-text="sending ? 'Procesando...' : 'Confirmar pedido'">Confirmar pedido</span>
                 </button>
+                {% endif %}
             </form>
         </div>
 
@@ -147,15 +307,27 @@
                 <div class="flex justify-between gap-3 text-sm">
                     <span class="text-ink-muted">
                         {{ line.quantity }}× {{ line.product.name }}{% if line.label %} <span class="text-xs">({{ line.label }})</span>{% endif %}
+                        {% if line.modifiers %}<span class="block text-xs">{% for m in line.modifiers %}{{ m.name }}{{ not loop.last ? ', ' : '' }}{% endfor %}</span>{% endif %}
+                        {% if line.note %}<span class="block text-xs italic">“{{ line.note }}”</span>{% endif %}
                     </span>
                     <span class="text-ink font-medium shrink-0">{{ currency.format(line.line_total) }}</span>
                 </div>
                 {% endfor %}
             </div>
+            {% if __SELF__.restaurantStore %}
+            <div x-show="(type === 'delivery' || noTypes) && fee > 0" x-cloak class="flex justify-between text-sm text-ink-muted mb-3">
+                <span x-text="restaurantStore ? 'Delivery' : 'Envío'"></span><span x-text="symbol + ' ' + fee.toFixed(2)"></span>
+            </div>
+            <div class="border-t border-surface-border pt-4 flex justify-between items-center">
+                <span class="font-semibold text-ink">Total</span>
+                <span class="text-xl font-bold text-ink" x-text="symbol + ' ' + (subtotal + ((type === 'delivery' || noTypes) ? fee : 0)).toFixed(2)">{{ currency.format(__SELF__.subtotal) }}</span>
+            </div>
+            {% else %}
             <div class="border-t border-surface-border pt-4 flex justify-between items-center">
                 <span class="font-semibold text-ink">Total</span>
                 <span class="text-xl font-bold text-ink">{{ currency.format(__SELF__.subtotal) }}</span>
             </div>
+            {% endif %}
         </aside>
     </div>
     {% endif %}

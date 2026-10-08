@@ -1,0 +1,44 @@
+columns:
+    tenant:
+        label: Tenant
+        relation: tenant
+        select: handle
+
+    plan:
+        label: Plan
+        relation: plan
+        select: name
+
+    period:
+        label: Periodo
+        type: selectable
+        options:
+            monthly: Mensual
+            annual: Anual
+        width: 90px
+
+    cycle_due_at:
+        label: Vence
+        type: date
+        format: d/m/Y
+        width: 110px
+
+    status:
+        label: Estado
+        type: selectable
+        options:
+            pending: Pendiente
+            paid: Pagado
+            expired: Vencido
+        width: 100px
+
+    amount:
+        label: Monto (Bs)
+        type: number
+        width: 100px
+
+    paid_at:
+        label: Pagado el
+        type: date
+        format: d/m/Y H:i
+        width: 140px

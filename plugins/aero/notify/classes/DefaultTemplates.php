@@ -42,6 +42,7 @@ class DefaultTemplates
         'shop.order.cancelled' => ['Pedido {{ order_number }} cancelado', 'El pedido {{ order_number }} de {{ customer_name }} ({{ total }} {{ currency }}) fue cancelado. {{ reason }}'],
         'shop.order.paid' => ['Pedido {{ order_number }} pagado', 'Se registró el pago del pedido {{ order_number }} de {{ customer_name }}: {{ total }} {{ currency }}.'],
         'shop.order.placed' => ['Nuevo pedido {{ order_number }}', 'Pedido {{ order_number }} de {{ customer_name }} por {{ total }} {{ currency }}.'],
+        'shop.order.ready' => ['Pedido {{ order_number }} listo', 'Hola {{ customer_name }}, tu pedido {{ order_number }} está listo{% if table_label %} (mesa {{ table_label }}){% elseif order_type == "Recoger" %}: pásalo a recoger{% endif %}.'],
         'shop.order.shipped' => ['Pedido {{ order_number }} enviado', 'Hola {{ customer_name }}, tu pedido {{ order_number }} va en camino. {{ tracking_code }}'],
         'shop.stock.low' => ['Stock bajo', '«{{ product_name }}» tiene solo {{ stock }} unidades.'],
         'sites.domain.expiring' => ['Dominio por vencer', 'El dominio {{ domain }} vence el {{ expires_at }} (faltan {{ days_left }} días).'],

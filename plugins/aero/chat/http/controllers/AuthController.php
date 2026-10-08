@@ -57,7 +57,7 @@ class AuthController extends Controller
         return response()->json(['data' => [
             'token'  => $token,
             'user'   => $this->user($user),
-            'tenant' => ['handle' => $tenant->handle, 'name' => $tenant->name],
+            'tenant' => $this->tenantPayload($tenant),
         ]]);
     }
 
@@ -68,7 +68,7 @@ class AuthController extends Controller
 
         return response()->json(['data' => [
             'user'   => $this->user($request->attributes->get('chat_user')),
-            'tenant' => ['handle' => $tenant->handle, 'name' => $tenant->name],
+            'tenant' => $this->tenantPayload($tenant),
         ]]);
     }
 
@@ -83,6 +83,20 @@ class AuthController extends Controller
     protected function findTenant(string $handle): ?Tenant
     {
         return Tenant::where('handle', strtolower($handle))->where('status', 'active')->first();
+    }
+
+    /**
+     * Incluye la tarifa por mensaje (Aero.Credits, dependencia blanda) para
+     * que el PWA la muestre en el composer sin una llamada aparte. null si
+     * el plugin no está instalado o el envío por este canal no cuesta nada.
+     */
+    protected function tenantPayload(Tenant $tenant): array
+    {
+        return [
+            'handle'  => $tenant->handle,
+            'name'    => $tenant->name,
+            'credits' => \Aero\Hello\Classes\ApiCredits::costHintFor($tenant->id),
+        ];
     }
 
     public static function user(User $user): array

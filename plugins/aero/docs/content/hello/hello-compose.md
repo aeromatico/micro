@@ -36,7 +36,7 @@ envío.
 
 ## Ventana de 24 h de WhatsApp
 
-Con cuentas que usan la ventana de 24 h (Cloud API/Zernio), **no** puedes
+Con cuentas que usan la ventana de 24 h (Cloud API/Hello), **no** puedes
 escribir libremente si el contacto no te escribió en las últimas 24 h. En ese
 caso necesitas una **plantilla aprobada**.
 

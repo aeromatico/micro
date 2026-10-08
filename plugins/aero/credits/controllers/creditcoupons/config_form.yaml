@@ -1,0 +1,10 @@
+name: aero.credits::lang.menu.creditcoupons
+form: $/aero/credits/models/creditcoupon/fields.yaml
+modelClass: Aero\Credits\Models\CreditCoupon
+defaultRedirect: aero/credits/creditcoupons
+create:
+    redirect: aero/credits/creditcoupons/update/:id
+    redirectClose: aero/credits/creditcoupons
+update:
+    redirect: aero/credits/creditcoupons
+    redirectClose: aero/credits/creditcoupons

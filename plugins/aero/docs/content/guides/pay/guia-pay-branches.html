@@ -1,0 +1,352 @@
+<!doctype html>
+<!--guide {"title":"Nueva sucursal","sort":20} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nueva sucursal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
+.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.g-title { font-size: 16px; font-weight: 600; margin: 4px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+
+/* Navegación de pasos: bajo el eyebrow, dos botones grandes y de igual peso */
+.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--accent); }
+.g-nav #gPrev { background: var(--accent-soft); color: var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
+.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
+.g-title { margin-top: 14px !important; }
+
+/* Barra de guía con color propio (distinta del formulario), claro y oscuro */
+:root {
+  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
+  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+  }
+}
+:root[data-theme="dark"] {
+  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+}
+.guide { --surface: var(--g-surface); --surface-2: var(--g-surface-2); --line: var(--g-line); --ink: var(--g-ink); --ink-2: var(--g-ink-2);
+  --accent: var(--g-accent); --accent-ink: var(--g-accent-ink); --accent-soft: var(--g-accent-soft); color: var(--ink); }
+.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+button { font: inherit; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.steps [aria-current="step"] .dot { border-color: var(--accent); color: var(--accent); }
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text] { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input[disabled] { background: var(--surface-2); color: var(--ink-2); font-family: var(--font-mono); cursor: not-allowed; }
+input.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.errmsg[hidden] { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; margin: 0 16px 16px; }
+table.tx { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+table.tx th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2); background: var(--surface-2); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.tx td { padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.tx tr:last-child td { border-bottom: 0; }
+tr.new td { background: var(--ok-soft); }
+.sample { font-size: 11px; color: var(--ink-2); font-style: italic; padding: 0 16px 14px; }
+#listWrap[hidden] { display: none; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Nueva sucursal</h1>
+      <div class="crumb" id="crumb">/backend/aero/pay/branches/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card" id="formCard">
+      <div class="ctx" id="ctxLine">context: create · una sola pantalla, sin pestañas</div>
+      <div class="panel">
+        <div class="field" data-f="name">
+          <label class="lbl" for="name">Nombre de la sucursal<span class="req">*</span></label>
+          <input type="text" id="name" autocomplete="off">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="code">
+          <label class="lbl" for="code">Código (auto-generado)</label>
+          <input type="text" id="code" disabled>
+          <div class="help">Se genera al crear la sucursal — es el valor que se envía al banco como branchCode.</div>
+        </div>
+        <div class="field" data-f="city">
+          <label class="lbl" for="city">Ciudad</label>
+          <input type="text" id="city" autocomplete="off">
+        </div>
+        <div class="field" data-f="address">
+          <label class="lbl" for="address">Dirección</label>
+          <input type="text" id="address" autocomplete="off">
+        </div>
+        <div class="field" data-f="whatsapp">
+          <label class="lbl" for="whatsapp">WhatsApp</label>
+          <input type="text" id="whatsapp" autocomplete="off">
+        </div>
+        <div class="field" data-f="telegram">
+          <label class="lbl" for="telegram">Telegram</label>
+          <input type="text" id="telegram" autocomplete="off">
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+      </div>
+    </div>
+
+    <div class="card" id="listWrap" hidden>
+      <div class="ctx">Lista de sucursales (aero/pay/branches)</div>
+      <div class="tbl-wrap" style="margin-top:8px"><table class="tx">
+        <thead><tr><th>Nombre</th><th>Código</th><th>Ciudad</th><th>Dirección</th></tr></thead>
+        <tbody id="listBody"></tbody>
+      </table></div>
+      <div class="sample">Datos de ejemplo para la capacitación. La fila resaltada es la que acabas de crear en esta demo.</div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var state = { mode: 'create', step: 0 };
+  var EXISTING = [['Casa Matriz', 'CASAM', 'La Paz', 'Av. Arce 2100'], ['Sucursal Sur', 'SUCUR', 'La Paz', 'Calle 21, Calacoto']];
+
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function set(id, v) {
+    var el = $('#' + id); el.value = v;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  // Misma regla que el modelo Branch: mayúsculas, sin acentos, solo A-Z y 0-9, 5 caracteres (relleno con 0)
+  function makeCode(name) {
+    var b = name.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '') || 'SUC';
+    b = b.slice(0, 5); while (b.length < 5) b += '0';
+    var code = b, n = 1, taken = EXISTING.map(function (r) { return r[1]; });
+    while (taken.indexOf(code) >= 0) { var s = String(n); code = b.slice(0, 5 - s.length) + s; n++; }
+    return code;
+  }
+
+  var steps = [
+    { id: 'name', title: 'Nombre de la sucursal', req: true,
+      body: 'Nombre con el que tu equipo reconoce el local. Máximo 150 caracteres. A partir de él se genera el código.',
+      tip: 'Elige el nombre definitivo antes de crear: el código se calcula al crear y no cambia después, aunque renombres la sucursal.',
+      ex: 'Sucursal Centro', fill: function () { set('name', 'Sucursal Centro'); },
+      done: function () { return val('name').length > 0; } },
+    { id: 'code', title: 'Código (automático)', info: true,
+      body: 'Este campo está bloqueado: no se escribe. Al crear, el sistema arma un código de 5 caracteres a partir del nombre y es el valor que se envía al banco como branchCode al generar un QR.',
+      tip: 'Si ya existe otra sucursal con el mismo código en tu cuenta, se añade un número al final para que sea único. Aquí la vista previa es solo de la demo.',
+      ex: 'Sucursal Centro → SUCUR', fill: null, done: function () { return val('name').length > 0; } },
+    { id: 'city', title: 'Ciudad', opt: true, body: 'Ciudad donde está la sucursal.',
+      tip: 'Es solo informativo, no afecta al código ni al cobro.', ex: 'La Paz',
+      fill: function () { set('city', 'La Paz'); }, done: function () { return val('city').length > 0; } },
+    { id: 'address', title: 'Dirección', opt: true, body: 'Dirección del local, en texto libre.',
+      tip: 'Escríbela como la diría un cliente que busca el local.', ex: 'Av. Camacho 1234, Edificio Centro',
+      fill: function () { set('address', 'Av. Camacho 1234, Edificio Centro'); }, done: function () { return val('address').length > 0; } },
+    { id: 'whatsapp', title: 'WhatsApp de contacto', opt: true, body: 'Número de WhatsApp de esta sucursal, en texto libre.',
+      tip: 'Incluye el código de país para que sea utilizable desde cualquier lugar.', ex: '+591 70000000',
+      fill: function () { set('whatsapp', '+591 70000000'); }, done: function () { return val('whatsapp').length > 0; } },
+    { id: 'telegram', title: 'Telegram de contacto', opt: true, body: 'Usuario o contacto de Telegram de esta sucursal, en texto libre.',
+      tip: 'Déjalo vacío si la sucursal no usa Telegram.', ex: '@sucursal_centro',
+      fill: function () { set('telegram', '@sucursal_centro'); }, done: function () { return val('telegram').length > 0; } },
+    { id: 'save', title: 'Crear la sucursal', last: true,
+      body: 'Pulsa Crear. La demo valida el nombre, genera el código y te lleva a la pantalla de edición.',
+      tip: 'Solo el nombre es obligatorio. Los demás datos se pueden completar después.', ex: '',
+      fill: function () { save(false); }, done: function () { return state.mode === 'update'; } }
+  ];
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : cur.info ? ' · informativo' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex;
+      w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) {
+      var n = document.createElement('div'), b = document.createElement('b');
+      n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n);
+    }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button';
+      var done = s.done();
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      if (done) bt.className = 'done';
+      d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    if (cur.id !== 'save') { var el = $('[data-f="' + cur.id + '"]'); if (el) el.classList.add('is-guided'); }
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i));
+    renderGuide();
+    if (scroll !== false) {
+      var el = $('[data-f="' + steps[state.step].id + '"]');
+      if (el) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+
+  function showErr(msg) {
+    var box = $('[data-f="name"]'), m = $('.errmsg', box), inp = $('input', box);
+    m.hidden = !msg; m.textContent = msg || ''; inp.classList.toggle('err', !!msg);
+  }
+  function save(close) {
+    showErr('');
+    var n = val('name');
+    if (!n) { showErr('El campo Nombre de la sucursal es obligatorio.'); go(0); flash('No se pudo crear: falta el nombre.', true); return; }
+    if (n.length > 150) { showErr('Nombre de la sucursal no puede superar 150 caracteres.'); go(0); flash('No se pudo crear: el nombre es muy largo.', true); return; }
+    var code = makeCode(n);
+    $('#code').value = code;
+    EXISTING.unshift([n, code, val('city'), val('address')]);
+    renderList();
+    state.mode = 'update';
+    $('#h1').textContent = 'Editar sucursal';
+    $('#crumb').textContent = '/backend/aero/pay/branches/update/3 · Guía de capacitación';
+    $('#ctxLine').textContent = 'context: update · el código ya quedó fijo';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#listWrap').hidden = false;
+    renderGuide();
+    flash(close ? 'Sucursal creada. En la app real vuelves a la lista de sucursales.' : 'Sucursal creada con código ' + code + '. Ahora estás en la pantalla de edición.');
+  }
+  function renderList() {
+    var b = $('#listBody'); b.innerHTML = '';
+    EXISTING.forEach(function (r, i) {
+      var tr = document.createElement('tr'); if (i === 0) tr.className = 'new';
+      r.forEach(function (c) { var td = document.createElement('td'); td.textContent = c || '—'; tr.appendChild(td); });
+      b.appendChild(tr);
+    });
+  }
+
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200);
+  }
+
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') renderGuide(); };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+
+  $$('.field input').forEach(function (el) {
+    el.addEventListener('input', function () {
+      if (el.id === 'name') { showErr(''); $('#code').value = state.mode === 'create' ? '' : $('#code').value; }
+      renderGuide();
+    });
+    el.addEventListener('focus', function () {
+      var idx = steps.map(function (s) { return s.id; }).indexOf(el.closest('.field').getAttribute('data-f'));
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+
+  renderGuide();
+})();
+</script>
+
+</body></html>

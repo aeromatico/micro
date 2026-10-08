@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""
+verify-plugin — compuerta de calidad para un plugin Aero.* (solo lectura salvo los tests).
+
+  bin/verify-plugin <plugin> [--no-tests] [--quiet]     ej.: bin/verify-plugin sms
+
+Detecta las trampas de October que fallan en silencio (ver .claude/skills/aero-plugin/
+references/gotchas.md). Sale con código 1 si hay ERRORES; las ADVERTENCIAS no rompen.
+Los tests corren como `www`, con SQLite en memoria (nunca tocan MySQL/Redis reales).
+"""
+import os, re, subprocess, sys, glob
+import yaml
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PHP = '/www/server/php/84/bin/php'
+FILTER_TYPES = {'checkbox', 'switch', 'dropdown', 'widget', 'text', 'date', 'daterange', 'number', 'numberrange'}
+BAD_COLUMN_TYPES = {'dropdown'}  # no existe: es 'selectable'
+
+errors, warns = [], []
+def err(m): errors.append(m)
+def warn(m): warns.append(m)
+
+
+def rel(p): return os.path.relpath(p, ROOT)
+def read(p):
+    try: return open(p, encoding='utf-8', errors='replace').read()
+    except OSError: return ''
+def load_yaml(p):
+    try: return yaml.safe_load(read(p)) or {}
+    except Exception as e:
+        err(f'YAML inválido {rel(p)}: {str(e).splitlines()[0]}'); return {}
+
+
+def php_files(base):
+    for d, dirs, files in os.walk(base):
+        dirs[:] = [x for x in dirs if x not in ('vendor', 'node_modules', '.git')]
+        for f in files:
+            if f.endswith('.php'): yield os.path.join(d, f)
+
+
+def check_lint(base):
+    files = list(php_files(base))
+    bad = 0
+    for i in range(0, len(files), 80):
+        r = subprocess.run([PHP, '-l'] + files[i:i+80], capture_output=True, text=True)
+        # php -l con varios archivos: solo informa el primer error del lote → reintento individual
+        if r.returncode != 0:
+            for f in files[i:i+80]:
+                rr = subprocess.run([PHP, '-l', f], capture_output=True, text=True)
+                if rr.returncode != 0:
+                    bad += 1; err(f'Sintaxis PHP: {rel(f)} → {(rr.stdout + rr.stderr).strip().splitlines()[0]}')
+    return len(files)
+
+
+def check_lowercase_dirs(base):
+    for d, dirs, _ in os.walk(base):
+        dirs[:] = [x for x in dirs if x not in ('vendor', 'node_modules', '.git', 'tests', 'docs', 'assets')]
+        for x in dirs:
+            if x != x.lower():
+                err(f'Subcarpeta con mayúsculas (no autoload): {rel(os.path.join(d, x))}')
+
+
+def check_version_yaml(base):
+    p = os.path.join(base, 'updates', 'version.yaml')
+    if not os.path.exists(p):
+        err('Falta updates/version.yaml'); return
+    try:
+        data = yaml.safe_load(read(p)) or {}
+    except Exception:
+        # PyYAML es más estricto que el parser de October (Symfony): lectura por líneas.
+        warn('version.yaml no lo parsea PyYAML (October sí): revisando por líneas, formato no validado')
+        data, cur = {}, None
+        for line in read(p).splitlines():
+            m = re.match(r'^([\'"]?[0-9][0-9.]*[\'"]?):\s*$', line)
+            if m: cur = m.group(1).strip('\'"'); data[cur] = []
+            elif cur and re.match(r'^\s+-\s', line): data[cur].append(line.split('-', 1)[1].strip().strip('\'"'))
+    referenced = set()
+    for ver, val in data.items():
+        if not isinstance(val, list):
+            err(f'version.yaml {ver}: el valor debe ser una lista (changelog + archivos .php); un string no corre migraciones'); continue
+        for item in val:
+            if isinstance(item, str) and item.endswith('.php'):
+                referenced.add(item)
+                if not os.path.exists(os.path.join(base, 'updates', item)):
+                    err(f'version.yaml {ver}: el archivo {item} no existe en updates/')
+    for f in glob.glob(os.path.join(base, 'updates', '*.php')):
+        if os.path.basename(f) not in referenced:
+            warn(f'Migración sin versionar (no correrá): updates/{os.path.basename(f)}')
+
+
+def check_controllers(base):
+    for f in sorted(glob.glob(os.path.join(base, 'controllers', '*.php'))):
+        src = read(f); name = os.path.splitext(os.path.basename(f))[0]
+        vdir = os.path.join(base, 'controllers', name.lower())
+        has_list = 'ListController' in src
+        has_form = 'FormController' in src
+        if (has_list or has_form) and not os.path.isdir(vdir):
+            err(f'Controller {name}: falta la carpeta de vistas controllers/{name.lower()}/ (página en blanco)'); continue
+        def view(n): return any(os.path.exists(os.path.join(vdir, n + e)) for e in ('.php', '.htm'))
+        if has_list and not view('index'):
+            err(f'Controller {name}: falta la vista {name.lower()}/index.php|htm (página en blanco)')
+        if has_form:
+            # Solo-lectura es legítimo (preview.php); sin ninguna vista de formulario, no.
+            forms = [v + '.php' for v in ('create', 'update', 'preview') if view(v)]
+            if not forms:
+                err(f'Controller {name}: FormController sin create.php/update.php/preview.php (página en blanco)')
+            elif 'preview.php' not in forms and len(forms) < 2:
+                warn(f'Controller {name}: solo tiene {forms[0]} (¿falta {"update" if forms[0] == "create.php" else "create"}.php?)')
+        for cfg in re.findall(r"\$(?:list|form|relation|import|export|reorder)Config\s*=\s*'([^']+\.yaml)'", src):
+            if not os.path.exists(os.path.join(vdir, cfg)):
+                err(f'Controller {name}: config {cfg} no existe')
+        if 'hasPermission(' in src:
+            err(f'Controller {name}: usa hasPermission() — debe ser hasAccess()')
+    # config_filter / columns
+    for f in glob.glob(os.path.join(base, '**', '*.yaml'), recursive=True):
+        if '/vendor/' in f: continue
+        b = os.path.basename(f)
+        d = load_yaml(f) if b in ('filters.yaml', 'columns.yaml', 'config_filter.yaml') else {}
+        if b in ('filters.yaml', 'config_filter.yaml'):
+            for k, v in (d.get('scopes') or {}).items():
+                t = (v or {}).get('type')
+                if t and t not in FILTER_TYPES:
+                    err(f'{rel(f)}: scope "{k}" con type "{t}" no soportado (500)')
+        if b == 'columns.yaml':
+            for k, v in (d.get('columns') or {}).items():
+                if (v or {}).get('type') in BAD_COLUMN_TYPES:
+                    err(f'{rel(f)}: columna "{k}" type "dropdown" no existe (usar selectable)')
+    # alias $/aero/<plugin>
+    plugins = set(os.listdir(os.path.join(ROOT, 'plugins', 'aero')))
+    for f in glob.glob(os.path.join(base, '**', '*.yaml'), recursive=True) + list(php_files(base)):
+        if '/vendor/' in f or '/tests/' in f: continue
+        for m in re.findall(r"\$/aero/([a-z0-9_]+)/", read(f)):
+            if m not in plugins:
+                err(f'{rel(f)}: alias $/aero/{m}/ apunta a un plugin que no existe (¿renombrado?)')
+
+
+def check_code_patterns(base):
+    for f in php_files(base):
+        if '/tests/' in f or '/updates/' in f: continue
+        s = read(f); r = rel(f)
+        if '/jobs/' in f and 'ShouldQueue' in s and 'Dispatchable' not in s:
+            err(f'{r}: Job sin trait Dispatchable (::dispatch() explotará)')
+        if re.search(r'->hasPermission\(', s):
+            err(f'{r}: hasPermission() ignora is_superuser — usar hasAccess()')
+        if re.search(r'plugin:refresh|plugin:rollback|rollbackPlugin', s) and '/console/' not in f:
+            err(f'{r}: invoca rollback/refresh de plugin — PROHIBIDO (borra datos ajenos)')
+        if re.search(r"'tenant_id'\s*=>\s*\d+", s):
+            warn(f'{r}: tenant_id numérico fijo (¿hardcodeado?)')
+    for f in glob.glob(os.path.join(base, 'models', '*.php')):
+        s = read(f)
+        arr = set(re.findall(r"'(\w+)'\s*=>\s*'(?:array|json)'", s))
+        for fld in arr:
+            if re.search(rf"'{fld}'\s*=>\s*'[^']*\barray\b", s.split('$casts')[-1] if '$rules' not in s else s.split('$rules')[-1]):
+                warn(f'{rel(f)}: campo {fld} con $casts array y regla "array" (validación fallará; usar $jsonable)')
+
+
+def check_plugin_php(base, code):
+    s = read(os.path.join(base, 'Plugin.php'))
+    if not s:
+        err('Falta Plugin.php'); return
+    declared = set(re.findall(r"registerPermissions[\s\S]*?\n    }\n", s) and
+                   re.findall(r"'(aero\.[a-z0-9_.]+)'\s*=>\s*\[", s))
+    used = set()
+    for f in [os.path.join(base, 'Plugin.php')] + glob.glob(os.path.join(base, 'controllers', '*.php')):
+        used |= set(re.findall(r"'(aero\.%s\.[a-z0-9_.]+)'" % code, read(f)))
+    for u in sorted(used - declared):
+        if not u.endswith('.') and not any(u.startswith(d) for d in declared):
+            warn(f'Permiso usado pero no declarado en registerPermissions(): {u}')
+    # íconos
+    icons_css = os.path.join(ROOT, 'modules/system/assets/vendor/october-icons/icons.css')
+    if os.path.exists(icons_css):
+        known = set(re.findall(r'\.(icon-[a-z0-9-]+)', read(icons_css)))
+        for ic in set(re.findall(r"'(icon-[a-z0-9-]+)'", s)):
+            if ic not in known:
+                warn(f'Plugin.php: ícono "{ic}" no existe en october-icons (ítem sin ícono)')
+    # grant a tenant_admin
+    sites = os.path.join(ROOT, 'plugins', 'aero', 'sites', 'updates')
+    grants = ''.join(read(g) for g in glob.glob(os.path.join(sites, 'grant_*.php')))
+    nav_perms = set()
+    for blk in re.findall(r"'permissions'\s*=>\s*\[([^\]]*)\]", s):
+        nav_perms |= set(re.findall(r"'(aero\.[a-z0-9_.]+)'", blk))
+    for p in sorted(nav_perms):
+        if p.endswith('.superadmin'): continue
+        if p not in grants and code != 'sites':
+            warn(f'Menú con permiso {p} sin grant a tenant_admin en aero/sites/updates/grant_*.php (si es para tenants, verán "denegado")')
+
+
+def check_tenant(base):
+    mig = ''.join(read(f) for f in glob.glob(os.path.join(base, 'updates', '*.php')))
+    ctl = ''.join(read(f) for f in glob.glob(os.path.join(base, 'controllers', '*.php')))
+    if 'tenant_id' in mig and glob.glob(os.path.join(base, 'controllers', '*.php')):
+        if not re.search(r'ScopesToTenant|scopeToTenant|tenant_id|CurrentTenant', ctl):
+            warn('Hay tenant_id en las tablas pero ningún controller filtra por tenant (¿fuga entre tenants?)')
+
+
+def run_tests(base, code):
+    cfg = os.path.join(base, 'phpunit.xml')
+    if not os.path.exists(cfg):
+        warn('Sin tests (no hay phpunit.xml). Usa .claude/skills/aero-plugin/templates/phpunit.xml.tpl + SmokeTest.php.tpl'); return None
+    if 'force="true"' not in read(cfg) or 'sqlite' not in read(cfg):
+        err('phpunit.xml sin aislamiento forzado (DB sqlite + CACHE_STORE=array con force="true"): los tests podrían tocar producción. No se ejecutan.'); return None
+    cmd = ['sudo', '-u', 'www', PHP, 'vendor/bin/phpunit', '-c', rel(cfg), '--do-not-cache-result']
+    r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    out = r.stdout + r.stderr
+    last = [l for l in out.splitlines() if l.startswith(('OK', 'Tests:', 'FAILURES', 'ERRORS', 'No tests'))]
+    summary = ' '.join(last) or out.strip().splitlines()[-1] if out.strip() else 'sin salida'
+    if r.returncode != 0:
+        err(f'Tests fallan: {summary}  (ver: sudo -u www {PHP} vendor/bin/phpunit -c {rel(cfg)})')
+    return summary
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    if not args:
+        print(__doc__); sys.exit(2)
+    code = args[0].lower().replace('aero/', '')
+    base = os.path.join(ROOT, 'plugins', 'aero', code)
+    if not os.path.isdir(base):
+        print(f'No existe plugins/aero/{code}'); sys.exit(2)
+
+    n = check_lint(base)
+    check_lowercase_dirs(base); check_version_yaml(base); check_controllers(base)
+    check_code_patterns(base); check_plugin_php(base, code); check_tenant(base)
+    tests = None if '--no-tests' in sys.argv else run_tests(base, code)
+
+    print(f'verify-plugin aero/{code}: {n} archivos PHP revisados')
+    if tests: print(f'  tests: {tests}')
+    for e in errors: print(f'  ✗ ERROR  {e}')
+    for w in warns:  print(f'  ! aviso  {w}')
+    if not errors and not warns: print('  ✓ sin hallazgos')
+    elif not errors: print(f'  ✓ sin errores ({len(warns)} avisos)')
+    else: print(f'  ✗ {len(errors)} errores, {len(warns)} avisos')
+    sys.exit(1 if errors else 0)
+
+
+if __name__ == '__main__':
+    main()

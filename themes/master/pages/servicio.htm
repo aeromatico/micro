@@ -1,0 +1,12 @@
+url = "/servicio/:slug"
+layout = "base"
+title = "Servicio — Market"
+==
+<?php
+// URL antigua: ahora los servicios viven en /plugin/{slug}. 301 para conservar enlaces y SEO.
+function onStart()
+{
+    return Redirect::to('/plugin/' . $this->param('slug'), 301);
+}
+?>
+==

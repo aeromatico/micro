@@ -1,5 +1,6 @@
 <?php namespace Aero\Sites\Controllers;
 
+use Aero\Sites\Classes\ComponentBlockCatalog;
 use Aero\Sites\Jobs\GenerateAiSiteJob;
 use Aero\Sites\Models\AiGeneration;
 use Aero\Sites\Models\Archetype;
@@ -79,9 +80,9 @@ class ContentEditor extends Controller
         // Pestaña "Componentes" — misma galería de referencia de
         // ComponentGallery, embebida aquí para no salir del editor de
         // contenidos (ver componentgallery/_gallery.php).
-        $this->vars['blocks']             = ComponentGallery::BLOCKS;
+        $this->vars['blocks']             = ComponentBlockCatalog::BLOCKS;
         $this->vars['themes']             = DesignTheme::active()->orderBy('name')->get(['id', 'handle', 'name']);
-        $this->vars['defaultThemeHandle'] = ComponentGallery::resolveDefaultThemeHandle($this->vars['themes']);
+        $this->vars['defaultThemeHandle'] = ComponentBlockCatalog::resolveDefaultThemeHandle($this->vars['themes']);
 
         // Pestaña "Plantilla" — fuente de referencia de lo que se sirve hoy
         // por defecto (Tailwind/Alpine propios, header/footer del theme),
@@ -170,7 +171,21 @@ class ContentEditor extends Controller
     public function onSaveIndex()
     {
         $tenant    = $this->getCurrentTenant();
-        $indexPage = Page::forTenant($tenant->id)->where('slug', '')->firstOrFail();
+        $indexPage = Page::forTenant($tenant->id)->where('slug', '')->first();
+
+        // Guardar a mano sin haber generado nunca con IA: no hay fila de Page
+        // todavía (TenantProvisioner no crea una) — se crea aquí igual que
+        // hace GenerateAiSiteJob cuando termina una generación.
+        if (!$indexPage) {
+            $indexPage = new Page([
+                'tenant_id'  => $tenant->id,
+                'slug'       => '',
+                'layout'     => 'home',
+                'is_published' => true,
+                'sort_order' => 1,
+            ]);
+        }
+
         $data      = post('IndexPage', []);
 
         $indexPage->title          = $data['title'] ?? $indexPage->title;

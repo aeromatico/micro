@@ -23,6 +23,20 @@ class Plugin extends PluginBase
             ->name('aero-crm-cobranza-reminders');
     }
 
+    /** Para los temas: {% if tickets_enabled() %}. Resuelve el tenant por el dominio del request. */
+    public function registerMarkupTags(): array
+    {
+        return [
+            'functions' => [
+                'tickets_enabled' => function () {
+                    $tenant = \Aero\Sites\Models\Tenant::resolveFromDomain(request()->getHost());
+
+                    return $tenant && \Aero\Crm\Models\CrmSettings::ticketsEnabledFor($tenant->id);
+                },
+            ],
+        ];
+    }
+
     public function registerComponents(): array
     {
         return [
@@ -45,7 +59,6 @@ class Plugin extends PluginBase
     {
         $this->bootTenantPurgeCleanup();
         $this->bootShopCustomerSync();
-        $this->registerConfigMenuTab();
         $this->bootPayPaymentBridge();
         $this->bootHelloSync();
         $this->bootSupportToolbarItem();
@@ -132,28 +145,6 @@ class Plugin extends PluginBase
                 ->first();
 
             $item?->markAsPaid();
-        });
-    }
-
-    /**
-     * Espejo de "CRM → Configuración" como tab del menú central
-     * "Configuración" de Aero.Api, para tener todos los ajustes del tenant en
-     * un solo lugar. El menú propio de CRM sigue existiendo tal cual — esto
-     * solo agrega un acceso más al mismo controlador, no lo mueve.
-     */
-    protected function registerConfigMenuTab(): void
-    {
-        if (!class_exists(\Aero\Api\Classes\ApiAuth::class)) {
-            return;
-        }
-
-        Event::listen('backend.menu.extendItems', function ($manager) {
-            $manager->addSideMenuItem('Aero.Api', 'configuracion', 'crm-settings', [
-                'label'       => 'Configuración de CRM',
-                'icon'        => 'icon-address-book',
-                'url'         => Backend::url('aero/crm/crmsettings'),
-                'permissions' => ['aero.crm.manage_settings'],
-            ]);
         });
     }
 

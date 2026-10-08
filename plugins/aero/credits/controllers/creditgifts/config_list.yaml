@@ -1,0 +1,12 @@
+list: $/aero/credits/models/creditgift/columns.yaml
+modelClass: Aero\Credits\Models\CreditGift
+title: Regalos de suscripción
+showSetup: true
+recordsPerPage: 30
+noRecordsMessage: Todavía no hay regalos comprados.
+defaultSort:
+    column: created_at
+    direction: desc
+toolbar:
+    search:
+        prompt: backend::lang.list.search_prompt

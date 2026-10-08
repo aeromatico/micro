@@ -1,0 +1,91 @@
+{# Plugin de WordPress/WooCommerce — cobro con QR bancario desde Pagos #}
+<section id="wordpress" class="scroll-mt-14 bg-canvas-elev">
+    <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            <div class="flex flex-col gap-5">
+                <span class="text-xs tracking-wide text-accent uppercase font-bold">Plugin gratuito</span>
+                <h2 class="text-3xl font-bold">¿Ya vendes en WordPress? Cobra con QR sin cambiar de tienda.</h2>
+                <p class="text-base text-ink-dim leading-relaxed">Nuestro plugin para WooCommerce conecta tu tienda actual con Pagos — sin migrar nada, sin tocar código. Instálalo, pega tu API key y ya puedes cobrar con QR bancario en tu checkout de siempre.</p>
+
+                <ul class="flex flex-col gap-3 mt-1">
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span class="text-sm text-ink-dim"><strong class="text-ink font-semibold">Confirmación automática</strong> — el pedido pasa solo a "Procesando" apenas el banco confirma.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span class="text-sm text-ink-dim"><strong class="text-ink font-semibold">Vencimiento sin intervención</strong> — si nadie paga a tiempo, el pedido se cancela solo.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                        <span class="text-sm text-ink-dim"><strong class="text-ink font-semibold">Tu cuenta, tus datos</strong> — el dinero llega directo a tu cuenta bancaria, sin intermediarios.</span>
+                    </li>
+                </ul>
+
+                <div class="flex items-center gap-3 mt-2">
+                    <a href="/docs/pay-plugin-wordpress" class="inline-flex items-center bg-accent text-accent-fg font-semibold text-sm px-5 py-3 rounded-lg hover:-translate-y-px transition-transform">Ver guía de instalación</a>
+                    <a href="/docs/pay-tokens-api" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Cómo crear mi API key</a>
+                </div>
+            </div>
+
+            {# Mockup: checkout de WooCommerce con el QR de Aero Pay #}
+            <div class="bg-canvas border border-edge rounded-2xl p-6 flex flex-col gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-edge"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-edge"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-edge"></span>
+                    <span class="ml-2 text-[11px] text-ink-dim font-medium">Pedido recibido — tutienda.com</span>
+                </div>
+                <div class="h-px bg-edge"></div>
+                <div class="flex flex-col gap-2">
+                    <div class="h-2.5 w-[55%] bg-canvas-elev2 rounded"></div>
+                    <div class="h-2 w-[35%] bg-canvas-elev2 rounded"></div>
+                </div>
+                <div class="flex flex-col items-center gap-3 py-5 px-4 bg-canvas-elev2 rounded-xl">
+                    {# QR decorativo: no codifica nada, solo simula uno con los tres "ojos" característicos #}
+                    <svg class="w-28 h-28 rounded-lg bg-white border border-edge p-2" viewBox="0 0 21 21" shape-rendering="crispEdges">
+                        {% for eye in [[0,0], [14,0], [0,14]] %}
+                        <rect x="{{ eye[0] }}" y="{{ eye[1] }}" width="7" height="7" class="fill-black"/>
+                        <rect x="{{ eye[0] + 1 }}" y="{{ eye[1] + 1 }}" width="5" height="5" class="fill-white"/>
+                        <rect x="{{ eye[0] + 2 }}" y="{{ eye[1] + 2 }}" width="3" height="3" class="fill-black"/>
+                        {% endfor %}
+                        {% for m in [
+                            [9,0],[11,1],[9,2],[12,3],[9,4],[10,5],[12,6],
+                            [16,2],[18,3],[16,5],[19,6],
+                            [2,9],[4,9],[6,10],[9,9],[11,9],[9,10],[13,9],[15,10],[17,9],[19,10],
+                            [2,11],[5,11],[9,11],[12,11],[16,11],[19,12],
+                            [9,13],[11,13],[13,13],[16,13],[18,13],
+                            [2,16],[4,17],[6,16],[9,16],[11,17],[13,16],[16,16],[18,17],[9,19],[12,18],[16,19]
+                        ] %}
+                        <rect x="{{ m[0] }}" y="{{ m[1] }}" width="1" height="1" class="fill-black"/>
+                        {% endfor %}
+                    </svg>
+                    <span class="text-lg font-bold">Bs 150.00</span>
+                    <span class="text-[12px] text-ink-dim flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                        Esperando confirmación del pago...
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {# Pasos de instalación #}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-20 pt-16 border-t border-edge">
+            <div class="flex flex-col gap-3">
+                <span class="font-display text-4xl font-bold text-edge">01</span>
+                <h3 class="text-base font-bold">Instala el plugin</h3>
+                <p class="text-sm text-ink-dim">Sube el .zip a tu WordPress y actívalo — sin tocar código ni cambiar de tienda.</p>
+            </div>
+            <div class="flex flex-col gap-3">
+                <span class="font-display text-4xl font-bold text-edge">02</span>
+                <h3 class="text-base font-bold">Crea tu API key</h3>
+                <p class="text-sm text-ink-dim">Desde Pagos, con permisos de cobro — se copia una sola vez.</p>
+            </div>
+            <div class="flex flex-col gap-3">
+                <span class="font-display text-4xl font-bold text-edge">03</span>
+                <h3 class="text-base font-bold">Pégala en WooCommerce</h3>
+                <p class="text-sm text-ink-dim">Ajustes → Pagos → Aero Pay. Activa la pasarela y ya puedes cobrar con QR.</p>
+            </div>
+        </div>
+    </div>
+</section>

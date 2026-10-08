@@ -126,6 +126,14 @@ module.exports = {
         'gap-x-6', 'gap-y-2', 'hover:opacity-100', 'opacity-80', 'max-w-xs', 'mt-5', 'mt-6', 'py-10', 'py-12', 'py-14',
         'md:flex-row', 'md:items-center', 'md:justify-between', 'md:justify-center', 'right-0', 'top-full',
         'sm:inline-flex', 'z-40', 'z-50', 'h-14', 'rounded-full', 'max-w-md', 'list-none', 'w-56', 'px-5',
+        // Header (Puck) — antes solo sobrevivían al purge por coincidir con
+        // clases de themes/microsites/partials/site/header.htm (escaneado
+        // por `content`); si ese partial cambia de clases, el bloque Header
+        // se rompe en silencio. Ver plugins/aero/sites/assets/puck-editor/
+        // scripts/check-tailwind-safelist.mjs (corre en `npm run build` del
+        // editor y detecta este tipo de gap).
+        'sm:px-6', 'lg:px-8', 'md:flex', 'md:hidden', 'shrink-0', 'gap-2.5', 'border-dashed',
+        'tracking-tight', 'py-2.5', 'shadow-lg', 'w-5', 'h-5', 'puck-tabs-radio',
         // Tabs — píldoras, vertical, tarjetas, numeradas (radios ocultos + nav)
         'sr-only', 'py-3', 'md:flex-col', 'md:col-span-3', 'sm:grid-cols-4', 'w-10', 'h-10',
         // Tabs — hooks del mecanismo :has() en app.css (no son utilidades de
@@ -160,6 +168,22 @@ module.exports = {
         'relative', 'absolute', 'inset-0', 'bg-cover', 'bg-center', 'bg-black/50',
         // Efectos suaves (scroll-reveal + hover lift en cards)
         'reveal', 'hover:-translate-y-1', 'hover:shadow-lg', 'transition-all', 'duration-300', 'shadow-md',
+
+        // -------------------------------------------------------------------
+        // Segunda tanda de variantes (10 por bloque, ver
+        // check-tailwind-safelist.mjs) — mantener sincronizada con
+        // components.jsx/PuckHtmlRenderer.php igual que el resto de este
+        // archivo.
+        // -------------------------------------------------------------------
+        '-left-9', 'bg-black/60', 'bg-gradient-to-t', 'border-current/30', 'border-t-2',
+        'flex-row-reverse', 'from-black/70', 'from-black/80', 'gap-x-10', 'gap-y-4', 'gap-y-6',
+        'group-open:rotate-45', 'h-24', 'h-28', 'h-6', 'items-baseline', 'mb-0.5',
+        'md:aspect-auto', 'md:grid', 'md:grid-cols-1', 'md:grid-cols-5', 'md:order-1',
+        'md:order-2', 'md:scale-110', 'md:text-5xl', 'md:text-7xl', 'opacity-60', 'pb-16',
+        'pb-20', 'pb-6', 'pl-8', 'px-10', 'py-5', 'rounded-b-3xl', 'sm:border-r',
+        'sm:border-surface-border', 'sm:gap-2', 'sm:grid', 'sm:p-14', 'sm:pr-6', 'sm:w-40',
+        'sm:w-48', 'to-transparent', 'via-black/10', 'via-black/20', 'w-14', 'w-28', 'w-6',
+        'z-10',
 
         // -------------------------------------------------------------------
         // LEGACY — clases del sistema de color pre-DesignTheme. Ya no las

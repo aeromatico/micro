@@ -1,0 +1,10 @@
+name: Seguimiento externo
+form: $/aero/tracking/models/feed/fields.yaml
+modelClass: Aero\Tracking\Models\Feed
+defaultRedirect: aero/tracking/feeds
+create:
+    redirect: aero/tracking/feeds/update/:id
+    redirectClose: aero/tracking/feeds
+update:
+    redirect: aero/tracking/feeds/update/:id
+    redirectClose: aero/tracking/feeds

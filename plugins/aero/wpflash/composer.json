@@ -1,0 +1,11 @@
+{
+    "name": "aero/wpflash",
+    "description": "Motor de sitio alternativo: un childsite de WordPress/WooCommerce administrado por nosotros, sincronizado en tiempo real (WP manda) con Aero.Shop",
+    "type": "october-plugin",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Aero\\WpFlash\\": ""
+        }
+    }
+}

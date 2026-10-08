@@ -76,3 +76,78 @@
       dirección de envío con enlace al mapa (antes no mostraba ninguna), la
       API REST acepta y devuelve shipping.latitude/longitude/location_label y
       la confirmación pública del pedido enlaza el mapa."
+
+1.1.0:
+    - "Modo de tienda en Configuración: estándar (por defecto) o Tienda para
+      WhatsApp. El checkout de WhatsApp solo pide el celular (prefijo 591) y
+      manda el pedido al chat: por WhatsApp Api (enlace api.whatsapp.com con el
+      pedido formateado hacia el número de la tienda) o por Market Api (envío
+      desde una cuenta de Hello del tenant)."
+    - add_store_mode_to_shop_settings.php
+
+1.2.0:
+    - "Modo Restaurante en Configuración: grupos de extras por plato (mín/máx),
+      nota de cocina por línea, tipo de pedido (local, recoger, delivery), mesa
+      por QR, horarios y pedido mínimo."
+    - add_restaurant_mode.php
+
+1.3.0:
+    - "Horario general de la tienda (todos los tipos): 24 horas, por horario
+      semanal o atención en línea con interruptor. Cierra el checkout y el
+      pedido cuando la tienda está cerrada. Variantes/Extras del producto
+      se muestran según el tipo de tienda."
+    - add_schedule_to_shop_settings.php
+
+1.4.0:
+    - "Tiempo de preparación y cantidad mínima pasan de Configuración a cada
+      producto (pestaña Restaurante, antes Extras)."
+    - add_restaurant_product_fields.php
+
+1.5.0:
+    - "Operación del restaurante: estado de cocina por pedido (nuevo, preparando,
+      listo, entregado), pantalla de cocina en el backend, anticipación mínima
+      para pedidos programados y seguimiento del pedido para el cliente."
+    - add_kitchen_to_orders.php
+
+1.6.0:
+    - "Tiempo estimado del pedido (restaurante): se calcula con la preparación del
+      plato más lento, la carga de la cocina, el modo ocupado y, en delivery, un
+      tiempo de reparto. El cliente lo ve solo cuando cocina acepta el pedido, y
+      cocina puede ajustarlo y extenderlo."
+    - add_eta_to_orders.php
+
+1.7.0:
+    - "Prerrequisitos de aero/pos: origen de la venta (web, pos, api...), cajero,
+      rondas de comanda, código de barras, productos internos (Venta libre) y NIT
+      y razón social del cliente. OrderService suma agregar rondas, cobrar,
+      descuento y anulación."
+    - add_pos_prerequisites.php
+
+1.8.0:
+    - "Sucursales: la tienda puede tener varias sucursales (interruptor en Configuración). El checkout pide elegir una y el pedido guarda su nombre."
+    - add_branches_to_shop.php
+
+1.8.1:
+    - "Pedido con la última ubicación compartida por el cliente en el chat: dirección y ciudad opcionales cuando hay coordenadas."
+    - make_address_line_city_nullable.php
+
+1.8.2:
+    - "Nodos para Aero.Workflows: «Tienda › Menú de categorías» y «Tienda › Productos de una categoría» (se entienden entre sí por el número del menú)."
+
+1.9.0:
+    - "Compra por chat: carrito y última lista mostrada por cliente (tabla aero_shop_chat_sessions) para los nodos de Workflows «Buscar productos», «Agregar al pedido», «Ver o editar pedido» y «Confirmar pedido»."
+    - create_chat_sessions_table.php
+
+
+1.9.1:
+    - "Costo de envío de la tienda (0 = gratis), aplicado a pedidos con productos que requieren envío; el checkout web lo muestra."
+    - add_shipping_fee_to_shop_settings.php
+
+1.9.2:
+    - "Nodo de Workflows «Tienda › Ver producto (tarjeta)»: foto, precio con descuento, descripción, opciones y stock; se envía por Hello en un chat real y deja lista la compra rápida («1», «1 x3», «sí»)."
+
+1.9.3:
+    - "Nodos de tienda para chat de restaurante: «Confirmar pedido» toma la mesa («mesa 5») y, sin ubicación en el flujo, la última que el cliente compartió en el chat (6 h); «Ver o editar pedido» entiende «quitar 2»."
+
+1.9.4:
+    - "Pedido por chat con costo de envío global: el carrito y la confirmación muestran el envío de la tienda (se suma a productos físicos, no a digitales; en restaurante es un aviso de delivery) y el checkout entiende la dirección escrita («confirmar Av. Arce 123, La Paz»)."

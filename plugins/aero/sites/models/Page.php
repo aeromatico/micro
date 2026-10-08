@@ -13,10 +13,27 @@ class Page extends Model
     public $fillable = [
         'tenant_id', 'title', 'slug', 'content', 'content_mode', 'puck_data', 'is_placeholder',
         'meta_title', 'meta_description', 'layout',
-        'is_published', 'sort_order',
+        'is_published', 'show_in_menu', 'menu_positions', 'sort_order',
     ];
 
-    protected $jsonable = ['puck_data'];
+    /**
+     * Posiciones de menú que el tema puede pintar. Cada tema decide dónde
+     * renderiza cada una: el tema microsites usa navbar (menú de escritorio),
+     * sidebar (menú móvil) y footer; top aún no tiene lugar en ese diseño.
+     */
+    public const MENU_POSITIONS = [
+        'top'     => 'Barra superior',
+        'navbar'  => 'Menú principal (escritorio)',
+        'sidebar' => 'Menú lateral (móvil)',
+        'footer'  => 'Pie de página',
+    ];
+
+    protected $jsonable = ['puck_data', 'menu_positions'];
+
+    protected $casts = [
+        'is_published' => 'boolean',
+        'show_in_menu' => 'boolean',
+    ];
 
     protected $dates = ['deleted_at'];
 
@@ -43,6 +60,30 @@ class Page extends Model
     public function scopeForTenant($query, int $tenantId)
     {
         return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Campos solo de formulario (no son columnas). Sus valores los pasa
+     * Controllers\Pages::formBeforeSave() a `content`; aquí se descartan para
+     * que October no intente insertarlos como columnas.
+     */
+    public function setContentRicheditorAttribute($value): void
+    {
+    }
+
+    public function setContentRawAttribute($value): void
+    {
+    }
+
+    public function getMenuPositionsOptions(): array
+    {
+        return self::MENU_POSITIONS;
+    }
+
+    /** La página aparece en la posición de menú dada (si está marcada para menús). */
+    public function isInMenu(string $position): bool
+    {
+        return $this->show_in_menu && in_array($position, (array) $this->menu_positions, true);
     }
 
     public function getEffectiveMetaTitleAttribute(): string

@@ -1,0 +1,34 @@
+{# Hero #}
+<section class="max-w-6xl mx-auto px-6 sm:px-10 pt-14 pb-24 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-14 items-center">
+    <div class="flex flex-col gap-6">
+        <div class="inline-flex items-center gap-2 w-fit px-3 py-1.5 border border-edge rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="text-xs tracking-wide text-ink-dim uppercase">Un proyecto serio y escalable</span>
+        </div>
+        <h1 class="text-[44px] sm:text-[58px] leading-[1.05] font-bold text-pretty">La plataforma Comercial #1 de Bolivia</h1>
+        <p class="text-lg text-ink-dim max-w-[520px]">Sitio web, tienda online, CRM, cobros QR y WhatsApp — conectados entre sí y potenciados con inteligencia artificial. Sin plugins sueltos, sin integraciones rotas.</p>
+        <div class="flex items-center gap-3.5 flex-wrap pt-2">
+            <a href="#precios" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Planes y precios</a>
+            <a href="#demo" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-6 py-3.5 rounded-lg border border-edge hover:bg-canvas-elev2 hover:border-ink-dim transition-colors">Prueba el OmniChat</a>
+        </div>
+        <p class="flex items-center gap-1.5 text-xs text-ink-dim pt-1">
+            <svg class="w-3.5 h-3.5 text-accent shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            Alta instantánea tras su pago
+        </p>
+    </div>
+
+    <div class="relative h-[420px] sm:h-[460px] flex items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl" style="background:radial-gradient(60% 60% at 70% 20%, rgba(139,124,246,0.16), transparent)"></div>
+        <picture>
+            <source type="image/avif" srcset="{{ 'assets/images/hero/dashboard.avif' | theme }}?v=3">
+            <source type="image/webp" srcset="{{ 'assets/images/hero/dashboard.webp' | theme }}?v=3">
+            <img
+                src="{{ 'assets/images/hero/dashboard.png' | theme }}?v=3"
+                width="540" height="540"
+                alt="Panel de Market: sitio, tienda, CRM y cobros en un solo lugar"
+                fetchpriority="high" decoding="async"
+                class="relative w-full h-full max-w-[420px] mx-auto object-contain drop-shadow-2xl"
+            >
+        </picture>
+    </div>
+</section>

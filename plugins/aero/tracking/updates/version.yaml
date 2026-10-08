@@ -1,3 +1,10 @@
 1.0.0:
     - "Primera versión: activos, trabajos con paradas, ingest OwnTracks HTTP, historial de posiciones, API REST y mapa en vivo."
     - create_tracking_tables.php
+
+1.1.0:
+    - "Selector de ubicación reutilizable (Leaflet + OSM/satélite, sin API keys): detecta por GPS, deja arrastrar el pin y exporta lat/lng/precisión. FormWidget `locationpicker` para el backend (ya usado en las paradas de los trabajos) y componente `locationPicker` / assets para el frontend."
+
+1.2.0:
+    - "Seguimiento de enlaces públicos de terceros (feeds): el usuario pega la URL de rastreo (hoy PedidosYa; otros proveedores se añaden como drivers) y se registran estado, ETA, mensajes y posición del repartidor como Job + Asset, con eventos aero.tracking.feed.*."
+    - create_feeds_tables.php

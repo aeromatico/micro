@@ -1,0 +1,100 @@
+url = "/docs/:slug"
+layout = "base"
+title = "Centro de ayuda"
+
+[sitesSeo]
+pageTitle = "Ayuda"
+
+[sitesPageList]
+excludeHome = 1
+
+[shopCart]
+
+[docs]
+mode = "article"
+base = "docs"
+slug = "{{ :slug }}"
+==
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <div class="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-12">
+
+        <aside class="hidden lg:block">
+            <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
+                {% partial 'help/sidebar' %}
+            </div>
+        </aside>
+
+        <div class="min-w-0">
+            {% partial 'help/crumbs' %}
+
+            <article class="min-w-0">
+                <header class="mb-8">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">{{ docs.article.title }}</h1>
+                    <p class="text-sm text-ink-muted mt-3">
+                        {{ docs.article.reading_minutes }} min de lectura · v{{ docs.article.version }} · Actualizado {{ docs.article.updated_at|date('d/m/Y') }} · {{ docs.article.views|number_format(0, ',', '.') }} visitas
+                    </p>
+                </header>
+
+                <div class="prose dark:prose-invert max-w-none" id="docs-body">{{ docs.article.content_html|raw }}</div>
+
+                {% partial '@feedback' %}
+
+                {% if docs.versions|length > 1 %}
+                <section class="mt-10" x-data="{ open: false }">
+                    <button type="button" @click="open = !open" class="inline-flex items-center gap-2 text-sm font-semibold text-ink-muted hover:text-ink">
+                        <svg class="w-4 h-4 transition-transform" :class="open && 'rotate-90'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+                        Historial de versiones ({{ docs.versions|length }})
+                    </button>
+                    <ul x-show="open" x-cloak class="mt-4 border-l border-surface-border">
+                        {% for v in docs.versions %}
+                        <li class="-ml-px border-l-2 {{ loop.first ? 'border-brand-primary' : 'border-transparent' }} pl-4 py-1.5 text-sm">
+                            <span class="font-semibold text-ink">v{{ v.version }}</span>
+                            <span class="text-ink-muted">· {{ v.date|date('d/m/Y H:i') }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                {% endif %}
+
+                <nav class="grid sm:grid-cols-2 gap-4 mt-16 pt-8 border-t border-surface-border">
+                    {% if docs.prev %}
+                    <a href="{{ docs.prev.url }}" class="p-4 border border-surface-border rounded-brand hover:border-brand-primary transition-colors">
+                        <span class="text-xs text-ink-muted">← Anterior</span>
+                        <span class="block font-semibold text-ink mt-0.5">{{ docs.prev.title }}</span>
+                    </a>
+                    {% else %}<span></span>{% endif %}
+                    {% if docs.next %}
+                    <a href="{{ docs.next.url }}" class="p-4 border border-surface-border rounded-brand hover:border-brand-primary transition-colors sm:text-right">
+                        <span class="text-xs text-ink-muted">Siguiente →</span>
+                        <span class="block font-semibold text-ink mt-0.5">{{ docs.next.title }}</span>
+                    </a>
+                    {% endif %}
+                </nav>
+            </article>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('#docs-body pre').forEach(function (pre) {
+        var code = pre.querySelector('code');
+        if (window.hljs && code) { try { hljs.highlightElement(code); } catch (e) {} }
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.textContent = 'Copiar';
+        btn.className = 'mt-2 text-xs font-semibold text-ink-muted hover:text-ink';
+        btn.addEventListener('click', function () {
+            navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+                btn.textContent = '¡Copiado!'; setTimeout(function () { btn.textContent = 'Copiar'; }, 1500);
+            });
+        });
+        pre.appendChild(btn);
+    });
+});
+window.addEventListener('load', function () {
+    if (window.hljs) document.querySelectorAll('#docs-body pre code:not(.hljs)').forEach(function (c) { hljs.highlightElement(c); });
+});
+</script>

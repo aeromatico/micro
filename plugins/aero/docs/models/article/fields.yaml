@@ -56,6 +56,13 @@ fields:
         mode: datetime
         span: left
 
+    _pending:
+        tab: Cambios pendientes
+        type: partial
+        path: $/aero/docs/models/article/_pending.htm
+        span: full
+        context: update
+
     _activity_section:
         tab: Actividad
         type: section

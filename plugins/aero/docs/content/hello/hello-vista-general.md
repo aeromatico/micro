@@ -33,6 +33,7 @@ Envías mensajes manuales o masivos desde "Redactar"
 ## Guías de cada función
 
 - [Conectar cuenta](hello-connect) — vincular WhatsApp.
+- [WhatsApp Web vs Cloud API](hello-comparativa) — cuál elegir y por qué.
 - [Redactar](hello-compose) — envío manual y masivo.
 - [Bandeja de conversaciones](hello-conversations) — atender chats.
 - [Llamadas](hello-calls) — historial y grabaciones.

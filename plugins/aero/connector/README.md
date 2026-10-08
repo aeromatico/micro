@@ -19,6 +19,7 @@ pensado para reutilizarse tal cual en otros proyectos OctoberCMS 4 / Laravel 12.
 - `ai_openai_compatible` — OpenAI, OpenRouter, GLM y cualquier API compatible con
   `/chat/completions`.
 - `ai_anthropic` — API de Claude (`/v1/messages`).
+- `telegram` — Bot API de Telegram (mensajes salientes + registro de webhook).
 
 ## Agregar un tipo nuevo (desde otro plugin)
 

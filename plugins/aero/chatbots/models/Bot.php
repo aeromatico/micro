@@ -22,13 +22,14 @@ class Bot extends Model
 
     public $fillable = [
         'tenant_id', 'account_id', 'name', 'is_active', 'fallback_message', 'handoff_minutes',
-        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt', 'ai_tool_categories',
+        'reply_mode', 'ai_connector_id', 'ai_model', 'ai_system_prompt', 'ai_include_rules', 'ai_tool_categories',
     ];
 
     protected $jsonable = ['ai_tool_categories'];
 
     public $attributes = [
-        'reply_mode' => 'autoresponder',
+        'reply_mode'       => 'autoresponder',
+        'ai_include_rules' => true,
     ];
 
     public $rules = [
@@ -70,6 +71,12 @@ class Bot extends Model
             $this->handoff_minutes = 15;
         }
 
+        // El <select> de conector manda '' cuando no se elige nada, y la
+        // columna es un entero nullable: '' da "Incorrect integer value".
+        if ($this->ai_connector_id === '') {
+            $this->ai_connector_id = null;
+        }
+
         // "Desactivar" en el selector de modo es la única fuente de verdad
         // para is_active — evita que quede un bot con reply_mode='ai' pero
         // is_active=false (o viceversa) por tocar el switch de la lista sin
@@ -77,6 +84,14 @@ class Bot extends Model
         // is_active (Bot::active()), así que esto es lo único que hace falta
         // para que "Desactivar" corte las respuestas automáticas del todo.
         $this->is_active = $this->reply_mode !== 'disabled';
+
+        // Un bot activo solo puede atender cuentas de SU cliente. Desactivarlo siempre se permite
+        // (así se arreglan los bots que quedaron enlazados a una cuenta ajena).
+        if ($this->is_active && $this->account_id && !$this->accountBelongsToTenant()) {
+            throw new \October\Rain\Exception\ValidationException([
+                'account_id' => 'Esa cuenta pertenece a otro cliente: un bot solo puede atender cuentas de su propio cliente.',
+            ]);
+        }
 
         // Super Chatbot IA puede ser PRO (Settings → Sites). El bloqueo del
         // form es solo visual: acá se rechaza al guardar. Solo si el modo
@@ -91,6 +106,25 @@ class Bot extends Model
                 'reply_mode' => 'Super Chatbot IA es parte del plan PRO. Mejorá tu plan para activarlo.',
             ]);
         }
+    }
+
+    /**
+     * ¿Puede un bot de `$botTenant` contestar por una cuenta cuyo cliente es `$accountTenant`?
+     * Un bot de cliente solo atiende cuentas de ese mismo cliente (si la cuenta no tiene cliente,
+     * no); un bot de plataforma (sin cliente) puede atender cualquiera. Falla cerrado.
+     */
+    public static function tenantsMatch(?int $botTenant, ?int $accountTenant): bool
+    {
+        return \Aero\Chatbots\Classes\TenantGuard::matches($botTenant, $accountTenant);
+    }
+
+    /** El cliente de la cuenta es el mismo que el del bot (tenant efectivo: directo o por su perfil). */
+    public function accountBelongsToTenant(): bool
+    {
+        return static::tenantsMatch(
+            $this->tenant_id ? (int) $this->tenant_id : null,
+            $this->account?->effective_tenant_id
+        );
     }
 
     public function scopeForTenant($query, int $tenantId)
@@ -169,16 +203,23 @@ class Bot extends Model
      */
     public function getAiToolCategoriesOptions(): array
     {
+        // Etiquetas de la UI: todas "Área: qué hace el bot". Mandan sobre las que
+        // declare cada plugin, así el listado queda homogéneo y agrupado.
         $labels = [
-            'site' => 'Sitio web / landing',
-            'shop' => 'Tienda',
-        ];
+            'site'              => 'Sitio web: consultar landing y contenido',
+            'shop'              => 'Tienda: consultar catálogo y pedidos',
+            'hello'             => 'WhatsApp: enviar menús y botones nativos',
+            'workflows'         => 'Automatizaciones: ejecutar workflows existentes',
+            'workflows_builder' => 'Automatizaciones: diseñar workflows nuevos (quedan en borrador)',
+        ] + \Aero\Chatbots\Classes\AiToolRegistry::categoryLabels();
 
         $options = [];
 
         foreach (\Aero\Chatbots\Classes\AiToolRegistry::categories() as $category) {
             $options[$category] = $labels[$category] ?? ucfirst($category);
         }
+
+        asort($options, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $options;
     }

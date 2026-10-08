@@ -1,0 +1,36 @@
+columns:
+    id:
+        label: "#"
+        type: number
+        width: 70px
+    terminal:
+        label: Caja
+        relation: terminal
+        select: name
+        type: text
+    opener:
+        label: Abrió
+        relation: opener
+        select: concat(first_name, ' ', last_name)
+        type: text
+    opened_at:
+        label: Apertura
+        type: datetime
+    closed_at:
+        label: Cierre
+        type: datetime
+    status:
+        label: Estado
+        type: selectable
+        options:
+            open: Abierto
+            closed: Cerrado
+    opening_cash:
+        label: Inicial
+        type: number
+    counted_cash:
+        label: Contado
+        type: number
+    difference:
+        label: Diferencia
+        type: number

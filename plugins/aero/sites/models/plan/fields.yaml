@@ -13,16 +13,28 @@ fields:
         comment: Identificador interno (minúsculas, sin espacios). Es lo que guarda cada tenant en su campo Plan — no lo cambies si ya hay tenants en este plan.
 
     price:
-        label: 'Precio mensual (Bs)'
+        label: 'Precio mensual de alta (Bs)'
         type: number
         span: left
         required: true
 
-    price_annual:
-        label: 'Precio anual (Bs)'
+    price_renewal:
+        label: 'Precio mensual de renovación (Bs)'
         type: number
         span: right
+        comment: Vacío = igual al precio de alta. Sin efecto todavía — el cobro automático de renovación no existe aún.
+
+    price_annual:
+        label: 'Precio anual de alta (Bs)'
+        type: number
+        span: left
         comment: Vacío = no se ofrece plan anual.
+
+    price_renewal_annual:
+        label: 'Precio anual de renovación (Bs)'
+        type: number
+        span: right
+        comment: Vacío = igual al precio anual de alta. Sin efecto todavía.
 
     trial_days:
         label: Días de prueba gratis
@@ -67,7 +79,7 @@ tabs:
             label: Créditos incluidos por color
             type: repeater
             prompt: Agregar color
-            comment: Se otorgan al tenant una sola vez al activar este plan (o al cambiarse a él). Un monto por color.
+            comment: Se otorgan al tenant una sola vez al activar este plan (o al cambiarse a él). Un monto por color. El modo "Vence al renovar" todavía no tiene efecto — el cobro automático de renovación no existe aún.
             form:
                 fields:
                     credit_type:
@@ -81,6 +93,14 @@ tabs:
                         type: number
                         span: right
                         required: true
+                    mode:
+                        label: Modo
+                        type: dropdown
+                        span: full
+                        default: accumulate
+                        options:
+                            accumulate: 'Acumulable (no vence)'
+                            expiring: 'Vence al renovar si no se usa'
 
         plugins:
             tab: Plugins

@@ -1,0 +1,59 @@
+fields:
+    title:
+        label: Título
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: title
+            type: slug
+    plugin:
+        label: Plugin
+        span: left
+        readOnly: true
+    form_ref:
+        label: Formulario de origen
+        span: right
+        readOnly: true
+    article_id:
+        label: Artículo de documentación
+        comment: La guía se enlaza desde este artículo y viceversa.
+        type: dropdown
+        showSearch: true
+        emptyOption: '— Sin artículo —'
+        span: left
+    status:
+        label: Estado
+        type: dropdown
+        span: right
+    is_global:
+        label: Global (todos los sitios)
+        type: switch
+        span: left
+    sort_order:
+        label: Orden
+        type: number
+        default: 0
+        span: right
+    notes:
+        label: Notas de revisión
+        type: textarea
+        size: small
+    _preview:
+        tab: Vista previa
+        type: partial
+        path: $/aero/docs/models/guide/_preview.htm
+        span: full
+    source_hash:
+        tab: Origen
+        label: Hash de las fuentes
+        comment: Si cambia el YAML o las opciones del formulario, docs-sync regenera la guía.
+        span: left
+        readOnly: true
+    html_hash:
+        tab: Origen
+        label: Hash del HTML publicado
+        span: right
+        readOnly: true

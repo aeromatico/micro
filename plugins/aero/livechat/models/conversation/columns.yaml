@@ -1,0 +1,29 @@
+columns:
+    contact_label:
+        label: Visitante
+        type: text
+
+    inbox:
+        label: Inbox
+        relation: inbox
+        select: name
+
+    status:
+        label: Estado
+        type: text
+        width: 100px
+
+    agent_unread_count:
+        label: No leídos
+        type: number
+        width: 100px
+
+    assignee:
+        label: Asignado a
+        relation: assignee
+        select: first_name
+
+    last_message_at:
+        label: Último mensaje
+        type: datetime
+        width: 160px

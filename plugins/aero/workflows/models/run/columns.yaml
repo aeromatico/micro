@@ -1,0 +1,9 @@
+columns:
+    id: {label: '#'}
+    workflow: {label: Workflow, relation: workflow, select: name}
+    source: {label: Origen}
+    status: {label: Estado}
+    steps_count: {label: Pasos}
+    error: {label: Error, searchable: true}
+    started_at: {label: Inicio, type: datetime}
+    finished_at: {label: Fin, type: datetime}

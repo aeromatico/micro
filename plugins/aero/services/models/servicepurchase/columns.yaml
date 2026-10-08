@@ -1,0 +1,35 @@
+columns:
+    id:
+        label: '#'
+        sortable: true
+    created_at:
+        label: Fecha
+        type: datetime
+        sortable: true
+    tenant_name:
+        label: Sitio
+        sortable: false
+    service:
+        label: Servicio
+        relation: service
+        select: name
+    plan_name:
+        label: Plan
+        sortable: false
+    payment_method:
+        label: Método
+        type: partial
+        path: ~/plugins/aero/services/models/servicepurchase/_method_column.php
+        sortable: false
+    amount_label:
+        label: Pagado
+        sortable: false
+    status:
+        label: Estado
+        type: partial
+        path: ~/plugins/aero/services/models/servicepurchase/_status_column.php
+    actions:
+        label: ''
+        type: partial
+        path: ~/plugins/aero/services/models/servicepurchase/_actions_column.php
+        sortable: false

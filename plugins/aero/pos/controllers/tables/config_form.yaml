@@ -1,0 +1,14 @@
+name: Mesa
+form: $/aero/pos/models/postable/fields.yaml
+modelClass: Aero\Pos\Models\PosTable
+defaultRedirect: aero/pos/tables
+
+create:
+    title: Nueva mesa
+    redirect: aero/pos/tables
+    redirectClose: aero/pos/tables
+
+update:
+    title: Editar mesa
+    redirect: aero/pos/tables
+    redirectClose: aero/pos/tables

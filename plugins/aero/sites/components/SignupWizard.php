@@ -1,5 +1,6 @@
 <?php namespace Aero\Sites\Components;
 
+use Aero\Sites\Classes\Meta\ConversionsApiClient;
 use Aero\Sites\Classes\Niches\NicheManager;
 use Aero\Sites\Classes\SignupPlans;
 use Aero\Sites\Classes\TenantProvisioner;
@@ -71,6 +72,7 @@ class SignupWizard extends ComponentBase
             'domainRegistrationPrice'    => $domainRegistrationPrice,
             'domainRenewalMarkupPercent' => $domainRenewalMarkupPercent,
             'usdToBobRate'               => $usdToBobRate,
+            'initialPromo'               => strtoupper(trim((string) request()->query('promo', ''))),
         ], JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG);
     }
 
@@ -98,6 +100,46 @@ class SignupWizard extends ComponentBase
         }
 
         return ['available' => true, 'message' => "¡Disponible! {$handle}.market.com.bo"];
+    }
+
+    // -------------------------------------------------------------------
+    // Código de invitación/cupón — validación sin consumir
+    // -------------------------------------------------------------------
+
+    public function onCheckPromo(): array
+    {
+        $key = 'signup-promo:' . request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 20)) {
+            return ['valid' => false, 'message' => 'Demasiados intentos. Espera un momento.'];
+        }
+        RateLimiter::hit($key, 300);
+
+        $code = trim((string) post('promo_code', ''));
+        $redemption = null;
+
+        if ($code !== '') {
+            if (class_exists(\Aero\Credits\Classes\Invitations::class)) {
+                $redemption = \Aero\Credits\Classes\Invitations::preview($code);
+            }
+            if (!$redemption && class_exists(\Aero\Credits\Classes\Coupons::class)) {
+                $redemption = \Aero\Credits\Classes\Coupons::preview($code);
+            }
+        }
+
+        if (!$redemption) {
+            return ['valid' => false, 'message' => 'Ese código no es válido o ya venció.'];
+        }
+
+        $plan = $redemption['plan'];
+        $duration = \Aero\Credits\Classes\Grants::periodLabel($redemption['period_unit'], $redemption['period_count']);
+
+        return [
+            'valid'      => true,
+            'plan_label' => $plan->name,
+            'is_pro'     => (bool) $plan->is_pro,
+            'duration'   => $duration,
+            'message'    => "¡Código válido! {$duration} gratis" . ($plan->is_pro ? ' con todas las funciones del plan PRO' : " del plan {$plan->name}"),
+        ];
     }
 
     // -------------------------------------------------------------------
@@ -158,12 +200,31 @@ class SignupWizard extends ComponentBase
         }
 
         $isTrial = $period === 'trial';
-        if ($isTrial && $domainMode === 'register') {
-            return ['success' => false, 'message' => 'El registro de dominio no está disponible en la prueba gratis.'];
+
+        // Código de cupón/invitación de Aero.Credits (opcional): si es válido,
+        // el alta se activa gratis con el plan/periodo que trae el código, sin
+        // pasar por el QR de cobro — soft dependency, mismo patrón que
+        // SignupPlans::creditBadges().
+        $promoCode = trim((string) post('promo_code', ''));
+        $redemption = null;
+        if ($promoCode !== '') {
+            if (class_exists(\Aero\Credits\Classes\Invitations::class)) {
+                $redemption = \Aero\Credits\Classes\Invitations::preview($promoCode);
+            }
+            if (!$redemption && class_exists(\Aero\Credits\Classes\Coupons::class)) {
+                $redemption = \Aero\Credits\Classes\Coupons::preview($promoCode);
+            }
+            if (!$redemption) {
+                return ['success' => false, 'message' => 'Ese código no es válido o ya venció.'];
+            }
+        }
+
+        if (($isTrial || $redemption) && $domainMode === 'register') {
+            return ['success' => false, 'message' => 'El registro de dominio no está disponible en el alta gratis.'];
         }
 
         $bankAccount = Settings::getSignupBankAccount();
-        if (!$isTrial && (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class))) {
+        if (!$isTrial && !$redemption && (!$bankAccount || !class_exists(\Aero\Pay\Classes\QrIssuer::class))) {
             return ['success' => false, 'message' => 'El cobro no está disponible en este momento. Intenta más tarde.'];
         }
 
@@ -202,8 +263,18 @@ class SignupWizard extends ComponentBase
             return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
         }
 
-        if ($isTrial) {
-            return $this->activateTrial($tenant, $planData, $rootDomain, $niche, $domainMode, $domain);
+        // Meta Conversions API: "Lead" en cuanto se reserva el tenant — el
+        // punto más temprano del embudo donde ya hay una intención real
+        // (nombre + rubro + plan elegidos), antes de saber si paga o no.
+        ConversionsApiClient::send(
+            eventName: 'Lead',
+            eventId: 'lead_tenant_' . $tenant->id,
+            tracking: ConversionsApiClient::captureRequestTracking($handle),
+            customData: ['value' => $planPrice, 'currency' => 'BOB'],
+        );
+
+        if ($isTrial || $redemption) {
+            return $this->activateFree($tenant, $planData, $rootDomain, $niche, $domainMode, $domain, $redemption);
         }
 
         $description = "Alta Market — {$handle} (plan {$planData['label']})";
@@ -219,6 +290,7 @@ class SignupWizard extends ComponentBase
             currency: 'BOB',
             description: $description,
             origin: 'sites',
+            tenantId: $tenant->id,
         );
 
         $tenant->signup_qr_code_id = $qrCode->id;
@@ -246,11 +318,15 @@ class SignupWizard extends ComponentBase
     }
 
     /**
-     * Prueba gratis: sin QR ni pago. Aprovisiona el sitio y lo activa al
-     * instante (el paso 2 del front salta directo a crear el administrador).
-     * Vence sola: aero.sites:expire-trials.
+     * Prueba gratis (sin código) o canje de cupón/invitación de Aero.Credits
+     * (con código): en ambos casos sin QR ni pago, aprovisiona el sitio y lo
+     * activa al instante (el paso 2 del front salta directo a crear el
+     * administrador). La prueba normal vence sola: aero.sites:expire-trials.
+     * Un canje con código pisa el plan/periodo con el del regalo
+     * (Aero\Credits\Classes\Grants::apply(), llamado desde
+     * Invitations::consume()/Coupons::consume()).
      */
-    protected function activateTrial(Tenant $tenant, array $planData, RootDomain $rootDomain, string $niche, string $domainMode, string $domain): array
+    protected function activateFree(Tenant $tenant, array $planData, RootDomain $rootDomain, string $niche, string $domainMode, string $domain, ?array $redemption = null): array
     {
         $tenant->signup_payment_reference = (string) Str::uuid();
         $tenant->save();
@@ -258,10 +334,43 @@ class SignupWizard extends ComponentBase
         try {
             app(\Aero\Sites\Classes\TenantProvisioner::class)->provisionSite($tenant);
             $tenant->status = 'active';
-            $tenant->plan_expires_at = now()->addDays((int) $planData['trial_days']);
+
+            if (!$redemption) {
+                $tenant->plan_expires_at = now()->addDays((int) $planData['trial_days']);
+            }
+
             $tenant->save();
+
+            if ($redemption) {
+                if ($redemption['type'] === 'invitation') {
+                    \Aero\Credits\Classes\Invitations::consume($redemption['model'], $tenant);
+                } else {
+                    \Aero\Credits\Classes\Coupons::consume($redemption['model'], $tenant);
+                }
+                $tenant->refresh();
+            }
+
+            // Meta Conversions API: un canje de cupón/invitación es una
+            // conversión con valor real (el plan que se está regalando), la
+            // prueba gratis sin código no vale nada todavía — StartTrial en
+            // vez de Purchase para no inflar el valor de las campañas.
+            $tracking = ConversionsApiClient::captureRequestTracking($tenant->handle);
+            if ($redemption) {
+                ConversionsApiClient::send(
+                    eventName: 'Purchase',
+                    eventId: 'purchase_ref_' . $tenant->signup_payment_reference,
+                    tracking: $tracking,
+                    customData: ['value' => (float) $tenant->plan_price, 'currency' => 'BOB'],
+                );
+            } else {
+                ConversionsApiClient::send(
+                    eventName: 'StartTrial',
+                    eventId: 'trial_tenant_' . $tenant->id,
+                    tracking: $tracking,
+                );
+            }
         } catch (\Exception $e) {
-            \Log::error("Aero\\Sites: fallo al aprovisionar la prueba del tenant {$tenant->id}: " . $e->getMessage());
+            \Log::error("Aero\\Sites: fallo al aprovisionar el alta gratis del tenant {$tenant->id}: " . $e->getMessage());
             $tenant->purge();
 
             return ['success' => false, 'message' => 'No pudimos crear tu sitio. Intenta de nuevo en unos minutos.'];
@@ -269,13 +378,14 @@ class SignupWizard extends ComponentBase
 
         return [
             'success'     => true,
-            'trial'       => true,
+            'trial'       => !$redemption,
+            'free'        => true,
             'tenant_id'   => $tenant->id,
             'reference'   => $tenant->signup_payment_reference,
             'domain'      => $tenant->handle . '.' . $rootDomain->domain,
             'niche_label' => app(NicheManager::class)->options()[$niche] ?? $niche,
-            'plan_label'  => $planData['label'],
-            'period'      => 'trial',
+            'plan_label'  => $redemption ? $redemption['plan']->name : $planData['label'],
+            'period'      => $redemption ? 'promo' : 'trial',
             'amount'      => 0,
             'own_domain'  => $domainMode !== '' ? $domain : null,
             'trial_ends_at' => $tenant->plan_expires_at->toFormattedDateString(),
@@ -364,6 +474,20 @@ class SignupWizard extends ComponentBase
             \Log::error("Aero\\Sites SignupWizard: fallo al crear admin del tenant {$tenant->id}: " . $e->getMessage());
             return ['success' => false, 'message' => 'No se pudo crear la cuenta. Intenta con otro correo.'];
         }
+
+        // Meta Conversions API: acá sí tenemos email/teléfono reales del
+        // dueño del tenant — la mejor calidad de coincidencia (EMQ) de todo
+        // el embudo.
+        ConversionsApiClient::send(
+            eventName: 'CompleteRegistration',
+            eventId: 'admin_tenant_' . $tenant->id,
+            tracking: ConversionsApiClient::captureRequestTracking($tenant->handle),
+            userData: [
+                'email'      => $data['email'],
+                'phone'      => $data['phone'],
+                'first_name' => $data['name'],
+            ],
+        );
 
         return [
             'success'        => true,

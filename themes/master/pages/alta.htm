@@ -1,0 +1,15 @@
+url = "/alta"
+layout = "base"
+title = "Alta — Market"
+==
+<?php
+
+function onStart()
+{
+    // Las invitaciones enviadas antes apuntaban a /alta?promo=CÓDIGO.
+    $query = request()->getQueryString();
+
+    return Redirect::to('/comprar' . ($query ? '?' . $query : ''), 301);
+}
+?>
+==

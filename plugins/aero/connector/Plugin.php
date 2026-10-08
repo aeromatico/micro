@@ -62,6 +62,13 @@ class Plugin extends PluginBase
                     'category' => 'ai',
                     'driver'   => \Aero\Connector\Drivers\AiAnthropicDriver::class,
                 ],
+                'telegram' => [
+                    'label'            => trans('aero.connector::lang.types.telegram'),
+                    'category'         => 'social',
+                    'driver'           => \Aero\Connector\Drivers\TelegramDriver::class,
+                    'provider_hint'    => 'telegram',
+                    'default_base_url' => 'https://api.telegram.org',
+                ],
             ];
         });
     }

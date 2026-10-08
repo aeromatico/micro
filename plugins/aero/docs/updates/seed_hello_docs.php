@@ -39,6 +39,7 @@ return new class extends Seeder
         $articles = [
             ['file' => 'hello-vista-general', 'title' => 'Hello — Vista general',       'sort' => 0,  'featured' => true],
             ['file' => 'hello-connect',        'title' => 'Conectar cuenta',            'sort' => 10],
+            ['file' => 'hello-comparativa',    'title' => 'WhatsApp Web vs Cloud API',  'sort' => 15],
             ['file' => 'hello-compose',        'title' => 'Redactar',                   'sort' => 20],
             ['file' => 'hello-conversations',  'title' => 'Bandeja de conversaciones',  'sort' => 30],
             ['file' => 'hello-calls',          'title' => 'Llamadas',                   'sort' => 40],

@@ -1,0 +1,138 @@
+{# Pricing #}
+<section id="precios" class="bg-canvas-elev scroll-mt-14">
+    <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
+        <div class="max-w-[600px] mx-auto mb-12 text-center">
+            <h2 class="text-3xl sm:text-4xl font-bold">Precios simples, sin sorpresas.</h2>
+            <p class="text-base text-ink-dim mt-3">Elige el plan según lo que tu negocio necesita hoy. Cambia cuando quieras.</p>
+        </div>
+
+        <div x-data="{ period: 'monthly' }" class="flex flex-col items-center gap-8">
+            <div class="inline-flex items-center gap-1 p-1 border border-edge rounded-full bg-canvas">
+                <button type="button" @click="period = 'monthly'"
+                        :class="period === 'monthly' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
+                        class="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Mensual</button>
+                <button type="button" @click="period = 'annual'"
+                        :class="period === 'annual' ? 'bg-accent text-accent-fg' : 'text-ink-dim hover:text-ink'"
+                        class="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors">Anual</button>
+            </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch max-w-[760px] mx-auto w-full">
+            <div class="relative flex flex-col gap-5 p-8 border border-edge rounded-2xl bg-canvas">
+                <div class="flex flex-col gap-1.5">
+                    <h3 class="text-lg font-bold uppercase">Negocio</h3>
+                    <p class="text-[13px] text-ink-dim">Para vender y cobrar sin fricción.</p>
+                </div>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 499' : 'Bs 49'">Bs 49</span>
+                    <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
+                </div>
+                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 89 al año pagando anual</p>
+                <div class="h-px bg-edge"></div>
+                <div class="flex flex-col gap-3">
+                    <p class="text-sm text-ink-dim">Sitio web con generador de IA</p>
+                    <p class="text-sm text-ink-dim">Tienda online e inventario</p>
+                    <p class="text-sm text-ink-dim">CRM y cobranzas por WhatsApp</p>
+                    <p class="text-sm text-ink-dim">Pagos QR propios</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <span class="text-[11px] text-ink-dim">De regalo en cada suscripción y renovación</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
+                            <span class="w-2 h-2 rounded-full" style="background:#cd7f32"></span>500 monedas de bronce
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
+                            <span class="w-2 h-2 rounded-full" style="background:#c0c0c0"></span>50 monedas de plata
+                        </span>
+                    </div>
+                </div>
+                <a href="/comprar/negocio" class="mt-auto inline-flex justify-center items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Elegir Negocio</a>
+            </div>
+
+            <div class="relative flex flex-col gap-5 p-8 border border-accent rounded-2xl bg-canvas">
+                <span class="absolute -top-3 left-8 bg-accent text-accent-fg text-[11px] font-bold px-3 py-1 rounded-full">Más elegido</span>
+                <div class="flex flex-col gap-1.5">
+                    <h3 class="text-lg font-bold uppercase">Pro</h3>
+                    <p class="text-[13px] text-ink-dim">Para negocios en crecimiento.</p>
+                </div>
+                <div class="flex items-baseline gap-1.5">
+                    <span class="font-display text-4xl font-bold" x-text="period === 'annual' ? 'Bs 999' : 'Bs 99'">Bs 99</span>
+                    <span class="text-[13px] text-ink-dim" x-text="period === 'annual' ? '/ año' : '/ mes'">/ mes</span>
+                </div>
+                <p x-show="period === 'annual'" x-cloak class="text-[11px] text-accent font-semibold -mt-3">Ahorras Bs 189 al año pagando anual</p>
+                <div class="h-px bg-edge"></div>
+                <div class="flex flex-col gap-3">
+                    <p class="text-sm text-ink-dim">Todo lo de Negocio</p>
+                    <p class="text-sm text-ink-dim">WhatsApp Business sin límites</p>
+                    <p class="text-sm text-ink-dim">Chatbots y automatización con IA</p>
+                    <p class="text-sm text-ink-dim">Soporte prioritario</p>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <span class="text-[11px] text-ink-dim">De regalo en cada suscripción y renovación</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
+                            <span class="w-2 h-2 rounded-full" style="background:#cd7f32"></span>6000 monedas de bronce
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-edge bg-canvas-elev">
+                            <span class="w-2 h-2 rounded-full" style="background:#c0c0c0"></span>600 monedas de plata
+                        </span>
+                    </div>
+                </div>
+                <a href="/comprar/pro" class="mt-auto inline-flex justify-center items-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-lg">Elegir Pro</a>
+            </div>
+        </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto mt-16">
+            <div class="h-px bg-edge mb-16"></div>
+            <div class="max-w-[560px] mx-auto mb-10 text-center">
+                <span class="text-xs tracking-wide text-accent uppercase font-bold">Créditos</span>
+                <h3 class="text-2xl sm:text-3xl font-bold mt-3">Una moneda simple para lo que consumes de más</h3>
+                <p class="text-sm text-ink-dim mt-3">Gestionar tu sitio, tienda, CRM y chats no gasta créditos. Solo se descuentan cuando una acción usa un recurso externo real — así el servicio es eficiente y rápido para todos.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl bg-canvas">
+                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3l1.6 4.8L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.2L12 3z"/></svg>
+                    <h4 class="font-bold text-sm">Modelos de IA</h4>
+                    <p class="text-[13px] text-ink-dim">Generar textos, código o respuestas con inteligencia artificial tiene un costo real por cada llamada al modelo.</p>
+                </div>
+                <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl bg-canvas">
+                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+                    <h4 class="font-bold text-sm">Servicios externos</h4>
+                    <p class="text-[13px] text-ink-dim">Enviar WhatsApp, SMS o hacer llamadas de voz usa proveedores externos que cobran por cada envío o minuto.</p>
+                </div>
+                <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl bg-canvas">
+                    <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+                    <h4 class="font-bold text-sm">Funciones especiales</h4>
+                    <p class="text-[13px] text-ink-dim">Funciones avanzadas, como los chatbots con IA, tienen un costo propio que siempre ves antes de usarlas.</p>
+                </div>
+            </div>
+            <p class="text-[13px] text-ink-dim text-center mt-8">Tu plan ya trae créditos incluidos al activarlo. ¿Se acaban? Recargas al instante con pago QR, sin permanencia ni letra chica.</p>
+        </div>
+
+        <div class="max-w-[760px] mx-auto mt-16 flex flex-col gap-3">
+            <p class="text-[13px] text-ink-dim text-center">¿Recién empiezas o necesitas algo más grande?</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex items-center justify-between gap-4 p-5 border border-dashed border-edge rounded-2xl">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h3 class="text-[15px] font-bold">Trial</h3>
+                            <span class="text-[11px] text-ink-dim">/ $0</span>
+                        </div>
+                        <p class="text-[13px] text-ink-dim mt-1">Un sitio simple con IA para probar Market, sin compromiso.</p>
+                    </div>
+                    <button type="button" @click="$dispatch('open-lead-modal', { plan: 'trial' })" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar acceso</button>
+                </div>
+                <div class="flex items-center justify-between gap-4 p-5 border border-dashed border-edge rounded-2xl">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h3 class="text-[15px] font-bold">Gran Empresa</h3>
+                            <span class="text-[11px] text-ink-dim">/ a medida</span>
+                        </div>
+                        <p class="text-[13px] text-ink-dim mt-1">Para operaciones grandes con necesidades especiales.</p>
+                    </div>
+                    <button type="button" @click="$dispatch('open-lead-modal', { plan: 'enterprise' })" class="shrink-0 inline-flex items-center bg-transparent text-ink font-semibold text-[13px] px-4 py-2.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors">Solicitar propuesta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

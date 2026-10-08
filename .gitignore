@@ -3,7 +3,12 @@ composer.phar
 storage/backups/
 .DS_Store
 .vite
-.claude
+# .claude: se versionan agentes, comandos y skills; settings.local.json (permisos locales) NO
+.claude/*
+!.claude/agents/
+!.claude/commands/
+!.claude/hooks/
+!.claude/skills/
 .idea
 .env
 .env.*.php
@@ -46,3 +51,8 @@ plugins/aero/sites/assets/puck-editor/node_modules
 
 # Certificados SSL (desafío ACME de aaPanel): efímero, no se versiona
 /.well-known/acme-challenge/
+
+# Python
+__pycache__/
+*.pyc
+plugins/aero/workflows/assets/flow-editor/node_modules

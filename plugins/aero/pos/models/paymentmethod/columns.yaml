@@ -1,0 +1,16 @@
+columns:
+    label:
+        label: Método
+        type: text
+    kind:
+        label: Tipo
+        type: selectable
+        options:
+            cash: Efectivo
+            qr: QR
+            card: Tarjeta
+            transfer: Transferencia
+            other: Otro
+    is_active:
+        label: Activo
+        type: switch

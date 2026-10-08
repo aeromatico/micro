@@ -1,0 +1,20 @@
+columns:
+    division:
+        label: aero.hub::lang.endpoint.division
+        type: text
+        searchable: false
+    category:
+        label: aero.hub::lang.endpoint.category
+        searchable: true
+    path:
+        label: aero.hub::lang.endpoint.path
+        searchable: true
+    method:
+        label: aero.hub::lang.endpoint.method
+    reference_cost_usd:
+        label: aero.hub::lang.endpoint.reference_cost_usd
+    credit_cost:
+        label: aero.hub::lang.endpoint.credit_cost
+    is_active:
+        label: aero.hub::lang.endpoint.is_active
+        type: switch

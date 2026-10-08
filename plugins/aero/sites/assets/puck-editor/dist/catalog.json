@@ -173,7 +173,7 @@
   },
   "Hero": {
     "label": "Hero",
-    "desc": "Sección principal (hero) con título grande, subtítulo, descripción, hasta 2 botones e imagen. 5 variantes de layout real (no solo color/fondo): centrado, imagen a la derecha/izquierda, fondo completo y minimal.",
+    "desc": "Sección principal (hero) con título grande, subtítulo, descripción, hasta 2 botones e imagen. 10 variantes de layout real (no solo color/fondo).",
     "fields": {
       "variant": {
         "type": "select",
@@ -198,6 +198,26 @@
           {
             "label": "Minimal (solo texto)",
             "value": "minimal"
+          },
+          {
+            "label": "Imagen arriba (banner + texto abajo)",
+            "value": "imagen-arriba"
+          },
+          {
+            "label": "Panel elevado (tarjeta centrada)",
+            "value": "panel-elevado"
+          },
+          {
+            "label": "Editorial (texto a la izquierda, grande)",
+            "value": "editorial-izquierda"
+          },
+          {
+            "label": "Fondo con texto abajo (estilo póster)",
+            "value": "fondo-texto-abajo"
+          },
+          {
+            "label": "Panel imagen grande (60/40)",
+            "value": "panel-imagen-grande"
           }
         ]
       },
@@ -234,6 +254,28 @@
       },
       "image": {
         "type": "custom"
+      },
+      "imageAspect": {
+        "type": "select",
+        "label": "Proporción de la imagen (variantes \"Imagen a la derecha/izquierda\")",
+        "options": [
+          {
+            "label": "Vertical (3:4) — recomendado para fotos de personas/producto",
+            "value": "3/4"
+          },
+          {
+            "label": "Cuadrada (1:1)",
+            "value": "1/1"
+          },
+          {
+            "label": "Estándar (4:3)",
+            "value": "4/3"
+          },
+          {
+            "label": "Panorámica (16:9)",
+            "value": "16/9"
+          }
+        ]
       },
       "background": {
         "type": "radio",
@@ -347,7 +389,7 @@
   },
   "FeatureGrid": {
     "label": "Características",
-    "desc": "Grupo de características/beneficios (cada una con ícono, título y descripción). 5 variantes de layout real: tarjetas en grid, lista vertical, pasos numerados, imagen al lado o encabezado destacado.",
+    "desc": "Grupo de características/beneficios (cada una con ícono, título y descripción). 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -372,6 +414,26 @@
           {
             "label": "Encabezado destacado + íconos",
             "value": "destacado"
+          },
+          {
+            "label": "Grid con íconos circulares",
+            "value": "grid-iconos-circulares"
+          },
+          {
+            "label": "Línea de tiempo vertical",
+            "value": "linea-tiempo"
+          },
+          {
+            "label": "Comparación dividida (checklist)",
+            "value": "comparacion-dividida"
+          },
+          {
+            "label": "Mosaico alterno (zigzag)",
+            "value": "mosaico-alterno"
+          },
+          {
+            "label": "Franja horizontal (badges)",
+            "value": "franja-horizontal"
           }
         ]
       },
@@ -519,7 +581,7 @@
   },
   "CTASection": {
     "label": "Llamado a la acción",
-    "desc": "Sección de llamado a la acción: título, subtítulo, descripción, hasta 2 botones, ícono/emoji e imagen opcional. 5 variantes de layout real, cada una usando una combinación distinta de estos campos.",
+    "desc": "Sección de llamado a la acción: título, subtítulo, descripción, hasta 2 botones, ícono/emoji e imagen opcional. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -544,6 +606,26 @@
           {
             "label": "Franja minimal",
             "value": "franja-minimal"
+          },
+          {
+            "label": "Ícono + doble botón",
+            "value": "apilado-icono-2botones"
+          },
+          {
+            "label": "Imagen de fondo",
+            "value": "imagen-fondo"
+          },
+          {
+            "label": "Tarjeta con borde",
+            "value": "tarjeta-borde"
+          },
+          {
+            "label": "Imagen arriba (banner)",
+            "value": "imagen-arriba"
+          },
+          {
+            "label": "Acento superior (badge + texto)",
+            "value": "acento-superior"
           }
         ]
       },
@@ -645,7 +727,7 @@
   },
   "Pricing": {
     "label": "Planes y precios",
-    "desc": "Sección de precios con lista de planes (nombre, precio, período, características, botón). 5 variantes: 3 planes en tarjetas, 3 planes con contraste, 3 planes en tabla minimal, 2 planes o 1 solo plan/producto.",
+    "desc": "Sección de precios con lista de planes (nombre, precio, período, características, botón). 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -670,6 +752,26 @@
           {
             "label": "1 plan (producto/servicio único)",
             "value": "un-plan"
+          },
+          {
+            "label": "4 planes",
+            "value": "cuatro-planes"
+          },
+          {
+            "label": "Filas de comparación",
+            "value": "filas-comparacion"
+          },
+          {
+            "label": "Precio lateral (tarjetas horizontales)",
+            "value": "precio-lateral"
+          },
+          {
+            "label": "Destacado grande (plan central más grande)",
+            "value": "destacado-grande"
+          },
+          {
+            "label": "Lista minimalista (sin tarjetas)",
+            "value": "minimalista-lista"
           }
         ]
       },
@@ -947,9 +1049,38 @@
       }
     }
   },
+  "DynamicBlock": {
+    "label": "Contenido dinámico",
+    "desc": "Muestra contenido que se actualiza solo, como la carta del restaurante. Se llena al ver la página publicada.",
+    "fields": {
+      "source": {
+        "type": "select",
+        "label": "Contenido",
+        "options": []
+      },
+      "variant": {
+        "type": "select",
+        "label": "Presentación",
+        "options": [
+          {
+            "label": "Variante 1",
+            "value": "1"
+          },
+          {
+            "label": "Variante 2",
+            "value": "2"
+          },
+          {
+            "label": "Variante 3",
+            "value": "3"
+          }
+        ]
+      }
+    }
+  },
   "FAQ": {
     "label": "FAQ (Preguntas frecuentes)",
-    "desc": "Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 5 variantes: acordeón clásico, acordeón exclusivo, tarjetas en grid, conversacional y dividido con panel lateral.",
+    "desc": "Preguntas frecuentes con título de sección. Cada ítem tiene ícono opcional, pregunta, respuesta en HTML y enlaces relacionados opcionales. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -974,6 +1105,26 @@
           {
             "label": "Dividido — panel lateral",
             "value": "dividido-lateral"
+          },
+          {
+            "label": "Lista numerada (siempre abierta)",
+            "value": "numerada-lista"
+          },
+          {
+            "label": "Grid de íconos (sin tarjetas)",
+            "value": "grid-iconos"
+          },
+          {
+            "label": "Acordeón minimalista (+/-)",
+            "value": "acordeon-minimalista"
+          },
+          {
+            "label": "Columnas alternadas",
+            "value": "columnas-alternado"
+          },
+          {
+            "label": "Banda destacada (primera pregunta grande)",
+            "value": "banda-destacada"
           }
         ]
       },
@@ -1066,7 +1217,7 @@
   },
   "Tabs": {
     "label": "Pestañas",
-    "desc": "Pestañas con contenido HTML, 100% CSS (sin JS). Cada pestaña tiene ícono opcional, etiqueta y contenido. 5 variantes: subrayado clásico, píldoras, verticales, tarjetas y numeradas (pasos).",
+    "desc": "Pestañas con contenido HTML, 100% CSS (sin JS). Cada pestaña tiene ícono opcional, etiqueta y contenido. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -1091,6 +1242,26 @@
           {
             "label": "Numeradas (pasos)",
             "value": "numeradas"
+          },
+          {
+            "label": "Apiladas (tipo acordeón)",
+            "value": "apiladas-acordeon"
+          },
+          {
+            "label": "Íconos circulares",
+            "value": "iconos-circulares"
+          },
+          {
+            "label": "Deslizante (scroll horizontal)",
+            "value": "deslizante"
+          },
+          {
+            "label": "Lateral derecha",
+            "value": "lateral-derecha"
+          },
+          {
+            "label": "Numeradas verticales",
+            "value": "numeradas-vertical"
           }
         ]
       },
@@ -1249,7 +1420,7 @@
   },
   "Gallery": {
     "label": "Galería",
-    "desc": "Galería de imágenes con texto alternativo y leyenda opcional. 5 variantes: grid uniforme, masonry, carrusel horizontal, lightbox (ampliar con click, sin JS) y editorial alternada.",
+    "desc": "Galería de imágenes con texto alternativo y leyenda opcional. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -1274,6 +1445,26 @@
           {
             "label": "Editorial (alternada)",
             "value": "editorial-alterno"
+          },
+          {
+            "label": "Destacada + miniaturas",
+            "value": "destacada-miniaturas"
+          },
+          {
+            "label": "Circular (avatares)",
+            "value": "circular"
+          },
+          {
+            "label": "Con leyenda visible",
+            "value": "leyenda-visible"
+          },
+          {
+            "label": "Panorámica (una fila)",
+            "value": "panoramica"
+          },
+          {
+            "label": "Overlay degradado permanente",
+            "value": "overlay-degradado"
           }
         ]
       },
@@ -1394,7 +1585,7 @@
   },
   "Stats": {
     "label": "Estadísticas",
-    "desc": "Sección con números/estadísticas, ícono y descripción opcionales por cada una. 5 variantes: 3 columnas clásico, con íconos, franja destacada de alto contraste, un contador principal destacado, y tarjetas elevadas.",
+    "desc": "Sección con números/estadísticas, ícono y descripción opcionales por cada una. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -1419,6 +1610,26 @@
           {
             "label": "Tarjetas elevadas",
             "value": "tarjetas-elevadas"
+          },
+          {
+            "label": "Línea horizontal (compacta)",
+            "value": "linea-horizontal"
+          },
+          {
+            "label": "Círculos con ícono",
+            "value": "circulos-icono"
+          },
+          {
+            "label": "Lista vertical con ícono",
+            "value": "lista-vertical-icono"
+          },
+          {
+            "label": "Dos columnas grandes",
+            "value": "dos-columnas-grande"
+          },
+          {
+            "label": "Tarjetas con borde de color",
+            "value": "tarjetas-borde-color"
           }
         ]
       },
@@ -1535,7 +1746,7 @@
   },
   "Footer": {
     "label": "Footer (Pie de página)",
-    "desc": "Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 5 variantes: columnas clásico, minimalista, con contacto, barra doble y centrado con columnas.",
+    "desc": "Pie de página con marca, columnas de enlaces, datos de contacto y copyright. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -1560,6 +1771,26 @@
           {
             "label": "Centrado con columnas",
             "value": "centrado-columnas"
+          },
+          {
+            "label": "Línea simple (legal)",
+            "value": "simple-linea"
+          },
+          {
+            "label": "Apilado centrado",
+            "value": "pila-centrada"
+          },
+          {
+            "label": "Panel dividido (contraste)",
+            "value": "panel-dividido"
+          },
+          {
+            "label": "Acordeón en móvil",
+            "value": "acordeon-movil"
+          },
+          {
+            "label": "Tres niveles",
+            "value": "tres-niveles"
           }
         ]
       },
@@ -1643,7 +1874,7 @@
   },
   "Header": {
     "label": "Header (Navbar)",
-    "desc": "Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 5 variantes: clásico, centrado, barra de marca sólida, dos niveles con aviso superior y flotante en píldora.",
+    "desc": "Barra de navegación con logo/marca, enlaces y botón de acción; menú desplegable en móvil. 10 variantes de layout real.",
     "fields": {
       "variant": {
         "type": "select",
@@ -1668,6 +1899,26 @@
           {
             "label": "Flotante (píldora)",
             "value": "flotante"
+          },
+          {
+            "label": "Apilado con botón (centrado)",
+            "value": "apilado-cta"
+          },
+          {
+            "label": "Minimalista (solo enlaces)",
+            "value": "minimalista-enlaces"
+          },
+          {
+            "label": "Marca a la derecha",
+            "value": "marca-derecha"
+          },
+          {
+            "label": "Transparente superpuesto",
+            "value": "transparente-superpuesto"
+          },
+          {
+            "label": "Borde redondeado inferior",
+            "value": "borde-redondeado-inferior"
           }
         ]
       },

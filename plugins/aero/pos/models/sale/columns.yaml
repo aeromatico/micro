@@ -1,0 +1,46 @@
+columns:
+    order_number:
+        label: Pedido
+        relation: order
+        select: order_number
+        type: text
+        searchable: true
+    created_at:
+        label: Fecha
+        type: datetime
+    table:
+        label: Mesa
+        relation: pos_table
+        select: name
+        type: text
+    cashier:
+        label: Cajero
+        relation: cashier
+        select: concat(first_name, ' ', last_name)
+        type: text
+    grand_total:
+        label: Total
+        relation: order
+        select: grand_total
+        type: number
+    tip_total:
+        label: Propina
+        type: number
+    tab_state:
+        label: Cuenta
+        type: selectable
+        options:
+            open: Abierta
+            closed: Cerrada
+    status:
+        label: Estado
+        relation: order
+        select: status
+        type: selectable
+        options:
+            pending: Pendiente
+            awaiting_payment: Esperando pago
+            paid: Cobrada
+            fulfilled: Entregada
+            cancelled: Cancelada
+            refunded: Devuelta

@@ -20,7 +20,7 @@ slug = ""
 
 {% if page and not page.is_placeholder and page.content %}
 {# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
-{{ page.content | raw }}
+{{ page.content | aeroDynamic | raw }}
 {% elseif not page or page.is_placeholder %}
 {# El alta recién provisiona la home con contenido de relleno del nicho —
    se oculta hasta que el admin genere su primer landing con IA o guarde

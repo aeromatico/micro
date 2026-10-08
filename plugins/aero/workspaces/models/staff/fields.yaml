@@ -1,0 +1,122 @@
+tabs:
+    fields:
+        name:
+            tab: Perfil
+            label: Nombre
+            span: left
+        slug:
+            tab: Perfil
+            label: Identificador
+            span: right
+            comment: Se usa en URLs y en el catálogo. Solo letras, números y guiones.
+        role:
+            tab: Perfil
+            label: Rol
+            span: left
+        category:
+            tab: Perfil
+            label: Categoría
+            type: dropdown
+            span: right
+            options:
+                video: Video
+                imagen: Imagen
+                contenido: Contenido
+                ppt: Presentaciones
+                info: Investigación
+                automatizacion: Automatización
+        rarity:
+            tab: Perfil
+            label: Rareza
+            type: dropdown
+            span: left
+            options:
+                r: R
+                sr: SR
+                ssr: SSR
+        is_active:
+            tab: Perfil
+            label: Activo en el mercado
+            type: switch
+            span: right
+        bio:
+            tab: Perfil
+            label: Biografía (lo que ve el tenant)
+            type: textarea
+            size: small
+        tags:
+            tab: Perfil
+            label: Etiquetas
+            comment: Separadas por coma.
+            type: taglist
+        avatar:
+            tab: Perfil
+            label: Avatar (ruta o clave)
+            span: left
+        sort_order:
+            tab: Perfil
+            label: Orden
+            type: number
+            span: right
+
+        is_orchestrator:
+            tab: Agente
+            label: Es el orquestador
+            type: switch
+            comment: 'El agente especial que siempre está en el equipo de todos los tenants (no se contrata ni se cobra), recibe cada encargo y lo reparte. Solo puede haber uno: marcarlo desmarca al anterior.'
+
+        system_prompt:
+            tab: Agente
+            label: Prompt de sistema
+            type: textarea
+            size: giant
+            comment: Solo el superadmin lo ve y lo edita. Define cómo trabaja el agente.
+        connector_id:
+            tab: Agente
+            label: Modelo (conector del Hub)
+            type: dropdown
+            span: left
+            comment: El costo de tokens sale de este conector.
+        kind:
+            tab: Agente
+            label: Tipo
+            type: dropdown
+            span: right
+            options:
+                ai: Agente IA
+
+        hire_fee:
+            tab: Tarifas
+            label: Tarifa por contratación (pts)
+            type: number
+            span: left
+            comment: 0 = el tenant no paga al contratar.
+        task_rates:
+            tab: Tarifas
+            label: Tarifa por tarea
+            type: repeater
+            prompt: Agregar tipo de tarea
+            form:
+                fields:
+                    task_type:
+                        label: Tipo de tarea
+                        type: text
+                        span: left
+                    fee:
+                        label: Puntos por tarea
+                        type: number
+                        span: right
+                        comment: 0 = gratis.
+
+        skills:
+            tab: Skills
+            label: Skills equipadas
+            type: relation
+            nameFrom: name
+            comment: Las skills oficiales y de hub aparecen aquí; las personales se crean por tenant.
+
+        guide:
+            tab: Guía
+            label: Guía de uso (una línea por paso)
+            type: taglist
+            comment: Se muestra al tenant en el perfil del agente.

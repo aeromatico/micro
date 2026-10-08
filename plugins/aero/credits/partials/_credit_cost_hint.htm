@@ -1,23 +1,58 @@
 <?php
 /**
- * Pill reusable para mostrar "esto cuesta N créditos (~$0.0X)" junto a un
- * botón de IA/acción facturable. Uso desde cualquier form:
+ * Pill reusable para mostrar la tarifa de una acción facturable en CUALQUIER
+ * formulario donde el tenant vaya a disparar un cobro (enviar, generar,
+ * llamar...). Con $tenantId también muestra su saldo y para cuántos usos le
+ * alcanza — para que decida antes de hacer clic, no después de que falle.
  *
- *   <?= (new \Backend\Classes\Controller)->makePartial('$/aero/credits/partials/_credit_cost_hint.htm', [
+ * Uso A — acción del catálogo (CreditAction, costo fijo y editable en el backend):
+ *   <?= $this->makePartial('$/aero/credits/partials/_credit_cost_hint.htm', [
  *       'actionCode' => 'aifields.complete',
+ *       'tenantId'   => $tenantId, // opcional
+ *   ]) ?>
+ *
+ * Uso B — costo directo, sin catálogo (chargeRaw: AiModel.credit_cost, Connector.credit_cost, etc.):
+ *   <?= $this->makePartial('$/aero/credits/partials/_credit_cost_hint.htm', [
+ *       'amount'     => $aiModel->credit_cost,
+ *       'creditType' => $aiModel->creditType, // instancia o código ('bronce', 'azul'...)
+ *       'tenantId'   => $tenantId,
  *   ]) ?>
  */
-if (!class_exists(\Aero\Credits\Classes\Credits::class) || empty($actionCode)) {
+if (!class_exists(\Aero\Credits\Classes\Credits::class)) {
     return;
 }
 
-$cost = \Aero\Credits\Classes\Credits::cost($actionCode);
+if (!empty($actionCode)) {
+    try {
+        $cost = \Aero\Credits\Classes\Credits::cost($actionCode);
+    }
+    catch (\Throwable $e) {
+        return;
+    }
 
-if (!$cost['type']) {
+    $type = $cost['type'];
+    $amount = (int) $cost['amount'];
+}
+else {
+    $type = $creditType ?? null;
+
+    if (is_string($type)) {
+        $type = \Aero\Credits\Models\CreditType::findByCode($type);
+    }
+
+    $amount = (int) ($amount ?? 0);
+}
+
+if (!$type || $amount < 1) {
     return;
 }
+
+$balance = !empty($tenantId) ? \Aero\Credits\Classes\Credits::balance((int) $tenantId, $type->code) : null;
 ?>
 <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#8492a6">
-    <span style="width:8px;height:8px;border-radius:50%;background:<?= e($cost['type']->color) ?>;display:inline-block"></span>
-    <?= $cost['amount'] ?> créditos (~$<?= number_format(\Aero\Credits\Classes\Credits::usdValue($cost['amount'], $cost['type']->code), 4) ?> USD)
+    <span style="width:8px;height:8px;border-radius:50%;background:<?= e($type->color) ?>;display:inline-block"></span>
+    <?= number_format($amount, 0, ',', '.') ?> <?= $amount === 1 ? 'crédito' : 'créditos' ?> de <?= e($type->label) ?>
+    <?php if ($balance !== null): ?>
+        <span style="color:#c0c6cf">· saldo <?= number_format($balance, 0, ',', '.') ?> (alcanza para <?= number_format(intdiv($balance, $amount), 0, ',', '.') ?>)</span>
+    <?php endif ?>
 </span>

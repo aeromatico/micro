@@ -1,0 +1,10 @@
+name: Guía
+form: $/aero/docs/models/guide/fields.yaml
+modelClass: Aero\Docs\Models\Guide
+defaultRedirect: aero/docs/guides
+create:
+    redirect: aero/docs/guides/update/:id
+    redirectClose: aero/docs/guides
+update:
+    redirect: aero/docs/guides/update/:id
+    redirectClose: aero/docs/guides

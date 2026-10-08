@@ -1,0 +1,14 @@
+name: Terminal
+form: $/aero/pos/models/terminal/fields.yaml
+modelClass: Aero\Pos\Models\Terminal
+defaultRedirect: aero/pos/terminals
+
+create:
+    title: Nuevo terminal
+    redirect: aero/pos/terminals
+    redirectClose: aero/pos/terminals
+
+update:
+    title: Editar terminal
+    redirect: aero/pos/terminals
+    redirectClose: aero/pos/terminals
