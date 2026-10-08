@@ -56,10 +56,10 @@ function onStart()
                     {% if item.featured %}
                     <p class="flex items-start gap-2 text-sm font-semibold text-ink">
                         <svg class="w-4 h-4 mt-0.5 shrink-0 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6L12 2z"/></svg>
-                        <span>{{ item.text }}</span>
+                        <span>{{ item.text }}{% if item.description %}<span class="block text-[12px] font-normal text-ink-dim mt-0.5">{{ item.description }}</span>{% endif %}</span>
                     </p>
                     {% else %}
-                    <p class="text-sm text-ink-dim">{{ item.text }}</p>
+                    <p class="text-sm text-ink-dim">{{ item.text }}{% if item.description %}<span class="block text-[12px] opacity-80 mt-0.5">{{ item.description }}</span>{% endif %}</p>
                     {% endif %}
                     {% endfor %}
                 </div>
