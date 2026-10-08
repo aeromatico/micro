@@ -1,0 +1,6 @@
+columns:
+  tenant_id:
+    label: Negocio
+  auto_post:
+    label: Automático
+    type: switch

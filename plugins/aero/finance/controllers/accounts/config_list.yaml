@@ -1,0 +1,11 @@
+title: Plan de cuentas
+list: $/aero/finance/models/account/columns.yaml
+modelClass: Aero\Finance\Models\Account
+recordUrl: aero/finance/accounts/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

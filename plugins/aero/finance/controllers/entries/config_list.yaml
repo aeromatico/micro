@@ -1,0 +1,10 @@
+title: Libro diario
+list: $/aero/finance/models/journalentry/columns.yaml
+modelClass: Aero\Finance\Models\JournalEntry
+recordUrl: aero/finance/entries/view/:id
+noRecordsMessage: No hay asientos.
+recordsPerPage: 30
+showSetup: false
+toolbar:
+  search:
+    prompt: Buscar

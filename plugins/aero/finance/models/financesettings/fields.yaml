@@ -1,0 +1,24 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.finance.superadmin
+    emptyOption: — Elegir —
+  auto_post:
+    label: Registrar automáticamente
+    type: switch
+    span: left
+    default: true
+    comment: Interruptor general de los registros automáticos.
+  post_shop:
+    label: Ventas de la tienda y POS
+    type: switch
+    span: left
+    default: true
+  post_gym:
+    label: Membresías del gimnasio
+    type: switch
+    span: right
+    default: true

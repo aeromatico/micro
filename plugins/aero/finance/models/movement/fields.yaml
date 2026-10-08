@@ -1,0 +1,68 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.finance.superadmin
+    emptyOption: — Elegir —
+  kind:
+    label: Tipo
+    type: dropdown
+    span: left
+    required: true
+    default: income
+  date:
+    label: Fecha
+    type: datepicker
+    mode: date
+    span: right
+    required: true
+  amount:
+    label: Monto
+    type: number
+    step: 0.01
+    span: left
+    required: true
+  currency:
+    label: Moneda
+    type: dropdown
+    span: right
+    default: BOB
+  exchange_rate:
+    label: Tipo de cambio a BOB
+    type: number
+    step: 0.000001
+    span: left
+    comment: Vacío = el del día (USD) o 1 (BOB).
+  tax_amount:
+    label: IVA incluido en el monto
+    type: number
+    step: 0.01
+    span: right
+    default: 0
+    comment: Si el monto incluye IVA 13 %, indique cuánto. Se separa en el asiento.
+  category_account_id:
+    label: Categoría
+    type: dropdown
+    span: left
+    required: true
+    dependsOn: kind
+  cash_account_id:
+    label: Cobrado / pagado en
+    type: dropdown
+    span: right
+    required: true
+  description:
+    label: Descripción
+    span: full
+    required: true
+  counterparty:
+    label: Cliente / proveedor
+    span: left
+  nit:
+    label: NIT / CI
+    span: right
+  document_no:
+    label: N.º de factura o recibo
+    span: left

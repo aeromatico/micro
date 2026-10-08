@@ -1,0 +1,11 @@
+title: Ingresos y egresos
+list: $/aero/finance/models/movement/columns.yaml
+modelClass: Aero\Finance\Models\Movement
+recordUrl: aero/finance/movements/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

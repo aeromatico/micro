@@ -1,0 +1,10 @@
+name: Ingresos y egresos
+form: $/aero/finance/models/movement/fields.yaml
+modelClass: Aero\Finance\Models\Movement
+defaultRedirect: aero/finance/movements
+create:
+  redirect: aero/finance/movements
+  redirectClose: aero/finance/movements
+update:
+  redirect: aero/finance/movements
+  redirectClose: aero/finance/movements

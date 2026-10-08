@@ -1,0 +1,13 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+  name:
+    label: Nombre
+    searchable: true
+  type:
+    label: Tipo
+    type: selectable
+  is_active:
+    label: Activa
+    type: switch

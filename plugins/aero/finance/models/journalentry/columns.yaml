@@ -1,0 +1,12 @@
+columns:
+  number:
+    label: N.º
+    searchable: true
+  date:
+    label: Fecha
+    type: date
+  description:
+    label: Descripción
+    searchable: true
+  status:
+    label: Estado

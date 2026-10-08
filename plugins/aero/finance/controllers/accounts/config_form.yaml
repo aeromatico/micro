@@ -1,0 +1,10 @@
+name: Plan de cuentas
+form: $/aero/finance/models/account/fields.yaml
+modelClass: Aero\Finance\Models\Account
+defaultRedirect: aero/finance/accounts
+create:
+  redirect: aero/finance/accounts
+  redirectClose: aero/finance/accounts
+update:
+  redirect: aero/finance/accounts
+  redirectClose: aero/finance/accounts

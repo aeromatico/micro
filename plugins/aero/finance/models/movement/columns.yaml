@@ -1,0 +1,21 @@
+columns:
+  date:
+    label: Fecha
+    type: date
+  kind:
+    label: Tipo
+    type: selectable
+  description:
+    label: Descripción
+    searchable: true
+  category:
+    label: Categoría
+    relation: category
+    select: name
+  amount:
+    label: Monto
+    type: number
+  currency:
+    label: Moneda
+  status:
+    label: Estado

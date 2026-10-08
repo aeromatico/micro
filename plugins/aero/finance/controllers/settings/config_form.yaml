@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/finance/models/financesettings/fields.yaml
+modelClass: Aero\Finance\Models\FinanceSettings
+defaultRedirect: aero/finance/settings
+create:
+  redirect: aero/finance/settings
+  redirectClose: aero/finance/settings
+update:
+  redirect: aero/finance/settings
+  redirectClose: aero/finance/settings

@@ -1,0 +1,27 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.finance.superadmin
+    emptyOption: — Elegir —
+  code:
+    label: Código
+    span: left
+    required: true
+    comment: Ej. 5.2.07
+  name:
+    label: Nombre
+    span: right
+    required: true
+  type:
+    label: Tipo
+    type: dropdown
+    span: left
+    required: true
+  is_active:
+    label: Activa
+    type: switch
+    span: right
+    default: true

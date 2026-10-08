@@ -1,0 +1,11 @@
+title: Configuración
+list: $/aero/finance/models/financesettings/columns.yaml
+modelClass: Aero\Finance\Models\FinanceSettings
+recordUrl: aero/finance/settings/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
