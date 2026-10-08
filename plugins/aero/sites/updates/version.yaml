@@ -375,3 +375,7 @@
     - grant_workspaces_to_tenant_admin.php
 1.59.0:
     - "Aero.Workflows: nodo «Suscripción › Estado del plan del tenant» (plan, vencimiento, días restantes y cobro de renovación pendiente con su QR). Solo lectura."
+
+1.60.0:
+    - "El rol tenant_admin recibe aero.gym.use (Gimnasio: socios, membresías, clases, acceso, rutinas y reportes)."
+    - grant_gym_to_tenant_admin.php
