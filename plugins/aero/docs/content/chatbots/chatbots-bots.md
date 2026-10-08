@@ -38,7 +38,7 @@ cómo responde: con reglas, con IA o desactivado.
 | Campo | Para qué sirve |
 |-------|----------------|
 | **Pausa tras respuesta humana (minutos)** | Si un agente contesta a mano, el bot se detiene ese tiempo (por defecto 15). |
-| **Fuentes de datos en tiempo real** | Exclusivo de Super Chatbot IA: el bot consulta datos reales de las fuentes marcadas (Sitio web, Tienda). |
+| **Herramientas del bot** | Exclusivo de Super Chatbot IA: qué puede hacer el bot además de conversar (consultar el sitio y la tienda, enviar menús de WhatsApp, ejecutar o diseñar automatizaciones). |
 
 ## Notas de formato (WhatsApp)
 

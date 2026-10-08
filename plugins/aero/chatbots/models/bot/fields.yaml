@@ -87,7 +87,7 @@ secondaryTabs:
             comment: "Si un agente responde manualmente la conversación, el bot deja de contestar por este tiempo. Opcional, usa 15 si lo dejás vacío."
 
         ai_tool_categories:
-            label: Fuentes de datos en tiempo real
+            label: Herramientas del bot
             type: checkboxlist
             span: full
-            comment: "Exclusivo del modo Super Chatbot IA. El bot podrá consultar datos reales y actualizados de las fuentes que marques acá en vez de depender solo del prompt."
+            comment: "Exclusivo del modo Super Chatbot IA. Marcá qué puede hacer el bot además de conversar: consultar datos reales (sitio, tienda), enviar menús de WhatsApp o ejecutar y diseñar automatizaciones."
