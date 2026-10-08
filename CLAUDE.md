@@ -23,6 +23,12 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 - `bin/aero-test <plugin> [filtro]` — tests aislados (SQLite en memoria, como `www`). Nunca `phpunit` pelado: ver `.claude/skills/aero-plugin`.
 - `.claude/hooks/aero-check.sh` — hook PostToolUse (php -l y verify en cada edición); se activa con `.claude/settings.json`.
 
+## Docs, guías y páginas de servicio
+`docs-cli` (en el PATH) elige qué generar con Claude; nada es automático, todo queda en borrador.
+- `docs-cli servicio <id> --si` — completa UN servicio (página de venta + docs + guías). Sin `--si` solo muestra qué falta.
+- `docs-cli offer show|apply|revert <id>` — revisar/aplicar/deshacer la propuesta de página.
+- `docs-cli list` / `docs-cli generate <id…>` — backlog general (`guide:…`, `doc:…`, `bootstrap:…`, `service:…`).
+
 ## Prohibido (ya costó datos o días)
 - **NUNCA** `plugin:refresh` ni `plugin:rollback`/`rollbackPlugin()`: ignoran la versión y ejecutan el `down()` de casi todo (13 tablas de Sites perdidas el 2026-09-21). Para cambiar esquema: nueva versión en `version.yaml` + `october:migrate`.
 - No correr artisan/tinker que escriba en `storage/` como root: deja archivos `root:root` y PHP-FPM (`www`) responde 500. Si pasa: `chown -R www:www storage/`.
