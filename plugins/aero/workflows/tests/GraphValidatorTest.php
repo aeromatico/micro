@@ -196,6 +196,39 @@ class GraphValidatorTest extends PluginTestCase
         $this->assertSame([], GraphValidator::validate($graph, true));
     }
 
+    /** Cobrar y consultar: cada salida de los nodos de Aero.Pay debe estar conectada, y los que cobran/anulan tienen efectos. */
+    public function testNodosDeCobroValidanYSoloLosQueCobranTienenEfectos(): void
+    {
+        if (!class_exists(\Aero\Pay\Classes\Workflows\PaymentNodes::class)) {
+            $this->markTestSkipped('Aero.Pay no está instalado.');
+        }
+
+        Event::listen('aero.workflows.registerNodes', fn () => \Aero\Pay\Classes\Workflows\PaymentNodes::definitions());
+        NodeRegistry::flush();
+
+        $graph = [
+            'nodes' => [
+                $this->node('n1', 'trigger.manual'),
+                $this->node('n2', 'pay.charge', ['amount' => '{{ trigger.monto }}', 'description' => 'Pedido']),
+                $this->node('n3', 'pay.status', ['reference' => '{{ vars.cobro.reference }}']),
+                $this->node('n4', 'action.respond', ['value' => 'listo']),
+            ],
+            'edges' => [
+                $this->edge('n1', 'n2'),
+                $this->edge('n2', 'n3', 'created'), $this->edge('n2', 'n4', 'failed'),
+                $this->edge('n3', 'n4', 'paid'), $this->edge('n3', 'n4', 'pending'), $this->edge('n3', 'n4', 'expired'),
+                $this->edge('n3', 'n4', 'cancelled'), $this->edge('n3', 'n4', 'not_found'),
+            ],
+        ];
+
+        $this->assertSame([], GraphValidator::validate($graph), 'publicado puede cobrar');
+        $this->assertStringContainsString('pay.charge', implode(' ', GraphValidator::validate($graph, true)));
+
+        $readOnly = ['nodes' => [$this->node('n1', 'trigger.manual'), $this->node('n2', 'pay.summary', ['period' => 'today']), $this->node('n3', 'action.respond', ['value' => '{{ vars.resumen_pagos.text }}'])],
+            'edges' => [$this->edge('n1', 'n2'), $this->edge('n2', 'n3', 'found'), $this->edge('n2', 'n3', 'empty')]];
+        $this->assertSame([], GraphValidator::validate($readOnly, true), 'consultar no tiene efectos');
+    }
+
     public function testPatronDecisionConCondicionEsValidoComoBorrador(): void
     {
         $graph = [

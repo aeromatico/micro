@@ -197,6 +197,56 @@ Cada nodo tiene `id`, `type`, `position` y `data`. `data` guarda los campos de l
 |---|---|---|---|
 | `body` (Texto del mensaje) | textarea |  | Obligatorio, hasta 1024 caracteres. Admite {{ vars.nombre }}. |
 
+## `pay.cancel` ⚠
+
+- **Nombre:** Cobros › Anular un cobro pendiente
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `cancelled` (anulado), `not_cancellable` (ya no se puede), `not_found` (no existe), `failed` (el banco no lo anuló)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `reference` (Referencia del cobro) | text |  | Ej: {{ vars.cobro.reference }} |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «cobro». |
+
+## `pay.charge` ⚠
+
+- **Nombre:** Cobros › Generar cobro (QR / enlace)
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `created` (cobro creado), `failed` (no se pudo)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `amount` (Monto) | text |  | Ej: 150 o {{ vars.pedido.total }}. Debe ser mayor a 0. |
+| `currency` (Moneda) | select | `BOB`, `USD` | Por defecto: BOB. |
+| `description` (Concepto) | text |  | Lo que verá el pagador. Ej: «Pedido 1042». |
+| `reference` (Referencia propia (opcional)) | text |  | Tu número de pedido/factura. Debe ser único por cobro. |
+| `bank_account_id` (ID de cuenta (opcional)) | number |  | Vacío = la única cuenta activa del tenant. Con varias cuentas hay que indicar cuál (Pagos → Cuentas). |
+| `due_days` (Días de vigencia) | number |  | Vacío = el vencimiento configurado en Pagos (máx. 90). |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «cobro»: {{ vars.cobro.reference }}, .image_url, .pay_url, .text, .status |
+
+## `pay.status`
+
+- **Nombre:** Cobros › Consultar estado de un cobro
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `paid` (pagado), `pending` (pendiente), `expired` (vencido), `cancelled` (anulado), `not_found` (no existe)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `reference` (Referencia del cobro) | text |  | Ej: {{ vars.cobro.reference }} (la que devuelve «Generar cobro»). |
+| `refresh` (Reconsultar al banco) | select | `1`, `0` | Por defecto: Sí (solo si sigue pendiente). |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «cobro»: {{ vars.cobro.status }}, .paid_at, .payer_name |
+
+## `pay.summary`
+
+- **Nombre:** Cobros › Resumen de pagos recibidos
+- **Categoría:** action
+- **Salidas (`sourceHandle`):** `found` (con pagos), `empty` (sin pagos)
+
+| Campo (`data.key`) | Tipo | Opciones | Ayuda |
+|---|---|---|---|
+| `period` (Período) | select | `today`, `yesterday`, `week`, `month` | Por defecto: Hoy. |
+| `save_as` (Guardar en la variable) | text |  | Por defecto «resumen_pagos»: {{ vars.resumen_pagos.text }}, .count, .totals. Datos internos del negocio: no los envíes a clientes. |
+
 ## `shop.cart`
 
 - **Nombre:** Tienda › Ver o editar pedido

@@ -683,6 +683,11 @@ class WorkflowsTest extends PluginTestCase
             \Aero\Workflows\Classes\NodeRegistry::flush();
         }
 
+        if (class_exists(\Aero\Pay\Classes\Workflows\PaymentNodes::class)) {
+            \Event::listen('aero.workflows.registerNodes', fn () => \Aero\Pay\Classes\Workflows\PaymentNodes::definitions());
+            \Aero\Workflows\Classes\NodeRegistry::flush();
+        }
+
         $md = file_get_contents(__DIR__ . '/../skills/workflow-designer/references/patterns.md');
         preg_match_all('/```json\n(.*?)\n```/s', $md, $blocks);
         $this->assertGreaterThanOrEqual(8, count($blocks[1]));

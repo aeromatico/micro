@@ -17,6 +17,8 @@ class GraphValidator
     public const SIDE_EFFECT_TYPES = [
         'shop.checkout',
         'shop.cart_add',
+        'pay.charge',
+        'pay.cancel',
         'action.message',
         'action.reply',
         'action.notify',

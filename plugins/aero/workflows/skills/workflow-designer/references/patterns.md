@@ -223,6 +223,49 @@ Dos workflows: uno pide la ubicación con el botón nativo de WhatsApp y otro pr
 }
 ```
 
+## 7. Cobrar con QR y confirmar el pago (cobros)
+
+Un cliente escribe «pagar», se le genera el cobro con la cuenta del negocio, se le manda el QR y a los 5 minutos se comprueba si pagó. `pay.charge` usa la única cuenta activa del tenant (si hay varias, indica `bank_account_id`). El monto del ejemplo es fijo: en un flujo real sale de un dato (`{{ vars.pedido.total }}`).
+
+```json
+{
+  "name": "Cobrar con QR",
+  "trigger_type": "message",
+  "trigger_config": {"keyword": "pagar"},
+  "graph": {
+    "nodes": [
+      {"id": "n1", "type": "trigger.message", "data": {}},
+      {"id": "n2", "type": "pay.charge", "data": {"amount": "100", "currency": "BOB", "description": "Pago de servicio", "save_as": "cobro"}},
+      {"id": "n3", "type": "action.reply", "data": {"body": "{{ vars.cobro.text }}"}},
+      {"id": "n4", "type": "logic.delay", "data": {"seconds": "300"}},
+      {"id": "n5", "type": "pay.status", "data": {"reference": "{{ vars.cobro.reference }}", "save_as": "cobro"}},
+      {"id": "n6", "type": "action.reply", "data": {"body": "¡Recibimos tu pago! Gracias."}},
+      {"id": "n7", "type": "action.reply", "data": {"body": "Aún no vemos tu pago. Si ya pagaste, espera unos minutos y escríbenos."}},
+      {"id": "n8", "type": "action.reply", "data": {"body": "Ese cobro ya no está disponible. Escribe «pagar» para generar uno nuevo."}},
+      {"id": "n9", "type": "action.reply", "data": {"body": "No pudimos generar tu cobro. Un asesor te ayudará."}}
+    ],
+    "edges": [
+      {"id": "e1", "source": "n1", "target": "n2"},
+      {"id": "e2", "source": "n2", "target": "n3", "sourceHandle": "created"},
+      {"id": "e3", "source": "n2", "target": "n9", "sourceHandle": "failed"},
+      {"id": "e4", "source": "n3", "target": "n4"},
+      {"id": "e5", "source": "n4", "target": "n5"},
+      {"id": "e6", "source": "n5", "target": "n6", "sourceHandle": "paid"},
+      {"id": "e7", "source": "n5", "target": "n7", "sourceHandle": "pending"},
+      {"id": "e8", "source": "n5", "target": "n8", "sourceHandle": "expired"},
+      {"id": "e9", "source": "n5", "target": "n8", "sourceHandle": "cancelled"},
+      {"id": "e10", "source": "n5", "target": "n8", "sourceHandle": "not_found"}
+    ]
+  }
+}
+```
+
+Notas:
+- `pay.charge` y `pay.cancel` **cobran/anulan de verdad** (⚠): solo después de que la persona aprobó el plan; el flujo queda en borrador.
+- La referencia del cobro viaja en `{{ vars.cobro.reference }}`; `pay.status` la reconsulta al banco mientras siga pendiente. Con una cuenta de **QR fijo** (`vars.cobro.manual_confirmation` = true) el banco no avisa: el negocio marca el pago a mano.
+- Para reaccionar apenas llega el pago, no esperes: usa otro workflow con el disparador de evento `aero.pay.paymentReceived`.
+- `pay.summary` («cuánto cobré hoy») es **dato interno del negocio**: úsalo para el dueño, nunca para responder a clientes.
+
 ## Lista de revisión antes de guardar
 
 - [ ] La persona confirmó el plan y lo guardaste en `agreed_plan`.
