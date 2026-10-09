@@ -1,0 +1,112 @@
+<!doctype html>
+<!--guide {"title":"Nuevo equipo","article":"crm-equipo","sort":60} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nuevo equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--err:#b3261e;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding:20px 16px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media(min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0}.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;color:var(--g-ink)}
+@media(min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--g-line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g-accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;font-size:15px;font-weight:600;border:2px solid var(--g-accent);border-radius:6px}
+#gPrev{background:var(--g-accent-soft);color:var(--g-accent)}#gNext{background:var(--g-accent);color:var(--g-accent-ink)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0}
+.progress{height:4px;background:var(--g-surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--g-accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--g-ink-2)}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--g-surface-2);border:1px solid var(--g-line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.ghost{border-color:transparent;color:var(--g-accent);background:transparent;padding-inline:6px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--g-line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--g-ink-2)}
+.steps button[aria-current=step]{background:var(--g-accent-soft);color:var(--g-ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--g-line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.formcol{grid-area:form;min-width:0}.card{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.panel{padding:16px;display:grid;gap:14px}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text]{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+.err{border-color:var(--err)!important}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.chks{display:grid;gap:6px}.chks label{display:flex;gap:8px;align-items:center}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);align-items:center}.toolbar .spacer{flex:1}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<header><div><h1 id="h1">Nuevo equipo</h1><div class="crumb" id="crumb">/backend/aero/crm/teams/create · Guía de capacitación</div></div><span class="badge">Demo: no guarda nada real</span></header>
+<aside class="guide" aria-label="Guía paso a paso">
+<div class="g-head"><div class="g-eyebrow" id="gEyebrow"></div><div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn" id="gNext" type="button">Siguiente →</button></div><h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div></div>
+<div class="g-body" id="gBody"></div>
+<div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+<ol class="steps" id="gSteps"></ol></aside>
+<main class="formcol"><div class="card">
+<div class="ctx">context: create · formulario sin pestañas ni triggers</div>
+<div class="panel" id="panel"></div>
+<div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button><span class="spacer"></span><label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label></div>
+</div></main></div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function(){
+var $=function(s,r){return(r||document).querySelector(s)},$$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+var CFG={edit:'Editar equipo',path:'teams',noun:'Equipo creado'};
+// Fiel a models/team/fields.yaml.
+var F=[
+{id:'name',l:'Nombre del equipo',t:'text',r:1,x:'Ventas Sur',s:'Nombre del equipo',b:'Nombre con el que lo verás al asignar deals. Es obligatorio.',tip:'Usa un nombre que describa la función, no a las personas.'},
+{id:'members',l:'Miembros',t:'checks',o:{u1:'Ana (ejemplo)',u2:'Luis (ejemplo)',u3:'Rosa (ejemplo)'},x:['u1','u3'],h:'Usuarios de backend que pertenecen a este equipo',s:'Miembros',b:'Marca los usuarios de tu cuenta que forman parte del equipo.',tip:'Solo aparecen usuarios de tu negocio.'}
+];
+var S={mode:'create',step:0,steps:[]};
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function val(id){var e=$('#'+id);if(!e)return'';if(e.getAttribute('data-kind')==='checks')return $$('input:checked',e).map(function(i){return i.value}).join(',');return(e.value||'').trim()}
+function build(){var p=$('#panel');F.forEach(function(f){var d=mk('div','field');d.setAttribute('data-f',f.id);var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));d.appendChild(l);var c;
+ if(f.t==='checks'){c=mk('div','chks');c.setAttribute('data-kind','checks');Object.keys(f.o).forEach(function(k){var lb=mk('label'),i=mk('input');i.type='checkbox';i.value=k;i.addEventListener('change',refresh);lb.appendChild(i);lb.appendChild(mk('span',0,f.o[k]));c.appendChild(lb)})}
+ else{c=mk('input');c.type='text';c.autocomplete='off';c.addEventListener('input',onCh);c.addEventListener('focus',function(){var i=idxOf(f.id);if(i>=0&&i!==S.step)go(i,false)})}
+ c.id=f.id;d.appendChild(c);if(f.h)d.appendChild(mk('div','help',f.h));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);p.appendChild(d)})}
+function onCh(e){if(e.target.classList.contains('err')){e.target.classList.remove('err');$('.errmsg',e.target.closest('.field')).hidden=true}refresh()}
+function steps(){var s=[];F.forEach(function(f){s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:f.t==='checks'?f.x.map(function(k){return f.o[k]}).join(', '):f.x,req:f.r,opt:!f.r,done:function(){return!!val(f.id)},fill:function(){var e=$('#'+f.id);if(f.t==='checks')$$('input',e).forEach(function(i){i.checked=f.x.indexOf(i.value)>=0});else e.value=f.x;refresh()}})});
+ s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición.',tip:'«Crear y cerrar» te devuelve a la lista; «Crear» te deja editando el registro.',done:function(){return S.mode==='update'},fill:function(){save(false)}});return s}
+function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
+function refresh(){S.steps=steps();S.step=Math.min(S.step,S.steps.length-1);render()}
+function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textContent='Paso '+(S.step+1)+' de '+n+(c.opt&&c.id!=='save'?' · opcional':c.req?' · obligatorio':'');$('#gTitle').textContent=c.title;
+ var b=$('#gBody');b.innerHTML='';b.appendChild(mk('p',0,c.body));if(c.ex){var w=mk('div');w.appendChild(mk('div','g-sub','Ejemplo'));w.appendChild(mk('div','example',c.ex));b.appendChild(w)}
+ if(c.tip){var t=mk('div','note');t.appendChild(mk('b',0,'Ojo. '));t.appendChild(document.createTextNode(c.tip));b.appendChild(t)}
+ $('#gBar').style.width=Math.round(100*S.steps.filter(function(s){return s.done()}).length/n)+'%';$('#gPrev').disabled=S.step===0;$('#gNext').disabled=S.step===n-1;
+ var fb=$('#gFill');fb.hidden=c.id==='save'&&S.mode==='update';fb.textContent=c.id==='save'?'Crear con los datos actuales':'Rellenar ejemplo';
+ var ol=$('#gSteps');ol.innerHTML='';S.steps.forEach(function(s,i){var li=mk('li'),bt=mk('button');bt.type='button';if(i===S.step)bt.setAttribute('aria-current','step');var dn=s.done();if(dn)bt.className='done';bt.appendChild(mk('span','dot',dn?'✓':String(i+1)));bt.appendChild(mk('span',0,s.title));bt.onclick=function(){go(i)};li.appendChild(bt);ol.appendChild(li)});
+ $$('.field').forEach(function(f){f.classList.remove('is-guided')});if(c.f)$('[data-f="'+c.f.id+'"]').classList.add('is-guided')}
+function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c=S.steps[S.step];if(sc!==false&&c.f)$('[data-f="'+c.f.id+'"]').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+function err(id,m){var d=$('[data-f="'+id+'"]');var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input[type=text]',d);if(c)c.classList.add('err')}
+function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[];
+ F.forEach(function(f){if(f.r&&!val(f.id))errs.push([f.id,'El campo '+f.l+' es obligatorio.'])});
+ if(errs.length){errs.forEach(function(e){err(e[0],e[1])});go(idxOf(errs[0][0]));flash('No se pudo crear: '+errs[0][1],true);return}
+ S.mode='update';$('#h1').textContent=CFG.edit;$('#crumb').textContent='/backend/aero/crm/'+CFG.path+'/update/7 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
+ flash(close?CFG.noun+'. En la app real vuelves a la lista.':CFG.noun+'. Ahora estás en la pantalla de edición.');refresh()}
+var ft;function flash(m,e){var f=$('#flash');f.textContent=m;f.className=e?'err':'';f.hidden=false;clearTimeout(ft);ft=setTimeout(function(){f.hidden=true},4200)}
+$('#gPrev').onclick=function(){go(S.step-1)};$('#gNext').onclick=function(){go(S.step+1)};$('#gFill').onclick=function(){var s=S.steps[S.step];if(s.fill)s.fill()};
+$('#btnSave').onclick=function(){save(false)};$('#btnSaveClose').onclick=function(){save(true)};$('#btnReset').onclick=function(){location.reload()};
+$('#chkTech').onchange=function(e){document.body.classList.toggle('show-tech',e.target.checked)};
+build();S.steps=steps();render();
+})();
+</script></body></html>

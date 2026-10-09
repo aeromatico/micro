@@ -54,3 +54,14 @@ ticket pertenece a un **departamento** y se asigna a una persona.
 > [!TIP]
 > Asigna **Departamento** desde el principio: define a quién puede asignarse el
 > ticket y mantiene el orden.
+
+## Sistema de tickets del sitio
+
+El **portal de soporte del micrositio** (`/soporte`) se enciende con el interruptor
+`tickets_enabled` de CRM → Configuración y viene **apagado por defecto**. Mientras
+esté apagado, Soporte no aparece en el menú ni en el pie del micrositio y sus
+páginas responden 404.
+
+> [!NOTE]
+> Los tickets que abre un tenant a la plataforma (mesa de ayuda de la plataforma)
+> se llevan aparte del CRM propio del tenant.

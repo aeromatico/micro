@@ -40,6 +40,29 @@ Catálogo  →  Carrito  →  Checkout  →  Pedido (reserva stock)
 - [Cocina](shop-cocina) — pantalla de cocina del restaurante.
 - [Inventario](shop-inventario) — movimientos de stock.
 
+## Costo de envío
+
+En **Configuración de tienda** hay un campo **Costo de envío**: se cobra **una vez por pedido** que incluya productos que requieren envío (los digitales no lo pagan). Con `0` el envío es gratis. El checkout web y el pedido por chat muestran este costo.
+
+> [!NOTE]
+> En una tienda de tipo *Restaurante* este campo no aparece: se usa **Costo de delivery**, y en el chat el envío se muestra solo como aviso de delivery.
+
+## Compra por chat (Workflows)
+
+Si usas **Workflows** con un chat real (por ejemplo WhatsApp por Hello), la tienda aporta nodos para armar un asistente de compra. Cada cliente tiene su propio carrito y su última lista de productos mostrada.
+
+| Nodo | Qué hace |
+|------|----------|
+| **Tienda › Menú de categorías** | Muestra las categorías numeradas |
+| **Tienda › Productos de una categoría** | Lista los productos de la categoría elegida por su número |
+| **Tienda › Ver producto (tarjeta)** | Envía foto, precio con descuento, descripción, opciones y stock; deja lista la compra rápida («1», «1 x3», «sí») |
+| **Buscar productos** | Busca en el catálogo |
+| **Agregar al pedido** | Suma productos al carrito del cliente |
+| **Ver o editar pedido** | Muestra el carrito; entiende órdenes como «quitar 2» |
+| **Confirmar pedido** | Crea el pedido; en restaurante toma la mesa («mesa 5») o, si no hay ubicación en el flujo, la última que el cliente compartió en el chat (dentro de 6 horas) |
+
+Si el cliente compartió su ubicación en el chat, el pedido la guarda y la dirección y la ciudad pasan a ser opcionales.
+
 ## Permisos
 
 | Permiso | Desbloquea |
@@ -51,4 +74,4 @@ Catálogo  →  Carrito  →  Checkout  →  Pedido (reserva stock)
 | `aero.shop.manage_payment_gateways` | Métodos de pago |
 | `aero.shop.manage_settings` | Configuración de tienda |
 
-**Versión documentada:** 1.8.0
+**Versión documentada:** 1.9.5

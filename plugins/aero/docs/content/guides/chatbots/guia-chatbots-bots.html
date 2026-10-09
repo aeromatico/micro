@@ -2,457 +2,177 @@
 <!--guide {"title":"Nuevo bot","article":"chatbots-bots","sort":10} -->
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Guía: Nuevo bot</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root {
-  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
-  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
-  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
-  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
-    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
-    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
-    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
-    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
-  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
-  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
-  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
-  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
-}
-* { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; margin: 0; padding-inline: 16px; padding-block: 20px 48px; }
-.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
-@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
-header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
-h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
-.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
-.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
-
-.guide { grid-area: guide; background: var(--g-surface); border: 1px solid var(--g-line); border-radius: 6px; min-width: 0;
-  --surface: var(--g-surface); --surface-2: var(--g-surface-2); --line: var(--g-line); --ink: var(--g-ink); --ink-2: var(--g-ink-2);
-  --accent: var(--g-accent); --accent-ink: var(--g-accent-ink); --accent-soft: var(--g-accent-soft); color: var(--ink); }
-@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
-.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
-.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
-.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--accent); }
-.g-nav #gPrev { background: var(--accent-soft); color: var(--accent); }
-.g-nav #gPrev:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
-.g-nav #gNext { background: var(--accent); color: var(--accent-ink); }
-.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
-.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
-.g-title { font-size: 16px; font-weight: 600; margin: 14px 0 0; text-wrap: balance; }
-.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
-.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
-.g-body { padding: 14px 16px; display: grid; gap: 12px; }
-.g-body p { margin: 0; }
-.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
-.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
-.note b { color: var(--hint); }
-.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
-button { font: inherit; cursor: pointer; }
-.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
-.btn:hover { background: var(--surface-2); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
-.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
-.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .tab:focus-visible, .steps button:focus-visible, .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
-.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
-.steps button:hover { background: var(--surface-2); }
-.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
-.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
-.steps .done .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
-.steps [aria-current="step"] .dot { border-color: var(--accent); color: var(--accent); }
-
-.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
-.tabs { display: flex; gap: 2px; padding: 8px 8px 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
-.tab { background: transparent; border: 0; padding: 8px 14px; border-bottom: 2px solid transparent; color: var(--ink-2); font-weight: 500; white-space: nowrap; }
-.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
-.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
-@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
-.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
-.field.full { grid-column: 1 / -1; }
-.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
-.field[hidden], .locked[hidden], .upd[hidden], .panel[hidden] { display: none !important; }
-label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
-.req { color: var(--err); margin-left: 2px; }
-input[type=text], input[type=number], select, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
-textarea { resize: vertical; min-height: 84px; }
-input.err, select.err, textarea.err { border-color: var(--err); }
-.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
-.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
-.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
-.seg button { flex: 1 1 auto; border: 0; border-right: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 12px; }
-.seg button:last-child { border-right: 0; }
-.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.sect { grid-column: 1 / -1; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-top: 6px; }
-.sw { display: flex; gap: 8px; align-items: center; }
-.cbl { display: grid; gap: 4px; }
-.cbl label { display: flex; gap: 8px; align-items: center; }
-.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; vertical-align: 1px; }
-body:not(.show-tech) .trig { display: none; }
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
-.toolbar .spacer { flex: 1; }
-.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
-.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
-.locked { color: var(--ink-2); font-size: 12px; padding: 10px 12px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 4px; grid-column: 1 / -1; }
-.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
-.upd h4 { margin: 0; font-size: 13px; }
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; grid-column: 1 / -1; }
-table.tx { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
-table.tx th { text-align: left; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2); background: var(--surface-2); padding: 8px 10px; border-bottom: 1px solid var(--line); }
-table.tx td { padding: 8px 10px; border-bottom: 1px solid var(--line); }
-tr.new td { background: var(--ok-soft); }
-.sample { font-size: 11px; color: var(--ink-2); font-style: italic; grid-column: 1 / -1; }
-.newform { grid-column: 1 / -1; border: 1px solid var(--accent); border-radius: 6px; padding: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; }
-@media (max-width: 640px) { .newform { grid-template-columns: minmax(0, 1fr); } }
-.newform h4 { grid-column: 1 / -1; margin: 0; }
-.newform .row { display: flex; gap: 8px; grid-column: 1 / -1; }
-#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
-#flash.err { background: var(--err); color: #fff; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-</style>
-</head><body>
-
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--err:#b3261e;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding:20px 16px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media(min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0}.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;color:var(--g-ink)}
+@media(min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--g-line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g-accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;font-size:15px;font-weight:600;border:2px solid var(--g-accent);border-radius:6px}
+#gPrev{background:var(--g-accent-soft);color:var(--g-accent)}#gNext{background:var(--g-accent);color:var(--g-accent-ink)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0}
+.progress{height:4px;background:var(--g-surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--g-accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--g-ink-2)}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--g-surface-2);border:1px solid var(--g-line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.ghost{border-color:transparent;color:var(--g-accent);background:transparent;padding-inline:6px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--g-line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--g-ink-2)}
+.steps button[aria-current=step]{background:var(--g-accent-soft);color:var(--g-ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--g-line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.formcol{grid-area:form;min-width:0}.card{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.tabs{display:flex;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line)}
+.tab{background:transparent;border:0;padding:8px 14px;border-bottom:2px solid transparent;color:var(--ink-2);font-weight:500}.tab[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}
+@media(max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}.field[hidden]{display:none!important}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text],input[type=number],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+textarea{resize:vertical;min-height:84px}.err{border-color:var(--err)!important}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.sec{grid-column:1/-1;font-weight:600;border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:6px}
+.bal{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:4px;overflow:hidden;width:fit-content}
+.bal label{padding:7px 14px;cursor:pointer;border-right:1px solid var(--line);background:var(--surface-2)}.bal label:last-child{border-right:0}
+.bal input{position:absolute;opacity:0}.bal input:checked+span{font-weight:600;color:var(--accent)}.bal label:has(input:checked){background:var(--accent-soft)}.bal label:has(input:focus-visible){outline:2px solid var(--accent)}
+.chks{display:grid;gap:6px}.chks label{display:flex;gap:8px;align-items:center}
+.sw{display:flex;gap:8px;align-items:center}
+.trig{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:3px;padding:1px 6px;margin-left:6px;font-weight:400}body:not(.show-tech) .trig{display:none}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);align-items:center}.toolbar .spacer{flex:1}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+.upd{grid-column:1/-1;border:1px dashed var(--line);border-radius:6px;padding:12px 14px;display:grid;gap:8px}.upd h4{margin:0;font-size:13px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px}table.tx{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+table.tx th{text-align:left;font-size:11px;text-transform:uppercase;color:var(--ink-2);background:var(--surface-2);padding:8px 10px}table.tx td{padding:8px 10px;border-top:1px solid var(--line)}
+.sample{font-size:11px;color:var(--ink-2);font-style:italic}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Nuevo bot</h1>
-      <div class="crumb">/backend/aero/chatbots/bots/create · Guía de capacitación</div>
-    </div>
-    <span class="badge">Demo: no guarda nada real</span>
-  </header>
-
-  <aside class="guide" aria-label="Guía paso a paso">
-    <div class="g-head">
-      <div class="g-eyebrow" id="gEyebrow"></div>
-      <div class="g-nav">
-        <button class="btn" id="gPrev" type="button">← Anterior</button>
-        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
-      </div>
-      <h2 class="g-title" id="gTitle"></h2>
-      <div class="progress"><i id="gBar"></i></div>
-    </div>
-    <div class="g-body" id="gBody"></div>
-    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
-    <ol class="steps" id="gSteps"></ol>
-  </aside>
-
-  <main class="formcol">
-    <div class="card">
-      <div class="ctx" id="ctxLine"></div>
-      <div class="tabs" role="tablist" id="tabs"></div>
-
-      <div class="panel" id="panel">
-        <div class="field full" data-f="reply_mode">
-          <label class="lbl" id="lblMode">Modo de respuesta</label>
-          <div class="seg" role="group" aria-labelledby="lblMode" id="reply_mode">
-            <button type="button" data-v="disabled" aria-pressed="false">Desactivar</button>
-            <button type="button" data-v="autoresponder" aria-pressed="true">Chatbot</button>
-            <button type="button" data-v="ai" aria-pressed="false">Chatbot IA</button>
-            <button type="button" data-v="super_ai" aria-pressed="false">Super Chatbot IA</button>
-          </div>
-          <div class="help">Desactivar = la cuenta queda completamente desconectada del bot, no responde nada (ni reglas ni IA). Chatbot = solo reglas + mensaje por defecto. Chatbot IA y Super Chatbot IA = usan el conector/modelo/prompt; Super Chatbot IA además consulta datos reales del tenant.</div>
-        </div>
-        <div class="field" data-f="name">
-          <label class="lbl" for="name">Nombre del bot</label>
-          <input type="text" id="name" autocomplete="off">
-          <div class="help">Para identificarlo en la lista y en el sistema (logs, notificaciones). Opcional: si lo dejas vacío, se genera uno a partir de la cuenta.</div>
-          <div class="errmsg" hidden></div>
-        </div>
-        <div class="field" data-f="account_id">
-          <label class="lbl" for="account_id">Cuenta<span class="req">*</span><span class="trig">show si reply_mode = autoresponder | ai | super_ai</span></label>
-          <select id="account_id">
-            <option value="">— seleccionar —</option>
-            <option value="1">Ventas (whatsapp) · ejemplo</option>
-            <option value="2">Soporte (whatsapp) · ejemplo</option>
-          </select>
-          <div class="help">Número o cuenta social conectada en Aero.Hello que este bot va a contestar.</div>
-          <div class="errmsg" hidden></div>
-        </div>
-
-        <div class="sect" data-f="section_ai">Inteligencia artificial<span class="trig">show si ai | super_ai</span></div>
-        <div class="field" data-f="ai_connector_id">
-          <label class="lbl" for="ai_connector_id">Conector de IA<span class="trig">show si ai | super_ai</span></label>
-          <select id="ai_connector_id">
-            <option value="">(elegir un conector)</option>
-            <option value="1">OpenRouter (ejemplo)</option>
-            <option value="2">OpenCode Zen (ejemplo)</option>
-          </select>
-          <div class="help">Los conectores se administran en Aero.Connector.</div>
-        </div>
-        <div class="field" data-f="ai_model">
-          <label class="lbl" for="ai_model">Modelo<span class="trig">dependsOn ai_connector_id</span></label>
-          <select id="ai_model"></select>
-          <div class="help">Catálogo predefinido de modelos del conector elegido.</div>
-        </div>
-        <div class="field full" data-f="ai_system_prompt">
-          <label class="lbl" for="ai_system_prompt">Prompt del sistema<span class="trig">show si ai | super_ai</span></label>
-          <textarea id="ai_system_prompt"></textarea>
-          <div class="help">Define cómo se presenta el bot en la conversación (personaje, tono, comportamiento); distinto del «Nombre del bot». Vacío = se usa un prompt genérico de atención por WhatsApp en español.</div>
-        </div>
-        <div class="field full" data-f="ai_tool_categories">
-          <label class="lbl">Fuentes de datos en tiempo real<span class="trig">show si super_ai</span></label>
-          <div class="cbl">
-            <label><input type="checkbox" id="tool_site"> Sitio web / landing</label>
-            <label><input type="checkbox" id="tool_shop"> Tienda</label>
-          </div>
-          <div class="help">Exclusivo del modo Super Chatbot IA. El bot podrá consultar datos reales y actualizados de las fuentes que marques.</div>
-        </div>
-
-        <div class="sect" data-f="section_chatbot">Respuestas automáticas (reglas)<span class="trig">show si autoresponder | ai | super_ai</span></div>
-        <div class="help" style="grid-column:1/-1;margin-top:-8px" data-f="section_chatbot_c">Respuestas rápidas por palabra clave. En Chatbot son la base del bot; en los modos con IA, si una regla coincide responde la regla y la IA no interviene.</div>
-        <div class="field full" data-f="ai_include_rules">
-          <label class="lbl" for="ai_include_rules">Incluir respuestas automáticas<span class="trig">show si ai | super_ai</span></label>
-          <div class="sw"><input type="checkbox" id="ai_include_rules" checked> <span id="swTxt">Activado</span></div>
-          <div class="help">Activo = primero se revisa si el mensaje coincide con alguna regla; si coincide responde la regla, si no responde la IA. Inactivo = la IA responde siempre y las reglas se ocultan.</div>
-        </div>
-        <div class="field full" data-f="rules_manager">
-          <div class="locked" id="rulesLocked">Las reglas de palabras clave aparecen después de crear el bot. Esta sección se ve en Chatbot y, en los modos IA, solo si «Incluir respuestas automáticas» está activo.</div>
-          <div class="upd" id="rulesBox" hidden>
-            <h4>Reglas</h4>
-            <div class="tbl-wrap"><table class="tx"><thead><tr><th>Palabra clave</th><th>Respuesta</th></tr></thead>
-              <tbody><tr><td>horario</td><td>Atendemos de lunes a viernes, 9:00 a 18:00.</td></tr></tbody></table></div>
-            <div class="sample">Fila de ejemplo. Las reglas reales se administran con el botón «Nuevo» de esta lista.</div>
-          </div>
-        </div>
-        <div class="field full" data-f="fallback_message">
-          <label class="lbl" for="fallback_message">Mensaje por defecto<span class="trig">show si autoresponder</span></label>
-          <textarea id="fallback_message"></textarea>
-          <div class="help">Se envía cuando el mensaje entrante no matchea ninguna regla, SOLO en modo Chatbot. En modos IA, si la IA falla no se responde nada. Vacío = el bot no responde. WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado`.</div>
-        </div>
-        <div class="field" data-f="handoff_minutes">
-          <label class="lbl" for="handoff_minutes">Pausa tras respuesta humana (minutos)<span class="trig">show si autoresponder | ai | super_ai</span></label>
-          <input type="number" id="handoff_minutes" value="15" min="0" max="1440">
-          <div class="help">Si un agente responde manualmente la conversación, el bot deja de contestar por este tiempo. Opcional: usa 15 si lo dejas vacío.</div>
-          <div class="errmsg" hidden></div>
-        </div>
-      </div>
-
-      <div class="toolbar">
-        <button class="btn primary" type="button" id="btnSave">Crear</button>
-        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
-        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
-        <span class="spacer"></span>
-        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label>
-      </div>
-    </div>
-  </main>
-</div>
+<header><div><h1 id="h1">Nuevo bot</h1><div class="crumb" id="crumb">/backend/aero/chatbots/bots/create · Guía de capacitación</div></div><span class="badge">Demo: no guarda nada real</span></header>
+<aside class="guide" aria-label="Guía paso a paso">
+<div class="g-head"><div class="g-eyebrow" id="gEyebrow"></div><div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn" id="gNext" type="button">Siguiente →</button></div><h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div></div>
+<div class="g-body" id="gBody"></div>
+<div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+<ol class="steps" id="gSteps"></ol></aside>
+<main class="formcol"><div class="card">
+<div class="ctx" id="ctxLine">context: create · el campo Tenant solo lo ve el superadmin y no aparece aquí</div>
+<div class="tabs"><button class="tab" type="button" aria-selected="true">Bot</button></div>
+<div class="panel" id="panel"></div>
+<div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button><span class="spacer"></span><label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label></div>
+</div></main></div>
 <div id="flash" hidden role="status"></div>
-
 <script>
-(function () {
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-  var MODELS = { '1': [['openai/gpt-4o-mini', 'GPT-4o mini (ejemplo)'], ['anthropic/claude-haiku', 'Claude Haiku (ejemplo)']], '2': [['zen/modelo-1', 'Modelo Zen 1 (ejemplo)']] };
-  var state = { mode: 'autoresponder', step: 0, created: false };
-
-  function val(id) { return ($('#' + id).value || '').trim(); }
-  function isAi() { return state.mode === 'ai' || state.mode === 'super_ai'; }
-  function set(id, v) {
-    var el = $('#' + id); el.value = v;
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  function setMode(m) {
-    state.mode = m;
-    $$('#reply_mode button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === m)); });
-    applyTriggers(); refreshSteps();
-  }
-
-  function buildSteps() {
-    var m = state.mode;
-    var s = [
-      { id: 'reply_mode', fields: ['reply_mode'], title: 'Elige el modo de respuesta', req: true,
-        body: 'Decide cómo responde el bot. Cámbialo y mira cómo se muestran u ocultan los campos de abajo.',
-        tip: 'Desactivar corta por completo las respuestas de la cuenta (ni reglas ni IA). Super Chatbot IA puede ser una función PRO y solo se rechaza al guardar si tu plan no la incluye.',
-        ex: 'Chatbot', fill: function () { setMode('autoresponder'); }, done: function () { return true; } },
-      { id: 'name', fields: ['name'], title: 'Ponle un nombre (opcional)', opt: true,
-        body: 'Sirve para identificarlo en la lista y en los registros.',
-        tip: 'Si lo dejas vacío se genera «Bot de <cuenta>». No es el nombre del personaje en la conversación: eso va en el prompt.',
-        ex: 'Bot de ventas', fill: function () { set('name', 'Bot de ventas'); }, done: function () { return val('name').length > 0; } }
-    ];
-    if (m !== 'disabled') {
-      s.push({ id: 'account_id', fields: ['account_id'], title: 'Elige la cuenta que contesta', req: true,
-        body: 'Cuenta de Aero.Hello que este bot va a atender. Un bot se ata a una sola cuenta.',
-        tip: 'Cada cuenta admite un solo bot (es única). Si no ves ninguna, conéctala primero en Hello.',
-        ex: 'Ventas (whatsapp)', fill: function () { set('account_id', '1'); }, done: function () { return !!val('account_id'); } });
-    }
-    if (isAi()) {
-      s.push(
-        { id: 'ai_connector_id', fields: ['ai_connector_id'], title: 'Elige el conector de IA',
-          body: 'Es el proveedor que generará las respuestas. Se administra en Aero.Connector.',
-          tip: 'Al elegirlo se llena la lista de modelos. Si cambias de conector, vuelve a elegir el modelo.',
-          ex: 'OpenRouter', fill: function () { set('ai_connector_id', '1'); }, done: function () { return !!val('ai_connector_id'); } },
-        { id: 'ai_model', fields: ['ai_model'], title: 'Elige el modelo',
-          body: 'Solo aparecen los modelos activos del conector elegido, del catálogo de la plataforma.',
-          tip: 'Si la lista está vacía, primero elige conector o pide que activen modelos para él.',
-          ex: 'GPT-4o mini', fill: function () { if (!val('ai_connector_id')) set('ai_connector_id', '1'); set('ai_model', 'openai/gpt-4o-mini'); }, done: function () { return !!val('ai_model'); } },
-        { id: 'ai_system_prompt', fields: ['ai_system_prompt'], title: 'Escribe el prompt del sistema', opt: true,
-          body: 'Define cómo se presenta el bot: nombre del personaje, tono y comportamiento.',
-          tip: 'Vacío = prompt genérico de atención por WhatsApp en español.',
-          ex: 'Eres Sofía, asistente de una tienda. Responde breve y amable.', fill: function () { set('ai_system_prompt', 'Eres Sofía, asistente de una tienda. Responde breve y amable.'); }, done: function () { return val('ai_system_prompt').length > 0; } }
-      );
-      if (m === 'super_ai') {
-        s.push({ id: 'ai_tool_categories', fields: ['ai_tool_categories'], title: 'Fuentes de datos en tiempo real', opt: true,
-          body: 'Marca de dónde puede leer datos reales el bot: sitio web o tienda.',
-          tip: 'Solo las fuentes marcadas se consultan. Cada llamada al conector puede cobrar créditos.',
-          ex: 'Tienda', fill: function () { $('#tool_shop').checked = true; }, done: function () { return $('#tool_site').checked || $('#tool_shop').checked; } });
-      }
-      s.push({ id: 'ai_include_rules', fields: ['ai_include_rules'], title: 'Incluir respuestas automáticas', opt: true,
-        body: 'Activo: se revisan primero las reglas y la IA responde solo si ninguna coincide. Inactivo: la IA responde siempre y las reglas se ocultan.',
-        tip: 'Desactivarlo oculta la sección de reglas, pero no las borra.',
-        ex: 'Activado', fill: function () { $('#ai_include_rules').checked = true; applyTriggers(); }, done: function () { return true; } });
-    }
-    if (m === 'autoresponder') {
-      s.push({ id: 'fallback_message', fields: ['fallback_message'], title: 'Mensaje por defecto', opt: true,
-        body: 'Se envía cuando ninguna regla coincide. Solo existe en modo Chatbot.',
-        tip: 'Vacío = el bot no responde. WhatsApp no interpreta Markdown: usa *negrita* y _cursiva_.',
-        ex: 'Gracias por escribir. Un asesor te responderá pronto.', fill: function () { set('fallback_message', 'Gracias por escribir. Un asesor te responderá pronto.'); }, done: function () { return val('fallback_message').length > 0; } });
-    }
-    if (m !== 'disabled') {
-      s.push({ id: 'handoff_minutes', fields: ['handoff_minutes'], title: 'Pausa tras respuesta humana', opt: true,
-        body: 'Minutos que el bot calla cuando un agente contesta a mano la conversación.',
-        tip: 'Debe ser un entero entre 0 y 1440. Vacío usa 15.',
-        ex: '15', fill: function () { set('handoff_minutes', '15'); }, done: function () { return true; } });
-    }
-    s.push({ id: 'save', fields: [], title: 'Guardar y cargar reglas', last: true,
-      body: 'Pulsa Crear. La demo valida lo obligatorio. Tras crear, aparece la lista de reglas de palabra clave (visible en Chatbot, o en modos IA si incluyes respuestas automáticas).',
-      tip: 'Elegir Super Chatbot IA sin plan PRO rechaza el guardado con un mensaje de mejora de plan.',
-      ex: '', fill: function () { save(false); }, done: function () { return state.created; } });
-    return s;
-  }
-  var steps = buildSteps();
-
-  function applyTriggers() {
-    var m = state.mode, ai = isAi(), on = m !== 'disabled';
-    function show(f, v) { $$('[data-f="' + f + '"]').forEach(function (el) { el.hidden = !v; }); }
-    show('account_id', on); show('section_ai', ai); show('ai_connector_id', ai); show('ai_model', ai);
-    show('ai_system_prompt', ai); show('ai_tool_categories', m === 'super_ai');
-    show('section_chatbot', on); show('section_chatbot_c', on);
-    show('ai_include_rules', ai); show('fallback_message', m === 'autoresponder'); show('handoff_minutes', on);
-    var inc = $('#ai_include_rules').checked;
-    $('#swTxt').textContent = inc ? 'Activado' : 'Desactivado';
-    show('rules_manager', m === 'autoresponder' || (ai && inc));
-    $('#rulesLocked').hidden = state.created; $('#rulesBox').hidden = !state.created;
-    var sel = $('#ai_model'), c = val('ai_connector_id'), prev = sel.value;
-    sel.innerHTML = '';
-    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = c ? '— seleccionar —' : '(elegir un conector primero)'; sel.appendChild(o0);
-    (MODELS[c] || []).forEach(function (r) { var o = document.createElement('option'); o.value = r[0]; o.textContent = r[1]; sel.appendChild(o); });
-    sel.value = prev && (MODELS[c] || []).some(function (r) { return r[0] === prev; }) ? prev : '';
-  }
-
-  function renderGuide() {
-    var cur = steps[state.step];
-    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
-    $('#gTitle').textContent = cur.title;
-    var body = $('#gBody'); body.innerHTML = '';
-    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
-    if (cur.ex) {
-      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
-      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w);
-    }
-    if (cur.tip) { var n = document.createElement('div'), b = document.createElement('b'); n.className = 'note'; b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
-    var ok = steps.filter(function (s) { return s.done(); }).length;
-    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
-    $('#gPrev').disabled = state.step === 0;
-    $('#gNext').disabled = state.step === steps.length - 1;
-    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.created);
-    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
-    var ol = $('#gSteps'); ol.innerHTML = '';
-    steps.forEach(function (s, i) {
-      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
-      bt.type = 'button'; if (i === state.step) bt.setAttribute('aria-current', 'step');
-      var done = s.done(); if (done) bt.className = 'done';
-      d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1); t.textContent = s.title;
-      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
-    });
-    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
-    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el && !el.hidden) el.classList.add('is-guided'); });
-  }
-  function go(i, scroll) {
-    state.step = Math.max(0, Math.min(steps.length - 1, i)); renderGuide();
-    if (scroll !== false) {
-      var f = steps[state.step].fields[0], el = f && $('[data-f="' + f + '"]');
-      if (el && !el.hidden) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    }
-  }
-  function refreshSteps() {
-    var curId = steps[state.step].id; steps = buildSteps();
-    var idx = steps.map(function (s) { return s.id; }).indexOf(curId);
-    state.step = idx >= 0 ? idx : Math.min(state.step, steps.length - 1); renderGuide();
-  }
-
-  function showErr(f, msg) {
-    var box = $('[data-f="' + f + '"]'); if (!box) return;
-    var m = $('.errmsg', box), inp = $('input,select,textarea', box);
-    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
-    if (inp) inp.classList.toggle('err', !!msg);
-  }
-  function validate() {
-    var errs = []; ['name', 'account_id', 'handoff_minutes'].forEach(function (f) { showErr(f, ''); });
-    if (val('name').length > 255) errs.push(['name', 'Nombre del bot no puede superar 255 caracteres.']);
-    if (state.mode !== 'disabled' && !val('account_id')) errs.push(['account_id', 'El campo Cuenta es obligatorio.']);
-    var h = val('handoff_minutes');
-    if (state.mode !== 'disabled' && h !== '' && (!/^\d+$/.test(h) || +h > 1440)) errs.push(['handoff_minutes', 'La pausa debe ser un entero entre 0 y 1440.']);
-    return errs;
-  }
-  function save(close) {
-    var errs = validate();
-    if (errs.length) {
-      errs.forEach(function (e) { showErr(e[0], e[1]); });
-      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0]); if (idx >= 0) go(idx);
-      flash('No se pudo crear: ' + errs[0][1], true); return;
-    }
-    state.created = true;
-    $('h1').textContent = 'Editar bot';
-    $('.crumb').textContent = '/backend/aero/chatbots/bots/update/3 · Guía de capacitación';
-    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
-    applyTriggers(); refreshSteps();
-    flash(close ? 'Bot creado. En la app real vuelves a la lista de bots.' : 'Bot creado. Ahora puedes cargar reglas de palabra clave.');
-  }
-
-  var ft;
-  function flash(msg, isErr) {
-    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
-    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200);
-  }
-
-  $$('#reply_mode button').forEach(function (b) { b.onclick = function () { setMode(b.getAttribute('data-v')); }; });
-  $('#gPrev').onclick = function () { go(state.step - 1); };
-  $('#gNext').onclick = function () { go(state.step + 1); };
-  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refreshSteps(); };
-  $('#btnSave').onclick = function () { save(false); };
-  $('#btnSaveClose').onclick = function () { save(true); };
-  $('#btnReset').onclick = function () { location.reload(); };
-  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
-  $$('.field input, .field select, .field textarea').forEach(function (el) {
-    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refreshSteps(); });
-    el.addEventListener('change', function () { applyTriggers(); refreshSteps(); });
-    el.addEventListener('focus', function () {
-      var box = el.closest('.field'); if (!box) return;
-      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(box.getAttribute('data-f'));
-      if (idx >= 0 && idx !== state.step) go(idx, false);
-    });
-  });
-
-  $('#ctxLine').textContent = 'context: create · la lista de reglas aparece solo tras crear el bot';
-  applyTriggers(); renderGuide();
+(function(){
+var $=function(s,r){return(r||document).querySelector(s)},$$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+var ALL=['autoresponder','ai','super_ai'],AI=['ai','super_ai'];
+var CONN={'':'(elegir un conector)',c1:'OpenRouter (ejemplo)',c2:'OpenAI directo (ejemplo)'};
+var MODELS={c1:{'openai/gpt-4o-mini':'GPT-4o mini (ejemplo)','anthropic/claude-haiku':'Claude Haiku (ejemplo)'},c2:{'gpt-4o-mini':'GPT-4o mini (ejemplo)'}};
+var ACC={'':'— seleccionar —',a1:'WhatsApp +591 700 00000 (ejemplo)',a2:'Instagram @mitienda (ejemplo)'};
+var TOOLS={sitio:'Consultar datos del sitio',tienda:'Consultar la tienda',menus:'Enviar menús de WhatsApp',workflows:'Ejecutar y diseñar automatizaciones'};
+// Campos fieles a models/bot/fields.yaml (tenant_id se omite: oculto para el tenant admin).
+var F=[
+{id:'name',label:'Nombre del bot',type:'text',span:'half',help:'Para identificarlo en la lista y en el sistema. Opcional: si lo dejas vacío se genera uno a partir de la cuenta.',ex:'Asistente de ventas',
+ step:'Ponle un nombre',body:'Solo sirve para reconocerlo en la lista, los logs y las notificaciones. Máximo 255 caracteres.',tip:'Si lo dejas vacío, el sistema usa «Bot de <etiqueta de la cuenta>».'},
+{id:'reply_mode',label:'Modo de respuesta',type:'balloon',span:'full',def:'autoresponder',opts:{disabled:'Desactivar',autoresponder:'Chatbot',ai:'Chatbot IA',super_ai:'Super Chatbot IA'},
+ help:'Desactivar = la cuenta queda desconectada del bot. Chatbot = solo reglas + mensaje por defecto. Chatbot IA y Super Chatbot IA usan el conector, modelo y prompt; el Super además consulta datos reales del tenant.',ex:'Chatbot IA',exv:'ai',
+ step:'Elige el modo de respuesta',body:'Esta elección decide qué campos aparecen debajo. Cámbiala y observa cómo se muestran u ocultan.',tip:'Super Chatbot IA puede ser una función del plan PRO: si tu plan no la incluye, al guardar verás un aviso para mejorar el plan. Empieza por Chatbot si solo quieres reglas por palabras clave.'},
+{id:'account_id',label:'Cuenta',type:'select',span:'half',req:true,opts:ACC,show:ALL,help:'Número o cuenta social conectada en Aero.Hello que este bot va a contestar.',ex:'WhatsApp +591 700 00000',exv:'a1',
+ step:'Elige la cuenta que atiende el bot',body:'Es la cuenta conectada en Hello a la que se ata el bot. Cada cuenta admite un solo bot.',tip:'Solo puedes elegir cuentas de tu propio negocio y una cuenta que ya tenga bot da error de «ya existe».'},
+{id:'section_ai',type:'section',label:'Inteligencia artificial',show:AI},
+{id:'ai_connector_id',label:'Conector de IA',type:'select',span:'half',opts:CONN,show:AI,help:'Los conectores se administran en Aero.Connector. Aplica a Chatbot IA y Super Chatbot IA.',ex:'OpenRouter',exv:'c1',
+ step:'Elige el conector de IA',body:'El conector define con qué proveedor de IA conversa el bot.',tip:'Al cambiar el conector se reinicia la lista de modelos.'},
+{id:'ai_model',label:'Modelo',type:'select',span:'half',opts:function(){return Object.assign({'':'(elegir un conector primero)'},MODELS[val('ai_connector_id')]||{})},show:AI,help:'Catálogo predefinido de modelos del conector elegido.',ex:'GPT-4o mini',exv:'openai/gpt-4o-mini',
+ step:'Elige el modelo',body:'Depende del conector elegido (dependsOn: ai_connector_id).',tip:'Si el modelo no aparece, no hay modelos activos para ese conector.'},
+{id:'ai_system_prompt',label:'Prompt del sistema',type:'textarea',span:'full',show:AI,help:'Define cómo se presenta el bot (nombre de personaje, tono, comportamiento). Vacío = prompt genérico de atención por WhatsApp en español.',ex:'Eres Lucía, asistente de Mi Tienda. Responde breve y amable.',
+ step:'Define la personalidad del bot',body:'Es distinto del «Nombre del bot»: este texto le dice a la IA cómo comportarse.',tip:'No pongas datos secretos aquí; el cliente puede intentar hacer que el bot los repita.'},
+{id:'ai_tool_categories',label:'Herramientas del bot',type:'checks',span:'full',opts:TOOLS,show:['super_ai'],help:'Exclusivo de Super Chatbot IA. Marca qué puede hacer el bot además de conversar.',ex:'Consultar la tienda',exv:['tienda'],
+ step:'Marca las herramientas del Super Chatbot',body:'Define qué puede consultar o ejecutar el bot además de conversar.',tip:'Las opciones reales dependen de las herramientas disponibles en tu plan e instalación.'},
+{id:'section_chatbot',type:'section',label:'Respuestas automáticas (reglas)',show:ALL,help:'Respuestas rápidas por palabras clave. En los modos con IA, si una regla coincide responde la regla y la IA no interviene.'},
+{id:'ai_include_rules',label:'Incluir respuestas automáticas',type:'switch',span:'full',def:true,show:AI,help:'Activo = primero se revisan las reglas; si ninguna coincide responde la IA. Inactivo = la IA responde siempre.',ex:'Activo',exv:true,
+ step:'Decide si se usan las reglas',body:'Con el interruptor activo, las reglas tienen prioridad sobre la IA.',tip:'Apágalo si quieres que la IA conteste todo, incluso lo que una regla ya cubre.'},
+{id:'rules_manager',type:'rules',span:'full',show:ALL},
+{id:'fallback_message',label:'Mensaje por defecto',type:'textarea',span:'full',show:['autoresponder'],help:'Se envía cuando el mensaje no coincide con ninguna regla, SOLO en modo Chatbot. Vacío = el bot no responde. WhatsApp solo admite *negrita*, _cursiva_, ~tachado~ y `monoespaciado`.',ex:'Gracias por escribirnos. Un asesor te responderá pronto.',
+ step:'Escribe el mensaje por defecto',body:'Es la respuesta cuando ninguna regla coincide (solo modo Chatbot).',tip:'En modos con IA, si la IA falla no se envía ningún texto genérico.'},
+{id:'handoff_minutes',label:'Pausa tras respuesta humana (minutos)',type:'number',span:'half',def:'15',show:ALL,help:'Si un agente responde manualmente, el bot deja de contestar este tiempo. Vacío = 15.',ex:'15',
+ step:'Define la pausa tras una respuesta humana',body:'Evita que el bot interrumpa a un agente. Entero entre 0 y 1440 minutos.',tip:'Con 0 el bot no se pausa cuando un agente escribe.'}
+];
+var S={mode:'create',step:0,steps:[]};
+function val(id){var f=$('#'+id);if(!f)return'';if(f.type==='checkbox')return f.checked;return(f.value||'').trim()}
+function mode(){var r=$('input[name=reply_mode]:checked');return r?r.value:'autoresponder'}
+function vis(f){return!f.show||f.show.indexOf(mode())>=0}
+function opts(f){return typeof f.opts==='function'?f.opts():f.opts}
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function build(){var p=$('#panel');p.innerHTML='';F.forEach(function(f){
+ var d=mk('div','field'+(f.span==='full'||f.type==='section'||f.type==='rules'?' full':''));d.setAttribute('data-f',f.id);
+ if(f.type==='section'){d.className='sec';d.appendChild(mk('span',0,f.label));if(f.show&&f.show.length<3)d.appendChild(trig(f));if(f.help)d.appendChild(mk('div','help',f.help));p.appendChild(d);return}
+ if(f.type==='rules'){var u=mk('div','upd');u.appendChild(mk('h4',0,'Reglas de respuesta'));u.appendChild(mk('div','help','Al crear el bot, las reglas se gestionan en la lista que aparece tras guardar. Aquí no hay campos que rellenar.'));
+  var tw=mk('div','tbl-wrap');tw.id='rulesTbl';tw.hidden=true;tw.innerHTML='<table class="tx"><thead><tr><th>Palabras clave</th><th>Respuesta</th></tr></thead><tbody><tr><td>horario, abren</td><td>Atendemos de lunes a sábado de 9 a 19 h.</td></tr><tr><td>precio, costo</td><td>Te envío el catálogo con precios.</td></tr></tbody></table>';
+  u.appendChild(tw);u.appendChild(mk('div','sample','Filas de ejemplo para la capacitación.'));d.appendChild(u);p.appendChild(d);return}
+ if(f.label){var l=mk('label','lbl',f.label);l.htmlFor=f.id;if(f.req){l.appendChild(mk('span','req','*'))}if(f.show&&f.show.length<3&&f.id!=='account_id'){l.appendChild(trig(f))}d.appendChild(l)}
+ var c;
+ if(f.type==='text'||f.type==='number'){c=mk('input');c.type=f.type;c.id=f.id;if(f.def!=null)c.value=f.def;c.autocomplete='off'}
+ else if(f.type==='textarea'){c=mk('textarea');c.id=f.id}
+ else if(f.type==='select'){c=mk('select');c.id=f.id}
+ else if(f.type==='balloon'){c=mk('div','bal');Object.keys(f.opts).forEach(function(k){var lb=mk('label');var i=mk('input');i.type='radio';i.name=f.id;i.value=k;i.id=f.id+'_'+k;if(k===f.def)i.checked=true;lb.appendChild(i);lb.appendChild(mk('span',0,f.opts[k]));c.appendChild(lb)})}
+ else if(f.type==='switch'){c=mk('div','sw');var i=mk('input');i.type='checkbox';i.id=f.id;i.checked=!!f.def;c.appendChild(i);c.appendChild(mk('span',0,'Activado / desactivado'))}
+ else if(f.type==='checks'){c=mk('div','chks');c.id=f.id;Object.keys(f.opts).forEach(function(k){var lb=mk('label');var i=mk('input');i.type='checkbox';i.value=k;i.name=f.id;lb.appendChild(i);lb.appendChild(mk('span',0,f.opts[k]));c.appendChild(lb)})}
+ d.appendChild(c);if(f.help)d.appendChild(mk('div','help',f.help));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);p.appendChild(d)});
+ fillSel('account_id');fillSel('ai_connector_id');fillSel('ai_model');
+ $$('#panel input,#panel select,#panel textarea').forEach(function(el){el.addEventListener('input',onCh);el.addEventListener('change',onCh);el.addEventListener('focus',function(){var b=el.closest('.field');var i=idxOf(b&&b.getAttribute('data-f'));if(i>=0&&i!==S.step)go(i,false)})})}
+function trig(f){return mk('span','trig','show si reply_mode ∈ ['+f.show.join(', ')+']')}
+function fillSel(id){var f=F.filter(function(x){return x.id===id})[0],s=$('#'+id);if(!s)return;var cur=s.value;s.innerHTML='';var o=opts(f);Object.keys(o).forEach(function(k){var op=mk('option',0,o[k]);op.value=k;s.appendChild(op)});if(o[cur]!=null)s.value=cur}
+function onCh(e){if(e.target.id==='ai_connector_id')fillSel('ai_model');if(e.target.classList.contains('err')){e.target.classList.remove('err');var m=$('.errmsg',e.target.closest('.field'));if(m)m.hidden=true}refresh()}
+function applyTriggers(){F.forEach(function(f){var el=$('[data-f="'+f.id+'"]');if(el)el.hidden=!vis(f)});var t=$('#rulesTbl');if(t)t.hidden=S.mode!=='update'}
+function steps(){var s=[];F.forEach(function(f){if(!f.step||!vis(f))return;s.push({id:f.id,f:f,title:f.step,body:f.body,tip:f.tip,ex:f.ex,req:f.req,opt:!f.req&&f.id!=='reply_mode',done:function(){return f.req?!!val(f.id):(f.id==='reply_mode'||!!val(f.id)||f.id==='ai_include_rules')},fill:function(){setv(f)}})});
+ s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece la lista de reglas.',tip:'En modo Desactivar el bot queda inactivo y no responde. Un bot activo solo puede atender cuentas de tu propio negocio.',done:function(){return S.mode==='update'},fill:function(){save(false)}});return s}
+function setv(f){if(f.type==='balloon'){var r=$('#'+f.id+'_'+f.exv);if(r){r.checked=true;onCh({target:r})}return}if(f.type==='switch'){$('#'+f.id).checked=!!f.exv;refresh();return}
+ if(f.type==='checks'){$$('#'+f.id+' input').forEach(function(i){i.checked=f.exv.indexOf(i.value)>=0});refresh();return}
+ var e=$('#'+f.id);if(f.type==='select'){e.value=f.exv;e.dispatchEvent(new Event('change',{bubbles:true}));return}e.value=f.ex;e.dispatchEvent(new Event('input',{bubbles:true}))}
+function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
+function refresh(){var cur=S.steps[S.step]&&S.steps[S.step].id;applyTriggers();S.steps=steps();var i=idxOf(cur);S.step=i>=0?i:Math.min(S.step,S.steps.length-1);render()}
+function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textContent='Paso '+(S.step+1)+' de '+n+(c.opt?' · opcional':c.req?' · obligatorio':'');$('#gTitle').textContent=c.title;
+ var b=$('#gBody');b.innerHTML='';b.appendChild(mk('p',0,c.body));if(c.ex){var w=mk('div');w.appendChild(mk('div','g-sub','Ejemplo'));w.appendChild(mk('div','example',c.ex));b.appendChild(w)}
+ if(c.tip){var t=mk('div','note');t.appendChild(mk('b',0,'Ojo. '));t.appendChild(document.createTextNode(c.tip));b.appendChild(t)}
+ $('#gBar').style.width=Math.round(100*S.steps.filter(function(s){return s.done()}).length/n)+'%';$('#gPrev').disabled=S.step===0;$('#gNext').disabled=S.step===n-1;
+ var fb=$('#gFill');fb.hidden=!c.fill||(c.id==='save'&&S.mode==='update');fb.textContent=c.id==='save'?'Crear con los datos actuales':'Rellenar ejemplo';
+ var ol=$('#gSteps');ol.innerHTML='';S.steps.forEach(function(s,i){var li=mk('li'),bt=mk('button');bt.type='button';if(i===S.step)bt.setAttribute('aria-current','step');var dn=s.done();if(dn)bt.className='done';bt.appendChild(mk('span','dot',dn?'✓':String(i+1)));bt.appendChild(mk('span',0,s.title));bt.onclick=function(){go(i)};li.appendChild(bt);ol.appendChild(li)});
+ $$('.field').forEach(function(f){f.classList.remove('is-guided')});if(c.f){var el=$('[data-f="'+c.f.id+'"]');if(el&&!el.hidden)el.classList.add('is-guided')}}
+function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c=S.steps[S.step];if(sc!==false&&c.f){var el=$('[data-f="'+c.f.id+'"]');if(el)el.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}}
+function err(id,m){var d=$('[data-f="'+id+'"]');if(!d)return;var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input,select,textarea',d);if(c)c.classList.add('err')}
+function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[],m=mode();
+ if(m!=='disabled'&&!val('account_id'))errs.push(['account_id','El campo Cuenta es obligatorio.']);
+ if(val('name').length>255)errs.push(['name','Nombre del bot no puede superar 255 caracteres.']);
+ var h=val('handoff_minutes');if(m!=='disabled'&&h!==''&&(!/^\d+$/.test(h)||+h>1440))errs.push(['handoff_minutes','Debe ser un entero entre 0 y 1440.']);
+ if(m!=='disabled'&&val('account_id')&&val('account_id')==='a2'&&S.dup)errs.push(['account_id','Esa cuenta ya tiene un bot.']);
+ if(errs.length){errs.forEach(function(e){err(e[0],e[1])});var i=idxOf(errs[0][0]);if(i>=0)go(i);flash('No se pudo crear: '+errs[0][1],true);return}
+ if(m==='disabled'&&!val('account_id'))$('#account_id').value='a1';
+ S.mode='update';$('#h1').textContent='Editar bot';$('#crumb').textContent='/backend/aero/chatbots/bots/update/3 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
+ flash(close?'Bot creado. En la app real vuelves a la lista de bots.':'Bot creado. Ahora estás en la pantalla de edición; aquí se gestionan las reglas.');refresh()}
+var ft;function flash(msg,e){var f=$('#flash');f.textContent=msg;f.className=e?'err':'';f.hidden=false;clearTimeout(ft);ft=setTimeout(function(){f.hidden=true},4200)}
+$('#gPrev').onclick=function(){go(S.step-1)};$('#gNext').onclick=function(){go(S.step+1)};$('#gFill').onclick=function(){var s=S.steps[S.step];if(s.fill)s.fill();if(s.id!=='save')refresh()};
+$('#btnSave').onclick=function(){save(false)};$('#btnSaveClose').onclick=function(){save(true)};$('#btnReset').onclick=function(){location.reload()};
+$('#chkTech').onchange=function(e){document.body.classList.toggle('show-tech',e.target.checked)};
+build();applyTriggers();S.steps=steps();render();
 })();
-</script>
-</body></html>
+</script></body></html>

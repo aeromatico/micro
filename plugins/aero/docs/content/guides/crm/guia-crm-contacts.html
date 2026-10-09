@@ -1,0 +1,149 @@
+<!doctype html>
+<!--guide {"title":"Nuevo contacto","article":"crm-contactos","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nuevo contacto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--err:#b3261e;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding:20px 16px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media(min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0}.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;color:var(--g-ink)}
+@media(min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--g-line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g-accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;font-size:15px;font-weight:600;border:2px solid var(--g-accent);border-radius:6px}
+#gPrev{background:var(--g-accent-soft);color:var(--g-accent)}#gNext{background:var(--g-accent);color:var(--g-accent-ink)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0}
+.progress{height:4px;background:var(--g-surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--g-accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--g-ink-2)}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--g-surface-2);border:1px solid var(--g-line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.ghost{border-color:transparent;color:var(--g-accent);background:transparent;padding-inline:6px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--g-line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--g-ink-2)}
+.steps button[aria-current=step]{background:var(--g-accent-soft);color:var(--g-ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--g-line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.formcol{grid-area:form;min-width:0}.card{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.tabs{display:flex;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:transparent;border:0;padding:8px 14px;border-bottom:2px solid transparent;color:var(--ink-2);font-weight:500;white-space:nowrap}.tab[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}.panel[hidden]{display:none}
+@media(max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}.field[hidden]{display:none!important}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+textarea{resize:vertical;min-height:84px}.err{border-color:var(--err)!important}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.bal{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:4px;overflow:hidden;width:fit-content;max-width:100%}
+.bal label{padding:7px 12px;cursor:pointer;border-right:1px solid var(--line);background:var(--surface-2)}.bal label:last-child{border-right:0}
+.bal input{position:absolute;opacity:0}.bal label:has(input:checked){background:var(--accent-soft);color:var(--accent);font-weight:600}.bal label:has(input:focus-visible){outline:2px solid var(--accent)}
+.chks{display:grid;gap:6px}.chks label,.sw{display:flex;gap:8px;align-items:center}
+.sws{display:flex;gap:8px;flex-wrap:wrap}.sws button{width:26px;height:26px;border-radius:50%;border:2px solid transparent}.sws button[aria-pressed=true]{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface) inset}
+.rrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:6px}
+.lock{grid-column:1/-1;border:1px dashed var(--line);border-radius:6px;padding:12px 14px;color:var(--ink-2)}
+.trig{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:3px;padding:1px 6px;margin-left:6px;font-weight:400}body:not(.show-tech) .trig{display:none}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);align-items:center}.toolbar .spacer{flex:1}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<header><div><h1 id="h1">Nuevo contacto</h1><div class="crumb" id="crumb">/backend/aero/crm/contacts/create · Guía de capacitación</div></div><span class="badge">Demo: no guarda nada real</span></header>
+<aside class="guide" aria-label="Guía paso a paso">
+<div class="g-head"><div class="g-eyebrow" id="gEyebrow"></div><div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn" id="gNext" type="button">Siguiente →</button></div><h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div></div>
+<div class="g-body" id="gBody"></div>
+<div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+<ol class="steps" id="gSteps"></ol></aside>
+<main class="formcol"><div class="card">
+<div class="ctx">context: create · los campos con context: update se muestran tras guardar</div>
+<div class="tabs" id="tabs" role="tablist"></div><div id="panels"></div>
+<div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button><span class="spacer"></span><label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label></div>
+</div></main></div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function(){
+var $=function(s,r){return(r||document).querySelector(s)},$$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+var CFG={create:'Nuevo contacto',edit:'Editar contacto',path:'contacts',noun:'Contacto creado'};
+var NET={whatsapp:'WhatsApp',telegram:'Telegram',instagram:'Instagram',facebook:'Facebook',linkedin:'LinkedIn',twitter:'Twitter/X',tiktok:'TikTok',youtube:'YouTube',website:'Sitio web',other:'Otro'};
+// Campos fieles a models/contact/fields.yaml. t: tipo; w:'f' ancho completo; r: obligatorio; x: valor de ejemplo.
+var F=[
+{id:'first_name',l:'Nombre',t:'text',tab:'General',x:'María',s:'Nombre del contacto',b:'Nombre de pila de la persona.',tip:'Ninguno de los campos del contacto es obligatorio en el formulario, pero conviene al menos un nombre y un medio de contacto.'},
+{id:'last_name',l:'Apellido',t:'text',tab:'General',x:'Quispe',s:'Apellido',b:'Apellido de la persona. Junto al nombre forma el nombre completo que verás en deals y listas.',tip:'Evita escribir ambos apellidos en el campo Nombre: así la búsqueda por apellido funciona.'},
+{id:'email',l:'Email',t:'text',tab:'General',x:'maria@ejemplo.com',s:'Correo electrónico',b:'Sirve para contactarla y para vincularla automáticamente con un cliente de la tienda.',tip:'Revisa que tenga formato nombre@dominio.'},
+{id:'phone',l:'Teléfono',t:'text',tab:'General',x:'+591 700 00000',s:'Teléfono',b:'Número de contacto, idealmente con código de país.',tip:'Si usas WhatsApp, escríbelo con código de país para que coincida con la conversación.'},
+{id:'social_links',l:'Redes sociales / mensajería',t:'rep',w:'f',tab:'General',prompt:'Agregar red',x:['whatsapp','+591 700 00000'],s:'Redes y mensajería',b:'Pulsa «Agregar red», elige la red y escribe el número, usuario o URL. Puedes agregar varias.',tip:'Una fila sin valor no aporta nada: completa ambos datos o quítala.'},
+{id:'company',l:'Empresa',t:'select',tab:'General',o:{'':'-- Sin empresa --',e1:'Distribuidora Andina (ejemplo)',e2:'Café Sur (ejemplo)'},x:'e1',s:'Empresa',b:'Vincula al contacto con una de las empresas de tu CRM.',tip:'Solo aparecen empresas de tu negocio. Si no existe, créala primero en Empresas.'},
+{id:'owner_id',l:'Responsable',t:'select',tab:'General',o:{'':'-- Sin responsable --',u1:'Ana (usuario de ejemplo)',u2:'Luis (usuario de ejemplo)'},x:'u1',s:'Responsable',b:'Usuario de tu equipo a cargo de este contacto.',tip:'Déjalo vacío si aún no está asignado.'},
+{id:'source',l:'Origen',t:'bal',tab:'General',o:{website:'Sitio web',referral:'Referido',whatsapp:'WhatsApp',social_media:'Redes sociales',event:'Feria/Evento',cold_call:'Llamada en frío',paid_ads:'Publicidad paga',shop:'Compra en tienda',other:'Otro'},h:'¿Cómo llegó este contacto?',x:'referral',s:'Origen del contacto',b:'Marca cómo llegó. Puedes volver a pulsar la opción elegida para dejarla vacía (allowEmpty).',tip:'Un origen consistente te permite medir qué canal trae más contactos.'},
+{id:'shopCustomer',l:'Cliente de tienda vinculado',t:'select',tab:'General',o:{'':'-- Sin cliente de tienda --',c1:'maria@ejemplo.com (ejemplo)'},h:'Se enlaza solo si el email o teléfono coincide con un cliente de la tienda; también puedes elegirlo a mano (opcional)',x:'c1',s:'Cliente de tienda (opcional)',b:'Normalmente se enlaza solo cuando el email o teléfono coincide con un cliente de la tienda.',tip:'Elígelo a mano solo si los datos no coinciden.'},
+{id:'contactLists',l:'Listas',t:'checks',w:'f',tab:'General',o:{l1:'Clientes VIP (ejemplo)',l2:'Cobranzas del mes (ejemplo)'},h:'Listas a las que pertenece este contacto (útiles para cobranzas y campañas)',x:['l1'],s:'Listas',b:'Marca las listas en las que debe estar el contacto.',tip:'Las listas alimentan las reglas de cobranza y las campañas.'},
+{id:'_actions',t:'note',w:'f',tab:'Acciones',u:true,h:'Esta pestaña solo aparece al editar un contacto ya guardado (context: update). Reúne atajos para actuar sobre él con Hello y la Tienda, si esos módulos están disponibles para tu cuenta.'}
+];
+var S={mode:'create',step:0,steps:[],tab:'General'};
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function val(id){var e=$('#'+id);if(!e)return'';var k=e.getAttribute('data-kind');if(k==='checks')return $$('input:checked',e).map(function(i){return i.value}).join(',');if(k==='bal'){var r=$('input:checked',e);return r?r.value:''}if(k==='rep')return $$('.rrow',e).filter(function(r){return $('input',r).value.trim()}).length?'1':'';if(e.type==='checkbox')return e.checked?'1':'';return(e.value||'').trim()}
+function vis(f){if(f.u&&S.mode!=='update')return false;return true}
+function tabsList(){var t=[];F.forEach(function(f){if(vis(f)&&t.indexOf(f.tab)<0)t.push(f.tab)});return t}
+function addRow(c,p,v){var r=mk('div','rrow'),s=mk('select');Object.keys(NET).forEach(function(k){var o=mk('option',0,NET[k]);o.value=k;s.appendChild(o)});if(p)s.value=p;var i=mk('input');i.type='text';i.placeholder='Número / usuario / URL';if(v)i.value=v;var x=mk('button','btn','Quitar');x.type='button';x.onclick=function(){r.remove();refresh()};i.oninput=refresh;r.appendChild(s);r.appendChild(i);r.appendChild(x);c.appendChild(r)}
+function build(){var host=$('#panels');host.innerHTML='';var tabs={};F.forEach(function(f){var pn=tabs[f.tab];if(!pn){pn=mk('div','panel');pn.setAttribute('data-tab',f.tab);host.appendChild(pn);tabs[f.tab]=pn}
+ var d=mk('div','field'+(f.w==='f'?' full':''));d.setAttribute('data-f',f.id);
+ if(f.t==='note'){d.className='lock';d.appendChild(document.createTextNode(f.h));pn.appendChild(d);return}
+ var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));d.appendChild(l);var c;
+ if(f.t==='text'||f.t==='number'||f.t==='date'){c=mk('input');c.type=f.t;c.autocomplete='off'}
+ else if(f.t==='textarea')c=mk('textarea');
+ else if(f.t==='select'){c=mk('select');Object.keys(f.o).forEach(function(k){var o=mk('option',0,f.o[k]);o.value=k;c.appendChild(o)})}
+ else if(f.t==='bal'){c=mk('div','bal');c.setAttribute('data-kind','bal');Object.keys(f.o).forEach(function(k){var lb=mk('label'),i=mk('input');i.type='radio';i.name=f.id;i.value=k;i.onclick=function(){if(i.dataset.was==='1'){i.checked=false;i.dataset.was=''}else{$$('input',c).forEach(function(z){z.dataset.was=''});i.dataset.was='1'}refresh()};lb.appendChild(i);lb.appendChild(mk('span',0,f.o[k]));c.appendChild(lb)})}
+ else if(f.t==='checks'){c=mk('div','chks');c.setAttribute('data-kind','checks');Object.keys(f.o).forEach(function(k){var lb=mk('label'),i=mk('input');i.type='checkbox';i.value=k;lb.appendChild(i);lb.appendChild(mk('span',0,f.o[k]));c.appendChild(lb)})}
+ else if(f.t==='rep'){c=mk('div');c.setAttribute('data-kind','rep');var ab=mk('button','btn',f.prompt);ab.type='button';ab.onclick=function(){addRow(c);refresh()};c.appendChild(ab)}
+ c.id=f.id;if(c.tagName==='INPUT'||c.tagName==='SELECT'||c.tagName==='TEXTAREA'){l.htmlFor=f.id}d.appendChild(c);
+ if(f.h){d.appendChild(mk('div','help',f.h))}var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);pn.appendChild(d)});
+ $$('#panels input,#panels select,#panels textarea').forEach(function(el){el.addEventListener('input',onCh);el.addEventListener('change',onCh);el.addEventListener('focus',function(){var b=el.closest('.field'),i=idxOf(b&&b.getAttribute('data-f'));if(i>=0&&i!==S.step)go(i,false)})})}
+function onCh(e){if(e.target.classList.contains('err')){e.target.classList.remove('err');var m=$('.errmsg',e.target.closest('.field'));if(m)m.hidden=true}refresh()}
+function showTabs(){var t=tabsList(),b=$('#tabs');b.innerHTML='';if(t.indexOf(S.tab)<0)S.tab=t[0];t.forEach(function(n){var x=mk('button','tab',n);x.type='button';x.setAttribute('role','tab');x.setAttribute('aria-selected',String(n===S.tab));x.onclick=function(){S.tab=n;showTabs()};b.appendChild(x)});
+ $$('#panels .panel').forEach(function(p){p.hidden=p.getAttribute('data-tab')!==S.tab});$$('#panels .field,#panels .lock').forEach(function(d){var f=F.filter(function(z){return z.id===d.getAttribute('data-f')})[0];if(f)d.hidden=!vis(f)})}
+function steps(){var s=[];F.forEach(function(f){if(!f.s||!vis(f))return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return!!val(f.id)},fill:function(){setv(f)}})});
+ if(S.mode==='create')s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos y te lleva a la pantalla de edición.',tip:'«Crear y cerrar» te devuelve a la lista; «Crear» te deja editando el registro.',done:function(){return false},fill:function(){save(false)}});return s}
+function exTxt(f){if(f.t==='rep')return NET[f.x[0]]+': '+f.x[1];if(f.t==='checks')return f.x.map(function(k){return f.o[k]}).join(', ');if(f.o)return f.o[f.x];return f.x}
+function setv(f){var e=$('#'+f.id);if(f.t==='rep'){addRow(e,f.x[0],f.x[1])}else if(f.t==='checks'){$$('input',e).forEach(function(i){i.checked=f.x.indexOf(i.value)>=0})}else if(f.t==='bal'){$$('input',e).forEach(function(i){i.checked=i.value===f.x;i.dataset.was=i.checked?'1':''})}else{e.value=f.x}refresh()}
+function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
+function refresh(){var cur=S.steps[S.step]&&S.steps[S.step].id;showTabs();S.steps=steps();var i=idxOf(cur);S.step=i>=0?i:Math.min(S.step,S.steps.length-1);render()}
+function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textContent='Paso '+(S.step+1)+' de '+n+(c.opt?' · opcional':c.req?' · obligatorio':'');$('#gTitle').textContent=c.title;
+ var b=$('#gBody');b.innerHTML='';b.appendChild(mk('p',0,c.body));if(c.ex){var w=mk('div');w.appendChild(mk('div','g-sub','Ejemplo'));w.appendChild(mk('div','example',c.ex));b.appendChild(w)}
+ if(c.tip){var t=mk('div','note');t.appendChild(mk('b',0,'Ojo. '));t.appendChild(document.createTextNode(c.tip));b.appendChild(t)}
+ var ok=S.steps.filter(function(s){return s.done()}).length+(S.mode==='update'?1:0);$('#gBar').style.width=Math.round(100*Math.min(ok,n)/n)+'%';$('#gPrev').disabled=S.step===0;$('#gNext').disabled=S.step===n-1;
+ var fb=$('#gFill');fb.hidden=!c.fill;fb.textContent=c.id==='save'?'Crear con los datos actuales':'Rellenar ejemplo';
+ var ol=$('#gSteps');ol.innerHTML='';S.steps.forEach(function(s,i){var li=mk('li'),bt=mk('button');bt.type='button';if(i===S.step)bt.setAttribute('aria-current','step');var dn=s.done();if(dn)bt.className='done';bt.appendChild(mk('span','dot',dn?'✓':String(i+1)));bt.appendChild(mk('span',0,s.title));bt.onclick=function(){go(i)};li.appendChild(bt);ol.appendChild(li)});
+ $$('.field').forEach(function(f){f.classList.remove('is-guided')});if(c.f){var el=$('[data-f="'+c.f.id+'"]');if(el&&!el.hidden){S.tab=c.f.tab;el.classList.add('is-guided');$$('#panels .panel').forEach(function(p){p.hidden=p.getAttribute('data-tab')!==S.tab});$$('.tab').forEach(function(t){t.setAttribute('aria-selected',String(t.textContent===S.tab))})}}}
+function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c=S.steps[S.step];if(sc!==false&&c.f){var el=$('[data-f="'+c.f.id+'"]');if(el)el.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}}
+function err(id,m){var d=$('[data-f="'+id+'"]');if(!d)return;var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input,select,textarea',d);if(c)c.classList.add('err')}
+function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[];
+ F.forEach(function(f){if(!vis(f)||f.t==='note')return;if(f.r&&!val(f.id))errs.push([f.id,'El campo '+f.l+' es obligatorio.']);if(f.kind==='email'&&val(f.id)&&!/.+@.+\..+/.test(val(f.id)))errs.push([f.id,'Escribe un correo válido.'])});
+ var em=val('email');if(em&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))errs.push(['email','Escribe un correo con formato nombre@dominio.']);
+ if(errs.length){errs.forEach(function(e){err(e[0],e[1])});var i=idxOf(errs[0][0]);if(i>=0)go(i);flash('No se pudo crear: '+errs[0][1],true);return}
+ S.mode='update';$('#h1').textContent=CFG.edit;$('#crumb').textContent='/backend/aero/crm/'+CFG.path+'/update/7 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
+ flash(close?CFG.noun+'. En la app real vuelves a la lista.':CFG.noun+'. Ahora estás en la pantalla de edición.');refresh()}
+var ft;function flash(m,e){var f=$('#flash');f.textContent=m;f.className=e?'err':'';f.hidden=false;clearTimeout(ft);ft=setTimeout(function(){f.hidden=true},4200)}
+$('#gPrev').onclick=function(){go(S.step-1)};$('#gNext').onclick=function(){go(S.step+1)};$('#gFill').onclick=function(){var s=S.steps[S.step];if(s.fill)s.fill()};
+$('#btnSave').onclick=function(){save(false)};$('#btnSaveClose').onclick=function(){save(true)};$('#btnReset').onclick=function(){location.reload()};
+$('#chkTech').onchange=function(e){document.body.classList.toggle('show-tech',e.target.checked)};
+build();showTabs();S.steps=steps();render();
+})();
+</script></body></html>

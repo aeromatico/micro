@@ -40,6 +40,19 @@ Cada vez que usás o recibís monedas, se registra un movimiento:
 
 Si recargás un monto que no se divide exactamente entre las monedas elegidas, el sobrante queda en tu "billetera" como saldo en Bs. Podés usarlo para comprar más monedas sin generar un nuevo QR.
 
+## Monedas desde Workflows
+
+Si usas **Workflows**, el editor visual incluye nodos de **Monedas**:
+
+| Nodo | Qué hace |
+|------|----------|
+| **Saldo del tenant** | Consulta tu saldo |
+| **Generar recarga con QR** | Crea un QR para recargar monedas |
+| **Estado de una recarga** | Revisa si la recarga ya se pagó |
+
+> [!IMPORTANT]
+> Estos nodos solo operan sobre el sitio dueño del workflow, y las monedas se acreditan únicamente cuando el pago se confirma.
+
 ## Monedas incluidas en tu plan
 
 Algunos planes incluyen una cantidad de monedas al activarse. Estas aparecen como "Incluidas en tu plan" en tu historial y se acreditan una sola vez.

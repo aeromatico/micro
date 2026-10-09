@@ -52,6 +52,20 @@ transacciones están aislados de los de otros negocios.
 - [Tokens de API](pay-tokens-api) — integración con tus sistemas y webhooks.
 - [Configuración de pagos QR](pay-configuracion) — valores por defecto.
 
+## Cobros desde Workflows
+
+Si usas **Workflows**, el editor visual incluye nodos de **Cobros** para generar y seguir pagos dentro de una automatización:
+
+| Nodo | Qué hace |
+|------|----------|
+| **Cobros › Generar cobro** | Emite un QR de cobro |
+| **Cobros › Consultar estado** | Revisa el estado de un cobro |
+| **Cobros › Anular** | Anula un cobro |
+| **Cobros › Resumen de pagos recibidos** | Resume los pagos recibidos |
+
+> [!IMPORTANT]
+> Estos nodos solo usan **cuentas activas de tu propio sitio**. Los QR y pagos que crean quedan con el origen `workflows`.
+
 ## Permisos que habilitan este panel
 
 | Permiso | Desbloquea |
@@ -59,3 +73,5 @@ transacciones están aislados de los de otros negocios.
 | `aero.pay.manage_accounts` | Cuentas, sucursales y tokens |
 | `aero.pay.view_qr` | Generar/ver QR y transacciones |
 | `aero.pay.manage_settings` | Configuración de pagos |
+
+**Versión documentada:** 1.24.0

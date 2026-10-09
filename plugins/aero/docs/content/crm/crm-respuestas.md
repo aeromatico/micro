@@ -18,6 +18,7 @@ Mensajes predefinidos que el equipo puede insertar en el chat escribiendo un
 | **Orden** | — | Menor número aparece primero (por defecto 10). |
 | **Veces usada** | solo lectura | Sube cada vez que se invoca desde el chat. |
 | **Activa** | — | Solo las activas se ofrecen en el chat. |
+| **Cuentas Hello** | opcional | Sin marcar ninguna, la respuesta aparece en todas las cuentas; si marcas algunas, solo en las conversaciones de esas cuentas. |
 | **Mensaje** | requerido | El texto que se inserta. |
 
 ## El atajo

@@ -1,0 +1,128 @@
+<!doctype html>
+<!--guide {"title":"Nueva respuesta rápida","article":"crm-respuestas","sort":70} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nueva respuesta rápida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--err:#b3261e;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--err:#f28b82;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding:20px 16px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media(min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0}.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;color:var(--g-ink)}
+@media(min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--g-line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g-accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;font-size:15px;font-weight:600;border:2px solid var(--g-accent);border-radius:6px}
+#gPrev{background:var(--g-accent-soft);color:var(--g-accent)}#gNext{background:var(--g-accent);color:var(--g-accent-ink)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0}
+.progress{height:4px;background:var(--g-surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--g-accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--g-ink-2)}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--g-surface-2);border:1px solid var(--g-line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.ghost{border-color:transparent;color:var(--g-accent);background:transparent;padding-inline:6px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--g-line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--g-ink-2)}
+.steps button[aria-current=step]{background:var(--g-accent-soft);color:var(--g-ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--g-line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.formcol{grid-area:form;min-width:0}.card{background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}
+@media(max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}.field[hidden]{display:none!important}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text],input[type=number],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+textarea{resize:vertical;min-height:120px}.err{border-color:var(--err)!important}input:disabled{opacity:.6}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.chks{display:grid;gap:6px}.chks label,.sw{display:flex;gap:8px;align-items:center}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);align-items:center}.toolbar .spacer{flex:1}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<header><div><h1 id="h1">Nueva respuesta rápida</h1><div class="crumb" id="crumb">/backend/aero/crm/quickreplies/create · Guía de capacitación</div></div><span class="badge">Demo: no guarda nada real</span></header>
+<aside class="guide" aria-label="Guía paso a paso">
+<div class="g-head"><div class="g-eyebrow" id="gEyebrow"></div><div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn" id="gNext" type="button">Siguiente →</button></div><h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div></div>
+<div class="g-body" id="gBody"></div>
+<div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+<ol class="steps" id="gSteps"></ol></aside>
+<main class="formcol"><div class="card">
+<div class="ctx">context: create · «Veces usada» es context: update y solo aparece tras guardar</div>
+<div class="panel" id="panel"></div>
+<div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button><span class="spacer"></span><label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label></div>
+</div></main></div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function(){
+var $=function(s,r){return(r||document).querySelector(s)},$$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+var CFG={edit:'Editar respuesta rápida',path:'quickreplies',noun:'Respuesta rápida creada'};
+// Fiel a models/quickreply/fields.yaml y QuickReply::areaOptions(). r: obligatorio; x: ejemplo; d: defecto; u: solo en update.
+var F=[
+{id:'title',l:'Título',t:'text',r:1,x:'Catálogo de productos',h:'Nombre interno para reconocerla en la lista.',s:'Título',b:'Nombre interno, solo para reconocer la respuesta en la lista. Máximo 255 caracteres.',tip:'No lo ve el cliente.'},
+{id:'shortcut',l:'Atajo',t:'text',r:1,ph:'catalogo',x:'catalogo',h:'Se invoca escribiendo /atajo (ej. /catalogo). Minúsculas, sin espacios.',s:'Atajo',b:'Lo que escribirás en el chat precedido de «/» para insertar el mensaje. Máximo 40 caracteres.',tip:'Solo minúsculas, números, guion y guion bajo. Sin «/» ni espacios, o dará error.'},
+{id:'area',l:'Área',t:'select',o:{general:'General',ventas:'Ventas',soporte:'Soporte',cobranzas:'Cobranzas',postventa:'Postventa'},d:'general',x:'ventas',s:'Área',b:'Agrupa la respuesta por departamento de uso.',tip:'Por defecto es General.'},
+{id:'sort_order',l:'Orden',t:'number',d:'10',x:'10',h:'Menor va primero al listar (por defecto 10).',s:'Orden',b:'Número entero mayor o igual a 0 que ordena la lista.',tip:'Con valores iguales no hay orden garantizado.'},
+{id:'uses_count',l:'Veces usada',t:'number',u:1,dis:1,d:'0',h:'Sube cada vez que se invoca desde el chat.',s:null},
+{id:'is_active',l:'Activa',t:'switch',d:1,x:1,s:'Activa',b:'Solo las respuestas activas se pueden invocar.',tip:'Apágala en lugar de borrarla si quieres conservarla.'},
+{id:'accounts',l:'Cuentas Hello',t:'checks',w:'f',o:{a1:'WhatsApp +591 700 00000 (ejemplo)',a2:'Instagram @mitienda (ejemplo)'},x:['a1'],h:'Opcional. Sin marcar ninguna, la respuesta aparece en todas las cuentas; si marcas algunas, solo en las conversaciones de esas cuentas.',s:'Cuentas Hello',b:'Limita la respuesta a ciertas cuentas conectadas.',tip:'Sin ninguna marcada, vale para todas.'},
+{id:'body',l:'Mensaje',t:'textarea',r:1,w:'f',x:'Hola 👋 aquí tienes nuestro catálogo: https://mitienda.example/catalogo',s:'Mensaje',b:'El texto que se enviará al invocar el atajo. Obligatorio.',tip:'Revisa que el texto esté completo antes de guardar: se envía tal cual.'}
+];
+var S={mode:'create',step:0,steps:[]};
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function val(id){var e=$('#'+id);if(!e)return'';if(e.getAttribute('data-kind')==='checks')return $$('input:checked',e).map(function(i){return i.value}).join(',');if(e.type==='checkbox')return e.checked?'1':'';return(e.value||'').trim()}
+function vis(f){return!f.u||S.mode==='update'}
+function build(){var p=$('#panel');F.forEach(function(f){var d=mk('div','field'+(f.w==='f'?' full':''));d.setAttribute('data-f',f.id);var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));d.appendChild(l);var c;
+ if(f.t==='select'){c=mk('select');Object.keys(f.o).forEach(function(k){var o=mk('option',0,f.o[k]);o.value=k;c.appendChild(o)});c.value=f.d}
+ else if(f.t==='switch'){var w=mk('div','sw');c=mk('input');c.type='checkbox';c.checked=!!f.d;w.appendChild(c);w.appendChild(mk('span',0,'Activado'));d.appendChild(w)}
+ else if(f.t==='checks'){c=mk('div','chks');c.setAttribute('data-kind','checks');Object.keys(f.o).forEach(function(k){var lb=mk('label'),i=mk('input');i.type='checkbox';i.value=k;i.addEventListener('change',refresh);lb.appendChild(i);lb.appendChild(mk('span',0,f.o[k]));c.appendChild(lb)})}
+ else if(f.t==='textarea'){c=mk('textarea')}else{c=mk('input');c.type=f.t;c.autocomplete='off';if(f.ph)c.placeholder=f.ph;if(f.d)c.value=f.d;if(f.dis)c.disabled=true}
+ c.id=f.id;if(f.t!=='switch')d.appendChild(c);if(f.h)d.appendChild(mk('div','help',f.h));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);d.hidden=!vis(f);p.appendChild(d)});
+ $$('#panel input,#panel textarea,#panel select').forEach(function(el){el.addEventListener('input',onCh);el.addEventListener('change',onCh);el.addEventListener('focus',function(){var b=el.closest('.field'),i=idxOf(b.getAttribute('data-f'));if(i>=0&&i!==S.step)go(i,false)})})}
+function onCh(e){if(e.target.classList.contains('err')){e.target.classList.remove('err');$('.errmsg',e.target.closest('.field')).hidden=true}refresh()}
+function exTxt(f){if(f.t==='checks')return f.x.map(function(k){return f.o[k]}).join(', ');if(f.t==='switch')return'Activada';return f.o?f.o[f.x]:String(f.x)}
+function steps(){var s=[];F.forEach(function(f){if(!f.s)return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return f.t==='switch'||f.d&&f.t==='select'||!!val(f.id)&&f.t!=='number'||f.id==='sort_order'},fill:function(){var e=$('#'+f.id);if(f.t==='switch')e.checked=!!f.x;else if(f.t==='checks')$$('input',e).forEach(function(i){i.checked=f.x.indexOf(i.value)>=0});else e.value=f.x;refresh()}})});
+ s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece «Veces usada».',tip:'«Crear y cerrar» te devuelve a la lista; «Crear» te deja editando el registro.',done:function(){return S.mode==='update'},fill:function(){save(false)}});return s}
+function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
+function refresh(){S.steps=steps();S.step=Math.min(S.step,S.steps.length-1);render()}
+function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textContent='Paso '+(S.step+1)+' de '+n+(c.opt&&c.id!=='save'?' · opcional':c.req?' · obligatorio':'');$('#gTitle').textContent=c.title;
+ var b=$('#gBody');b.innerHTML='';b.appendChild(mk('p',0,c.body));if(c.ex){var w=mk('div');w.appendChild(mk('div','g-sub','Ejemplo'));w.appendChild(mk('div','example',c.ex));b.appendChild(w)}
+ if(c.tip){var t=mk('div','note');t.appendChild(mk('b',0,'Ojo. '));t.appendChild(document.createTextNode(c.tip));b.appendChild(t)}
+ $('#gBar').style.width=Math.round(100*S.steps.filter(function(s){return s.done()}).length/n)+'%';$('#gPrev').disabled=S.step===0;$('#gNext').disabled=S.step===n-1;
+ var fb=$('#gFill');fb.hidden=c.id==='save'&&S.mode==='update';fb.textContent=c.id==='save'?'Crear con los datos actuales':'Rellenar ejemplo';
+ var ol=$('#gSteps');ol.innerHTML='';S.steps.forEach(function(s,i){var li=mk('li'),bt=mk('button');bt.type='button';if(i===S.step)bt.setAttribute('aria-current','step');var dn=s.done();if(dn)bt.className='done';bt.appendChild(mk('span','dot',dn?'✓':String(i+1)));bt.appendChild(mk('span',0,s.title));bt.onclick=function(){go(i)};li.appendChild(bt);ol.appendChild(li)});
+ $$('.field').forEach(function(f){f.classList.remove('is-guided')});if(c.f)$('[data-f="'+c.f.id+'"]').classList.add('is-guided')}
+function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c=S.steps[S.step];if(sc!==false&&c.f)$('[data-f="'+c.f.id+'"]').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+function err(id,m){var d=$('[data-f="'+id+'"]');var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input,textarea,select',d);if(c)c.classList.add('err')}
+function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[];
+ F.forEach(function(f){if(f.r&&!val(f.id))errs.push([f.id,'El campo '+f.l+' es obligatorio.'])});
+ var sc=val('shortcut');if(sc&&!/^[a-z0-9_-]+$/.test(sc))errs.push(['shortcut','El atajo solo admite minúsculas, números, guion y guion bajo (sin "/" ni espacios).']);else if(sc.length>40)errs.push(['shortcut','El atajo no puede superar 40 caracteres.']);
+ var so=val('sort_order');if(so!==''&&!/^\d+$/.test(so))errs.push(['sort_order','Orden debe ser un entero mayor o igual a 0.']);
+ errs.sort(function(a,b){return idxOf(a[0])-idxOf(b[0])});
+ if(errs.length){errs.forEach(function(e){err(e[0],e[1])});go(idxOf(errs[0][0]));flash('No se pudo crear: '+errs[0][1],true);return}
+ S.mode='update';$$('#panel .field').forEach(function(d){var f=F.filter(function(z){return z.id===d.getAttribute('data-f')})[0];d.hidden=!vis(f)});
+ $('#h1').textContent=CFG.edit;$('#crumb').textContent='/backend/aero/crm/'+CFG.path+'/update/7 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
+ flash(close?CFG.noun+'. En la app real vuelves a la lista.':CFG.noun+'. Ahora estás en la pantalla de edición.');refresh()}
+var ft;function flash(m,e){var f=$('#flash');f.textContent=m;f.className=e?'err':'';f.hidden=false;clearTimeout(ft);ft=setTimeout(function(){f.hidden=true},4200)}
+$('#gPrev').onclick=function(){go(S.step-1)};$('#gNext').onclick=function(){go(S.step+1)};$('#gFill').onclick=function(){var s=S.steps[S.step];if(s.fill)s.fill()};
+$('#btnSave').onclick=function(){save(false)};$('#btnSaveClose').onclick=function(){save(true)};$('#btnReset').onclick=function(){location.reload()};
+$('#chkTech').onchange=function(e){document.body.classList.toggle('show-tech',e.target.checked)};
+build();S.steps=steps();render();
+})();
+</script></body></html>
