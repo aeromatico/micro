@@ -1,0 +1,41 @@
+url = "/plugins/:slug"
+layout = "base"
+title = "Categoría — Plugins — Market"
+
+[services]
+mode = "category"
+slug = "{{ :slug }}"
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <a href="/plugins" class="hover:text-ink">Plugins</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">{{ category.name }}</span>
+    </nav>
+
+    <header class="max-w-2xl mb-8">
+        <h1 class="text-4xl font-bold text-pretty">{{ category.name }}</h1>
+        {% if category.description %}<p class="text-lg text-ink-dim mt-3">{{ category.description }}</p>{% endif %}
+    </header>
+
+    <div class="flex flex-wrap gap-2 mb-10">
+        <a href="/plugins" class="px-3.5 py-1.5 rounded-full border border-edge text-sm text-ink-dim hover:text-ink hover:border-accent transition-colors">Todos</a>
+        {% for c in categories %}
+            <a href="/plugins/{{ c.slug }}" {% if c.id == category.id %}aria-current="page"{% endif %}
+               class="px-3.5 py-1.5 rounded-full border text-sm transition-colors {{ c.id == category.id ? 'border-accent text-ink' : 'border-edge text-ink-dim hover:text-ink hover:border-accent' }}">{{ c.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for s in services %}
+            <a href="/plugin/{{ s.slug }}" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                <div class="font-display font-semibold text-lg group-hover:text-accent transition-colors">{{ s.name }}</div>
+                {% if s.summary %}<p class="text-sm text-ink-dim mt-1.5 line-clamp-3">{{ s.summary }}</p>{% endif %}
+            </a>
+        {% else %}
+            <p class="text-ink-dim">Aún no hay plugins en esta categoría.</p>
+        {% endfor %}
+    </div>
+</div>

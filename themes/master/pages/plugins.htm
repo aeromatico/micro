@@ -1,0 +1,48 @@
+url = "/plugins"
+layout = "base"
+title = "Plugins — Market"
+description = "Todos los plugins de Market agrupados por categoría."
+
+[services]
+mode = "index"
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">Plugins</span>
+    </nav>
+
+    <header class="max-w-2xl mb-10">
+        <h1 class="text-4xl font-bold text-pretty">Plugins</h1>
+        <p class="text-lg text-ink-dim mt-3">Cada plugin funciona solo o combinado con el resto. Explora por categoría.</p>
+    </header>
+
+    {% if groups|length > 1 %}
+    <div class="flex flex-wrap gap-2 mb-12">
+        {% for g in groups %}{% if g.url %}
+            <a href="{{ g.url }}" class="px-3.5 py-1.5 rounded-full border border-edge text-sm text-ink-dim hover:text-ink hover:border-accent transition-colors">{{ g.name }} <span class="text-xs">({{ g.items|length }})</span></a>
+        {% endif %}{% endfor %}
+    </div>
+    {% endif %}
+
+    {% for g in groups %}
+    <section class="mb-14" {% if g.slug %}id="{{ g.slug }}"{% endif %}>
+        <div class="flex items-end justify-between gap-4 mb-5">
+            <div>
+                <h2 class="text-2xl font-bold">{{ g.name }}</h2>
+                {% if g.description %}<p class="text-ink-dim mt-1 max-w-2xl">{{ g.description }}</p>{% endif %}
+            </div>
+            {% if g.url %}<a href="{{ g.url }}" class="shrink-0 text-sm font-semibold text-accent hover:underline">Ver categoría →</a>{% endif %}
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for item in g.items %}
+                <a href="{{ item.url }}" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                    <div class="font-display font-semibold text-lg group-hover:text-accent transition-colors">{{ item.name }}</div>
+                    {% if item.summary %}<p class="text-sm text-ink-dim mt-1.5 line-clamp-3">{{ item.summary }}</p>{% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
