@@ -3,6 +3,7 @@
 use Aero\Api\Models\ApiKey;
 use Aero\Chatbots\Classes\AiToolRegistry;
 use Aero\Mcp\Classes\McpServer;
+use Aero\Mcp\Models\Settings;
 use Event;
 use PluginTestCase;
 
@@ -12,8 +13,21 @@ use PluginTestCase;
  */
 class McpServerTest extends PluginTestCase
 {
-    protected function registerFakeTools(): void
+    protected function registerFakeTools(array $modules = ['crm', 'shop', 'general']): void
     {
+        Settings::set('enabled_modules', $modules);
+
+        Event::listen('aero.mcp.registerTools', function () {
+            return [
+                'crm_contacts_count' => [
+                    'module' => 'crm',
+                    'write' => false,
+                    'description' => 'Cuenta contactos.',
+                    'handler' => fn (array $a, int $t) => ['tenant' => $t],
+                ],
+            ];
+        });
+
         Event::listen('aero.chatbots.registerAiTools', function ($tenantId) {
             return [
                 'crm.contacts.search' => [
@@ -79,7 +93,7 @@ class McpServerTest extends PluginTestCase
         $this->registerFakeTools();
         $server = new McpServer($this->key(['mcp.tool.*']), 7);
 
-        $this->assertCount(3, $this->rpc($server, 'tools/list')['result']['tools']);
+        $this->assertCount(4, $this->rpc($server, 'tools/list')['result']['tools']);
     }
 
     public function testElTenantVieneDeLaKeyNoDeLosArgumentos(): void
@@ -132,5 +146,35 @@ class McpServerTest extends PluginTestCase
 
         $this->assertSame(McpServer::PROTOCOL_VERSION, $res['result']['protocolVersion']);
         $this->assertArrayHasKey('tools', $res['result']['capabilities']);
+    }
+
+    public function testModuloDesactivadoNoExponeNada(): void
+    {
+        $this->registerFakeTools([]);
+        $server = new McpServer($this->key(['*']), 7);
+
+        $this->assertSame([], $this->rpc($server, 'tools/list')['result']['tools']);
+    }
+
+    public function testScopeDeModuloCubreLecturaPeroNoEscritura(): void
+    {
+        $this->registerFakeTools();
+        $server = new McpServer($this->key(['mcp.module.crm']), 7);
+
+        $names = array_column($this->rpc($server, 'tools/list')['result']['tools'], 'name');
+        $this->assertSame(['crm_contacts_count'], $names, 'crm.contacts.search no declara write=false: cuenta como escritura');
+
+        $server = new McpServer($this->key(['mcp.module.crm.write']), 7);
+        $names = array_column($this->rpc($server, 'tools/list')['result']['tools'], 'name');
+        $this->assertSame(['crm.contacts.search'], $names);
+    }
+
+    public function testSoloSeActivaElModuloMarcado(): void
+    {
+        $this->registerFakeTools(['shop']);
+        $server = new McpServer($this->key(['mcp.tool.*']), 7);
+
+        $names = array_column($this->rpc($server, 'tools/list')['result']['tools'], 'name');
+        $this->assertSame(['shop.orders.create'], $names);
     }
 }

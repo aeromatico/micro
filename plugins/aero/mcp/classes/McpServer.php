@@ -2,7 +2,6 @@
 
 use Aero\Api\Models\ApiKey;
 use Aero\Api\Models\ApiKeyLog;
-use Aero\Chatbots\Classes\AiToolRegistry;
 use Throwable;
 
 /**
@@ -13,8 +12,9 @@ use Throwable;
  * Reglas de seguridad, en orden:
  *  1. La key ya pasó por el middleware `aero.api:mcp.use`.
  *  2. El tenant sale del dueño de la key, nunca de los argumentos.
- *  3. Una tool solo se lista o ejecuta si la key tiene el scope
- *     `mcp.tool.<nombre>` (o un comodín que lo cubra). Por defecto, ninguna.
+ *  3. Una tool solo se lista o ejecuta si su módulo está activado en Ajustes,
+ *     el plan del tenant incluye su plugin y la key tiene el scope
+ *     `mcp.tool.<nombre>` o el de su módulo. Por defecto, ninguna.
  *  4. Una tool que no está permitida responde igual que una inexistente,
  *     para no revelar qué existe.
  */
@@ -22,7 +22,7 @@ class McpServer
 {
     public const PROTOCOL_VERSION = '2025-06-18';
     public const SERVER_NAME = 'aero-mcp';
-    public const SERVER_VERSION = '1.0.0';
+    public const SERVER_VERSION = '1.1.0';
 
     public function __construct(protected ApiKey $key, protected ?int $tenantId, protected ?string $ip = null)
     {
@@ -151,19 +151,32 @@ class McpServer
      */
     protected function allowedTools(): array
     {
-        if ($this->tenantId === null || !class_exists(AiToolRegistry::class)) {
+        if ($this->tenantId === null) {
             return [];
         }
 
         $allowed = [];
 
-        foreach (AiToolRegistry::all($this->tenantId) as $name => $tool) {
-            if (!empty($tool['handler']) && is_callable($tool['handler']) && $this->key->hasScope("mcp.tool.{$name}")) {
+        foreach (McpToolRegistry::forTenant($this->tenantId) as $name => $tool) {
+            if ($this->scopeAllows($name, $tool)) {
                 $allowed[$name] = $tool;
             }
         }
 
         return $allowed;
+    }
+
+    /**
+     * Scope de la tool, o de su módulo: `mcp.module.<m>` cubre las de lectura,
+     * `mcp.module.<m>.write` las de escritura.
+     */
+    protected function scopeAllows(string $name, array $tool): bool
+    {
+        if ($this->key->hasScope("mcp.tool.{$name}")) {
+            return true;
+        }
+
+        return $this->key->hasScope("mcp.module.{$tool['module']}" . ($tool['write'] ? '.write' : ''));
     }
 
     protected function schemaFor(array $tool): array

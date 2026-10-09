@@ -1,0 +1,5 @@
+fields:
+    enabled_modules:
+        label: Módulos activos
+        type: checkboxlist
+        commentAbove: 'Solo las tools de los módulos marcados llegan a los clientes MCP. Además cada API key necesita el scope (mcp.module.<módulo> para lectura, mcp.module.<módulo>.write para escritura, o mcp.tool.<tool>) y el plan del tenant debe incluir el plugin.'

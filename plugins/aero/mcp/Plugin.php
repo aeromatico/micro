@@ -35,13 +35,41 @@ class Plugin extends PluginBase
         Event::listen('aero.api.registerScopes', function () {
             $scopes = ['mcp.use' => 'Usar el endpoint MCP (/api/v1/mcp)'];
 
-            if (class_exists(\Aero\Chatbots\Classes\AiToolRegistry::class)) {
-                foreach (\Aero\Chatbots\Classes\AiToolRegistry::all() as $name => $tool) {
-                    $scopes["mcp.tool.{$name}"] = 'Tool MCP: ' . ($tool['description'] ?? $name);
-                }
+            foreach (Classes\McpToolRegistry::catalog() as $name => $tool) {
+                $scopes["mcp.tool.{$name}"] = 'Tool MCP: ' . ($tool['description'] ?? $name);
+            }
+
+            foreach (array_keys(Classes\McpToolRegistry::modules()) as $module) {
+                $scopes["mcp.module.{$module}"] = "Módulo MCP {$module}: todas sus tools de lectura";
+                $scopes["mcp.module.{$module}.write"] = "Módulo MCP {$module}: tools que modifican datos";
             }
 
             return ['mcp' => ['label' => 'MCP — Herramientas', 'scopes' => $scopes]];
         });
+    }
+
+    public function registerPermissions(): array
+    {
+        return [
+            'aero.mcp.superadmin' => [
+                'tab'   => 'MCP',
+                'label' => 'Activar módulos del servidor MCP',
+            ],
+        ];
+    }
+
+    public function registerSettings(): array
+    {
+        return [
+            'settings' => [
+                'label'       => 'MCP',
+                'description' => 'Módulos de plugins expuestos a clientes MCP.',
+                'category'    => 'Sistema',
+                'icon'        => 'icon-plug',
+                'class'       => Models\Settings::class,
+                'order'       => 516,
+                'permissions' => ['aero.mcp.superadmin'],
+            ],
+        ];
     }
 }
