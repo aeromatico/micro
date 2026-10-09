@@ -1,0 +1,3 @@
+1.0.0:
+    - "Primera versión: tiendas Shopify por tenant (token Admin API y secreto de webhooks cifrados), webhook orders/create que emite el QR con Aero.Pay, página pública de pago y marcado automático del pedido como pagado."
+    - create_shopify_tables.php

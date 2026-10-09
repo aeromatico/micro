@@ -1,0 +1,12 @@
+title: Pedidos Shopify
+list: $/aero/shopify/models/order/columns.yaml
+modelClass: Aero\Shopify\Models\Order
+recordUrl: null
+noRecordsMessage: Aún no hay pedidos cobrados con QR.
+recordsPerPage: 30
+defaultSort:
+    column: id
+    direction: desc
+toolbar:
+    search:
+        prompt: Buscar

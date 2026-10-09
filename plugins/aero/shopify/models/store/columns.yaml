@@ -1,0 +1,6 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    shop_domain: {label: Dominio, searchable: true}
+    is_active: {label: Activa, type: switch}
+    last_webhook_at: {label: Último webhook, type: datetime}
+    last_error: {label: Último error, invisible: true}

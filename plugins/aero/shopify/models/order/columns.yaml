@@ -1,0 +1,9 @@
+columns:
+    order_name: {label: Pedido, searchable: true}
+    store: {label: Tienda, relation: store, select: name}
+    customer_email: {label: Correo, searchable: true}
+    amount: {label: Monto, type: number}
+    currency: {label: Moneda}
+    status: {label: Estado, type: selectable}
+    error: {label: Detalle}
+    created_at: {label: Creado, type: datetime}

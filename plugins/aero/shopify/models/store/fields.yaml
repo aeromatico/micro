@@ -1,0 +1,52 @@
+fields:
+    name:
+        label: Nombre
+        span: left
+        required: true
+    shop_domain:
+        label: Dominio de la tienda
+        span: right
+        required: true
+        placeholder: mi-tienda.myshopify.com
+    tenant_id:
+        label: Tenant
+        type: dropdown
+        span: left
+        permissions: [aero.shopify.superadmin]
+        required: true
+    bank_account_id:
+        label: Cuenta bancaria que cobra
+        type: dropdown
+        span: left
+        emptyOption: — Elige una cuenta —
+        comment: Solo cuentas con API de banco (no QR estático). Primero guarda la tienda si eres superadmin y elegiste tenant.
+    gateway_names:
+        label: Nombre(s) del método de pago manual
+        span: right
+        comment: Tal como lo creaste en Shopify, separados por coma. Solo los pedidos con ese método reciben QR.
+    is_active:
+        label: Activa
+        type: switch
+        span: left
+    secrets_section:
+        label: Credenciales de la app
+        type: section
+        comment: Se guardan cifradas y no se vuelven a mostrar. Deja en blanco para conservar las actuales.
+    new_access_token:
+        label: Token de Admin API
+        type: text
+        span: left
+        placeholder: shpat_…
+    new_client_secret:
+        label: Secreto de la app (firma de webhooks)
+        type: text
+        span: right
+    webhook_section:
+        label: Conexión en Shopify
+        type: section
+        context: update
+    webhook_urls:
+        label: URL del webhook orders/create
+        type: partial
+        path: field_urls
+        context: update

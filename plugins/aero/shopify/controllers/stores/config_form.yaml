@@ -1,0 +1,10 @@
+name: Tienda Shopify
+form: $/aero/shopify/models/store/fields.yaml
+modelClass: Aero\Shopify\Models\Store
+defaultRedirect: aero/shopify/stores
+create:
+    redirect: aero/shopify/stores/update/:id
+    redirectClose: aero/shopify/stores
+update:
+    redirect: aero/shopify/stores
+    redirectClose: aero/shopify/stores

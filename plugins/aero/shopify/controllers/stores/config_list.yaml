@@ -1,0 +1,10 @@
+title: Tiendas Shopify
+list: $/aero/shopify/models/store/columns.yaml
+modelClass: Aero\Shopify\Models\Store
+recordUrl: aero/shopify/stores/update/:id
+noRecordsMessage: No hay tiendas conectadas.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
