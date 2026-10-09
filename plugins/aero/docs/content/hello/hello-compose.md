@@ -20,6 +20,37 @@ envío.
 | **Programación** | Enviar de inmediato al confirmar o **programar** para una fecha/hora. |
 | **Estado** | Panel con los envíos recientes y su resultado. |
 
+## Tipos de mensaje
+
+Sobre el cuadro de mensaje eliges el tipo. Cada tipo aparece solo si la cuenta
+elegida lo admite.
+
+| Tipo | Disponible con | Qué envía |
+|------|----------------|-----------|
+| **Texto** | Todas las cuentas | Mensaje libre con formato y adjunto opcional. |
+| **Ubicación**, **Contacto**, **Encuesta** | Solo WhatsApp Web | Coordenadas, tarjeta de contacto o encuesta de 2 a 12 opciones. |
+| **Botones**, **Menú**, **Enlace**, **Pedir ubicación**, **Llamada** | Solo cuentas de la API oficial de WhatsApp | Mensajes interactivos (ver abajo). |
+
+### Mensajes interactivos
+
+| Tipo | Qué ve el cliente | Límites |
+|------|-------------------|---------|
+| **Botones** | Texto y de 1 a 3 botones de respuesta. | Cada botón, hasta 20 caracteres. |
+| **Menú** | Texto y un botón que abre un menú desplegable. | De 1 a 10 opciones; título hasta 24 y descripción hasta 72 caracteres. Texto del botón del menú hasta 20 (por defecto «Ver opciones»); título de sección opcional, hasta 24. |
+| **Enlace** | Texto y un botón que abre una URL. | Texto del botón hasta 20; la URL debe empezar con `http://` o `https://`. |
+| **Pedir ubicación** | Texto y un botón «Enviar ubicación». | Solo el texto. La respuesta llega como un mensaje de ubicación normal. |
+| **Llamada** | Texto y un botón de llamada. | Texto del botón opcional (hasta 20). Requiere WhatsApp Business Calling activado en el número que envía. |
+
+- El **texto del mensaje** es obligatorio y admite hasta **1024** caracteres.
+- Solo se envían dentro de las **24 h** posteriores al último mensaje del cliente; no hay plantilla de respaldo.
+- Si algún texto supera su límite, el envío se **rechaza con un aviso**; nunca se recorta en silencio.
+- Cada botón u opción lleva un **id**. Si no lo escribes, se genera a partir del título. Solo admite letras, números, guion y guion bajo, y no puede repetirse dentro del mensaje.
+- Cuando el cliente toca una opción, su id llega con el mensaje entrante como `interactive_id`, disponible para el chatbot y para los [workflows](workflows-nodos-interactivos).
+- Los mismos mensajes están disponibles como nodos del editor de Workflows.
+
+> [!NOTE]
+> Con una cuenta de WhatsApp Web, botones y menús se mostrarían como texto plano; por eso Redactar no los ofrece ahí.
+
 ## Adjuntos permitidos
 
 | Tipo | Formatos | Tope |

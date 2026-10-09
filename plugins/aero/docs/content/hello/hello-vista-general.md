@@ -13,7 +13,7 @@ superadmin; el día a día lo administras aquí.
 | Sección | Para qué sirve |
 |---------|----------------|
 | **Conectar cuenta** | Vincular un número de WhatsApp por QR o Cloud API. |
-| **Redactar** | Enviar un mensaje manual o masivo. |
+| **Redactar** | Enviar un mensaje manual o masivo, con texto, adjuntos o mensajes interactivos (botones, menú, enlace, pedir ubicación, llamada). |
 | **Bandeja de conversaciones** | Leer y responder chats. |
 | **Llamadas** | Historial de llamadas y grabaciones. |
 | **Contactos** | Personas con las que te escribes. |

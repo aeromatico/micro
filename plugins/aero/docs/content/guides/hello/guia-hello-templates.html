@@ -1,0 +1,288 @@
+<!doctype html>
+<!--guide {"title":"Nueva plantilla de WhatsApp","article":"hello-templates","sort":50} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Plantilla</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#eceff2; --surface:#fff; --surface-2:#f5f7f9; --ink:#1d2933; --ink-2:#55636f; --line:#d5dce2; --accent:#1f6f8b; --accent-ink:#fff; --accent-soft:#dcecf2; --hint:#b4620a; --hint-soft:#fdf0dc; --ok:#1e7a4c; --ok-soft:#dff2e8; --err:#b3261e; --err-soft:#fbe4e2;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --g-surface:#dcecf2; --g-surface-2:#cbe1ea; --g-line:#a9c9d6; --g-ink:#10303c; --g-ink-2:#3a5c6b; --g-accent:#1a6480; --g-accent-ink:#fff; --g-accent-soft:#f4fafc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark;
+  --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; } }
+:root[data-theme="dark"] { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark;
+  --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5; padding-inline:16px; padding-block:20px 48px; margin:0; }
+.wrap { max-width:1760px; margin-inline:auto; display:grid; gap:20px; grid-template-columns:minmax(0,1fr); grid-template-areas:"head" "guide" "form"; }
+@media (min-width:940px) { .wrap { grid-template-columns:360px minmax(0,1fr); grid-template-areas:"head head" "guide form"; align-items:start; } }
+header { grid-area:head; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between; }
+h1 { font-size:20px; font-weight:600; margin:0; text-wrap:balance; }
+.crumb { font-family:var(--font-mono); font-size:12px; color:var(--ink-2); overflow-wrap:anywhere; }
+.badge { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:3px; background:var(--hint-soft); color:var(--hint); }
+.guide { grid-area:guide; background:var(--g-surface); border:1px solid var(--g-line); border-radius:6px; min-width:0; color:var(--g-ink); --surface:var(--g-surface); --surface-2:var(--g-surface-2); --line:var(--g-line); --ink:var(--g-ink); --ink-2:var(--g-ink-2); --accent:var(--g-accent); --accent-ink:var(--g-accent-ink); --accent-soft:var(--g-accent-soft); }
+@media (min-width:940px) { .guide { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; } }
+.g-head { padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.g-eyebrow { font-size:15px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+.g-nav { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.g-nav .btn { min-height:44px; padding:10px 14px; font-size:15px; font-weight:600; border-radius:6px; border:2px solid var(--accent); }
+.g-nav #gPrev { background:var(--accent-soft); color:var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background:var(--accent); color:var(--accent-ink); }
+.g-nav #gNext { background:var(--accent); color:var(--accent-ink); }
+.g-nav .btn:disabled { opacity:.4; cursor:not-allowed; }
+.g-title { font-size:16px; font-weight:600; margin:14px 0 0; text-wrap:balance; }
+.progress { height:4px; background:var(--surface-2); border-radius:2px; margin-top:10px; overflow:hidden; }
+.progress > i { display:block; height:100%; background:var(--accent); width:0; transition:width .25s; }
+.g-body { padding:14px 16px; display:grid; gap:12px; }
+.g-body p { margin:0; }
+.g-sub { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--ink-2); margin-bottom:2px; }
+.note { padding:10px 12px; border-radius:4px; background:var(--hint-soft); color:#1d2933; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .note { color:#e6ecf0; } }
+:root[data-theme="dark"] .note { color:#e6ecf0; }
+.note b { color:var(--hint); }
+.example { font-family:var(--font-mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:8px 10px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.g-actions { display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 14px; }
+button { font:inherit; cursor:pointer; }
+.btn { border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:4px; }
+.btn:hover { background:var(--surface-2); }
+.btn.primary { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:500; }
+.btn.ghost { border-color:transparent; color:var(--accent); background:transparent; padding-inline:6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .steps button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.steps { list-style:none; margin:0; padding:8px; border-top:1px solid var(--line); display:grid; gap:2px; }
+.steps button { width:100%; text-align:left; display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; align-items:center; background:transparent; border:0; border-radius:4px; padding:6px 8px; color:var(--ink-2); }
+.steps button:hover { background:var(--surface-2); }
+.steps button[aria-current="step"] { background:var(--accent-soft); color:var(--ink); font-weight:500; }
+.dot { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-size:10px; font-weight:600; }
+.steps .done .dot { background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.formcol { grid-area:form; min-width:0; display:grid; gap:12px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+.panel { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; align-items:start; }
+@media (max-width:640px) { .panel { grid-template-columns:minmax(0,1fr); } }
+.field { min-width:0; padding:6px; margin:-6px; border-radius:6px; transition:box-shadow .15s,background .15s; }
+.field.full { grid-column:1 / -1; }
+.field.is-guided { box-shadow:0 0 0 2px var(--hint); background:var(--hint-soft); }
+.field[hidden] { display:none !important; }
+.sec { grid-column:1 / -1; margin:8px 0 0; font-size:13px; font-weight:600; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.sec-c { grid-column:1 / -1; font-size:12px; color:var(--ink-2); margin-top:-8px; }
+label.lbl { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+.req { color:var(--err); margin-left:2px; }
+input[type=text], input[type=number], input[type=datetime-local], select, textarea { width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:7px 9px; }
+input:disabled, select:disabled, textarea:disabled { background:var(--surface-2); color:var(--ink-2); }
+textarea { resize:vertical; min-height:84px; }
+textarea.big { min-height:150px; }
+textarea.mono { font-family:var(--font-mono); font-size:12.5px; }
+input.err, select.err, textarea.err { border-color:var(--err); }
+.chk, .cl label { display:flex; gap:8px; align-items:center; font-size:13px; padding:3px 0; }
+.help { font-size:12px; color:var(--ink-2); margin-top:4px; overflow-wrap:anywhere; }
+.errmsg { font-size:12px; color:var(--err); margin-top:4px; }
+.trig { font-family:var(--font-mono); font-size:11px; color:var(--accent); background:var(--accent-soft); border-radius:3px; padding:1px 6px; margin-left:6px; font-weight:400; }
+body:not(.show-tech) .trig { display:none; }
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid var(--line); background:var(--surface-2); border-radius:0 0 6px 6px; align-items:center; }
+.toolbar .spacer { flex:1; }
+.tchk { display:inline-flex; gap:6px; align-items:center; color:var(--ink-2); font-size:12px; }
+.ctx { font-family:var(--font-mono); font-size:11px; color:var(--ink-2); padding:8px 16px 0; }
+.box { border:1px dashed var(--line); border-radius:6px; padding:12px 14px; background:var(--surface-2); }
+.rep { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) auto; gap:8px; margin-bottom:8px; }
+table.t { width:100%; border-collapse:collapse; font-size:13px; }
+table.t th { text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-2); padding:6px 8px; border-bottom:1px solid var(--line); }
+table.t td { padding:6px 8px; border-bottom:1px solid var(--line); }
+.bubble { max-width:80%; padding:8px 10px; border-radius:8px; margin-bottom:8px; background:var(--surface); border:1px solid var(--line); }
+.bubble.out { margin-left:auto; background:var(--accent-soft); }
+.bubble small { display:block; color:var(--ink-2); font-size:11px; }
+.sample { font-size:11px; color:var(--ink-2); font-style:italic; }
+#flash { position:fixed; left:50%; transform:translateX(-50%); bottom:16px; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:4px; background:var(--ink); color:var(--bg); box-shadow:0 6px 24px rgba(0,0,0,.25); z-index:10; }
+#flash.err { background:var(--err); color:#fff; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div><h1 id="h1"></h1><div class="crumb" id="crumb"></div></div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx" id="ctxLine"></div>
+      <div class="panel" id="form"></div>
+      <div class="toolbar" id="toolbar"></div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var CFG = {
+    title: 'Nueva plantilla', updTitle: 'Editar plantilla', crumb: '/backend/aero/hello/templates/create', updCrumb: '/backend/aero/hello/templates/update/5',
+    ctx: 'context: create', canSave: true, saveLabel: 'Crear', saveCloseLabel: 'Crear y cerrar', updLabel: 'Guardar', updCloseLabel: 'Guardar y cerrar',
+    savedMsg: 'Plantilla creada. En la app real vuelves a la lista de plantillas.',
+    fields: [
+      { id: 'name', label: 'Nombre', type: 'text', req: true, max: 255, ex: 'Pedido listo',
+        step: { title: 'Dale un nombre a la plantilla', body: 'Es el nombre interno con el que tu equipo la reconoce al elegirla en Redactar.', tip: 'Usa un nombre por caso de uso: pedido listo, recordatorio de pago, bienvenida.' } },
+      { id: 'channel_type', label: 'Canal', type: 'select', opts: [['whatsapp', 'WhatsApp']], def: 'whatsapp', help: 'Este menú solo maneja plantillas de WhatsApp.', ex: 'whatsapp',
+        step: { title: 'Canal', body: 'Solo existe WhatsApp: este menú únicamente maneja plantillas de WhatsApp. Ya viene seleccionado.', tip: 'Los campos del proveedor de abajo aparecen únicamente mientras el canal es WhatsApp.' } },
+      { id: 'body', label: 'Mensaje', type: 'textarea', big: true, req: true, span: 'full', help: 'Usa variables entre llaves dobles, ej. {{name}}.', ex: 'Hola {{name}}, tu pedido está listo para retirar.',
+        step: { title: 'Escribe el mensaje', body: 'Es el texto que recibirá el cliente. Las variables van entre llaves dobles y se reemplazan al enviar; {{name}} es el nombre del destinatario.', tip: 'Escríbelas exactamente así: {{name}}, con dos llaves de cada lado y sin espacios.' } },
+      { id: 'provider_template_name', label: 'Nombre de plantilla aprobada (proveedor)', type: 'text', show: { f: 'channel_type', eq: 'whatsapp' },
+        help: 'Solo para cuentas Zernio + WhatsApp Cloud API, que exigen plantilla aprobada por Meta para escribir fuera de las 24 h. Las cuentas WhatsApp Web (wapi) la ignoran y envían el mensaje tal cual.', ex: 'pedido_listo', opt: true,
+        step: { title: 'Nombre de la plantilla aprobada', body: 'Solo si tu cuenta usa WhatsApp Cloud API: escribe aquí el nombre exacto de la plantilla que Meta aprobó. Con WhatsApp Web (wapi) se ignora.', tip: 'Sin este nombre, con Cloud API solo podrás escribir dentro de las 24 h posteriores al último mensaje del cliente.' } },
+      { id: 'provider_language', label: 'Idioma de la plantilla', type: 'text', show: { f: 'channel_type', eq: 'whatsapp' }, ph: 'es', ex: 'es', opt: true,
+        step: { title: 'Idioma de la plantilla', body: 'Código de idioma de la plantilla aprobada. Si lo dejas vacío, el sistema usa es.', tip: 'Debe coincidir con el idioma con el que Meta aprobó la plantilla.' } },
+      { id: 'variables', label: 'Variables disponibles', type: 'text', span: 'full', help: 'Lista informativa de las variables usadas en el mensaje, ej. name. Sepáralas con comas.', ex: 'name', opt: true,
+        step: { title: 'Variables disponibles', body: 'Lista informativa de las variables que usa el mensaje, sin llaves. Con Cloud API el orden se envía como parámetros de la plantilla aprobada.', tip: 'Anota solo los nombres (name), no las llaves.' } }
+    ]
+  };
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var st = { step: 0, seen: {}, saved: false };
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  function byId(id) { return CFG.fields.filter(function (f) { return f.id === id; })[0]; }
+  function val(id) { var f = byId(id), n = $('#' + id); if (!n) return ''; if (f.type === 'checkbox') return n.checked; if (f.type === 'checklist') return $$('input:checked', n).length; return (n.value || '').trim(); }
+  function vis(f) { if (!f.show) return true; var v = val(f.show.f); return f.show.eq === undefined ? !!v : v === f.show.eq; }
+  function filled(f) { var v = val(f.id); return f.type === 'checkbox' ? true : !!v; }
+  function fire(n) { n.dispatchEvent(new Event('input', { bubbles: true })); n.dispatchEvent(new Event('change', { bubbles: true })); }
+  function setVal(id, v) {
+    var f = byId(id), n = $('#' + id); if (!n) return;
+    if (f.type === 'checkbox') n.checked = !!v;
+    else if (f.type === 'checklist') { $$('input', n).forEach(function (c, i) { c.checked = v.indexOf(i) >= 0; }); }
+    else n.value = v;
+    fire(n);
+  }
+
+  function build() {
+    var form = $('#form'); form.innerHTML = '';
+    CFG.fields.forEach(function (f) {
+      if (f.type === 'section') { form.appendChild(el('h3', 'sec', f.label)); if (f.comment) form.appendChild(el('div', 'sec-c', f.comment)); return; }
+      var box = el('div', 'field' + (f.span === 'full' || f.type === 'html' ? ' full' : '')); box.setAttribute('data-f', f.id);
+      if (f.type === 'html') { box.id = f.id; box.innerHTML = f.html; form.appendChild(box); return; }
+      var ctl;
+      if (f.type !== 'checkbox') {
+        var lb = el('label', 'lbl', f.label); lb.setAttribute('for', f.id);
+        if (f.req) lb.appendChild(el('span', 'req', '*'));
+        if (f.show) lb.appendChild(el('span', 'trig', 'show si ' + f.show.f + (f.show.eq !== undefined ? ' = ' + f.show.eq : ' marcado')));
+        box.appendChild(lb);
+      }
+      if (f.type === 'select') { ctl = el('select'); (f.empty ? [['', f.empty]] : []).concat(f.opts).forEach(function (o) { var op = el('option', '', o[1]); op.value = o[0]; ctl.appendChild(op); }); if (f.def !== undefined) ctl.value = f.def; }
+      else if (f.type === 'textarea' || f.type === 'json') { ctl = el('textarea', (f.big ? 'big ' : '') + (f.type === 'json' ? 'mono' : '')); if (f.def) ctl.value = f.def; }
+      else if (f.type === 'checkbox') { ctl = el('input'); ctl.type = 'checkbox'; ctl.checked = !!f.def; var w = el('label', 'chk'); w.appendChild(ctl); w.appendChild(document.createTextNode(f.label)); if (f.show) w.appendChild(el('span', 'trig', 'show si ' + f.show.f)); box.appendChild(w); }
+      else if (f.type === 'checklist') { ctl = el('div', 'cl'); f.opts.forEach(function (o, i) { var l = el('label'); var c = el('input'); c.type = 'checkbox'; l.appendChild(c); l.appendChild(document.createTextNode(o)); ctl.appendChild(l); }); }
+      else { ctl = el('input'); ctl.type = f.type === 'number' ? 'number' : f.type === 'datetime' ? 'datetime-local' : 'text'; if (f.def !== undefined) ctl.value = f.def; if (f.ph) ctl.placeholder = f.ph; }
+      ctl.id = f.id; if (f.ro) ctl.disabled = true; if (f.max && ctl.maxLength !== undefined && f.type === 'text') { /* el máximo se valida al guardar */ }
+      if (f.type !== 'checkbox') box.appendChild(ctl); else { ctl.id = f.id; }
+      if (f.help) box.appendChild(el('div', 'help', f.help));
+      box.appendChild(Object.assign(el('div', 'errmsg'), { hidden: true }));
+      form.appendChild(box);
+    });
+    if (CFG.init) CFG.init();
+    $$('.field input, .field select, .field textarea').forEach(function (n) {
+      n.addEventListener('input', function () { n.classList.remove('err'); var m = $('.errmsg', n.closest('.field')); if (m) m.hidden = true; refresh(); });
+      n.addEventListener('change', refresh);
+      n.addEventListener('focus', function () { var b = n.closest('.field'); if (!b) return; var i = ids().indexOf(b.getAttribute('data-f')); if (i >= 0 && i !== st.step) go(i, false); });
+    });
+    applyShow();
+  }
+  function applyShow() { CFG.fields.forEach(function (f) { var b = $('[data-f="' + f.id + '"]'); if (b) b.hidden = !vis(f); }); }
+
+  function stepList() {
+    var s = CFG.fields.filter(function (f) { return f.step && vis(f); }).map(function (f) {
+      return { id: f.id, f: f, title: f.step.title, body: f.step.body, tip: f.step.tip, ex: f.exText || (typeof f.ex === 'string' ? f.ex : ''),
+        kind: f.ro ? 'ro' : f.req ? 'req' : (f.opt ? 'opt' : ''),
+        done: function () { return (f.ro || f.opt) ? !!st.seen[f.id] : (f.req ? filled(f) : (!!st.seen[f.id] || filled(f))); },
+        fill: f.ro ? null : function () { setVal(f.id, f.ex); } };
+    });
+    if (CFG.canSave) s.push({ id: '_save', title: 'Guardar', kind: '', body: 'Pulsa «' + (st.saved ? CFG.updLabel : CFG.saveLabel) + '». La demo valida los campos obligatorios y te muestra el resultado.', tip: 'Los datos son de ejemplo y esta demo no guarda nada.', ex: '', done: function () { return st.saved; }, fill: function () { save(false); } });
+    return s;
+  }
+  function ids() { return stepList().map(function (s) { return s.id; }); }
+  function go(i, scroll) {
+    var steps = stepList(); st.step = Math.max(0, Math.min(steps.length - 1, i));
+    st.seen[steps[st.step].id] = true; render();
+    if (scroll !== false) { var n = $('[data-f="' + steps[st.step].id + '"]'); if (n && !n.hidden) n.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  }
+  function refresh() {
+    var cur = stepList()[st.step]; var curId = cur && cur.id; applyShow();
+    var idx = ids().indexOf(curId); st.step = idx >= 0 ? idx : Math.min(st.step, ids().length - 1); render();
+  }
+  function render() {
+    var steps = stepList(), cur = steps[st.step];
+    $('#gEyebrow').textContent = 'Paso ' + (st.step + 1) + ' de ' + steps.length + (cur.kind === 'ro' ? ' · solo lectura' : cur.kind === 'req' ? ' · obligatorio' : cur.kind === 'opt' ? ' · opcional' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    body.appendChild(el('p', '', cur.body));
+    if (cur.ex) { var w = el('div'); w.appendChild(el('div', 'g-sub', 'Ejemplo')); w.appendChild(el('div', 'example', cur.ex)); body.appendChild(w); }
+    if (cur.tip) { var n = el('div', 'note'); n.appendChild(el('b', '', 'Ojo. ')); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    $('#gBar').style.width = Math.round(100 * steps.filter(function (s) { return s.done(); }).length / steps.length) + '%';
+    $('#gPrev').disabled = st.step === 0; $('#gNext').disabled = st.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill; $('#gFill').textContent = cur.id === '_save' ? 'Usar los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = el('li'), bt = el('button'); bt.type = 'button'; if (i === st.step) bt.setAttribute('aria-current', 'step');
+      var d = s.done(); if (d) bt.className = 'done';
+      bt.appendChild(el('span', 'dot', d ? '✓' : String(i + 1))); bt.appendChild(el('span', '', s.title));
+      bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    var g = $('[data-f="' + cur.id + '"]'); if (g && !g.hidden) g.classList.add('is-guided');
+  }
+
+  function showErr(id, msg) {
+    var b = $('[data-f="' + id + '"]'); if (!b) return; var m = $('.errmsg', b), i = $('input,select,textarea', b);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; } if (i) i.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = [];
+    CFG.fields.forEach(function (f) {
+      if (!f.id || f.ro || f.type === 'html' || f.type === 'section') return; showErr(f.id, '');
+      if (!vis(f)) return;
+      var v = val(f.id);
+      if (f.req && !v) errs.push([f.id, 'El campo ' + f.label + ' es obligatorio.']);
+      else if (f.max && typeof v === 'string' && v.length > f.max) errs.push([f.id, f.label + ' no puede superar ' + f.max + ' caracteres.']);
+      else if (f.type === 'json' && v) { try { JSON.parse(v); } catch (e) { errs.push([f.id, 'JSON inválido. Revisa comillas dobles y comas.']); } }
+    });
+    return errs;
+  }
+  var ft;
+  function flash(msg, isErr) { var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+  function save(close) {
+    var errs = validate();
+    if (errs.length) { errs.forEach(function (e) { showErr(e[0], e[1]); }); var i = ids().indexOf(errs[0][0]); if (i >= 0) go(i); flash('No se pudo guardar: ' + errs[0][1], true); return; }
+    st.saved = true; head(); toolbar();
+    flash(close ? CFG.savedMsg : (CFG.updTitle ? 'Guardado. Ahora estás en la pantalla de edición.' : 'Guardado.')); refresh();
+  }
+  function head() { $('#h1').textContent = st.saved && CFG.updTitle ? CFG.updTitle : CFG.title; $('#crumb').textContent = (st.saved && CFG.updCrumb ? CFG.updCrumb : CFG.crumb) + ' · Guía de capacitación'; }
+  function toolbar() {
+    var t = $('#toolbar'); t.innerHTML = '';
+    if (CFG.canSave) {
+      var a = el('button', 'btn primary', st.saved ? CFG.updLabel : CFG.saveLabel); a.type = 'button'; a.onclick = function () { save(false); }; t.appendChild(a);
+      var b = el('button', 'btn', st.saved ? CFG.updCloseLabel : CFG.saveCloseLabel); b.type = 'button'; b.onclick = function () { save(true); }; t.appendChild(b);
+    }
+    var r = el('button', 'btn', 'Reiniciar demo'); r.type = 'button'; r.onclick = function () { location.reload(); }; t.appendChild(r);
+    t.appendChild(el('span', 'spacer'));
+    var l = el('label', 'tchk'); var c = el('input'); c.type = 'checkbox'; c.onchange = function () { document.body.classList.toggle('show-tech', c.checked); };
+    l.appendChild(c); l.appendChild(document.createTextNode(' Mostrar reglas técnicas (trigger)')); t.appendChild(l);
+  }
+
+  $('#gPrev').onclick = function () { go(st.step - 1); };
+  $('#gNext').onclick = function () { go(st.step + 1); };
+  $('#gFill').onclick = function () { var s = stepList()[st.step]; if (s.fill) s.fill(); refresh(); };
+  $('#ctxLine').textContent = CFG.ctx;
+  build(); head(); toolbar(); go(0, false);
+})();
+</script>
+</body></html>

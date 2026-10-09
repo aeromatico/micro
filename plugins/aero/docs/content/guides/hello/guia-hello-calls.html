@@ -1,0 +1,202 @@
+<!doctype html>
+<!--guide {"title":"Ficha de una llamada","article":"hello-calls","sort":20} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Llamada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#eceff2; --surface:#fff; --surface-2:#f5f7f9; --ink:#1d2933; --ink-2:#55636f; --line:#d5dce2; --accent:#1f6f8b; --accent-ink:#fff; --accent-soft:#dcecf2; --hint:#b4620a; --hint-soft:#fdf0dc; --ok:#1e7a4c; --ok-soft:#dff2e8; --err:#b3261e; --err-soft:#fbe4e2;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --g-surface:#dcecf2; --g-surface-2:#cbe1ea; --g-line:#a9c9d6; --g-ink:#10303c; --g-ink-2:#3a5c6b; --g-accent:#1a6480; --g-accent-ink:#fff; --g-accent-soft:#f4fafc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark;
+  --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; } }
+:root[data-theme="dark"] { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark;
+  --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5; padding-inline:16px; padding-block:20px 48px; margin:0; }
+.wrap { max-width:1760px; margin-inline:auto; display:grid; gap:20px; grid-template-columns:minmax(0,1fr); grid-template-areas:"head" "guide" "form"; }
+@media (min-width:940px) { .wrap { grid-template-columns:360px minmax(0,1fr); grid-template-areas:"head head" "guide form"; align-items:start; } }
+header { grid-area:head; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between; }
+h1 { font-size:20px; font-weight:600; margin:0; text-wrap:balance; }
+.crumb { font-family:var(--font-mono); font-size:12px; color:var(--ink-2); overflow-wrap:anywhere; }
+.badge { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:3px; background:var(--hint-soft); color:var(--hint); }
+.guide { grid-area:guide; background:var(--g-surface); border:1px solid var(--g-line); border-radius:6px; min-width:0; color:var(--g-ink); --surface:var(--g-surface); --surface-2:var(--g-surface-2); --line:var(--g-line); --ink:var(--g-ink); --ink-2:var(--g-ink-2); --accent:var(--g-accent); --accent-ink:var(--g-accent-ink); --accent-soft:var(--g-accent-soft); }
+@media (min-width:940px) { .guide { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; } }
+.g-head { padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.g-eyebrow { font-size:15px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+.g-nav { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.g-nav .btn { min-height:44px; padding:10px 14px; font-size:15px; font-weight:600; border-radius:6px; border:2px solid var(--accent); }
+.g-nav #gPrev { background:var(--accent-soft); color:var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background:var(--accent); color:var(--accent-ink); }
+.g-nav #gNext { background:var(--accent); color:var(--accent-ink); }
+.g-nav .btn:disabled { opacity:.4; cursor:not-allowed; }
+.g-title { font-size:16px; font-weight:600; margin:14px 0 0; text-wrap:balance; }
+.progress { height:4px; background:var(--surface-2); border-radius:2px; margin-top:10px; overflow:hidden; }
+.progress > i { display:block; height:100%; background:var(--accent); width:0; transition:width .25s; }
+.g-body { padding:14px 16px; display:grid; gap:12px; }
+.g-body p { margin:0; }
+.note { padding:10px 12px; border-radius:4px; background:var(--hint-soft); color:#1d2933; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .note { color:#e6ecf0; } }
+:root[data-theme="dark"] .note { color:#e6ecf0; }
+.note b { color:var(--hint); }
+.g-actions { display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 14px; }
+button { font:inherit; cursor:pointer; }
+.btn { border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:4px; }
+.btn:hover { background:var(--surface-2); }
+.btn.primary { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:500; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .steps button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.steps { list-style:none; margin:0; padding:8px; border-top:1px solid var(--line); display:grid; gap:2px; }
+.steps button { width:100%; text-align:left; display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; align-items:center; background:transparent; border:0; border-radius:4px; padding:6px 8px; color:var(--ink-2); }
+.steps button:hover { background:var(--surface-2); }
+.steps button[aria-current="step"] { background:var(--accent-soft); color:var(--ink); font-weight:500; }
+.dot { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-size:10px; font-weight:600; }
+.steps .done .dot { background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.formcol { grid-area:form; min-width:0; display:grid; gap:12px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+.panel { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; align-items:start; }
+@media (max-width:640px) { .panel { grid-template-columns:minmax(0,1fr); } }
+.field { min-width:0; padding:6px; margin:-6px; border-radius:6px; transition:box-shadow .15s,background .15s; }
+.field.full { grid-column:1 / -1; }
+.field.is-guided { box-shadow:0 0 0 2px var(--hint); background:var(--hint-soft); }
+.field[hidden] { display:none !important; }
+.sec { grid-column:1 / -1; margin:8px 0 0; font-size:13px; font-weight:600; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.sec-c { grid-column:1 / -1; font-size:12px; color:var(--ink-2); margin-top:-8px; }
+label.lbl { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+input[type=text], input[type=number], select, textarea { width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:7px 9px; }
+input:disabled, select:disabled, textarea:disabled { background:var(--surface-2); color:var(--ink-2); }
+textarea { resize:vertical; min-height:60px; }
+.help { font-size:12px; color:var(--ink-2); margin-top:4px; overflow-wrap:anywhere; }
+.trig { font-family:var(--font-mono); font-size:11px; color:var(--accent); background:var(--accent-soft); border-radius:3px; padding:1px 6px; margin-left:6px; font-weight:400; }
+body:not(.show-tech) .trig { display:none; }
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid var(--line); background:var(--surface-2); border-radius:0 0 6px 6px; align-items:center; }
+.toolbar .spacer { flex:1; }
+.tchk { display:inline-flex; gap:6px; align-items:center; color:var(--ink-2); font-size:12px; }
+.ctx { font-family:var(--font-mono); font-size:11px; color:var(--ink-2); padding:8px 16px 0; }
+.demo { display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--ink-2); }
+.demo select { width:auto; }
+table.t { width:100%; border-collapse:collapse; font-size:13px; }
+table.t th { text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-2); padding:6px 8px; border-bottom:1px solid var(--line); }
+table.t td { padding:6px 8px; border-bottom:1px solid var(--line); }
+.muted { color:var(--ink-2); }
+.sample { font-size:11px; color:var(--ink-2); font-style:italic; margin-top:6px; }
+#flash { position:fixed; left:50%; transform:translateX(-50%); bottom:16px; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:4px; background:var(--ink); color:var(--bg); box-shadow:0 6px 24px rgba(0,0,0,.25); z-index:10; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div><h1>Ficha de una llamada</h1><div class="crumb">/backend/aero/hello/calls (ficha de solo lectura) · Guía de capacitación</div></div>
+    <span class="badge">Demo: datos de ejemplo</span>
+  </header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx">Ficha de solo lectura · todos los campos están deshabilitados</div>
+      <div class="panel" id="form"></div>
+      <div class="toolbar" id="toolbar"></div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  var st = { step: 0, seen: {} };
+
+  // Todos los campos son disabled en el YAML: la ficha es de solo lectura.
+  var F = [
+    { type: 'section', label: 'Llamada' },
+    { id: 'demoStatus', type: 'html', html: '<div class="demo"><label for="demoSel">Estado de ejemplo (solo para esta demo):</label><select id="demoSel"><option value="completed">completed</option><option value="failed">failed</option></select></div>' },
+    { id: 'direction', label: 'Dirección', type: 'text', def: 'Entrante (ejemplo)', step: { title: 'Dirección y estado', body: 'Dirección indica si la llamada fue entrante o saliente. Estado es el resultado actual de la llamada.', tip: 'Cambia el «Estado de ejemplo» a failed y verás aparecer el campo Error, que solo se muestra cuando la llamada falló.' } },
+    { id: 'status', label: 'Estado', type: 'text', def: 'completed' },
+    { id: 'from_number', label: 'De', type: 'text', def: '+591 71234567', step: { title: 'De y Para', body: 'Los números involucrados: quién llama (De) y a quién se llama (Para).', tip: '' } },
+    { id: 'to_number', label: 'Para', type: 'text', def: '+591 76543210' },
+    { id: 'forward_to', label: 'Destino de reenvío', type: 'text', full: true, def: 'tel:+59176543210', help: 'Snapshot al momento de enrutar: tel:, sip: o wss:// (agente de IA).', step: { title: 'Destino de reenvío', body: 'A dónde se enrutó la llamada cuando entró: un teléfono (tel:), una línea SIP (sip:) o un agente de IA (wss://). Es una copia tomada en ese momento.', tip: 'Si luego cambias el enrutamiento, este valor no cambia: refleja lo que ocurrió.' } },
+    { id: 'started_at', label: 'Inicio', type: 'text', def: '2026-10-07 10:15', step: { title: 'Inicio, fin y duración', body: 'Cuándo empezó y terminó la llamada, y cuánto duró.', tip: '' } },
+    { id: 'ended_at', label: 'Fin', type: 'text', def: '2026-10-07 10:19' },
+    { id: 'duration_label', label: 'Duración', type: 'text', def: '4 min 12 s' },
+    { id: 'end_reason', label: 'Motivo de fin', type: 'text', def: 'hangup', help: 'hangup, no_answer, rejected, error. sip_hangup_cause separa un destino que rechazó de una línea ocupada.', step: { title: 'Motivo de fin', body: 'Por qué terminó: hangup, no_answer, rejected o error. sip_hangup_cause distingue un destino que rechazó de una línea ocupada.', tip: '' } },
+    { id: 'error_message', label: 'Error', type: 'textarea', full: true, def: 'Mensaje de error de ejemplo', show: { f: 'status', eq: 'failed' }, step: { title: 'Error', body: 'Solo aparece cuando el estado es failed. Muestra el mensaje de error que reportó el proveedor.', tip: 'Compártelo con soporte si una llamada falla repetidamente.' } },
+    { type: 'section', label: 'Grabación y transcripción' },
+    { id: 'recording', type: 'html', html: '<div id="recBox"><p class="muted" style="margin:0 0 8px">El enlace de grabación expira a los ~10 minutos. Pide uno nuevo para escuchar la llamada.</p><button type="button" class="btn" id="recBtn">Obtener grabación</button><div class="help">El botón aparece cuando la llamada tiene un identificador del proveedor. En esta demo no reproduce audio.</div></div>', step: { title: 'Grabación', body: 'El reproductor aparece solo si hay un enlace vigente. Los enlaces expiran a los ~10 minutos: pulsa «Obtener grabación» para pedir uno nuevo.', tip: 'Si el reproductor no aparece, no es un error: pide el enlace de nuevo.' } },
+    { id: 'transcript', type: 'html', html: '<label class="lbl">Transcripción</label><table class="t"><thead><tr><th>Rol</th><th>Texto</th><th>Momento</th></tr></thead><tbody><tr><td>Cliente</td><td>Hola, quiero consultar por mi pedido.</td><td>00:03</td></tr><tr><td>Agente</td><td>Claro, dime tu número de orden.</td><td>00:07</td></tr></tbody></table><div class="sample">Transcripción de ejemplo.</div>', step: { title: 'Transcripción', body: 'El diálogo de la llamada por turnos, con columnas Rol, Texto y Momento. Es una tabla de solo lectura.', tip: '' } },
+    { type: 'section', label: 'Costos', comment: 'Meta cobra su parte directo a tu cuenta de WhatsApp Business; esto es aparte, es lo que te cobramos nosotros por la llamada. Son dos facturas distintas, no se suman.' },
+    { id: 'billable_cost_usd', label: 'Costo de la plataforma (USD)', type: 'number', def: '0.0500', step: { title: 'Costo de la plataforma', body: 'Lo que cobra la plataforma por la llamada, en dólares.', tip: 'No incluye lo que cobra Meta: son facturas distintas.' } },
+    { id: 'meta_cost_usd', label: 'Cobrado por Meta (USD)', type: 'number', def: '0.0200', help: 'Informativo — aparece en tu factura de Meta/WhatsApp Business.', step: { title: 'Cobrado por Meta', body: 'Informativo: lo que Meta te cobra directo en tu cuenta de WhatsApp Business.', tip: 'Aparece en tu factura de Meta, no en la de la plataforma.' } },
+    { id: 'total_cost_usd', label: 'Costo económico total (USD)', type: 'number', def: '0.0700', step: { title: 'Costo económico total', body: 'Suma informativa del costo de la plataforma y el de Meta, para que veas el costo real de la llamada.', tip: 'Los valores de esta demo son inventados.' } }
+  ];
+  function byId(id) { return F.filter(function (f) { return f.id === id; })[0]; }
+  function val(id) { var n = $('#' + id); return n ? (n.value || '').trim() : ''; }
+  function vis(f) { return !f.show || val(f.show.f) === f.show.eq; }
+
+  var form = $('#form');
+  F.forEach(function (f) {
+    if (f.type === 'section') { form.appendChild(el('h3', 'sec', f.label)); if (f.comment) form.appendChild(el('div', 'sec-c', f.comment)); return; }
+    var box = el('div', 'field' + (f.full || f.type === 'html' ? ' full' : '')); box.setAttribute('data-f', f.id);
+    if (f.type === 'html') { box.innerHTML = f.html; form.appendChild(box); return; }
+    var lb = el('label', 'lbl', f.label); lb.setAttribute('for', f.id);
+    if (f.show) lb.appendChild(el('span', 'trig', 'show si ' + f.show.f + ' = ' + f.show.eq));
+    box.appendChild(lb);
+    var c = f.type === 'textarea' ? el('textarea') : el('input'); if (c.tagName === 'INPUT') c.type = f.type === 'number' ? 'number' : 'text';
+    c.id = f.id; c.value = f.def; c.disabled = true; box.appendChild(c);
+    if (f.help) box.appendChild(el('div', 'help', f.help));
+    form.appendChild(box);
+  });
+  $('#demoSel').onchange = function () { $('#status').value = this.value; applyShow(); render(); };
+  $('#recBtn').onclick = function () { flash('Grabación solicitada (simulada).'); };
+  $$('.field').forEach(function (b) { b.addEventListener('click', function () { var i = ids().indexOf(b.getAttribute('data-f')); if (i >= 0 && i !== st.step) go(i, false); }); });
+  function applyShow() { F.forEach(function (f) { var b = $('[data-f="' + f.id + '"]'); if (b && f.show) b.hidden = !vis(f); }); }
+
+  function stepList() { return F.filter(function (f) { return f.step && vis(f); }); }
+  function ids() { return stepList().map(function (f) { return f.id; }); }
+  function go(i, scroll) {
+    var s = stepList(); st.step = Math.max(0, Math.min(s.length - 1, i)); st.seen[s[st.step].id] = true; render();
+    if (scroll !== false) { var n = $('[data-f="' + s[st.step].id + '"]'); if (n && !n.hidden) n.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  }
+  function render() {
+    var s = stepList(); if (st.step >= s.length) st.step = s.length - 1; var cur = s[st.step];
+    $('#gEyebrow').textContent = 'Paso ' + (st.step + 1) + ' de ' + s.length + ' · solo lectura';
+    $('#gTitle').textContent = cur.step.title;
+    var body = $('#gBody'); body.innerHTML = ''; body.appendChild(el('p', '', cur.step.body));
+    if (cur.step.tip) { var n = el('div', 'note'); n.appendChild(el('b', '', 'Ojo. ')); n.appendChild(document.createTextNode(cur.step.tip)); body.appendChild(n); }
+    $('#gBar').style.width = Math.round(100 * s.filter(function (f) { return st.seen[f.id]; }).length / s.length) + '%';
+    $('#gPrev').disabled = st.step === 0; $('#gNext').disabled = st.step === s.length - 1;
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    s.forEach(function (f, i) {
+      var li = el('li'), bt = el('button'); bt.type = 'button'; if (i === st.step) bt.setAttribute('aria-current', 'step'); if (st.seen[f.id]) bt.className = 'done';
+      bt.appendChild(el('span', 'dot', st.seen[f.id] ? '✓' : String(i + 1))); bt.appendChild(el('span', '', f.step.title)); bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (b) { b.classList.remove('is-guided'); });
+    var g = $('[data-f="' + cur.id + '"]'); if (g && !g.hidden) g.classList.add('is-guided');
+    if (cur.id === 'direction') { var s2 = $('[data-f="status"]'); if (s2) s2.classList.add('is-guided'); }
+    if (cur.id === 'from_number') { var t2 = $('[data-f="to_number"]'); if (t2) t2.classList.add('is-guided'); }
+    if (cur.id === 'started_at') { ['ended_at', 'duration_label'].forEach(function (k) { var x = $('[data-f="' + k + '"]'); if (x) x.classList.add('is-guided'); }); }
+  }
+  var ft;
+  function flash(msg) { var f = $('#flash'); f.textContent = msg; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 3500); }
+  var t = $('#toolbar');
+  var r = el('button', 'btn', 'Reiniciar demo'); r.type = 'button'; r.onclick = function () { location.reload(); }; t.appendChild(r); t.appendChild(el('span', 'spacer'));
+  var l = el('label', 'tchk'); var ck = el('input'); ck.type = 'checkbox'; ck.onchange = function () { document.body.classList.toggle('show-tech', ck.checked); };
+  l.appendChild(ck); l.appendChild(document.createTextNode(' Mostrar reglas técnicas (trigger)')); t.appendChild(l);
+  $('#gPrev').onclick = function () { go(st.step - 1); };
+  $('#gNext').onclick = function () { go(st.step + 1); };
+  applyShow(); go(0, false);
+})();
+</script>
+</body></html>
