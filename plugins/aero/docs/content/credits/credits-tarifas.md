@@ -19,7 +19,7 @@ y a qué tarifa, para que sepas de antemano cuánto te cuesta cada cosa.
 
 | Moneda | Equivalencia aprox. | Se usa para |
 |--------|----------------------|-------------|
-| 🟤 **Bronce** | ≈ Bs 0.055 / moneda | Mensajería (WhatsApp, SMS) e IA de uso frecuente |
+| 🟤 **Bronce** | ≈ Bs 0.055 / moneda | Mensajería (WhatsApp, SMS), cobros con QR, API e IA de uso frecuente |
 | ⚪ **Plata** | ≈ Bs 1.11 / moneda | Servicios más costosos por unidad (ej. llamadas de voz) |
 | 🟡 **Oro** | ≈ Bs 11.07 / moneda | Servicios de IA de mayor consumo (no se puede intercambiar por otra moneda) |
 | 💵 **Saldo en Bs** | 1:1 | Sobrante de tus recargas; sirve para comprar cualquier moneda al instante |
@@ -90,6 +90,36 @@ Algunos ejemplos:
 El costo exacto de cada endpoint que tenés habilitado se muestra siempre en
 el catálogo de **Aero Hub → Endpoints** antes de usarlo, junto con el color
 de moneda con el que se cobra.
+
+### Pagos con QR (Aero.Pay)
+
+| Servicio | Costo |
+|----------|-------|
+| QR de cobro completado (pagado) | **3 monedas de bronce** por QR |
+
+La tarifa se cobra **solo cuando el QR se paga**, no al generarlo: un QR
+pendiente, vencido o anulado no te cuesta nada. Aplica a los cobros de tu
+tienda, cobranzas, API, automatizaciones y Shopify. Se cobra una sola vez por
+QR. El pago de tu cliente nunca se frena por falta de saldo: si en ese momento
+no te alcanzan las monedas, el cobro del cliente se acredita igual, pero la
+tarifa de ese QR queda sin cobrar y te llega la alerta de saldo bajo.
+
+### API pública (Aero.Api)
+
+Cada petición a la API con una **API key de tu sitio** puede tener un precio,
+definido **por módulo** (Hello, Pay, Shop, SMS, Tracking, Hub, etc.). Todas las
+peticiones a un mismo módulo cuestan lo mismo, y cada módulo tiene su moneda y
+su tarifa.
+
+- Se cobra **solo si la petición sale bien**: una respuesta con error
+  (código 400 o superior) no se cobra.
+- Si no te alcanza el saldo, la API responde **402 `insufficient_credits`**
+  y la petición no se ejecuta.
+- Los endpoints que **ya tienen su propia tarifa** no se cobran dos veces:
+  por ejemplo, el envío de mensajes y las llamadas de voz de WhatsApp siguen
+  costando lo indicado arriba, sin cargo adicional por petición.
+- Un módulo sin precio asignado es gratis. Las tarifas se ajustan por módulo
+  y pueden cambiar; ante la duda, consultá el precio vigente con soporte.
 
 ### Conectores personalizados (Aero.Connector)
 
