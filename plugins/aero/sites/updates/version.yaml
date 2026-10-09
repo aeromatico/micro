@@ -390,3 +390,7 @@
 
 1.63.0:
     - "Planes: cada característica puede marcarse como «Destacada»; la tabla de precios de la landing master lee los planes de la BD."
+
+1.64.0:
+    - "Permiso aero.shopify.use para el rol tenant_admin (conectar su tienda Shopify y cobrar con QR)."
+    - grant_shopify_to_tenant_admin.php
