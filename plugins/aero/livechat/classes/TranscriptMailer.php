@@ -25,7 +25,7 @@ class TranscriptMailer
             $label = match ($m->sender_type) {
                 Message::AGENT  => 'Agente',
                 Message::SYSTEM => 'Sistema',
-                default         => $contact->name ?: 'Vos',
+                default         => $contact->name ?: 'Tú',
             };
 
             $body = $m->hasAttachment()

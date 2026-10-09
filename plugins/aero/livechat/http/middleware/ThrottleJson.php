@@ -24,7 +24,7 @@ class ThrottleJson
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             return response()->json([
                 'error'   => 'too_many_requests',
-                'message' => 'Demasiados intentos. Esperá un momento y probá de nuevo.',
+                'message' => 'Demasiados intentos. Espera un momento y prueba de nuevo.',
             ], 429);
         }
 

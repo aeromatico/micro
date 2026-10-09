@@ -47,12 +47,12 @@
                 return {
                     error: 'server_error',
                     message: r.status === 429
-                        ? 'Demasiados intentos. Esperá un momento y probá de nuevo.'
-                        : 'El servidor no respondió correctamente. Probá de nuevo.',
+                        ? 'Demasiados intentos. Espera un momento y prueba de nuevo.'
+                        : 'El servidor no respondió correctamente. Prueba de nuevo.',
                 };
             });
         }).catch(function () {
-            return { error: 'network_error', message: 'No se pudo conectar. Revisá tu conexión.' };
+            return { error: 'network_error', message: 'No se pudo conectar. Revisa tu conexión.' };
         });
     }
 
@@ -168,7 +168,7 @@
         var panel = el('div', { id: 'aero-livechat-panel' },
             '<div id="aero-livechat-header"><button id="aero-livechat-close">&times;</button><span id="aero-livechat-title">Chat</span></div>'
             + '<div id="aero-livechat-prechat">'
-            + '<p>Antes de empezar, contanos quién sos:</p>'
+            + '<p>Antes de empezar, cuéntanos quién eres:</p>'
             + '<input id="aero-livechat-pc-name" class="aero-livechat-pc-input" placeholder="Nombre">'
             + '<input id="aero-livechat-pc-email" class="aero-livechat-pc-input" type="email" placeholder="Correo">'
             + '<input id="aero-livechat-pc-phone" class="aero-livechat-pc-input" type="tel" placeholder="Celular">'
@@ -278,7 +278,7 @@
         var errorEl = document.getElementById('aero-livechat-pc-error');
 
         if (!name || !email || !phone) {
-            errorEl.textContent = 'Completá los tres campos para empezar.';
+            errorEl.textContent = 'Completa los tres campos para empezar.';
             return;
         }
         if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -302,7 +302,7 @@
 
             if (res.error) {
                 state.started = false;
-                errorEl.textContent = res.message || 'No se pudo iniciar el chat. Probá de nuevo.';
+                errorEl.textContent = res.message || 'No se pudo iniciar el chat. Prueba de nuevo.';
                 return;
             }
 
@@ -465,7 +465,7 @@
         fetch(base + '/api/v1/livechat/attachment', { method: 'POST', body: formData })
             .then(function (r) {
                 return r.json().catch(function () {
-                    return { error: 'server_error', message: r.status === 429 ? 'Demasiados intentos. Esperá un momento.' : 'El servidor no respondió correctamente.' };
+                    return { error: 'server_error', message: r.status === 429 ? 'Demasiados intentos. Espera un momento.' : 'El servidor no respondió correctamente.' };
                 });
             })
             .then(function (res) {
@@ -480,7 +480,7 @@
                 });
             })
             .catch(function () {
-                setToolbarMsg('No se pudo conectar. Probá de nuevo.');
+                setToolbarMsg('No se pudo conectar. Prueba de nuevo.');
             });
     }
 
@@ -492,7 +492,7 @@
             method: 'POST',
             body: { widget_key: widgetKey, visitor_token: state.visitorToken },
         }).then(function (res) {
-            setToolbarMsg(res.error ? (res.message || 'No se pudo enviar.') : '¡Enviado! Revisá tu correo.');
+            setToolbarMsg(res.error ? (res.message || 'No se pudo enviar.') : '¡Enviado! Revisa tu correo.');
         });
     }
 
@@ -539,7 +539,7 @@
 
         if (wasOpen) {
             showPreChat();
-            document.getElementById('aero-livechat-pc-error').textContent = 'Esta conversación se cerró. Completá tus datos para iniciar una nueva.';
+            document.getElementById('aero-livechat-pc-error').textContent = 'Esta conversación se cerró. Completa tus datos para iniciar una nueva.';
         }
     }
 

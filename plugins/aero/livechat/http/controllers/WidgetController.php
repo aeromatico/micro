@@ -104,7 +104,7 @@ class WidgetController extends Controller
         }
 
         if ($contact->exists && $contact->isBanned()) {
-            return response()->json(['error' => 'banned', 'message' => 'No podés iniciar un chat en este momento.'], 403);
+            return response()->json(['error' => 'banned', 'message' => 'No puedes iniciar un chat en este momento.'], 403);
         }
 
         $contact->fill(array_filter([
@@ -184,7 +184,7 @@ class WidgetController extends Controller
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
         if ($contact->isBanned()) {
-            return response()->json(['error' => 'banned', 'message' => 'No podés seguir escribiendo en este chat.'], 403);
+            return response()->json(['error' => 'banned', 'message' => 'No puedes seguir escribiendo en este chat.'], 403);
         }
 
         $message = Message::create([
@@ -224,7 +224,7 @@ class WidgetController extends Controller
             return response()->json(['error' => 'conversation_not_found'], 404);
         }
         if ($contact->isBanned()) {
-            return response()->json(['error' => 'banned', 'message' => 'No podés seguir escribiendo en este chat.'], 403);
+            return response()->json(['error' => 'banned', 'message' => 'No puedes seguir escribiendo en este chat.'], 403);
         }
 
         $stored = AttachmentStorage::store($request->file('file'));

@@ -1,23 +1,23 @@
 <div class="form-group">
     <?php if (\Aero\Livechat\Classes\TenantScope::currentTenantId()): ?>
         <p class="text-muted">
-            Pasos: 1) creá el bot con <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> y copiá el token.
-            2) pegalo arriba en "Token del bot" y guardá el inbox.
-            3) agregá el bot al chat/grupo donde querés recibir los mensajes y escribí cualquier cosa ahí.
-            4) tocá el botón de abajo: si dejaste "Chat ID" vacío, lo completa solo a partir de ese mensaje, y registra el webhook.
+            Pasos: 1) crea el bot con <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> y copia el token.
+            2) pégalo arriba en "Token del bot" y guarda el inbox.
+            3) agrega el bot al chat/grupo donde quieres recibir los mensajes y escribe cualquier cosa ahí.
+            4) toca el botón de abajo: si dejaste "Chat ID" vacío, lo completa solo a partir de ese mensaje, y registra el webhook.
         </p>
     <?php else: ?>
         <p class="text-muted">
-            Pasos: 1) creá el bot con <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> y copiá el token.
-            2) en <a href="<?= Backend::url('aero/connector/connectors/create') ?>">Conectores → Conectores</a> creá uno nuevo,
-            elegí proveedor "Telegram" y pegá el token en "API Key". Guardalo y elegilo arriba en "Bot de Telegram".
-            3) agregá el bot al chat/grupo donde querés recibir los mensajes y escribí cualquier cosa ahí.
-            4) tocá el botón de abajo: si dejaste "Chat ID" vacío, lo completa solo a partir de ese mensaje, y registra el webhook.
+            Pasos: 1) crea el bot con <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> y copia el token.
+            2) en <a href="<?= Backend::url('aero/connector/connectors/create') ?>">Conectores → Conectores</a> crea uno nuevo,
+            Elige proveedor "Telegram" y pega el token en "API Key". Guárdalo y elígelo arriba en "Bot de Telegram".
+            3) agrega el bot al chat/grupo donde quieres recibir los mensajes y escribe cualquier cosa ahí.
+            4) toca el botón de abajo: si dejaste "Chat ID" vacío, lo completa solo a partir de ese mensaje, y registra el webhook.
         </p>
     <?php endif ?>
 
     <?php if (!$model->exists): ?>
-        <p class="text-muted">Guardá el inbox primero para poder conectar Telegram.</p>
+        <p class="text-muted">Guarda el inbox primero para poder conectar Telegram.</p>
     <?php else: ?>
         <button
             type="button"

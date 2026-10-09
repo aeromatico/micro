@@ -91,7 +91,7 @@ class Inboxes extends Controller
         $inbox = Inbox::inScope(TenantScope::currentTenantId())->findOrFail($recordId ?: post('record_id'));
 
         if (!$inbox->telegram_connector_id) {
-            Flash::error('Elegí un bot de Telegram arriba (y guardá) antes de conectar.');
+            Flash::error('Elige un bot de Telegram arriba (y guarda) antes de conectar.');
             return;
         }
 
@@ -104,7 +104,7 @@ class Inboxes extends Controller
         if (!$inbox->telegram_chat_id) {
             $chat = TelegramBridge::discoverChatId($connector);
             if (!$chat) {
-                Flash::error('No encontré mensajes recientes de ese bot. Escribile algo (o agregalo a un grupo y escribí ahí) y volvé a intentar.');
+                Flash::error('No encontré mensajes recientes de ese bot. Escríbele algo (o agrégalo a un grupo y escribe ahí) y vuelve a intentar.');
                 return;
             }
             $inbox->telegram_chat_id = (string) $chat['id'];
@@ -113,7 +113,7 @@ class Inboxes extends Controller
 
         $error = null;
         if (TelegramBridge::connect($connector, $error)) {
-            Flash::success("Conectado. Chat ID: {$inbox->telegram_chat_id}. Probá escribiendo algo en ese chat.");
+            Flash::success("Conectado. Chat ID: {$inbox->telegram_chat_id}. Prueba escribiendo algo en ese chat.");
         }
         else {
             Flash::error('No se pudo conectar: ' . $error);

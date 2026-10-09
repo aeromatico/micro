@@ -229,7 +229,7 @@ class TelegramBridge
 
         app(ConnectorClient::class)->send($connector, array_filter([
             'chat_id'              => $chatId,
-            'text'                 => 'No identifiqué a qué conversación corresponde. Respondé citando (reply) el mensaje del visitante que querés contestar.',
+            'text'                 => 'No identifiqué a qué conversación corresponde. Responde citando (reply) el mensaje del visitante que quieres contestar.',
             'reply_to_message_id'  => $threadId ? null : ($replyToMessageId ?: null),
             'message_thread_id'    => $threadId,
         ], fn ($v) => $v !== null && $v !== ''));
@@ -271,7 +271,7 @@ class TelegramBridge
     {
         $endpoint = WebhookEndpoint::where('slug', 'livechat-telegram')->first();
         if (!$endpoint) {
-            $error = 'Falta el WebhookEndpoint "livechat-telegram" — corré las migraciones del plugin.';
+            $error = 'Falta el WebhookEndpoint "livechat-telegram" — corre las migraciones del plugin.';
             return false;
         }
 

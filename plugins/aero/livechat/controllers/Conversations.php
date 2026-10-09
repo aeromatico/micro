@@ -88,7 +88,7 @@ class Conversations extends Controller
         $file = Request::file('attachment');
 
         if (!$file) {
-            Flash::error('Elegí un archivo primero.');
+            Flash::error('Elige un archivo primero.');
             return $this->onLoadMessages($recordId);
         }
 
