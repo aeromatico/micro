@@ -28,3 +28,6 @@
 1.6.1:
     - "Link recibe las herramientas de edición (workflows_update y workflows_revert) en su skill de diseño."
     - seed_workflow_designer_agent.php
+1.6.2:
+    - "Disparador de mensaje: Triggers::handlesMessage() (para que el chatbot no conteste sobre un workflow) y el skill de Link explica keyword vs interactive_id, ids exactos y convivencia con el chatbot."
+    - seed_workflow_designer_agent.php

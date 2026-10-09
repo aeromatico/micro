@@ -79,6 +79,34 @@ class Triggers
         }
     }
 
+    /**
+     * ¿Algún workflow publicado atenderá este mensaje entrante con un disparador ESPECÍFICO
+     * (keyword o interactive_id)? Lo usa el chatbot para no contestar encima de un menú.
+     * Un disparador sin esos filtros («todo mensaje») no cuenta: silenciaría al bot siempre.
+     */
+    public static function handlesMessage(mixed $message): bool
+    {
+        $tenantId = static::tenantFrom([$message]);
+
+        if (!$tenantId) {
+            return false;
+        }
+
+        foreach (static::candidates() as $c) {
+            if ($c['type'] !== 'message' || (int) $c['tenant_id'] !== $tenantId) {
+                continue;
+            }
+
+            $specific = !empty($c['config']['keyword']) || !empty($c['config']['interactive_id']);
+
+            if ($specific && static::messagePasses($c['config'], $message)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected static function tenantFrom(array $args): ?int
     {
         foreach ($args as $arg) {

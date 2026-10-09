@@ -349,6 +349,7 @@ Notas:
 - [ ] La persona confirmó el plan y lo guardaste en `agreed_plan`.
 - [ ] Un solo disparador y coincide con `trigger_type`.
 - [ ] El disparador de mensaje está **acotado** (keyword, cuenta o `interactive_id`).
+- [ ] `keyword` para texto escrito, `interactive_id` solo para botones, y cada `interactive_id` es **exactamente** el id de un botón/opción que existe en el menú.
 - [ ] Cada condición tiene `true` y `false` conectados; cada salida de cada nodo está conectada.
 - [ ] Ninguna rama paralela se une (solo se unen ramas de una Condición).
 - [ ] Todas las plantillas `{{ }}` están cerradas y apuntan a datos que existen.
