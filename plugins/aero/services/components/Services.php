@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Response;
  * Servicios en el sitio público.
  *   mode = "menu"       → $groups: servicios del megamenú agrupados por categoría.
  *   mode = "detail"     → $service: el servicio público de :slug (404 si no existe o es borrador).
+ *   mode = "index"      → $groups: todos los servicios activos agrupados por categoría (con slug y url de la categoría).
+ *   mode = "category"   → $category + $services: la categoría de :slug y sus servicios activos (404 si no existe o está inactiva).
  *   mode = "collection" → $collection: la colección de :slug con sus servicios (404 si no existe, salvo requireCollection=0
  *                          para usarlo como sección embebida en otra página, donde simplemente queda null).
  */
@@ -22,6 +24,8 @@ class Services extends ComponentBase
 
     public ?Collection $collection = null;
 
+    public ?Category $category = null;
+
     public function componentDetails(): array
     {
         return ['name' => 'Servicios', 'description' => 'Megamenú y página pública de un servicio.'];
@@ -31,7 +35,7 @@ class Services extends ComponentBase
     {
         return [
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'menu',
-                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'collection' => 'Colección']],
+                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'index' => 'Índice /plugins', 'category' => 'Categoría', 'collection' => 'Colección']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
             'requireCollection' => ['title' => 'Exigir colección (404 si falta)', 'type' => 'checkbox', 'default' => true,
                 'description' => 'Desactívalo cuando el componente es una sección embebida en otra página: si la colección no existe, simplemente no se renderiza.'],
@@ -50,6 +54,22 @@ class Services extends ComponentBase
             $this->page['service'] = $this->service;
             $this->page->title = $this->service->name . ' — Market';
             $this->page->description = $this->service->summary;
+
+            return null;
+        }
+
+        if ($this->property('mode') === 'category') {
+            $this->category = Category::active()->where('slug', $this->property('slug'))->first();
+
+            if (!$this->category) {
+                return Response::make($this->controller->run('404'), 404);
+            }
+
+            $this->page['category'] = $this->category;
+            $this->page['services'] = $this->category->services()->active()->orderBy('sort_order')->orderBy('name')->get();
+            $this->page['categories'] = Category::active()->orderBy('sort_order')->orderBy('name')->get();
+            $this->page->title = $this->category->name . ' — Plugins — Market';
+            $this->page->description = $this->category->description;
 
             return null;
         }
@@ -76,6 +96,10 @@ class Services extends ComponentBase
         }
 
         $this->groups = $this->menuGroups();
+
+        if ($this->property('mode') === 'index') {
+            $this->page['groups'] = $this->groups;
+        }
     }
 
     protected function menuGroups(): array
@@ -97,8 +121,11 @@ class Services extends ComponentBase
             $category = $bucket['category'];
             $groups[] = [
                 'name'  => $category?->name ?: 'Otros servicios',
+                'slug'  => $category?->slug,
+                'url'   => $category ? url('plugins/' . $category->slug) : null,
+                'description' => $category?->description,
                 'order' => $category?->sort_order ?? PHP_INT_MAX,
-                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'url' => url('plugin/' . $s->slug)])->all(),
+                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'slug' => $s->slug, 'url' => url('plugin/' . $s->slug)])->all(),
             ];
         }
         usort($groups, fn ($a, $b) => $a['order'] <=> $b['order']);
