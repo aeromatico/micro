@@ -95,7 +95,7 @@ de moneda con el que se cobra.
 
 | Servicio | Costo |
 |----------|-------|
-| QR de cobro completado (pagado) | **3 monedas de bronce** por QR |
+| QR de cobro completado (pagado) | **8 monedas de bronce** por QR |
 
 La tarifa se cobra **solo cuando el QR se paga**, no al generarlo: un QR
 pendiente, vencido o anulado no te cuesta nada. Aplica a los cobros de tu
