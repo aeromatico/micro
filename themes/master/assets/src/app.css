@@ -165,3 +165,60 @@
     .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
     .service-page .grid > div, .service-page li[data-usecase] { transition: none; }
 }
+
+/* ── Landing (pages/index.htm): mismos efectos suaves que la página de servicio ── */
+.landing { position: relative; overflow-x: clip; }
+.landing > section { position: relative; }
+
+/* Hero: resplandor cálido/violeta detrás del título */
+.landing > section:first-child { isolation: isolate; }
+.landing > section:first-child::before {
+    content: ''; position: absolute; z-index: -1; pointer-events: none;
+    left: 50%; top: -5rem; width: 100vw; height: 36rem; translate: -50% 0;
+    background:
+        radial-gradient(40% 55% at 15% 25%, color-mix(in srgb, var(--color-warm) 18%, transparent), transparent 70%),
+        radial-gradient(38% 50% at 85% 15%, color-mix(in srgb, var(--color-violet) 20%, transparent), transparent 70%),
+        radial-gradient(28% 40% at 55% 90%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+}
+.landing h1 {
+    text-wrap: balance;
+    background: linear-gradient(115deg, var(--color-ink) 40%, var(--color-warm) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.landing h2 { text-wrap: balance; }
+
+/* Hilo de luz entre secciones */
+.landing > section:not(:first-child):not(#precios)::before {
+    content: ''; position: absolute; top: 0; left: 50%; translate: -50% 0; width: min(60%, 40rem); height: 1px; pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--color-edge), transparent);
+}
+
+/* Tarjetas de las rejillas: elevación y brillo al pasar el cursor */
+.landing section .grid > [class*="rounded-"][class*="border"]:not([class*="border-dashed"]) {
+    position: relative;
+    background-image: linear-gradient(160deg, transparent 55%, color-mix(in srgb, var(--color-warm) 7%, transparent));
+    transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s, box-shadow .3s;
+}
+.landing section .grid > [class*="rounded-"][class*="border"]::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(60% 80% at 0% 0%, color-mix(in srgb, var(--color-warm) 14%, transparent), transparent 70%);
+}
+.landing section .grid > [class*="rounded-"][class*="border"]:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--color-warm) 50%, var(--color-edge));
+    box-shadow: 0 18px 40px -24px rgb(0 0 0 / .55);
+}
+.landing section .grid > [class*="rounded-"][class*="border"]:hover::after { opacity: 1; }
+
+/* Botón principal: halo suave */
+.landing a.bg-accent, .landing button.bg-accent { transition: transform .25s, box-shadow .25s; }
+.landing a.bg-accent:hover, .landing button.bg-accent:hover {
+    box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing section .grid > [class*="rounded-"][class*="border"] { transition: none; }
+    .landing section .grid > [class*="rounded-"][class*="border"]:hover { transform: none; }
+}
