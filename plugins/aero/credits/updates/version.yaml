@@ -64,3 +64,7 @@
     - create_credit_coupon_redemptions_table.php
 1.15.0:
     - "Aero.Workflows: nodos de Monedas para el editor visual (Saldo del tenant, Generar recarga con QR y Estado de una recarga). Solo operan sobre el tenant del workflow; las monedas se acreditan únicamente al confirmarse el pago."
+
+1.16.0:
+    - "Tarifa por QR de cobro completado (acción pay.qr_completed): 3 monedas de bronce, editable en Créditos → Acciones."
+    - seed_pay_qr_completed_action.php
