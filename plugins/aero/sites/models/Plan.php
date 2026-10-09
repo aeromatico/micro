@@ -11,7 +11,7 @@ use System\Classes\PluginManager;
  *              (suman al saldo fungible, no vencen) de vencibles (se pierden al renovar si no se
  *              usan) — hoy solo se guarda: el motor de renovación que le da efecto aún no existe.
  *  - plugins:  códigos de plugin ('Aero.Hello') accesibles con este plan; null = sin restricción.
- *  - features: [{text, featured, description}] — lista libre que se muestra en /alta y en la invitación a mejorar.
+ *  - features: [{text, featured, description, tooltip}] — lista libre que se muestra en /alta y en la invitación a mejorar.
  *  - is_pro:   el admin del tenant recibe el rol tenant_admin_pro y puede usar dominio propio.
  *  - price_renewal / price_renewal_annual: precio de renovación si difiere del de alta (price /
  *    price_annual); null = mismo precio. Sin efecto todavía (no hay cobro recurrente).
@@ -155,7 +155,7 @@ class Plan extends Model
         return array_values(array_filter(array_map(fn ($r) => trim((string) ($r['text'] ?? '')), (array) $this->features)));
     }
 
-    /** Características completas [{text, featured, description}], sin filas vacías (destacadas primero no: se respeta el orden). */
+    /** Características completas [{text, featured, description, tooltip}], sin filas vacías (destacadas primero no: se respeta el orden). */
     public function featureItems(): array
     {
         $out = [];
@@ -166,6 +166,7 @@ class Plan extends Model
                 $out[] = [
                     'text' => $text,
                     'description' => trim((string) ($row['description'] ?? '')),
+                    'tooltip' => trim((string) ($row['tooltip'] ?? '')),
                     'featured' => !empty($row['featured']),
                 ];
             }

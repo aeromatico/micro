@@ -131,3 +131,8 @@ tabs:
                         type: text
                         span: full
                         comment: Opcional. Línea de detalle bajo el texto en la tabla de precios.
+                    tooltip:
+                        label: Tooltip
+                        type: text
+                        span: full
+                        comment: Opcional. Si existe, se muestra un icono de información junto al texto y este mensaje al pasar el cursor o tocarlo.
