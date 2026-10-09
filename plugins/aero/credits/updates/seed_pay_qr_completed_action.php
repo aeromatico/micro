@@ -5,7 +5,7 @@ use Aero\Credits\Models\CreditType;
 use October\Rain\Database\Updates\Seeder;
 
 /**
- * Acción facturable "QR de cobro completado" (Aero.Pay): 3 monedas de bronce
+ * Acción facturable "QR de cobro completado" (Aero.Pay): 8 monedas de bronce
  * por cada QR que pasa a pagado. Idempotente: no pisa el costo que el
  * superadmin ya haya ajustado.
  */
@@ -25,7 +25,7 @@ return new class extends Seeder
                 'label'          => 'QR de cobro completado (pagado)',
                 'plugin'         => 'Aero.Pay',
                 'credit_type_id' => $type->id,
-                'default_cost'   => 3,
+                'default_cost'   => 8,
             ]
         );
     }

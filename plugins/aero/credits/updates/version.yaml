@@ -68,3 +68,7 @@
 1.16.0:
     - "Tarifa por QR de cobro completado (acción pay.qr_completed): 3 monedas de bronce, editable en Créditos → Acciones."
     - seed_pay_qr_completed_action.php
+
+1.16.1:
+    - "Tarifa por QR de cobro completado (pay.qr_completed) sube de 3 a 8 monedas de bronce (solo si no estaba ajustada)."
+    - update_pay_qr_completed_cost_to_8.php
