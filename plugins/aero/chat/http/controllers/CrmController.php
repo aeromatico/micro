@@ -363,7 +363,10 @@ class CrmController extends Controller
             return null;
         }
 
-        $tenantId = $this->tenantId($request);
+        // Una cuenta compartida (p. ej. "Host" de la plataforma) atiende chats de otros
+        // tenants: su contacto de Hello y el espejo en el CRM viven en el tenant del contacto.
+        // conversation() ya comprobó que quien mira es dueño de la cuenta.
+        $tenantId = (int) ($conv->contact->tenant_id ?: $this->tenantId($request));
         $linked = \Aero\Crm\Models\Contact::where('tenant_id', $tenantId)->where('hello_contact_id', $conv->contact_id)->first();
 
         if ($linked || !$create || $conv->account?->platform !== 'whatsapp') {
