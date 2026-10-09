@@ -64,6 +64,12 @@ class ChatbotEngine
             return;
         }
 
+        // Si un workflow publicado ya atiende este mensaje (menú, botón, palabra clave), el bot
+        // no contesta encima: el cliente recibe una sola respuesta.
+        if (class_exists(\Aero\Workflows\Classes\Triggers::class) && \Aero\Workflows\Classes\Triggers::handlesMessage($message)) {
+            return;
+        }
+
         // En modos IA, "Incluir respuestas automáticas" apagado = la IA responde
         // siempre, sin revisar las reglas del chatbot simple.
         $isAiMode = in_array($bot->reply_mode, static::AI_REPLY_MODES, true);

@@ -54,3 +54,5 @@
       reglas del chatbot simple y la IA solo responde si ninguna coincide;
       inactivo = la IA responde siempre."
     - add_ai_include_rules_to_bots_table.php
+1.6.1:
+    - "El bot no contesta un mensaje que ya atiende un workflow publicado con keyword o interactive_id (una sola respuesta al cliente)."
