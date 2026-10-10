@@ -70,6 +70,44 @@ class Service extends Model
         return $this->categories->first();
     }
 
+    /**
+     * Plugins con los que se conecta el servicio, listos para pintar: nombre (el del servicio que
+     * los vende si existe, si no el del plugin), enlace y nota. Excluye el plugin base («construido con»).
+     */
+    public function getIntegrationsAttribute(): array
+    {
+        $links = collect((array) $this->plugin_links)->filter(fn ($l) => !empty($l['plugin']))->values();
+        $base = $links->firstWhere('relation', 'built_with')['plugin'] ?? null;
+        $links = $links->reject(fn ($l) => $l['plugin'] === $base);
+
+        if ($links->isEmpty()) {
+            return [];
+        }
+
+        $services = static::active()->where('id', '!=', $this->id)->whereNotNull('plugin_links')->get();
+        $plugins = \System\Classes\PluginManager::instance();
+
+        return $links->map(function (array $l) use ($services, $plugins) {
+            $owner = $services->first(fn ($s) => collect((array) $s->plugin_links)
+                ->contains(fn ($x) => ($x['plugin'] ?? null) === $l['plugin'] && ($x['relation'] ?? null) === 'built_with'));
+            $plugin = $plugins->findByIdentifier($l['plugin']);
+
+            return [
+                'plugin'   => $l['plugin'],
+                'name'     => $owner?->name ?: trans((string) ($plugin?->pluginDetails()['name'] ?? $l['plugin'])),
+                'url'      => $owner ? url('plugin/' . $owner->slug) : null,
+                'relation' => $l['relation'] ?? 'integrates',
+                'note'     => trim((string) ($l['note'] ?? '')),
+            ];
+        })->all();
+    }
+
+    /** ¿Pertenece a la categoría «Rubros»? Usa su propio diseño de página. */
+    public function getIsRubroAttribute(): bool
+    {
+        return $this->categories->contains('slug', 'rubros');
+    }
+
     /** Guías interactivas vinculadas Y publicadas: lo que se renderiza dentro de /plugin/{slug}. */
     /**
      * `code` separado en [resto, sección "Documentación", sección "Preguntas frecuentes"]
