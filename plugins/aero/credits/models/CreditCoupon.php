@@ -16,7 +16,7 @@ class CreditCoupon extends Model
 
     public $fillable = [
         'code', 'plan_id', 'period_unit', 'period_count',
-        'max_redemptions', 'expires_at', 'is_active', 'note',
+        'max_redemptions', 'expires_at', 'is_active', 'note', 'source', 'external_ref',
     ];
 
     public $rules = [

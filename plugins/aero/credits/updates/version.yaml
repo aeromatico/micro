@@ -72,3 +72,7 @@
 1.16.1:
     - "Tarifa por QR de cobro completado (pay.qr_completed) sube de 3 a 8 monedas de bronce (solo si no estaba ajustada)."
     - update_pay_qr_completed_cost_to_8.php
+
+1.17.0:
+    - "API de Trials para sistemas asociados: POST /api/v1/credits/trials emite (idempotente por ref) un cupón Trial de un solo uso para un cliente externo y GET /api/v1/credits/trials/{ref} consulta su estado. Scope credits.trials.issue, solo keys de la plataforma. El cliente canjea el cupón en /comprar?promo= y elige sus propios datos; el plan y los días los fija Créditos → Ajustes de invitaciones."
+    - add_partner_ref_to_coupons.php

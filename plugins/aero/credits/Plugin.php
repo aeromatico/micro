@@ -54,6 +54,42 @@ class Plugin extends PluginBase
         $this->bootPurchaseIntegration();
         $this->bootGiftIntegration();
         $this->bootWorkflowsIntegration();
+        $this->bootApiIntegration();
+    }
+
+    /**
+     * Scopes y catálogo de endpoints para el gateway Aero.Api. Dependencia
+     * blanda: sin Aero.Api estos eventos nunca se disparan (y routes.php no
+     * registra nada).
+     */
+    protected function bootApiIntegration(): void
+    {
+        Event::listen('aero.api.registerScopes', function () {
+            return ['credits' => [
+                'label'  => 'Créditos',
+                'scopes' => \Aero\Credits\Classes\Api\Scopes::all(),
+            ]];
+        });
+
+        Event::listen('aero.api.registerEndpoints', function () {
+            $scope = \Aero\Credits\Classes\Api\Scopes::TRIALS;
+
+            return ['credits' => [
+                'label' => 'Créditos',
+                'endpoints' => [
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/credits/trials', 'scope' => $scope,
+                        'summary' => 'Emite (o devuelve el ya emitido) un cupón Trial de un solo uso para un cliente externo. Solo keys de la plataforma.',
+                        'body_example' => "{\n    \"ref\": \"cliente-1234\",\n    \"name\": \"Empresa Ejemplo\"\n}",
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/credits/trials/{ref}', 'scope' => $scope,
+                        'summary' => 'Estado del Trial de un cliente: pending, redeemed o expired.',
+                        'path_params' => [['name' => 'ref', 'type' => 'string', 'required' => true, 'help' => 'Referencia del cliente usada al emitirlo.']],
+                    ],
+                ],
+            ]];
+        });
     }
 
     /**
