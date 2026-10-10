@@ -11,7 +11,7 @@ class Service extends Model
     public $table = 'aero_services_services';
 
     public $fillable = [
-        'name', 'slug', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
+        'name', 'slug', 'icon', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
         'features', 'requirements', 'plugin_links',
         'sort_order', 'is_active', 'is_featured', 'in_megamenu',
     ];

@@ -1,6 +1,7 @@
 <?php namespace Aero\Services;
 
 use Backend;
+use Illuminate\Support\Facades\Cache;
 use System\Classes\PluginBase;
 
 /**
@@ -9,6 +10,17 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
+    public function boot(): void
+    {
+        // El menú público (GET /api/v1/services/menu) se cachea: se invalida al editar el catálogo.
+        $forget = fn () => Cache::forget(\Aero\Services\Http\Controllers\MenuController::CACHE_KEY);
+
+        foreach ([\Aero\Services\Models\Service::class, \Aero\Services\Models\Category::class] as $model) {
+            $model::saved($forget);
+            $model::deleted($forget);
+        }
+    }
+
     public function pluginDetails(): array
     {
         return [

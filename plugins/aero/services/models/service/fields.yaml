@@ -19,6 +19,12 @@ tabs:
             type: relation
             nameFrom: name
             span: left
+        icon:
+            tab: General
+            label: Ícono
+            comment: Nombre de un ícono de Lucide (p. ej. message-circle, qr-code). Lo usan los menús de otros sitios.
+            type: text
+            span: left
         summary:
             tab: General
             label: Resumen

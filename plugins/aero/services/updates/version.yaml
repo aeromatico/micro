@@ -35,3 +35,11 @@
 1.11.0:
     - "Guías interactivas en el servicio: pestaña Documentación con relación múltiple a las guías de Aero.Docs; las publicadas se muestran dentro de /servicio/{slug}."
     - create_service_guide_table.php
+
+1.12.0:
+    - "Menú público de servicios: GET /api/v1/services/menu (solo lectura, caché 10 min, throttle) devuelve el megamenú agrupado por categoría con enlaces absolutos a market.com.bo, para que otros sitios (boliviahost.com) lo incrusten. El megamenú y el endpoint comparten Classes\\PublicMenu."
+
+1.13.0:
+    - "Ícono (nombre de Lucide) por servicio, editable en la pestaña General, y semilla inicial para los servicios publicados. El menú público (/api/v1/services/menu) ahora incluye icon y summary de cada servicio."
+    - add_icon_to_services.php
+    - seed_service_icons.php

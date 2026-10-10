@@ -104,31 +104,16 @@ class Services extends ComponentBase
 
     protected function menuGroups(): array
     {
-        $services = Service::active()->with(['categories' => fn ($q) => $q->where('is_active', true)])->orderBy('sort_order')->orderBy('name')->get();
+        $groups = \Aero\Services\Classes\PublicMenu::groups();
 
-        // Un servicio aparece en cada una de sus categorías (o en «Otros servicios» si no tiene).
-        $buckets = [];
-        foreach ($services as $s) {
-            $cats = $s->categories->isNotEmpty() ? $s->categories : collect([null]);
-            foreach ($cats as $c) {
-                $buckets[$c?->id ?? 0]['category'] = $c;
-                $buckets[$c?->id ?? 0]['items'][] = $s;
+        // Íconos Lucide como SVG en línea (este theme no carga la librería JS).
+        foreach ($groups as &$group) {
+            foreach ($group['items'] as &$item) {
+                $item['icon_svg'] = \Aero\Services\Classes\LucideIcon::svg($item['icon'] ?? null, 'w-4 h-4 shrink-0 text-accent');
             }
+            unset($item);
         }
-
-        $groups = [];
-        foreach ($buckets as $bucket) {
-            $category = $bucket['category'];
-            $groups[] = [
-                'name'  => $category?->name ?: 'Otros servicios',
-                'slug'  => $category?->slug,
-                'url'   => $category ? url('plugins/' . $category->slug) : null,
-                'description' => $category?->description,
-                'order' => $category?->sort_order ?? PHP_INT_MAX,
-                'items' => collect($bucket['items'])->map(fn ($s) => ['name' => $s->name, 'summary' => $s->summary, 'slug' => $s->slug, 'url' => url('plugin/' . $s->slug)])->all(),
-            ];
-        }
-        usort($groups, fn ($a, $b) => $a['order'] <=> $b['order']);
+        unset($group);
 
         return $groups;
     }
