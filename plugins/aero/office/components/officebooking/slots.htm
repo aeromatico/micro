@@ -1,0 +1,13 @@
+{% if slots %}
+<p class="text-xs font-semibold uppercase tracking-widest text-ink-muted mb-2">{{ slotsMeta.date|capitalize }}</p>
+<div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+    {% for s in slots %}
+    <label class="cursor-pointer">
+        <input type="radio" name="starts_at" value="{{ s.starts_at }}" class="peer sr-only" required @change="picked = '{{ s.starts_at }}'">
+        <span class="block rounded-brand border border-surface-border bg-surface-alt text-center text-sm font-semibold text-ink py-2 peer-checked:bg-brand-primary peer-checked:text-white peer-checked:border-brand-primary hover:border-brand-primary transition-colors">{{ s.time }}</span>
+    </label>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-sm text-ink-muted py-4">No hay horarios libres ese día. Prueba con otra fecha.</p>
+{% endif %}

@@ -1,0 +1,15 @@
+title: Reservas
+list: $/aero/office/models/booking/columns.yaml
+modelClass: Aero\Office\Models\Booking
+recordUrl: aero/office/bookings/update/:id
+noRecordsMessage: No hay reservas.
+recordsPerPage: 30
+showSetup: true
+defaultSort:
+  column: starts_at
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/office/models/booking/filters.yaml

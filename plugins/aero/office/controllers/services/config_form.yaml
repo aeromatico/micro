@@ -1,0 +1,10 @@
+name: Servicio
+form: $/aero/office/models/service/fields.yaml
+modelClass: Aero\Office\Models\Service
+defaultRedirect: aero/office/services
+create:
+  redirect: aero/office/services
+  redirectClose: aero/office/services
+update:
+  redirect: aero/office/services
+  redirectClose: aero/office/services

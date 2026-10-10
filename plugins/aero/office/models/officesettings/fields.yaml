@@ -1,0 +1,108 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  public_link:
+    type: partial
+    path: $/aero/office/models/officesettings/_public_link.php
+    context: update
+  enabled:
+    label: Módulo activo
+    type: switch
+    default: true
+    span: left
+    comment: Apagado = no se aceptan reservas nuevas.
+  public_enabled:
+    label: Publicar portal de reservas
+    type: switch
+    span: right
+    comment: Cuando esté listo (sucursal, servicios, profesionales y horarios), actívalo.
+  _identity:
+    label: Identidad del negocio
+    type: section
+  business_name:
+    label: Nombre del negocio
+    span: left
+  industry:
+    label: Rubro
+    span: right
+    placeholder: Consultorio, veterinaria, barbería, academia…
+  description:
+    label: Descripción
+    type: textarea
+    size: small
+  logo_url:
+    label: URL del logo
+    span: left
+  brand_color:
+    label: Color de marca
+    span: right
+    placeholder: '#4f46e5'
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo de contacto
+    span: right
+  address:
+    label: Dirección principal
+  lat:
+    label: Latitud
+    span: left
+  lng:
+    label: Longitud
+    span: right
+  _rules:
+    label: Reglas de reserva
+    type: section
+  min_notice_hours:
+    label: Anticipación mínima (horas)
+    type: number
+    span: left
+    default: 2
+  max_advance_days:
+    label: Se puede reservar hasta (días adelante)
+    type: number
+    span: right
+    default: 60
+  slot_step_minutes:
+    label: Intervalo entre horarios
+    type: dropdown
+    span: left
+    default: 15
+  cancel_window_hours:
+    label: El cliente puede cancelar/reprogramar hasta (horas antes)
+    type: number
+    span: right
+    default: 2
+  auto_assign_worker:
+    label: Permitir «cualquier profesional disponible»
+    type: switch
+    default: true
+  _notify:
+    label: Notificaciones al cliente
+    type: section
+  notify_customers:
+    label: Avisar al cliente por WhatsApp/correo
+    type: switch
+    default: true
+    span: left
+    comment: Acuse, confirmación, rechazo, cancelación y reprogramación. Requiere una cuenta de WhatsApp en Hello (si no, sale por correo).
+  reminder_hours:
+    label: Recordatorio (horas antes de la cita)
+    type: number
+    default: 24
+    span: right
+    comment: 0 = sin recordatorio.
+  currency:
+    label: Moneda
+    span: left
+    default: BOB
+  booking_terms:
+    label: Términos / indicaciones para el cliente
+    type: textarea
+    size: small

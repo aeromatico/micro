@@ -1,0 +1,11 @@
+title: Ausencias y feriados
+list: $/aero/office/models/timeoff/columns.yaml
+modelClass: Aero\Office\Models\TimeOff
+recordUrl: aero/office/timeoffs/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,10 @@
+name: Ausencia
+form: $/aero/office/models/timeoff/fields.yaml
+modelClass: Aero\Office\Models\TimeOff
+defaultRedirect: aero/office/timeoffs
+create:
+  redirect: aero/office/timeoffs
+  redirectClose: aero/office/timeoffs
+update:
+  redirect: aero/office/timeoffs
+  redirectClose: aero/office/timeoffs

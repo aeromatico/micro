@@ -1,0 +1,10 @@
+name: Sucursal
+form: $/aero/office/models/branch/fields.yaml
+modelClass: Aero\Office\Models\Branch
+defaultRedirect: aero/office/branches
+create:
+  redirect: aero/office/branches
+  redirectClose: aero/office/branches
+update:
+  redirect: aero/office/branches
+  redirectClose: aero/office/branches

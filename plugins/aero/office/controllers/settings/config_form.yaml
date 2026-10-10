@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/office/models/officesettings/fields.yaml
+modelClass: Aero\Office\Models\OfficeSettings
+defaultRedirect: aero/office/settings
+create:
+  redirect: aero/office/settings/update/:id
+  redirectClose: aero/office/settings
+update:
+  redirect: aero/office/settings/update/:id
+  redirectClose: aero/office/panel

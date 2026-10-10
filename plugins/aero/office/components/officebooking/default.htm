@@ -1,0 +1,121 @@
+{% set s = __SELF__.settings %}
+{% set booking = __SELF__.booking %}
+<div class="mx-auto max-w-2xl px-4 py-8 sm:py-14">
+
+<header class="mb-8 text-center">
+    {% if s.logo_url %}<img src="{{ s.logo_url }}" alt="{{ s.business_name }}" class="mx-auto mb-4 h-16 w-auto">{% endif %}
+    <h1 class="text-3xl font-extrabold text-ink tracking-tight">{{ s.business_name ?: __SELF__.tenant.name }}</h1>
+    {% if s.industry %}<p class="mt-1 text-xs font-semibold uppercase tracking-widest text-brand-primary">{{ s.industry }}</p>{% endif %}
+    {% if s.description %}<p class="mt-3 text-sm text-ink-muted">{{ s.description }}</p>{% endif %}
+    <p class="mt-2 text-xs text-ink-muted">{{ s.address }}{{ s.address and s.phone ? ' · ' }}{{ s.phone }}</p>
+</header>
+
+{% partial 'help/auth-flash' %}
+
+{% if booking %}
+    {# ---------- Detalle / gestión de la cita ---------- #}
+    {% set labels = {pending: 'Pendiente de confirmación', confirmed: 'Confirmada', in_service: 'En atención', completed: 'Completada', cancelled: 'Cancelada', rejected: 'Rechazada', no_show: 'No asistió'} %}
+    <div class="rounded-brand border border-surface-border bg-surface-alt p-6">
+        <p class="text-xs font-semibold uppercase tracking-widest text-ink-muted">Reserva {{ booking.code }}</p>
+        <h2 class="mt-1 text-2xl font-extrabold text-ink">{{ booking.service_name }}</h2>
+        <p class="mt-1 inline-block rounded-full px-3 py-1 text-xs font-semibold {{ booking.status in ['cancelled','rejected','no_show'] ? 'bg-red-100 text-red-700' : (booking.status == 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700') }}">{{ labels[booking.status] }}</p>
+        <dl class="mt-5 grid grid-cols-3 gap-y-2 text-sm">
+            <dt class="text-ink-muted">Fecha</dt><dd class="col-span-2 font-semibold text-ink">{{ booking.starts_at|date('d/m/Y') }} · {{ booking.starts_at|date('H:i') }}</dd>
+            <dt class="text-ink-muted">Profesional</dt><dd class="col-span-2 text-ink">{{ booking.worker_name }}</dd>
+            <dt class="text-ink-muted">Sucursal</dt><dd class="col-span-2 text-ink">{{ booking.branch.name }}{{ booking.branch.address ? ' — ' ~ booking.branch.address }}</dd>
+            {% if booking.price > 0 %}<dt class="text-ink-muted">Precio</dt><dd class="col-span-2 text-ink">{{ booking.price|number_format(2) }} {{ booking.currency }}</dd>{% endif %}
+        </dl>
+        {% if booking.status == 'pending' %}<p class="mt-4 text-xs text-ink-muted">El negocio revisará tu solicitud y te confirmará.</p>{% endif %}
+    </div>
+
+    {% if booking.status in ['pending', 'confirmed'] %}
+    <div class="mt-6 rounded-brand border border-surface-border bg-surface-alt p-6" x-data="{ picked: '' }">
+        <h3 class="font-bold text-ink">Reprogramar</h3>
+        <form class="mt-3 flex flex-col gap-3" data-request="{{ __SELF__ }}::onReschedule" data-request-flash>
+            <input type="hidden" name="token" value="{{ booking.manage_token }}">
+            <input type="date" name="date" min="{{ 'now'|date('Y-m-d') }}" required
+                data-request="{{ __SELF__ }}::onSlots" data-request-data="token: '{{ booking.manage_token }}'"
+                class="rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+            <div id="office-slots"></div>
+            <button type="submit" :disabled="!picked" class="rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">Confirmar nuevo horario</button>
+        </form>
+        <button type="button" class="mt-4 text-sm font-semibold text-red-600" data-request="{{ __SELF__ }}::onCancelBooking"
+            data-request-data="token: '{{ booking.manage_token }}'" data-request-confirm="¿Cancelar esta cita?" data-request-flash>Cancelar cita</button>
+    </div>
+    {% endif %}
+
+    <p class="mt-6 text-center text-xs text-ink-muted">Guarda este enlace para gestionar tu cita.</p>
+
+{% else %}
+    {# ---------- Asistente de reserva ---------- #}
+    {% set c = __SELF__.catalog %}
+    {% if not c.services or not c.branches %}
+        <p class="rounded-brand border border-surface-border bg-surface-alt p-8 text-center text-sm text-ink-muted">Pronto habilitaremos las reservas en línea.</p>
+    {% else %}
+    <div x-data='officeBooking({{ c|json_encode|raw }})' class="rounded-brand border border-surface-border bg-surface-alt p-6">
+        <form class="flex flex-col gap-6" data-request="{{ __SELF__ }}::onBook" data-request-flash data-attach-loading>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+
+            <section x-show="data.branches.length > 1">
+                <h2 class="text-sm font-bold text-ink mb-2">1. Sucursal</h2>
+                <select x-model.number="branch" @change="reset()" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                    <template x-for="b in data.branches" :key="b.id"><option :value="b.id" x-text="b.name + (b.address ? ' — ' + b.address : '')"></option></template>
+                </select>
+            </section>
+            <input type="hidden" name="branch_id" :value="branch">
+
+            <section>
+                <h2 class="text-sm font-bold text-ink mb-2">2. Servicio</h2>
+                <select name="service_id" x-model.number="service" @change="reset()" required class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                    <option value="">— Elegir —</option>
+                    <template x-for="s in services()" :key="s.id"><option :value="s.id" x-text="s.name + ' · ' + s.duration + ' min' + (s.price > 0 ? ' · ' + s.price.toFixed(2) : '')"></option></template>
+                </select>
+                <p class="mt-1 text-xs text-ink-muted" x-show="current() && current().description" x-text="current() && current().description"></p>
+            </section>
+
+            <section x-show="service">
+                <h2 class="text-sm font-bold text-ink mb-2">3. Profesional</h2>
+                <select name="worker_id" x-model="worker" @change="reset()" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                    <option value="" x-show="data.auto">Cualquiera disponible</option>
+                    <template x-for="w in workers()" :key="w.id"><option :value="w.id" x-text="w.name + (w.title ? ' — ' + w.title : '')"></option></template>
+                </select>
+            </section>
+
+            <section x-show="service">
+                <h2 class="text-sm font-bold text-ink mb-2">4. Fecha y horario</h2>
+                <input type="date" name="date" x-model="date" min="{{ 'now'|date('Y-m-d') }}" :max="data.max_date"
+                    data-request="{{ __SELF__ }}::onSlots"
+                    class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm mb-3">
+                <div id="office-slots"></div>
+            </section>
+
+            <section x-show="picked" class="flex flex-col gap-3">
+                <h2 class="text-sm font-bold text-ink">5. Tus datos</h2>
+                <input type="text" name="name" value="{{ user ? user.name : '' }}" placeholder="Nombre completo" maxlength="120" required
+                    class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                <input type="tel" name="phone" placeholder="Teléfono / WhatsApp" maxlength="32" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                <input type="email" name="email" value="{{ user ? user.email : '' }}" placeholder="Correo (opcional si dejas teléfono)" maxlength="190" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                <textarea name="notes" rows="2" maxlength="1000" placeholder="Notas para el negocio (opcional)" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm"></textarea>
+                {% if s.booking_terms %}<p class="text-xs text-ink-muted">{{ s.booking_terms }}</p>{% endif %}
+                <button type="submit" class="rounded-brand bg-brand-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-all"
+                    x-text="current() && current().approval ? 'Enviar solicitud de reserva' : 'Confirmar reserva'"></button>
+            </section>
+        </form>
+    </div>
+
+    <script>
+    function officeBooking(data) {
+        return {
+            data, branch: data.branches[0] ? data.branches[0].id : '', service: '', worker: '', date: '', picked: '',
+            services() { return this.data.services.filter(s => s.branch_ids.includes(this.branch)); },
+            workers() {
+                return this.data.workers.filter(w => w.service_ids.includes(this.service) && w.branch_ids.includes(this.branch));
+            },
+            current() { return this.data.services.find(s => s.id === this.service); },
+            reset() { this.picked = ''; this.date = ''; const el = document.getElementById('office-slots'); if (el) el.innerHTML = ''; },
+        };
+    }
+    </script>
+    {% endif %}
+{% endif %}
+</div>

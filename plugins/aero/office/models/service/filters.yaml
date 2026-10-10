@@ -1,0 +1,5 @@
+scopes:
+  is_active:
+    label: Activo
+    type: switch
+    conditions: is_active = :value

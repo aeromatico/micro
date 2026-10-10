@@ -1,0 +1,62 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  category:
+    label: Categoría
+    span: right
+  description:
+    label: Descripción
+    type: textarea
+    size: small
+  duration_minutes:
+    label: Duración (minutos)
+    type: number
+    span: left
+    required: true
+    default: 30
+  buffer_minutes:
+    label: Descanso posterior (minutos)
+    type: number
+    span: right
+    default: 0
+    comment: Tiempo de preparación entre una atención y la siguiente.
+  price:
+    label: Precio
+    type: number
+    span: left
+    step: 0.01
+    default: 0
+    comment: Se copia a cada reserva; cambiarlo no altera las ya hechas.
+  requires_approval:
+    label: Requiere aprobación
+    type: switch
+    span: right
+    comment: Apagado = las reservas públicas quedan confirmadas al instante.
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
+  is_public:
+    label: Visible en el portal público
+    type: switch
+    default: true
+    span: right
+    comment: Oculto = solo se reserva manualmente desde el panel.
+  branches:
+    label: Sucursales
+    type: checkboxlist
+    quickselect: true
+  workers:
+    label: Profesionales que lo realizan
+    type: checkboxlist
+    quickselect: true

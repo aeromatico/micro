@@ -1,0 +1,10 @@
+name: Reserva
+form: $/aero/office/models/booking/fields.yaml
+modelClass: Aero\Office\Models\Booking
+defaultRedirect: aero/office/bookings
+create:
+  redirect: aero/office/bookings/update/:id
+  redirectClose: aero/office/bookings
+update:
+  redirect: aero/office/bookings/update/:id
+  redirectClose: aero/office/bookings

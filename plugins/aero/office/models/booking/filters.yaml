@@ -1,0 +1,24 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      pending: Pendiente
+      confirmed: Confirmada
+      in_service: En atención
+      completed: Completada
+      cancelled: Cancelada
+      rejected: Rechazada
+      no_show: No asistió
+  source:
+    label: Origen
+    type: dropdown
+    conditions: source = :value
+    options:
+      public: Portal
+      manual: Manual
+  starts_at:
+    label: Fecha
+    type: daterange
+    conditions: starts_at >= ':after' AND starts_at <= ':before'

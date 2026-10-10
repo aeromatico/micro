@@ -1,0 +1,10 @@
+name: Cliente
+form: $/aero/office/models/customer/fields.yaml
+modelClass: Aero\Office\Models\Customer
+defaultRedirect: aero/office/customers
+create:
+  redirect: aero/office/customers
+  redirectClose: aero/office/customers
+update:
+  redirect: aero/office/customers
+  redirectClose: aero/office/customers

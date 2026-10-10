@@ -1,0 +1,7 @@
+title: Configuración
+list: $/aero/office/models/officesettings/columns.yaml
+modelClass: Aero\Office\Models\OfficeSettings
+recordUrl: aero/office/settings/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true

@@ -1,0 +1,10 @@
+name: Profesional
+form: $/aero/office/models/worker/fields.yaml
+modelClass: Aero\Office\Models\Worker
+defaultRedirect: aero/office/workers
+create:
+  redirect: aero/office/workers
+  redirectClose: aero/office/workers
+update:
+  redirect: aero/office/workers
+  redirectClose: aero/office/workers

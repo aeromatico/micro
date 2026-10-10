@@ -1,0 +1,7 @@
+1.0.0:
+    - "Primera versión: reservas genéricas por fecha y hora para cualquier rubro (consultorios, veterinarias, barberías, academias…). Negocio, sucursales, servicios, profesionales, horarios, ausencias y feriados, clientes, agenda diaria/semanal, estados con historial y portal público de reservas."
+    - create_office_tables.php
+
+1.1.0:
+    - "Notificaciones de reservas por Aero.Notify (WhatsApp vía Hello y correo): acuse, confirmación, rechazo, cancelación, reprogramación y recordatorio al cliente; aviso al negocio de reservas nuevas y cambios del cliente. Interruptor y horas de recordatorio por negocio."
+    - add_notifications.php

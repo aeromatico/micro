@@ -1,0 +1,18 @@
+columns:
+  name:
+    label: Cliente
+    searchable: true
+    sortable: true
+  phone:
+    label: Teléfono
+    searchable: true
+  email:
+    label: Correo
+    searchable: true
+  document:
+    label: Documento
+    searchable: true
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

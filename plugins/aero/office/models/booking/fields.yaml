@@ -1,0 +1,82 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    context: create
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  customer_id:
+    label: Cliente existente
+    type: dropdown
+    span: left
+    context: create
+    emptyOption: — Nuevo cliente (completa los datos de abajo) —
+  new_name:
+    label: Nombre del cliente nuevo
+    span: right
+    context: create
+    trigger:
+      action: show
+      field: customer_id
+      condition: value[]
+  new_phone:
+    label: Teléfono
+    span: left
+    context: create
+    trigger:
+      action: show
+      field: customer_id
+      condition: value[]
+  new_email:
+    label: Correo
+    span: right
+    context: create
+    trigger:
+      action: show
+      field: customer_id
+      condition: value[]
+  branch_id:
+    label: Sucursal
+    type: dropdown
+    span: left
+    context: create
+    required: true
+    emptyOption: — Elegir —
+  service_id:
+    label: Servicio
+    type: dropdown
+    span: right
+    context: create
+    required: true
+    emptyOption: — Elegir —
+  worker_id:
+    label: Profesional
+    type: dropdown
+    span: left
+    context: create
+    emptyOption: — Cualquiera disponible —
+  starts_at:
+    label: Fecha y hora
+    type: datepicker
+    mode: datetime
+    span: right
+    context: create
+    required: true
+    comment: Se valida contra horarios, ausencias y reservas existentes.
+  status:
+    label: Estado inicial
+    type: dropdown
+    context: create
+    default: confirmed
+  customer_notes:
+    label: Notas del cliente
+    type: textarea
+    size: small
+    context: create
+  internal_notes:
+    label: Notas internas
+    type: textarea
+    size: small
+    comment: Solo las ve el personal.

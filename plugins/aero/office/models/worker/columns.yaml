@@ -1,0 +1,17 @@
+columns:
+  name:
+    label: Profesional
+    searchable: true
+    sortable: true
+  title:
+    label: Especialidad
+    searchable: true
+  phone:
+    label: Teléfono
+  is_public:
+    label: Público
+    type: switch
+  is_active:
+    label: Activo
+    type: switch
+    sortable: true

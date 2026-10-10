@@ -1,0 +1,39 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+  starts_at:
+    label: Fecha y hora
+    type: datetime
+    sortable: true
+  customer:
+    label: Cliente
+    relation: customer
+    select: name
+    searchable: true
+  service_name:
+    label: Servicio
+    searchable: true
+  worker_name:
+    label: Profesional
+    searchable: true
+  branch:
+    label: Sucursal
+    relation: branch
+    select: name
+  status:
+    label: Estado
+    type: partial
+    path: $/aero/office/models/booking/_status.php
+    sortable: true
+  source:
+    label: Origen
+    type: selectable
+    options:
+      public: Portal
+      manual: Manual
+    invisible: true
+  price:
+    label: Precio
+    type: number
+    invisible: true

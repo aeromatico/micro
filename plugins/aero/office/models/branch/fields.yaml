@@ -1,0 +1,65 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  phone:
+    label: Teléfono
+    span: right
+  address:
+    label: Dirección
+  lat:
+    label: Latitud
+    span: left
+  lng:
+    label: Longitud
+    span: right
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+    comment: Desactivarla la oculta del portal; sus reservas anteriores se conservan.
+  hours:
+    label: Horario semanal
+    type: repeater
+    prompt: Agregar turno
+    comment: Un turno por fila. Dos turnos el mismo día = descanso entre ambos (p. ej. 09:00–13:00 y 15:00–19:00).
+    form:
+      fields:
+        weekday:
+          label: Día
+          type: dropdown
+          span: auto
+          options:
+            1: Lunes
+            2: Martes
+            3: Miércoles
+            4: Jueves
+            5: Viernes
+            6: Sábado
+            7: Domingo
+        start_time:
+          label: Desde
+          type: text
+          span: auto
+          placeholder: '09:00'
+        end_time:
+          label: Hasta
+          type: text
+          span: auto
+          placeholder: '13:00'
+  services:
+    label: Servicios que se ofrecen aquí
+    type: checkboxlist
+    quickselect: true
+  workers:
+    label: Profesionales que atienden aquí
+    type: checkboxlist
+    quickselect: true

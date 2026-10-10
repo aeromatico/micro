@@ -1,0 +1,14 @@
+columns:
+  name:
+    label: Sucursal
+    searchable: true
+    sortable: true
+  address:
+    label: Dirección
+    searchable: true
+  phone:
+    label: Teléfono
+  is_active:
+    label: Activa
+    type: switch
+    sortable: true

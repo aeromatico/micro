@@ -1,0 +1,12 @@
+title: Servicios
+list: $/aero/office/models/service/columns.yaml
+modelClass: Aero\Office\Models\Service
+recordUrl: aero/office/services/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/office/models/service/filters.yaml

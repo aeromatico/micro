@@ -1,0 +1,76 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  title:
+    label: Cargo / especialidad
+    span: right
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo
+    span: right
+  user_id:
+    label: Cuenta de acceso al panel
+    type: dropdown
+    comment: Opcional. Con cuenta (rol Profesional) verá solo sus reservas; sin cuenta solo figura en la agenda.
+  bio:
+    label: Presentación
+    type: textarea
+    size: small
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
+  is_public:
+    label: Visible para elegir en el portal
+    type: switch
+    default: true
+    span: right
+  hours:
+    label: Horario individual
+    type: repeater
+    prompt: Agregar turno
+    comment: Vacío = sigue el horario de la sucursal. Si se llena, se aplica dentro del horario de la sucursal. Dos turnos el mismo día = descanso entre ambos (p. ej. 09:00–13:00 y 15:00–19:00).
+    form:
+      fields:
+        weekday:
+          label: Día
+          type: dropdown
+          span: auto
+          options:
+            1: Lunes
+            2: Martes
+            3: Miércoles
+            4: Jueves
+            5: Viernes
+            6: Sábado
+            7: Domingo
+        start_time:
+          label: Desde
+          type: text
+          span: auto
+          placeholder: '09:00'
+        end_time:
+          label: Hasta
+          type: text
+          span: auto
+          placeholder: '13:00'
+  branches:
+    label: Sucursales donde atiende
+    type: checkboxlist
+    quickselect: true
+  services:
+    label: Servicios que realiza
+    type: checkboxlist
+    quickselect: true

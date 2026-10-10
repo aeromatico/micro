@@ -1,0 +1,26 @@
+columns:
+  type:
+    label: Tipo
+    type: selectable
+    options:
+      holiday: Feriado / cierre
+      vacation: Vacaciones
+      break: Descanso
+      absence: Ausencia
+  worker:
+    label: Profesional
+    relation: worker
+    select: name
+  branch:
+    label: Sucursal
+    relation: branch
+    select: name
+  starts_at:
+    label: Desde
+    type: datetime
+    sortable: true
+  ends_at:
+    label: Hasta
+    type: datetime
+  reason:
+    label: Motivo

@@ -1,0 +1,37 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  type:
+    label: Tipo
+    type: dropdown
+    span: left
+    default: absence
+  reason:
+    label: Motivo
+    span: right
+  worker_id:
+    label: Profesional
+    type: dropdown
+    span: left
+    comment: Vacío = aplica a todo el negocio (feriado, cierre).
+  branch_id:
+    label: Sucursal
+    type: dropdown
+    span: right
+  starts_at:
+    label: Desde
+    type: datepicker
+    mode: datetime
+    span: left
+    required: true
+  ends_at:
+    label: Hasta
+    type: datepicker
+    mode: datetime
+    span: right
+    required: true

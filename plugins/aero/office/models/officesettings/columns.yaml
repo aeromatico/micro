@@ -1,0 +1,8 @@
+columns:
+  business_name:
+    label: Negocio
+  industry:
+    label: Rubro
+  public_enabled:
+    label: Portal público
+    type: switch

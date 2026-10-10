@@ -1,0 +1,25 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.office.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  document:
+    label: Documento
+    span: right
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo
+    span: right
+  notes:
+    label: Observaciones generales
+    type: textarea
+    size: small

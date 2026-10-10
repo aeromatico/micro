@@ -1,0 +1,11 @@
+title: Sucursales
+list: $/aero/office/models/branch/columns.yaml
+modelClass: Aero\Office\Models\Branch
+recordUrl: aero/office/branches/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
