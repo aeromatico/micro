@@ -1,0 +1,58 @@
+url = "/cuenta/restablecer"
+layout = "base"
+title = "Crear contraseña"
+description = "Define o restablece la contraseña de tu cuenta."
+
+[sitesSeo]
+pageTitle = "Crear contraseña"
+
+[sitesPageList]
+excludeHome = 1
+
+[session]
+
+[resetPassword]
+isDefault = 1
+==
+{% set rp = resetPassword %}
+<div class="mx-auto max-w-md px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+    <header class="mb-8">
+        <p class="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-3">Mi cuenta</p>
+        <h1 class="text-3xl font-extrabold text-ink tracking-tight">
+            {% if rp.hasInvite %}Crea tu contraseña{% elseif rp.hasToken %}Restablece tu contraseña{% else %}Cambia tu contraseña{% endif %}
+        </h1>
+        <p class="mt-3 text-ink-muted">
+            {% if rp.hasInvite %}Con ella entrarás a «Mi cuenta» para ver tus reservas y tu historial.{% else %}Escribe una contraseña nueva.{% endif %}
+        </p>
+    </header>
+
+    {% partial 'help/auth-flash' %}
+
+    {% set handler = rp.hasInvite ? 'onConfirmPassword' : (rp.hasToken ? 'onResetPassword' : 'onChangePassword') %}
+    <div class="rounded-brand border border-surface-border bg-surface-alt p-6 sm:p-8">
+        <form data-request="{{ rp }}::{{ handler }}" data-request-flash class="flex flex-col gap-4">
+            <input type="hidden" name="redirect" value="{{ rp.hasToken ? '/cuenta' : '/cuenta' }}">
+            {% if rp.hasToken %}
+                <input type="hidden" name="token" value="{{ rp.token }}">
+                <input type="hidden" name="email" value="{{ rp.email }}">
+            {% else %}
+                <div>
+                    <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Contraseña actual</label>
+                    <input type="password" name="current_password" required autocomplete="current-password"
+                        class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
+                </div>
+            {% endif %}
+            <div>
+                <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Contraseña nueva</label>
+                <input type="password" name="password" required minlength="8" autocomplete="new-password"
+                    class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1.5">Repite la contraseña</label>
+                <input type="password" name="password_confirmation" required minlength="8" autocomplete="new-password"
+                    class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
+            </div>
+            <button type="submit" class="inline-flex items-center justify-center bg-brand-primary hover:opacity-90 text-white font-semibold px-6 py-3 rounded-brand text-sm transition-all">Guardar contraseña</button>
+        </form>
+    </div>
+</div>
