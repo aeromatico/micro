@@ -17,7 +17,9 @@ slug = "{{ :slug }}"
     </nav>
 
     {% set code_parts = service.code_parts %}
-    {% if service.code %}
+    {% if service.is_rubro %}
+        {% partial 'site/rubro' service=service %}
+    {% elseif service.code %}
         <div class="service-page"
              x-data="{ init() {
                  const el = this.$root;

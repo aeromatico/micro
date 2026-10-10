@@ -222,3 +222,57 @@
     .landing section .grid > [class*="rounded-"][class*="border"] { transition: none; }
     .landing section .grid > [class*="rounded-"][class*="border"]:hover { transform: none; }
 }
+
+
+/* ── Rubros (partials/site/rubro.htm): hero con tarjeta de integraciones y rejilla numerada ── */
+.rubro-page > section { padding-block: 3.25rem; }
+.rubro-hero { position: relative; isolation: isolate; padding-block: 3.5rem 4rem !important; }
+.rubro-hero::before {
+    content: ''; position: absolute; inset: -4rem -6vw auto -6vw; height: 34rem; z-index: -1; pointer-events: none;
+    background:
+        radial-gradient(45% 55% at 10% 20%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 70%),
+        radial-gradient(40% 50% at 90% 15%, color-mix(in srgb, var(--color-violet) 22%, transparent), transparent 70%),
+        radial-gradient(30% 40% at 60% 95%, color-mix(in srgb, var(--color-warm) 14%, transparent), transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 75% at 50% 40%, #000 35%, transparent 100%);
+}
+.rubro-page h1 {
+    font-size: clamp(2.25rem, 5vw, 3.5rem); line-height: 1.06; font-weight: 700; text-wrap: balance;
+    background: linear-gradient(115deg, var(--color-ink) 40%, var(--color-accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.rubro-page h2 { position: relative; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; padding-left: 1rem; text-wrap: balance; }
+.rubro-page h2::before {
+    content: ''; position: absolute; left: 0; top: .2em; bottom: .2em; width: 3px; border-radius: 3px;
+    background: linear-gradient(var(--color-accent), var(--color-violet));
+}
+.rubro-hub {
+    display: grid; gap: .75rem; padding: 1.1rem; border-radius: 1.25rem; border: 1px solid var(--color-edge);
+    background: linear-gradient(165deg, var(--color-canvas-elev), color-mix(in srgb, var(--color-canvas-elev) 90%, var(--color-accent)));
+    box-shadow: 0 24px 60px -34px rgb(0 0 0 / .6);
+}
+.rubro-hub__core {
+    padding: 1rem 1.1rem; border-radius: .9rem; border: 1px solid color-mix(in srgb, var(--color-accent) 55%, var(--color-edge));
+    background: color-mix(in srgb, var(--color-accent) 9%, var(--color-canvas));
+}
+.rubro-hub__list { display: grid; gap: .5rem; position: relative; padding-left: 1.25rem; }
+.rubro-hub__list::before { content: ''; position: absolute; left: .35rem; top: -.4rem; bottom: .9rem; width: 1px; background: var(--color-edge); }
+.rubro-hub__list > li { position: relative; }
+.rubro-hub__list > li::before { content: ''; position: absolute; left: -.9rem; top: 1.15rem; width: .75rem; height: 1px; background: var(--color-edge); }
+.rubro-hub__node {
+    display: block; padding: .7rem .9rem; border-radius: .75rem; border: 1px solid var(--color-edge); background: var(--color-canvas);
+    transition: border-color .25s, transform .25s;
+}
+a.rubro-hub__node:hover { border-color: var(--color-accent); transform: translateX(2px); }
+.rubro-hub__plans { display: grid; gap: .5rem; padding-top: .85rem; border-top: 1px dashed var(--color-edge); }
+.rubro-features > li {
+    position: relative; overflow: hidden; border-radius: 1rem; padding: 1.25rem; border: 1px solid var(--color-edge);
+    background: var(--color-canvas-elev); transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s;
+}
+.rubro-features > li:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--color-accent) 60%, var(--color-edge)); }
+.rubro-features__n { display: block; font-family: var(--font-display, inherit); font-weight: 700; font-size: 1.6rem; line-height: 1; margin-bottom: .75rem; color: var(--color-accent); opacity: .9; }
+/* El `code` del rubro reutiliza las tarjetas de .service-page, sin tratar su primera sección como hero. */
+.service-page--rubro > section:first-child { padding-block: 3.25rem; isolation: auto; }
+.service-page--rubro > section:first-child::before { content: none; }
+.service-page--rubro > section:first-child p { font-size: inherit; line-height: inherit; margin-top: 0; max-width: none; color: inherit; }
+@media (prefers-reduced-motion: reduce) { .rubro-features > li, .rubro-hub__node { transition: none; } }
