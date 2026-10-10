@@ -397,3 +397,13 @@
 
 1.65.0:
     - "Dashboard: widget «Acceso rápido» (speed dial) con atajos a las áreas del menú y sus subsecciones, según los permisos del usuario."
+
+1.66.0:
+    - "Aero.Office (reservas): el rol tenant_admin recibe aero.office.* (administración, configuración, recepción, profesional); nuevos roles office_admin, office_receptionist y office_professional; el plan PRO incluye Aero.Office."
+    - grant_office_to_tenant_admin.php
+    - create_office_roles.php
+    - add_office_to_pro_plan.php
+
+1.67.0:
+    - "Roles de Oficina (office_admin, office_receptionist, office_professional): añadido el acceso al backend y al tablero (sin esto no podían iniciar sesión en el panel)."
+    - add_backend_access_to_office_roles.php
