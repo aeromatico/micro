@@ -15,8 +15,9 @@ class SpeedDial extends ReportWidgetBase
 
     public function render()
     {
-        $pinned = (array) $this->property('pinned', []);
-        $showSub = (bool) $this->property('subitems', true);
+        $pinned = $this->property('pinned', []);
+        $pinned = is_array($pinned) ? array_values(array_filter($pinned, 'is_string')) : [];
+        $showSub = filter_var($this->property('subitems', true), FILTER_VALIDATE_BOOLEAN);
 
         $groups = [];
         foreach (BackendMenu::listMainMenuItemsWithSubitems() as $info) {
@@ -26,7 +27,7 @@ class SpeedDial extends ReportWidgetBase
                 continue;
             }
 
-            $key = $main->owner . '::' . $main->code;
+            $key = static::menuKey($main->owner, $main->code);
             if ($pinned && !in_array($key, $pinned, true)) {
                 continue;
             }
@@ -78,6 +79,15 @@ class SpeedDial extends ReportWidgetBase
         ];
     }
 
+    /**
+     * Clave de un área sin puntos: el Inspector trata los puntos como rutas
+     * anidadas y rompería el valor marcado ("Aero.Sites" → {Aero:{Sites…}}).
+     */
+    protected static function menuKey(string $owner, string $code): string
+    {
+        return strtolower(preg_replace('/[^A-Za-z0-9_]+/', '_', $owner . '__' . $code));
+    }
+
     public function getPinnedOptions(): array
     {
         $options = [];
@@ -85,7 +95,7 @@ class SpeedDial extends ReportWidgetBase
             if ($item->owner === 'October.Dashboard') {
                 continue;
             }
-            $options[$item->owner . '::' . $item->code] = __($item->label);
+            $options[static::menuKey($item->owner, $item->code)] = __($item->label);
         }
 
         return $options;
