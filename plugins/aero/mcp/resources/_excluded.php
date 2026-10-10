@@ -32,6 +32,7 @@ return [
     \Aero\Crm\Models\CrmSettings::class => 'configuración',
     \Aero\Finance\Models\FinanceSettings::class => 'configuración',
     \Aero\Gym\Models\GymSettings::class => 'configuración',
+    \Aero\Office\Models\OfficeSettings::class => 'configuración',
     \Aero\Pos\Models\PosSettings::class => 'configuración',
     \Aero\Shop\Models\ShopSettings::class => 'configuración',
     \Aero\Shop\Models\PaymentGateway::class => 'configuración de pasarelas (config con credenciales)',
