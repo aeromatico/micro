@@ -22,7 +22,7 @@ class McpServer
 {
     public const PROTOCOL_VERSION = '2025-06-18';
     public const SERVER_NAME = 'aero-mcp';
-    public const SERVER_VERSION = '1.1.0';
+    public const SERVER_VERSION = '1.2.0';
 
     public function __construct(protected ApiKey $key, protected ?int $tenantId, protected ?string $ip = null)
     {
@@ -127,6 +127,11 @@ class McpServer
             $status = 200;
             $isError = false;
             $text = json_encode($output, JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        } catch (ToolError $e) {
+            // Mensaje pensado para el cliente (validación, no encontrado…).
+            $status = 422;
+            $isError = true;
+            $text = $e->getMessage();
         } catch (Throwable $e) {
             // Se devuelve como error de la tool, no como error de protocolo, y sin detalles internos.
             $status = 500;

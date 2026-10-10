@@ -2,3 +2,5 @@
     - "Servidor MCP sobre JSON-RPC: initialize, tools/list y tools/call sobre AiToolRegistry, con permisos por scope mcp.tool.* y tenant tomado de la API key."
 1.1.0:
     - "Registro propio (evento aero.mcp.registerTools) además de las AI tools; módulos activables en Ajustes → MCP (ninguno por defecto), filtro por plan del tenant y scopes por módulo (lectura/escritura; sin flag write cuenta como escritura)."
+1.2.0:
+    - "Recursos declarativos (resources/*.php): 108 modelos de tenant de 23 plugins como tools list/get (escritura solo donde se declara); motor impone tenant, lista blanca y lista negra de secretos; comando mcp:audit."

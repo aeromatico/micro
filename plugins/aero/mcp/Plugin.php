@@ -24,6 +24,11 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('mcp.audit', Console\Audit::class);
+    }
+
     public function boot(): void
     {
         $this->app['router']->group([], function () {

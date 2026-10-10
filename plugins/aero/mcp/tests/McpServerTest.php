@@ -15,6 +15,7 @@ class McpServerTest extends PluginTestCase
 {
     protected function registerFakeTools(array $modules = ['crm', 'shop', 'general']): void
     {
+        \Aero\Mcp\Classes\McpToolRegistry::$loadDeclaredResources = false;
         Settings::set('enabled_modules', $modules);
 
         Event::listen('aero.mcp.registerTools', function () {
@@ -50,6 +51,12 @@ class McpServerTest extends PluginTestCase
                 ],
             ];
         });
+    }
+
+    public function tearDown(): void
+    {
+        \Aero\Mcp\Classes\McpToolRegistry::$loadDeclaredResources = true;
+        parent::tearDown();
     }
 
     protected function key(array $scopes): ApiKey
