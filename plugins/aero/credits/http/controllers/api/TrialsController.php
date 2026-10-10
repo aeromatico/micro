@@ -78,10 +78,22 @@ class TrialsController extends Controller
     {
         $key = $request->attributes->get('api_key');
 
-        if (!$key || $key->owner_type) {
+        if (!$key || !$this->isPlatformKey($key)) {
             return response()->json(['error' => 'forbidden', 'message' => 'Esta operación es solo para keys de la plataforma.'], 403);
         }
 
         return null;
+    }
+
+    /** Sin dueño (superadmin) o dueña el tenant master: ambas son la plataforma misma. */
+    protected function isPlatformKey($key): bool
+    {
+        if (!$key->owner_type) {
+            return true;
+        }
+
+        return class_exists(\Aero\Sites\Classes\PlatformServicesBlock::class)
+            && $key->owner_type === \Aero\Sites\Models\Tenant::class
+            && \Aero\Sites\Classes\PlatformServicesBlock::masterTenantId() === (int) $key->owner_id;
     }
 }
