@@ -38,7 +38,12 @@ class SpeedDial extends ReportWidgetBase
                     if (!$sub->url) {
                         continue;
                     }
-                    $subs[] = ['label' => __($sub->label), 'url' => $sub->url];
+                    $subs[] = [
+                        'label' => __($sub->label),
+                        'icon'  => $sub->icon,
+                        'svg'   => $sub->iconSvg,
+                        'url'   => $sub->url,
+                    ];
                 }
             }
 

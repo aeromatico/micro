@@ -6,21 +6,23 @@
     #<?= $id ?> { color: inherit; }
     #<?= $id ?> .sd-search { width: 100%; margin-bottom: 10px; background: transparent; color: inherit;
         border: 1px solid color-mix(in srgb, currentColor 18%, transparent); border-radius: 6px; padding: 6px 10px; }
-    #<?= $id ?> .sd-scroll { max-height: 420px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
-    #<?= $id ?> .sd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 8px; align-items: start; }
+    #<?= $id ?> .sd-scroll { max-height: max(420px, calc(100vh - 230px)); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
+    #<?= $id ?> .sd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+        gap: 10px; grid-auto-rows: 190px; }
     #<?= $id ?> .sd-card { border: 1px solid color-mix(in srgb, currentColor 14%, transparent); border-radius: 8px;
-        background: color-mix(in srgb, currentColor 4%, transparent); padding: 6px; }
+        background: color-mix(in srgb, currentColor 4%, transparent); padding: 6px;
+        display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     #<?= $id ?> .sd-card a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px;
         border-radius: 5px; }
-    #<?= $id ?> .sd-main { font-weight: 600; padding: 6px; }
+    #<?= $id ?> .sd-main { font-weight: 600; font-size: 1.3em; padding: 6px; }
     #<?= $id ?> .sd-main:hover, #<?= $id ?> .sd-sub:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
     #<?= $id ?> .sd-ico { flex: 0 0 18px; width: 18px; height: 18px; font-size: 16px; line-height: 18px;
         text-align: center; display: inline-block; }
     #<?= $id ?> .sd-ico.is-mask { background: currentColor; -webkit-mask: var(--sd-icon) center/contain no-repeat;
         mask: var(--sd-icon) center/contain no-repeat; }
-    #<?= $id ?> .sd-subs { max-height: 7.5em; overflow-y: auto; margin-top: 2px; scrollbar-width: thin; }
-    #<?= $id ?> .sd-sub { font-size: 12px; opacity: .75; padding: 3px 6px 3px 32px; }
+    #<?= $id ?> .sd-subs { flex: 1 1 0; min-height: 0; overflow-y: auto; margin-top: 2px; scrollbar-width: thin; }
+    #<?= $id ?> .sd-sub { font-size: 12px; opacity: .75; padding: 4px 6px 4px 12px; }
+    #<?= $id ?> .sd-sub .sd-ico { flex-basis: 16px; width: 16px; height: 16px; font-size: 14px; line-height: 16px; }
     #<?= $id ?> .sd-sub:hover { opacity: 1; }
 </style>
 <div class="report-widget" id="<?= $id ?>">
@@ -52,7 +54,16 @@
                         <?php if ($g['subs']): ?>
                             <div class="sd-subs">
                                 <?php foreach ($g['subs'] as $s): ?>
-                                    <a class="sd-sub" data-sd-link href="<?= e($s['url']) ?>"><?= e($s['label']) ?></a>
+                                    <a class="sd-sub" data-sd-link href="<?= e($s['url']) ?>">
+                                        <?php if ($s['svg']): ?>
+                                            <span class="sd-ico is-mask" style="--sd-icon:url('<?= e(Url::asset($s['svg'])) ?>')"></span>
+                                        <?php elseif ($s['icon']): ?>
+                                            <i class="sd-ico <?= e($s['icon']) ?>"></i>
+                                        <?php else: ?>
+                                            <span class="sd-ico"></span>
+                                        <?php endif ?>
+                                        <span><?= e($s['label']) ?></span>
+                                    </a>
                                 <?php endforeach ?>
                             </div>
                         <?php endif ?>
