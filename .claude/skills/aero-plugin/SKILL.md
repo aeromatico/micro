@@ -37,6 +37,7 @@ plugins/aero/{p}/Plugin.php   classes/  controllers/  models/  jobs/  console/  
 ## 3. Integraciones opcionales (siempre detrás de `class_exists`)
 - **Créditos**: `templates/seed_credit_action.php.tpl`; cobrar con el servicio de Credits como hace `aero/sms/classes/Billing.php`.
 - **API REST**: eventos `aero.api.registerScopes` y `aero.api.registerEndpoints` (ver Plugin.php de sms) + `routes.php` + `http/controllers/api/`.
+- **MCP (obligatorio si hay modelos con `tenant_id`)**: declara cada modelo como recurso en `plugins/aero/mcp/resources/{p}.php` (campos explícitos de lectura, `search`, `filters`; `writable` solo si la escritura no tiene reglas de negocio propias) o exclúyelo con motivo en `plugins/aero/mcp/resources/_excluded.php`. El motor impone tenant, lista blanca y lista negra de secretos. Hijos sin `tenant_id` → `tenant_via`. Sin esto `bin/verify-plugin` da ERROR. Acciones con lógica (cobrar, enviar) van como tools por evento `aero.mcp.registerTools` (`write` omitido = escritura).
 - **Eventos propios**: `aero.{p}.{algoOcurrido}` en pasado.
 - **Notify**: declara los eventos para el catálogo de Aero.Notify si aplica.
 
@@ -46,6 +47,7 @@ sudo -u www /www/server/php/84/bin/php artisan october:migrate     # NUNCA plugi
 rm -f storage/cms/manifest.php
 bin/verify-plugin {p}          # compuerta: lint, version.yaml, vistas, filtros, alias $/, permisos, grants, íconos, tenant + tests
 bin/aero-test {p} [filtro]     # solo los tests (SQLite en memoria, aislados de producción)
+sudo -u www /www/server/php/84/bin/php artisan mcp:audit --plugin={p}   # cobertura/seguridad MCP contra la BD real
 ```
 `verify-plugin` debe salir sin ERRORES (los avisos se revisan, no bloquean). Si el plugin no tiene tests, crea `phpunit.xml` y `tests/SmokeTest.php` desde `templates/*.tpl` (ejemplo funcionando: `plugins/aero/sms/tests/`) y añade al menos un test de **aislamiento por tenant**.
 
