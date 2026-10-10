@@ -554,6 +554,16 @@ class Plugin extends PluginBase
         return Tenant::where('id', $tenantId)->value('status') === 'active';
     }
 
+    public function registerReportWidgets(): array
+    {
+        return [
+            \Aero\Sites\ReportWidgets\SpeedDial::class => [
+                'label'   => 'Acceso rápido',
+                'context' => 'dashboard',
+            ],
+        ];
+    }
+
     public function registerFormWidgets(): array
     {
         return [

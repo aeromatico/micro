@@ -394,3 +394,6 @@
 1.64.0:
     - "Permiso aero.shopify.use para el rol tenant_admin (conectar su tienda Shopify y cobrar con QR)."
     - grant_shopify_to_tenant_admin.php
+
+1.65.0:
+    - "Dashboard: widget «Acceso rápido» (speed dial) con atajos a las áreas del menú y sus subsecciones, según los permisos del usuario."
