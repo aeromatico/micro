@@ -29,13 +29,12 @@
     </div>
 
     {% if booking.status in ['pending', 'confirmed'] %}
-    <div class="mt-6 rounded-brand border border-surface-border bg-surface-alt p-6" x-data="{ picked: '' }">
+    <div class="mt-6 rounded-brand border border-surface-border bg-surface-alt p-6"
+         x-data="officeCal(() => ({ token: '{{ booking.manage_token }}' }), '{{ maxDate }}')">
         <h3 class="font-bold text-ink">Reprogramar</h3>
         <form class="mt-3 flex flex-col gap-3" data-request="{{ __SELF__ }}::onReschedule" data-request-flash>
             <input type="hidden" name="token" value="{{ booking.manage_token }}">
-            <input type="date" name="date" min="{{ 'now'|date('Y-m-d') }}" required
-                data-request="{{ __SELF__ }}::onSlots" data-request-data="token: '{{ booking.manage_token }}'"
-                class="rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+            {% partial '@calendar' %}
             <div id="office-slots"></div>
             <button type="submit" :disabled="!picked" class="rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">Confirmar nuevo horario</button>
         </form>
@@ -83,9 +82,8 @@
 
             <section x-show="service">
                 <h2 class="text-sm font-bold text-ink mb-2">4. Fecha y horario</h2>
-                <input type="date" name="date" x-model="date" min="{{ 'now'|date('Y-m-d') }}" :max="data.max_date"
-                    data-request="{{ __SELF__ }}::onSlots"
-                    class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm mb-3">
+                {% partial '@calendar' %}
+                <div class="mt-3"></div>
                 <div id="office-slots"></div>
             </section>
 
@@ -103,19 +101,69 @@
         </form>
     </div>
 
-    <script>
-    function officeBooking(data) {
-        return {
-            data, branch: data.branches[0] ? data.branches[0].id : '', service: '', worker: '', date: '', picked: '',
-            services() { return this.data.services.filter(s => s.branch_ids.includes(this.branch)); },
-            workers() {
-                return this.data.workers.filter(w => w.service_ids.includes(this.service) && w.branch_ids.includes(this.branch));
-            },
-            current() { return this.data.services.find(s => s.id === this.service); },
-            reset() { this.picked = ''; this.date = ''; const el = document.getElementById('office-slots'); if (el) el.innerHTML = ''; },
-        };
-    }
-    </script>
     {% endif %}
 {% endif %}
 </div>
+
+<script>
+/* Calendario desplegable compartido (reserva nueva y reprogramación). ctx() devuelve los parámetros de la consulta. */
+function officeCal(ctx, maxDate) {
+    const iso = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return {
+        open: false, busy: false, date: '', picked: '', days: [], seq: 0,
+        month: new Date(today.getFullYear(), today.getMonth(), 1),
+        todayIso: iso(today), maxIso: maxDate || '',
+        monthKey() { return this.month.getFullYear() + '-' + String(this.month.getMonth() + 1).padStart(2, '0'); },
+        monthLabel() { const t = this.month.toLocaleDateString('es', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); },
+        label(d) { const p = d.split('-'); return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' }); },
+        canPrev() { return this.month.getTime() > new Date(today.getFullYear(), today.getMonth(), 1).getTime(); },
+        canNext() {
+            if (!this.maxIso) return true;
+            const nm = new Date(this.month.getFullYear(), this.month.getMonth() + 1, 1);
+            return iso(nm) <= this.maxIso;
+        },
+        grid() {
+            const y = this.month.getFullYear(), m = this.month.getMonth();
+            const lead = (new Date(y, m, 1).getDay() + 6) % 7; // lunes primero
+            const n = new Date(y, m + 1, 0).getDate();
+            const cells = [];
+            for (let i = 0; i < lead; i++) cells.push({ key: 'e' + i, day: 0 });
+            for (let d = 1; d <= n; d++) {
+                const id = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                cells.push({ key: id, day: d, iso: id, enabled: this.days.includes(id), selected: id === this.date });
+            }
+            return cells;
+        },
+        toggle() { this.open = !this.open; if (this.open) this.load(); },
+        prev() { if (this.canPrev()) { this.month = new Date(this.month.getFullYear(), this.month.getMonth() - 1, 1); this.load(); } },
+        next() { if (this.canNext()) { this.month = new Date(this.month.getFullYear(), this.month.getMonth() + 1, 1); this.load(); } },
+        load() {
+            const mine = ++this.seq;
+            this.busy = true; this.days = [];
+            oc.ajax('{{ __SELF__ }}::onDays', { data: Object.assign({}, ctx(), { month: this.monthKey() }) })
+                .done((r) => { if (mine === this.seq) this.days = (r && r.days) || []; })
+                .always(() => { if (mine === this.seq) this.busy = false; });
+        },
+        pick(d) {
+            this.date = d; this.open = false; this.picked = '';
+            oc.ajax('{{ __SELF__ }}::onSlots', { data: Object.assign({}, ctx(), { date: d }) });
+        },
+        reset() {
+            this.picked = ''; this.date = ''; this.days = []; this.open = false;
+            const el = document.getElementById('office-slots'); if (el) el.innerHTML = '';
+        },
+    };
+}
+
+function officeBooking(data) {
+    let vm = null;
+    const cal = officeCal(() => ({ branch_id: vm.branch, service_id: vm.service, worker_id: vm.worker }), data.max_date);
+    return Object.assign({ data, branch: data.branches[0] ? data.branches[0].id : '', service: '', worker: '' }, cal, {
+        init() { vm = this; },
+        services() { return this.data.services.filter(s => s.branch_ids.includes(this.branch)); },
+        workers() { return this.data.workers.filter(w => w.service_ids.includes(this.service) && w.branch_ids.includes(this.branch)); },
+        current() { return this.data.services.find(s => s.id === this.service); },
+    });
+}
+</script>

@@ -51,6 +51,7 @@ class OfficeBooking extends ComponentBase
                 return $this->controller->run('404');
             }
             $this->page['isManage'] = true;
+            $this->page['maxDate'] = now()->addDays((int) ($this->settings->max_advance_days ?: 60))->toDateString();
         } else {
             $this->catalog = $this->buildCatalog();
         }
@@ -100,6 +101,62 @@ class OfficeBooking extends ComponentBase
         ];
     }
 
+    /** AJAX: días del mes con al menos un horario libre (para pintar el calendario desplegable). */
+    public function onDays()
+    {
+        if (!$this->boot()) {
+            throw new \ApplicationException('Reservas no disponibles.');
+        }
+        if (!preg_match('/^\d{4}-\d{2}$/', (string) post('month'))) {
+            throw new \ApplicationException('Mes no válido.');
+        }
+
+        [$service, $branch, $worker, $ignore] = $this->resolveSelection();
+
+        $first = Carbon::createFromFormat('Y-m-d', post('month') . '-01')->startOfDay();
+        $from = $first->lt(today()) ? today() : $first;
+        $last = $first->copy()->endOfMonth()->startOfDay();
+        $max = now()->addDays((int) ($this->settings->max_advance_days ?: 60))->startOfDay();
+        if ($last->gt($max)) {
+            $last = $max;
+        }
+
+        $days = [];
+        for ($d = $from->copy(); $d->lte($last); $d->addDay()) {
+            if (Availability::slots($service, $branch, $worker, $d, true, $ignore)) {
+                $days[] = $d->toDateString();
+            }
+        }
+
+        return ['days' => $days];
+    }
+
+    /** Servicio/sucursal/profesional pedidos (reserva nueva) o los de la cita (token). */
+    protected function resolveSelection(): array
+    {
+        $tid = $this->tenant->id;
+        if ($token = trim((string) post('token'))) {
+            $b = $this->findBooking($token);
+            if (!$b || !$b->service || !$b->branch) {
+                throw new \ApplicationException('Cita no encontrada.');
+            }
+
+            return [$b->service, $b->branch, null, $b->id];
+        }
+
+        $service = Service::where('tenant_id', $tid)->publicly()->find((int) post('service_id'));
+        $branch = Branch::where('tenant_id', $tid)->active()->find((int) post('branch_id'));
+        $worker = post('worker_id') ? Worker::where('tenant_id', $tid)->publicly()->find((int) post('worker_id')) : null;
+        if (post('worker_id') && !$worker) {
+            throw new \ApplicationException('Profesional no disponible.');
+        }
+        if (!$service || !$branch) {
+            throw new \ApplicationException('Elige sucursal y servicio.');
+        }
+
+        return [$service, $branch, $worker, null];
+    }
+
     /** AJAX: horarios libres de un día (reserva nueva, o reprogramación si viene token). */
     public function onSlots()
     {
@@ -118,28 +175,8 @@ class OfficeBooking extends ComponentBase
             return $this->renderSlots(null);
         }
 
-        $tid = $this->tenant->id;
-        $ignore = null;
-        if ($token = trim((string) post('token'))) {
-            $b = $this->findBooking($token);
-            if (!$b) {
-                throw new \ApplicationException('Cita no encontrada.');
-            }
-            $service = $b->service;
-            $branch = $b->branch;
-            $worker = null;
-            $ignore = $b->id;
-        } else {
-            $service = Service::where('tenant_id', $tid)->publicly()->find((int) post('service_id'));
-            $branch = Branch::where('tenant_id', $tid)->active()->find((int) post('branch_id'));
-            $worker = post('worker_id') ? Worker::where('tenant_id', $tid)->publicly()->find((int) post('worker_id')) : null;
-            if (post('worker_id') && !$worker) {
-                throw new \ApplicationException('Profesional no disponible.');
-            }
-        }
-        if (!$service || !$branch) {
-            throw new \ApplicationException('Elige sucursal y servicio.');
-        }
+        [$service, $branch, $worker, $ignore] = $this->resolveSelection();
+        $token = trim((string) post('token'));
 
         $this->slots = array_map(fn ($s) => ['time' => $s['time'], 'starts_at' => $s['starts_at']->format('Y-m-d H:i'), 'n' => count($s['worker_ids'])],
             Availability::slots($service, $branch, $worker, $day, true, $ignore));

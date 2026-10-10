@@ -1,0 +1,33 @@
+{# Calendario desplegable: marca solo los días con horarios libres. Estado en el x-data padre (officeCal). #}
+<div class="relative" @keydown.escape.window="open = false" @click.outside="open = false">
+    <button type="button" @click="toggle()" :aria-expanded="open"
+        class="w-full flex items-center justify-between rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm hover:border-brand-primary transition-colors">
+        <span x-text="date ? label(date) : 'Elige una fecha'" :class="date ? 'font-semibold' : 'text-ink-muted'"></span>
+        <svg class="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"/></svg>
+    </button>
+    <div x-show="open" x-transition x-cloak
+        class="absolute z-20 mt-2 w-full sm:w-80 rounded-brand border border-surface-border bg-surface-alt shadow-xl p-3">
+        <div class="flex items-center justify-between mb-2">
+            <button type="button" @click="prev()" :disabled="!canPrev()" class="p-2 rounded-brand text-ink hover:bg-surface disabled:opacity-30" aria-label="Mes anterior">‹</button>
+            <span class="text-sm font-bold text-ink" x-text="monthLabel()"></span>
+            <button type="button" @click="next()" :disabled="!canNext()" class="p-2 rounded-brand text-ink hover:bg-surface disabled:opacity-30" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="grid grid-cols-7 text-center text-[11px] font-semibold uppercase text-ink-muted mb-1">
+            <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+        </div>
+        <div class="grid grid-cols-7 gap-1" :class="busy ? 'opacity-50' : ''">
+            <template x-for="c in grid()" :key="c.key">
+                <div>
+                    <button type="button" x-show="c.day" :disabled="!c.enabled" @click="pick(c.iso)"
+                        class="w-full aspect-square rounded-brand text-sm transition-colors"
+                        :class="c.selected ? 'bg-brand-primary text-white font-bold'
+                            : (c.enabled ? 'text-ink font-semibold bg-surface hover:border-brand-primary border border-surface-border'
+                                         : 'text-ink-muted/40 cursor-not-allowed')"
+                        x-text="c.day"></button>
+                </div>
+            </template>
+        </div>
+        <p class="mt-2 text-[11px] text-ink-muted" x-show="!busy && !days.length">No hay días disponibles este mes.</p>
+        <p class="mt-2 text-[11px] text-ink-muted" x-show="busy">Buscando disponibilidad…</p>
+    </div>
+</div>
