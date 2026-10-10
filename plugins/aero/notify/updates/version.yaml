@@ -166,3 +166,7 @@
       email y WhatsApp. El aviso de pedido nuevo (shop.order.placed) incluye
       tipo de pedido, mesa, hora programada, detalle con extras y notas."
     - shop_restaurant_order_events.php
+
+1.5.6:
+    - "Eventos nuevos de Aero.Office (reservas): office.booking.created/received/confirmed/rejected/cancelled/cancelled_by_customer/rescheduled/rescheduled_by_customer/reminder, con reglas por WhatsApp/correo al cliente y bandeja/push/correo al negocio, y plantillas por defecto."
+    - seed_office_events.php

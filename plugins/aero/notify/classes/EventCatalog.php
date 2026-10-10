@@ -24,6 +24,7 @@ class EventCatalog
             static::qrbo(),
             static::crm(),
             static::shop(),
+            static::office(),
             static::hello(),
             static::credits(),
             static::system(),
@@ -576,6 +577,48 @@ class EventCatalog
                     'contact' => 'Juan Pérez', 'tenant_name' => 'Demo',
                 ],
             ],
+        ];
+    }
+
+    /** Aero.Office: reservas de citas. Los dispara Aero\Office\Classes\Notifier. */
+    protected static function office(): array
+    {
+        $vars = [
+            'code'          => ['type' => 'string', 'required' => true,  'label' => 'Código de la reserva'],
+            'customer_name' => ['type' => 'string', 'required' => true,  'label' => 'Cliente'],
+            'customer_phone' => ['type' => 'string', 'required' => false, 'label' => 'Teléfono del cliente'],
+            'service_name'  => ['type' => 'string', 'required' => true,  'label' => 'Servicio'],
+            'worker_name'   => ['type' => 'string', 'required' => false, 'label' => 'Profesional'],
+            'branch_name'   => ['type' => 'string', 'required' => false, 'label' => 'Sucursal'],
+            'branch_address' => ['type' => 'string', 'required' => false, 'label' => 'Dirección'],
+            'starts_at'     => ['type' => 'string', 'required' => true,  'label' => 'Fecha y hora'],
+            'business_name' => ['type' => 'string', 'required' => false, 'label' => 'Negocio'],
+            'url'           => ['type' => 'string', 'required' => false, 'label' => 'Enlace para gestionar la cita'],
+            'reason'        => ['type' => 'string', 'required' => false, 'label' => 'Motivo'],
+        ];
+        $sample = [
+            'code' => 'K7M2QA', 'customer_name' => 'María Quispe', 'customer_phone' => '70000000',
+            'service_name' => 'Consulta general', 'worker_name' => 'Dra. Ana Rojas', 'branch_name' => 'Sede Central',
+            'branch_address' => 'Av. 6 de Agosto 2170', 'starts_at' => 'martes 13/10 a las 09:30',
+            'business_name' => 'Consultorio Salud Integral', 'url' => 'https://ejemplo.bo/reservas/abc', 'reason' => '',
+            'tenant_name' => 'Demo',
+        ];
+        $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 3) => [
+            'code' => $code, 'source_plugin' => 'Aero.Office', 'category' => 'bookings', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ];
+
+        return [
+            $mk('office.booking.created', 'Nueva reserva desde el portal', 'Un cliente reservó o solicitó una cita en el portal público.', ['tenant_admin'], ['inapp', 'push', 'email']),
+            $mk('office.booking.received', 'Solicitud de reserva recibida', 'Acuse al cliente: su solicitud espera aprobación del negocio.', ['actor'], ['whatsapp', 'email']),
+            $mk('office.booking.confirmed', 'Reserva confirmada', 'La cita quedó confirmada: se avisa al cliente con fecha, lugar y enlace.', ['actor'], ['whatsapp', 'email']),
+            $mk('office.booking.rejected', 'Reserva rechazada', 'El negocio rechazó la solicitud de cita.', ['actor'], ['whatsapp', 'email']),
+            $mk('office.booking.cancelled', 'Reserva cancelada por el negocio', 'El negocio canceló la cita: se avisa al cliente.', ['actor'], ['whatsapp', 'email']),
+            $mk('office.booking.cancelled_by_customer', 'Reserva cancelada por el cliente', 'El cliente canceló su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
+            $mk('office.booking.rescheduled', 'Reserva reprogramada por el negocio', 'El negocio movió o reasignó la cita: se avisa al cliente.', ['actor'], ['whatsapp', 'email']),
+            $mk('office.booking.rescheduled_by_customer', 'Reserva reprogramada por el cliente', 'El cliente movió su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
+            $mk('office.booking.reminder', 'Recordatorio de cita', 'Recordatorio al cliente antes de su cita (horas configurables por negocio).', ['actor'], ['whatsapp', 'email'], 4),
         ];
     }
 
