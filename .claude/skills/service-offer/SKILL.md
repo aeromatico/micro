@@ -73,3 +73,11 @@ Devuelve un objeto con estas claves:
 
 Las ofertas ya aplicadas son el modelo de calidad y estructura: `services:offer-proposal <id> --evidence` de un
 servicio con `has_code: true` muestra su `plugin_links`, y su HTML está en `storage/app/service-offers/<slug>.html`.
+
+## Servicios de la categoría «Rubros»
+
+Usan `themes/master/partials/site/rubro.htm`: la plantilla pinta el hero (nombre, resumen, plugins ligados con su nota y
+planes), «Qué incluye» (de `features`), «Para quién es» (de `description`) y «Qué necesitas» (de `requirements`).
+Por eso el `code` de un rubro **no lleva hero**: empieza en «La ventaja de tenerlo todo conectado» (rejilla de
+tarjetas: qué gana el cliente por cada plugin integrado), luego «Casos de uso» (10) y «Preguntas frecuentes».
+Pon una `note` útil en cada plugin ligado: se muestra tal cual en la tarjeta de integraciones. Modelo: `offers/gimnasios.json`.
