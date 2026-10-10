@@ -10,6 +10,7 @@ module.exports = {
         '../../plugins/aero/crm/components/**/*.htm',
         '../../plugins/aero/docs/components/**/*.htm',
         '../../plugins/aero/gym/components/**/*.htm',
+        '../../plugins/aero/office/components/**/*.htm',
     ],
     theme: {
         extend: {
