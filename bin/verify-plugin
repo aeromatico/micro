@@ -193,6 +193,30 @@ def check_tenant(base):
             warn('Hay tenant_id en las tablas pero ningún controller filtra por tenant (¿fuga entre tenants?)')
 
 
+def check_mcp(base, code):
+    """Todo modelo de tenant debe estar declarado como recurso MCP o excluido con motivo."""
+    if code == 'mcp':
+        return
+    res_dir = os.path.join(ROOT, 'plugins', 'aero', 'mcp', 'resources')
+    if not os.path.isdir(res_dir):
+        return
+    declared = ''.join(read(f) for f in glob.glob(os.path.join(res_dir, '*.php')))
+    # el plugin puede declarar sus propios recursos por evento (queda a cargo de `mcp:audit`)
+    own = ''.join(read(f) for f in php_files(base) if '/tests/' not in f)
+    if 'aero.mcp.registerResources' in own:
+        return
+    for f in sorted(glob.glob(os.path.join(base, 'models', '*.php'))):
+        src = read(f)
+        ns = re.search(r'^namespace\s+([^;]+);', src, re.M)
+        cl = re.search(r'^(?:abstract\s+)?class\s+(\w+)', src, re.M)
+        if not ns or not cl or 'tenant_id' not in src:
+            continue
+        fqn = '\\' + ns.group(1).strip() + '\\' + cl.group(1)
+        if fqn + '::class' not in declared:
+            err(f'MCP: {cl.group(1)} tiene tenant_id y no está declarado en plugins/aero/mcp/resources/{code}.php '
+                f'ni excluido en _excluded.php (verificar con: php artisan mcp:audit --plugin={code})')
+
+
 def run_tests(base, code):
     cfg = os.path.join(base, 'phpunit.xml')
     if not os.path.exists(cfg):
@@ -220,7 +244,7 @@ def main():
 
     n = check_lint(base)
     check_lowercase_dirs(base); check_version_yaml(base); check_controllers(base)
-    check_code_patterns(base); check_plugin_php(base, code); check_tenant(base)
+    check_code_patterns(base); check_plugin_php(base, code); check_tenant(base); check_mcp(base, code)
     tests = None if '--no-tests' in sys.argv else run_tests(base, code)
 
     print(f'verify-plugin aero/{code}: {n} archivos PHP revisados')
