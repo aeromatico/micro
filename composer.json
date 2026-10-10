@@ -12,7 +12,8 @@
         "phpoffice/phpspreadsheet": "^5.9",
         "webklex/php-imap": "^6",
         "rainlab/blog-plugin": "^2.0",
-        "minishlink/web-push": "^11.0"
+        "minishlink/web-push": "^11.0",
+        "vdlp/oc-redirect-plugin": "^4.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5|^9.0",
