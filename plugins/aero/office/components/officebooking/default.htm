@@ -44,6 +44,7 @@
     {% endif %}
 
     <p class="mt-6 text-center text-xs text-ink-muted">Guarda este enlace para gestionar tu cita.</p>
+    <p class="mt-3 text-center text-sm"><a href="/cuenta/reservas" class="font-semibold text-brand-primary hover:opacity-80">Ver todas mis reservas →</a></p>
 
 {% else %}
     {# ---------- Asistente de reserva ---------- #}
@@ -91,8 +92,8 @@
                 <h2 class="text-sm font-bold text-ink">5. Tus datos</h2>
                 <input type="text" name="name" value="{{ user ? user.name : '' }}" placeholder="Nombre completo" maxlength="120" required
                     class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
-                <input type="tel" name="phone" placeholder="Teléfono / WhatsApp" maxlength="32" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
-                <input type="email" name="email" value="{{ user ? user.email : '' }}" placeholder="Correo (opcional si dejas teléfono)" maxlength="190" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                <input type="tel" name="phone" placeholder="Teléfono / WhatsApp (para avisos)" maxlength="32" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
+                <input type="email" name="email" value="{{ user ? user.email : '' }}" placeholder="Correo electrónico (crearemos tu cuenta con él)" maxlength="190" required class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm">
                 <textarea name="notes" rows="2" maxlength="1000" placeholder="Notas para el negocio (opcional)" class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm"></textarea>
                 {% if s.booking_terms %}<p class="text-xs text-ink-muted">{{ s.booking_terms }}</p>{% endif %}
                 <button type="submit" class="rounded-brand bg-brand-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-all"

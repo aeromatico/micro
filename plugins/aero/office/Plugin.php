@@ -61,6 +61,7 @@ class Plugin extends PluginBase
     {
         return [
             \Aero\Office\Components\OfficeBooking::class => 'officeBooking',
+            \Aero\Office\Components\OfficeAccount::class => 'officeAccount',
         ];
     }
 

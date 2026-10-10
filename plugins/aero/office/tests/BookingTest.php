@@ -224,4 +224,22 @@ class BookingTest extends PluginTestCase
         $this->assertSame(0, \Aero\Office\Classes\Notifier::sendReminders(), 'Reservada dentro de la ventana: no se recuerda');
         $this->assertNotNull($b->fresh()->reminder_sent_at, 'Queda marcada para no reintentar');
     }
+
+    public function testCustomerUserIsCreatedAndLinkedWithoutLoggingIn(): void
+    {
+        $customer = Customer::create(['tenant_id' => 1, 'name' => 'Ana Cliente', 'email' => 'ana.cuenta@example.test', 'phone' => '70000009']);
+        $users = app(\Aero\Office\Classes\CustomerUsers::class);
+
+        $user = $users->ensureUser($customer); // sin URL: no se envía correo
+        $this->assertTrue($users->created);
+        $this->assertSame($user->id, $customer->fresh()->user_id);
+        $this->assertNotNull($user->activated_at);
+
+        // Otro cliente con el mismo correo en OTRO negocio reutiliza el usuario (global) sin crear otro.
+        $other = Customer::create(['tenant_id' => 2, 'name' => 'Ana', 'email' => 'ana.cuenta@example.test']);
+        $again = $users->ensureUser($other);
+        $this->assertFalse($users->created);
+        $this->assertSame($user->id, $again->id);
+        $this->assertSame(1, \RainLab\User\Models\User::where('email', 'ana.cuenta@example.test')->count());
+    }
 }

@@ -7,8 +7,18 @@ use RainLab\User\Models\User;
 /** Vincula al cliente con un usuario de RainLab.User (opcional: se puede reservar sin cuenta). */
 class CustomerUsers
 {
-    public function ensureUser(Customer $customer): User
+    /** true si la última llamada a ensureUser() creó el usuario (no solo lo vinculó). */
+    public bool $created = false;
+
+    /**
+     * Devuelve el usuario del cliente, creándolo si no existe. Con $resetUrl, un usuario
+     * NUEVO recibe la invitación de RainLab para crear su contraseña (nunca se inicia sesión
+     * por él: quien reservó no demostró ser dueño del correo).
+     */
+    public function ensureUser(Customer $customer, ?string $resetUrl = null): User
     {
+        $this->created = false;
+
         if ($customer->user_id && ($user = User::find($customer->user_id))) {
             return $user;
         }
@@ -33,10 +43,20 @@ class CustomerUsers
             $user->password_confirmation = $password;
             $user->activated_at = now();
             $user->save();
+            $this->created = true;
         }
 
         $customer->user_id = $user->id;
         $customer->save();
+
+        if ($this->created && $resetUrl) {
+            try {
+                $user->setUrlForPasswordReset($resetUrl);
+                $user->sendConfirmRegistrationNotification();
+            } catch (\Throwable $e) {
+                \Log::warning('[office] No se pudo enviar la invitación de cuenta: ' . $e->getMessage());
+            }
+        }
 
         return $user;
     }

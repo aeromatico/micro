@@ -215,11 +215,9 @@ class OfficeBooking extends ComponentBase
         if ($name === '' || mb_strlen($name) > 120) {
             throw new \ApplicationException('Escribe tu nombre.');
         }
-        if ($phone === '' && $email === '') {
-            throw new \ApplicationException('Déjanos un teléfono o un correo para contactarte.');
-        }
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \ApplicationException('El correo no es válido.');
+        // El correo es obligatorio: con él se crea la cuenta del cliente para que vea sus reservas.
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \ApplicationException('Escribe un correo válido: con él crearemos tu cuenta para ver tus reservas.');
         }
 
         try {
@@ -242,6 +240,23 @@ class OfficeBooking extends ComponentBase
             ], 'public');
         } catch (OfficeException $e) {
             throw new \ApplicationException($e->getMessage());
+        }
+
+        // Anónimo: se vuelve usuario (rainlab:user) del negocio para revisar sus reservas en /cuenta.
+        $message = null;
+        if (!$this->user) {
+            try {
+                $users = app(\Aero\Office\Classes\CustomerUsers::class);
+                $users->ensureUser($customer, request()->getSchemeAndHttpHost() . '/cuenta/restablecer');
+                $message = $users->created
+                    ? 'Creamos tu cuenta. Te enviamos un correo para que definas tu contraseña y veas todas tus reservas en «Mi cuenta».'
+                    : 'Ya tienes una cuenta con este correo: ingresa a «Mi cuenta» para ver tus reservas.';
+            } catch (\Throwable $e) {
+                \Log::warning('[office] No se pudo crear la cuenta del cliente: ' . $e->getMessage());
+            }
+        }
+        if ($message) {
+            \Flash::success($message);
         }
 
         return \Redirect::to('/reservas/' . $booking->manage_token);
