@@ -35,7 +35,7 @@
                         {% if singleGroup %}
                             {% for item in menuServices.groups[0].items %}
                             <a href="{{ item.url }}" class="block rounded-xl border border-edge p-4 hover:border-accent/60 hover:bg-canvas-elev2 transition-colors">
-                                <span class="block text-sm font-semibold text-ink">{{ item.name }}</span>
+                                <span class="flex items-center gap-2 text-sm font-semibold text-ink">{% if item.icon_svg %}{{ item.icon_svg|raw }}{% endif %}{{ item.name }}</span>
                                 {% if item.summary %}<span class="block text-xs text-ink-dim mt-1 text-pretty leading-relaxed">{{ item.summary }}</span>{% endif %}
                             </a>
                             {% endfor %}
@@ -47,7 +47,7 @@
                                     {% for item in group.items %}
                                     <li>
                                         <a href="{{ item.url }}" class="block rounded-lg p-3 -mx-3 hover:bg-canvas-elev2 transition-colors">
-                                            <span class="block text-sm font-semibold text-ink">{{ item.name }}</span>
+                                            <span class="flex items-center gap-2 text-sm font-semibold text-ink">{% if item.icon_svg %}{{ item.icon_svg|raw }}{% endif %}{{ item.name }}</span>
                                             {% if item.summary %}<span class="block text-xs text-ink-dim mt-0.5 text-pretty">{{ item.summary }}</span>{% endif %}
                                         </a>
                                     </li>
@@ -101,7 +101,7 @@
                 {% for group in menuServices.groups %}
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-wider text-ink-dim mb-2">{{ group.name }}</p>
-                    <div class="overflow-y-auto overflow-x-hidden overscroll-contain pr-2" style="max-height:12.35rem">{% for item in group.items %}<a href="{{ item.url }}" class="block py-1 text-sm text-ink">{{ item.name }}</a>{% endfor %}</div>
+                    <div class="overflow-y-auto overflow-x-hidden overscroll-contain pr-2" style="max-height:12.35rem">{% for item in group.items %}<a href="{{ item.url }}" class="flex items-center gap-2 py-1 text-sm text-ink">{% if item.icon_svg %}{{ item.icon_svg|raw }}{% endif %}{{ item.name }}</a>{% endfor %}</div>
                 </div>
                 {% endfor %}
             </div>
