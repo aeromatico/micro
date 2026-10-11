@@ -15,7 +15,7 @@ Mandá la key en la cabecera `Authorization` de cada pedido:
 
 ```bash
 curl -H "Authorization: Bearer ak_xxxxxxxxxxxxxxxxxxxx" \
-     https://panel.market.com.bo/api/v1/currencies
+     https://market.com.bo/api/v1/currencies
 ```
 
 ## Permisos (scopes)
