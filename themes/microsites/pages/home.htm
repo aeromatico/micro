@@ -16,12 +16,12 @@ slug = ""
 [shopCart]
 ==
 {% set tenant = sitesSeo.tenant %}
-{% set page = sitesPageDetail.page %}
+{% set sitePage = tenant ? sitesPageDetail.page : null %}
 
-{% if page and not page.is_placeholder and page.content %}
+{% if sitePage and not sitePage.is_placeholder and sitePage.content %}
 {# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
-{{ page.content | aeroDynamic | raw }}
-{% elseif not page or page.is_placeholder %}
+{{ sitePage.content | aeroDynamic | raw }}
+{% elseif not sitePage or sitePage.is_placeholder %}
 {# El alta recién provisiona la home con contenido de relleno del nicho —
    se oculta hasta que el admin genere su primer landing con IA o guarde
    contenido propio (BaseNiche::provisionPages / GenerateAiSiteJob /
