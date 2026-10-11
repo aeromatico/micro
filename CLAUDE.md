@@ -1,5 +1,7 @@
 # micro.clouds.com.bo — plataforma SaaS multitenant (Aero.*)
 
+> **Marca:** el producto es **Market** y su base es `market.com.bo`; todo lo demás (subdominios, tenants, temas) lo controla el multisite de esta app. No usar "micro", `micro.clouds.com.bo` ni `panel.market.com.bo` en nada de cara al público. Directorio, repo `aeromatico/micro` y `APP_URL` (hoy panel.*) son nombres técnicos hasta nueva orden.
+
 OctoberCMS 4 / Laravel 12 / PHP 8.4 / MySQL / Redis / Tailwind 3 + Alpine.js (Pines). Dev server = fuente de verdad: aquí se genera y se hace `git push origin main` (repo `aeromatico/micro`); producción hace pull. Nunca `git pull`.
 
 ## Mapa
