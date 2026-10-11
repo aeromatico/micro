@@ -95,7 +95,16 @@ de moneda con el que se cobra.
 
 | Servicio | Costo |
 |----------|-------|
-| QR de cobro completado (pagado) | **8 monedas de bronce** por QR |
+| QR de cobro completado (pagado) — plan Negocio | **8 monedas de bronce** por QR |
+| QR de cobro completado (pagado) — plan PRO | **1 % del monto cobrado**, convertido a monedas de bronce |
+
+**Plan PRO:** en vez de una tarifa fija pagas el 1 % de lo que tu cliente
+realmente pagó, convertido a bronce con el precio de la moneda (≈ Bs 0.055) y
+redondeado hacia arriba. Ejemplo: un QR de Bs 55 → 1 % = Bs 0.55 → **10
+monedas de bronce**. Un QR de Bs 500 → Bs 5 → 91 monedas. Si el QR no está en
+bolivianos se aplica la tarifa fija de 8. Necesitas monedas de bronce en tu
+saldo para que se te cobre; el plan ya trae un bono al activarlo y puedes
+recargar cuando quieras.
 
 La tarifa se cobra **solo cuando el QR se paga**, no al generarlo: un QR
 pendiente, vencido o anulado no te cuesta nada. Aplica a los cobros de tu
