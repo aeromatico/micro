@@ -75,9 +75,9 @@ text{font-family:Inter,system-ui,sans-serif}
       <rect id="scan" x="1312" y="474" width="40" height="6" rx="3" fill="#f59e0b" opacity="0"/>
     </g>
     <!-- dudas -->
-    <g id="b1" opacity="0"><rect class="ink thin" x="1290" y="250" width="330" height="80" rx="40" fill="#fff"/><text x="1455" y="302" text-anchor="middle" font-size="36" fill="#3f3f46">¿Ya transferí?</text></g>
-    <g id="b2" opacity="0"><rect class="ink thin" x="440" y="230" width="330" height="80" rx="40" fill="#fff"/><text x="605" y="282" text-anchor="middle" font-size="36" fill="#3f3f46">¿Cuál fue la hora?</text></g>
-    <g id="b3" opacity="0"><rect class="ink thin" x="1500" y="140" width="330" height="80" rx="40" fill="#fff"/><text x="1665" y="192" text-anchor="middle" font-size="36" fill="#3f3f46">¿Te mando captura?</text></g>
+    <g id="b1" opacity="0"><rect class="ink thin" x="1235" y="250" width="440" height="84" rx="42" fill="#fff"/><text x="1455" y="304" text-anchor="middle" font-size="35" fill="#3f3f46">¿Ya transferí?</text></g>
+    <g id="b2" opacity="0"><rect class="ink thin" x="385" y="230" width="440" height="84" rx="42" fill="#fff"/><text x="605" y="284" text-anchor="middle" font-size="35" fill="#3f3f46">¿Cuál fue la hora?</text></g>
+    <g id="b3" opacity="0"><rect class="ink thin" x="1440" y="140" width="440" height="84" rx="42" fill="#fff"/><text x="1660" y="194" text-anchor="middle" font-size="35" fill="#3f3f46">¿Te mando captura?</text></g>
     <g id="cards" opacity="0">
       <rect class="ink thin" x="800" y="790" width="70" height="100" rx="8" fill="#f4f4f5" transform="rotate(-8 835 840)"/>
       <rect class="ink thin" x="850" y="800" width="70" height="100" rx="8" fill="#fafafa" transform="rotate(5 885 850)"/>

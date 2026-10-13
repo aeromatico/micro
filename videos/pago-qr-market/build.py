@@ -4,8 +4,9 @@ Uso: python3 build.py   (lee la clave de /root/.elevenlabs.env; nunca va al repo
 import json, os, subprocess, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-VOICE = os.environ.get("VOICE_ID", "wBnAJRbu3cj93gnAm02O")  # Daniela - Vendedora (biblioteca propia)
-MUSIC = os.environ.get("MUSIC", "0") == "1"  # colchón musical: apagado por defecto
+VOICE = os.environ.get("VOICE_ID", "U9TSK9KHMlMU2qkeXlQP")  # Brian - Social Media (biblioteca propia); Daniela=wBnAJRbu3cj93gnAm02O
+MUSIC = os.environ.get("MUSIC", "1") == "1"  # fondo musical bajo la voz (assets/fondo.mp3)
+MUSIC_VOL = float(os.environ.get("MUSIC_VOL", "0.16"))
 SCENES = [
     "Ella es Ana. Tiene un negocio, y vende todos los días.",
     "Pero cuando un cliente quiere pagar, empiezan las dudas. ¿Ya transferiste? ¿Me mandas la captura?",
@@ -24,8 +25,12 @@ def tts(i, text):
     out = os.path.join(HERE, "assets", f"s{i+1}.mp3")
     if os.path.exists(out):
         return out
-    body = json.dumps({"text": text, "model_id": "eleven_multilingual_v2", "language_code": "es",
-                       "voice_settings": {"stability": .5, "similarity_boost": .8, "style": .25, "use_speaker_boost": True}}).encode()
+    # naturalidad: estabilidad media, sin exageración de estilo y contexto de las escenas vecinas (continuidad de entonación)
+    payload = {"text": text, "model_id": "eleven_multilingual_v2", "language_code": "es",
+               "voice_settings": {"stability": .42, "similarity_boost": .75, "style": 0.0, "use_speaker_boost": True}}
+    if i > 0: payload["previous_text"] = SCENES[i - 1]
+    if i < len(SCENES) - 1: payload["next_text"] = SCENES[i + 1]
+    body = json.dumps(payload).encode()
     req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}?output_format=mp3_44100_128",
                                  data=body, headers={"xi-api-key": key(), "Content-Type": "application/json"})
     open(out, "wb").write(urllib.request.urlopen(req, timeout=90).read())
@@ -70,11 +75,11 @@ def make_mix(scenes, total):
         ms = int(at * 1000); idx = n + j
         f.append(f"[{idx}:a]adelay={ms}|{ms},volume={vol}[e{j}]"); lab_s.append(f"[e{j}]")
     if MUSIC:
-        inputs += ["-i", os.path.join(HERE, "assets", "musica.mp3")]
+        inputs += ["-i", os.path.join(HERE, "assets", "fondo.mp3")]
     mi = n + len(ev)
     f.append("".join(lab_v) + f"amix=inputs={n}:normalize=0,aformat=channel_layouts=stereo,apad=whole_dur={total},asplit=2[vm1][vm2]")
     if MUSIC:
-        f.append(f"[{mi}:a]atrim=0:{total},volume=0.5,afade=t=in:d=1.5,afade=t=out:st={total-2.5}:d=2.5[mus]")
+        f.append(f"[{mi}:a]atrim=0:{total},volume={MUSIC_VOL},afade=t=in:d=1.5,afade=t=out:st={total-2.5}:d=2.5[mus]")
         f.append("[mus][vm1]sidechaincompress=threshold=0.02:ratio=10:attack=15:release=450[md]")
     else:
         f.append("[vm1]anullsink")
