@@ -111,6 +111,11 @@
     background: linear-gradient(var(--color-accent), var(--color-warm));
 }
 /* El video del servicio vive dentro de .service-page pero lleva el título centrado, sin la barra de acento. */
+/* Video del servicio en pantalla completa: se ve entero (negro a los lados si la pantalla no es 9:16 / 16:9), sin recortar.
+   En la tarjeta usa cover porque ya tiene la proporción exacta del video. */
+#video video:fullscreen { object-fit: contain !important; background: #000 !important; }
+#video video:-webkit-full-screen { object-fit: contain !important; background: #000 !important; }
+#video video:-moz-full-screen { object-fit: contain !important; background: #000 !important; }
 /* Va pegado al hero (que ya trae su aire inferior). */
 .service-page > section#video { padding-top: 0; }
 .service-page h2.sv-title { padding-left: 0; }
