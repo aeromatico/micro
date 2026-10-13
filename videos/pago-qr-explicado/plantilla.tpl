@@ -2,26 +2,27 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=1920, height=1080" />
+<meta name="viewport" content="width=%%VW%%, height=%%VH%%" />
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:1920px;height:1080px;overflow:hidden;background:#fff}
-#root{position:relative;width:1920px;height:1080px;background:#fff;font-family:Inter,system-ui,sans-serif;overflow:hidden}
+html,body{width:%%VW%%px;height:%%VH%%px;overflow:hidden;background:#fff}
+#root{position:relative;width:%%VW%%px;height:%%VH%%px;background:#fff;font-family:Inter,system-ui,sans-serif;overflow:hidden}
 svg{position:absolute;inset:0}
 .ink{stroke:#3f3f46;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 .thin{stroke-width:4}
 .cap{text-wrap:balance;position:absolute;left:160px;width:1600px;bottom:56px;text-align:center;font-size:46px;font-weight:500;color:#3f3f46;line-height:1.25;opacity:0}
-#brand{position:absolute;left:0;width:1920px;top:360px;text-align:center;opacity:0}
+#brand{position:absolute;left:0;width:%%VW%%px;top:360px;text-align:center;opacity:0}
 #brand b{display:block;font-size:190px;font-weight:800;letter-spacing:-.03em;color:#27272a}
 #brand i{display:block;margin:10px auto 0;width:220px;height:12px;border-radius:6px;background:#f59e0b}
 #brand p{margin-top:36px;font-size:52px;color:#3f3f46}
 #brand span{display:block;margin-top:14px;font-size:44px;color:#71717a}
 text{font-family:Inter,system-ui,sans-serif}
+%%VARCSS%%
 </style>
 </head>
 <body>
-<div id="root" data-composition-id="main" data-start="0" data-duration="%%TOTAL%%" data-width="1920" data-height="1080">
+<div id="root" data-composition-id="main" data-start="0" data-duration="%%TOTAL%%" data-width="%%VW%%" data-height="%%VH%%">
 <svg id="stage" viewBox="0 0 1920 1080" width="1920" height="1080">
   <g id="world">
     <!-- banco / nube -->
