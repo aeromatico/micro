@@ -29,6 +29,8 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#05070f}
   <div class="abs line g" id="l3" style="top:490px;font-size:210px">6 apps.</div>
   <div class="abs line" id="q" style="top:300px;font-size:130px">¿Y si fuera<br><span class="g">una sola?</span></div>
   <div class="abs line g" id="one" style="top:360px;font-size:340px">UNA.</div>
+  <div class="abs line g" id="mk" style="top:420px;font-size:250px">Market</div>
+  <audio id="voz" src="assets/voz.mp3" data-start="0" data-duration="8.08" data-track-index="1" data-volume="1"></audio>
   <div class="abs line" id="sub" style="top:760px;font-size:78px;font-weight:800">Todo tu negocio.<br>Un solo lugar.</div>
   <div id="brand"><b id="bp">Market · market.com.bo</b></div>
   <div id="flash"></div>
@@ -44,37 +46,38 @@ const chips=items.map((it,i)=>{const d=document.createElement('div');d.className
 const dots=[];for(let i=0;i<48;i++){const d=document.createElement('div');d.className='dot';
   d.style.background=['#60a5fa','#c084fc','#f472b6','#fde047','#fff'][i%5];root.appendChild(d);gsap.set(d,{opacity:0,xPercent:-50,yPercent:-50});dots.push(d)}
 const rings=[0,1].map(()=>{const r=document.createElement('div');r.className='ring';root.appendChild(r);gsap.set(r,{scale:0,opacity:0});return r});
-gsap.set(['#l1','#l2','#l3','#q','#one','#sub','#bp'],{opacity:0});
+gsap.set(['#l1','#l2','#l3','#q','#one','#mk','#sub','#bp'],{opacity:0});
 gsap.set('#orb',{scale:0,opacity:0});
 
 const tl=gsap.timeline({paused:true});
 // 0–2.3 caos
 chips.forEach((c,i)=>{tl.to(c,{scale:1,duration:.4,ease:'back.out(2.5)'},.1+i*.12);
   tl.to(c,{x:chaos[i][0]+(i%2?18:-18),y:chaos[i][1]+(i%2?-14:14),rotation:chaos[i][2]+(i%2?4:-4),duration:.12,repeat:15,yoyo:true,ease:'sine.inOut'},.5)});
-[['#l1',.25],['#l2',.8],['#l3',1.3]].forEach(([s,t])=>tl.fromTo(s,{opacity:0,scale:1.9,y:-40},{opacity:1,scale:1,y:0,duration:.28,ease:'power4.out'},t));
-tl.to('#l3',{scale:1.06,duration:.1,repeat:5,yoyo:true},1.7);
-tl.to(['#l1','#l2','#l3'],{opacity:0,y:-60,duration:.25,ease:'power2.in'},2.35);
+[['#l1',.05],['#l2',.7],['#l3',1.05]].forEach(([s,t])=>tl.fromTo(s,{opacity:0,scale:1.9,y:-40},{opacity:1,scale:1,y:0,duration:.28,ease:'power4.out'},t));
+tl.to('#l3',{scale:1.06,duration:.1,repeat:5,yoyo:true},1.5);
+tl.to(['#l1','#l2','#l3'],{opacity:0,y:-60,duration:.25,ease:'power2.in'},2.5);
 // 2.6 pregunta
-tl.fromTo('#q',{opacity:0,scale:.6},{opacity:1,scale:1,duration:.35,ease:'back.out(2)'},2.6);
+tl.fromTo('#q',{opacity:0,scale:.6},{opacity:1,scale:1,duration:.35,ease:'back.out(2)'},2.74);
 // 3.3 succión
-chips.forEach((c,i)=>tl.to(c,{x:0,y:0,rotation:540,scale:.15,duration:.55,ease:'power4.in'},3.3+i*.03));
-tl.to('#q',{opacity:0,scale:.5,duration:.25},3.45);
-tl.set(chips,{opacity:0},3.85);tl.set(chips,{opacity:1},5.69);
+chips.forEach((c,i)=>tl.to(c,{x:0,y:0,rotation:540,scale:.15,duration:.55,ease:'power4.in'},3.5+i*.03));
+tl.to('#q',{opacity:0,scale:.5,duration:.25},3.65);
+tl.set(chips,{opacity:0},4.05);tl.set(chips,{opacity:1},6.39);
 // 3.9 explosión
-tl.set('#flash',{opacity:1},3.9).to('#flash',{opacity:0,duration:.5,ease:'power2.out'},3.92);
-tl.fromTo('#orb',{scale:0,opacity:1},{scale:1.2,opacity:1,duration:.5,ease:'power3.out',immediateRender:false},3.9).to('#orb',{scale:.9,duration:1.2,ease:'sine.inOut',repeat:3,yoyo:true},4.4);
-rings.forEach((r,i)=>tl.fromTo(r,{scale:0,opacity:1},{scale:i?18:11,opacity:0,duration:1.1,ease:'power2.out',immediateRender:false},3.9+i*.18));
+tl.set('#flash',{opacity:1},4.12).to('#flash',{opacity:0,duration:.5,ease:'power2.out'},4.14);
+tl.fromTo('#orb',{scale:0,opacity:1},{scale:1.2,opacity:1,duration:.5,ease:'power3.out',immediateRender:false},4.12).to('#orb',{scale:.9,duration:1.2,ease:'sine.inOut',repeat:3,yoyo:true},4.7);
+rings.forEach((r,i)=>tl.fromTo(r,{scale:0,opacity:1},{scale:i?18:11,opacity:0,duration:1.1,ease:'power2.out',immediateRender:false},4.12+i*.18));
 dots.forEach((d,i)=>{const a=rnd()*Math.PI*2,r=300+rnd()*620;
-  tl.fromTo(d,{x:0,y:0,opacity:1,scale:1},{x:Math.cos(a)*r,y:Math.sin(a)*r,opacity:0,scale:.2,duration:.9+rnd()*.6,ease:'power3.out',immediateRender:false},3.9)});
-gsap.set('#root',{x:0});tl.to('#root',{x:14,duration:.04,repeat:9,yoyo:true},3.9);
-tl.fromTo('#one',{opacity:0,scale:3.2},{opacity:1,scale:1,duration:.45,ease:'power4.out'},3.95);
-tl.fromTo('#sub',{opacity:0,y:50},{opacity:1,y:0,duration:.5,ease:'power3.out'},4.7);
+  tl.fromTo(d,{x:0,y:0,opacity:1,scale:1},{x:Math.cos(a)*r,y:Math.sin(a)*r,opacity:0,scale:.2,duration:.9+rnd()*.6,ease:'power3.out',immediateRender:false},4.12)});
+gsap.set('#root',{x:0});tl.to('#root',{x:14,duration:.04,repeat:9,yoyo:true},4.12);
+tl.fromTo('#one',{opacity:0,scale:3.2},{opacity:1,scale:1,duration:.45,ease:'power4.out'},4.15);
+tl.to('#one',{opacity:0,scale:.8,duration:.2,ease:'power2.in'},4.62).fromTo('#mk',{opacity:0,scale:2.4},{opacity:1,scale:1,duration:.4,ease:'power4.out'},4.74);
+tl.fromTo('#sub',{opacity:0,y:50},{opacity:1,y:0,duration:.5,ease:'power3.out'},5.75);
 // 5.7 orden
-chips.forEach((c,i)=>tl.fromTo(c,{x:0,y:0,rotation:0,scale:0},{x:grid[i][0],y:grid[i][1],rotation:0,scale:1,duration:.55,ease:'back.out(1.8)',immediateRender:false},5.7+i*.15));
-tl.to('#orb',{opacity:.35,duration:.5},5.5);
+chips.forEach((c,i)=>tl.fromTo(c,{x:0,y:0,rotation:0,scale:0},{x:grid[i][0],y:grid[i][1],rotation:0,scale:1,duration:.55,ease:'back.out(1.8)',immediateRender:false},6.4+i*.15));
+tl.to('#orb',{opacity:.35,duration:.5},6.2);
 // 7.6 marca
-tl.fromTo('#bp',{opacity:0,scale:.6},{opacity:1,scale:1,duration:.5,ease:'back.out(2)'},7.6);
-tl.to('#bp',{scale:1.05,duration:.35,repeat:3,yoyo:true,ease:'sine.inOut'},8.2);
+tl.fromTo('#bp',{opacity:0,scale:.6},{opacity:1,scale:1,duration:.5,ease:'back.out(2)'},7.5);
+tl.to('#bp',{scale:1.05,duration:.35,repeat:3,yoyo:true,ease:'sine.inOut'},8.1);
 window.__timelines['main']=tl;tl.seek(0);
 </script>
 </body>
