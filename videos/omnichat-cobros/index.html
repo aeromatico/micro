@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+@font-face{font-family:'Urbanist';font-style:normal;font-weight:300;font-display:block;src:url('assets/fonts/urbanist-300-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Urbanist';font-style:normal;font-weight:300;font-display:block;src:url('assets/fonts/urbanist-300-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Urbanist';font-style:normal;font-weight:900;font-display:block;src:url('assets/fonts/urbanist-900-latin-ext.woff2') format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Urbanist';font-style:normal;font-weight:900;font-display:block;src:url('assets/fonts/urbanist-900-latin.woff2') format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#fff}
+#root{position:relative;width:1920px;height:1080px;background:#fff;font-family:Inter,system-ui,sans-serif;overflow:hidden}
+svg{position:absolute;inset:0}
+.ink{stroke:#3f3f46;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.thin{stroke-width:4}
+.cap{position:absolute;left:160px;width:1600px;bottom:48px;text-align:center;font-size:42px;font-weight:500;color:#3f3f46;line-height:1.25;opacity:0;text-wrap:balance}
+#brand{position:absolute;left:0;width:1920px;top:330px;text-align:center;opacity:0}
+#brand b{display:block;font-family:Urbanist,sans-serif;font-size:200px;font-weight:900;line-height:.86;letter-spacing:-.02em;color:#27272a}
+#brand em{display:block;font-family:Urbanist,sans-serif;font-style:normal;font-size:50px;font-weight:300;letter-spacing:.03em;color:#3f3f46}
+#brand p{margin-top:40px;font-size:52px;color:#3f3f46}
+#brand span{display:block;margin-top:14px;font-size:44px;color:#71717a}
+text{font-family:Inter,system-ui,sans-serif}
+#vtitle{display:none;position:absolute;left:0;width:1920px;top:270px;text-align:center;font-family:Urbanist,sans-serif;color:#27272a;opacity:0}
+#vtitle b{display:block;font-size:130px;font-weight:900;line-height:1;letter-spacing:-.02em}
+#vtitle span{display:block;margin-top:8px;font-size:56px;font-weight:300}
+#vtitle i{font-style:normal;font-weight:900}
+
+#cover{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Urbanist,sans-serif;color:#27272a}
+#cover h1{font-size:250px;font-weight:900;line-height:.92;letter-spacing:-.03em;text-align:center}
+#cover .by{margin-top:60px;display:flex;align-items:center;gap:28px;font-size:84px;line-height:1}
+#cover .by .flag{font-size:92px}
+#cover .by span{font-weight:300}
+#cover .by b{font-weight:900}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="48.5" data-width="1920" data-height="1080">
+<svg id="stage" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <g id="world" transform="translate(0,-50)">
+
+    <!-- Ana (atiende desde el chat) -->
+    <g id="ana" transform="translate(-200,0)">
+      <path class="dr ink" d="M585 470 L655 470 L663 655 L577 655 Z" fill="#fde7c0"/>
+      <path class="dr" d="M585 470 L620 470 L620 655 L577 655 Z" fill="#f59e0b" stroke="#3f3f46" stroke-width="6" stroke-linejoin="round"/>
+      <line class="dr ink" x1="600" y1="655" x2="592" y2="880"/>
+      <line class="dr ink" x1="640" y1="655" x2="648" y2="880"/>
+      <path class="dr ink" d="M585 500 L563 610"/>
+      <path class="dr ink" d="M655 500 Q705 515 748 548"/>
+      <circle class="dr ink" cx="620" cy="405" r="52" fill="#fff"/>
+      <circle cx="604" cy="396" r="4" fill="#3f3f46"/><circle cx="636" cy="396" r="4" fill="#3f3f46"/>
+      <path id="smile" class="ink thin" d="M600 422 Q620 438 640 422"/>
+    </g>
+
+    <!-- Ventana de chat -->
+    <g id="win">
+      <rect class="dr ink" x="560" y="110" width="600" height="760" rx="34" fill="#fff"/>
+      <line class="dr ink thin" x1="560" y1="200" x2="1160" y2="200"/>
+      <circle class="dr ink thin" cx="612" cy="155" r="26" fill="#f4f4f5"/>
+      <text x="654" y="167" font-size="32" font-weight="700" fill="#27272a">Luis</text>
+      <circle cx="1128" cy="155" r="9" fill="#22c55e"/>
+      <line class="dr ink thin" x1="560" y1="775" x2="1160" y2="775"/>
+      <rect class="dr ink thin" x="585" y="792" width="450" height="50" rx="25" fill="#fff"/>
+      <circle cx="1110" cy="817" r="25" fill="#f59e0b"/>
+      <path d="M1100 817 L1120 817 M1112 808 L1121 817 L1112 826" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text id="typed" x="605" y="826" font-size="26" fill="#3f3f46" opacity="0">Bs 80 · Instalación</text>
+    </g>
+
+    <!-- Mensajes -->
+    <g id="b1" opacity="0">
+      <rect x="585" y="240" width="455" height="70" rx="35" fill="#f4f4f5"/>
+      <text x="610" y="285" font-size="32" fill="#27272a">¿Tienes la camisa azul?</text>
+    </g>
+    <g id="b2" opacity="0">
+      <rect class="ink thin" x="720" y="330" width="415" height="205" rx="26" fill="#fff"/>
+      <rect x="738" y="348" width="150" height="169" rx="16" fill="#fde7c0"/>
+      <path d="M770 392 L795 382 Q813 398 831 382 L856 392 L846 424 L833 419 L833 480 L793 480 L793 419 L780 424 Z" fill="#f59e0b" stroke="#3f3f46" stroke-width="4" stroke-linejoin="round"/>
+      <text x="905" y="395" font-size="32" font-weight="700" fill="#27272a">Camisa azul</text>
+      <text x="905" y="448" font-size="46" font-weight="800" fill="#27272a">Bs 150</text>
+      <rect x="905" y="466" width="226" height="42" rx="21" fill="#f4f4f5"/>
+      <text x="1018" y="496" text-anchor="middle" font-size="23" fill="#3f3f46">Ver en la tienda</text>
+    </g>
+    <g id="b3" opacity="0">
+      <rect x="585" y="240" width="385" height="70" rx="35" fill="#f4f4f5"/>
+      <text x="610" y="285" font-size="32" fill="#27272a">¿Y la instalación?</text>
+    </g>
+    <g id="b4" opacity="0">
+      <rect id="b4r" class="ink thin" x="720" y="330" width="415" height="250" rx="26" fill="#fff"/>
+      <rect x="738" y="348" width="150" height="150" rx="14" fill="#fff" stroke="#3f3f46" stroke-width="4"/>
+      <g id="b4qr"></g>
+      <text x="905" y="395" font-size="32" font-weight="700" fill="#27272a">Instalación</text>
+      <text x="905" y="452" font-size="50" font-weight="800" fill="#27272a">Bs 80</text>
+      <text x="905" y="490" font-size="24" fill="#71717a">Vence en 1 día</text>
+      <rect x="738" y="522" width="380" height="42" rx="21" fill="#fde7c0"/>
+      <text x="928" y="552" text-anchor="middle" font-size="24" font-weight="700" fill="#27272a">Cobro con QR enviado</text>
+    </g>
+    <g id="lock" opacity="0">
+      <circle cx="1118" cy="424" r="26" fill="#f59e0b" stroke="#3f3f46" stroke-width="4"/>
+      <rect x="1106" y="424" width="24" height="18" rx="4" fill="#fff" stroke="#3f3f46" stroke-width="3"/>
+      <path d="M1111 424 v-6 a7 7 0 0 1 14 0 v6" fill="none" stroke="#3f3f46" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g id="b5" opacity="0">
+      <rect x="600" y="650" width="520" height="92" rx="46" fill="#dcfce7" stroke="#16a34a" stroke-width="4"/>
+      <circle cx="652" cy="696" r="26" fill="#22c55e"/>
+      <path d="M641 696 l8 9 l16 -19" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="694" y="708" font-size="33" font-weight="800" fill="#14532d">Pago recibido · Bs 80</text>
+    </g>
+
+    <g id="side">
+    <!-- Salir del chat: íconos de las otras apps -->
+    <g id="arrows" opacity="0">
+      <path d="M1170 270 L1296 270" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" stroke-dasharray="4 14"/>
+      <path d="M1170 450 L1296 450" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" stroke-dasharray="4 14"/>
+      <path d="M1170 630 L1296 630" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" stroke-dasharray="4 14"/>
+    </g>
+    <g id="ico" opacity="0">
+      <g class="ink thin">
+        <path d="M1330 285 L1380 235 L1430 285 Z" fill="#fff"/>
+        <line x1="1345" y1="295" x2="1345" y2="330"/><line x1="1380" y1="295" x2="1380" y2="330"/><line x1="1415" y1="295" x2="1415" y2="330"/>
+        <line x1="1325" y1="340" x2="1435" y2="340"/>
+        <rect x="1330" y="395" width="100" height="125" rx="14" fill="#fff"/>
+        <rect x="1345" y="410" width="70" height="26" rx="6" fill="#f4f4f5"/>
+        <circle cx="1352" cy="463" r="5"/><circle cx="1380" cy="463" r="5"/><circle cx="1408" cy="463" r="5"/>
+        <circle cx="1352" cy="494" r="5"/><circle cx="1380" cy="494" r="5"/><circle cx="1408" cy="494" r="5"/>
+        <rect x="1320" y="590" width="120" height="82" rx="14" fill="#fff"/>
+        <circle cx="1380" cy="631" r="22" fill="#f4f4f5"/>
+        <path d="M1352 590 l8 -14 h40 l8 14"/>
+      </g>
+      <text x="1455" y="300" font-size="30" fill="#3f3f46">Banco</text>
+      <text x="1455" y="466" font-size="30" fill="#3f3f46">Calculadora</text>
+      <text x="1455" y="640" font-size="30" fill="#3f3f46">Capturas</text>
+    </g>
+    <g id="clock" opacity="0">
+      <circle cx="1560" cy="215" r="48" fill="#fff" stroke="#3f3f46" stroke-width="5"/>
+      <line x1="1560" y1="215" x2="1560" y2="183" stroke="#3f3f46" stroke-width="5" stroke-linecap="round"/>
+      <line id="hand" x1="1560" y1="215" x2="1584" y2="226" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g id="pill" opacity="0">
+      <rect x="1235" y="725" width="425" height="68" rx="34" fill="#fff" stroke="#f59e0b" stroke-width="5"/>
+      <text x="1447" y="770" text-anchor="middle" font-size="29" font-weight="700" fill="#27272a">¿Bs 105 o Bs 150?</text>
+    </g>
+
+    <!-- Pasos -->
+    <g id="chip1" opacity="0"><rect class="ink thin" x="1235" y="250" width="330" height="76" rx="38" fill="#fff"/><circle cx="1281" cy="288" r="25" fill="#f59e0b"/><text x="1281" y="299" text-anchor="middle" font-size="30" font-weight="800" fill="#27272a">1</text><text x="1325" y="299" font-size="34" font-weight="700" fill="#27272a">Mostrar</text></g>
+    <g id="chip2" opacity="0"><rect class="ink thin" x="1235" y="360" width="330" height="76" rx="38" fill="#fff"/><circle cx="1281" cy="398" r="25" fill="#f59e0b"/><text x="1281" y="409" text-anchor="middle" font-size="30" font-weight="800" fill="#27272a">2</text><text x="1325" y="409" font-size="34" font-weight="700" fill="#27272a">Cobrar</text></g>
+    <g id="chip3" opacity="0"><rect class="ink thin" x="1235" y="470" width="330" height="76" rx="38" fill="#fff"/><circle cx="1281" cy="508" r="25" fill="#f59e0b"/><text x="1281" y="519" text-anchor="middle" font-size="30" font-weight="800" fill="#27272a">3</text><text x="1325" y="519" font-size="34" font-weight="700" fill="#27272a">Confirmar</text></g>
+    </g>
+  </g>
+</svg>
+<div id="cover"><h1 id="cv1">Cobros<br>en el chat</h1><div class="by" id="cv2"><span class="flag">🇧🇴</span><span>by <b>Market</b></span></div></div>
+<div id="vtitle"><b>Cobros en el chat</b><span>by <i>Market</i></span></div>
+<div id="brand"><b>Market</b><em>by Clouds</em><p>Mostrar. Cobrar. Confirmar.</p><span>market.com.bo</span></div>
+<div class="cap" id="cap1">Ana atiende a sus clientes por chat. Pero cada vez que cobra, tiene que salir de la conversación.</div>
+<div class="cap" id="cap2">Cambiar de aplicación, copiar el monto y esperar una captura le hace perder tiempo, y abre la puerta a los errores.</div>
+<div class="cap" id="cap3">Con el OmniChat de Market, todo pasa en la misma conversación. Busca un producto de su tienda y se lo muestra al cliente, con foto, precio y enlace.</div>
+<div class="cap" id="cap4">Para un servicio, escribe el monto y una descripción, y genera un cobro con QR. Sin salir del chat.</div>
+<div class="cap" id="cap5">El monto queda fijo en el QR, y no hay nada que copiar. Eso es precisión.</div>
+<div class="cap" id="cap6">Cuando el cliente paga, el pago se confirma y aparece en la misma conversación. Eso es tiempo.</div>
+<div class="cap" id="cap7">Mostrar, cobrar y confirmar. Todo en el chat. Market.</div>
+<audio id="mezcla" src="assets/mezcla.mp3" data-start="0" data-duration="48.49" data-track-index="1"></audio>
+</div>
+<script>
+const S=[{"t0": 3.7, "d": 4.55, "text": "Ana atiende a sus clientes por chat. Pero cada vez que cobra, tiene que salir de la conversación."}, {"t0": 9.1, "d": 6.5, "text": "Cambiar de aplicación, copiar el monto y esperar una captura le hace perder tiempo, y abre la puerta a los errores."}, {"t0": 16.45, "d": 7.94, "text": "Con el OmniChat de Market, todo pasa en la misma conversación. Busca un producto de su tienda y se lo muestra al cliente, con foto, precio y enlace."}, {"t0": 25.24, "d": 5.69, "text": "Para un servicio, escribe el monto y una descripción, y genera un cobro con QR. Sin salir del chat."}, {"t0": 31.79, "d": 4.41, "text": "El monto queda fijo en el QR, y no hay nada que copiar. Eso es precisión."}, {"t0": 37.05, "d": 5.04, "text": "Cuando el cliente paga, el pago se confirma y aparece en la misma conversación. Eso es tiempo."}, {"t0": 42.94, "d": 3.79, "text": "Mostrar, cobrar y confirmar. Todo en el chat. Market."}];
+const T={"draw": 3.8, "b1": 6.5, "icons": 7.55, "clock": 11.35, "pill": 13.43, "chip1": 18.18, "card": 19.93, "scroll": 25.34, "type": 26.22, "b3": 27.36, "qr": 29.07, "chip2": 29.3, "lock": 33.32, "pay": 38.86, "chip3": 39.87, "brand": 43.34};
+const COVER=3.4;
+const VERT=false;
+const NS='http://www.w3.org/2000/svg';
+let seed=9;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+function mkQR(g,x,y,size,n){
+  const c=size/n;const fin=(a,b)=>[[0,0],[n-3,0],[0,n-3]].some(([p,q])=>a>=p&&a<p+3&&b>=q&&b<q+3);
+  for(let j=0;j<n;j++)for(let i=0;i<n;i++){
+    if(!(fin(i,j)?true:rnd()>.5))continue;
+    const r=document.createElementNS(NS,'rect');r.setAttribute('x',x+i*c);r.setAttribute('y',y+j*c);
+    r.setAttribute('width',c-1.5);r.setAttribute('height',c-1.5);r.setAttribute('rx',1.5);r.setAttribute('fill','#27272a');g.appendChild(r)}
+}
+mkQR(document.getElementById('b4qr'),748,358,130,9);
+
+// estado inicial: dibujo por trazo
+document.querySelectorAll('.dr').forEach(e=>{e.setAttribute('pathLength',1);e.style.strokeDasharray='1';e.style.strokeDashoffset='1';e.style.fillOpacity='0'});
+gsap.set('#arrows path',{strokeDashoffset:0});
+document.querySelectorAll('#arrows path').forEach(p=>{p.setAttribute('pathLength',1);p.style.strokeDasharray='0.04 0.1'});
+gsap.set(['#cv1','#cv2','#vtitle','#brand'],{opacity:0});
+
+const tl=gsap.timeline({paused:true});
+const draw=(sel,at,dur,stag)=>{tl.to(sel,{strokeDashoffset:0,fillOpacity:1,duration:dur,ease:'power1.inOut',stagger:stag||0,immediateRender:false},at)};
+const pop=(sel,at,ox,oy,dy)=>{tl.fromTo(sel,{opacity:0,scale:.82,y:dy===undefined?14:dy},{opacity:1,scale:1,y:0,duration:.42,ease:'back.out(1.8)',svgOrigin:ox+' '+oy,immediateRender:false},at)};
+const cap=(i,a,b)=>{tl.to('#cap'+i,{opacity:1,duration:.3},a).to('#cap'+i,{opacity:0,duration:.3},b)};
+S.forEach((s,i)=>cap(i+1,s.t0+.2,s.t0+.3+s.d+.45));
+
+// carátula
+tl.fromTo('#cv1',{opacity:0,y:50,scale:.92},{opacity:1,y:0,scale:1,duration:.7,ease:'power3.out',immediateRender:false},.2);
+tl.fromTo('#cv2',{opacity:0,y:30},{opacity:1,y:0,duration:.6,ease:'power2.out',immediateRender:false},.8);
+tl.to('#cover',{opacity:0,duration:.5,ease:'power1.inOut'},COVER-.1);
+tl.set('#cover',{display:'none'},COVER+.45);
+if(VERT){ gsap.set('#side',{scale:.7,x:-524,y:675,svgOrigin:'1235 165'}); gsap.set('#clock',{x:45,y:55}); }
+if(VERT){ tl.fromTo('#vtitle',{opacity:0,y:-20},{opacity:1,y:0,duration:.6,immediateRender:false},COVER+.3).to('#vtitle',{opacity:0,duration:.4},S[6].t0); }
+
+// 1 · Ana y la ventana de chat; sale del chat a otras apps
+draw('#win .dr',T.draw,1.0,.06); draw('#ana .dr',T.draw+.4,1.1,.07);
+pop('#b1',T.b1,585,273);
+tl.fromTo('#ico',{opacity:0,x:30},{opacity:1,x:0,duration:.6,ease:'power2.out',immediateRender:false},T.icons);
+tl.fromTo('#arrows',{opacity:0},{opacity:1,duration:.4,immediateRender:false},T.icons);
+// 2 · pierde tiempo y se equivoca
+tl.fromTo('#clock',{opacity:0,scale:.6},{opacity:1,scale:1,duration:.45,ease:'back.out(2)',svgOrigin:'1560 215',immediateRender:false},T.clock);
+tl.to('#hand',{rotation:720,svgOrigin:'1560 215',duration:2.6,ease:'none'},T.clock);
+pop('#pill',T.pill,1447,759);
+// 3 · mostrar producto
+tl.to(['#ico','#arrows','#clock','#pill'],{opacity:0,duration:.35},S[2].t0);
+pop('#chip1',T.chip1,1235,288,10);
+pop('#b2',T.card,720,430);
+// 4 · cobrar un servicio con QR
+tl.to(['#b1','#b2'],{opacity:0,y:-40,duration:.4,ease:'power2.in'},T.scroll);
+tl.to('#typed',{opacity:1,duration:.3},T.type);
+pop('#b3',T.b3,585,273);
+tl.to('#typed',{opacity:0,duration:.2},T.qr-.05);
+pop('#b4',T.qr,720,455);
+pop('#chip2',T.chip2,1235,398,10);
+// 5 · precisión: monto fijo
+pop('#lock',T.lock,1118,424,0);
+tl.to('#b4r',{stroke:'#f59e0b',duration:.35},T.lock);
+// 6 · tiempo: pago confirmado en el mismo hilo
+pop('#b5',T.pay,600,696);
+pop('#chip3',T.chip3,1235,508,10);
+tl.to('#smile',{attr:{d:'M596 420 Q620 452 644 420'},duration:.3},T.pay);
+// 7 · cierre
+tl.to('#world',{opacity:0,duration:.6},S[6].t0);
+tl.fromTo('#brand',{opacity:0,y:30},{opacity:1,y:0,duration:.7,ease:'power3.out',immediateRender:false},T.brand);
+window.__timelines['main']=tl;tl.seek(0);
+</script>
+</body>
+</html>
