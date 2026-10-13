@@ -1,7 +1,15 @@
 <style>[x-cloak]{display:none!important}
 @keyframes rest-bump{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-6px) scale(1.04)}100%{transform:translateY(0) scale(1)}}
 .rest-bump{animation:rest-bump .45s ease-out}
-@media (prefers-reduced-motion:reduce){.rest-bump{animation:none}}</style>
+@media (prefers-reduced-motion:reduce){.rest-bump{animation:none}}
+.rest-tabs{display:flex;gap:.5rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:.75rem 1rem}
+.rest-tabs::-webkit-scrollbar{display:none}
+.rest-tabs.is-drag{cursor:grabbing;scroll-behavior:auto;user-select:none}
+.rest-tabs.is-drag a{pointer-events:none}
+.rest-tabs a{flex:none;-webkit-user-drag:none}
+.rest-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;border-radius:9999px;box-shadow:0 1px 6px rgba(0,0,0,.18);transition:opacity .15s}
+.rest-arrow-l{left:.5rem}.rest-arrow-r{right:.5rem}
+</style>
 {% set menu = __SELF__.menu %}
 {% set currency = __SELF__.currency %}
 {% set cfg = __SELF__.restaurant %}
@@ -38,13 +46,28 @@
 
     {% if menu|length > 1 %}
     {# Pestañas de categorías, fijas al hacer scroll #}
-    <nav class="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-surface/95 backdrop-blur border-b border-surface-border mb-6 overflow-x-auto whitespace-nowrap flex gap-2">
-        {% for section in menu %}
-        <a href="#{{ section.id }}" @click.prevent="goTo('{{ section.id }}')"
-           :class="active === '{{ section.id }}' ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted'"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors">{{ section.name }}</a>
-        {% endfor %}
-    </nav>
+    <div class="sticky top-0 z-30 -mx-4 sm:-mx-6 bg-surface/95 backdrop-blur border-b border-surface-border mb-6">
+        <div class="relative">
+            <button type="button" class="rest-arrow rest-arrow-l bg-surface text-ink border border-surface-border" x-show="canL" x-cloak
+                    @click="scrollTabs(-1)" aria-label="Categorías anteriores">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <nav x-ref="tabs" class="rest-tabs" :class="dragging ? 'is-drag' : ''"
+                 @scroll.passive="updateArrows()"
+                 @pointerdown="dragStart($event)" @pointermove="dragMove($event)" @pointerup="dragEnd()" @pointercancel="dragEnd()" @pointerleave="dragEnd()"
+                 @click.capture="tabClick($event)">
+                {% for section in menu %}
+                <a href="#{{ section.id }}" data-tab="{{ section.id }}" draggable="false" @click.prevent="goTo('{{ section.id }}')"
+                   :class="active === '{{ section.id }}' ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink-muted'"
+                   class="px-4 py-2 rounded-full text-sm font-medium transition-colors">{{ section.name }}</a>
+                {% endfor %}
+            </nav>
+            <button type="button" class="rest-arrow rest-arrow-r bg-surface text-ink border border-surface-border" x-show="canR" x-cloak
+                    @click="scrollTabs(1)" aria-label="Más categorías">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+        </div>
+    </div>
     {% endif %}
 
     {% for section in menu %}
@@ -198,6 +221,7 @@
 function restaurantMenu(menu, symbol) {
     return {
         menu, symbol, p: null, qty: 1, variant: null, chosen: [], active: menu[0] ? menu[0].id : '',
+        canL: false, canR: false, dragging: false, dragX: 0, dragLeft: 0, dragMoved: false,
         findOpen: false, adding: false, pendingName: '', toast: { show: false, name: '', key: '', prev: 0 }, timer: null,
         init() {
             // Pedidos que este navegador recuerda: se consulta su estado y se muestran arriba.
@@ -211,7 +235,35 @@ function restaurantMenu(menu, symbol) {
             } catch (e) {}
             const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) this.active = e.target.id; }), { rootMargin: '-30% 0px -60% 0px' });
             document.querySelectorAll('[data-section]').forEach(s => obs.observe(s));
+            this.$nextTick(() => this.updateArrows());
+            window.addEventListener('resize', () => this.updateArrows());
+            this.$watch('active', id => this.revealTab(id));
         },
+        // Pestañas de categorías: flechas + arrastre con el mouse (en táctil el scroll nativo ya funciona).
+        updateArrows() {
+            const t = this.$refs.tabs; if (!t) return;
+            this.canL = t.scrollLeft > 4;
+            this.canR = t.scrollLeft + t.clientWidth < t.scrollWidth - 4;
+        },
+        scrollTabs(dir) { const t = this.$refs.tabs; t.scrollBy({ left: dir * t.clientWidth * 0.7, behavior: 'smooth' }); },
+        revealTab(id) {
+            const t = this.$refs.tabs, el = t && t.querySelector('[data-tab="' + id + '"]'); if (!el) return;
+            const l = el.offsetLeft - t.offsetLeft, r = l + el.offsetWidth;
+            if (l < t.scrollLeft + 48) t.scrollTo({ left: l - 48, behavior: 'smooth' });
+            else if (r > t.scrollLeft + t.clientWidth - 48) t.scrollTo({ left: r - t.clientWidth + 48, behavior: 'smooth' });
+        },
+        dragStart(e) {
+            if (e.pointerType !== 'mouse' || e.button !== 0) return;
+            this.dragging = true; this.dragMoved = false; this.dragX = e.clientX; this.dragLeft = this.$refs.tabs.scrollLeft;
+        },
+        dragMove(e) {
+            if (!this.dragging) return;
+            const dx = e.clientX - this.dragX;
+            if (Math.abs(dx) > 4) this.dragMoved = true;
+            this.$refs.tabs.scrollLeft = this.dragLeft - dx;
+        },
+        dragEnd() { this.dragging = false; },
+        tabClick(e) { if (this.dragMoved) { e.preventDefault(); e.stopPropagation(); this.dragMoved = false; } },
         goTo(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); },
         open(id) {
             for (const s of this.menu) { const f = s.products.find(x => x.id === id); if (f) { this.p = f; break; } }
