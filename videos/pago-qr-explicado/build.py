@@ -83,7 +83,7 @@ VARIANTS = {
     "vertical": dict(vw=1080, vh=1920, out=os.path.join(os.path.dirname(HERE), "pago-qr-explicado-vertical"),
                      css="svg{inset:auto;left:0;top:380px;width:1080px;height:607px}"
                          ".cap{left:60px;width:960px;bottom:auto;top:1090px;font-size:62px}"
-                         "#brand{top:600px}#brand b{font-size:210px}#brand p{font-size:42px}#brand span{font-size:40px}"),
+                         "#brand{top:580px}#brand b{font-size:220px}#brand em{font-size:80px}#brand p{font-size:42px}#brand span{font-size:40px}"),
 }
 tpl = open(os.path.join(HERE, "plantilla.tpl")).read()
 audio = f'<audio id="mezcla" src="assets/mezcla.mp3" data-start="0" data-duration="{round(mix_dur - 0.05, 2)}" data-track-index="1"></audio>'
