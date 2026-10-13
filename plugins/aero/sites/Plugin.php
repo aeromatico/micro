@@ -48,6 +48,7 @@ class Plugin extends PluginBase
         $this->registerApiRoutes();
         $this->bootSiteContext();
         $this->bootDashboardIndicators();
+        $this->bootDashboardGuards();
         $this->bootSiteSwitcherVisibility();
         $this->bootRainLabIntegration();
         $this->bootHelloIntegration();
@@ -497,6 +498,68 @@ class Plugin extends PluginBase
             $dataSources->setValue($proxy, $dataSources->getValue($manager));
 
             return $proxy;
+        });
+    }
+
+    /**
+     * dashboard.manage permite al tenant editar su layout personal (se guarda
+     * en la preferencia del usuario). Estas guardas impiden que, con ese mismo
+     * permiso, modifique lo que ven TODOS: el layout global/del sistema y la
+     * pantalla de gestión de dashboards (roles, visibilidad global).
+     */
+    protected function bootDashboardGuards(): void
+    {
+        $isRestricted = function (): bool {
+            $user = BackendAuth::getUser();
+
+            return $user && !$user->is_superuser;
+        };
+
+        Event::listen('backend.page.beforeDisplay', function ($controller) use ($isRestricted) {
+            if ($controller instanceof \Dashboard\Controllers\Dashboards && $isRestricted()) {
+                return Backend::redirect('dashboard');
+            }
+        });
+
+        // Widgets que leen datos de toda la instalación (no acotables por
+        // tenant): solo el superadmin puede agregarlos al dashboard.
+        Event::listen('system.reportwidgets.extendItems', function ($manager) use ($isRestricted) {
+            if (!$isRestricted()) {
+                return;
+            }
+
+            foreach ([
+                \System\ReportWidgets\Status::class,
+                \Cms\ReportWidgets\ActiveTheme::class,
+                'Vdlp\\Redirect\\ReportWidgets\\TopTenRedirects',
+                'Vdlp\\Redirect\\VueComponents\\CreateRedirect',
+            ] as $class) {
+                $manager->removeReportWidget($class);
+            }
+        });
+
+        if (!class_exists(\Dashboard\Models\Dashboard::class)) {
+            return;
+        }
+
+        \Dashboard\Models\Dashboard::extend(function ($model) use ($isRestricted) {
+            $guard = function () use ($model, $isRestricted) {
+                if (!$isRestricted()) {
+                    return;
+                }
+
+                // Altas por syncAll() (sistema) no pasan por esta guarda.
+                $touchesShared = $model->exists
+                    ? ($model->getOriginal('is_global') || $model->getOriginal('is_system') || $model->is_global)
+                    : ($model->is_global && !$model->is_system);
+
+                if ($touchesShared) {
+                    throw new \ApplicationException('Solo el superadministrador puede cambiar el dashboard global.');
+                }
+            };
+
+            $model->bindEvent('model.beforeSave', $guard);
+            $model->bindEvent('model.beforeDelete', $guard);
         });
     }
 

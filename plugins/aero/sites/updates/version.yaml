@@ -407,3 +407,7 @@
 1.67.0:
     - "Roles de Oficina (office_admin, office_receptionist, office_professional): añadido el acceso al backend y al tablero (sin esto no podían iniciar sesión en el panel)."
     - add_backend_access_to_office_roles.php
+
+1.68.0:
+    - "Dashboard: layout por defecto global con «Acceso rápido» para todos; tenant_admin y tenant_admin_pro reciben dashboard.manage (editan su layout personal) y se bloquea a no-superadmins modificar el layout global o la gestión de dashboards."
+    - grant_dashboard_manage_to_tenant_admin.php
