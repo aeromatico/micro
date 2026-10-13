@@ -1,0 +1,371 @@
+<!doctype html>
+<!--guide {"title":"Nueva API key de Hello","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nueva API key de Hello</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eceff2; --surface: #ffffff; --surface-2: #f5f7f9; --ink: #1d2933; --ink-2: #55636f; --line: #d5dce2;
+  --accent: #1f6f8b; --accent-ink: #ffffff; --accent-soft: #dcecf2; --hint: #b4620a; --hint-soft: #fdf0dc;
+  --ok: #1e7a4c; --ok-soft: #dff2e8; --err: #b3261e; --err-soft: #fbe4e2;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+    --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+    --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --surface: #1a232a; --surface-2: #212c34; --ink: #e6ecf0; --ink-2: #93a3af; --line: #2f3d47;
+  --accent: #5fb4d0; --accent-ink: #0c1a21; --accent-soft: #1b3541; --hint: #f0a94e; --hint-soft: #3a2a12;
+  --ok: #62c592; --ok-soft: #17342a; --err: #f28b82; --err-soft: #3b1d1b; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; padding-inline: 16px; padding-block: 20px 48px; margin: 0; }
+* { box-sizing: border-box; }
+.wrap { max-width: 1760px; margin-inline: auto; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "guide" "form"; }
+@media (min-width: 940px) { .wrap { grid-template-columns: 360px minmax(0, 1fr); grid-template-areas: "head head" "guide form"; align-items: start; } }
+header { grid-area: head; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+h1 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+.crumb { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.badge { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; padding: 3px 8px; border-radius: 3px; background: var(--hint-soft); color: var(--hint); }
+.guide { grid-area: guide; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+@media (min-width: 940px) { .guide { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; } }
+.g-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+.g-eyebrow { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.g-title { font-size: 16px; font-weight: 600; margin: 14px 0 0; text-wrap: balance; }
+.progress { height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.g-body { padding: 14px 16px; display: grid; gap: 12px; }
+.g-body p { margin: 0; }
+.g-sub { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); margin-bottom: 2px; }
+.note { padding: 10px 12px; border-radius: 4px; background: var(--hint-soft); color: var(--ink); }
+.note b { color: var(--hint); }
+.example { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.g-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 14px; }
+.g-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.g-nav .btn { min-height: 44px; padding: 10px 14px; font-size: 15px; font-weight: 600; border-radius: 6px; border: 2px solid var(--accent); }
+.g-nav #gPrev { background: var(--accent-soft); color: var(--accent); }
+.g-nav #gPrev:hover:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext { background: var(--accent); color: var(--accent-ink); }
+.g-nav #gNext:hover:not(:disabled) { filter: brightness(1.1); }
+.g-nav .btn:disabled { opacity: .4; cursor: not-allowed; }
+:root {
+  --g-surface: #dcecf2; --g-surface-2: #cbe1ea; --g-line: #a9c9d6; --g-ink: #10303c; --g-ink-2: #3a5c6b;
+  --g-accent: #1a6480; --g-accent-ink: #ffffff; --g-accent-soft: #f4fafc;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+    --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+  }
+}
+:root[data-theme="dark"] {
+  --g-surface: #143443; --g-surface-2: #1c4658; --g-line: #2d5a70; --g-ink: #e8f3f8; --g-ink-2: #a3c2d1;
+  --g-accent: #7cc4de; --g-accent-ink: #08222d; --g-accent-soft: #25566f;
+}
+.guide { --surface: var(--g-surface); --surface-2: var(--g-surface-2); --line: var(--g-line); --ink: var(--g-ink); --ink-2: var(--g-ink-2);
+  --accent: var(--g-accent); --accent-ink: var(--g-accent-ink); --accent-soft: var(--g-accent-soft); color: var(--ink); }
+button { font: inherit; cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 12px; border-radius: 4px; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 500; }
+.btn.danger { background: var(--err); color: #fff; border-color: var(--err); }
+.btn.ghost { border-color: transparent; color: var(--accent); background: transparent; padding-inline: 6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.steps { list-style: none; margin: 0; padding: 8px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; background: transparent; border: 0; border-radius: 4px; padding: 6px 8px; color: var(--ink-2); }
+.steps button:hover { background: var(--surface-2); }
+.steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+.steps .done .dot { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.formcol { grid-area: form; min-width: 0; display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.panel { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; align-items: start; }
+@media (max-width: 640px) { .panel { grid-template-columns: minmax(0, 1fr); } }
+.field { min-width: 0; padding: 6px; margin: -6px; border-radius: 6px; transition: box-shadow .15s, background .15s; }
+.field.full { grid-column: 1 / -1; }
+.field.is-guided { box-shadow: 0 0 0 2px var(--hint); background: var(--hint-soft); }
+.field[hidden] { display: none !important; }
+label.lbl { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.req { color: var(--err); margin-left: 2px; }
+input[type=text], input[type=number], input[type=date] { width: 100%; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+input.err { border-color: var(--err); }
+.help { font-size: 12px; color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.errmsg { font-size: 12px; color: var(--err); margin-top: 4px; }
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 16px; }
+.checks label { display: flex; gap: 8px; align-items: center; }
+.trig { font-family: var(--font-mono); font-size: 11px; color: var(--accent); background: var(--accent-soft); border-radius: 3px; padding: 1px 6px; margin-left: 6px; font-weight: 400; }
+body:not(.show-tech) .trig { display: none; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--surface-2); border-radius: 0 0 6px 6px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+.ctx { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); padding: 8px 16px 0; }
+.upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
+.upd h4 { margin: 0; font-size: 13px; }
+.keyrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.keyrow input { flex: 1; min-width: 220px; font-family: var(--font-mono); font-size: 12px; }
+.locked { color: var(--ink-2); font-size: 12px; padding: 10px 12px; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 4px; grid-column: 1 / -1; }
+.sample { font-size: 11px; color: var(--ink-2); font-style: italic; }
+#flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; }
+#flash.err { background: var(--err); color: #fff; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head><body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Nueva API key de Hello</h1>
+      <div class="crumb" id="crumb">/backend/aero/hello/apikeys/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions">
+      <button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button>
+    </div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card" id="formCard">
+      <div class="ctx" id="ctxLine"></div>
+      <div class="panel">
+        <div class="field" data-f="name">
+          <label class="lbl" for="name">Nombre<span class="req">*</span></label>
+          <input type="text" id="name" autocomplete="off">
+          <div class="help">Para qué es esta key: la integración o el script que la va a usar.</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="rate_limit_per_minute">
+          <label class="lbl" for="rate_limit_per_minute">Límite por minuto<span class="req">*</span></label>
+          <input type="number" id="rate_limit_per_minute" value="60" min="1" max="10000">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field full" data-f="scopes">
+          <label class="lbl">Permisos</label>
+          <div class="checks" id="scopes"></div>
+          <div class="help">Qué puede hacer esta key. Concede lo mínimo necesario.</div>
+        </div>
+        <div class="field" data-f="expires_at">
+          <label class="lbl" for="expires_at">Expira el</label>
+          <input type="date" id="expires_at">
+          <div class="help">Opcional. Sin fecha, la key no caduca.</div>
+        </div>
+
+        <div class="upd" id="secretBox" hidden>
+          <h4>Valor de la key</h4>
+          <div class="keyrow">
+            <input type="text" id="keyValue" readonly>
+            <button class="btn" type="button" id="btnReveal">Ver</button>
+            <button class="btn" type="button" id="btnRegen">Regenerar</button>
+          </div>
+          <div class="help">La key completa solo se muestra al crearla. Puedes volver a verla mientras la instalación conserve su clave de cifrado, o generar una nueva — lo que invalida la anterior de inmediato.</div>
+        </div>
+        <div class="upd" id="usageBox" hidden>
+          <h4>Uso</h4>
+          <div>0 mensajes enviados · US$ 0.0000 gastados en llamadas (costo real, no estimado) <span class="sample">— valores de ejemplo</span></div>
+          <div class="help">Los mensajes no tienen un costo por unidad: se factura por cuenta conectada por día, sin importar cuántas keys la usen. Solo las llamadas tienen un costo real por evento.</div>
+        </div>
+        <div class="locked" id="lockUpd">Al crear no aparecen «Valor de la key» ni «Uso»: se muestran en la pantalla de edición, después de guardar.</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn danger" type="button" id="btnRevoke" hidden>Revocar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas</label>
+      </div>
+    </div>
+    <div class="sample">Todos los datos son de ejemplo. La key de la demo no es real y nada se guarda.</div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var SCOPES = [
+    ['hello.*', 'Todo Hello'], ['hello.messages.read', 'Leer mensajes'], ['hello.messages.send', 'Enviar mensajes'],
+    ['hello.conversations.read', 'Leer conversaciones'], ['hello.conversations.reply', 'Responder conversaciones'],
+    ['hello.contacts.read', 'Leer contactos'], ['hello.contacts.write', 'Crear contactos'],
+    ['hello.accounts.read', 'Leer cuentas conectadas'], ['hello.calls.read', 'Leer llamadas y grabaciones'],
+    ['hello.calls.start', 'Iniciar llamadas'], ['hello.posts.write', 'Publicar en redes sociales']
+  ];
+  var state = { mode: 'create', step: 0, revoked: false, key: null };
+
+  var box = $('#scopes');
+  SCOPES.forEach(function (s, i) {
+    var l = document.createElement('label');
+    var c = document.createElement('input'); c.type = 'checkbox'; c.value = s[0]; c.id = 'scope_' + i;
+    l.appendChild(c); l.appendChild(document.createTextNode(s[1]));
+    box.appendChild(l);
+    c.addEventListener('change', refresh);
+  });
+  function checked() { return Array.prototype.slice.call(box.querySelectorAll('input:checked')).map(function (c) { return c.value; }); }
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function set(id, v) { var e = $('#' + id); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); }
+  function setScopes(list) { Array.prototype.forEach.call(box.querySelectorAll('input'), function (c) { c.checked = list.indexOf(c.value) >= 0; }); refresh(); }
+
+  var steps = [
+    { id: 'name', fields: ['name'], title: 'Ponle un nombre claro', req: true,
+      body: 'Describe la integración o el script que usará la key. Es lo que verás en la lista para distinguirla de otras.',
+      tip: 'Una key por integración: si una se filtra, la revocas sin afectar a las demás.',
+      ex: 'Sincronizador de tienda online', fill: function () { set('name', 'Sincronizador de tienda online'); },
+      done: function () { return val('name').length > 0; } },
+    { id: 'rate', fields: ['rate_limit_per_minute'], title: 'Fija el límite por minuto', req: true,
+      body: 'Número máximo de peticiones por minuto que acepta esta key. Debe ser un entero entre 1 y 10000. Por defecto: 60.',
+      tip: 'Al superarlo la API responde con error de límite excedido. Súbelo solo si la integración lo necesita de verdad.',
+      ex: '60', fill: function () { set('rate_limit_per_minute', '60'); },
+      done: function () { var n = Number(val('rate_limit_per_minute')); return Number.isInteger(n) && n >= 1 && n <= 10000; } },
+    { id: 'scopes', fields: ['scopes'], title: 'Elige los permisos', opt: true,
+      body: 'Marca qué puede hacer la key: leer o enviar mensajes, leer o responder conversaciones, leer o crear contactos, leer cuentas, leer o iniciar llamadas y publicar en redes. «Todo Hello» concede todos.',
+      tip: 'Concede lo mínimo. Una integración que solo envía mensajes no necesita «Todo Hello»; sin el permiso, la API responde 403.',
+      ex: 'Enviar mensajes + Leer mensajes', fill: function () { setScopes(['hello.messages.send', 'hello.messages.read']); },
+      done: function () { return checked().length > 0; } },
+    { id: 'expires', fields: ['expires_at'], title: 'Fecha de expiración', opt: true,
+      body: 'Opcional. Si la dejas vacía, la key no caduca. Con fecha, deja de funcionar al llegar a ella.',
+      tip: 'Para accesos temporales (una prueba, un proveedor externo) pon fecha: evita keys olvidadas.',
+      ex: '31/12/2026', fill: function () { set('expires_at', '2026-12-31'); }, done: function () { return val('expires_at') !== ''; } },
+    { id: 'save', fields: [], title: 'Crear y copiar la key', last: true,
+      body: 'Pulsa Crear. El sistema muestra la key completa una sola vez en un aviso: cópiala y guárdala en un lugar seguro. Después, en la edición, puedes verla con «Ver», regenerarla o revocarla.',
+      tip: 'Regenerar o revocar invalida la key al instante: las integraciones que la usan dejan de funcionar.',
+      ex: '', fill: function () { save(); }, done: function () { return state.mode === 'update'; } }
+  ];
+
+  function renderGuide() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex;
+      w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) {
+      var n = document.createElement('div'); n.className = 'note'; var b = document.createElement('b'); b.textContent = 'Ojo. ';
+      n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n);
+    }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'); bt.type = 'button';
+      if (i === state.step) bt.setAttribute('aria-current', 'step');
+      var done = s.done();
+      if (done) bt.className = 'done';
+      var d = document.createElement('span'); d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1);
+      var t = document.createElement('span'); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); };
+      li.appendChild(bt); ol.appendChild(li);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.field'), function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el) el.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i));
+    renderGuide();
+    if (scroll !== false) {
+      var f = steps[state.step].fields[0], el = f && $('[data-f="' + f + '"]');
+      if (el) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+  function refresh() { renderGuide(); }
+
+  function showErr(f, msg) {
+    var b = $('[data-f="' + f + '"]'); if (!b) return;
+    var m = $('.errmsg', b), inp = $('input', b);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = [];
+    showErr('name', ''); showErr('rate_limit_per_minute', '');
+    if (!val('name')) errs.push(['name', 'El campo Nombre es obligatorio.']);
+    var r = val('rate_limit_per_minute');
+    if (r === '') errs.push(['rate_limit_per_minute', 'El campo Límite por minuto es obligatorio.']);
+    else if (!/^\d+$/.test(r)) errs.push(['rate_limit_per_minute', 'El Límite por minuto debe ser un número entero.']);
+    else if (Number(r) < 1) errs.push(['rate_limit_per_minute', 'El Límite por minuto debe ser al menos 1.']);
+    else if (Number(r) > 10000) errs.push(['rate_limit_per_minute', 'El Límite por minuto no puede ser mayor que 10000.']);
+    return errs;
+  }
+  function rnd(n) { var c = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', s = ''; for (var i = 0; i < n; i++) s += c[Math.floor(Math.random() * c.length)]; return s; }
+
+  function save() {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0] === 'rate_limit_per_minute' ? 'rate_limit_per_minute' : errs[0][0]);
+      if (idx >= 0) go(idx);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    state.key = 'hk_' + rnd(40);
+    state.mode = 'update';
+    $('#h1').textContent = 'Editar API key de Hello';
+    $('#crumb').textContent = '/backend/aero/hello/apikeys/update/5 · Guía de capacitación';
+    $('#ctxLine').textContent = 'context: update';
+    $('#btnSave').textContent = 'Guardar';
+    $('#btnRevoke').hidden = false;
+    $('#secretBox').hidden = false; $('#usageBox').hidden = false; $('#lockUpd').hidden = true;
+    $('#keyValue').value = state.key.slice(0, 11) + '…';
+    renderGuide();
+    flash('API key creada. Cópiala ahora, es la única vez que se muestra completa: ' + state.key);
+  }
+
+  var ft;
+  function flash(msg, isErr) {
+    var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false;
+    clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 6000);
+  }
+
+  $('#btnReveal').onclick = function () { $('#keyValue').value = state.key; flash('Key completa mostrada (ejemplo).'); };
+  $('#btnRegen').onclick = function () { state.key = 'hk_' + rnd(40); $('#keyValue').value = state.key; flash('Key regenerada. La anterior dejó de funcionar.'); };
+  $('#btnRevoke').onclick = function () { state.revoked = true; $('#btnRevoke').hidden = true; flash('Key revocada.'); };
+  $('#btnSave').onclick = function () { if (state.mode === 'create') save(); else flash('Cambios guardados (simulado).'); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refresh(); };
+
+  Array.prototype.forEach.call(document.querySelectorAll('.field input'), function (el) {
+    el.addEventListener('input', function () {
+      if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; }
+      refresh();
+    });
+    el.addEventListener('focus', function () {
+      var b = el.closest('.field'); if (!b) return;
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(b.getAttribute('data-f'));
+      if (idx >= 0 && idx !== state.step) go(idx, false);
+    });
+  });
+
+  $('#ctxLine').textContent = 'context: create · los campos con context: update no se muestran';
+  renderGuide();
+})();
+</script>
+
+</body></html>

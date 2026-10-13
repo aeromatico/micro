@@ -14,7 +14,7 @@ de **solo lectura**: un QR es un documento emitido, no se edita.
 | **Referencia interna** | Identificador propio del QR. |
 | **ID de QR del banco** | Identificador que devolvió el banco. |
 | **Banco** | Proveedor con el que se generó. |
-| **Estado** | `pending`, `paid`, `cancelled`, `expired` (según el ciclo de vida). |
+| **Estado** | `pending`, `paid`, `cancelled`, `expired` o `error` (según el ciclo de vida). |
 | **Monto / Moneda** | Importe total del cobro. |
 | **Descripción** | Texto del cobro (incluye sucursal y facturación). |
 | **Sucursal** | Código de la sucursal asociada. |
@@ -45,6 +45,11 @@ pending  →  paid        (pagado)
 La confirmación llega por **webhook** (instantánea, si está configurado) o por
 la **conciliación periódica** como respaldo. Cuando el QR cambia de estado, si
 la cuenta tiene **webhook saliente** configurado, se notifica a tu sistema.
+
+Cada cambio de estado del QR también se comunica a los plugins integrados (por ejemplo, Shopify usa este aviso para marcar un pedido como pagado).
+
+> [!NOTE]
+> Al pasar a **pagado**, el QR de tu sitio genera la tarifa por QR completado en Créditos (ver [Vista general](pay-vista-general)).
 
 > [!TIP]
 > Para conciliar un pago que no se detectó, usa la pestaña **Transacciones** de

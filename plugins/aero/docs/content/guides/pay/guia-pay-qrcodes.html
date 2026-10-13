@@ -118,6 +118,7 @@ body:not(.show-tech) .trig { display: none; }
 .qrimg { width: 140px; height: 140px; border: 1px solid var(--line); border-radius: 4px; background: #fff; display: block; }
 .upd { grid-column: 1 / -1; border: 1px dashed var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; }
 .upd h4 { margin: 0; font-size: 13px; }
+#detailTxt { white-space: pre-line; }
 .sample { font-size: 11px; color: var(--ink-2); font-style: italic; }
 #flash { position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 4px; background: var(--ink); color: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 10; overflow-wrap: anywhere; }
 #flash.err { background: var(--err); color: #fff; }
@@ -307,7 +308,7 @@ body:not(.show-tech) .trig { display: none; }
         ex: '+591 70000000 · cobros@ejemplo.com', fill: function () { set('alert_phone', '70000000'); set('alert_email', 'cobros@ejemplo.com'); }, done: function () { return !!(val('alert_phone') || val('alert_email')); } },
       { id: 'save', fields: [], title: 'Generar el QR', last: true,
         body: 'Pulsa Generar QR. La demo valida los campos obligatorios y abre el detalle con un QR de ejemplo.',
-        tip: 'Si el banco rechaza la generación, verás el error y no se crea nada.', ex: '',
+        tip: 'Si el banco rechaza la generación, verás el error y no se crea nada. Cuando el QR se pague, se descuenta una tarifa en monedas de Créditos por cada QR completado.', ex: '',
         fill: function () { save(); }, done: function () { return state.mode === 'update'; } }
     );
     return s;
@@ -392,7 +393,22 @@ body:not(.show-tech) .trig { display: none; }
     $$('.field input, .field select').forEach(function (el) { el.disabled = true; });
     $('#btnSave').hidden = true;
     var sym = val('currency');
-    $('#detailTxt').textContent = 'Estado: ' + state.status + ' · Monto: ' + parseFloat(val('amount')).toFixed(2) + ' ' + sym + ' · Vence: ' + val('due_date') + ' · Uso único: ' + ($('#single_use').checked ? 'sí' : 'no') + (val('alert_phone') || val('alert_email') ? ' · Alerta enviada (ejemplo)' : '');
+    var bank = $('#bank_account_id'), bankTxt = bank.options[bank.selectedIndex].text;
+    var line = function (k, v) { return k + ': ' + v; };
+    $('#detailTxt').textContent = [
+      line('Referencia interna', '3f2a9c1e-ejemplo'),
+      line('ID de QR del banco', 'QR-0001-ejemplo'),
+      line('Banco', bankTxt),
+      line('Estado', state.status),
+      line('Monto', parseFloat(val('amount')).toFixed(2)),
+      line('Moneda', sym),
+      line('Descripción', val('description') || '—'),
+      line('Sucursal', val('branch_code') || '—'),
+      line('NIT del cliente', val('customer_nit') || '—'),
+      line('Impuesto aplicado (%)', $('#optTax').checked ? '13.00' : '—'),
+      line('Fecha de vencimiento', val('due_date')),
+      line('Uso único', $('#single_use').checked ? 'sí' : 'no')
+    ].join('\n') + (val('alert_phone') || val('alert_email') ? '\nAlerta enviada (ejemplo)' : '');
     $('#detail').hidden = false; drawQr();
     flash('QR generado correctamente (ejemplo). Ahora ves su detalle.');
     refresh();
@@ -416,7 +432,7 @@ body:not(.show-tech) .trig { display: none; }
   $('#btnReset').onclick = function () { location.reload(); };
   $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
   $('#btnRefresh').onclick = function () { flash('Sin cambios — el QR sigue pendiente (simulado).'); };
-  $('#btnCancel').onclick = function () { state.status = 'Anulado'; $('#detailTxt').textContent = $('#detailTxt').textContent.replace('Pendiente', 'Anulado'); flash('QR anulado correctamente (simulado).'); };
+  $('#btnCancel').onclick = function () { state.status = 'Anulado'; $('#detailTxt').textContent = $('#detailTxt').textContent.replace('Estado: Pendiente', 'Estado: Anulado'); flash('QR anulado correctamente (simulado).'); };
 
   $$('.field input, .field select, #optShop, #optTax, #optBranch').forEach(function (el) {
     el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refresh(); });

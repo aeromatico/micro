@@ -66,6 +66,21 @@ Si usas **Workflows**, el editor visual incluye nodos de **Cobros** para generar
 > [!IMPORTANT]
 > Estos nodos solo usan **cuentas activas de tu propio sitio**. Los QR y pagos que crean quedan con el origen `workflows`.
 
+## Tarifa por QR completado
+
+Cuando un QR de tu sitio pasa a **pagado**, se descuenta de tus monedas de **Créditos** la tarifa de la acción `pay.qr_completed` (se ajusta en Créditos → Acciones; si la acción está desactivada, no se cobra).
+
+- Los QR de la propia plataforma (alta de sitio, recargas y regalos de suscripción) no cobran tarifa.
+- El pago ya ocurrió: si el saldo no alcanza, el QR queda pagado igual y solo se registra un aviso.
+- Cada QR se cobra una sola vez.
+
+> [!NOTE]
+> Las notas de versión mencionan 3 monedas de bronce por defecto, pero el código actual aplica 8 y, en el plan PRO, el 1 % del monto del QR en Bs. Consulta el valor vigente en Créditos → Acciones.
+
+## Integración con Shopify
+
+Si usas el plugin **Shopify**, los QR creados para pedidos de tu tienda Shopify llevan el origen `shopify`. Cada vez que un QR cambia de estado, Pay avisa a Shopify para que marque el pedido como pagado.
+
 ## Permisos que habilitan este panel
 
 | Permiso | Desbloquea |
@@ -74,4 +89,4 @@ Si usas **Workflows**, el editor visual incluye nodos de **Cobros** para generar
 | `aero.pay.view_qr` | Generar/ver QR y transacciones |
 | `aero.pay.manage_settings` | Configuración de pagos |
 
-**Versión documentada:** 1.24.0
+**Versión documentada:** 1.26.0

@@ -66,4 +66,9 @@ literales. Para emojis usa el atajo del sistema (Win+. / Cmd+Ctrl+Space).
 > **Incluir respuestas automáticas** está activo. Las reglas se cargan después
 > de crear el bot.
 
-**Versión documentada:** 1.6.0
+> [!NOTE]
+> Si un mensaje ya lo atiende una automatización publicada (Workflows) por
+> palabra clave o por el identificador de un botón/lista interactivo, el bot no
+> lo contesta: el cliente recibe una sola respuesta, la de la automatización.
+
+**Versión documentada:** 1.6.1
