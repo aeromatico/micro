@@ -5,7 +5,7 @@ $qs = fn (array $o) => '?' . http_build_query(array_filter(array_merge(['date' =
 $stColor = ['pending' => '#d97706', 'confirmed' => '#2563eb', 'in_service' => '#7c3aed', 'completed' => '#16a34a', 'no_show' => '#9a3412'];
 $card = function ($b) use ($stColor) {
     $c = $stColor[$b->status] ?? '#6b7280';
-    return '<a href="' . e(Backend::url('aero/office/bookings/update/' . $b->id)) . '" style="display:block;margin-bottom:6px;padding:6px 8px;border-left:4px solid ' . $c . ';background:#f9fafb;border-radius:4px;color:#111;text-decoration:none">'
+    return '<a href="' . e(Backend::url('aero/office/bookings/update/' . $b->id)) . '" style="display:block;margin-bottom:6px;padding:6px 8px;border-left:4px solid ' . $c . ';background:color-mix(in srgb, var(--bs-body-color) 5%, var(--bs-body-bg));border-radius:4px;color:var(--bs-body-color);text-decoration:none">'
         . '<strong>' . e($b->starts_at->format('H:i')) . '–' . e($b->ends_at->format('H:i')) . '</strong> '
         . '<span style="font-size:11px;color:' . $c . '">' . e($b->status_label) . '</span><br>'
         . e($b->customer?->name) . '<br><small class="text-muted">' . e($b->service_name) . ' · ' . e($b->worker_name) . '</small></a>';
@@ -42,7 +42,7 @@ $card = function ($b) use ($stColor) {
     <div style="display:flex;gap:14px;overflow-x:auto;align-items:flex-start">
         <?php foreach ($by as $name => $list): ?>
         <div style="min-width:240px;flex:1">
-            <div style="font-weight:600;border-bottom:2px solid #e5e7eb;padding-bottom:4px;margin-bottom:8px"><?= e($name) ?> <small class="text-muted">(<?= $list->count() ?>)</small></div>
+            <div style="font-weight:600;border-bottom:2px solid var(--bs-border-color);padding-bottom:4px;margin-bottom:8px"><?= e($name) ?> <small class="text-muted">(<?= $list->count() ?>)</small></div>
             <?php foreach ($list as $b) { echo $card($b); } ?>
         </div>
         <?php endforeach ?>
@@ -52,7 +52,7 @@ $card = function ($b) use ($stColor) {
     <div style="display:flex;gap:10px;overflow-x:auto;align-items:flex-start">
         <?php for ($i = 0; $i < 7; $i++): $d = $from->copy()->addDays($i); $list = $bookings->filter(fn ($b) => $b->starts_at->isSameDay($d)); ?>
         <div style="min-width:170px;flex:1">
-            <div style="font-weight:600;border-bottom:2px solid <?= $d->isToday() ? '#2563eb' : '#e5e7eb' ?>;padding-bottom:4px;margin-bottom:8px">
+            <div style="font-weight:600;border-bottom:2px solid <?= $d->isToday() ? '#2563eb' : 'var(--bs-border-color)' ?>;padding-bottom:4px;margin-bottom:8px">
                 <a href="<?= $qs(['date' => $d->toDateString(), 'view' => 'day']) ?>"><?= e(ucfirst($d->translatedFormat('D d'))) ?></a>
                 <small class="text-muted">(<?= $list->count() ?>)</small>
             </div>

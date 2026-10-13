@@ -25,8 +25,8 @@ $done = collect($steps)->where('done', true)->count();
 
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
         <?php foreach ([['Hoy', $counts['today']], ['Por aprobar', $counts['pending']], ['Próx. 7 días', $counts['week']], ['No asistió (30 d)', $counts['no_shows']]] as [$label, $n]): ?>
-        <div style="flex:1;min-width:150px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:14px">
-            <div style="font-size:12px;color:#6b7280;text-transform:uppercase"><?= e($label) ?></div>
+        <div style="flex:1;min-width:150px;background:color-mix(in srgb, var(--bs-body-color) 5%, var(--bs-body-bg));border:1px solid var(--bs-border-color);border-radius:6px;padding:14px">
+            <div style="font-size:12px;color:var(--bs-secondary-color);text-transform:uppercase"><?= e($label) ?></div>
             <div style="font-size:28px;font-weight:700"><?= (int) $n ?></div>
         </div>
         <?php endforeach ?>

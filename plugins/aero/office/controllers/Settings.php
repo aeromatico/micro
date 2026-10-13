@@ -40,7 +40,7 @@ class Settings extends Controller
             }
             $row = \Aero\Office\Models\OfficeSettings::firstOrCreate(['tenant_id' => $id]);
 
-            return \Backend::redirect('aero/gym/settings/update/' . $row->id);
+            return \Backend::redirect('aero/office/settings/update/' . $row->id);
         }
 
         $this->asExtension('ListController')->index();
