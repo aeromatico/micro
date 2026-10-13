@@ -110,6 +110,11 @@
     content: ''; position: absolute; left: 0; top: .2em; bottom: .2em; width: 3px; border-radius: 3px;
     background: linear-gradient(var(--color-accent), var(--color-warm));
 }
+/* El video del servicio vive dentro de .service-page pero lleva el título centrado, sin la barra de acento. */
+/* Va pegado al hero (que ya trae su aire inferior). */
+.service-page > section#video { padding-top: 0; }
+.service-page h2.sv-title { padding-left: 0; }
+.service-page h2.sv-title::before { content: none; }
 .service-page h3 { color: var(--color-ink); }
 
 /* Tarjetas: superficie cálida sutil, elevación y brillo al pasar el cursor */
