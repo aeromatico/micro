@@ -1,5 +1,6 @@
 <?php namespace Aero\Services\Http\Controllers;
 
+use Aero\Services\Classes\LucideIcon;
 use Aero\Services\Classes\PublicMenu;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Cache;
  * ?exclude=rubros,otra deja fuera las categorías con esos slugs. Se aplica
  * DESPUÉS de leer la caché, que guarda siempre la lista completa (así el
  * guardado de un servicio la invalida una sola vez).
+ *
+ * ?icons=svg agrega `icon_svg` (SVG en línea del ícono Lucide) a cada servicio,
+ * para consumidores cuyo bundle no trae el set completo de Lucide. Solo se
+ * guarda el NOMBRE del ícono; el SVG se genera al vuelo (LucideIcon).
  */
 class MenuController extends Controller
 {
@@ -37,6 +42,16 @@ class MenuController extends Controller
 
         if ($exclude) {
             $groups = array_values(array_filter($groups, fn ($g) => !in_array($g['slug'] ?? null, $exclude, true)));
+        }
+
+        if ($request->query('icons') === 'svg') {
+            foreach ($groups as &$group) {
+                foreach ($group['items'] as &$item) {
+                    $item['icon_svg'] = LucideIcon::svg($item['icon'] ?? null, 'lucide');
+                }
+                unset($item);
+            }
+            unset($group);
         }
 
         return response()
