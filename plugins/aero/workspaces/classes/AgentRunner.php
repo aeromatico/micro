@@ -59,9 +59,15 @@ class AgentRunner
         return array_keys(array_intersect_key($names, $allowed));
     }
 
+    /**
+     * Registro público (chatbots/MCP) + herramientas PRIVADAS de agente (WebTools:
+     * escriben en el sitio y la tienda, así que nunca pasan por el registro público).
+     */
     protected static function registry(): array
     {
-        return class_exists(\Aero\Chatbots\Classes\AiToolRegistry::class) ? \Aero\Chatbots\Classes\AiToolRegistry::all() : [];
+        $public = class_exists(\Aero\Chatbots\Classes\AiToolRegistry::class) ? \Aero\Chatbots\Classes\AiToolRegistry::all() : [];
+
+        return WebTools::tools() + $public;
     }
 
     /** Herramientas del agente (+ lectura de skills) en formato del registro. */

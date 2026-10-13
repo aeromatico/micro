@@ -39,3 +39,7 @@
 1.12.0:
     - "Catálogo de modelos: se agregan modelos frontera (Claude Opus/Sonnet/Fable/Haiku 5.x, GPT-6 Astra, Gemini 4 Argon, Grok 4.7) y abiertos de alto nivel (Kimi K3, GLM-5.3). Los no verificados en el gateway quedan inactivos."
     - add_frontier_models.php
+1.13.0:
+    - "Iván (desarrollo web) gestiona y genera el sitio y la tienda de cada cliente: herramientas web_* privadas (páginas con bloques, SEO, contacto, colecciones, productos en borrador, publicar, deshacer) con plan acordado, confirmación y copia para deshacer, y un skill con el protocolo de preguntas precisas."
+    - create_revisions_table.php
+    - seed_web_builder_agent.php
