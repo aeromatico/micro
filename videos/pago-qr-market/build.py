@@ -51,13 +51,13 @@ def make_mix(scenes, total):
     """Voz + efectos (en los tiempos de la animación) + música con ducking -> assets/mezcla.mp3"""
     ev = []  # (archivo sfx, segundo, volumen)
     S = scenes
-    ev = [("pop", .35, .7), ("whoosh", COVER - .35, .45)]
+    ev = [("pop", .35, .7)]  # sin whoosh: la muestra trae un golpe seco al inicio que no pega con nada
     t, d = S[1]["t0"], S[1]["d"]
-    ev += [("whoosh", t, .35)] + [("pop", t + .3 + d * f, .7) for f in (.25, .55, .8)]
+    ev += [("pop", t + .3 + d * f, .7) for f in (.25, .55, .8)]
     t, d = S[2]["t0"], S[2]["d"]
     ev += [("tick", t + .4, .7), ("chirp", t + .3 + d * .5, .5)]
     t, d = S[3]["t0"], S[3]["d"]
-    ev += [("whoosh", t + .3 + d * .12, .6), ("pop", t + .3 + d * .12 + .4, .7),
+    ev += [("pop", t + .3 + d * .12 + .4, .7),
            ("chirp", t + .3 + d * .55, .45), ("pop", t + .3 + d * .6, .6)]
     t, d = S[4]["t0"], S[4]["d"]
     ev += [("success", t + .85, .8)]
@@ -94,11 +94,14 @@ def make_mix(scenes, total):
 
 mix_dur = make_mix(scenes, total)
 VARIANTS = {
-    "": dict(vw=1920, vh=1080, css="", out=HERE),
-    "vertical": dict(vw=1080, vh=1920, out=os.path.join(os.path.dirname(HERE), os.path.basename(HERE) + "-vertical"),
-                     css="svg{inset:auto;left:0;top:380px;width:1080px;height:607px}"
-                         ".cap{left:60px;width:960px;bottom:auto;top:1090px;font-size:62px}"
-                         "#cover h1{font-size:230px}#cover .by{font-size:70px}#cover .by .flag{font-size:76px}#brand{top:600px}#brand b{font-size:220px}#brand em{font-size:56px}#brand p{font-size:42px}#brand span{font-size:40px}"),
+    "": dict(vw=1920, vh=1080, vert="false", viewbox="0 0 1920 1080", svgw=1920, svgh=1080, css="", out=HERE),
+    # 9:16 de verdad: escena ampliada al ancho, título fijo arriba y subtítulos grandes debajo
+    "vertical": dict(vw=1080, vh=1920, vert="true", viewbox="170 -764 1400 2489", svgw=1080, svgh=1920,
+                     out=os.path.join(os.path.dirname(HERE), os.path.basename(HERE) + "-vertical"),
+                     css=".cap{left:60px;width:960px;bottom:auto;top:1360px;font-size:60px}"
+                         "#vtitle{display:block}"
+                         "#cover h1{font-size:230px}#cover .by{font-size:70px}#cover .by .flag{font-size:76px}"
+                         "#brand{top:600px}#brand b{font-size:220px}#brand em{font-size:56px}#brand p{font-size:42px}#brand span{font-size:40px}"),
 }
 tpl = open(os.path.join(HERE, "plantilla.tpl")).read()
 audio = f'<audio id="mezcla" src="assets/mezcla.mp3" data-start="0" data-duration="{round(mix_dur - 0.05, 2)}" data-track-index="1"></audio>'
@@ -106,12 +109,14 @@ caps = "\n".join(f'<div class="cap" id="cap{i+1}">{s["text"]}</div>' for i, s in
 for name, v in VARIANTS.items():
     html = (tpl.replace("%%TOTAL%%", str(total)).replace("%%AUDIO%%", audio).replace("%%CAPS%%", caps)
             .replace("%%SCENES%%", json.dumps(scenes, ensure_ascii=False)).replace("%%COVER%%", str(COVER)).replace("%%VW%%", str(v["vw"]))
-            .replace("%%VH%%", str(v["vh"])).replace("%%VARCSS%%", v["css"]))
+            .replace("%%VH%%", str(v["vh"])).replace("%%VARCSS%%", v["css"]).replace("%%VERT%%", v["vert"])
+            .replace("%%VIEWBOX%%", v["viewbox"]).replace("%%SVGW%%", str(v["svgw"])).replace("%%SVGH%%", str(v["svgh"])))
     os.makedirs(os.path.join(v["out"], "assets"), exist_ok=True)
     open(os.path.join(v["out"], "index.html"), "w").write(html)
     if v["out"] != HERE:
         import shutil
         shutil.copy(os.path.join(HERE, "assets", "mezcla.mp3"), os.path.join(v["out"], "assets", "mezcla.mp3"))
+        shutil.copytree(os.path.join(HERE, "assets", "fonts"), os.path.join(v["out"], "assets", "fonts"), dirs_exist_ok=True)
         for fn in ("hyperframes.json", "package.json", "meta.json"):
             shutil.copy(os.path.join(HERE, fn), os.path.join(v["out"], fn))
 print("total", total, "mezcla", round(mix_dur, 2), [(s["t0"], s["d"]) for s in scenes])

@@ -22,6 +22,10 @@ svg{position:absolute;inset:0}
 #brand p{margin-top:40px;font-size:52px;color:#3f3f46}
 #brand span{display:block;margin-top:14px;font-size:44px;color:#71717a}
 text{font-family:Inter,system-ui,sans-serif}
+#vtitle{display:none;position:absolute;left:0;width:%%VW%%px;top:250px;text-align:center;font-family:Urbanist,sans-serif;color:#27272a;opacity:0}
+#vtitle b{display:block;font-size:170px;font-weight:900;line-height:1;letter-spacing:-.02em}
+#vtitle span{display:block;margin-top:6px;font-size:58px;font-weight:300}
+#vtitle i{font-style:normal;font-weight:900}
 #cover{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Urbanist,sans-serif;color:#27272a}
 #cover h1{font-size:300px;font-weight:900;line-height:.95;letter-spacing:-.03em}
 #cover .by{margin-top:64px;display:flex;align-items:center;gap:28px;font-size:84px;line-height:1}
@@ -33,7 +37,7 @@ text{font-family:Inter,system-ui,sans-serif}
 </head>
 <body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="%%TOTAL%%" data-width="%%VW%%" data-height="%%VH%%">
-<svg id="stage" viewBox="0 0 1920 1080" width="1920" height="1080">
+<svg id="stage" viewBox="%%VIEWBOX%%" width="%%SVGW%%" height="%%SVGH%%">
   <g id="world">
     <!-- banco / nube -->
     <g id="cloud"><g transform="translate(640,-20)">
@@ -105,6 +109,7 @@ text{font-family:Inter,system-ui,sans-serif}
   </g>
 </svg>
 <div id="cover"><h1 id="cv1">Pagos QR</h1><div class="by" id="cv2"><span class="flag">🇧🇴</span><span>by <b>Market</b></span></div></div>
+<div id="vtitle"><b>Pagos QR</b><span>by <i>Market</i></span></div>
 <div id="brand"><b>Market</b><em>by Clouds</em><p>Cobros con QR. Sin capturas. Sin dudas.</p><span>market.com.bo</span></div>
 %%CAPS%%
 %%AUDIO%%
@@ -112,6 +117,8 @@ text{font-family:Inter,system-ui,sans-serif}
 <script>
 const S=%%SCENES%%;
 const COVER=%%COVER%%;
+const VERT=%%VERT%%;
+const CX=VERT?1178:1558, CY=258;
 const NS='http://www.w3.org/2000/svg';
 let seed=5;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
 function mkQR(g,x,y,size,n,tag){
@@ -143,6 +150,10 @@ gsap.set('#cloud',{opacity:0});
 gsap.set('#brand',{opacity:0});
 gsap.set(['#qrfly'],{x:400,y:420,opacity:0});
 gsap.set('#coin',{x:1340,y:455,opacity:0});
+if(VERT){ // 9:16: la nube y las burbujas se acercan para caber en el ancho
+  gsap.set('#cloud',{x:-380});gsap.set('#b1',{x:-170});gsap.set('#b3',{x:-330});
+  document.getElementById('p2').setAttribute('d','M1340 455 Q1290 340 1190 300');
+}
 
 const tl=gsap.timeline({paused:true});
 const draw=(sel,at,dur,stag)=>{tl.to(sel,{strokeDashoffset:0,fillOpacity:1,duration:dur,ease:'power1.inOut',stagger:stag||0,immediateRender:false},at)};
@@ -179,7 +190,7 @@ S.forEach((s,i)=>cap(i+1,s.t0+.2,s.t0+.3+s.d+.45));
  tl.fromTo('#p2',{strokeDashoffset:1,opacity:1},{strokeDashoffset:0,opacity:1,duration:.6,ease:'power1.out',immediateRender:false},t+.3+d*.75);}
 // S5 · confirmación
 {const {t0:t,d}=S[4];
- tl.to('#coin',{opacity:1,duration:.15},t+.1).to('#coin',{x:1558,y:258,duration:.7,ease:'power2.inOut'},t+.1).to('#coin',{opacity:0,scale:.2,duration:.2},t+.8);
+ tl.to('#coin',{opacity:1,duration:.15},t+.1).to('#coin',{x:CX,y:CY,duration:.7,ease:'power2.inOut'},t+.1).to('#coin',{opacity:0,scale:.2,duration:.2},t+.8);
  tl.to(target,{fill:'#f59e0b',duration:.3},t+.85);
  tl.fromTo('#ok',{opacity:0,scale:.3},{opacity:1,scale:1,duration:.45,ease:'back.out(2.4)',svgOrigin:'620 285',immediateRender:false},t+.95);
  tl.to('#p1',{opacity:0,duration:.3},t).to('#p2',{opacity:0,duration:.3},t);
@@ -195,6 +206,7 @@ tl.fromTo('#cv1',{opacity:0,y:50,scale:.92},{opacity:1,y:0,scale:1,duration:.7,e
 tl.fromTo('#cv2',{opacity:0,y:30},{opacity:1,y:0,duration:.6,ease:'power2.out',immediateRender:false},.8);
 tl.to('#cover',{opacity:0,duration:.5,ease:'power1.inOut'},COVER-.1);
 tl.set('#cover',{display:'none'},COVER+.45);
+if(VERT){ tl.fromTo('#vtitle',{opacity:0,y:-20},{opacity:1,y:0,duration:.6,immediateRender:false},COVER+.3).to('#vtitle',{opacity:0,duration:.4},S[5].t0); }
 window.__timelines['main']=tl;tl.seek(0);
 </script>
 </body>
