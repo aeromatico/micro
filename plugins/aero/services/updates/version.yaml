@@ -43,3 +43,15 @@
     - "Ícono (nombre de Lucide) por servicio, editable en la pestaña General, y semilla inicial para los servicios publicados. El menú público (/api/v1/services/menu) ahora incluye icon y summary de cada servicio."
     - add_icon_to_services.php
     - seed_service_icons.php
+
+1.14.0:
+    - "Video de YouTube por servicio: campo ID o URL en la pestaña Contenido (se normaliza al ID de 11 caracteres y se valida). La página pública /plugin/{slug} lo muestra como tarjeta con póster y reproductor diferido (youtube-nocookie, carga el iframe solo al pulsar play)."
+    - add_youtube_to_services.php
+
+1.15.0:
+    - "Video local como alternativa a YouTube: interruptor «Usar video local (Medios)» que alterna entre el campo de YouTube y un archivo de la biblioteca de medios (mp4/webm/mov) con póster opcional. La página /plugin/{slug} lo reproduce con el mismo diseño (video nativo, play diferido)."
+    - add_video_media_to_services.php
+
+1.16.0:
+    - "Videos del servicio como repetidor: cada video lleva título, fuente (YouTube o Medios) y versión horizontal 16:9 y/o vertical 9:16 con póster opcional. El video único anterior pasa a ser el primer ítem. En /plugin/{slug} el visitante cambia de video y de formato; en móvil se muestra por defecto la versión vertical."
+    - add_videos_repeater_to_services.php

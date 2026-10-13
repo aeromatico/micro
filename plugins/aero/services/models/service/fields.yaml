@@ -32,6 +32,77 @@ tabs:
             type: textarea
             size: small
             span: right
+        videos:
+            tab: Contenido
+            label: Videos
+            commentAbove: Se muestran en la página pública del servicio, justo debajo del encabezado. Cada video puede tener versión horizontal (16:9, escritorio) y vertical (9:16, shorts; es la que se muestra por defecto en móvil). Si hay más de uno, el visitante cambia de video.
+            type: repeater
+            prompt: Agregar video
+            titleFrom: title
+            minItems: 0
+            form:
+                fields:
+                    title:
+                        label: Título del video
+                        comment: Aparece en el selector cuando hay más de un video.
+                        placeholder: Cómo funciona
+                        span: left
+                    use_media:
+                        label: Usar video local (Medios)
+                        comment: Apagado, el video es de YouTube. Encendido, se usa un archivo de la biblioteca de medios.
+                        type: switch
+                        span: right
+                    youtube:
+                        label: YouTube · horizontal 16:9
+                        commentAbove: URL (watch, youtu.be…) o ID de 11 caracteres.
+                        placeholder: https://www.youtube.com/watch?v=...
+                        span: left
+                        trigger:
+                            action: hide
+                            field: use_media
+                            condition: checked
+                    youtube_vertical:
+                        label: YouTube · vertical 9:16 (Short)
+                        commentAbove: Opcional. URL del Short o ID.
+                        placeholder: https://www.youtube.com/shorts/...
+                        span: right
+                        trigger:
+                            action: hide
+                            field: use_media
+                            condition: checked
+                    media:
+                        label: Video local · horizontal 16:9
+                        commentAbove: mp4 (H.264), webm o mov de la biblioteca de medios.
+                        type: mediafinder
+                        mode: file
+                        span: left
+                        trigger:
+                            action: show
+                            field: use_media
+                            condition: checked
+                    media_vertical:
+                        label: Video local · vertical 9:16
+                        commentAbove: Opcional. Versión pensada para móvil / shorts.
+                        type: mediafinder
+                        mode: file
+                        span: right
+                        trigger:
+                            action: show
+                            field: use_media
+                            condition: checked
+                    poster:
+                        label: Póster horizontal (opcional)
+                        commentAbove: Imagen antes de reproducir. Vacío = primer cuadro del video.
+                        type: mediafinder
+                        mode: image
+                        imageWidth: 200
+                        span: left
+                    poster_vertical:
+                        label: Póster vertical (opcional)
+                        type: mediafinder
+                        mode: image
+                        imageWidth: 120
+                        span: right
         description:
             tab: Contenido
             label: Descripción completa

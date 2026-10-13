@@ -11,7 +11,7 @@ class Service extends Model
     public $table = 'aero_services_services';
 
     public $fillable = [
-        'name', 'slug', 'icon', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
+        'name', 'slug', 'icon', 'videos', 'summary', 'description', 'code', 'has_pro', 'pro_features', 'plans',
         'features', 'requirements', 'plugin_links',
         'sort_order', 'is_active', 'is_featured', 'in_megamenu',
     ];
@@ -25,7 +25,7 @@ class Service extends Model
 
     public $attributes = ['has_pro' => false, 'is_active' => true, 'sort_order' => 0];
 
-    public $jsonable = ['features', 'requirements', 'plugin_links', 'pro_features', 'plans'];
+    public $jsonable = ['features', 'requirements', 'plugin_links', 'pro_features', 'plans', 'videos'];
 
     protected $casts = [
         'has_pro'     => 'boolean',
@@ -103,6 +103,90 @@ class Service extends Model
     }
 
     /** ¿Pertenece a la categoría «Rubros»? Usa su propio diseño de página. */
+    /** ID de 11 caracteres desde una URL de YouTube (watch, youtu.be, embed, shorts, live) o el ID suelto; null si no es válido. */
+    public static function parseYoutubeId(?string $value): ?string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('~(?:youtu\.be/|youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/|v/))([A-Za-z0-9_-]{11})~i', $value, $m)) {
+            return $m[1];
+        }
+
+        return preg_match('/^[A-Za-z0-9_-]{11}$/', $value) ? $value : null;
+    }
+
+    /** Ruta relativa al host actual (market.com.bo, panel.…, un tenant): evita que el video salga de otro dominio. */
+    protected static function mediaPath(?string $path): ?string
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        $url = \Media\Classes\MediaLibrary::url($path);
+
+        return parse_url($url, PHP_URL_PATH) ?: $url;
+    }
+
+    protected static function mediaSource(?string $path): ?array
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        return [
+            'src'  => static::mediaPath($path),
+            'mime' => match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+                'webm' => 'video/webm',
+                'ogv'  => 'video/ogg',
+                'mov'  => 'video/quicktime',
+                default => 'video/mp4',
+            },
+        ];
+    }
+
+    /**
+     * Videos del servicio listos para el frontend (repetidor «Videos»). Cada ítem puede tener versión
+     * horizontal (h, 16:9) y/o vertical (v, 9:16): ['youtube' => id] o ['src' => ruta, 'mime' => tipo].
+     */
+    public function getVideoItemsAttribute(): array
+    {
+        $items = [];
+
+        foreach ((array) $this->videos as $row) {
+            $row = (array) $row;
+            $useMedia = !empty($row['use_media']);
+
+            if ($useMedia) {
+                $h = static::mediaSource($row['media'] ?? null);
+                $v = static::mediaSource($row['media_vertical'] ?? null);
+            } else {
+                $yh = static::parseYoutubeId($row['youtube'] ?? null);
+                $yv = static::parseYoutubeId($row['youtube_vertical'] ?? null);
+                $h = $yh ? ['youtube' => $yh] : null;
+                $v = $yv ? ['youtube' => $yv] : null;
+            }
+
+            if (!$h && !$v) {
+                continue;
+            }
+
+            $items[] = [
+                'title'    => trim((string) ($row['title'] ?? '')),
+                'kind'     => $useMedia ? 'media' : 'youtube',
+                'h'        => $h,
+                'v'        => $v,
+                'poster_h' => static::mediaPath($row['poster'] ?? null),
+                'poster_v' => static::mediaPath($row['poster_vertical'] ?? null),
+            ];
+        }
+
+        return $items;
+    }
+
     public function getIsRubroAttribute(): bool
     {
         return $this->categories->contains('slug', 'rubros');
@@ -133,6 +217,21 @@ class Service extends Model
         }
 
         return [$code, $found['Documentación'], $found['Preguntas frecuentes']];
+    }
+
+    /**
+     * El contenido principal de la oferta partido en [hero, resto]: el hero es la primera <section> si abre con un <h1>.
+     * Permite intercalar el video justo debajo del hero. Sin hero reconocible: ['', todo].
+     */
+    public function getHeroSplitAttribute(): array
+    {
+        $main = $this->code_parts[0];
+
+        if (preg_match('#^\s*<section\b.*?</section>#is', $main, $m) && stripos($m[0], '<h1') !== false) {
+            return [$m[0], substr($main, strlen($m[0]))];
+        }
+
+        return ['', $main];
     }
 
     public function getPublishedGuidesAttribute()
@@ -211,6 +310,60 @@ class Service extends Model
         }
 
         return $lines ?: [['primary' => true, 'text' => 'A cotizar']];
+    }
+
+    public function beforeValidate(): void
+    {
+        $errors = [];
+        $videos = [];
+
+        foreach ((array) $this->videos as $i => $row) {
+            $row = (array) $row;
+            $n = $i + 1;
+
+            if (!empty($row['use_media'])) {
+                foreach (['media' => 'horizontal', 'media_vertical' => 'vertical'] as $key => $label) {
+                    $path = trim((string) ($row[$key] ?? ''));
+
+                    if ($path !== '' && !preg_match('/\.(mp4|webm|m4v|mov|ogv)$/i', $path)) {
+                        $errors[] = "Video {$n} ({$label}): debe ser un archivo mp4, webm o mov.";
+                    }
+                }
+
+                if (blank($row['media'] ?? null) && blank($row['media_vertical'] ?? null)) {
+                    $errors[] = "Video {$n}: elige al menos una versión (horizontal o vertical) de la biblioteca de medios.";
+                }
+            } else {
+                foreach (['youtube' => 'horizontal', 'youtube_vertical' => 'vertical'] as $key => $label) {
+                    $raw = trim((string) ($row[$key] ?? ''));
+
+                    if ($raw === '') {
+                        $row[$key] = null;
+                        continue;
+                    }
+
+                    $id = static::parseYoutubeId($raw);
+
+                    if ($id === null) {
+                        $errors[] = "Video {$n} ({$label}): la URL o el ID de YouTube no es válido.";
+                    } else {
+                        $row[$key] = $id;
+                    }
+                }
+
+                if (blank($row['youtube'] ?? null) && blank($row['youtube_vertical'] ?? null)) {
+                    $errors[] = "Video {$n}: pega la URL o el ID de YouTube (o activa «Usar video local»).";
+                }
+            }
+
+            $videos[] = $row;
+        }
+
+        if ($errors) {
+            throw new \October\Rain\Exception\ValidationException(['videos' => implode(' ', $errors)]);
+        }
+
+        $this->videos = $videos;
     }
 
     public function beforeSave(): void
