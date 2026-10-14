@@ -411,3 +411,7 @@
 1.68.0:
     - "Dashboard: layout por defecto global con «Acceso rápido» para todos; tenant_admin y tenant_admin_pro reciben dashboard.manage (editan su layout personal) y se bloquea a no-superadmins modificar el layout global o la gestión de dashboards."
     - grant_dashboard_manage_to_tenant_admin.php
+
+1.69.0:
+    - "Aero.Community: el rol tenant_admin recibe aero.community.use (foro, sugerencias y soporte rápido)."
+    - grant_community_to_tenant_admin.php
