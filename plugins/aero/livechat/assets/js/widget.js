@@ -512,7 +512,7 @@
             body: { widget_key: widgetKey, visitor_token: state.visitorToken },
         }).then(function () {
             resetLocalSession();
-            showPreChat();
+            if (!launcherOff) { showPreChat(); }
         });
     }
 
@@ -537,12 +537,27 @@
         // quedan recordados en este equipo (ver saveContactInfo) para no
         // volver a pedirlos en el próximo chat.
         prefillContactForm();
+
+        // Usuario registrado (launcher off): al finalizar la sesión el globo y el panel
+        // desaparecen, sin volver al pre-chat. La página decide si vuelve a ofrecerlo.
+        if (launcherOff) { endRegisteredSession(); }
+    }
+
+    function endRegisteredSession() {
+        state.open = false;
+        setOpenFlag(false);
+        var panel = document.getElementById('aero-livechat-panel');
+        var bubble = document.getElementById('aero-livechat-bubble');
+        if (panel) { panel.style.display = 'none'; }
+        if (bubble) { bubble.style.display = 'none'; }
+        try { window.dispatchEvent(new CustomEvent('aero-livechat:ended')); } catch (e) {}
     }
 
     /** El chat se finalizó (desde el panel, o solo por inactividad) mientras el visitante lo tenía abierto/cerrado. */
     function handleResolvedElsewhere() {
         var wasOpen = state.open;
         resetLocalSession();
+        if (launcherOff) { return; }
 
         if (wasOpen) {
             showPreChat();
@@ -753,6 +768,12 @@
             if (!uiReady) { pendingIdentity = identity; return; }
             openWithIdentity(identity);
         },
+        /** Vuelve a mostrar el globo si esta persona ya tiene una sesión de chat viva (otra pantalla del panel). */
+        resume: function () {
+            if (!uiReady || !getToken()) { return; }
+            var bubble = document.getElementById('aero-livechat-bubble');
+            if (bubble) { bubble.style.display = ''; }
+        },
     };
 
     function initLivechat() {
@@ -779,7 +800,11 @@
         // cambiar de página — hereda ese mismo estado en la nueva, en vez de
         // arrancar siempre cerrado.
         try {
-            if (sessionStorage.getItem(openStorageKey) === '1') { openPanel(); }
+            // Registrados (launcher off): solo se retoma si hay una sesión viva; nunca el pre-chat.
+            if (sessionStorage.getItem(openStorageKey) === '1' && (!launcherOff || getToken())) {
+                if (launcherOff) { document.getElementById('aero-livechat-bubble').style.display = ''; }
+                openPanel();
+            }
         } catch (e) {}
     }
 
