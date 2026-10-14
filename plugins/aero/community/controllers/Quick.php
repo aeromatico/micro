@@ -32,6 +32,31 @@ class Quick extends Controller
         ];
     }
 
+    /** Departamentos de la mesa de ayuda para el formulario de ticket. */
+    public function onTicketOptions(): array
+    {
+        return ['departments' => \Aero\Community\Classes\TicketBridge::departments()];
+    }
+
+    public function onTicket(): array
+    {
+        $ticket = \Aero\Community\Classes\TicketBridge::create([
+            'subject'       => post('subject'),
+            'description'   => post('description'),
+            'department_id' => post('department_id'),
+            'priority'      => post('priority'),
+            'url'           => post('url'),
+            'area'          => post('area'),
+            'context'       => json_decode((string) post('context'), true) ?: [],
+        ]);
+
+        return [
+            'ok'     => true,
+            'ticket' => $ticket->number ?? $ticket->id,
+            'url'    => \Backend::url('aero/crm/support/view/' . $ticket->id),
+        ];
+    }
+
     public function index(): \Illuminate\Http\Response
     {
         return response('', 204);

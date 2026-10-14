@@ -41,3 +41,6 @@
 .aco-ok-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .aco-chat-btn{display:inline-flex;align-items:center;gap:6px}
 .aco-chat-on .aco-fab{bottom:92px}
+.aco-modal select{width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font:inherit;background:#fff;color:#111827}
+.aco-actions{flex-wrap:wrap}
+.aco-ticket-btn{margin-right:auto}

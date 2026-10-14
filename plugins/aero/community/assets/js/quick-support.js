@@ -128,10 +128,78 @@
         picked = null; shot = null;
     }
 
-    function startChat(chat) {
-        close();
-        document.body.classList.add('aco-chat-on');
-        function go() { if (window.AeroLivechat) { window.AeroLivechat.open(chat.identity); } }
+    function post(handler, fd) {
+        return fetch(cfg.endpoint, {
+            method: 'POST', body: fd, credentials: 'same-origin',
+            headers: { 'X-AJAX-HANDLER': handler, 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf(), 'Accept': 'application/json' }
+        }).then(function (res) {
+            return res.json().catch(function () { return {}; }).then(function (json) {
+                var meta = json.__ajax || {};
+                if (!res.ok || meta.ok === false) { throw new Error(meta.message || 'No pudimos completar la acción.'); }
+                return json;
+            });
+        });
+    }
+
+    /** Camino alternativo al reporte rápido: un ticket formal en la mesa de ayuda (CRM → Soporte). */
+    function showTicketForm(modal, head, area) {
+        var subject = h('input', { type: 'text', maxlength: '255', placeholder: 'Asunto' });
+        var dept = h('select', {}); dept.appendChild(h('option', { value: '', text: 'Cargando departamentos…' }));
+        var prio = h('select', {});
+        [['normal', 'Prioridad normal'], ['low', 'Baja'], ['high', 'Alta'], ['urgent', 'Urgente']].forEach(function (p) { prio.appendChild(h('option', { value: p[0], text: p[1] })); });
+        var desc = h('textarea', { placeholder: 'Cuéntanos con detalle qué necesitas.', maxlength: '8000' });
+        var err = h('div', { 'class': 'aco-error' });
+        var back = h('button', { type: 'button', 'class': 'aco-btn', text: '← Volver al reporte' });
+        var send = h('button', { type: 'button', 'class': 'aco-btn primary', text: 'Abrir ticket' });
+        var body = h('div', { 'class': 'aco-body' }, [
+            h('div', { 'class': 'aco-promise' }, [h('strong', { text: 'Te respondemos en pocos minutos.' }), h('span', { text: ' Tu ticket llega a nuestra mesa de ayuda con la dirección de esta pantalla.' })]),
+            subject, dept, prio, desc,
+            h('div', { 'class': 'aco-meta', text: 'Enviaremos también la dirección de esta página: ' + location.pathname }),
+            err
+        ]);
+        modal.replaceChildren(head, body, h('div', { 'class': 'aco-actions' }, [back, send]));
+        subject.focus();
+
+        post('onTicketOptions', new FormData()).then(function (json) {
+            dept.innerHTML = '';
+            dept.appendChild(h('option', { value: '', text: '— Elige el departamento —' }));
+            (json.departments || []).forEach(function (d) { dept.appendChild(h('option', { value: d.id, text: d.name })); });
+        }).catch(function (e) { err.textContent = e.message; });
+
+        back.addEventListener('click', function () { close(); open({ area: area }); });
+        send.addEventListener('click', function () {
+            err.textContent = '';
+            if (subject.value.trim().length < 4) { err.textContent = 'Escribe un asunto.'; return; }
+            if (!dept.value) { err.textContent = 'Elige el departamento.'; return; }
+            send.disabled = true; send.textContent = 'Abriendo ticket…';
+            var fd = new FormData();
+            fd.append('subject', subject.value.trim());
+            fd.append('department_id', dept.value);
+            fd.append('priority', prio.value);
+            fd.append('description', desc.value.trim());
+            fd.append('url', location.href);
+            fd.append('area', area);
+            fd.append('context', JSON.stringify({ userAgent: navigator.userAgent, errors: errors.slice() }));
+            post('onTicket', fd).then(function (json) {
+                var ok = h('div', { 'class': 'aco-ok' }, [
+                    h('strong', { text: 'Ticket #' + String(json.ticket).replace(/^#/, '') + ' abierto' }),
+                    h('p', { text: 'Ya está en nuestra mesa de ayuda. Te respondemos en pocos minutos.' })
+                ]);
+                var go = h('a', { href: json.url, 'class': 'aco-btn primary', text: 'Ver mi ticket' });
+                go.style.display = 'inline-block'; go.style.textDecoration = 'none';
+                ok.appendChild(h('div', { 'class': 'aco-ok-actions' }, [go]));
+                modal.replaceChildren(head, ok);   // sin chat: el chat solo se ofrece tras un reporte
+            }).catch(function (e) {
+                err.textContent = e.message;
+                send.disabled = false; send.textContent = 'Abrir ticket';
+            });
+        });
+    }
+
+    var CHAT_KEY = 'aco_chat';
+
+    function loadLivechat(chat, then) {
+        function go() { then(window.AeroLivechat); }
         if (window.AeroLivechat) { go(); return; }
         var tag = document.createElement('script');
         tag.src = chat.script;
@@ -143,13 +211,35 @@
         document.head.appendChild(tag);
     }
 
+    function chatEnded() {
+        document.body.classList.remove('aco-chat-on');
+        try { sessionStorage.removeItem(CHAT_KEY); } catch (e) {}
+    }
+    window.addEventListener('aero-livechat:ended', chatEnded);
+
+    /** Otra pantalla del panel con un chat en curso: se vuelve a cargar el widget para mantenerlo a la vista. */
+    function resumeChat() {
+        var chat = null;
+        try { chat = JSON.parse(sessionStorage.getItem(CHAT_KEY) || 'null'); } catch (e) {}
+        if (!chat || !chat.script) { return; }
+        document.body.classList.add('aco-chat-on');
+        loadLivechat(chat, function (lc) { if (lc) { lc.resume(); } });
+    }
+
+    function startChat(chat) {
+        close();
+        document.body.classList.add('aco-chat-on');
+        try { sessionStorage.setItem(CHAT_KEY, JSON.stringify({ script: chat.script, key: chat.key, base: chat.base })); } catch (e) {}
+        loadLivechat(chat, function (lc) { if (lc) { lc.open(chat.identity); } });
+    }
+
     function open(opts) {
         opts = opts || {};
         if (el.overlay) { return; }
-        state.type = opts.type || 'help';
+        state.type = (opts.type === 'idea') ? 'idea' : 'bug';
         state.area = opts.area || guessArea();
 
-        var types = [['help', 'Necesito ayuda'], ['bug', 'Algo falla'], ['idea', 'Mejora']];
+        var types = [['bug', 'Algo falla'], ['idea', 'Mejora']];
         var typeBox = h('div', { 'class': 'aco-types' }, types.map(function (t) {
             var input = h('input', { type: 'radio', name: 'aco-type', value: t[0] });
             if (t[0] === state.type) { input.checked = true; }
@@ -164,8 +254,10 @@
         var pickBtn = h('button', { type: 'button', 'class': 'aco-btn', text: 'Señalar la parte con el problema' });
         el.picked = h('div', { 'class': 'aco-meta' });
         var err = h('div', { 'class': 'aco-error' });
-        var send = h('button', { type: 'button', 'class': 'aco-btn primary', text: 'Abrir ticket' });
+        var send = h('button', { type: 'button', 'class': 'aco-btn primary', text: 'Enviar reporte' });
         var cancel = h('button', { type: 'button', 'class': 'aco-btn', text: 'Cancelar' });
+        var ticketBtn = h('button', { type: 'button', 'class': 'aco-btn aco-ticket-btn', text: 'Abrir un ticket' });
+        ticketBtn.addEventListener('click', function () { showTicketForm(modal, head, area.value.trim()); });
 
         typeBox.addEventListener('change', function (e) {
             state.type = e.target.value;
@@ -177,7 +269,7 @@
 
         var promise = h('div', { 'class': 'aco-promise' }, [
             h('strong', { text: 'Te respondemos en pocos minutos.' }),
-            h('span', { text: ' Cuéntanos qué pasa y abre un ticket: llega con la pantalla, la dirección y los datos que necesitamos.' })
+            h('span', { text: ' Reporta un error o una mejora desde aquí, o abre un ticket si te resulta más cómodo.' })
         ]);
         var body = h('div', { 'class': 'aco-body' }, [
             promise, typeBox, msg,
@@ -193,7 +285,7 @@
             x.addEventListener('click', close); return x;
         })()]);
         var modal = h('div', { 'class': 'aco-modal', role: 'dialog', 'aria-modal': 'true' }, [
-            head, body, h('div', { 'class': 'aco-actions' }, [cancel, send])
+            head, body, h('div', { 'class': 'aco-actions' }, [cancel, ticketBtn, send])
         ]);
         el.overlay = h('div', { 'class': 'aco-overlay' }, [modal]);
         el.overlay.addEventListener('mousedown', function (e) { if (e.target === el.overlay) { close(); } });
@@ -203,7 +295,7 @@
         send.addEventListener('click', function () {
             err.textContent = '';
             if (msg.value.trim().length < 5) { err.textContent = 'Cuéntanos un poco más.'; return; }
-            send.disabled = true; send.textContent = 'Abriendo ticket…';
+            send.disabled = true; send.textContent = 'Enviando…';
 
             var getShot = shotChk.checked ? capture().catch(function () { return null; }) : Promise.resolve(null);
             getShot.then(function (dataUri) {
@@ -242,8 +334,8 @@
                 });
             }).then(function (json) {
                 var ok = h('div', { 'class': 'aco-ok' }, [
-                    h('strong', { text: '¡Gracias! Ticket #' + json.ticket + ' abierto' }),
-                    h('p', { text: 'Ya lo tenemos. Te respondemos en pocos minutos; lo verás en «Mis reportes».' })
+                    h('strong', { text: '¡Gracias por tu reporte!' }),
+                    h('p', { text: 'Ya lo tenemos (#' + json.id + '). Te respondemos en pocos minutos; lo verás en «Mis reportes».' })
                 ]);
                 var row = h('div', { 'class': 'aco-ok-actions' });
                 // El chat solo se ofrece aquí, al agradecer; quien reporta ya está registrado (sin invitados).
@@ -253,14 +345,14 @@
                     chatBtn.addEventListener('click', function () { startChat(json.chat); });
                     row.appendChild(chatBtn);
                 }
-                var go = h('a', { href: json.url, 'class': 'aco-btn', text: 'Ver mi ticket' });
+                var go = h('a', { href: json.url, 'class': 'aco-btn', text: 'Ver mi reporte' });
                 go.style.display = 'inline-block'; go.style.textDecoration = 'none';
                 row.appendChild(go);
                 ok.appendChild(row);
                 modal.replaceChildren(head, ok);
             }).catch(function (e) {
                 err.textContent = e.message || 'No pudimos enviar el reporte.';
-                send.disabled = false; send.textContent = 'Abrir ticket';
+                send.disabled = false; send.textContent = 'Enviar reporte';
             });
         });
     }
@@ -281,5 +373,6 @@
     });
 
     window.AeroCommunity = { open: open };
-    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', mountFab); } else { mountFab(); }
+    function boot() { mountFab(); resumeChat(); }
+    if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
 })();
