@@ -13,6 +13,11 @@ use Aero\Notify\Models\Template;
 class DefaultTemplates
 {
     public const TEXTS = [
+        'community.comment.added' => ['Nuevo comentario', '{{ author_name }} comentó en «{{ title }}»: {{ comment }} {{ url }}'],
+        'community.post.created' => ['{{ type_label }} nueva', '{{ author_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %}: «{{ title }}». Respuesta antes del {{ due_at }}. {{ url }}'],
+        'community.post.overdue' => ['Compromiso vencido', '«{{ title }}» ({{ type_label }}) pasó su plazo sin respuesta. {{ url }}'],
+        'community.post.responded' => ['Respondimos tu reporte', 'Sobre «{{ title }}»: {{ status }}.{% if response %} {{ response }}{% endif %} {{ url }}'],
+        'community.post.shipped' => ['¡Ya está disponible!', 'La sugerencia «{{ title }}», por la que votaste, ya fue implementada. Gracias por ayudarnos a mejorar.'],
         'credits.balance.depleted' => ['Saldo agotado', 'Tu saldo de créditos {{ credit_type }} se agotó ({{ balance }}). Recarga para seguir usando el servicio.'],
         'credits.balance.low' => ['Saldo bajo', 'Tu saldo de créditos {{ credit_type }} es {{ balance }}. Considera recargar pronto.'],
         'crm.collection.overdue' => ['Pago vencido', 'Hola {{ contacto }}, tu pago de {{ monto }} {{ moneda }} ({{ concepto }}) venció el {{ vencimiento }}. Por favor regulariza tu pago.'],

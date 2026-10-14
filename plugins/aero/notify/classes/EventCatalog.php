@@ -25,6 +25,7 @@ class EventCatalog
             static::crm(),
             static::shop(),
             static::office(),
+            static::community(),
             static::hello(),
             static::credits(),
             static::system(),
@@ -619,6 +620,41 @@ class EventCatalog
             $mk('office.booking.rescheduled', 'Reserva reprogramada por el negocio', 'El negocio movió o reasignó la cita: se avisa al cliente.', ['actor'], ['whatsapp', 'email']),
             $mk('office.booking.rescheduled_by_customer', 'Reserva reprogramada por el cliente', 'El cliente movió su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
             $mk('office.booking.reminder', 'Recordatorio de cita', 'Recordatorio al cliente antes de su cita (horas configurables por negocio).', ['actor'], ['whatsapp', 'email'], 4),
+        ];
+    }
+
+    /** Aero.Community: foro, sugerencias y soporte rápido. Los emite classes/Bridges.php desde los eventos aero.community.*. */
+    protected static function community(): array
+    {
+        $vars = [
+            'title'       => ['type' => 'string', 'required' => true,  'label' => 'Título'],
+            'type_label'  => ['type' => 'string', 'required' => false, 'label' => 'Tipo (sugerencia, error, ayuda…)'],
+            'author_name' => ['type' => 'string', 'required' => false, 'label' => 'Autor'],
+            'area'        => ['type' => 'string', 'required' => false, 'label' => 'Área o pantalla'],
+            'status'      => ['type' => 'string', 'required' => false, 'label' => 'Estado'],
+            'response'    => ['type' => 'string', 'required' => false, 'label' => 'Respuesta del equipo'],
+            'comment'     => ['type' => 'string', 'required' => false, 'label' => 'Comentario'],
+            'due_at'      => ['type' => 'string', 'required' => false, 'label' => 'Fecha límite de respuesta'],
+            'url'         => ['type' => 'string', 'required' => false, 'label' => 'Enlace'],
+        ];
+        $sample = [
+            'title' => '[Pedidos] El botón de cobrar no responde', 'type_label' => 'Error', 'author_name' => 'María Quispe',
+            'area' => 'Pedidos', 'status' => 'Planificada', 'response' => 'Lo corregimos esta semana, gracias.',
+            'comment' => 'Gracias por el reporte.', 'due_at' => '21/10/2026',
+            'url' => 'https://panel.market.com.bo/backend/aero/community/posts/update/1', 'tenant_name' => 'Demo',
+        ];
+        $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 3) => [
+            'code' => $code, 'source_plugin' => 'Aero.Community', 'category' => 'support', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ];
+
+        return [
+            $mk('community.post.created', 'Nuevo reporte o sugerencia', 'Un tenant publicó una sugerencia, error o pedido de ayuda: el equipo se compromete a responder.', ['superadmin'], ['inapp', 'push', 'email']),
+            $mk('community.post.overdue', 'Compromiso de respuesta vencido', 'Un reporte o sugerencia pasó su plazo sin respuesta del equipo.', ['superadmin'], ['inapp', 'push', 'email'], 2),
+            $mk('community.post.responded', 'Respondieron tu reporte', 'El equipo respondió o cambió el estado de lo que reportaste.', ['actor'], ['inapp', 'email']),
+            $mk('community.post.shipped', 'Sugerencia implementada', 'Una sugerencia por la que votaste ya está disponible (aviso a quienes votaron).', ['adhoc'], ['email']),
+            $mk('community.comment.added', 'Nuevo comentario en tu publicación', 'Alguien comentó en una publicación tuya.', ['actor'], ['inapp', 'email'], 4),
         ];
     }
 

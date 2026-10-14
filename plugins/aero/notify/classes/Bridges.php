@@ -130,6 +130,74 @@ class Bridges
                 }));
             });
         }
+
+        if (class_exists(\Aero\Community\Models\Post::class)) {
+            static::registerCommunity();
+        }
+    }
+
+    /** Aero.Community → Notify. Nunca debe romper el guardado de una publicación. */
+    protected static function registerCommunity(): void
+    {
+        $base = fn ($post) => [
+            'title'       => $post->title,
+            'type_label'  => $post->type_label,
+            'author_name' => $post->author_name,
+            'area'        => $post->area,
+            'status'      => $post->status_label,
+            'due_at'      => optional($post->sla_due_at)->format('d/m/Y'),
+            'url'         => \Backend::url('aero/community/posts/update/' . $post->id),
+            'tenant_name' => static::tenantName($post->tenant_id),
+        ];
+        $author = function ($post) {
+            $user = $post->user_id ? \Backend\Models\User::find($post->user_id) : null;
+
+            return $user ? ['name' => $user->full_name, 'email' => $user->email, 'user_id' => $user->id] : null;
+        };
+
+        Event::listen('aero.community.postCreated', fn ($post) => static::safe(function () use ($post, $base) {
+            // El equipo no necesita aviso de su propia publicación ni de charla del foro.
+            if ($post->sla_due_at) {
+                Notify::fire('community.post.created', $base($post), ['tenant_id' => (int) $post->tenant_id, 'dedup_key' => 'community:created:' . $post->id]);
+            }
+        }));
+
+        Event::listen('aero.community.postOverdue', fn ($post) => static::safe(function () use ($post, $base) {
+            Notify::fire('community.post.overdue', $base($post), ['tenant_id' => (int) $post->tenant_id, 'dedup_key' => 'community:overdue:' . $post->id]);
+        }));
+
+        Event::listen('aero.community.postUpdated', fn ($post, $statusChanged) => static::safe(function () use ($post, $statusChanged, $base, $author) {
+            if (!$post->responded_at || !($actor = $author($post))) {
+                return;
+            }
+
+            $ctx = $base($post) + ['response' => $post->official_response];
+            Notify::fire('community.post.responded', $ctx, [
+                'tenant_id' => (int) $post->tenant_id, 'actor' => $actor,
+                'dedup_key' => 'community:responded:' . $post->id . ':' . md5($post->status . '|' . $post->official_response),
+            ]);
+
+            if ($statusChanged && $post->status === 'shipped') {
+                $voters = \Aero\Community\Models\Vote::where('post_id', $post->id)->pluck('user_id');
+                $adhoc = \Backend\Models\User::whereIn('id', $voters)->get()
+                    ->map(fn ($u) => ['name' => $u->full_name, 'email' => $u->email, 'user_id' => $u->id])->all();
+                if ($adhoc) {
+                    Notify::fire('community.post.shipped', $ctx, ['tenant_id' => (int) $post->tenant_id, 'adhoc' => $adhoc, 'dedup_key' => 'community:shipped:' . $post->id]);
+                }
+            }
+        }));
+
+        Event::listen('aero.community.commentAdded', fn ($comment, $post) => static::safe(function () use ($comment, $post, $base, $author) {
+            $actor = $author($post);
+            // No avisar al autor de su propio comentario.
+            if (!$actor || (int) $actor['user_id'] === (int) $comment->user_id) {
+                return;
+            }
+
+            Notify::fire('community.comment.added', $base($post) + ['author_name' => $comment->author_name, 'comment' => \Illuminate\Support\Str::limit($comment->body, 200)], [
+                'tenant_id' => (int) $post->tenant_id, 'actor' => $actor, 'dedup_key' => 'community:comment:' . $comment->id,
+            ]);
+        }));
     }
 
     protected static function tenantName($tenantId): ?string

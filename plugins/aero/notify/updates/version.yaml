@@ -170,3 +170,7 @@
 1.5.6:
     - "Eventos nuevos de Aero.Office (reservas): office.booking.created/received/confirmed/rejected/cancelled/cancelled_by_customer/rescheduled/rescheduled_by_customer/reminder, con reglas por WhatsApp/correo al cliente y bandeja/push/correo al negocio, y plantillas por defecto."
     - seed_office_events.php
+
+1.5.7:
+    - "Eventos nuevos de Aero.Community: community.post.created/overdue/responded/shipped y community.comment.added (equipo: nuevo y vencido; autor: respuesta y comentarios; votantes: implementada), con reglas y plantillas por defecto."
+    - seed_community_events.php
