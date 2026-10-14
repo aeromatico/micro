@@ -233,3 +233,15 @@ descripción comercial general.
 | Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
 |---------------|-------------------|-----------------------|--------------|
 | Entradas y categorías | Publicación de artículos | SEO y contenido propio | Marketing de contenidos |
+
+## Comunidad
+
+**Qué es:** Foro simple, sugerencias con compromiso de respuesta y soporte rápido con captura desde cualquier pantalla.
+**Versión documentada:** 1.0.0
+
+| Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
+|---------------|-------------------|-----------------------|--------------|
+| Foro | Conversaciones y preguntas entre negocios | Comunidad que se ayuda sola | Dudas de uso, buenas prácticas |
+| Sugerencias | Ideas con voto y estado visible | Respuesta garantizada en 7 días; prioriza lo que beneficia a la mayoría | Pedir mejoras para tu rubro |
+| Soporte rápido | Botón en todo el panel con URL, área y captura | Corrige y optimiza mientras da soporte | Reportar un error en el acto |
+
