@@ -29,3 +29,6 @@
 1.9.0:
     - "Modos del widget por tenant: Livechat (Hello), WhatsApp (icono flotante que abre wa.me), Livechat + WhatsApp, o Personalizado (código de terceros incrustado en el sitio)."
     - add_widget_mode_to_settings.php
+
+1.10.0:
+    - "Usuarios registrados: el widget acepta una identidad firmada (IdentityToken) y abre el chat sin pre-chat ni invitados; AeroLivechat.open(identity) y data-livechat-launcher=off."

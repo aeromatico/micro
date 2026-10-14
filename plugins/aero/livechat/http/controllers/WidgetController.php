@@ -55,12 +55,23 @@ class WidgetController extends Controller
             'email'         => 'nullable|email|max:255',
             'phone'         => 'nullable|string|max:40',
             'page_url'      => 'nullable|string|max:255',
+            'identity'      => 'nullable|string|max:2000',
         ]);
 
         $inbox = Inbox::where('widget_key', $data['widget_key'])->where('is_active', true)->first();
         if (!$inbox) {
             return response()->json(['error' => 'inbox_not_found'], 404);
         }
+
+        // Usuario registrado: identidad firmada por la plataforma (sin pre-chat ni invitados).
+        $identity = null;
+        if (!empty($data['identity'])) {
+            $identity = \Aero\Livechat\Classes\IdentityToken::read($data['identity']);
+            if (!$identity) {
+                return response()->json(['error' => 'identity_invalid', 'message' => 'La sesión del chat caducó. Vuelve a abrirlo.'], 422);
+            }
+        }
+
         if (!$inbox->isServing()) {
             return response()->json(['error' => 'livechat_disabled', 'message' => 'El chat no está disponible por ahora.'], 403);
         }
@@ -72,12 +83,27 @@ class WidgetController extends Controller
                 ->first();
         }
 
+        // El token del navegador pertenece a otra persona (equipo compartido): no se hereda su chat.
+        if ($identity && $contact && strcasecmp((string) $contact->email, $identity['email']) !== 0) {
+            $contact = null;
+        }
+
         $isReturningWithoutToken = false;
+
+        if ($identity && !$contact) {
+            $contact = Contact::where('tenant_id', $inbox->tenant_id)->where('email', $identity['email'])
+                ->orderByDesc('last_seen_at')->first();
+            $isReturningWithoutToken = (bool) $contact;
+            $contact ??= new Contact(['tenant_id' => $inbox->tenant_id]);
+            $data = array_merge($data, array_filter([
+                'name' => $identity['name'], 'email' => $identity['email'], 'phone' => $identity['phone'] ?? null,
+            ]));
+        }
 
         // Contacto nuevo (sin token todavía): el pre-chat form del widget ya
         // pide estos tres datos antes de llamar acá — se exigen también del
         // lado del servidor para no depender solo de la validación del JS.
-        if (!$contact) {
+        if (!$contact && !$identity) {
             $data = $this->check($request, [
                 'name'  => 'required|string|max:255',
                 'email' => 'required|email|max:255',
@@ -155,6 +181,17 @@ class WidgetController extends Controller
             $conversation->last_message_at = now();
             $conversation->session_started_at = now();
             $conversation->save();
+        }
+
+        // Contexto para el agente: de qué ticket viene quien abre el chat.
+        if ($identity && !empty($identity['ticket'])) {
+            Message::create([
+                'conversation_id' => $conversation->id,
+                'sender_type'     => Message::SYSTEM,
+                'body'            => '🎫 ' . mb_substr((string) $identity['ticket'], 0, 500),
+            ]);
+            $conversation->last_message_at = now();
+            $conversation->agent_unread_count++;
         }
 
         $conversation->visitor_unread_count = 0;

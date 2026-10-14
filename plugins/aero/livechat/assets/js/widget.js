@@ -14,6 +14,12 @@
         return;
     }
 
+    // Usuarios registrados (ej. panel): el globo queda oculto hasta que la página
+    // llame AeroLivechat.open(identity), y el chat arranca sin pre-chat.
+    var launcherOff = script.getAttribute('data-livechat-launcher') === 'off';
+    var pendingIdentity = null;
+    var uiReady = false;
+
     var storageKey = 'aero_livechat_token_' + widgetKey;
     var contactStorageKey = 'aero_livechat_contact_' + widgetKey;
     // sessionStorage (no localStorage): "abierto" es un estado de esta
@@ -189,6 +195,7 @@
             + '</div>');
         document.body.appendChild(panel);
 
+        if (launcherOff) { bubble.style.display = 'none'; }
         bubble.addEventListener('click', togglePanel);
         document.getElementById('aero-livechat-close').addEventListener('click', togglePanel);
         document.getElementById('aero-livechat-send').addEventListener('click', sendMessage);
@@ -707,6 +714,47 @@
         });
     }
 
+    /** Abre el chat para alguien ya registrado: identidad firmada por el servidor, sin pre-chat. */
+    function openWithIdentity(identity) {
+        var bubble = document.getElementById('aero-livechat-bubble');
+        if (bubble) { bubble.style.display = ''; }
+
+        state.open = true;
+        toggleWhatsappIcon(false);
+        document.getElementById('aero-livechat-panel').style.display = 'flex';
+        setOpenFlag(true);
+        lastUnread = 0;
+        hideBadge();
+        showChat();
+        document.getElementById('aero-livechat-log').innerHTML = '';
+        setToolbarMsg('Conectando…');
+
+        api('start', {
+            method: 'POST',
+            body: { widget_key: widgetKey, visitor_token: getToken(), identity: identity, page_url: location.href },
+        }).then(function (res) {
+            setToolbarMsg('');
+            if (res.error) {
+                state.started = false;
+                document.getElementById('aero-livechat-log').innerHTML =
+                    '<div style="padding:16px;color:#b91c1c;font-size:13px;">' + escapeHtml(res.message || 'No pudimos iniciar el chat. Cierra y vuelve a intentarlo.') + '</div>';
+                return;
+            }
+            state.started = true;
+            applyStartResult(res);
+            showChat();
+            startPolling();
+        });
+    }
+
+    window.AeroLivechat = {
+        open: function (identity) {
+            if (!identity) { return; }
+            if (!uiReady) { pendingIdentity = identity; return; }
+            openWithIdentity(identity);
+        },
+    };
+
     function initLivechat() {
         var themeColor = detectThemeColor();
         state.themeColorDetected = !!themeColor;
@@ -719,6 +767,13 @@
         // pre-chat de nuevo.
         state.unreadTimer = setInterval(pollUnread, 15000);
         pollUnread();
+
+        uiReady = true;
+        if (pendingIdentity) {
+            var id = pendingIdentity; pendingIdentity = null;
+            openWithIdentity(id);
+            return;
+        }
 
         // El visitante tenía el panel abierto (o solo minimizado/cerrado) al
         // cambiar de página — hereda ese mismo estado en la nueva, en vez de
