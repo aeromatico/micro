@@ -33,4 +33,11 @@
 .aco-modal .aco-btn.primary{background:#1f2937;border-color:#1f2937;color:#fff}
 .aco-modal .aco-meta{color:#6b7280}
 .aco-modal .aco-row,.aco-modal .aco-types label{color:#111827}
-.aco-modal a.aco-btn{color:#fff}
+.aco-modal a.aco-btn{color:#111827}
+.aco-modal a.aco-btn.primary{color:#fff}
+
+.aco-promise{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;border-radius:8px;padding:9px 11px;font-size:13px}
+.aco-modal .aco-promise{color:#065f46}
+.aco-ok-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.aco-chat-btn{display:inline-flex;align-items:center;gap:6px}
+.aco-chat-on .aco-fab{bottom:92px}

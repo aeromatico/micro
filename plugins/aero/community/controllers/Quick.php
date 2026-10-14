@@ -1,7 +1,6 @@
 <?php namespace Aero\Community\Controllers;
 
 use Aero\Community\Classes\Reporter;
-use Aero\Community\Classes\Sla;
 use Backend\Classes\Controller;
 use Request;
 
@@ -27,8 +26,9 @@ class Quick extends Controller
         return [
             'ok'       => true,
             'id'       => $post->id,
-            'sla_days' => Sla::DAYS,
+            'ticket'   => $post->id,
             'url'      => \Backend::url('aero/community/posts/update/' . $post->id),
+            'chat'     => \Aero\Community\Classes\ChatBridge::forPost($post),
         ];
     }
 

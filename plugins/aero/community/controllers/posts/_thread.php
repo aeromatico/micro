@@ -39,7 +39,7 @@
             <div style="white-space:pre-wrap;margin-top:4px"><?= e($post->official_response) ?></div>
         </div>
     <?php elseif ($post->sla_due_at): ?>
-        <p class="text-muted">Nos comprometemos a responder esto antes del <?= e($post->sla_due_at->format('d/m/Y')) ?>.</p>
+        <p class="text-muted">Nos comprometemos a responder en pocos minutos.</p>
     <?php endif ?>
 
     <?php if ($post->visibility === 'public'): ?>

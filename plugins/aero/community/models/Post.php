@@ -114,7 +114,7 @@ class Post extends Model
             return 'Respondida';
         }
 
-        return $this->is_overdue ? 'Vencida' : 'Respuesta antes del ' . $this->sla_due_at->format('d/m');
+        return $this->is_overdue ? 'Vencida' : 'Respuesta en pocos minutos';
     }
 
     /** Lo que un usuario puede ver: lo público y lo privado de su tenant; el equipo todo. */

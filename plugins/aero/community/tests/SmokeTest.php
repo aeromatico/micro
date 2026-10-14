@@ -31,6 +31,8 @@ class SmokeTest extends PluginTestCase
         $chat = Post::create(['tenant_id' => 1, 'user_id' => 1, 'type' => 'discussion', 'title' => 'y', 'body' => 'cuerpo']);
 
         $this->assertNotNull($idea->sla_due_at);
+        // El compromiso es de minutos, no de días.
+        $this->assertLessThanOrEqual(60, now()->diffInMinutes($idea->sla_due_at, true));
         $this->assertNull($chat->sla_due_at);
         $this->assertCount(1, Post::awaitingResponse()->get());
     }
@@ -50,5 +52,22 @@ class SmokeTest extends PluginTestCase
     {
         $this->assertNull(Reporter::storeScreenshot('data:image/png;base64,' . base64_encode('<?php echo 1;')));
         $this->assertNull(Reporter::storeScreenshot('data:image/svg+xml;base64,AAAA'));
+    }
+
+    /** El chat de usuarios registrados depende de la identidad firmada de Livechat. */
+    public function testChatIdentityIsSignedAndExpires(): void
+    {
+        if (!class_exists(\Aero\Livechat\Classes\IdentityToken::class)) {
+            $this->markTestSkipped('Livechat no instalado.');
+        }
+
+        $token = \Aero\Livechat\Classes\IdentityToken::make(['name' => 'Ana', 'email' => 'ana@ejemplo.bo']);
+        $this->assertSame('ana@ejemplo.bo', \Aero\Livechat\Classes\IdentityToken::read($token)['email']);
+        $this->assertNull(\Aero\Livechat\Classes\IdentityToken::read($token . 'x'), 'Un token alterado no vale.');
+        $this->assertNull(\Aero\Livechat\Classes\IdentityToken::read('basura'));
+
+        \Carbon\Carbon::setTestNow(now()->addMinutes(\Aero\Livechat\Classes\IdentityToken::TTL_MINUTES + 1));
+        $this->assertNull(\Aero\Livechat\Classes\IdentityToken::read($token), 'Caduca a los pocos minutos.');
+        \Carbon\Carbon::setTestNow();
     }
 }

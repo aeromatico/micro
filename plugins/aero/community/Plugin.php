@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public const ASSET_VERSION = '1.0.2';
+    public const ASSET_VERSION = '1.1.1';
 
     public function pluginDetails(): array
     {
@@ -47,7 +47,7 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        // Avisa (una vez) de lo que pasó el plazo sin respuesta del equipo.
+        // Avisa (una vez) de lo que pasó el plazo (minutos) sin respuesta del equipo.
         $schedule->call(function () {
             \Aero\Community\Models\Post::awaitingResponse()
                 ->whereNull('overdue_notified_at')
@@ -58,7 +58,7 @@ class Plugin extends PluginBase
                     $post->saveQuietly();
                     Event::fire('aero.community.postOverdue', [$post]);
                 });
-        })->dailyAt('09:00');
+        })->everyFiveMinutes();
     }
 
     public function registerPermissions(): array

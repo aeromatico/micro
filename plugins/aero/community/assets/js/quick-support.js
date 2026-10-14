@@ -128,6 +128,21 @@
         picked = null; shot = null;
     }
 
+    function startChat(chat) {
+        close();
+        document.body.classList.add('aco-chat-on');
+        function go() { if (window.AeroLivechat) { window.AeroLivechat.open(chat.identity); } }
+        if (window.AeroLivechat) { go(); return; }
+        var tag = document.createElement('script');
+        tag.src = chat.script;
+        tag.async = true;
+        tag.setAttribute('data-livechat-key', chat.key);
+        tag.setAttribute('data-livechat-base', chat.base);
+        tag.setAttribute('data-livechat-launcher', 'off');
+        tag.onload = go;
+        document.head.appendChild(tag);
+    }
+
     function open(opts) {
         opts = opts || {};
         if (el.overlay) { return; }
@@ -149,7 +164,7 @@
         var pickBtn = h('button', { type: 'button', 'class': 'aco-btn', text: 'Señalar la parte con el problema' });
         el.picked = h('div', { 'class': 'aco-meta' });
         var err = h('div', { 'class': 'aco-error' });
-        var send = h('button', { type: 'button', 'class': 'aco-btn primary', text: 'Enviar' });
+        var send = h('button', { type: 'button', 'class': 'aco-btn primary', text: 'Abrir ticket' });
         var cancel = h('button', { type: 'button', 'class': 'aco-btn', text: 'Cancelar' });
 
         typeBox.addEventListener('change', function (e) {
@@ -160,8 +175,12 @@
         pickBtn.addEventListener('click', startPick);
         cancel.addEventListener('click', close);
 
+        var promise = h('div', { 'class': 'aco-promise' }, [
+            h('strong', { text: 'Te respondemos en pocos minutos.' }),
+            h('span', { text: ' Cuéntanos qué pasa y abre un ticket: llega con la pantalla, la dirección y los datos que necesitamos.' })
+        ]);
         var body = h('div', { 'class': 'aco-body' }, [
-            typeBox, msg,
+            promise, typeBox, msg,
             h('div', {}, [h('div', { 'class': 'aco-meta', text: 'Área' }), area]),
             pickBtn, el.picked,
             h('label', { 'class': 'aco-row' }, [shotChk, h('span', { text: 'Incluir captura de esta pantalla' })]),
@@ -169,7 +188,7 @@
             h('div', { 'class': 'aco-meta', text: 'Enviaremos también la dirección de esta página: ' + location.pathname }),
             err
         ]);
-        var head = h('header', {}, [h('strong', { text: 'Soporte rápido' }), (function () {
+        var head = h('header', {}, [h('strong', { text: 'Soporte' }), (function () {
             var x = h('button', { type: 'button', 'class': 'aco-x', 'aria-label': 'Cerrar', text: '×' });
             x.addEventListener('click', close); return x;
         })()]);
@@ -184,7 +203,7 @@
         send.addEventListener('click', function () {
             err.textContent = '';
             if (msg.value.trim().length < 5) { err.textContent = 'Cuéntanos un poco más.'; return; }
-            send.disabled = true; send.textContent = 'Enviando…';
+            send.disabled = true; send.textContent = 'Abriendo ticket…';
 
             var getShot = shotChk.checked ? capture().catch(function () { return null; }) : Promise.resolve(null);
             getShot.then(function (dataUri) {
@@ -223,16 +242,25 @@
                 });
             }).then(function (json) {
                 var ok = h('div', { 'class': 'aco-ok' }, [
-                    h('strong', { text: '¡Recibido!' }),
-                    h('p', { text: 'Lo revisaremos y te responderemos en un máximo de ' + json.sla_days + ' días. Lo verás en «Mis reportes».' }),
+                    h('strong', { text: '¡Gracias! Ticket #' + json.ticket + ' abierto' }),
+                    h('p', { text: 'Ya lo tenemos. Te respondemos en pocos minutos; lo verás en «Mis reportes».' })
                 ]);
-                var go = h('a', { href: json.url, 'class': 'aco-btn primary', text: 'Ver mi reporte' });
+                var row = h('div', { 'class': 'aco-ok-actions' });
+                // El chat solo se ofrece aquí, al agradecer; quien reporta ya está registrado (sin invitados).
+                if (json.chat) {
+                    var chatBtn = h('button', { type: 'button', 'class': 'aco-btn primary aco-chat-btn' });
+                    chatBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chatear ahora';
+                    chatBtn.addEventListener('click', function () { startChat(json.chat); });
+                    row.appendChild(chatBtn);
+                }
+                var go = h('a', { href: json.url, 'class': 'aco-btn', text: 'Ver mi ticket' });
                 go.style.display = 'inline-block'; go.style.textDecoration = 'none';
-                ok.appendChild(go);
+                row.appendChild(go);
+                ok.appendChild(row);
                 modal.replaceChildren(head, ok);
             }).catch(function (e) {
                 err.textContent = e.message || 'No pudimos enviar el reporte.';
-                send.disabled = false; send.textContent = 'Enviar';
+                send.disabled = false; send.textContent = 'Abrir ticket';
             });
         });
     }
