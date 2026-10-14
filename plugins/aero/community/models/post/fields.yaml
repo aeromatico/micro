@@ -1,0 +1,43 @@
+fields:
+    title:
+        label: Título
+        span: left
+        required: true
+    type:
+        label: Tipo
+        type: dropdown
+        span: right
+        default: discussion
+        options: getTypeOptions
+    area:
+        label: Rubro o pantalla (opcional)
+        span: full
+        comment: Por ejemplo «Gimnasios», «Pedidos» o «Facturación».
+    body:
+        label: Cuéntanos
+        type: textarea
+        size: large
+        required: true
+        comment: Cuanto más concreto, mejor. Respondemos todas las sugerencias.
+    status:
+        label: Estado
+        type: dropdown
+        span: left
+        context: update
+        options: getStatusOptions
+    is_pinned:
+        label: Fijar arriba
+        type: switch
+        span: left
+        context: update
+    is_locked:
+        label: Cerrar comentarios
+        type: switch
+        span: right
+        context: update
+    official_response:
+        label: Respuesta oficial
+        type: textarea
+        size: large
+        context: update
+        comment: Al guardar una respuesta o cambiar el estado, el compromiso queda cumplido.

@@ -1,0 +1,24 @@
+columns:
+    is_pinned:
+        label: ''
+        type: switch
+        sortable: false
+    title:
+        label: Título
+        searchable: true
+    type_label:
+        label: Tipo
+        sortable: false
+    status_label:
+        label: Estado
+        sortable: false
+    votes_count:
+        label: Votos
+    comments_count:
+        label: Resp.
+    sla_label:
+        label: Compromiso
+        sortable: false
+    last_activity_at:
+        label: Actividad
+        type: datetime

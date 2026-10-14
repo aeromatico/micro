@@ -1,0 +1,3 @@
+1.0.0:
+    - "Primera versión: comunidad (foro simple), sugerencias con compromiso de respuesta y botón de soporte rápido con URL y captura."
+    - create_community_tables.php

@@ -1,0 +1,15 @@
+title: Comunidad
+list: $/aero/community/models/post/columns.yaml
+modelClass: Aero\Community\Models\Post
+recordUrl: aero/community/posts/update/:id
+noRecordsMessage: Aún no hay publicaciones. ¡Inicia la conversación!
+recordsPerPage: 30
+showCheckboxes: false
+defaultSort:
+    column: last_activity_at
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
+filter: $/aero/community/models/post/scopes.yaml

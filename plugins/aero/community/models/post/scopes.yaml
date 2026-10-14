@@ -1,0 +1,11 @@
+scopes:
+    type:
+        label: Tipo
+        type: dropdown
+        options: getTypeOptions
+        conditions: type = :value
+    status:
+        label: Estado
+        type: dropdown
+        options: getStatusOptions
+        conditions: status = :value

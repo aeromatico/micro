@@ -1,0 +1,27 @@
+.aco-fab{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;align-items:center;gap:8px;padding:10px 14px;border:0;border-radius:999px;background:#1f2937;color:#fff;font:500 13px/1 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer;opacity:.92;transition:transform .15s,opacity .15s}
+.aco-fab:hover{opacity:1;transform:translateY(-1px)}
+.aco-fab svg{width:16px;height:16px}
+.aco-overlay{position:fixed;inset:0;z-index:1300;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:flex-end;padding:18px}
+.aco-modal{width:min(420px,100%);max-height:calc(100vh - 36px);overflow:auto;background:#fff;color:#111827;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);font:14px/1.45 system-ui,sans-serif}
+.aco-modal header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb}
+.aco-modal header strong{font-size:15px}
+.aco-x{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#6b7280}
+.aco-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.aco-types{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aco-types label{border:1px solid #d1d5db;border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer;font-size:12.5px}
+.aco-types input{display:none}
+.aco-types input:checked+span{font-weight:600}
+.aco-types label:has(input:checked){border-color:#1f2937;background:#f3f4f6}
+.aco-modal textarea,.aco-modal input[type=text]{width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;font:inherit}
+.aco-modal textarea{min-height:90px;resize:vertical}
+.aco-meta{font-size:12px;color:#6b7280;word-break:break-all}
+.aco-row{display:flex;align-items:center;gap:8px;font-size:13px}
+.aco-actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid #e5e7eb}
+.aco-btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+.aco-btn.primary{background:#1f2937;border-color:#1f2937;color:#fff}
+.aco-btn[disabled]{opacity:.6;cursor:wait}
+.aco-error{color:#b91c1c;font-size:13px}
+.aco-ok{padding:26px 18px;text-align:center}
+.aco-pick-hl{position:fixed;z-index:1250;pointer-events:none;border:2px solid #ef4444;background:rgba(239,68,68,.12);border-radius:4px}
+.aco-pick-tip{position:fixed;z-index:1251;left:50%;top:14px;transform:translateX(-50%);background:#111827;color:#fff;padding:8px 14px;border-radius:999px;font:13px system-ui,sans-serif}
+.aco-hidden{display:none!important}

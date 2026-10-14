@@ -1,0 +1,10 @@
+name: Publicación
+form: $/aero/community/models/post/fields.yaml
+modelClass: Aero\Community\Models\Post
+defaultRedirect: aero/community/posts
+create:
+    redirect: aero/community/posts/update/:id
+    redirectClose: aero/community/posts
+update:
+    redirect: aero/community/posts/update/:id
+    redirectClose: aero/community/posts
