@@ -7,7 +7,9 @@ mode = "detail"
 slug = "{{ :slug }}"
 ==
 <div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
-    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+    {% set show_pricing_cta = service.category and (service.category.slug == 'plugins' or service.category.slug == 'core') %}
+    <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 mb-6">
+    <nav class="text-sm text-ink-dim" aria-label="Migas">
         <a href="/" class="hover:text-ink">Inicio</a>
         <span class="mx-2">/</span>
         <a href="/plugins" class="hover:text-ink">Plugins</a>
@@ -15,6 +17,10 @@ slug = "{{ :slug }}"
         {% if service.category %}<a href="/plugins/{{ service.category.slug }}" class="hover:text-ink">{{ service.category.name }}</a><span class="mx-2">/</span>{% endif %}
         <span class="text-ink" aria-current="page">{{ service.name }}</span>
     </nav>
+    {% if show_pricing_cta %}
+        <a href="https://market.com.bo/#precios" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-5 py-2.5 rounded-lg hover:-translate-y-px transition-transform">Planes y Precios</a>
+    {% endif %}
+    </div>
 
     {% set code_parts = service.code_parts %}
     {% if service.is_rubro %}
@@ -116,5 +122,13 @@ slug = "{{ :slug }}"
     {# Preguntas frecuentes siempre al final. #}
     {% if service.code and code_parts[2] %}
         <div class="service-page service-page--plain">{{ code_parts[2]|raw }}</div>
+    {% endif %}
+
+    {% if show_pricing_cta %}
+        <section class="mt-16 pt-10 border-t border-edge text-center">
+            <h2 class="text-2xl font-bold">¿Listo para empezar con {{ service.name }}?</h2>
+            <p class="mt-2 text-ink-dim">Revisa los planes y elige el que mejor se ajusta a tu negocio.</p>
+            <a href="https://market.com.bo/#precios" class="mt-6 inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-7 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Planes y Precios</a>
+        </section>
     {% endif %}
 </div>
