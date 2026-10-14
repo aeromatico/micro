@@ -23,7 +23,7 @@
 
     <?php if ($post->screenshot): ?>
         <p><a href="<?= Backend::url('aero/community/posts/screenshot/' . $post->id) ?>" target="_blank" rel="noopener">
-            <img src="<?= Backend::url('aero/community/posts/screenshot/' . $post->id) ?>" alt="Captura" style="max-width:100%;border:1px solid #ddd;border-radius:6px">
+            <img src="<?= Backend::url('aero/community/posts/screenshot/' . $post->id) ?>" alt="Captura" style="max-width:100%;border:1px solid rgba(128,128,128,.35);border-radius:6px">
         </a></p>
     <?php endif ?>
 
@@ -34,7 +34,7 @@
     <?php endif ?>
 
     <?php if ($post->official_response): ?>
-        <div style="border-left:4px solid #2b8a3e;background:#f1f8f3;padding:12px 14px;margin:0 0 18px;border-radius:4px">
+        <div style="border-left:4px solid #2b8a3e;background:rgba(43,138,62,.14);padding:12px 14px;margin:0 0 18px;border-radius:4px">
             <strong>Respuesta del equipo</strong>
             <div style="white-space:pre-wrap;margin-top:4px"><?= e($post->official_response) ?></div>
         </div>
@@ -53,7 +53,7 @@
 
     <h4 style="margin-top:22px">Comentarios (<?= $comments->count() ?>)</h4>
     <?php foreach ($comments as $c): ?>
-        <div style="padding:10px 0;border-bottom:1px solid #eee">
+        <div style="padding:10px 0;border-bottom:1px solid rgba(128,128,128,.25)">
             <strong><?= e($c->author_name) ?></strong>
             <?php if ($c->is_official): ?><span class="label label-success">Equipo</span><?php endif ?>
             <span class="text-muted"> · <?= e($c->created_at->format('d/m/Y H:i')) ?></span>

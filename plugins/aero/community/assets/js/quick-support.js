@@ -206,8 +206,7 @@
                 return fetch(cfg.endpoint, {
                     method: 'POST', body: fd, credentials: 'same-origin',
                     headers: {
-                        'X-OCTOBER-REQUEST-HANDLER': 'onReport',
-                        'X-OCTOBER-REQUEST-PARTIALS': '',
+                        'X-AJAX-HANDLER': 'onReport',
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': csrf(),
                         'Accept': 'application/json'
@@ -215,8 +214,10 @@
                 });
             }).then(function (res) {
                 return res.json().catch(function () { return {}; }).then(function (json) {
-                    if (!res.ok || !json.ok) {
-                        throw new Error(json.result || json.X_OCTOBER_ERROR_MESSAGE || 'No pudimos enviar el reporte.');
+                    // October 4 (Larajax): el estado va en `__ajax` y los datos al nivel superior.
+                    var meta = json.__ajax || {};
+                    if (!res.ok || meta.ok === false || !json.id) {
+                        throw new Error(meta.message || 'No pudimos enviar el reporte.');
                     }
                     return json;
                 });

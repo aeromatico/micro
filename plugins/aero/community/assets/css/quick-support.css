@@ -25,3 +25,12 @@
 .aco-pick-hl{position:fixed;z-index:1250;pointer-events:none;border:2px solid #ef4444;background:rgba(239,68,68,.12);border-radius:4px}
 .aco-pick-tip{position:fixed;z-index:1251;left:50%;top:14px;transform:translateX(-50%);background:#111827;color:#fff;padding:8px 14px;border-radius:999px;font:13px system-ui,sans-serif}
 .aco-hidden{display:none!important}
+/* El panel tiene tema oscuro: el popup es una superficie clara y fija sus propios colores. */
+.aco-modal{color-scheme:light}
+.aco-modal textarea,.aco-modal input[type=text]{background:#fff;color:#111827;border:1px solid #d1d5db}
+.aco-modal textarea::placeholder{color:#9ca3af}
+.aco-modal .aco-btn{background:#fff;color:#111827;border:1px solid #d1d5db}
+.aco-modal .aco-btn.primary{background:#1f2937;border-color:#1f2937;color:#fff}
+.aco-modal .aco-meta{color:#6b7280}
+.aco-modal .aco-row,.aco-modal .aco-types label{color:#111827}
+.aco-modal a.aco-btn{color:#fff}

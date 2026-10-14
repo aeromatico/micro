@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public const ASSET_VERSION = '1.0.0';
+    public const ASSET_VERSION = '1.0.2';
 
     public function pluginDetails(): array
     {
@@ -36,9 +36,8 @@ class Plugin extends PluginBase
                 return;
             }
 
-            $controller->addCss('/plugins/aero/community/assets/css/quick-support.css', ['build' => self::ASSET_VERSION]);
-            $controller->addJs('/plugins/aero/community/assets/js/quick-support.js', [
-                'build'         => self::ASSET_VERSION,
+            $controller->addCss('/plugins/aero/community/assets/css/quick-support.css?cb=' . self::ASSET_VERSION);
+            $controller->addJs('/plugins/aero/community/assets/js/quick-support.js?cb=' . self::ASSET_VERSION, [
                 'data-endpoint' => Backend::url('aero/community/quick'),
                 'data-posts'    => Backend::url('aero/community/posts'),
                 'data-html2canvas' => '/plugins/aero/community/assets/vendor/html2canvas.min.js?v=1.4.1',
