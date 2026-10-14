@@ -11,8 +11,9 @@ featured: false
 
 ## Para qué sirve
 
-Es otra forma de abrir un ticket, pero **sin salir de la pantalla donde tienes el problema**. Nos
-llega con el contexto necesario para corregirlo y mejorar esa pantalla.
+Es la forma más rápida de abrir un **ticket**, **sin salir de la pantalla donde tienes el problema**.
+**Te respondemos en pocos minutos.** El ticket nos llega con el contexto necesario para corregirlo y
+mejorar esa pantalla.
 
 ## Cómo usarlo
 
@@ -21,7 +22,9 @@ llega con el contexto necesario para corregirlo y mejorar esa pantalla.
 3. Cuéntanos con tus palabras.
 4. Opcional: **Señalar la parte con el problema** y haz clic en el elemento afectado; saldrá resaltado.
 5. Deja marcada **Incluir captura de esta pantalla** si quieres adjuntarla.
-6. **Enviar**. Verás el reporte en **Comunidad → Mis reportes**.
+6. Pulsa **Abrir ticket**. Lo verás en **Comunidad → Mis reportes**.
+7. En la pantalla de agradecimiento puedes pulsar **Chatear ahora** si prefieres hablar con el equipo en
+   vivo: entras ya identificado, sin llenar datos, y el agente ve el ticket del que vienes.
 
 ## Qué enviamos con tu reporte
 
@@ -42,7 +45,7 @@ llega con el contexto necesario para corregirlo y mejorar esa pantalla.
 
 ## Límites
 
-- Hasta **10 reportes por hora** por persona.
+- Hasta **10 tickets por hora** por persona.
 - La captura admite hasta 3 MB.
 
 > [!IMPORTANT]

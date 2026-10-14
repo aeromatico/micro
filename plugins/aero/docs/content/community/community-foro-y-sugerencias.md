@@ -34,8 +34,9 @@ Botón **Nueva publicación**.
 
 ## Compromiso de respuesta
 
-Toda **sugerencia** lleva una fecha límite visible («Respuesta antes del …»). Cuando el equipo responde
-o cambia el estado, el compromiso queda cumplido y se te avisa.
+Toda **sugerencia** recibe respuesta del equipo **en pocos minutos** (lo verás como «Respuesta en pocos
+minutos» hasta que respondamos). Cuando el equipo responde o cambia el estado, el compromiso queda
+cumplido y se te avisa. Implementarla puede tomar más: por eso el estado te muestra en qué punto está.
 
 | Estado | Significado |
 |--------|-------------|

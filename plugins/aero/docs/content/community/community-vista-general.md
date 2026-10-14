@@ -7,7 +7,7 @@ featured: false
 
 **Comunidad** es el lugar donde los dueños de negocios colaboran con nosotros: conversan entre
 ustedes, proponen mejoras y reportan errores. Todo lo que **sugieras o reportes recibe una respuesta
-humana del equipo** (nuestro compromiso es contestar dentro de **7 días**), y lo que beneficia a la
+humana del equipo**: nuestro compromiso es **responder en pocos minutos**. Lo que beneficia a la
 mayoría de los negocios del rubro lo implementamos con prioridad.
 
 ## Menú
@@ -18,7 +18,7 @@ mayoría de los negocios del rubro lo implementamos con prioridad.
 | **Sugerencias** | Ideas de mejora para la plataforma, con voto y estado visible. |
 | **Mis reportes** | Tus errores, pedidos de ayuda y sugerencias privadas, con su respuesta. |
 
-Además, en **cualquier pantalla del panel** verás el botón flotante **Ayuda** (soporte rápido).
+Además, en **cualquier pantalla del panel** verás el botón flotante **Ayuda**: abre un ticket en segundos y, al terminar, puedes **chatear con el equipo** si te resulta más cómodo.
 
 ## Cómo se ve el recorrido de una sugerencia
 
@@ -32,7 +32,7 @@ Siempre verás una respuesta del equipo, también cuando la respuesta es «no po
 ## Guías de cada función
 
 - [Foro y sugerencias](community-foro-y-sugerencias) — publicar, votar y comentar.
-- [Soporte rápido](community-soporte-rapido) — reportar o pedir ayuda desde la pantalla donde estás.
+- [Soporte rápido](community-soporte-rapido) — abrir un ticket y chatear desde la pantalla donde estás.
 
 ## Permisos
 
