@@ -243,5 +243,5 @@ descripción comercial general.
 |---------------|-------------------|-----------------------|--------------|
 | Foro | Conversaciones y preguntas entre negocios | Comunidad que se ayuda sola | Dudas de uso, buenas prácticas |
 | Sugerencias | Ideas con voto y estado visible | Respuesta en pocos minutos; prioriza lo que beneficia a la mayoría | Pedir mejoras para tu rubro |
-| Soporte rápido | Botón en todo el panel: ticket con URL, área y captura, y chat con el equipo al terminar | Respuesta en pocos minutos; corrige y optimiza mientras da soporte | Reportar un error en el acto |
+| Soporte rápido | Botón en todo el panel: reporte con URL, área y captura, ticket opcional y chat con el equipo tras reportar | Respuesta en pocos minutos; corrige y optimiza mientras da soporte | Reportar un error en el acto |
 

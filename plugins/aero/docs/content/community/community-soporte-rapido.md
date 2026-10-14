@@ -17,14 +17,25 @@ mejorar esa pantalla.
 
 ## Cómo usarlo
 
-1. Pulsa **Ayuda**.
-2. Elige qué pasa: **Necesito ayuda**, **Algo falla** o **Mejora**.
-3. Cuéntanos con tus palabras.
-4. Opcional: **Señalar la parte con el problema** y haz clic en el elemento afectado; saldrá resaltado.
-5. Deja marcada **Incluir captura de esta pantalla** si quieres adjuntarla.
-6. Pulsa **Abrir ticket**. Lo verás en **Comunidad → Mis reportes**.
-7. En la pantalla de agradecimiento puedes pulsar **Chatear ahora** si prefieres hablar con el equipo en
-   vivo: entras ya identificado, sin llenar datos, y el agente ve el ticket del que vienes.
+Pulsa **Ayuda**. Tienes dos caminos, elige el que te resulte más cómodo:
+
+### Reportar un error o una mejora (rápido)
+
+1. Elige **Algo falla** o **Mejora**.
+2. Cuéntanos con tus palabras.
+3. Opcional: **Señalar la parte con el problema** y haz clic en el elemento afectado; saldrá resaltado.
+4. Deja marcada **Incluir captura de esta pantalla** si quieres adjuntarla.
+5. **Enviar reporte**. Lo verás en **Comunidad → Mis reportes**.
+
+Al enviarlo, en la pantalla de agradecimiento aparece **Chatear ahora**: entras al chat con el equipo ya
+identificado (sin llenar datos) y el agente ve el reporte del que vienes. El botón de chat solo aparece
+ahí; cuando **finalizas** la conversación desaparece.
+
+### Abrir un ticket
+
+Pulsa **Abrir un ticket** en la misma ventana: elige el departamento, la prioridad y describe lo que
+necesitas. Llega a la mesa de ayuda de la plataforma (el mismo ticket de **CRM → Soporte**), con la
+dirección de la pantalla desde donde lo abriste. Lo sigues desde **Ver mi ticket**.
 
 ## Qué enviamos con tu reporte
 
@@ -32,7 +43,7 @@ mejorar esa pantalla.
 |------|----------|
 | Dirección de la página y su título | Saber exactamente dónde ocurrió. |
 | Área | Se rellena sola según la pantalla; puedes editarla. |
-| Captura (opcional) | Ver lo que ves. |
+| Captura (opcional, solo en reportes) | Ver lo que ves. |
 | Elemento señalado (opcional) | Ir directo al botón o campo. |
 | Navegador y tamaño de pantalla | Reproducir el problema. |
 | Últimos errores del navegador | Pistas técnicas sin que tengas que buscarlas. |

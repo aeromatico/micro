@@ -18,7 +18,7 @@ mayoría de los negocios del rubro lo implementamos con prioridad.
 | **Sugerencias** | Ideas de mejora para la plataforma, con voto y estado visible. |
 | **Mis reportes** | Tus errores, pedidos de ayuda y sugerencias privadas, con su respuesta. |
 
-Además, en **cualquier pantalla del panel** verás el botón flotante **Ayuda**: abre un ticket en segundos y, al terminar, puedes **chatear con el equipo** si te resulta más cómodo.
+Además, en **cualquier pantalla del panel** verás el botón flotante **Ayuda**: reporta un error o una mejora, o abre un ticket. Tras un reporte puedes **chatear con el equipo**.
 
 ## Cómo se ve el recorrido de una sugerencia
 
