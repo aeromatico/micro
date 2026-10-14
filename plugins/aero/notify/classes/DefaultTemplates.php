@@ -14,7 +14,7 @@ class DefaultTemplates
 {
     public const TEXTS = [
         'community.comment.added' => ['Nuevo comentario', '{{ author_name }} comentó en «{{ title }}»: {{ comment }} {{ url }}'],
-        'community.post.created' => ['{{ type_label }} nueva', '{{ author_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %}: «{{ title }}». Respuesta antes del {{ due_at }}. {{ url }}'],
+        'community.post.created' => ['{{ type_label }} nueva', '{{ author_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %}: «{{ title }}». Compromiso: responder antes de {{ due_at }}. {{ url }}'],
         'community.post.overdue' => ['Compromiso vencido', '«{{ title }}» ({{ type_label }}) pasó su plazo sin respuesta. {{ url }}'],
         'community.post.responded' => ['Respondimos tu reporte', 'Sobre «{{ title }}»: {{ status }}.{% if response %} {{ response }}{% endif %} {{ url }}'],
         'community.post.shipped' => ['¡Ya está disponible!', 'La sugerencia «{{ title }}», por la que votaste, ya fue implementada. Gracias por ayudarnos a mejorar.'],

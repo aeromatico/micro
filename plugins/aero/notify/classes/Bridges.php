@@ -145,7 +145,7 @@ class Bridges
             'author_name' => $post->author_name,
             'area'        => $post->area,
             'status'      => $post->status_label,
-            'due_at'      => optional($post->sla_due_at)->format('d/m/Y'),
+            'due_at'      => optional($post->sla_due_at)->format('d/m H:i'),
             'url'         => \Backend::url('aero/community/posts/update/' . $post->id),
             'tenant_name' => static::tenantName($post->tenant_id),
         ];

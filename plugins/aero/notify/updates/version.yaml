@@ -174,3 +174,7 @@
 1.5.7:
     - "Eventos nuevos de Aero.Community: community.post.created/overdue/responded/shipped y community.comment.added (equipo: nuevo y vencido; autor: respuesta y comentarios; votantes: implementada), con reglas y plantillas por defecto."
     - seed_community_events.php
+
+1.5.8:
+    - "Comunidad: el compromiso de respuesta pasa de días a minutos; fecha con hora en el aviso al equipo."
+    - refresh_community_created_template.php

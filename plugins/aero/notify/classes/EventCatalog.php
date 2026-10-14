@@ -640,7 +640,7 @@ class EventCatalog
         $sample = [
             'title' => '[Pedidos] El botón de cobrar no responde', 'type_label' => 'Error', 'author_name' => 'María Quispe',
             'area' => 'Pedidos', 'status' => 'Planificada', 'response' => 'Lo corregimos esta semana, gracias.',
-            'comment' => 'Gracias por el reporte.', 'due_at' => '21/10/2026',
+            'comment' => 'Gracias por el reporte.', 'due_at' => '21/10 09:15',
             'url' => 'https://panel.market.com.bo/backend/aero/community/posts/update/1', 'tenant_name' => 'Demo',
         ];
         $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 3) => [
@@ -650,7 +650,7 @@ class EventCatalog
         ];
 
         return [
-            $mk('community.post.created', 'Nuevo reporte o sugerencia', 'Un tenant publicó una sugerencia, error o pedido de ayuda: el equipo se compromete a responder.', ['superadmin'], ['inapp', 'push', 'email']),
+            $mk('community.post.created', 'Nuevo reporte o sugerencia', 'Un tenant abrió un ticket, sugerencia o pedido de ayuda: el equipo se compromete a responder en pocos minutos.', ['superadmin'], ['inapp', 'push', 'email']),
             $mk('community.post.overdue', 'Compromiso de respuesta vencido', 'Un reporte o sugerencia pasó su plazo sin respuesta del equipo.', ['superadmin'], ['inapp', 'push', 'email'], 2),
             $mk('community.post.responded', 'Respondieron tu reporte', 'El equipo respondió o cambió el estado de lo que reportaste.', ['actor'], ['inapp', 'email']),
             $mk('community.post.shipped', 'Sugerencia implementada', 'Una sugerencia por la que votaste ya está disponible (aviso a quienes votaron).', ['adhoc'], ['email']),
