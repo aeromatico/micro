@@ -423,3 +423,7 @@
 1.71.0:
     - "Plan NEGOCIO: «Workspaces (Oficina IA)» queda justo debajo de «Páginas»."
     - place_workspaces_feature_after_paginas.php
+
+1.72.0:
+    - "Aero.School: el rol tenant_admin recibe aero.school.use (Colegio: estudiantes, cobranza, asistencia, calificaciones, comunicados y reportes)."
+    - grant_school_to_tenant_admin.php
