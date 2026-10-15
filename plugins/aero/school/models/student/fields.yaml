@@ -72,10 +72,15 @@ fields:
     label: Motivo del descuento
     span: right
     tab: Cobranza
+  _guardians_list:
+    type: partial
+    path: ~/plugins/aero/school/models/student/_guardians_list.php
+    span: full
+    tab: Apoderados
   _guardian_hint:
     type: section
-    label: Apoderado
-    comment: Vincule un apoderado existente o cree uno nuevo (puede agregar más guardando varias veces).
+    label: Agregar otro apoderado
+    comment: Vincule un apoderado existente o cree uno nuevo; puede agregar más guardando varias veces.
     tab: Apoderados
   guardian_id:
     label: Apoderado existente

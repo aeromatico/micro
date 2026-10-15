@@ -1,5 +1,5 @@
 <?php Block::put('breadcrumb') ?>
-    <ul><li><a href="<?= Backend::url('aero/school/feeplans') ?>"><?= e("Conceptos de cobro") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
+    <ul><li><a href="<?= Backend::url('aero/school/feeplans') ?>"><?= e("Otros cobros") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
 <?php Block::endPut() ?>
 <?= Form::open(['class' => 'school-form']) ?>
     <div><?= $this->formRender() ?></div>

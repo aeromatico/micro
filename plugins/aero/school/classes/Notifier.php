@@ -30,6 +30,9 @@ class Notifier
 
         try {
             $options = ['platform' => 'whatsapp', 'tenant_id' => $tenantId, 'name' => $name];
+            if ($accountId = self::accountFor($tenantId)) {
+                $options['account_id'] = $accountId;
+            }
             if ($mediaUrl) {
                 $options['media_url'] = $mediaUrl;
             }
@@ -40,6 +43,32 @@ class Notifier
             \Log::warning('[school] WhatsApp no enviado: ' . $e->getMessage());
 
             return false;
+        }
+    }
+
+    /**
+     * Cuenta de WhatsApp con la que avisa el colegio: la que eligió en Hello → Configuración;
+     * si no hay, una conectada, prefiriendo WhatsApp Web (wapi), que no exige plantilla fuera
+     * de las 24 h. Sin esto Hello tomaba la cuenta de menor id aunque fuera la de respaldo.
+     */
+    public static function accountFor(?int $tenantId): ?int
+    {
+        if (!$tenantId || !class_exists(\Aero\Hello\Models\Account::class)) {
+            return null;
+        }
+
+        try {
+            if (($id = \Aero\Hello\Models\TenantSettings::defaultAccountId($tenantId))
+                && \Aero\Hello\Models\Account::enabled()->whereKey($id)->exists()) {
+                return $id;
+            }
+
+            $accounts = \Aero\Hello\Models\Account::enabled()->ofPlatform('whatsapp')->forTenant($tenantId)
+                ->where('status', 'connected')->orderBy('id')->get();
+
+            return ($accounts->firstWhere('driver', 'wapi') ?: $accounts->first())?->id;
+        } catch (\Throwable $e) {
+            return null;
         }
     }
 

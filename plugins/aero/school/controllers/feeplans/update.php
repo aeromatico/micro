@@ -1,5 +1,5 @@
 <?php Block::put('breadcrumb') ?>
-    <ul><li><a href="<?= Backend::url('aero/school/feeplans') ?>"><?= e("Conceptos de cobro") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
+    <ul><li><a href="<?= Backend::url('aero/school/feeplans') ?>"><?= e("Otros cobros") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
 <?php Block::endPut() ?>
 <?php if ($formModel->exists): ?>
 <div class="callout callout-info" style="margin-bottom:15px">

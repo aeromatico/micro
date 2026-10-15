@@ -8,5 +8,5 @@ showSetup: true
 toolbar:
   buttons: list_toolbar
   search:
-    prompt: Buscar
+    prompt: Buscar estudiante o concepto
 filter: $/aero/school/models/charge/filters.yaml

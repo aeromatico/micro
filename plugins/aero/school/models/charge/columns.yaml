@@ -1,7 +1,10 @@
 columns:
-  student_name:
+  student:
     label: Estudiante
-    sortable: false
+    relation: student
+    select: "concat_ws(' ', paternal_surname, maternal_surname, first_name, rude)"
+    searchable: true
+    sortable: true
   concept:
     label: Concepto
     searchable: true

@@ -25,7 +25,11 @@ class Billing
 
         foreach ($students as $student) {
             foreach ($this->installmentsFor($plan, $year) as $i => [$period, $due, $concept]) {
-                $exists = Charge::where('student_id', $student->id)->where('fee_plan_id', $plan->id)->where('period', $period)->exists();
+                $exists = Charge::where('student_id', $student->id)->where('fee_plan_id', $plan->id)->where('period', $period)->exists()
+                    // Matrícula y pensión no se duplican aunque cambie el concepto que las origina.
+                    || (in_array($plan->kind, ['matricula', 'pension'], true) && Charge::where('student_id', $student->id)
+                        ->where('kind', $plan->kind)->where('year_id', $plan->year_id)->where('status', '!=', 'void')
+                        ->when($plan->kind === 'pension', fn ($q) => $q->where('period', $period))->exists());
                 if ($exists) {
                     continue;
                 }

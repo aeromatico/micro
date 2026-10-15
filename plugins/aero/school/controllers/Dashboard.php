@@ -35,9 +35,9 @@ class Dashboard extends Controller
             ['Crear la gestión vigente', Models\Year::where('tenant_id', $t)->exists(), 'years/create'],
             ['Crear los cursos', Models\Course::where('tenant_id', $t)->exists(), 'courses/create'],
             ['Cargar las áreas del currículo en cada curso', Models\Subject::where('tenant_id', $t)->exists(), 'courses'],
-            ['Definir matrícula y pensiones (conceptos de cobro)', Models\FeePlan::where('tenant_id', $t)->exists(), 'feeplans/create'],
+            ['Definir precios de matrícula y pensión por nivel', Models\FeePlan::where('tenant_id', $t)->exists(), 'prices'],
             ['Registrar estudiantes con su apoderado', Models\Student::where('tenant_id', $t)->exists(), 'students/create'],
-            ['Generar las cuotas de cada concepto', Models\Charge::where('tenant_id', $t)->exists(), 'feeplans'],
+            ['Generar las cuotas (se hace al guardar los precios)', Models\Charge::where('tenant_id', $t)->exists(), 'prices'],
             ['Conectar WhatsApp (Hello) para los avisos', \Aero\School\Classes\Notifier::available(), null],
         ];
     }

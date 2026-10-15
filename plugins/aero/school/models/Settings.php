@@ -67,7 +67,7 @@ class Settings extends Model
         }
 
         return ['' => '— Sin cuenta (cobro manual) —'] + \Aero\Pay\Models\BankAccount::active()
-            ->when(!CurrentTenant::isAdmin(), fn ($q) => $q->where('tenant_id', CurrentTenant::id() ?: 0))
-            ->get()->pluck('name', 'id')->all();
+            ->where('tenant_id', (CurrentTenant::isAdmin() ? $this->tenant_id : CurrentTenant::id()) ?: 0)
+            ->get()->pluck('label', 'id')->all();
     }
 }

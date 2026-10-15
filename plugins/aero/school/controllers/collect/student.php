@@ -32,7 +32,7 @@
                 data-request-confirm="¿Enviar el QR de esta cuota por WhatsApp al apoderado?">QR</button><?php endif ?></td>
         </tr>
     <?php endforeach ?>
-    <?php if ($statement['charges']->isEmpty()): ?><tr><td colspan="8" class="text-muted">Sin cuotas. Genere las cuotas desde «Conceptos de cobro».</td></tr><?php endif ?>
+    <?php if ($statement['charges']->isEmpty()): ?><tr><td colspan="8" class="text-muted">Sin cuotas. Genere las cuotas desde «Pensiones y matrícula».</td></tr><?php endif ?>
     </tbody>
 </table>
 

@@ -76,7 +76,7 @@ class Collect extends Controller
         $charge = Charge::where('student_id', $student->id)->findOrFail((int) post('charge_id'));
         $qr = app(Billing::class)->issueQr($charge->load('student'));
         if (!$qr) {
-            throw new \ApplicationException('No se pudo generar el QR: configure la cuenta de cobro en Configuración (requiere Aero Pay).');
+            throw new \ApplicationException('No se pudo generar el QR. Verifique en Configuración → Cobranza que haya elegido la «Cuenta para cobro por QR» (Aero Pay) y que esté activa; si ya lo hizo, revise el registro del sistema.');
         }
 
         $media = url('/api/v1/pay/public/qr/' . $qr->internal_reference . '/image');

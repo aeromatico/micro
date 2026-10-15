@@ -1,4 +1,4 @@
-title: Conceptos de cobro
+title: Otros cobros y excepciones
 list: $/aero/school/models/feeplan/columns.yaml
 modelClass: Aero\School\Models\FeePlan
 recordUrl: aero/school/feeplans/update/:id
