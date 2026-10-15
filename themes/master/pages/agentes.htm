@@ -1,7 +1,7 @@
 url = "/workspaces/agentes"
 layout = "base"
-title = "Agentes de IA — Market"
-description = "Conoce a los agentes de inteligencia artificial de Market: desarrollo web, hojas de Google, CRM, flujos de automatización y más. Contrátalos desde tu cuenta."
+title = "Oficina IA — Market"
+description = "Tu oficina virtual con agentes de inteligencia artificial: desarrollo web, hojas de Google, CRM, flujos de automatización y más. Conoce al equipo y elige tu plan."
 
 [agentsMarket]
 ==
@@ -19,28 +19,13 @@ description = "Conoce a los agentes de inteligencia artificial de Market: desarr
     <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
         <a href="/" class="hover:text-ink">Inicio</a>
         <span class="mx-2">/</span>
-        <span class="text-ink" aria-current="page">Agentes</span>
+        <span class="text-ink" aria-current="page">Oficina IA</span>
     </nav>
 
     <header class="max-w-2xl mb-8">
-        <h1 class="text-4xl font-bold text-pretty">Agentes de IA</h1>
-        <p class="text-lg text-ink-dim mt-3 text-pretty">Un equipo de agentes que trabajan con los datos de tu negocio: arman tu sitio y tu tienda, ordenan tus hojas de cálculo, analizan tu CRM y diseñan tus automatizaciones. Siempre te preguntan, acuerdan un plan contigo y esperan tu «sí».</p>
+        <h1 class="text-4xl font-bold text-pretty">Oficina IA</h1>
+        <p class="text-lg text-ink-dim mt-3 text-pretty">Una oficina virtual con agentes de IA que trabajan con los datos de tu negocio: arman tu sitio y tu tienda, ordenan tus hojas de cálculo, analizan tu CRM y diseñan tus automatizaciones. Siempre te preguntan, acuerdan un plan contigo y esperan tu «sí».</p>
     </header>
-
-    {# Estado de la sesión: quién puede contratar #}
-    <div class="rounded-xl border border-edge bg-canvas-elev px-5 py-4 mb-8 flex flex-wrap items-center justify-between gap-3">
-        {% if m.viewer.can_hire %}
-            <p class="text-sm text-ink">Estás viendo el mercado como <strong>{{ m.viewer.tenant }}</strong>. Los agentes que contrates aparecerán en tu <a href="{{ m.office_url }}" class="text-accent font-semibold hover:underline">Oficina</a>.</p>
-        {% elseif m.viewer.logged %}
-            <p class="text-sm text-ink-dim">{{ m.viewer.reason ?: 'No puedes contratar agentes con este usuario.' }}</p>
-        {% else %}
-            <p class="text-sm text-ink-dim">Para contratar un agente necesitas una cuenta de Market con sesión iniciada.</p>
-            <div class="flex gap-2">
-                <a href="{{ m.login_url }}" class="inline-flex items-center border border-edge text-ink font-semibold text-sm px-4 py-2 rounded-lg hover:bg-canvas-elev2 transition-colors">Iniciar sesión</a>
-                <a href="https://market.com.bo/comprar/negocio" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Crear mi cuenta</a>
-            </div>
-        {% endif %}
-    </div>
 
     {# Filtros #}
     <div class="flex flex-wrap items-center gap-2 mb-8">
@@ -112,24 +97,11 @@ description = "Conoce a los agentes de inteligencia artificial de Market: desarr
 
             <div class="mt-5 pt-4 border-t border-edge flex items-center justify-between gap-3">
                 <div class="text-xs text-ink-dim">
-                    {% if m.charging and a.hire_fee > 0 %}<span class="text-sm font-bold text-ink">{{ a.hire_fee }} pts</span> por contratar{% else %}<span class="text-sm font-bold text-ink">Sin costo</span> por ahora{% endif %}
+                    {% if m.charging and a.hire_fee > 0 %}<span class="text-sm font-bold text-ink">{{ a.hire_fee }} pts</span> por contratar{% else %}<span class="text-sm font-bold text-ink">Incluido</span> en tu plan{% endif %}
                     {% if a.contracts > 0 %}<br>{{ a.contracts }} {{ a.contracts == 1 ? 'negocio lo contrató' : 'negocios lo contrataron' }}{% endif %}
                 </div>
 
-                <div id="hire-{{ a.slug }}" class="shrink-0">
-                    {% if a.hired %}
-                        <span class="inline-flex items-center text-sm font-semibold text-accent">✓ En tu equipo</span>
-                    {% elseif m.viewer.can_hire %}
-                        <form data-request="onHire" data-request-confirm="¿Contratar a {{ a.name }} para {{ m.viewer.tenant }}?" data-request-loading="#hire-{{ a.slug }} button">
-                            <input type="hidden" name="slug" value="{{ a.slug }}">
-                            <button type="submit" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Contratar</button>
-                        </form>
-                    {% elseif m.viewer.logged %}
-                        <span class="text-xs text-ink-dim">Sin permiso</span>
-                    {% else %}
-                        <a href="{{ m.login_url }}" class="inline-flex items-center border border-edge text-ink font-semibold text-sm px-4 py-2 rounded-lg hover:bg-canvas-elev2 transition-colors">Inicia sesión</a>
-                    {% endif %}
-                </div>
+                <a href="/#precios" class="shrink-0 inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Contratar</a>
             </div>
         </article>
         {% endfor %}
