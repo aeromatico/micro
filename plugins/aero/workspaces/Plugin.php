@@ -31,6 +31,13 @@ class Plugin extends PluginBase
         ]);
     }
 
+    public function registerComponents(): array
+    {
+        return [
+            \Aero\Workspaces\Components\AgentsMarket::class => 'agentsMarket',
+        ];
+    }
+
     public function registerNavigation(): array
     {
         $use = ['aero.workspaces.use', 'aero.workspaces.superadmin'];

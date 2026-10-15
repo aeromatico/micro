@@ -5,8 +5,7 @@ use Aero\Workspaces\Models\Staff;
 use October\Rain\Database\Updates\Seeder;
 
 /**
- * Convierte al agente 11 (slug `renata-villca`, antes «Locutora IA», inactiva y sin
- * herramientas) en la asistente de Google Sheets: el skill «Asistente de Google Sheets»
+ * Le da a Violeta (slug `violeta`, antes «Redactor de contenido») el trabajo de asistente de Google Sheets: el skill «Asistente de Google Sheets»
  * (herramientas sheets_* de Aero.Sheets + protocolo de preguntas), su rol, su prompt y
  * la activa. El skill se refresca siempre desde `skills/sheets-assistant/`; el rol,
  * categoría, bio y prompt solo se reemplazan si siguen siendo los de la locutora, así
@@ -41,7 +40,7 @@ TXT;
             return;
         }
 
-        $staff = Staff::where('slug', 'renata-villca')->first();
+        $staff = Staff::where('slug', 'violeta')->first();
 
         if (!$staff) {
             return;
@@ -69,7 +68,7 @@ TXT;
             'body' => trim($raw), 'tools' => static::TOOLS,
         ])->save();
 
-        $wasLocutora = str_contains((string) $staff->role, 'Locutora') || str_contains((string) $staff->system_prompt, 'Locutora');
+        $wasLocutora = str_contains((string) $staff->role, 'Redactor') || str_contains((string) $staff->system_prompt, 'Redactor') || str_contains((string) $staff->role, 'Locutora');
         $prompt = trim((string) $staff->system_prompt);
 
         if ($wasLocutora) {

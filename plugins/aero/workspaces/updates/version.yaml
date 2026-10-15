@@ -49,3 +49,6 @@
 1.15.0:
     - "Silvia (CRM): skill «Gestión y análisis del CRM» con las herramientas crm_* de Aero.Crm, protocolo de preguntas e informes con cifras calculadas por el sistema; prompt propio en lugar del heredado."
     - seed_crm_agent.php
+1.16.0:
+    - "Perfiles del Mercado al día: Violeta es la asistente de Google Sheets, Mary con prompt de comercio electrónico, Renata vuelve a ser locutora, nombres coherentes en Jaime y Hugo y radar de Bruno."
+    - refresh_agent_profiles.php
