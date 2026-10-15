@@ -33,6 +33,9 @@ class Plugin extends PluginBase
                 'scopes' => [\Aero\Sheets\Classes\SheetsClient::SCOPE],
             ]]];
         });
+
+        // Herramientas privadas para el agente de hojas de Workspaces (acoplamiento blando: solo anuncia).
+        Event::listen('aero.workspaces.registerAgentTools', fn () => \Aero\Sheets\Classes\AgentTools::tools());
     }
 
     public function registerPermissions(): array

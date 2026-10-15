@@ -1,3 +1,7 @@
 1.0.0:
     - "Primera versión: fuentes sincronizables (modelos y campos que define el superadmin), perfiles de mapeo con Google Sheets, importar/exportar con filas de inicio, cabeceras y límites, historial de ejecuciones."
     - create_sheets_tables.php
+1.1.0:
+    - "Agente de hojas: lectura y corrección de celdas con deshacer (antes→después), agregar filas, crear hojas, mapeos y ejecuciones con prueba previa y confirmación, y fuentes por defecto (productos, colecciones, contactos)."
+    - create_edits_table.php
+    - seed_default_sources.php

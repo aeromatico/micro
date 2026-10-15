@@ -114,6 +114,58 @@ class SheetsClient
         return $data['values'] ?? [];
     }
 
+    /** Igual que get(), pero con las fórmulas como fórmulas (para guardar el «antes» exacto de una edición). */
+    public function getFormulas(string $id, string $range): array
+    {
+        $data = $this->check($this->http()->get(self::BASE . $id . '/values/' . rawurlencode($range), [
+            'majorDimension'    => 'ROWS',
+            'valueRenderOption' => 'FORMULA',
+        ]));
+
+        return $data['values'] ?? [];
+    }
+
+    /** Como batchUpdate(), eligiendo cómo se interpreta lo escrito: RAW (texto tal cual) o USER_ENTERED (fórmulas, fechas). */
+    public function writeValues(string $id, array $data, string $input = 'RAW'): void
+    {
+        if (!$data) {
+            return;
+        }
+
+        $this->check($this->http()->post(self::BASE . $id . '/values:batchUpdate', [
+            'valueInputOption' => $input === 'USER_ENTERED' ? 'USER_ENTERED' : 'RAW',
+            'data'             => collect($data)->map(fn ($values, $range) => ['range' => $range, 'majorDimension' => 'ROWS', 'values' => $values])->values()->all(),
+        ]));
+    }
+
+    /** Agrega filas al final de la tabla de la pestaña. Devuelve el rango escrito (A1), o null. */
+    public function append(string $id, string $tabRange, array $rows): ?string
+    {
+        $data = $this->check($this->http()->post(
+            self::BASE . $id . '/values/' . rawurlencode($tabRange) . ':append?valueInputOption=RAW&insertDataOption=INSERT_ROWS',
+            ['majorDimension' => 'ROWS', 'values' => $rows]
+        ));
+
+        return $data['updates']['updatedRange'] ?? null;
+    }
+
+    /** @return array{id: string, url: string, title: string} */
+    public function createSpreadsheet(string $title, array $tabs = []): array
+    {
+        $body = ['properties' => ['title' => $title]];
+        if ($tabs) {
+            $body['sheets'] = array_map(fn ($t) => ['properties' => ['title' => $t]], array_values($tabs));
+        }
+
+        $data = $this->check($this->http()->post(rtrim(self::BASE, '/'), $body));
+
+        return [
+            'id'    => (string) ($data['spreadsheetId'] ?? ''),
+            'url'   => (string) ($data['spreadsheetUrl'] ?? ''),
+            'title' => (string) ($data['properties']['title'] ?? $title),
+        ];
+    }
+
     /** @param array<string, array> $data rango => matriz de filas. RAW: nada se interpreta como fórmula. */
     public function batchUpdate(string $id, array $data): void
     {
