@@ -9,12 +9,14 @@ window.WsMarketInit = function () {
   window.WsMarketCleanup = () => offs.forEach(f => f());
 
   const AXES = [['creatividad', 'Creatividad'], ['viralidad', 'Viralidad'], ['ejecucion', 'Ejecución'], ['narrativa', 'Narrativa'], ['estetica', 'Estética'], ['eficiencia', 'Eficiencia']];
-  const CATS = { all: 'Todos', video: 'Video', imagen: 'Imagen', contenido: 'Contenido', ppt: 'Presentaciones', info: 'Investigación', automatizacion: 'Automatización', ecommerce: 'eCommerce', web: 'Desarrollo Web', integraciones: 'Integraciones y APIs' };
+  // Categorías dinámicas (Staff → Categorías); solo se ofrecen las que tienen agentes en el Mercado.
+  const CATS = Object.assign({ all: 'Todos' }, Object.fromEntries(Object.entries(WS.categories || {}).filter(c => (WS.agents || []).some(a => a.category === c[0]))));
+  const QUALITY = { all: 'Toda calidad', 5: '★ 5', 4: '★ 4 o más', 3: '★ 3 o más' };
   const byId = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + 'K' : String(n);
 
-  const st = { tab: 'market', cat: 'all', rar: 'all', q: '', sort: 'hires', profile: null, sktab: 'official', skq: '' };
+  const st = { tab: 'market', cat: 'all', minq: 'all', q: '', sort: 'hires', profile: null, sktab: 'official', skq: '' };
   const state = { agents: WS.agents, team: WS.team, skills: WS.skills, summary: WS.summary };
   const agentBySlug = slug => state.agents.concat(state.team).find(a => a.slug === slug);
 
@@ -54,23 +56,39 @@ window.WsMarketInit = function () {
   const TABS = [['market', 'Mercado'], ['mine', 'Mi equipo'], ['skills', 'Skills']];
   function pointsText() {
     const p = state.summary.points;
-    return p == null ? 'Modo demostración' : p.toLocaleString('es-BO') + ' pts';
+    return p == null ? 'Cobro apagado' : p.toLocaleString('es-BO') + ' créditos';
   }
   function renderTabs() {
     byId('tabs').innerHTML = TABS.map(t => '<button class="tab" role="tab" data-tab="' + t[0] + '" aria-selected="' + (st.tab === t[0] && !st.profile) + '">' + t[1] + (t[0] === 'mine' ? ' (' + state.team.length + ')' : '') + '</button>').join('');
     byId('pts').textContent = pointsText();
-    byId('pts').title = state.summary.charging ? 'Puntos disponibles' : 'El cobro de puntos está apagado: contratar y enviar encargos no cuesta.';
+    byId('pts').title = state.summary.charging ? 'Créditos disponibles' : 'El cobro de créditos está apagado: contratar y enviar encargos no cuesta.';
   }
-  const ribbon = q => '<span class="ribbon">' + (q || '').toUpperCase() + '</span>';
-  const costText = a => a.task_fee + ' <small>pts / encargo</small>' + (a.chat_fee ? ' · <small>' + a.chat_fee + ' pts / mensaje</small>' : '') + (a.hire_fee ? ' · <small>contratar ' + a.hire_fee + ' pts</small>' : '');
+  // Calidad de 1 a 5 estrellas (en lugar de la rareza); el color del borde sigue el nivel.
+  const stars = q => '<span class="stars" role="img" aria-label="Calidad ' + q + ' de 5">' + '★'.repeat(q) + '<i>' + '★'.repeat(5 - q) + '</i></span>';
+  const tier = a => a.quality >= 5 ? 'ssr' : (a.quality === 4 ? 'sr' : 'r');
+  const ribbon = a => a.orchestrator ? '<span class="ribbon">JEFE</span>' : '<span class="ribbon">' + a.quality + '★</span>';
+  const STATUS = { online: 'Online', training: 'En entrenamiento', unavailable: 'No disponible' };
+  const statusBadge = a => '<span class="st ' + esc(a.status) + '">' + esc(a.status_label || STATUS[a.status] || a.status) + '</span>';
+  const planText = a => a.plans.length ? 'Plan ' + a.plans.map(p => esc(p.name)).join(' · ') : 'Todos los planes';
+  const unit = a => a.fee.mode === 'credits' ? (a.fee.credit_label ? 'créditos ' + esc(a.fee.credit_label).toLowerCase() : 'créditos') : '';
+  // Tarifa: gratis, o en créditos del tipo elegido para el agente.
+  const costText = a => {
+    if (a.fee.mode !== 'credits') return '<b>Gratis</b>';
+    const u = '<small>' + unit(a) + '</small>';
+    return (a.hire_fee ? '<b>' + a.hire_fee + '</b> ' + u + ' <small>por contratar</small>' : '<b>Contratación gratis</b>') +
+      (a.chat_fee ? ' · <b>' + a.chat_fee + '</b> ' + u + ' <small>/ mensaje</small>' : '') + (a.task_fee ? ' · <b>' + a.task_fee + '</b> ' + u + ' <small>/ encargo</small>' : '');
+  };
   function hireBtn(a, full) {
-    if (a.orchestrator) return '<button class="btn hired" disabled' + (full ? ' style="width:100%"' : '') + '>Siempre en tu equipo</button>';
-    if (a.hired) return '<button class="btn hired" disabled' + (full ? ' style="width:100%"' : '') + '>En tu equipo</button>';
-    return '<button class="btn" data-hire="' + esc(a.slug) + '"' + (full ? ' style="width:100%"' : '') + '>Contratar</button>';
+    const w = full ? ' style="width:100%"' : '';
+    if (a.orchestrator) return '<button class="btn hired" disabled' + w + '>Siempre en tu equipo</button>';
+    if (a.hired) return '<button class="btn hired" disabled' + w + '>En tu equipo</button>';
+    if (a.status === 'training') return '<button class="btn alt" disabled' + w + '>En entrenamiento</button>';
+    if (!a.plan_ok) return '<button class="btn alt" disabled' + w + ' title="Mejora tu plan para contratarlo">' + planText(a) + '</button>';
+    return '<button class="btn" data-hire="' + esc(a.slug) + '"' + w + '>Contratar</button>';
   }
   function card(a) {
-    return '<article class="card ' + esc(a.rarity) + '" tabindex="0" role="button" data-open="' + esc(a.slug) + '" aria-label="Ver perfil de ' + esc(a.name) + '">' +
-      '<span class="shine"></span>' + ribbon(a.orchestrator ? 'jefe' : a.rarity) +
+    return '<article class="card ' + tier(a) + '" tabindex="0" role="button" data-open="' + esc(a.slug) + '" aria-label="Ver perfil de ' + esc(a.name) + '">' +
+      '<span class="shine"></span>' + ribbon(a) +
       '<div class="who"><div class="av">' + avatar(a.avatar, 72) + '</div><div><div class="nm">' + esc(a.name) + '</div><div class="rl">[ ' + esc(a.role) + ' ]</div></div></div>' +
       '<p class="bio">' + esc(a.bio) + '</p>' +
       '<div class="nums"><div><b>' + fmt(a.contracts) + '</b><span>Contratos</span></div><div><b>' + a.skills.length + '</b><span>Skills</span></div><div><b>' + a.task_fee + '</b><span>Pts/encargo</span></div></div>' +
@@ -79,22 +97,23 @@ window.WsMarketInit = function () {
   }
   function market(list, withFilters) {
     const q = st.q.toLowerCase();
-    const l = list.filter(s => (st.cat === 'all' || s.category === st.cat) && (st.rar === 'all' || s.rarity === st.rar) && (!q || (s.name + s.role + s.bio + s.tags.join(' ')).toLowerCase().includes(q)));
+    const l = list.filter(s => (st.cat === 'all' || s.category === st.cat) && (st.minq === 'all' || s.quality >= Number(st.minq)) && (!q || (s.name + s.role + s.bio + s.tags.join(' ')).toLowerCase().includes(q)));
     const ord = { hires: (a, b) => b.contracts - a.contracts, cost: (a, b) => a.task_fee - b.task_fee, name: (a, b) => a.name.localeCompare(b.name) };
     l.sort(ord[st.sort]);
     const head = withFilters ? '<div class="tools"><input class="search" id="q" type="search" placeholder="Buscar por nombre, rol o habilidad" value="' + esc(st.q) + '" aria-label="Buscar">' +
       '<select id="sort" aria-label="Ordenar"><option value="hires"' + (st.sort === 'hires' ? ' selected' : '') + '>Más contratados</option><option value="cost"' + (st.sort === 'cost' ? ' selected' : '') + '>Menor costo</option><option value="name"' + (st.sort === 'name' ? ' selected' : '') + '>Nombre</option></select></div>' +
       '<div class="filters">' + Object.entries(CATS).map(c => '<button class="chip-f" data-cat="' + c[0] + '" aria-pressed="' + (st.cat === c[0]) + '">' + c[1] + '</button>').join('') +
-      '<span style="flex:1"></span>' + ['all', 'r', 'sr', 'ssr'].map(r => '<button class="chip-f" data-rar="' + r + '" aria-pressed="' + (st.rar === r) + '">' + (r === 'all' ? 'Toda rareza' : r.toUpperCase()) + '</button>').join('') + '</div>' : '';
+      '<span style="flex:1"></span>' + Object.entries(QUALITY).map(r => '<button class="chip-f" data-minq="' + r[0] + '" aria-pressed="' + (String(st.minq) === r[0]) + '">' + r[1] + '</button>').join('') + '</div>' : '';
     return '<div style="display:grid;gap:14px">' + head + (l.length ? '<div class="grid">' + l.map(card).join('') + '</div>' : '<p class="empty">Ningún agente coincide. Prueba con otro filtro.</p>') + '</div>';
   }
   function profile(a) {
     const skills = a.skills.map(k => '<div class="sk"><span class="si" style="background:' + k.color + '22;color:' + k.color + '">' + esc(k.name[0]) + '</span><div><b>' + esc(k.name) + '</b><p>' + esc(k.description) + '</p></div></div>').join('') || '<p class="empty">Sin skills asignadas.</p>';
     return '<div style="display:grid;gap:14px"><button class="btn alt back" id="back">← Volver</button><div class="profile">' +
-      '<aside class="pl ' + esc(a.rarity) + '">' + ribbon(a.orchestrator ? 'jefe' : a.rarity) + '<div class="av">' + avatar(a.avatar, 128) + '</div><div><div class="nm">' + esc(a.name) + '</div><div class="rl">[ ' + esc(a.role) + ' ]</div></div>' +
+      '<aside class="pl ' + tier(a) + '">' + ribbon(a) + '<div class="av">' + avatar(a.avatar, 128) + '</div><div><div class="nm">' + esc(a.name) + '</div><div class="rl">[ ' + esc(a.role) + ' ]</div>' + stars(a.quality) + '</div>' +
+      '<div class="meta">' + statusBadge(a) + '<span class="plan">' + planText(a) + '</span></div>' +
       '<p class="bio">' + esc(a.bio) + '</p><div class="tags">' + a.tags.map(t => '<span class="tag">' + esc(t) + '</span>').join('') + '</div>' +
       '<div class="cost">' + costText(a) + '</div>' + hireBtn(a, true) + '</aside>' +
-      '<div class="pr"><section class="box"><h3>Rendimiento</h3><div class="perf"><div><b>' + fmt(a.contracts) + '</b><span>Contratos</span></div><div><b>' + a.skills.length + '</b><span>Skills</span></div><div><b>' + a.task_fee + '</b><span>Pts por encargo</span></div></div></section>' +
+      '<div class="pr"><section class="box"><h3>Rendimiento</h3><div class="perf"><div><b>' + fmt(a.contracts) + '</b><span>Contratos</span></div><div><b>' + a.skills.length + '</b><span>Skills</span></div><div><b>' + (a.category_label ? esc(a.category_label) : '—') + '</b><span>Categoría</span></div></div></section>' +
       '<div class="two"><section class="box"><h3>Capacidades</h3>' + radar(a.capabilities) + '</section><section class="box"><h3>Skills</h3><div class="skl">' + skills + '</div></section></div>' +
       (a.guide.length ? '<section class="box"><h3>Guía de uso</h3><ul class="guide">' + a.guide.map(g => '<li>' + esc(g) + '</li>').join('') + '</ul></section>' : '') + '</div></div></div>';
   }
@@ -120,7 +139,8 @@ window.WsMarketInit = function () {
   function hire(slug) {
     const a = agentBySlug(slug);
     if (!a || a.hired) return;
-    if (a.hire_fee > 0 && state.summary.charging && !confirm('Contratar a ' + a.name + ' cuesta ' + a.hire_fee + ' pts' + (a.chat_fee ? ' y cada mensaje ' + a.chat_fee + ' pts' : '') + '. Si luego lo despides no se reembolsa. ¿Continuar?')) return;
+    if (a.status === 'training' || !a.plan_ok) return;
+    if (a.hire_fee > 0 && state.summary.charging && !confirm('Contratar a ' + a.name + ' cuesta ' + a.hire_fee + ' ' + (a.fee.credit_label ? 'créditos ' + a.fee.credit_label.toLowerCase() : 'créditos') + (a.chat_fee ? ' y cada mensaje ' + a.chat_fee : '') + '. Si luego lo despides no se reembolsa. ¿Continuar?')) return;
     $.request('onHire', {
       data: { slug },
       success: function (r) {
@@ -133,12 +153,12 @@ window.WsMarketInit = function () {
 
   /* ---------- eventos ---------- */
   on('click', e => {
-    const t = e.target.closest('[data-tab],[data-hire],[data-open],[data-cat],[data-rar],[data-sk],#back'); if (!t || !byId('view') || !byId('view').closest('.ws-market')) return;
+    const t = e.target.closest('[data-tab],[data-hire],[data-open],[data-cat],[data-minq],[data-sk],#back'); if (!t || !byId('view') || !byId('view').closest('.ws-market')) return;
     if (t.dataset.tab) { st.tab = t.dataset.tab; st.profile = null; render(); }
     else if (t.dataset.hire) { e.stopPropagation(); hire(t.dataset.hire); }
     else if (t.dataset.open) { st.profile = t.dataset.open; render(); scrollTo(0, 0); }
     else if (t.dataset.cat) { st.cat = t.dataset.cat; render(); }
-    else if (t.dataset.rar) { st.rar = t.dataset.rar; render(); }
+    else if (t.dataset.minq) { st.minq = t.dataset.minq; render(); }
     else if (t.dataset.sk) { st.sktab = t.dataset.sk; render(); }
     else if (t.id === 'back') { st.profile = null; render(); }
   });

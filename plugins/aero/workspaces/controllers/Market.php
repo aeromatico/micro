@@ -21,8 +21,8 @@ class Market extends Controller
         parent::__construct();
         BackendMenu::setContext('Aero.Workspaces', 'workspaces', 'market');
         $this->pageTitle = 'Mercado de agentes';
-        $this->addCss('/plugins/aero/workspaces/assets/css/market.css?v=6');
-        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=10');
+        $this->addCss('/plugins/aero/workspaces/assets/css/market.css?v=7');
+        $this->addJs('/plugins/aero/workspaces/assets/js/market.js?v=12');
     }
 
     public function index(): void
@@ -34,6 +34,7 @@ class Market extends Controller
             'agents'  => Workspace::market($tenantId),
             'team'    => Workspace::team($tenantId),
             'skills'  => Workspace::skills($tenantId),
+            'categories' => Workspace::categories(),
             'summary' => Workspace::summary($tenantId),
             'avatars' => \Url::asset('plugins/aero/workspaces/assets/img/avatars.png'),
         ] : null;

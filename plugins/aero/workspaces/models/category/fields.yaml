@@ -1,0 +1,17 @@
+fields:
+    label:
+        label: Nombre
+        span: left
+        comment: Lo que ve el cliente en el filtro del Mercado.
+    code:
+        label: Código
+        span: right
+        comment: 'Identificador corto y único (letras, números y guiones). No lo cambies si ya hay agentes en la categoría.'
+    sort_order:
+        label: Orden
+        type: number
+        span: left
+    is_active:
+        label: Visible en el Mercado
+        type: switch
+        span: right

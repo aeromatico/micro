@@ -18,30 +18,21 @@ tabs:
             label: Categoría
             type: dropdown
             span: right
-            options:
-                video: Video
-                imagen: Imagen
-                contenido: Contenido
-                ppt: Presentaciones
-                info: Investigación
-                automatizacion: Automatización
-                ecommerce: eCommerce
-                web: Desarrollo Web
-                integraciones: Integraciones y APIs
-        rarity:
+            comment: 'Se administran en Staff → Categorías.'
+        quality:
             tab: Perfil
-            label: Rareza
+            label: Calidad
             type: dropdown
             span: left
-            options:
-                r: R
-                sr: SR
-                ssr: SSR
-        is_active:
+            default: 3
+            comment: 'De 1 a 5 estrellas. Es lo que ve el cliente en lugar de la rareza.'
+        status:
             tab: Perfil
-            label: Activo en el mercado
-            type: switch
+            label: Estado
+            type: dropdown
             span: right
+            default: online
+            comment: 'En entrenamiento: se muestra pero aún no se puede contratar. Online: disponible. No disponible: oculto del Mercado.'
         bio:
             tab: Perfil
             label: Biografía (lo que ve el tenant)
@@ -61,6 +52,12 @@ tabs:
             label: Orden
             type: number
             span: right
+        base_contracts:
+            tab: Perfil
+            label: Contratos de referencia
+            type: number
+            span: left
+            comment: 'Se suman a los contratos reales del Mercado (ya sembrados al azar, de 3 a 30). Pon 0 para mostrar solo los reales.'
 
         is_orchestrator:
             tab: Agente
@@ -100,16 +97,47 @@ tabs:
             options:
                 ai: Agente IA
 
+        fee_mode:
+            tab: Tarifas
+            label: Tarifa
+            type: dropdown
+            span: left
+            default: free
+            comment: 'Gratis, o se cobra en créditos de Aero.Credits (mientras el cobro general esté encendido en Ajustes).'
+        credit_type:
+            tab: Tarifas
+            label: Tipo de crédito
+            type: dropdown
+            span: right
+            emptyOption: '(el tipo por defecto de Ajustes)'
+            trigger:
+                action: show
+                field: fee_mode
+                condition: value[credits]
         hire_fee:
             tab: Tarifas
-            label: Tarifa por contratación (pts)
+            label: Contratación (créditos)
             type: number
             span: left
             comment: '0 = el tenant no paga al contratar. Despedir no reembolsa; recontratar cobra de nuevo.'
+            trigger:
+                action: show
+                field: fee_mode
+                condition: value[credits]
+        plan_codes:
+            tab: Tarifas
+            label: Planes a los que corresponde
+            type: checkboxlist
+            span: right
+            comment: 'Sin marcar = todos los planes. Un tenant de otro plan ve el agente pero no puede contratarlo.'
         task_rates:
             tab: Tarifas
-            label: Tarifa por tarea
+            label: Tarifa por tarea (créditos)
             type: repeater
+            trigger:
+                action: show
+                field: fee_mode
+                condition: value[credits]
             prompt: Agregar tipo de tarea
             form:
                 fields:
@@ -121,7 +149,7 @@ tabs:
                             encargo: 'Encargo a la Oficina (se multiplica por el largo del brief)'
                             chat_turn: 'Mensaje de chat (cada respuesta real del agente)'
                     fee:
-                        label: Puntos por tarea
+                        label: Créditos por tarea
                         type: number
                         span: right
                         comment: 0 = gratis.

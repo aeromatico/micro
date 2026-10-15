@@ -36,7 +36,11 @@ class AgentsMarket extends ComponentBase
             'agents'   => $agents,
             'charging' => Settings::chargeEnabled(),
             'avatars'  => url('plugins/aero/workspaces/assets/img/avatars.png'),
-            'cats'     => array_values(array_unique(array_filter(array_column($agents, 'category')))),
+            // Categorías dinámicas que tienen agentes: [{code, label}] en el orden del superadmin.
+            'cats'     => array_values(array_filter(array_map(
+                fn ($code, $label) => in_array($code, array_column($agents, 'category'), true) ? ['code' => $code, 'label' => $label] : null,
+                array_keys(Workspace::categories()), array_values(Workspace::categories())
+            ))),
         ];
     }
 }

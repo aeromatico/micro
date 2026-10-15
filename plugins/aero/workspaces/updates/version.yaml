@@ -52,3 +52,9 @@
 1.16.0:
     - "Perfiles del Mercado al día: Violeta es la asistente de Google Sheets, Mary con prompt de comercio electrónico, Renata vuelve a ser locutora, nombres coherentes en Jaime y Hugo y radar de Bruno."
     - refresh_agent_profiles.php
+1.17.0:
+    - "Catálogo de agentes: categorías dinámicas, calidad de 1 a 5 estrellas en lugar de rareza, estado (En entrenamiento / Online / No disponible), tarifa gratis o en créditos con tipo de crédito de Aero.Credits y planes a los que corresponde cada agente."
+    - add_categories_quality_status_pricing.php
+1.18.0:
+    - "Contratos de referencia por agente (aleatorios de 3 a 30, editables) que se suman a los contratos reales en el Mercado."
+    - add_base_contracts_to_staff.php

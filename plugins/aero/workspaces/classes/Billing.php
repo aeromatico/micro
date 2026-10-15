@@ -54,10 +54,26 @@ class Billing
         return static::ledger()->charge($tenantId, $amount, $actionCode, ['reason' => $reason, 'idempotency_key' => $idempotencyKey] + $extra);
     }
 
-    /** Tarifa en puntos de un agente para un tipo de tarea (0 = gratis). */
+    /** Tarifa en créditos de un agente para un tipo de tarea (0 = gratis; un agente «gratis» nunca cobra). */
     public static function rate(Staff $staff, string $type): int
     {
+        if ($staff->fee_mode !== 'credits') {
+            return 0;
+        }
+
         return (int) round((float) ($staff->taskRateRows->firstWhere('task_type', $type)->fee ?? 0));
+    }
+
+    /** Tarifa de contratación del agente en créditos (0 = gratis). */
+    public static function hireFee(Staff $staff): int
+    {
+        return $staff->fee_mode === 'credits' ? (int) round((float) $staff->hire_fee) : 0;
+    }
+
+    /** Código del tipo de crédito con el que se cobra a este agente (el suyo, o el por defecto de Ajustes). */
+    public static function creditType(Staff $staff): string
+    {
+        return trim((string) $staff->credit_type) ?: Settings::creditTypeCode();
     }
 
     /** Puntos que costaría el próximo mensaje a este agente (0 con el cobro apagado). */
@@ -79,10 +95,13 @@ class Billing
             return;
         }
 
-        $balance = static::ledger()->balance($tenantId);
+        $type = static::creditType($staff);
+        $balance = static::ledger()->balance($tenantId, $type);
 
         if ($balance < $cost) {
-            throw new \DomainException("No tienes puntos suficientes para hablar con {$staff->name} ({$cost} pts por mensaje, tienes {$balance}).");
+            $label = Workspace::creditTypes()[$type]['label'] ?? 'créditos';
+
+            throw new \DomainException("No tienes créditos suficientes para hablar con {$staff->name} ({$cost} {$label} por mensaje, tienes {$balance}).");
         }
     }
 
@@ -100,7 +119,7 @@ class Billing
             }
 
             $tenantId = (int) $reply->tenant_id;
-            $txId = static::charge($tenantId, $cost, 'workspaces.turn', "Mensaje con {$staff->name}", "workspaces.turn.{$reply->id}", ['staff_id' => $staff->id, 'message_id' => $reply->id]);
+            $txId = static::charge($tenantId, $cost, 'workspaces.turn', "Mensaje con {$staff->name}", "workspaces.turn.{$reply->id}", ['staff_id' => $staff->id, 'message_id' => $reply->id, 'credit_type' => static::creditType($staff)]);
 
             $reply->update(['charged_points' => $cost, 'credit_transaction_id' => $txId]);
             \Event::fire('aero.workspaces.charged', [$tenantId, 'turn', $cost, (int) $staff->id, (int) $reply->id]);

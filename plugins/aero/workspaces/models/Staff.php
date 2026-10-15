@@ -13,8 +13,8 @@ class Staff extends Model
     public $table = 'aero_workspaces_staff';
 
     public $fillable = [
-        'name', 'slug', 'role', 'kind', 'rarity', 'category', 'bio', 'system_prompt',
-        'tags', 'capabilities', 'guide', 'connector_id', 'model_code', 'fallback_model_code', 'avatar', 'is_active', 'is_orchestrator', 'sort_order',
+        'name', 'slug', 'role', 'kind', 'rarity', 'quality', 'status', 'fee_mode', 'credit_type', 'plan_codes', 'category', 'bio', 'system_prompt',
+        'tags', 'capabilities', 'guide', 'connector_id', 'model_code', 'fallback_model_code', 'avatar', 'is_active', 'is_orchestrator', 'sort_order', 'base_contracts',
         'hire_fee', 'task_rates',
     ];
 
@@ -22,11 +22,23 @@ class Staff extends Model
     protected $pendingHireFee = null;
     protected $pendingTaskRates = null;
 
-    public $jsonable = ['tags', 'capabilities', 'guide'];
+    public $jsonable = ['tags', 'capabilities', 'guide', 'plan_codes'];
 
     // Híbridos (personas) quedan para después: por ahora solo agentes IA.
     public const KINDS = ['ai'];
     public const RARITIES = ['r', 'sr', 'ssr'];
+
+    public const TRAINING = 'training';
+    public const ONLINE = 'online';
+    public const UNAVAILABLE = 'unavailable';
+
+    public const STATUSES = [
+        self::TRAINING    => 'En entrenamiento',
+        self::ONLINE      => 'Online',
+        self::UNAVAILABLE => 'No disponible',
+    ];
+
+    public const FEE_MODES = ['free' => 'Gratis', 'credits' => 'En créditos'];
 
     public $rules = [
         'name'     => 'required|max:120',
@@ -34,8 +46,22 @@ class Staff extends Model
         'slug'     => 'required|alpha_dash|max:120',
         'role'     => 'required|max:120',
         'kind'     => 'required|in:ai',
-        'rarity'   => 'required|in:r,sr,ssr',
+        'rarity'   => 'nullable|in:r,sr,ssr',
+        'quality'  => 'nullable|integer|between:1,5',
+        'status'   => 'nullable|in:training,online,unavailable',
+        'fee_mode' => 'nullable|in:free,credits',
+        'credit_type' => 'nullable|max:40',
     ];
+
+    /**
+     * ¿Ya existen las columnas del catálogo dinámico (1.17.0)? Las cargas iniciales antiguas
+     * crean agentes con este modelo antes de que se agreguen; entonces no se tocan.
+     */
+    protected static function hasCatalogColumns(): bool
+    {
+        // Sin caché: una carga inicial antigua corre antes de la migración 1.17.0 (y en pruebas la BD se recrea).
+        return \Schema::hasColumn('aero_workspaces_staff', 'status');
+    }
 
     public $hasOne = [
         'rate' => [StaffRate::class, 'key' => 'staff_id'],
@@ -61,6 +87,42 @@ class Staff extends Model
     public static function orchestrator(): ?self
     {
         return static::where('is_orchestrator', true)->where('is_active', true)->first();
+    }
+
+    /** `is_active` (lo que usa el resto del sistema) es «estado = Online»; se mantienen sincronizados en ambos sentidos. */
+    public function beforeSave(): void
+    {
+        if (!static::hasCatalogColumns()) {
+            unset($this->attributes['quality'], $this->attributes['status'], $this->attributes['fee_mode'], $this->attributes['credit_type'], $this->attributes['plan_codes']);
+
+            return;
+        }
+
+        $this->quality = $this->quality ?: 3;
+        $this->status = $this->status ?: self::ONLINE;
+        $this->fee_mode = $this->fee_mode ?: 'free';
+
+        if ($this->is_orchestrator) {
+            $this->status = self::ONLINE;
+        }
+        elseif (!$this->exists) {
+            // Alta: si se pidió explícitamente inactivo y el estado quedó en el valor por defecto, es «No disponible».
+            if ($this->is_active !== null && !$this->is_active && $this->status === self::ONLINE) {
+                $this->status = self::UNAVAILABLE;
+            }
+        }
+        elseif ($this->isDirty('status')) {
+            // el estado manda
+        }
+        elseif ($this->isDirty('is_active')) {
+            $this->status = $this->is_active ? self::ONLINE : ($this->status === self::TRAINING ? self::TRAINING : self::UNAVAILABLE);
+        }
+
+        $this->is_active = $this->status === self::ONLINE;
+
+        if ($this->fee_mode === 'free') {
+            $this->credit_type = $this->credit_type ?: null;
+        }
     }
 
     public function afterSave(): void
@@ -189,8 +251,63 @@ class Staff extends Model
         return \Aero\Connector\Models\Connector::query()->orderBy('name')->pluck('name', 'id')->all();
     }
 
+    /** Online: se puede contratar y trabajar con él. */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /** Lo que muestra el Mercado: online y en entrenamiento (estos últimos sin poder contratarse). */
+    public function scopeListed($query)
+    {
+        return $query->whereIn('status', [self::ONLINE, self::TRAINING]);
+    }
+
+    public function getStatusOptions(): array
+    {
+        return self::STATUSES;
+    }
+
+    public function getFeeModeOptions(): array
+    {
+        return self::FEE_MODES;
+    }
+
+    public function getQualityOptions(): array
+    {
+        return [1 => '★☆☆☆☆  1 · Básico', 2 => '★★☆☆☆  2 · Correcto', 3 => '★★★☆☆  3 · Bueno', 4 => '★★★★☆  4 · Muy bueno', 5 => '★★★★★  5 · Excelente'];
+    }
+
+    /** Categorías dinámicas del catálogo (Staff → Categorías). */
+    public function getCategoryOptions(): array
+    {
+        $options = Category::options();
+
+        // Una categoría ya asignada sigue siendo elegible aunque la hayan ocultado.
+        if ($this->category && !isset($options[$this->category])) {
+            $options[$this->category] = ucfirst($this->category) . ' (oculta)';
+        }
+
+        return $options;
+    }
+
+    /** Tipos de crédito de Aero.Credits (código => nombre). */
+    public function getCreditTypeOptions(): array
+    {
+        if (!class_exists(\Aero\Credits\Models\CreditType::class)) {
+            return [];
+        }
+
+        return \Aero\Credits\Models\CreditType::active()->orderBy('sort_order')->pluck('label', 'code')->all();
+    }
+
+    /** Planes de la plataforma a los que corresponde el agente (código => nombre). */
+    public function getPlanCodesOptions(): array
+    {
+        if (!class_exists(\Aero\Sites\Models\Plan::class)) {
+            return [];
+        }
+
+        return \Aero\Sites\Models\Plan::where('is_active', true)->orderBy('sort_order')->pluck('name', 'code')->all();
     }
 }

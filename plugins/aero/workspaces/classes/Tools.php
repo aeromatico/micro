@@ -29,8 +29,8 @@ class Tools
             'workspaces_market' => $tool(
                 'Mercado de agentes: los agentes de IA que el cliente puede contratar (rol, rareza, skills, precio de contratación y por encargo, y si ya están en su equipo). Admite filtros.',
                 [
-                    'category' => ['type' => 'string', 'enum' => ['video', 'imagen', 'contenido', 'ppt', 'info', 'automatizacion', 'ecommerce', 'web', 'integraciones']],
-                    'rarity'   => ['type' => 'string', 'enum' => ['r', 'sr', 'ssr']],
+                    'category' => ['type' => 'string', 'description' => 'Código de categoría (campo category de cada agente).'],
+                    'min_quality' => ['type' => 'integer', 'description' => 'Calidad mínima, de 1 a 5 estrellas.'],
                     'q'        => ['type' => 'string', 'description' => 'Busca en nombre, rol, descripción y etiquetas.'],
                     'sort'     => ['type' => 'string', 'enum' => ['hires', 'cost', 'name'], 'description' => 'Más contratados, menor costo o nombre.'],
                 ],
@@ -84,7 +84,7 @@ class Tools
 
         $list = array_values(array_filter($list, function ($a) use ($args, $q) {
             return (empty($args['category']) || $a['category'] === $args['category'])
-                && (empty($args['rarity']) || $a['rarity'] === $args['rarity'])
+                && (empty($args['min_quality']) || $a['quality'] >= (int) $args['min_quality'])
                 && ($q === '' || str_contains(mb_strtolower($a['name'] . ' ' . $a['role'] . ' ' . $a['bio'] . ' ' . implode(' ', $a['tags'])), $q));
         }));
 
@@ -204,7 +204,7 @@ class Tools
     /** Resumen sin biografía larga ni guía (para listas). */
     protected static function brief(array $a): array
     {
-        return array_intersect_key($a, array_flip(['slug', 'name', 'role', 'category', 'rarity', 'orchestrator', 'hired', 'hire_fee', 'task_fee', 'chat_fee', 'contracts']))
+        return array_intersect_key($a, array_flip(['slug', 'name', 'role', 'category', 'quality', 'status', 'plans', 'fee', 'orchestrator', 'hired', 'hire_fee', 'task_fee', 'chat_fee', 'contracts']))
             + ['skills' => array_column($a['skills'], 'name')];
     }
 }

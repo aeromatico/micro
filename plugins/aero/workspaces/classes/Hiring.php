@@ -21,11 +21,13 @@ class Hiring
     public static function hire(int $tenantId, string $slug, ?int $userId = null): array
     {
         $staff = static::find($slug);
-        $fee = (int) round((float) $staff->hire_fee);
+        $fee = Billing::hireFee($staff);
 
         if (Hire::forTenant($tenantId)->where('staff_id', $staff->id)->exists()) {
             throw new \DomainException("{$staff->name} ya está en tu equipo.");
         }
+
+        static::assertPlan($tenantId, $staff);
 
         $charged = 0;
 
@@ -36,7 +38,7 @@ class Hiring
                 if ($fee > 0 && Billing::active()) {
                     $tx = Billing::charge($tenantId, $fee, 'workspaces.hire', "Contratación de {$staff->name}",
                         // Con la hora: quien se despidió y se vuelve a contratar paga de nuevo.
-                        "workspaces.hire.{$tenantId}.{$staff->id}." . now()->timestamp, ['staff_id' => $staff->id]);
+                        "workspaces.hire.{$tenantId}.{$staff->id}." . now()->timestamp, ['staff_id' => $staff->id, 'credit_type' => Billing::creditType($staff)]);
                     $charged = $fee;
                 }
 
@@ -44,7 +46,9 @@ class Hiring
             });
         }
         catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
-            throw new \DomainException("No tienes puntos suficientes para contratar a {$staff->name} ({$fee} pts).");
+            $label = Workspace::creditTypes()[Billing::creditType($staff)]['label'] ?? 'créditos';
+
+            throw new \DomainException("No tienes créditos suficientes para contratar a {$staff->name} ({$fee} {$label}).");
         }
         catch (\Illuminate\Database\QueryException $e) {
             // Solo la carrera de dos contrataciones a la vez es «ya está»; cualquier otro fallo de BD no se disfraza.
@@ -100,19 +104,46 @@ class Hiring
         return [
             'agent'       => $staff->name,
             'already'     => Hire::forTenant($tenantId)->where('staff_id', $staff->id)->exists(),
-            'hire_fee'    => (int) round((float) $staff->hire_fee),
+            'hire_fee'    => Billing::hireFee($staff),
             'chat_fee'    => Billing::rate($staff, Billing::TURN),
-            'would_charge' => Settings::chargeEnabled() ? (int) round((float) $staff->hire_fee) : 0,
+            'credit_type' => Billing::creditType($staff),
+            'would_charge' => Settings::chargeEnabled() ? Billing::hireFee($staff) : 0,
+            'plan_ok'     => static::planAllows($tenantId, $staff),
             'points'      => Workspace::points($tenantId),
         ];
     }
 
+    /** ¿El plan del tenant está entre los del agente? (sin planes definidos = todos) */
+    protected static function planAllows(int $tenantId, Staff $staff): bool
+    {
+        $plans = array_values(array_filter((array) $staff->plan_codes));
+
+        return !$plans || in_array(Workspace::planCode($tenantId), $plans, true);
+    }
+
+    /** @throws \DomainException */
+    protected static function assertPlan(int $tenantId, Staff $staff): void
+    {
+        if (static::planAllows($tenantId, $staff)) {
+            return;
+        }
+
+        $names = Workspace::planNames();
+        $list = implode(' o ', array_map(fn ($c) => $names[$c] ?? strtoupper($c), array_values(array_filter((array) $staff->plan_codes))));
+
+        throw new \DomainException("{$staff->name} corresponde al plan {$list}. Mejora tu plan para contratarlo.");
+    }
+
     protected static function find(string $slug): Staff
     {
-        $staff = Staff::active()->where('slug', $slug)->first();
+        $staff = Staff::where('slug', $slug)->whereIn('status', [Staff::ONLINE, Staff::TRAINING])->first();
 
         if (!$staff) {
             throw new \DomainException('Ese agente no está disponible en el mercado.');
+        }
+
+        if ($staff->status === Staff::TRAINING) {
+            throw new \DomainException("{$staff->name} está en entrenamiento: pronto estará disponible para contratar.");
         }
 
         if ($staff->is_orchestrator) {

@@ -1,0 +1,14 @@
+columns:
+    label:
+        label: Nombre
+        searchable: true
+    code:
+        label: Código
+    agents:
+        label: Agentes
+        sortable: false
+    sort_order:
+        label: Orden
+    is_active:
+        label: Visible
+        type: switch

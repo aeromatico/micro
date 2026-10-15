@@ -1,0 +1,12 @@
+list: $/aero/workspaces/models/category/columns.yaml
+modelClass: Aero\Workspaces\Models\Category
+title: Categorías
+showSetup: false
+showCheckboxes: false
+recordsPerPage: 30
+defaultSort:
+    column: sort_order
+    direction: asc
+recordUrl: aero/workspaces/categories/update/:id
+toolbar:
+    buttons: list_toolbar

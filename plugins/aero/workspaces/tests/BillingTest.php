@@ -48,7 +48,7 @@ class BillingTest extends PluginTestCase
     {
         $s = new Staff();
         $s->fill($extra + ['name' => ucfirst($slug), 'slug' => $slug, 'role' => 'Rol', 'kind' => 'ai', 'rarity' => 'sr', 'category' => 'contenido', 'is_active' => true,
-            'system_prompt' => 'Eres ' . $slug, 'hire_fee' => $hire]);
+            'system_prompt' => 'Eres ' . $slug, 'hire_fee' => $hire, 'fee_mode' => 'credits']);
         $s->save();
         TaskRate::create(['staff_id' => $s->id, 'task_type' => 'chat_turn', 'fee' => $turn]);
         TaskRate::create(['staff_id' => $s->id, 'task_type' => 'encargo', 'fee' => $task]);
@@ -57,6 +57,95 @@ class BillingTest extends PluginTestCase
         $s->skills()->attach($skill->id);
 
         return $s->fresh(['skills', 'taskRateRows']);
+    }
+
+    public function testAFreeAgentNeverChargesEvenIfItHasRates(): void
+    {
+        $this->agent('jefa', ['is_orchestrator' => true]);
+        $this->agent('gratis', ['fee_mode' => 'free'], hire: 40, turn: 5, task: 9);
+        $this->ledger->fund(1, 100);
+
+        $out = Hiring::hire(1, 'gratis');
+
+        $this->assertSame(0, $out['charged']);
+        $this->assertSame(100, $this->ledger->balance(1));
+        $this->assertSame(0, Billing::rate(Staff::where('slug', 'gratis')->first(), Billing::TURN));
+    }
+
+    public function testEachAgentChargesWithItsOwnCreditType(): void
+    {
+        $this->agent('jefa', ['is_orchestrator' => true]);
+        $this->agent('roja', ['credit_type' => 'rojo'], hire: 10);
+        $this->agent('base', [], hire: 10);
+        $this->ledger->fund(1, 100);
+
+        Hiring::hire(1, 'roja');
+        Hiring::hire(1, 'base');
+
+        $types = array_column($this->ledger->txs, 'credit_type');
+        $this->assertSame(['rojo', 'azul'], array_values($types), 'el suyo, o el por defecto de Ajustes');
+    }
+
+    public function testPlanRestrictedAgentsCannotBeHiredFromAnotherPlan(): void
+    {
+        $this->agent('jefa', ['is_orchestrator' => true]);
+        $this->agent('solopro', ['plan_codes' => ['pro']]);
+
+        // Sin plan conocido para el tenant (o de otro plan): no se contrata.
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('corresponde al plan');
+        Hiring::hire(1, 'solopro');
+    }
+
+    public function testTrainingAgentsAreListedButCannotBeHired(): void
+    {
+        $this->agent('jefa', ['is_orchestrator' => true]);
+        $this->agent('novato', ['status' => 'training']);
+
+        $listed = array_column(\Aero\Workspaces\Classes\Workspace::market(1), 'status', 'slug');
+        $this->assertSame('training', $listed['novato']);
+        $this->assertSame(0, (int) Staff::where('slug', 'novato')->value('is_active'), 'solo «Online» es activo');
+
+        try {
+            Hiring::hire(1, 'novato');
+            $this->fail('En entrenamiento no se contrata.');
+        }
+        catch (\DomainException $e) {
+            $this->assertStringContainsString('entrenamiento', $e->getMessage());
+        }
+    }
+
+    public function testStatusAndActiveFlagStayInSync(): void
+    {
+        $a = $this->agent('sync');
+        $this->assertSame('online', $a->status);
+
+        $a->status = 'unavailable';
+        $a->save();
+        $this->assertFalse((bool) $a->fresh()->is_active);
+
+        $a->is_active = true;
+        $a->save();
+        $this->assertSame('online', $a->fresh()->status);
+
+        $a->status = 'training';
+        $a->save();
+        $this->assertSame('training', $a->fresh()->status);
+        $this->assertFalse((bool) $a->fresh()->is_active);
+    }
+
+    public function testCategoriesAreDynamicAndProtectedWhileInUse(): void
+    {
+        $cat = \Aero\Workspaces\Models\Category::create(['code' => 'legal', 'label' => 'Legal', 'sort_order' => 5]);
+        $this->assertSame('Legal', \Aero\Workspaces\Models\Category::options()['legal']);
+        $this->assertArrayHasKey('legal', (new Staff())->getCategoryOptions());
+
+        $this->agent('abogado', ['category' => 'legal']);
+        $this->assertSame('Legal', \Aero\Workspaces\Classes\Workspace::categories()['legal']);
+        $this->assertSame('Legal', \Aero\Workspaces\Classes\Workspace::market(1)[array_search('abogado', array_column(\Aero\Workspaces\Classes\Workspace::market(1), 'slug'))]['category_label']);
+
+        $this->expectException(\ApplicationException::class);
+        $cat->delete();
     }
 
     public function testHiringChargesAndStoresTheTransaction(): void
@@ -85,7 +174,7 @@ class BillingTest extends PluginTestCase
             $this->fail('debió fallar por saldo');
         }
         catch (\DomainException $e) {
-            $this->assertStringContainsString('puntos suficientes', $e->getMessage());
+            $this->assertStringContainsString('créditos suficientes', $e->getMessage());
         }
 
         $this->assertSame(0, Hire::count());
@@ -154,7 +243,7 @@ class BillingTest extends PluginTestCase
             $this->fail('debió bloquear por saldo');
         }
         catch (\DomainException $e) {
-            $this->assertStringContainsString('5 pts por mensaje', $e->getMessage());
+            $this->assertStringContainsString('5 créditos por mensaje', $e->getMessage());
         }
 
         $this->assertSame(0, Message::count(), 'no se guarda nada ni se gasta IA');
@@ -274,7 +363,7 @@ class FakeLedger
 
         $this->balances[$tenantId] -= $amount;
         $id = count($this->txs) + 1;
-        $this->txs[$id] = ['tenant' => $tenantId, 'amount' => $amount, 'key' => $context['idempotency_key'] ?? null, 'refunded' => false];
+        $this->txs[$id] = ['tenant' => $tenantId, 'amount' => $amount, 'key' => $context['idempotency_key'] ?? null, 'refunded' => false, 'credit_type' => $context['credit_type'] ?? null];
 
         return $id;
     }

@@ -1,5 +1,6 @@
 <?php namespace Aero\Workspaces\Classes;
 
+use Aero\Workspaces\Models\Category;
 use Aero\Workspaces\Models\Hire;
 use Aero\Workspaces\Models\Settings;
 use Aero\Workspaces\Models\Skill;
@@ -39,18 +40,91 @@ class Workspace
         return Billing::rate($staff, Billing::TASK);
     }
 
+    /** Código del plan del tenant (null si no hay Sites o no tiene plan). */
+    public static function planCode(int $tenantId): ?string
+    {
+        if ($tenantId <= 0 || !class_exists(\Aero\Sites\Models\Tenant::class)) {
+            return null;
+        }
+
+        try {
+            $planId = \Aero\Sites\Models\Tenant::where('id', $tenantId)->value('plan_id');
+
+            return $planId ? (\Aero\Sites\Models\Plan::where('id', $planId)->value('code') ?: null) : null;
+        }
+        catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /** [código => nombre] de los planes de la plataforma (para mostrar a qué plan corresponde un agente). */
+    public static function planNames(): array
+    {
+        static $names = null;
+
+        if ($names === null) {
+            try {
+                $names = class_exists(\Aero\Sites\Models\Plan::class) ? \Aero\Sites\Models\Plan::where('is_active', true)->orderBy('sort_order')->pluck('name', 'code')->all() : [];
+            }
+            catch (\Throwable) {
+                $names = [];
+            }
+        }
+
+        return $names;
+    }
+
+    /** Categorías dinámicas: [código => nombre] (las activas, en orden). */
+    public static function categories(): array
+    {
+        return Category::options();
+    }
+
+    /** [código => ['label', 'color']] de los tipos de crédito. */
+    public static function creditTypes(): array
+    {
+        static $types = null;
+
+        if ($types === null) {
+            $types = [];
+
+            try {
+                if (class_exists(\Aero\Credits\Models\CreditType::class)) {
+                    foreach (\Aero\Credits\Models\CreditType::active()->get() as $t) {
+                        $types[$t->code] = ['label' => (string) $t->label, 'color' => (string) $t->color];
+                    }
+                }
+            }
+            catch (\Throwable) {
+                // sin Credits: la tarifa se muestra sin nombre de tipo
+            }
+        }
+
+        return $types;
+    }
+
     /**
      * Forma pública de un agente. `$hired`: ya está en el equipo del tenant.
+     * `$tenantPlan`: plan del tenant que mira (null = vista pública, sin tenant).
      */
-    public static function agent(Staff $staff, bool $hired = false, ?int $contracts = null): array
+    public static function agent(Staff $staff, bool $hired = false, ?int $contracts = null, ?string $tenantPlan = null, bool $forTenant = false): array
     {
+        $plans = array_values(array_filter((array) $staff->plan_codes));
+        $names = static::planNames();
+        $type = Billing::creditType($staff);
+        $paid = $staff->fee_mode === 'credits';
+        $category = static::categories()[$staff->category] ?? ucfirst((string) $staff->category);
+
         return [
             'id'           => (int) $staff->id,
             'slug'         => $staff->slug,
             'name'         => $staff->name,
             'role'         => $staff->role,
             'category'     => $staff->category,
-            'rarity'       => $staff->rarity,
+            'category_label' => $category,
+            'quality'      => max(1, min(5, (int) $staff->quality)),
+            'status'       => $staff->is_orchestrator ? Staff::ONLINE : (string) $staff->status,
+            'status_label' => Staff::STATUSES[$staff->is_orchestrator ? Staff::ONLINE : $staff->status] ?? (string) $staff->status,
             'bio'          => (string) $staff->bio,
             'tags'         => array_values((array) $staff->tags),
             'capabilities' => (array) $staff->capabilities,
@@ -60,10 +134,20 @@ class Workspace
             // Trabaja de verdad (tiene herramientas por sus skills) en vez de simular.
             'live'         => AgentRunner::isLive($staff),
             'hired'        => $hired || (bool) $staff->is_orchestrator,
-            'hire_fee'     => (int) round((float) $staff->hire_fee),
+            // A qué planes corresponde (vacío = todos) y si el plan del tenant que mira lo incluye.
+            'plans'        => array_map(fn ($c) => ['code' => $c, 'name' => $names[$c] ?? strtoupper($c)], $plans),
+            'plan_ok'      => !$forTenant || !$plans || ($tenantPlan !== null && in_array($tenantPlan, $plans, true)),
+            'fee'          => [
+                'mode'         => $paid ? 'credits' : 'free',
+                'credit_type'  => $paid ? $type : null,
+                'credit_label' => $paid ? (static::creditTypes()[$type]['label'] ?? $type) : null,
+                'credit_color' => $paid ? (static::creditTypes()[$type]['color'] ?? null) : null,
+            ],
+            'hire_fee'     => Billing::hireFee($staff),
             'task_fee'     => static::taskFee($staff),
             'chat_fee'     => Billing::rate($staff, Billing::TURN),
-            'contracts'    => $contracts ?? 0,
+            // Contratos reales de los tenants + los de referencia que fija el superadmin (3 a 30 al sembrar).
+            'contracts'    => ($contracts ?? 0) + max(0, (int) ($staff->base_contracts ?? 0)),
             'skills'       => $staff->skills->map(fn (Skill $s) => static::skill($s))->values()->all(),
         ];
     }
@@ -81,15 +165,19 @@ class Workspace
         ];
     }
 
-    /** Todo el catálogo activo (menos el orquestador, que no se vende) con su estado para el tenant. */
+    /**
+     * Todo el catálogo listado (online y en entrenamiento; sin el orquestador, que no
+     * se vende) con su estado para el tenant. `$tenantId` 0 = vista pública.
+     */
     public static function market(int $tenantId): array
     {
         $hired = static::hiredIds($tenantId);
         $counts = Hire::selectRaw('staff_id, count(*) as n')->groupBy('staff_id')->pluck('n', 'staff_id');
+        $plan = static::planCode($tenantId);
 
-        return Staff::active()->where('is_orchestrator', false)->with(['skills', 'rate', 'taskRateRows'])
+        return Staff::listed()->where('is_orchestrator', false)->with(['skills', 'rate', 'taskRateRows'])
             ->orderBy('sort_order')->orderBy('id')->get()
-            ->map(fn (Staff $s) => static::agent($s, in_array((int) $s->id, $hired, true), (int) ($counts[$s->id] ?? 0)))
+            ->map(fn (Staff $s) => static::agent($s, in_array((int) $s->id, $hired, true), (int) ($counts[$s->id] ?? 0), $plan, $tenantId > 0))
             ->all();
     }
 
@@ -105,7 +193,7 @@ class Workspace
 
         if ($orchestrator) {
             $orchestrator->load(['skills', 'rate', 'taskRateRows']);
-            $team[] = static::agent($orchestrator, true);
+            $team[] = static::agent($orchestrator, true, null, null, false);
         }
 
         foreach ($members as $member) {

@@ -1,0 +1,2 @@
+<?php $q = max(1, min(5, (int) $value)); ?>
+<span title="<?= $q ?> de 5" style="color:#d6a100;letter-spacing:1px"><?= str_repeat('★', $q) . '<span style="color:#c9ced4">' . str_repeat('★', 5 - $q) . '</span>' ?></span>

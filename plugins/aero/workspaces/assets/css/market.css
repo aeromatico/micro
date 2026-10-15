@@ -123,3 +123,13 @@
 @media (max-width: 480px){.ws-market .portfolio{ grid-template-columns: minmax(0, 1fr); }}
 @media (prefers-reduced-motion: reduce){.ws-market .card, .ws-market .card .shine{ transition: none; }
 .ws-market .card:hover{ transform: none; }}
+
+/* Calidad en estrellas, estado y plan (reemplazan a la rareza) */
+.ws-market .stars{ display: inline-block; color: #d6a100; letter-spacing: 1px; font-size: 14px; margin-top: 2px; }
+.ws-market .stars i{ font-style: normal; color: var(--line); }
+.ws-market .meta{ display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 12px; }
+.ws-market .meta .plan{ color: var(--muted); }
+.ws-market .st{ display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 600; font-size: 12px; background: var(--chip); color: var(--muted); }
+.ws-market .st.online{ background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+.ws-market .st.training{ background: color-mix(in srgb, #c58a0b 18%, transparent); color: #c58a0b; }
+.ws-market .cost b{ font-variant-numeric: tabular-nums; }

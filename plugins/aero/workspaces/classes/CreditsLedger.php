@@ -9,9 +9,9 @@ use Aero\Workspaces\Models\Settings;
  */
 class CreditsLedger
 {
-    public function balance(int $tenantId): int
+    public function balance(int $tenantId, ?string $creditType = null): int
     {
-        return \Aero\Credits\Classes\Credits::balance($tenantId, Settings::creditTypeCode());
+        return \Aero\Credits\Classes\Credits::balance($tenantId, $creditType ?: Settings::creditTypeCode());
     }
 
     /**
@@ -21,10 +21,13 @@ class CreditsLedger
      */
     public function charge(int $tenantId, int $amount, string $actionCode, array $context): int
     {
-        $type = \Aero\Credits\Models\CreditType::findByCode(Settings::creditTypeCode());
+        // El tipo lo elige cada agente (`credit_type` en el contexto); sin él, el de Ajustes.
+        $code = (string) ($context['credit_type'] ?? '') ?: Settings::creditTypeCode();
+        unset($context['credit_type']);
+        $type = \Aero\Credits\Models\CreditType::findByCode($code);
 
         if (!$type) {
-            throw new \DomainException('El tipo de crédito de Workspaces no está configurado.');
+            throw new \DomainException('El tipo de crédito «' . $code . '» no existe o no está activo.');
         }
 
         return (int) \Aero\Credits\Classes\Credits::chargeRaw($tenantId, $type, $amount, $actionCode, ['source_plugin' => 'Aero.Workspaces'] + $context)->id;

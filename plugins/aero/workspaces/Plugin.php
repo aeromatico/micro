@@ -74,6 +74,12 @@ class Plugin extends PluginBase
                         'url'         => \Backend::url('aero/workspaces/staff'),
                         'permissions' => ['aero.workspaces.superadmin'],
                     ],
+                    'categories' => [
+                        'label'       => 'Categorías',
+                        'icon'        => 'icon-tags',
+                        'url'         => \Backend::url('aero/workspaces/categories'),
+                        'permissions' => ['aero.workspaces.superadmin'],
+                    ],
                 ],
             ],
         ];

@@ -1,0 +1,10 @@
+name: Categoría
+form: $/aero/workspaces/models/category/fields.yaml
+modelClass: Aero\Workspaces\Models\Category
+defaultRedirect: aero/workspaces/categories
+create:
+    redirect: aero/workspaces/categories
+    redirectClose: aero/workspaces/categories
+update:
+    redirect: aero/workspaces/categories
+    redirectClose: aero/workspaces/categories

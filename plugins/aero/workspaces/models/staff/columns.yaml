@@ -5,21 +5,30 @@ columns:
     role:
         label: Rol
         searchable: true
-    rarity:
-        label: Rareza
+    quality:
+        label: Calidad
+        type: partial
+        path: $/aero/workspaces/models/staff/_stars.htm
     category:
         label: Categoría
     hire_fee:
-        label: Contratación (pts)
+        label: Contratación
         sortable: false
     encargo_fee:
-        label: Encargo (pts)
+        label: Encargo
         sortable: false
     chat_fee:
-        label: Mensaje (pts)
+        label: Mensaje
         sortable: false
     kind:
         label: Tipo
-    is_active:
-        label: Activo
-        type: switch
+    status:
+        label: Estado
+        type: partial
+        path: $/aero/workspaces/models/staff/_status.htm
+    fee_mode:
+        label: Tarifa
+        type: partial
+        path: $/aero/workspaces/models/staff/_fee.htm
+    credit_type:
+        label: Crédito

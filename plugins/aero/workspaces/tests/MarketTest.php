@@ -22,7 +22,7 @@ class MarketTest extends PluginTestCase
     {
         $s = new Staff();
         $s->fill($extra + ['name' => ucfirst($slug), 'slug' => $slug, 'role' => 'Rol ' . $slug, 'kind' => 'ai', 'rarity' => 'sr', 'category' => 'contenido', 'is_active' => true,
-            'system_prompt' => 'PROMPT-SECRETO-' . $slug]);
+            'system_prompt' => 'PROMPT-SECRETO-' . $slug, 'fee_mode' => 'credits']);
         $s->save();
         TaskRate::create(['staff_id' => $s->id, 'task_type' => 'encargo', 'fee' => $fee]);
 

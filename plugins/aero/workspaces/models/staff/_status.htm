@@ -1,0 +1,5 @@
+<?php
+$map = ['online' => ['Online', '#1f9d63'], 'training' => ['En entrenamiento', '#c58a0b'], 'unavailable' => ['No disponible', '#8b95a0']];
+[$label, $color] = $map[$value] ?? [(string) $value, '#8b95a0'];
+?>
+<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;background:<?= $color ?>22;color:<?= $color ?>"><?= e($label) ?></span>
