@@ -10,6 +10,7 @@
  */
 return [
     // credenciales y tokens
+    \Aero\School\Models\Settings::class => 'configuración del colegio (cuenta de cobro y plantillas)',
     \Aero\Hello\Models\ApiKey::class => 'credenciales (key_hash/key_encrypted)',
     \Aero\Hello\Models\Profile::class => 'credenciales de proveedor (zernio/wapi/voice api keys)',
     \Aero\Hello\Models\TenantSettings::class => 'configuración con secreto de webhook',
