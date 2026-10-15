@@ -4,7 +4,7 @@ sort: 35
 ---
 # Construir workflows con un agente
 
-Un agente de IA (por ejemplo **Link**, o el Super Chatbot IA con las herramientas de construcción) puede diseñar tus workflows conversando contigo.
+Un agente de IA (por ejemplo **Link**, [ver su guía](../workspaces/workspaces-agente-link), o el Super Chatbot IA con las herramientas de construcción) puede diseñar tus workflows conversando contigo.
 
 ## Cómo trabaja
 

@@ -14,6 +14,7 @@ Cada persona usa su propia cuenta de Google. El permiso de Sheets se pide solo c
 |---------|----------------|
 | [Mapeos](sheets-mapeos) | Define una sincronización: fuente, hoja, pestaña, filas y columnas. Desde aquí se prueba y se ejecuta. |
 | [Historial](sheets-historial) | Resultado de cada ejecución. |
+| [Asistente de IA](sheets-asistente-ia) | El agente de Workspaces trabaja con tus hojas en tu nombre. |
 | **Cuenta de Google** | Conectar tu cuenta de Google (pantalla de conexiones). |
 
 ## Cómo se usa
@@ -24,7 +25,11 @@ Cada persona usa su propia cuenta de Google. El permiso de Sheets se pide solo c
 4. Haz una **prueba** (no guarda nada) y luego **ejecuta**.
 
 > [!NOTE]
-> Las fuentes de datos disponibles (modelos y campos sincronizables) las define la plataforma; solo ves las que están autorizadas para ti.
+> Las fuentes de datos disponibles (modelos y campos sincronizables) las define la plataforma; solo ves las que están autorizadas para ti. Por defecto los tenants disponen de **Productos** y **Colecciones** de la tienda (el stock solo se exporta) y **Contactos** del CRM.
+
+## Asistente de IA
+
+Desde la 1.1.0, el agente de IA de Workspaces puede leer tus hojas, corregir celdas mostrando antes→después con opción de deshacer, agregar filas, crear hojas nuevas y preparar mapeos con prueba previa y confirmación. Detalles en [Asistente de Google Sheets](sheets-asistente-ia).
 
 ## Permisos
 
@@ -32,4 +37,4 @@ Cada persona usa su propia cuenta de Google. El permiso de Sheets se pide solo c
 |---------|-------------|
 | `aero.sheets.use` | Importar/exportar con las fuentes autorizadas. |
 
-**Versión documentada:** 1.0.0
+**Versión documentada:** 1.1.0

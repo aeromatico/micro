@@ -18,10 +18,10 @@ Workspaces es la **Oficina de agentes de IA**: contratas agentes del Mercado y c
 
 | Agente | Qué hace |
 |---|---|
-| **Iván** (desarrollo web) | Crea páginas, SEO, contacto, colecciones y productos de tu sitio y tu tienda. Todo nace en borrador; publicar o activar pide tu confirmación y cada cambio se puede deshacer. |
+| **Iván** (desarrollo web, [ver detalle](workspaces-agente-ivan)) | Crea páginas, SEO, contacto, colecciones y productos de tu sitio y tu tienda. Todo nace en borrador; publicar o activar pide tu confirmación y cada cambio se puede deshacer. |
 | **Asistente de Google Sheets** | Revisa y corrige celdas mostrando antes → después y con deshacer; agrega filas, crea hojas e importa/exporta con prueba previa y confirmación. Usa la cuenta de Google de la persona que habla con él. Importar no se deshace. |
 | **Silvia** (CRM) | Consulta e informa con cifras calculadas por el sistema (embudo, origen de leads, cobranzas por antigüedad, calidad de contactos, negocios estancados, tickets) y gestiona contactos, empresas, leads, negocios, actividades y cobranzas. Convertir un lead no se deshace. |
-| **Link** | Diseña flujos de automatización. |
+| **Link** ([ver detalle](workspaces-agente-link)) | Diseña flujos de automatización. |
 | **Orquestadora** | Recibe tu encargo y reparte los pasos entre los agentes. |
 
 ## Cómo trabajan

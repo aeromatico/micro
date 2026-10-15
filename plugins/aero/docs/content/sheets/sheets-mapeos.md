@@ -49,4 +49,11 @@ Al editar un mapeo existente aparecen además:
 > [!TIP]
 > Haz siempre una prueba antes de la primera importación y revisa el [historial](sheets-historial).
 
-**Versión documentada:** 1.0.0
+## Mapeos con el asistente de IA
+
+El [asistente de Google Sheets](sheets-asistente-ia) también puede proponer y guardar mapeos por ti. Solo guarda la configuración; para ejecutar exige una **prueba previa** de ese mismo mapeo y tu confirmación. Si cambias el mapeo después de la prueba, hay que repetirla.
+
+> [!WARNING]
+> Importar no se deshace. Revisa siempre el resultado de la prueba antes de ejecutar.
+
+**Versión documentada:** 1.1.0

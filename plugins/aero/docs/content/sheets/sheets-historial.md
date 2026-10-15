@@ -26,4 +26,7 @@ Lista de solo lectura con cada vez que se ejecutó (o probó) un [mapeo](sheets-
 
 Al abrir una ejecución se ve su detalle, incluidos los mensajes de error.
 
-**Versión documentada:** 1.0.0
+> [!NOTE]
+> Las ediciones de celdas hechas por el [asistente de IA](sheets-asistente-ia) (con su antes→después) las consulta el propio asistente, que también puede deshacerlas. Las importaciones no se deshacen.
+
+**Versión documentada:** 1.1.0

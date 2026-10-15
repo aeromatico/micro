@@ -50,6 +50,7 @@ En paralelo: **Cobranzas** persigue los pagos y **Tickets** atiende el soporte.
 - [Equipo](crm-equipo) — accesos al sitio.
 - [Tickets](crm-tickets) — soporte.
 - [Departamentos](crm-departamentos) — áreas de soporte.
+- [Asistente de IA (Silvia)](crm-asistente-ia) — consultar, analizar y gestionar el CRM con un agente.
 
 ## Permisos
 

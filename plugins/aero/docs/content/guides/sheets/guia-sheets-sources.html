@@ -1,0 +1,373 @@
+<!doctype html>
+<!--guide {"title":"Fuentes y campos (superadmin)","article":"sheets-vista-general","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Fuente de Google Sheets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#eceff2; --surface:#fff; --surface-2:#f5f7f9; --ink:#1d2933; --ink-2:#55636f; --line:#d5dce2; --accent:#1f6f8b; --accent-ink:#fff; --accent-soft:#dcecf2; --hint:#b4620a; --hint-soft:#fdf0dc; --ok:#1e7a4c; --ok-soft:#dff2e8; --err:#b3261e; --err-soft:#fbe4e2;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark; } }
+:root[data-theme="dark"] { --bg:#12181d; --surface:#1a232a; --surface-2:#212c34; --ink:#e6ecf0; --ink-2:#93a3af; --line:#2f3d47; --accent:#5fb4d0; --accent-ink:#0c1a21; --accent-soft:#1b3541; --hint:#f0a94e; --hint-soft:#3a2a12; --ok:#62c592; --ok-soft:#17342a; --err:#f28b82; --err-soft:#3b1d1b; color-scheme:dark; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5; margin:0; padding-inline:16px; padding-block:20px 48px; }
+.wrap { max-width:1760px; margin-inline:auto; display:grid; gap:20px; grid-template-columns:minmax(0,1fr); grid-template-areas:"head" "guide" "form"; }
+@media (min-width:940px) { .wrap { grid-template-columns:360px minmax(0,1fr); grid-template-areas:"head head" "guide form"; align-items:start; } }
+header { grid-area:head; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between; }
+h1 { font-size:20px; font-weight:600; margin:0; text-wrap:balance; }
+.crumb { font-family:var(--font-mono); font-size:12px; color:var(--ink-2); overflow-wrap:anywhere; }
+.badge { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; padding:3px 8px; border-radius:3px; background:var(--hint-soft); color:var(--hint); }
+.guide { grid-area:guide; background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+@media (min-width:940px) { .guide { position:sticky; top:12px; max-height:calc(100vh - 24px); overflow:auto; } }
+.g-head { padding:14px 16px 10px; border-bottom:1px solid var(--line); }
+.g-eyebrow { font-size:15px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); }
+.g-nav { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.g-nav .btn { min-height:44px; padding:10px 14px; font-size:15px; font-weight:600; border-radius:6px; border:2px solid var(--accent); }
+.g-nav #gPrev { background:var(--accent-soft); color:var(--accent); }
+.g-nav #gNext { background:var(--accent); color:var(--accent-ink); }
+.g-nav .btn:disabled { opacity:.4; cursor:not-allowed; }
+.g-title { font-size:16px; font-weight:600; margin:14px 0 0; text-wrap:balance; }
+.progress { height:4px; background:var(--surface-2); border-radius:2px; margin-top:10px; overflow:hidden; }
+.progress > i { display:block; height:100%; background:var(--accent); width:0; transition:width .25s; }
+.g-body { padding:14px 16px; display:grid; gap:12px; }
+.g-body p { margin:0; }
+.g-sub { font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:var(--ink-2); margin-bottom:2px; }
+.note { padding:10px 12px; border-radius:4px; background:var(--hint-soft); color:var(--ink); }
+.note b { color:var(--hint); }
+.example { font-family:var(--font-mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:4px; padding:8px 10px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.g-actions { display:flex; gap:8px; flex-wrap:wrap; padding:0 16px 14px; }
+button { font:inherit; cursor:pointer; }
+.btn { border:1px solid var(--line); background:var(--surface); color:var(--ink); padding:6px 12px; border-radius:4px; }
+.btn:hover { background:var(--surface-2); }
+.btn.primary { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:500; }
+.btn.ghost { border-color:transparent; color:var(--accent); background:transparent; padding-inline:6px; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, .tab:focus-visible, .steps button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.steps { list-style:none; margin:0; padding:8px; border-top:1px solid var(--line); display:grid; gap:2px; }
+.steps button { width:100%; text-align:left; display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; align-items:center; background:transparent; border:0; border-radius:4px; padding:6px 8px; color:var(--ink-2); }
+.steps button:hover { background:var(--surface-2); }
+.steps button[aria-current="step"] { background:var(--accent-soft); color:var(--ink); font-weight:500; }
+.dot { width:18px; height:18px; border-radius:50%; border:1.5px solid var(--line); display:grid; place-items:center; font-size:10px; font-weight:600; }
+.steps .done .dot { background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.formcol { grid-area:form; min-width:0; display:grid; gap:12px; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:6px; min-width:0; }
+.tabs { display:flex; gap:2px; padding:8px 8px 0; border-bottom:1px solid var(--line); overflow-x:auto; }
+.tab { background:transparent; border:0; padding:8px 14px; border-bottom:2px solid transparent; color:var(--accent); font-weight:500; white-space:nowrap; }
+.panel { padding:16px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 20px; align-items:start; }
+@media (max-width:640px) { .panel { grid-template-columns:minmax(0,1fr); } }
+.field { min-width:0; padding:6px; margin:-6px; border-radius:6px; transition:box-shadow .15s, background .15s; }
+.field.full { grid-column:1 / -1; }
+.field.is-guided { box-shadow:0 0 0 2px var(--hint); background:var(--hint-soft); }
+.field[hidden], [hidden] { display:none !important; }
+label.lbl { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+.req { color:var(--err); margin-left:2px; }
+input[type=text] { width:100%; font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:7px 9px; }
+input.err { border-color:var(--err); }
+.help { font-size:12px; color:var(--ink-2); margin-top:4px; overflow-wrap:anywhere; }
+.errmsg { font-size:12px; color:var(--err); margin-top:4px; }
+.sw { display:inline-flex; align-items:center; gap:8px; }
+.sw input { width:18px; height:18px; }
+.trig { font-family:var(--font-mono); font-size:11px; color:var(--accent); background:var(--accent-soft); border-radius:3px; padding:1px 6px; margin-left:6px; font-weight:400; }
+body:not(.show-tech) .trig { display:none; }
+.callout { grid-column:1 / -1; border:1px solid var(--accent); background:var(--accent-soft); border-radius:6px; padding:10px 14px; }
+.callout p { margin:0 0 4px; }
+.callout ul { margin:0; padding-left:18px; }
+.callout li button { background:none; border:0; color:var(--accent); text-decoration:underline; padding:0; font-family:var(--font-mono); font-size:12px; }
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid var(--line); background:var(--surface-2); border-radius:0 0 6px 6px; align-items:center; }
+.toolbar .spacer { flex:1; }
+.chk { display:inline-flex; gap:6px; align-items:center; color:var(--ink-2); font-size:12px; }
+.ctx { font-family:var(--font-mono); font-size:11px; color:var(--ink-2); padding:8px 16px 0; }
+.tbl-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:4px; grid-column:1 / -1; }
+table.tx { width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+table.tx th { text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-2); background:var(--surface-2); padding:8px 10px; border-bottom:1px solid var(--line); }
+table.tx td { padding:6px 10px; border-bottom:1px solid var(--line); }
+table.tx input[type=text] { padding:4px 6px; }
+table.tx input[type=checkbox] { width:16px; height:16px; }
+table.tx tr.is-guided td { background:var(--hint-soft); }
+.pill { font-size:11px; padding:1px 7px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); }
+.sample { grid-column:1 / -1; font-size:11px; color:var(--ink-2); font-style:italic; }
+#flash { position:fixed; left:50%; transform:translateX(-50%); bottom:16px; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:4px; background:var(--ink); color:var(--bg); box-shadow:0 6px 24px rgba(0,0,0,.25); z-index:10; }
+#flash.err { background:var(--err); color:#fff; }
+@media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+/* Barra de guía con color propio */
+:root { --g-surface:#dcecf2; --g-surface-2:#cbe1ea; --g-line:#a9c9d6; --g-ink:#10303c; --g-ink-2:#3a5c6b; --g-accent:#1a6480; --g-accent-ink:#fff; --g-accent-soft:#f4fafc; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; } }
+:root[data-theme="dark"] { --g-surface:#143443; --g-surface-2:#1c4658; --g-line:#2d5a70; --g-ink:#e8f3f8; --g-ink-2:#a3c2d1; --g-accent:#7cc4de; --g-accent-ink:#08222d; --g-accent-soft:#25566f; }
+.guide { --surface:var(--g-surface); --surface-2:var(--g-surface-2); --line:var(--g-line); --ink:var(--g-ink); --ink-2:var(--g-ink-2); --accent:var(--g-accent); --accent-ink:var(--g-accent-ink); --accent-soft:var(--g-accent-soft); color:var(--ink); }
+</style>
+</head><body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 id="h1">Nueva fuente</h1>
+      <div class="crumb" id="crumb">/backend/aero/sheets/sources/create · Guía de capacitación</div>
+    </div>
+    <span class="badge">Demo: no guarda nada real</span>
+  </header>
+
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav">
+        <button class="btn" id="gPrev" type="button">← Anterior</button>
+        <button class="btn primary" id="gNext" type="button">Siguiente →</button>
+      </div>
+      <h2 class="g-title" id="gTitle"></h2>
+      <div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+
+  <main class="formcol">
+    <div class="card">
+      <div class="ctx" id="ctxLine"></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" type="button">Fuente</button></div>
+      <div class="panel">
+        <div class="callout" id="suggestions" data-f="suggestions">
+          <p>Modelos sugeridos por los plugins (datos de ejemplo):</p>
+          <ul id="sugList"></ul>
+          <span class="trig">context: create</span>
+        </div>
+        <div class="field" data-f="label">
+          <label class="lbl" for="label">Nombre visible<span class="req">*</span></label>
+          <input type="text" id="label" autocomplete="off">
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="model_class">
+          <label class="lbl" for="model_class">Clase del modelo<span class="req">*</span></label>
+          <input type="text" id="model_class" autocomplete="off" placeholder="Aero\Crm\Models\Contact">
+          <div class="help">Ej.: Aero\Crm\Models\Contact (solo modelos de plugins Aero)</div>
+          <div class="errmsg" hidden></div>
+        </div>
+        <div class="field" data-f="is_enabled">
+          <label class="lbl">Activa</label>
+          <label class="sw"><input type="checkbox" id="is_enabled" checked> <span>Sí</span></label>
+        </div>
+        <div class="field" data-f="tenant_access">
+          <label class="lbl">Disponible para tenants</label>
+          <label class="sw"><input type="checkbox" id="tenant_access"> <span>Sí</span></label>
+          <div class="help">Solo si la tabla tiene tenant_id; cada tenant verá y escribirá únicamente sus propios registros.</div>
+        </div>
+        <div class="field full" data-f="sync_fields" id="syncBox" hidden>
+          <label class="lbl">Campos sincronizables<span class="trig">context: update</span></label>
+          <div class="help" style="margin:0 0 8px">Marca qué campos pueden <b>importarse</b> (hoja → sistema) y/o <b>exportarse</b> (sistema → hoja). Los campos de sistema (id, tenant_id, fechas) solo se exportan; las credenciales no se ofrecen nunca.</div>
+          <div class="tbl-wrap"><table class="tx">
+            <thead><tr><th>Campo</th><th>Tipo</th><th>Etiqueta</th><th>Importar</th><th>Exportar</th></tr></thead>
+            <tbody id="fieldsBody"></tbody>
+          </table></div>
+          <div class="sample">Campos de ejemplo. En la app real salen de las columnas de la tabla del modelo; no aparecen las que parecen credenciales (password, token, secret, api_key…).</div>
+        </div>
+        <div class="field full" id="lockSync" data-f="sync_lock">
+          <div class="help">Al crear no aparece la tabla de campos: es <code>context: update</code>. Guarda la fuente para elegir qué campos se sincronizan.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" type="button" id="btnSave">Crear</button>
+        <button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button>
+        <button class="btn" type="button" id="btnReset">Reiniciar demo</button>
+        <span class="spacer"></span>
+        <label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas</label>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="flash" hidden role="status"></div>
+
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  // Fuentes por defecto de aero/sheets 1.1.0 (seed_default_sources) y sus campos.
+  // [clave, etiqueta, tipo, importar, exportar, solo-sistema]
+  var SRC = {
+    'Aero\\Shop\\Models\\Product': { label: 'Productos de la tienda', tenant: true, fields: [
+      ['id', 'Id', 'int', 0, 0, 1], ['tenant_id', 'Tenant id', 'int', 0, 0, 1],
+      ['name', 'Nombre', 'string', 1, 1], ['description', 'Descripción', 'string', 1, 1], ['sku', 'SKU', 'string', 1, 1],
+      ['base_price', 'Precio', 'decimal', 1, 1], ['compare_at_price', 'Precio anterior', 'decimal', 1, 1],
+      ['status', 'Estado (draft/active/archived)', 'string', 1, 1], ['is_featured', 'Destacado', 'bool', 1, 1],
+      ['slug', 'Identificador (slug)', 'string', 0, 1], ['stock_quantity', 'Stock', 'int', 0, 1], ['created_at', 'Created at', 'datetime', 0, 0, 1]] },
+    'Aero\\Shop\\Models\\Collection': { label: 'Colecciones de la tienda', tenant: true, fields: [
+      ['id', 'Id', 'int', 0, 0, 1], ['tenant_id', 'Tenant id', 'int', 0, 0, 1],
+      ['name', 'Nombre', 'string', 1, 1], ['description', 'Descripción', 'string', 1, 1], ['is_active', 'Activa', 'bool', 1, 1],
+      ['slug', 'Identificador (slug)', 'string', 0, 1], ['created_at', 'Created at', 'datetime', 0, 0, 1]] },
+    'Aero\\Crm\\Models\\Contact': { label: 'Contactos del CRM', tenant: true, fields: [
+      ['id', 'Id', 'int', 0, 0, 1], ['tenant_id', 'Tenant id', 'int', 0, 0, 1],
+      ['first_name', 'Nombre', 'string', 1, 1], ['last_name', 'Apellido', 'string', 1, 1], ['email', 'Correo', 'string', 1, 1],
+      ['phone', 'Teléfono', 'string', 1, 1], ['source', 'Origen', 'string', 1, 1], ['created_at', 'Created at', 'datetime', 0, 0, 1]] }
+  };
+  var state = { mode: 'create', step: 0, tenantAuto: true };
+  function val(id) { return ($('#' + id).value || '').trim(); }
+  function set(id, v) { var el = $('#' + id); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+  function setChk(id, v) { var el = $('#' + id); el.checked = v; el.dispatchEvent(new Event('change', { bubbles: true })); }
+  function validClass(c) { return /^Aero\\[A-Za-z0-9]+\\Models\\[A-Za-z0-9\\]+$/.test(c); }
+
+  function buildSteps() {
+    var s = [
+      { id: 'label', fields: ['label'], title: 'Ponle un nombre visible', req: true,
+        body: 'Es el nombre con que esta fuente aparece en las listas del superadmin y de los tenants.',
+        tip: 'Debe decir qué datos contiene: «Productos de la tienda», no «Fuente 1».',
+        ex: 'Contactos del CRM', fill: function () { set('label', 'Contactos del CRM'); }, done: function () { return !!val('label'); } },
+      { id: 'model_class', fields: ['model_class'], title: 'Elige el modelo Aero', req: true,
+        body: 'Escribe la clase del modelo que se sincronizará con la hoja. Solo se aceptan modelos de plugins Aero con el formato Aero\\Plugin\\Models\\Nombre. Arriba verás los modelos que los plugins sugieren.',
+        tip: 'Debe ser un modelo que exista y que no esté ya registrado como fuente: cada clase se puede usar una sola vez.',
+        ex: 'Aero\\Crm\\Models\\Contact', fill: function () { set('model_class', 'Aero\\Crm\\Models\\Contact'); }, done: function () { return validClass(val('model_class')); } },
+      { id: 'is_enabled', fields: ['is_enabled'], title: 'Activa o apagada', opt: true,
+        body: 'Una fuente inactiva no se ofrece a nadie, ni a superadmin ni a tenants. Viene activa por defecto.',
+        tip: 'Apágala para retirar una fuente sin perder los campos que ya configuraste.',
+        ex: 'Activa', fill: function () { setChk('is_enabled', true); }, done: function () { return true; } },
+      { id: 'tenant_access', fields: ['tenant_access'], title: 'Ábrela a los tenants (opcional)', opt: true,
+        body: 'Si la activas, cada tenant verá y escribirá únicamente sus propios registros. Solo funciona si la tabla del modelo tiene la columna tenant_id.',
+        tip: 'Si el modelo no tiene tenant_id, al guardar la opción se desactiva sola. El agente de Google Sheets solo usa fuentes abiertas a tenants.',
+        ex: 'Disponible para tenants: sí', fill: function () { setChk('tenant_access', true); }, done: function () { return $('#tenant_access').checked; } },
+      { id: 'save', fields: [], title: 'Guardar y elegir campos', last: true,
+        body: 'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece la tabla de campos.',
+        tip: 'Hasta que no marques campos, la fuente no sincroniza nada: solo se sincroniza lo que tú autorizas.',
+        ex: '', fill: function () { save(false); }, done: function () { return state.mode === 'update'; } }
+    ];
+    if (state.mode === 'update') {
+      s.push(
+        { id: 'sync_fields', fields: ['sync_fields'], title: 'Marca importar / exportar por campo', req: true,
+          body: 'Importar lleva datos de la hoja al sistema; Exportar los lleva del sistema a la hoja. Puedes cambiar la etiqueta que verá quien arme el mapeo.',
+          tip: 'Los campos de sistema (id, tenant_id, fechas) solo se exportan: su casilla de importar está bloqueada. Las credenciales (password, token, secret, api_key…) nunca se ofrecen.',
+          ex: 'email → Importar ✓ Exportar ✓\nid → solo Exportar', fill: function () { markExample(); }, done: function () { return $$('#fieldsBody input[type=checkbox]:checked').length > 0; } },
+        { id: 'defaults', fields: ['sync_fields'], title: 'Fuentes por defecto', opt: true,
+          body: 'La versión 1.1.0 crea tres fuentes abiertas a tenants: Productos de la tienda, Colecciones de la tienda y Contactos del CRM. En Productos, el stock es solo exportar: se ajusta desde Inventario para dejar movimientos.',
+          tip: 'Solo se crean si el modelo está instalado y nunca pisan lo que ya editaste. Puedes quitarles campos o apagarlas.',
+          ex: 'Productos: slug y stock → solo exportar\nColecciones: slug → solo exportar\nContactos: nombre, apellido, correo, teléfono, origen',
+          fill: function () { set('model_class', 'Aero\\Shop\\Models\\Product'); renderFields(); }, done: function () { return true; } }
+      );
+    }
+    return s;
+  }
+  var steps = buildSteps();
+
+  function renderFields() {
+    var src = SRC[val('model_class')] || SRC['Aero\\Crm\\Models\\Contact'];
+    var b = $('#fieldsBody'); b.innerHTML = '';
+    src.fields.forEach(function (f) {
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td'); var c = document.createElement('code'); c.textContent = f[0]; td1.appendChild(c); tr.appendChild(td1);
+      var td2 = document.createElement('td'); var p = document.createElement('span'); p.className = 'pill'; p.textContent = f[2]; td2.appendChild(p); tr.appendChild(td2);
+      var td3 = document.createElement('td'); var i3 = document.createElement('input'); i3.type = 'text'; i3.value = f[1]; i3.setAttribute('aria-label', 'Etiqueta de ' + f[0]); td3.appendChild(i3); tr.appendChild(td3);
+      var td4 = document.createElement('td'); var i4 = document.createElement('input'); i4.type = 'checkbox'; i4.checked = !!f[3]; i4.disabled = !!f[5]; i4.setAttribute('aria-label', 'Importar ' + f[0]); td4.appendChild(i4); tr.appendChild(td4);
+      var td5 = document.createElement('td'); var i5 = document.createElement('input'); i5.type = 'checkbox'; i5.checked = !!f[4]; i5.setAttribute('aria-label', 'Exportar ' + f[0]); td5.appendChild(i5); tr.appendChild(td5);
+      [i4, i5].forEach(function (i) { i.onchange = refresh; });
+      b.appendChild(tr);
+    });
+  }
+  function markExample() {
+    $$('#fieldsBody tr').forEach(function (tr) {
+      var k = $('code', tr).textContent; var cb = $$('input[type=checkbox]', tr);
+      if (k === 'email') { cb[0].checked = true; cb[1].checked = true; }
+    });
+    refresh();
+  }
+
+  function render() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    var p = document.createElement('p'); p.textContent = cur.body; body.appendChild(p);
+    if (cur.ex) {
+      var w = document.createElement('div'), l = document.createElement('div'), e = document.createElement('div');
+      l.className = 'g-sub'; l.textContent = 'Ejemplo'; e.className = 'example'; e.textContent = cur.ex; w.appendChild(l); w.appendChild(e); body.appendChild(w);
+    }
+    if (cur.tip) { var n = document.createElement('div'); n.className = 'note'; var b = document.createElement('b'); b.textContent = 'Ojo. '; n.appendChild(b); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0;
+    $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = document.createElement('li'), bt = document.createElement('button'), d = document.createElement('span'), t = document.createElement('span');
+      bt.type = 'button'; if (i === state.step) bt.setAttribute('aria-current', 'step');
+      var done = s.done(); if (done) bt.className = 'done';
+      d.className = 'dot'; d.textContent = done ? '✓' : String(i + 1); t.textContent = s.title;
+      bt.appendChild(d); bt.appendChild(t); bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var el = $('[data-f="' + f + '"]'); if (el && !el.hidden) el.classList.add('is-guided'); });
+  }
+  function go(i) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i)); render();
+    var f = steps[state.step].fields[0], el = f && $('[data-f="' + f + '"]');
+    if (el && !el.hidden) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  function refresh() {
+    var id = steps[state.step].id; steps = buildSteps();
+    var idx = steps.map(function (s) { return s.id; }).indexOf(id);
+    state.step = idx >= 0 ? idx : Math.min(state.step, steps.length - 1); render();
+  }
+
+  function showErr(f, msg) {
+    var box = $('[data-f="' + f + '"]'); if (!box) return;
+    var m = $('.errmsg', box), inp = $('input', box);
+    if (m) { m.hidden = !msg; m.textContent = msg || ''; }
+    if (inp) inp.classList.toggle('err', !!msg);
+  }
+  function validate() {
+    var errs = []; ['label', 'model_class'].forEach(function (f) { showErr(f, ''); });
+    if (!val('label')) errs.push(['label', 'El campo Nombre visible es obligatorio.']);
+    if (!val('model_class')) errs.push(['model_class', 'El campo Clase del modelo es obligatorio.']);
+    else if (!validClass(val('model_class'))) errs.push(['model_class', 'Debe ser un modelo existente de un plugin Aero (Aero\\Plugin\\Models\\…).']);
+    return errs;
+  }
+  function save(close) {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(errs[0][0]); if (idx >= 0) go(idx);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    if (close) { flash('Fuente creada. En la app real vuelves a la lista de fuentes.'); }
+    if ($('#tenant_access').checked && !(SRC[val('model_class')] && SRC[val('model_class')].tenant)) {
+      $('#tenant_access').checked = false;
+      flash('Fuente creada. El modelo no tiene tenant_id: «Disponible para tenants» se desactivó.');
+    } else if (!close) { flash('Fuente creada. Ahora elige los campos sincronizables.'); }
+    state.mode = 'update';
+    $('#h1').textContent = 'Editar fuente'; $('#crumb').textContent = '/backend/aero/sheets/sources/update/4 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#suggestions').hidden = true; $('#lockSync').hidden = true; $('#syncBox').hidden = false;
+    $('#ctxLine').textContent = 'context: update · aparece «Campos sincronizables»; las sugerencias (context: create) se ocultan';
+    renderFields(); refresh();
+  }
+
+  var ft;
+  function flash(msg, isErr) { var f = $('#flash'); f.textContent = msg; f.className = isErr ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+
+  // Sugerencias (ejemplo)
+  var ul = $('#sugList');
+  Object.keys(SRC).forEach(function (cls) {
+    var li = document.createElement('li'); li.appendChild(document.createTextNode(SRC[cls].label + ' — '));
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = cls;
+    b.onclick = function () { set('model_class', cls); if (!val('label')) set('label', SRC[cls].label); };
+    li.appendChild(b); ul.appendChild(li);
+  });
+
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refresh(); };
+  $('#btnSave').onclick = function () { save(false); };
+  $('#btnSaveClose').onclick = function () { save(true); };
+  $('#btnReset').onclick = function () { location.reload(); };
+  $('#chkTech').onchange = function (e) { document.body.classList.toggle('show-tech', e.target.checked); };
+  $$('.field input').forEach(function (el) {
+    el.addEventListener('input', function () { if (el.classList.contains('err')) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field')); if (m) m.hidden = true; } refresh(); });
+    el.addEventListener('change', refresh);
+    el.addEventListener('focus', function () {
+      var box = el.closest('.field'); if (!box) return;
+      var idx = steps.map(function (s) { return s.fields[0]; }).indexOf(box.getAttribute('data-f'));
+      if (idx >= 0 && idx !== state.step) { state.step = idx; render(); }
+    });
+  });
+  $('#ctxLine').textContent = 'context: create · «Campos sincronizables» (context: update) aún no se muestra';
+  render();
+})();
+</script>
+</body></html>
