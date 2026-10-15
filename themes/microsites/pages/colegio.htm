@@ -160,7 +160,6 @@ mode = "portal"
             {% if not p.report.qualitative %}
             <p class="text-sm text-ink-muted">Promedio general: <strong class="text-ink">{{ p.report.average ?? '—' }}</strong> · {{ p.report.result }}</p>
             {% endif %}
-            <a href="/colegio/boletin/{{ c.id }}" target="_blank" class="inline-flex items-center justify-center rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white">Descargar boletín (PDF)</a>
         {% else %}
             <p class="py-10 text-center text-sm text-ink-muted">Aún no hay notas registradas.</p>
         {% endif %}
