@@ -1,0 +1,139 @@
+url = "/workspaces/agentes"
+layout = "base"
+title = "Agentes de IA — Market"
+description = "Conoce a los agentes de inteligencia artificial de Market: desarrollo web, hojas de Google, CRM, flujos de automatización y más. Contrátalos desde tu cuenta."
+
+[agentsMarket]
+==
+{% set m = agentsMarket.market %}
+{% set rar = {'r': 'R', 'sr': 'SR', 'ssr': 'SSR'} %}
+{% set cat = {'video': 'Video', 'imagen': 'Imagen', 'contenido': 'Contenido', 'ppt': 'Presentaciones', 'info': 'Datos e investigación', 'automatizacion': 'Automatización', 'ecommerce': 'eCommerce', 'web': 'Desarrollo web', 'integraciones': 'Integraciones y APIs'} %}
+{% set axes = {'creatividad': 'Creatividad', 'viralidad': 'Viralidad', 'ejecucion': 'Ejecución', 'narrativa': 'Narrativa', 'estetica': 'Estética', 'eficiencia': 'Eficiencia'} %}
+
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10"
+     x-data="{ cat: 'all', q: '', live: false,
+               show(el) { return (this.cat === 'all' || el.dataset.cat === this.cat)
+                   && (!this.live || el.dataset.live === '1')
+                   && (this.q === '' || el.dataset.text.includes(this.q.toLowerCase())); } }">
+
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">Agentes</span>
+    </nav>
+
+    <header class="max-w-2xl mb-8">
+        <h1 class="text-4xl font-bold text-pretty">Agentes de IA</h1>
+        <p class="text-lg text-ink-dim mt-3 text-pretty">Un equipo de agentes que trabajan con los datos de tu negocio: arman tu sitio y tu tienda, ordenan tus hojas de cálculo, analizan tu CRM y diseñan tus automatizaciones. Siempre te preguntan, acuerdan un plan contigo y esperan tu «sí».</p>
+    </header>
+
+    {# Estado de la sesión: quién puede contratar #}
+    <div class="rounded-xl border border-edge bg-canvas-elev px-5 py-4 mb-8 flex flex-wrap items-center justify-between gap-3">
+        {% if m.viewer.can_hire %}
+            <p class="text-sm text-ink">Estás viendo el mercado como <strong>{{ m.viewer.tenant }}</strong>. Los agentes que contrates aparecerán en tu <a href="{{ m.office_url }}" class="text-accent font-semibold hover:underline">Oficina</a>.</p>
+        {% elseif m.viewer.logged %}
+            <p class="text-sm text-ink-dim">{{ m.viewer.reason ?: 'No puedes contratar agentes con este usuario.' }}</p>
+        {% else %}
+            <p class="text-sm text-ink-dim">Para contratar un agente necesitas una cuenta de Market con sesión iniciada.</p>
+            <div class="flex gap-2">
+                <a href="{{ m.login_url }}" class="inline-flex items-center border border-edge text-ink font-semibold text-sm px-4 py-2 rounded-lg hover:bg-canvas-elev2 transition-colors">Iniciar sesión</a>
+                <a href="https://market.com.bo/comprar/negocio" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Crear mi cuenta</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Filtros #}
+    <div class="flex flex-wrap items-center gap-2 mb-8">
+        <button type="button" @click="cat = 'all'" :class="cat === 'all' ? 'border-accent text-ink' : 'border-edge text-ink-dim'" class="px-3.5 py-1.5 rounded-full border text-sm hover:text-ink transition-colors">Todos</button>
+        {% for c in m.cats %}
+            <button type="button" @click="cat = '{{ c }}'" :class="cat === '{{ c }}' ? 'border-accent text-ink' : 'border-edge text-ink-dim'" class="px-3.5 py-1.5 rounded-full border text-sm hover:text-ink transition-colors">{{ cat[c] ?: c|capitalize }}</button>
+        {% endfor %}
+        <label class="inline-flex items-center gap-2 text-sm text-ink-dim ml-2 cursor-pointer">
+            <input type="checkbox" x-model="live" class="accent-[var(--color-accent)]"> Solo los que ya trabajan con tus datos
+        </label>
+        <input type="search" x-model="q" placeholder="Buscar agente…" aria-label="Buscar agente" class="ml-auto w-full sm:w-56 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-accent">
+    </div>
+
+    {% if m.agents|length == 0 %}
+        <p class="text-ink-dim">Pronto publicaremos a los primeros agentes.</p>
+    {% endif %}
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for a in m.agents %}
+        <article class="rounded-2xl border border-edge bg-canvas-elev p-5 flex flex-col"
+                 data-cat="{{ a.category }}" data-live="{{ a.live ? 1 : 0 }}"
+                 data-text="{{ (a.name ~ ' ' ~ a.role ~ ' ' ~ a.bio ~ ' ' ~ a.tags|join(' '))|lower }}"
+                 x-show="show($el)" x-data="{ more: false }">
+            <div class="flex items-start gap-4">
+                <span class="shrink-0 rounded-xl border border-edge bg-canvas" aria-hidden="true"
+                      style="width:72px;height:72px;image-rendering:pixelated;background:url('{{ m.avatars }}') no-repeat;background-size:{{ 12 * 72 }}px 72px;background-position:-{{ a.avatar * 72 }}px 0"></span>
+                <div class="min-w-0">
+                    <h2 class="text-lg font-bold text-ink leading-tight">{{ a.name }}</h2>
+                    <p class="text-sm text-ink-dim text-pretty">{{ a.role }}</p>
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded border border-edge text-ink-dim">{{ rar[a.rarity] ?: a.rarity|upper }}</span>
+                        {% if a.live %}<span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-accent/15 text-accent">Trabaja con tus datos</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-sm text-ink-dim mt-4 text-pretty">{{ a.bio }}</p>
+
+            {% if a.skills|length %}
+            <ul class="mt-4 flex flex-wrap gap-1.5" aria-label="Habilidades">
+                {% for s in a.skills %}<li class="text-xs px-2 py-1 rounded-md bg-canvas border border-edge text-ink-dim" title="{{ s.description }}">{{ s.name }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            <div x-show="more" x-cloak x-transition class="mt-4 space-y-4">
+                {% if a.guide|length %}
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-ink-dim mb-2">Cómo trabajar con {{ a.name }}</p>
+                    <ol class="list-decimal pl-5 space-y-1 text-sm text-ink-dim">{% for g in a.guide %}<li class="text-pretty">{{ g }}</li>{% endfor %}</ol>
+                </div>
+                {% endif %}
+                {% if a.capabilities|length %}
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-ink-dim mb-2">Capacidades</p>
+                    <dl class="space-y-1.5">
+                        {% for key, label in axes %}{% if a.capabilities[key] is defined %}
+                        <div class="flex items-center gap-3 text-xs">
+                            <dt class="w-20 text-ink-dim">{{ label }}</dt>
+                            <dd class="flex-1 h-1.5 rounded bg-canvas border border-edge overflow-hidden"><span class="block h-full bg-accent" style="width:{{ a.capabilities[key] }}%"></span></dd>
+                            <dd class="w-7 text-right text-ink-dim">{{ a.capabilities[key] }}</dd>
+                        </div>
+                        {% endif %}{% endfor %}
+                    </dl>
+                </div>
+                {% endif %}
+            </div>
+
+            <button type="button" @click="more = !more" class="mt-3 self-start text-sm text-accent font-semibold hover:underline" x-text="more ? 'Ver menos' : 'Ver más'">Ver más</button>
+
+            <div class="mt-5 pt-4 border-t border-edge flex items-center justify-between gap-3">
+                <div class="text-xs text-ink-dim">
+                    {% if m.charging and a.hire_fee > 0 %}<span class="text-sm font-bold text-ink">{{ a.hire_fee }} pts</span> por contratar{% else %}<span class="text-sm font-bold text-ink">Sin costo</span> por ahora{% endif %}
+                    {% if a.contracts > 0 %}<br>{{ a.contracts }} {{ a.contracts == 1 ? 'negocio lo contrató' : 'negocios lo contrataron' }}{% endif %}
+                </div>
+
+                <div id="hire-{{ a.slug }}" class="shrink-0">
+                    {% if a.hired %}
+                        <span class="inline-flex items-center text-sm font-semibold text-accent">✓ En tu equipo</span>
+                    {% elseif m.viewer.can_hire %}
+                        <form data-request="onHire" data-request-confirm="¿Contratar a {{ a.name }} para {{ m.viewer.tenant }}?" data-request-loading="#hire-{{ a.slug }} button">
+                            <input type="hidden" name="slug" value="{{ a.slug }}">
+                            <button type="submit" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Contratar</button>
+                        </form>
+                    {% elseif m.viewer.logged %}
+                        <span class="text-xs text-ink-dim">Sin permiso</span>
+                    {% else %}
+                        <a href="{{ m.login_url }}" class="inline-flex items-center border border-edge text-ink font-semibold text-sm px-4 py-2 rounded-lg hover:bg-canvas-elev2 transition-colors">Inicia sesión</a>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <p class="text-xs text-ink-dim mt-10 max-w-2xl text-pretty">Los agentes nunca publican ni envían mensajes a tus clientes por su cuenta: todo cambio importante pasa por tu confirmación y, cuando es posible, se puede deshacer. Cada agente solo ve y modifica los datos de tu propio negocio.</p>
+</div>
