@@ -7,7 +7,6 @@
         <?php if ($formModel->overdueBalance() > 0): ?><span class="text-danger">(vencido <?= number_format($formModel->overdueBalance(), 2) ?>)</span><?php endif ?></h3></div>
     <div class="content">
         <a href="<?= Backend::url('aero/school/collect/student/' . $formModel->id) ?>" class="btn btn-sm btn-primary">Estado de cuenta / Cobrar</a>
-        <a href="<?= Backend::url('aero/school/gradebook/reportcard/' . $formModel->id) ?>" class="btn btn-sm btn-default" target="_blank">Boletín (PDF)</a>
         <button type="button" class="btn btn-sm btn-default" data-request="onGenerateCharges">Generar cuotas faltantes</button>
         <?php foreach ($formModel->guardians as $g): ?>
             <span class="label label-default" style="margin-left:8px">
@@ -18,8 +17,8 @@
     </div>
 </div>
 <?php endif ?>
-<?= Form::open(['class' => 'layout']) ?>
-    <div class="layout-row"><?= $this->formRender() ?></div>
+<?= Form::open(['class' => 'school-form']) ?>
+    <div><?= $this->formRender() ?></div>
     <div class="form-buttons">
         <button type="submit" data-request="onSave" data-request-data="close:1" data-hotkey="ctrl+enter, cmd+enter" class="btn btn-primary">Guardar</button>
         <button type="button" class="btn btn-danger pull-right" data-request="onDelete" data-request-confirm="¿Eliminar?">Eliminar</button>

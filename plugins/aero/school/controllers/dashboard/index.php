@@ -23,7 +23,6 @@
     <p>
         <a class="btn btn-primary" href="<?= Backend::url('aero/school/collect') ?>">Cobrar</a>
         <a class="btn btn-default" href="<?= Backend::url('aero/school/attendance') ?>">Tomar asistencia</a>
-        <a class="btn btn-default" href="<?= Backend::url('aero/school/gradebook') ?>">Cargar notas</a>
         <a class="btn btn-default" href="<?= Backend::url('aero/school/announcements/create') ?>">Nuevo comunicado</a>
         <a class="btn btn-default" href="<?= Backend::url('aero/school/reports') ?>">Morosidad</a>
     </p>

@@ -35,10 +35,6 @@ fields:
   tutor:
     label: Maestro(a) tutor(a)
     span: left
-  capacity:
-    label: Cupo
-    type: number
-    span: right
   is_active:
     label: Activo
     type: switch

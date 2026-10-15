@@ -114,7 +114,7 @@ class Plugin extends PluginBase
                     'guardians'     => $item('Apoderados', 'icon-user', 'guardians'),
                     'courses'       => $item('Cursos', 'icon-list', 'courses'),
                     'attendance'    => $item('Asistencia', 'icon-calendar', 'attendance'),
-                    'gradebook'     => $item('Calificaciones', 'icon-book', 'gradebook'),
+                    'gradebook'     => $item('Calificaciones (próx.)', 'icon-book', 'gradebook'),
                     'collect'       => $item('Cobrar', 'icon-money', 'collect'),
                     'charges'       => $item('Cuotas', 'icon-list-alt', 'charges'),
                     'payments'      => $item('Pagos y recibos', 'icon-file-text', 'payments'),
