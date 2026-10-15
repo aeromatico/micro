@@ -35,6 +35,16 @@ class AgentRunner
     /** Fábrica de modelos (solo pruebas): fn (Staff): LlmDriver. */
     public static ?\Closure $driverFactory = null;
 
+    /**
+     * Usuario del backend que habla en el turno en curso (el de su último mensaje). Lo reciben
+     * las herramientas que actúan EN NOMBRE de la persona (p. ej. Google Sheets con su cuenta).
+     * En un encargo delegado se hereda el del turno que delega.
+     */
+    protected static ?int $actingUserId = null;
+
+    /** Herramientas que cambian cosas: tras ejecutarlas, lo que se leyó antes en el turno ya no vale. */
+    protected const MUTATING = '/(save|publish|set|create|status|undo|run|write|append|update|revert|draft|hire|dismiss|cancel|submit|delegate)/';
+
     /** ¿Tiene este agente herramientas reales (por sus skills)? */
     public static function isLive(Staff $staff): bool
     {
@@ -67,7 +77,15 @@ class AgentRunner
     {
         $public = class_exists(\Aero\Chatbots\Classes\AiToolRegistry::class) ? \Aero\Chatbots\Classes\AiToolRegistry::all() : [];
 
-        return WebTools::tools() + $public;
+        $announced = [];
+
+        foreach ((array) \Event::fire('aero.workspaces.registerAgentTools') as $tools) {
+            if (is_array($tools)) {
+                $announced += $tools;
+            }
+        }
+
+        return WebTools::tools() + $announced + $public;
     }
 
     /** Herramientas del agente (+ lectura de skills) en formato del registro. */
@@ -120,10 +138,15 @@ class AgentRunner
      */
     public static function run(Message $reply, ?LlmDriver $llm = null, ?string $extraSystem = null, int $maxIterations = self::MAX_ITERATIONS): void
     {
+        $previousUser = static::$actingUserId;
+
         try {
             $staff = Staff::with('skills')->findOrFail($reply->staff_id);
             $llm ??= static::driverFor($staff);
             $tenantId = (int) $reply->tenant_id;
+
+            static::$actingUserId = $previousUser ?? (Message::thread($tenantId, (int) $reply->staff_id)->where('role', 'user')
+                ->whereNotNull('user_id')->where('id', '<', $reply->id)->orderByDesc('id')->value('user_id') ?: null);
 
             $messages = static::conversation($staff, $reply);
 
@@ -164,6 +187,10 @@ class AgentRunner
                     $result = $cache[$key];
                     $trace[] = ['name' => $call['name'], 'ok' => !isset($result['error'])];
 
+                    if (preg_match(static::MUTATING, (string) $call['name'])) {
+                        $cache = []; // una lectura posterior debe ver el cambio, no la copia anterior
+                    }
+
                     if ($call['name'] === 'workflows_save_draft' && !empty($result['saved'])) {
                         $workflows[] = ['id' => $result['id'], 'name' => (string) ($call['arguments']['name'] ?? 'Workflow'), 'url' => $result['editor_url'] ?? null, 'action' => 'create'];
                     }
@@ -192,6 +219,9 @@ class AgentRunner
 
             $reply->update(['status' => 'error', 'content' => null, 'error' => mb_substr($e->getMessage(), 0, 480), 'meta' => ['working' => []]]);
         }
+        finally {
+            static::$actingUserId = $previousUser;
+        }
     }
 
     /** Ejecuta una herramienta. El tenant es siempre el del mensaje. */
@@ -212,7 +242,7 @@ class AgentRunner
         }
 
         try {
-            return (array) call_user_func($tools[$name]['handler'], $arguments, $tenantId);
+            return (array) call_user_func($tools[$name]['handler'], $arguments, $tenantId, ['user_id' => static::$actingUserId]);
         }
         catch (\Throwable $e) {
             \Log::warning('aero.workspaces: falló una herramienta del agente', ['tool' => $name, 'error' => $e->getMessage()]);

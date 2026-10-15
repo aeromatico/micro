@@ -43,3 +43,9 @@
     - "Iván (desarrollo web) gestiona y genera el sitio y la tienda de cada cliente: herramientas web_* privadas (páginas con bloques, SEO, contacto, colecciones, productos en borrador, publicar, deshacer) con plan acordado, confirmación y copia para deshacer, y un skill con el protocolo de preguntas precisas."
     - create_revisions_table.php
     - seed_web_builder_agent.php
+1.14.0:
+    - "Asistente de Google Sheets (agente 11): herramientas sheets_* de Aero.Sheets para revisar, corregir, importar y exportar hojas con la cuenta de Google de la persona; el motor pasa la persona que habla a las herramientas y las herramientas de agente pueden anunciarse por evento."
+    - seed_sheets_agent.php
+1.15.0:
+    - "Silvia (CRM): skill «Gestión y análisis del CRM» con las herramientas crm_* de Aero.Crm, protocolo de preguntas e informes con cifras calculadas por el sistema; prompt propio en lugar del heredado."
+    - seed_crm_agent.php

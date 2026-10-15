@@ -84,6 +84,47 @@ class AgentRunnerTest extends PluginTestCase
         $this->assertStringNotContainsString('999', $toolMsgs[1]['content'], 'el tenant_id inventado por el modelo se ignora');
     }
 
+    public function testAnnouncedToolsGetThePersonWhoSpeaksAndReadsSeeLaterWrites(): void
+    {
+        $state = ['value' => 'antes', 'seenUser' => null, 'tenant' => null];
+
+        \Event::listen('aero.workspaces.registerAgentTools', function () use (&$state) {
+            return [
+            'probe_get' => ['description' => 'lee', 'parameters' => ['type' => 'object', 'properties' => new \stdClass()], 'handler' => function (array $a, int $t, array $ctx = []) use (&$state) {
+                return ['value' => $state['value']];
+            }],
+            'probe_save' => ['description' => 'escribe', 'parameters' => ['type' => 'object', 'properties' => new \stdClass()], 'handler' => function (array $a, int $t, array $ctx = []) use (&$state) {
+                $state['seenUser'] = $ctx['user_id'] ?? null;
+                $state['tenant'] = $t;
+                $state['value'] = 'despues';
+
+                return ['saved' => true];
+            }],
+            ];
+        });
+
+        $staff = $this->liveAgent(['probe_get', 'probe_save']);
+        Message::create(['tenant_id' => 7, 'staff_id' => $staff->id, 'user_id' => 42, 'role' => 'user', 'content' => 'cámbialo', 'status' => 'done']);
+        $reply = Message::create(['tenant_id' => 7, 'staff_id' => $staff->id, 'role' => 'assistant', 'status' => 'pending']);
+
+        $llm = new FakeLlm([
+            ['calls' => [['id' => 'a', 'name' => 'probe_get', 'arguments' => []]]],
+            ['calls' => [['id' => 'b', 'name' => 'probe_save', 'arguments' => ['tenant_id' => 999]]]],
+            ['calls' => [['id' => 'c', 'name' => 'probe_get', 'arguments' => []]]],
+            ['text' => 'listo'],
+        ]);
+
+        AgentRunner::run($reply, $llm);
+
+        $this->assertSame('done', $reply->fresh()->status);
+        $this->assertSame(42, $state['seenUser'], 'la herramienta recibe a la persona que habla');
+        $this->assertSame(7, $state['tenant'], 'y el tenant lo pone el motor');
+
+        $tools = array_values(array_filter($llm->seen[3]['messages'], fn ($m) => ($m['role'] ?? '') === 'tool'));
+        $this->assertStringContainsString('antes', $tools[0]['content']);
+        $this->assertStringContainsString('despues', $tools[2]['content'], 'tras escribir, la misma lectura ya no sale de la copia vieja');
+    }
+
     public function testAgentCannotUseToolsOrSkillsThatAreNotItsOwn(): void
     {
         $staff = $this->liveAgent();
