@@ -6,14 +6,13 @@ description = "Tu oficina virtual con agentes de inteligencia artificial: desarr
 [agentsMarket]
 ==
 {% set m = agentsMarket.market %}
-{% set rar = {'r': 'R', 'sr': 'SR', 'ssr': 'SSR'} %}
-{% set cat = {'video': 'Video', 'imagen': 'Imagen', 'contenido': 'Contenido', 'ppt': 'Presentaciones', 'info': 'Datos e investigación', 'automatizacion': 'Automatización', 'ecommerce': 'eCommerce', 'web': 'Desarrollo web', 'integraciones': 'Integraciones y APIs'} %}
 {% set axes = {'creatividad': 'Creatividad', 'viralidad': 'Viralidad', 'ejecucion': 'Ejecución', 'narrativa': 'Narrativa', 'estetica': 'Estética', 'eficiencia': 'Eficiencia'} %}
 
 <div class="max-w-6xl mx-auto px-6 sm:px-10 py-10"
-     x-data="{ cat: 'all', q: '', live: false,
+     x-data="{ cat: 'all', q: '', live: false, minq: 0,
                show(el) { return (this.cat === 'all' || el.dataset.cat === this.cat)
                    && (!this.live || el.dataset.live === '1')
+                   && Number(el.dataset.quality) >= Number(this.minq)
                    && (this.q === '' || el.dataset.text.includes(this.q.toLowerCase())); } }">
 
     <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
@@ -31,11 +30,17 @@ description = "Tu oficina virtual con agentes de inteligencia artificial: desarr
     <div class="flex flex-wrap items-center gap-2 mb-8">
         <button type="button" @click="cat = 'all'" :class="cat === 'all' ? 'border-accent text-ink' : 'border-edge text-ink-dim'" class="px-3.5 py-1.5 rounded-full border text-sm hover:text-ink transition-colors">Todos</button>
         {% for c in m.cats %}
-            <button type="button" @click="cat = '{{ c }}'" :class="cat === '{{ c }}' ? 'border-accent text-ink' : 'border-edge text-ink-dim'" class="px-3.5 py-1.5 rounded-full border text-sm hover:text-ink transition-colors">{{ cat[c] ?: c|capitalize }}</button>
+            <button type="button" @click="cat = '{{ c.code }}'" :class="cat === '{{ c.code }}' ? 'border-accent text-ink' : 'border-edge text-ink-dim'" class="px-3.5 py-1.5 rounded-full border text-sm hover:text-ink transition-colors">{{ c.label }}</button>
         {% endfor %}
         <label class="inline-flex items-center gap-2 text-sm text-ink-dim ml-2 cursor-pointer">
             <input type="checkbox" x-model="live" class="accent-[var(--color-accent)]"> Solo los que ya trabajan con tus datos
         </label>
+        <select x-model="minq" aria-label="Calidad mínima" class="rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink focus:outline-none focus:border-accent">
+            <option value="0">Toda calidad</option>
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★☆ (4 o más)</option>
+            <option value="3">★★★☆☆ (3 o más)</option>
+        </select>
         <input type="search" x-model="q" placeholder="Buscar agente…" aria-label="Buscar agente" class="ml-auto w-full sm:w-56 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-accent">
     </div>
 
@@ -46,7 +51,7 @@ description = "Tu oficina virtual con agentes de inteligencia artificial: desarr
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {% for a in m.agents %}
         <article class="rounded-2xl border border-edge bg-canvas-elev p-5 flex flex-col"
-                 data-cat="{{ a.category }}" data-live="{{ a.live ? 1 : 0 }}"
+                 data-cat="{{ a.category }}" data-live="{{ a.live ? 1 : 0 }}" data-quality="{{ a.quality }}"
                  data-text="{{ (a.name ~ ' ' ~ a.role ~ ' ' ~ a.bio ~ ' ' ~ a.tags|join(' '))|lower }}"
                  x-show="show($el)" x-data="{ more: false }">
             <div class="flex items-start gap-4">
@@ -55,8 +60,9 @@ description = "Tu oficina virtual con agentes de inteligencia artificial: desarr
                 <div class="min-w-0">
                     <h2 class="text-lg font-bold text-ink leading-tight">{{ a.name }}</h2>
                     <p class="text-sm text-ink-dim text-pretty">{{ a.role }}</p>
+                    <p class="mt-1 text-sm tracking-wider text-[#d6a100]" role="img" aria-label="Calidad {{ a.quality }} de 5">{% for i in 1..5 %}<span class="{{ i <= a.quality ? '' : 'text-edge' }}">★</span>{% endfor %}</p>
                     <div class="mt-2 flex flex-wrap gap-1.5">
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded border border-edge text-ink-dim">{{ rar[a.rarity] ?: a.rarity|upper }}</span>
+                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded {{ a.status == 'online' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400' }}">{{ a.status_label }}</span>
                         {% if a.live %}<span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-accent/15 text-accent">Trabaja con tus datos</span>{% endif %}
                     </div>
                 </div>
@@ -95,17 +101,36 @@ description = "Tu oficina virtual con agentes de inteligencia artificial: desarr
 
             <button type="button" @click="more = !more" class="mt-3 self-start text-sm text-accent font-semibold hover:underline" x-text="more ? 'Ver menos' : 'Ver más'">Ver más</button>
 
-            <div class="mt-5 pt-4 border-t border-edge flex items-center justify-between gap-3">
-                <div class="text-xs text-ink-dim">
-                    {% if m.charging and a.hire_fee > 0 %}<span class="text-sm font-bold text-ink">{{ a.hire_fee }} pts</span> por contratar{% else %}<span class="text-sm font-bold text-ink">Incluido</span> en tu plan{% endif %}
-                    {% if a.contracts > 0 %}<br>{{ a.contracts }} {{ a.contracts == 1 ? 'negocio lo contrató' : 'negocios lo contrataron' }}{% endif %}
-                </div>
-
-                <a href="/#precios" class="shrink-0 inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Contratar</a>
+            <div class="mt-5 pt-4 border-t border-edge space-y-3">
+                <dl class="text-xs text-ink-dim space-y-1">
+                    <div class="flex justify-between gap-3"><dt>Categoría</dt><dd class="text-ink text-right">{{ a.category_label }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt>Corresponde a</dt><dd class="text-ink font-semibold text-right">{% if a.plans|length %}{% for p in a.plans %}Plan {{ p.name }}{{ not loop.last ? ' · ' : '' }}{% endfor %}{% else %}Todos los planes{% endif %}</dd></div>
+                    <div class="flex justify-between gap-3"><dt>Tarifa</dt>
+                        <dd class="text-ink text-right">
+                            {% if a.fee.mode == 'credits' %}
+                                {% set unit = a.fee.credit_label ? 'créditos ' ~ a.fee.credit_label|lower : 'créditos' %}
+                                {% if a.hire_fee > 0 %}<span class="font-semibold">{{ a.hire_fee }} {{ unit }}</span> al contratar{% else %}<span class="font-semibold">Contratación gratis</span>{% endif %}
+                                {% if a.chat_fee > 0 %}<br>{{ a.chat_fee }} {{ unit }} por mensaje{% endif %}
+                                {% if a.task_fee > 0 %}<br>{{ a.task_fee }} {{ unit }} por encargo{% endif %}
+                            {% else %}
+                                <span class="font-semibold">Gratis</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% if a.contracts > 0 %}<div class="flex justify-between gap-3"><dt>Contratos</dt><dd class="text-ink text-right">{{ a.contracts }}</dd></div>{% endif %}
+                </dl>
+                {% if a.status == 'online' %}
+                    <a href="/#precios" class="inline-flex w-full justify-center items-center bg-accent text-accent-fg font-bold text-sm px-4 py-2 rounded-lg hover:-translate-y-px transition-transform">Contratar</a>
+                {% else %}
+                    <span class="inline-flex w-full justify-center items-center border border-edge text-ink-dim font-semibold text-sm px-4 py-2 rounded-lg cursor-not-allowed" aria-disabled="true">{{ a.status_label }}</span>
+                {% endif %}
             </div>
         </article>
         {% endfor %}
     </div>
 
-    <p class="text-xs text-ink-dim mt-10 max-w-2xl text-pretty">Los agentes nunca publican ni envían mensajes a tus clientes por su cuenta: todo cambio importante pasa por tu confirmación y, cuando es posible, se puede deshacer. Cada agente solo ve y modifica los datos de tu propio negocio.</p>
+    {% if not m.charging %}
+    <p class="text-xs text-ink-dim mt-8 max-w-2xl text-pretty">Las tarifas se muestran para que sepas qué costará cada agente; el cobro de créditos aún no está activo, así que por ahora contratar y usar agentes no descuenta créditos.</p>
+    {% endif %}
+    <p class="text-xs text-ink-dim mt-4 max-w-2xl text-pretty">Los agentes nunca publican ni envían mensajes a tus clientes por su cuenta: todo cambio importante pasa por tu confirmación y, cuando es posible, se puede deshacer. Cada agente solo ve y modifica los datos de tu propio negocio.</p>
 </div>
