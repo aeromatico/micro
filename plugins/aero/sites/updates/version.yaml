@@ -415,3 +415,11 @@
 1.69.0:
     - "Aero.Community: el rol tenant_admin recibe aero.community.use (foro, sugerencias y soporte rápido)."
     - grant_community_to_tenant_admin.php
+
+1.70.0:
+    - "Plan NEGOCIO: ítem destacado «Workspaces (Oficina IA)» (oficina virtual con agentes de IA e incluso humanos expertos) en la sección de precios."
+    - add_workspaces_feature_to_negocio_plan.php
+
+1.71.0:
+    - "Plan NEGOCIO: «Workspaces (Oficina IA)» queda justo debajo de «Páginas»."
+    - place_workspaces_feature_after_paginas.php
