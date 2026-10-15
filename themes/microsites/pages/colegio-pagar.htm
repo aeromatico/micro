@@ -1,0 +1,28 @@
+url = "/colegio/pagar/:charge"
+layout = "base"
+title = "Pagar cuota"
+
+[session]
+
+[authentication]
+
+[schoolPortal]
+mode = "pagar"
+==
+{% set q = schoolPortal.qr %}
+<div class="mx-auto max-w-md px-4 py-10 text-center">
+{% if not q %}
+    <p class="text-sm text-ink-muted">No encontramos esa cuota. <a href="/colegio" class="text-brand-primary font-semibold">Volver</a></p>
+{% elseif q.paid %}
+    <p class="text-lg font-bold text-green-500">Esta cuota ya está pagada. ¡Gracias!</p>
+    <a href="/colegio" class="mt-4 inline-block text-sm font-semibold text-brand-primary">Volver</a>
+{% elseif q.image %}
+    <h1 class="text-xl font-extrabold text-ink">{{ q.concept }}</h1>
+    <p class="text-sm text-ink-muted">{{ q.student }} · Bs. {{ q.amount|number_format(2) }}</p>
+    <div class="mx-auto mt-5 w-64 max-w-full rounded-2xl bg-white p-3"><img src="{{ q.image }}" alt="QR de pago" class="w-full h-auto"></div>
+    <p class="mt-4 text-sm text-ink-muted">Escanea con la app de tu banco. El pago se registra automáticamente.</p>
+    <a href="/colegio" class="mt-4 inline-block text-sm font-semibold text-brand-primary">Volver</a>
+{% else %}
+    <p class="text-sm text-ink-muted">El pago por QR no está disponible. Paga en secretaría. <a href="/colegio" class="text-brand-primary font-semibold">Volver</a></p>
+{% endif %}
+</div>

@@ -1,0 +1,193 @@
+url = "/colegio"
+layout = "base"
+title = "Mi colegio"
+description = "Pagos, asistencia, notas y comunicados de tus hijos."
+
+[sitesSeo]
+pageTitle = "Mi colegio"
+
+[sitesPageList]
+excludeHome = 1
+
+[session]
+
+[authentication]
+
+[schoolPortal]
+mode = "portal"
+==
+{% set p = schoolPortal %}
+{% set cur = p.settings.currency ?: 'BOB' %}
+<div class="mx-auto max-w-2xl px-4 py-8 sm:py-14" x-data="{ tab: 'cuenta' }">
+
+{% if not user %}
+    <header class="mb-8 text-center">
+        <p class="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-3">Mi colegio</p>
+        <h1 class="text-3xl font-extrabold text-ink tracking-tight">Entra a tu cuenta</h1>
+        <p class="mt-2 text-sm text-ink-muted">Consulta pagos, asistencia, notas y comunicados de tus hijos.</p>
+    </header>
+    {% partial 'help/auth-flash' %}
+    <form data-request="authentication::onLogin" data-request-flash class="mx-auto flex max-w-md flex-col gap-4 rounded-brand border border-surface-border bg-surface-alt p-6">
+        <input type="hidden" name="redirect" value="/colegio">
+        <input type="email" name="email" required autocomplete="email" placeholder="Correo"
+            class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
+        <input type="password" name="password" required autocomplete="current-password" placeholder="Contraseña"
+            class="w-full rounded-brand border border-surface-border bg-surface text-ink px-4 py-3 text-sm focus:outline-none focus:border-brand-primary">
+        <button type="submit" class="bg-brand-primary hover:opacity-90 text-white font-semibold px-6 py-3 rounded-brand text-sm transition-all">Ingresar</button>
+    </form>
+
+{% elseif not p.child %}
+    <div class="rounded-brand border border-surface-border bg-surface-alt p-8 text-center">
+        <p class="text-lg font-bold text-ink">Aún no tienes estudiantes vinculados</p>
+        <p class="mt-2 text-sm text-ink-muted">Tu cuenta ({{ user.email }}) no está asociada a ningún estudiante de este colegio. Pide en secretaría que la vinculen.</p>
+    </div>
+
+{% else %}
+    {% set c = p.child %}
+    <header class="mb-6 flex items-center justify-between gap-3">
+        <div>
+            <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest">{{ p.settings.school_name ?: 'Mi colegio' }}</p>
+            <h1 class="text-2xl font-extrabold text-ink tracking-tight">{{ c.full_name }}</h1>
+            <p class="text-sm text-ink-muted">{{ c.course ? c.course.name : 'Sin curso' }}</p>
+        </div>
+        <button type="button" data-request="session::onLogout" data-request-data="redirect: '/colegio'"
+            class="text-xs font-semibold text-ink-muted hover:text-ink transition-colors">Salir</button>
+    </header>
+
+    {% if p.children|length > 1 %}
+    <div class="mb-5 flex flex-wrap gap-2">
+        {% for ch in p.children %}
+        <a href="/colegio?hijo={{ ch.id }}" class="rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors {{ ch.id == c.id ? 'border-brand-primary bg-brand-primary text-white' : 'border-surface-border text-ink-muted hover:text-ink' }}">{{ ch.first_name }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% partial 'help/auth-flash' %}
+
+    {# ---------- Cuenta ---------- #}
+    <div x-show="tab === 'cuenta'" class="flex flex-col gap-4">
+        <div class="grid grid-cols-3 gap-3 text-center">
+            <div class="rounded-brand border border-surface-border bg-surface-alt p-4"><p class="text-[11px] uppercase tracking-widest text-ink-muted">Saldo</p><p class="mt-1 text-lg font-extrabold text-ink">{{ p.statement.balance|number_format(2) }}</p></div>
+            <div class="rounded-brand border border-surface-border bg-surface-alt p-4"><p class="text-[11px] uppercase tracking-widest text-ink-muted">Vencido</p><p class="mt-1 text-lg font-extrabold {{ p.statement.overdue > 0 ? 'text-red-500' : 'text-ink' }}">{{ p.statement.overdue|number_format(2) }}</p></div>
+            <div class="rounded-brand border border-surface-border bg-surface-alt p-4"><p class="text-[11px] uppercase tracking-widest text-ink-muted">Pagado</p><p class="mt-1 text-lg font-extrabold text-green-500">{{ p.statement.paid|number_format(2) }}</p></div>
+        </div>
+        <div class="rounded-brand border border-surface-border bg-surface-alt">
+            <p class="px-5 pt-4 text-xs font-semibold text-ink-muted uppercase tracking-widest">Cuotas ({{ cur }})</p>
+            <ul class="divide-y divide-surface-border">
+                {% for ch in p.statement.charges %}
+                <li class="flex items-center justify-between gap-3 px-5 py-3 text-sm">
+                    <div>
+                        <p class="font-semibold text-ink">{{ ch.concept }}</p>
+                        <p class="text-xs text-ink-muted">Vence {{ ch.due_on }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-ink">{{ ch.status == 'paid' ? ch.net|number_format(2) : ch.due|number_format(2) }}</p>
+                        {% if ch.status == 'paid' %}<span class="text-xs font-semibold text-green-500">Pagada</span>
+                        {% else %}
+                            <span class="text-xs font-semibold {{ ch.status == 'overdue' ? 'text-red-500' : 'text-yellow-500' }}">{{ ch.status == 'overdue' ? 'Vencida' : (ch.status == 'partial' ? 'Parcial' : 'Pendiente') }}</span>
+                            {% if p.statement.can_qr %}<a href="/colegio/pagar/{{ ch.id }}" class="ml-2 text-xs font-semibold text-brand-primary">Pagar con QR</a>{% endif %}
+                        {% endif %}
+                    </div>
+                </li>
+                {% else %}
+                <li class="px-5 py-6 text-center text-sm text-ink-muted">Aún no hay cuotas.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% if p.statement.payments %}
+        <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
+            <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-3">Pagos realizados</p>
+            <ul class="flex flex-col gap-2">
+                {% for pay in p.statement.payments %}
+                <li class="flex justify-between text-sm"><span class="text-ink">Recibo {{ pay.receipt }} · {{ pay.date }}</span><span class="font-semibold text-ink">{{ pay.amount|number_format(2) }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    {# ---------- Asistencia ---------- #}
+    <div x-show="tab === 'asistencia'" x-cloak class="flex flex-col gap-4">
+        {% set a = p.attendance %}
+        {% if a.total %}
+        <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
+            <p class="text-3xl font-extrabold text-ink">{{ a.pct }}%</p>
+            <p class="text-sm text-ink-muted">de asistencia en {{ a.total }} días registrados</p>
+            <p class="mt-3 text-xs text-ink-muted">Presentes {{ a.present }} · Faltas {{ a.absent }} · Atrasos {{ a.late }} · Licencias {{ a.excused }}</p>
+        </div>
+        {% if p.recent %}
+        <div class="rounded-brand border border-surface-border bg-surface-alt p-5">
+            <p class="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-3">Últimas novedades</p>
+            <ul class="flex flex-col gap-2">
+                {% for r in p.recent %}
+                <li class="flex justify-between text-sm"><span class="text-ink">{{ r.date }}{{ r.note ? ' · ' ~ r.note }}</span>
+                    <span class="font-semibold {{ r.status == 'absent' ? 'text-red-500' : 'text-yellow-500' }}">{{ r.label }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="py-10 text-center text-sm text-ink-muted">Aún no hay asistencia registrada.</p>
+        {% endif %}
+    </div>
+
+    {# ---------- Notas ---------- #}
+    <div x-show="tab === 'notas'" x-cloak class="flex flex-col gap-4">
+        {% if p.gradesBlocked %}
+            <p class="py-10 text-center text-sm text-ink-muted">Las notas estarán disponibles al regularizar las cuotas vencidas o cuando el colegio las publique.</p>
+        {% elseif p.report and p.report.rows %}
+            <div class="overflow-x-auto rounded-brand border border-surface-border bg-surface-alt">
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-xs uppercase tracking-widest text-ink-muted">
+                        <th class="px-4 py-3">Área</th>
+                        {% for i in 1..p.report.periods %}<th class="px-2 py-3 text-center">{{ i }}°</th>{% endfor %}
+                        {% if not p.report.qualitative %}<th class="px-3 py-3 text-center">Prom.</th>{% endif %}
+                    </tr></thead>
+                    <tbody class="divide-y divide-surface-border">
+                    {% for r in p.report.rows %}
+                        <tr>
+                            <td class="px-4 py-2.5 text-ink">{{ r.subject }}</td>
+                            {% for i in 1..p.report.periods %}
+                                {% set n = r.notes[i] %}
+                                <td class="px-2 py-2.5 text-center {{ not p.report.qualitative and n is not null and n < p.report.passing ? 'text-red-500 font-semibold' : 'text-ink' }}">{{ p.report.qualitative ? (r.qualitative[i] ?: '') : (n is not null ? n|round : '') }}</td>
+                            {% endfor %}
+                            {% if not p.report.qualitative %}<td class="px-3 py-2.5 text-center font-bold {{ r.annual is not null and not r.approved ? 'text-red-500' : 'text-ink' }}">{{ r.annual }}</td>{% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not p.report.qualitative %}
+            <p class="text-sm text-ink-muted">Promedio general: <strong class="text-ink">{{ p.report.average ?? '—' }}</strong> · {{ p.report.result }}</p>
+            {% endif %}
+            <a href="/colegio/boletin/{{ c.id }}" target="_blank" class="inline-flex items-center justify-center rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white">Descargar boletín (PDF)</a>
+        {% else %}
+            <p class="py-10 text-center text-sm text-ink-muted">Aún no hay notas registradas.</p>
+        {% endif %}
+    </div>
+
+    {# ---------- Comunicados ---------- #}
+    <div x-show="tab === 'comunicados'" x-cloak class="flex flex-col gap-3">
+        {% for a in p.announcements %}
+        <article class="rounded-brand border border-surface-border bg-surface-alt p-5">
+            <p class="text-xs text-ink-muted">{{ a.sent_at ? a.sent_at.format('d/m/Y') }}</p>
+            <h3 class="mt-1 font-bold text-ink">{{ a.title }}</h3>
+            <p class="mt-2 whitespace-pre-line text-sm text-ink-muted">{{ a.body }}</p>
+            {% if a.attachment_url %}<a href="{{ a.attachment_url }}" target="_blank" rel="noopener" class="mt-3 inline-block text-xs font-semibold text-brand-primary">Ver adjunto</a>{% endif %}
+        </article>
+        {% else %}
+        <p class="py-10 text-center text-sm text-ink-muted">No hay comunicados.</p>
+        {% endfor %}
+    </div>
+
+    <nav class="fixed inset-x-0 bottom-0 z-30 border-t border-surface-border bg-surface/95 backdrop-blur">
+        <div class="mx-auto flex max-w-2xl">
+            {% for t in [{k:'cuenta', l:'Cuenta'}, {k:'asistencia', l:'Asistencia'}, {k:'notas', l:'Notas'}, {k:'comunicados', l:'Comunicados'}] %}
+            <button type="button" @click="tab = '{{ t.k }}'" class="flex-1 py-3.5 text-xs font-semibold transition-colors"
+                :class="tab === '{{ t.k }}' ? 'text-brand-primary' : 'text-ink-muted'">{{ t.l }}</button>
+            {% endfor %}
+        </div>
+    </nav>
+    <div class="h-16"></div>
+{% endif %}
+</div>
