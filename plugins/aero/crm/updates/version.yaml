@@ -149,3 +149,7 @@
 1.10.0:
     - "Respuestas rápidas: relación opcional con cuentas Hello. Sin cuentas = vale para todas; con cuentas, solo se ofrece en las conversaciones de esas cuentas."
     - create_quick_reply_accounts_table.php
+
+1.11.0:
+    - "Agente de CRM: herramientas privadas para consultar, analizar (informes con cifras calculadas) y gestionar contactos, empresas, leads, negocios, actividades y cobranzas con plan acordado, confirmación y deshacer."
+    - create_agent_changes_table.php

@@ -62,6 +62,9 @@ class Plugin extends PluginBase
         $this->bootPayPaymentBridge();
         $this->bootHelloSync();
         $this->bootSupportToolbarItem();
+
+        // Herramientas privadas para el agente de CRM de Workspaces (acoplamiento blando: solo anuncia).
+        Event::listen('aero.workspaces.registerAgentTools', fn () => \Aero\Crm\Classes\AgentTools::tools());
     }
 
     /**
@@ -338,6 +341,7 @@ class Plugin extends PluginBase
             \Aero\Crm\Models\Team::where('tenant_id', $tenantId)->delete();
 
             \Aero\Crm\Models\CrmSettings::where('tenant_id', $tenantId)->delete();
+            \Aero\Crm\Models\AgentChange::where('tenant_id', $tenantId)->delete();
         });
     }
 
