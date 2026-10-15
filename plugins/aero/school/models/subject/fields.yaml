@@ -1,0 +1,29 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  course_id:
+    label: Curso
+    type: dropdown
+    span: left
+  name:
+    label: Área / materia
+    span: right
+    required: true
+  field:
+    label: Campo de saberes y conocimientos
+    type: dropdown
+    span: left
+    emptyOption: — Sin campo —
+  teacher:
+    label: Maestro(a)
+    span: right
+  sort_order:
+    label: Orden en el boletín
+    type: number
+    span: left
+    default: 0

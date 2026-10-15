@@ -1,0 +1,15 @@
+columns:
+  name:
+    label: Gestión
+    searchable: true
+  starts_on:
+    label: Inicio
+    type: date
+  ends_on:
+    label: Fin
+    type: date
+  periods:
+    label: Periodos
+  is_current:
+    label: Vigente
+    type: switch

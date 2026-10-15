@@ -1,0 +1,10 @@
+name: Área
+form: $/aero/school/models/subject/fields.yaml
+modelClass: Aero\School\Models\Subject
+defaultRedirect: aero/school/subjects
+create:
+  redirect: aero/school/subjects/update/:id
+  redirectClose: aero/school/subjects
+update:
+  redirect: aero/school/subjects
+  redirectClose: aero/school/subjects

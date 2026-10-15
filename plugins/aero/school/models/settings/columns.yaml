@@ -1,0 +1,7 @@
+columns:
+  tenant_id:
+    label: Colegio (tenant)
+  school_name:
+    label: Unidad educativa
+  currency:
+    label: Moneda

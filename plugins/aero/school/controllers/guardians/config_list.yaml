@@ -1,0 +1,11 @@
+title: Apoderados
+list: $/aero/school/models/guardian/columns.yaml
+modelClass: Aero\School\Models\Guardian
+recordUrl: aero/school/guardians/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

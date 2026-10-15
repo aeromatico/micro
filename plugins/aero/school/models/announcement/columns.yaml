@@ -1,0 +1,25 @@
+columns:
+  title:
+    label: Asunto
+    searchable: true
+  audience:
+    label: Dirigido a
+    type: partial
+    path: ~/plugins/aero/school/models/announcement/_audience.php
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/school/models/announcement/_state.php
+  total:
+    label: Destinatarios
+  delivered:
+    label: Entregados
+  failed:
+    label: Fallidos
+  sent_at:
+    label: Enviado
+    type: datetime
+  created_at:
+    label: Creado
+    type: date
+    invisible: true

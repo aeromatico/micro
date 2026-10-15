@@ -1,0 +1,28 @@
+columns:
+  student_name:
+    label: Estudiante
+    sortable: false
+  concept:
+    label: Concepto
+    searchable: true
+  due_on:
+    label: Vence
+    type: date
+    sortable: true
+  amount:
+    label: Monto
+    type: number
+  discount:
+    label: Desc.
+    type: number
+  paid_amount:
+    label: Pagado
+    type: number
+  due:
+    label: Saldo
+    type: number
+    sortable: false
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/school/models/charge/_status.php

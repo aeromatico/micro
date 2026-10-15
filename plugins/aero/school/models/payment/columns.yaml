@@ -1,0 +1,25 @@
+columns:
+  receipt_no:
+    label: Recibo N°
+    sortable: true
+    searchable: true
+  paid_at:
+    label: Fecha
+    type: datetime
+    sortable: true
+  student_name:
+    label: Estudiante
+    sortable: false
+  amount:
+    label: Monto
+    type: number
+  method:
+    label: Medio
+    type: partial
+    path: ~/plugins/aero/school/models/payment/_method.php
+  reference:
+    label: Referencia
+    searchable: true
+  voided_at:
+    label: Anulado
+    type: date

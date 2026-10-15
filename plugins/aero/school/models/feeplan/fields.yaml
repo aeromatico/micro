@@ -1,0 +1,59 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Concepto
+    span: left
+    required: true
+    placeholder: Pensión mensual — Primaria
+  kind:
+    label: Tipo
+    type: dropdown
+    span: right
+  amount:
+    label: Monto por cuota
+    type: number
+    step: 0.01
+    span: left
+  year_id:
+    label: Gestión
+    type: dropdown
+    span: right
+    emptyOption: — Sin gestión —
+  installments:
+    label: Número de cuotas
+    type: number
+    span: left
+    default: 10
+    comment: Matrícula = 1. Pensión = normalmente 10 (febrero a noviembre).
+  first_month:
+    label: Mes de la primera cuota
+    type: dropdown
+    span: right
+    default: 2
+  due_day:
+    label: Día de vencimiento
+    type: number
+    span: left
+    default: 10
+  _section:
+    type: section
+    label: ¿A quién aplica?
+    comment: Deje vacíos curso y nivel para aplicarlo a todo el colegio.
+  level:
+    label: Nivel
+    type: dropdown
+    span: left
+  course_id:
+    label: Curso
+    type: dropdown
+    span: right
+  is_active:
+    label: Activo
+    type: switch
+    default: true

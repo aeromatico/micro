@@ -1,0 +1,11 @@
+title: Comunicados
+list: $/aero/school/models/announcement/columns.yaml
+modelClass: Aero\School\Models\Announcement
+recordUrl: aero/school/announcements/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,16 @@
+columns:
+  name:
+    label: Área
+    searchable: true
+  course:
+    label: Curso
+    relation: course
+    select: name
+  field:
+    label: Campo
+  teacher:
+    label: Maestro(a)
+    searchable: true
+  sort_order:
+    label: Orden
+    sortable: true

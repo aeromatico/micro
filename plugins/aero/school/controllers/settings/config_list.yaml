@@ -1,0 +1,6 @@
+title: Configuración
+list: $/aero/school/models/settings/columns.yaml
+modelClass: Aero\School\Models\Settings
+recordUrl: aero/school/settings/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30

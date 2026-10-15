@@ -1,0 +1,10 @@
+name: Estudiante
+form: $/aero/school/models/student/fields.yaml
+modelClass: Aero\School\Models\Student
+defaultRedirect: aero/school/students
+create:
+  redirect: aero/school/students/update/:id
+  redirectClose: aero/school/students
+update:
+  redirect: aero/school/students
+  redirectClose: aero/school/students

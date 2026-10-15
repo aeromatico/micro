@@ -1,0 +1,14 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      active: Inscrito
+      retired: Retirado
+      graduated: Egresado
+  course_id:
+    label: Curso
+    type: dropdown
+    conditions: course_id = :value
+    options: getCourseIdOptions

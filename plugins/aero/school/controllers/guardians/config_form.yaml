@@ -1,0 +1,10 @@
+name: Apoderado
+form: $/aero/school/models/guardian/fields.yaml
+modelClass: Aero\School\Models\Guardian
+defaultRedirect: aero/school/guardians
+create:
+  redirect: aero/school/guardians/update/:id
+  redirectClose: aero/school/guardians
+update:
+  redirect: aero/school/guardians
+  redirectClose: aero/school/guardians

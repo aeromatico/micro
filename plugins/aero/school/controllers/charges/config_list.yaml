@@ -1,0 +1,12 @@
+title: Cuotas
+list: $/aero/school/models/charge/columns.yaml
+modelClass: Aero\School\Models\Charge
+recordUrl: aero/school/charges/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/school/models/charge/filters.yaml

@@ -1,0 +1,10 @@
+name: Gestión
+form: $/aero/school/models/year/fields.yaml
+modelClass: Aero\School\Models\Year
+defaultRedirect: aero/school/years
+create:
+  redirect: aero/school/years/update/:id
+  redirectClose: aero/school/years
+update:
+  redirect: aero/school/years
+  redirectClose: aero/school/years

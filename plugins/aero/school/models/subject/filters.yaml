@@ -1,0 +1,6 @@
+scopes:
+  course_id:
+    label: Curso
+    type: dropdown
+    conditions: course_id = :value
+    options: getCourseIdOptions

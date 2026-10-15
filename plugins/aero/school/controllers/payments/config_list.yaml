@@ -1,0 +1,11 @@
+title: Pagos y recibos
+list: $/aero/school/models/payment/columns.yaml
+modelClass: Aero\School\Models\Payment
+recordUrl: aero/school/payments/receipt/:id
+noRecordsMessage: Aún no hay pagos registrados.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

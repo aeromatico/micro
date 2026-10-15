@@ -1,0 +1,10 @@
+name: Concepto de cobro
+form: $/aero/school/models/feeplan/fields.yaml
+modelClass: Aero\School\Models\FeePlan
+defaultRedirect: aero/school/feeplans
+create:
+  redirect: aero/school/feeplans/update/:id
+  redirectClose: aero/school/feeplans
+update:
+  redirect: aero/school/feeplans
+  redirectClose: aero/school/feeplans

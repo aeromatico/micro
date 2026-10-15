@@ -1,0 +1,40 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  student_id:
+    label: Estudiante
+    type: dropdown
+    span: left
+    showSearch: true
+  kind:
+    label: Tipo
+    type: dropdown
+    span: right
+  concept:
+    label: Concepto
+    span: left
+    required: true
+  due_on:
+    label: Vencimiento
+    type: datepicker
+    mode: date
+    span: right
+  amount:
+    label: Monto
+    type: number
+    step: 0.01
+    span: left
+  discount:
+    label: Descuento
+    type: number
+    step: 0.01
+    span: right
+    default: 0
+  notes:
+    label: Notas
+    span: full

@@ -1,0 +1,10 @@
+name: Cuota
+form: $/aero/school/models/charge/fields.yaml
+modelClass: Aero\School\Models\Charge
+defaultRedirect: aero/school/charges
+create:
+  redirect: aero/school/charges/update/:id
+  redirectClose: aero/school/charges
+update:
+  redirect: aero/school/charges
+  redirectClose: aero/school/charges

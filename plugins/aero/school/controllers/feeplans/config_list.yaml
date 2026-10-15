@@ -1,0 +1,11 @@
+title: Conceptos de cobro
+list: $/aero/school/models/feeplan/columns.yaml
+modelClass: Aero\School\Models\FeePlan
+recordUrl: aero/school/feeplans/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

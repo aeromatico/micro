@@ -1,0 +1,35 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Gestión
+    span: left
+    required: true
+    placeholder: '2026'
+  is_current:
+    label: Gestión vigente
+    type: switch
+    span: right
+    default: true
+    comment: Solo una gestión es la vigente.
+  starts_on:
+    label: Inicio de clases
+    type: datepicker
+    mode: date
+    span: left
+  ends_on:
+    label: Fin de clases
+    type: datepicker
+    mode: date
+    span: right
+  periods:
+    label: Periodos de evaluación
+    type: number
+    span: left
+    default: 3
+    comment: En Bolivia son 3 trimestres.

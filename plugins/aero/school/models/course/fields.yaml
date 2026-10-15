@@ -1,0 +1,45 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre del curso
+    span: left
+    required: true
+    placeholder: 1ro de Primaria "A"
+  year_id:
+    label: Gestión
+    type: dropdown
+    span: right
+  level:
+    label: Nivel
+    type: dropdown
+    span: left
+  grade:
+    label: Año de escolaridad
+    type: number
+    span: right
+    default: 1
+  parallel:
+    label: Paralelo
+    span: left
+    placeholder: A
+  shift:
+    label: Turno
+    type: dropdown
+    span: right
+  tutor:
+    label: Maestro(a) tutor(a)
+    span: left
+  capacity:
+    label: Cupo
+    type: number
+    span: right
+  is_active:
+    label: Activo
+    type: switch
+    default: true

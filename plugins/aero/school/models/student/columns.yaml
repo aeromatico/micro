@@ -1,0 +1,30 @@
+columns:
+  full_name:
+    label: Estudiante
+    sortable: false
+  course:
+    label: Curso
+    relation: course
+    select: name
+  rude:
+    label: RUDE
+    searchable: true
+  document:
+    label: C.I.
+    searchable: true
+  status:
+    label: Estado
+    type: partial
+    path: ~/plugins/aero/school/models/student/_status.php
+  first_name:
+    label: Nombres
+    searchable: true
+    invisible: true
+  paternal_surname:
+    label: Paterno
+    searchable: true
+    sortable: true
+  maternal_surname:
+    label: Materno
+    searchable: true
+    invisible: true

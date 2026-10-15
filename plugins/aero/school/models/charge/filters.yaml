@@ -1,0 +1,24 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      pending: Pendiente
+      partial: Pago parcial
+      paid: Pagada
+      void: Anulada
+  overdue:
+    label: Solo vencidas
+    type: switch
+    conditions:
+    - "status in ('pending','partial') and due_on >= CURRENT_DATE"
+    - "status in ('pending','partial') and due_on < CURRENT_DATE"
+  kind:
+    label: Tipo
+    type: dropdown
+    conditions: kind = :value
+    options:
+      matricula: Matrícula
+      pension: Pensión
+      otro: Otro

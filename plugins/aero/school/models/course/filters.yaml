@@ -1,0 +1,9 @@
+scopes:
+  level:
+    label: Nivel
+    type: dropdown
+    conditions: level = :value
+    options:
+      inicial: Inicial
+      primaria: Primaria
+      secundaria: Secundaria

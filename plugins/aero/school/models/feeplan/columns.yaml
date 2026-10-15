@@ -1,0 +1,22 @@
+columns:
+  name:
+    label: Concepto
+    searchable: true
+  kind:
+    label: Tipo
+  amount:
+    label: Monto
+    type: number
+  installments:
+    label: Cuotas
+  due_day:
+    label: Vence el
+  level:
+    label: Nivel
+  course:
+    label: Curso
+    relation: course
+    select: name
+  is_active:
+    label: Activo
+    type: switch

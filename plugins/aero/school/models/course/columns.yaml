@@ -1,0 +1,23 @@
+columns:
+  name:
+    label: Curso
+    searchable: true
+    sortable: true
+  level:
+    label: Nivel
+    type: partial
+    path: ~/plugins/aero/school/models/course/_level.php
+  year:
+    label: Gestión
+    relation: year
+    select: name
+  tutor:
+    label: Tutor(a)
+    searchable: true
+  students_count:
+    label: Estudiantes
+    type: number
+    relationCount: students
+  is_active:
+    label: Activo
+    type: switch

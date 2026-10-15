@@ -1,0 +1,12 @@
+title: Áreas
+list: $/aero/school/models/subject/columns.yaml
+modelClass: Aero\School\Models\Subject
+recordUrl: aero/school/subjects/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/school/models/subject/filters.yaml

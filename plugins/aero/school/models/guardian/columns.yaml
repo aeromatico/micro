@@ -1,0 +1,22 @@
+columns:
+  name:
+    label: Apoderado
+    searchable: true
+    sortable: true
+  phone:
+    label: Celular
+    searchable: true
+  email:
+    label: Correo
+    searchable: true
+  document:
+    label: C.I.
+    searchable: true
+  students_count:
+    label: Hijos
+    type: number
+    relationCount: students
+  user_id:
+    label: Portal
+    type: partial
+    path: ~/plugins/aero/school/models/guardian/_portal.php

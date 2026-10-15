@@ -1,0 +1,10 @@
+name: Curso
+form: $/aero/school/models/course/fields.yaml
+modelClass: Aero\School\Models\Course
+defaultRedirect: aero/school/courses
+create:
+  redirect: aero/school/courses/update/:id
+  redirectClose: aero/school/courses
+update:
+  redirect: aero/school/courses
+  redirectClose: aero/school/courses

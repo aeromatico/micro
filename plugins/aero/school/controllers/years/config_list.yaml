@@ -1,0 +1,11 @@
+title: Gestiones
+list: $/aero/school/models/year/columns.yaml
+modelClass: Aero\School\Models\Year
+recordUrl: aero/school/years/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

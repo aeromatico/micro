@@ -1,0 +1,102 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+  first_name:
+    label: Nombres
+    span: left
+    required: true
+    tab: Datos
+  paternal_surname:
+    label: Apellido paterno
+    span: right
+    tab: Datos
+  maternal_surname:
+    label: Apellido materno
+    span: left
+    tab: Datos
+  rude:
+    label: Código RUDE
+    span: right
+    tab: Datos
+  document:
+    label: C.I.
+    span: left
+    tab: Datos
+  birthdate:
+    label: Fecha de nacimiento
+    type: datepicker
+    mode: date
+    span: right
+    tab: Datos
+  sex:
+    label: Sexo
+    type: dropdown
+    span: left
+    tab: Datos
+  course_id:
+    label: Curso
+    type: dropdown
+    span: right
+    emptyOption: — Sin curso —
+    tab: Datos
+  status:
+    label: Estado
+    type: dropdown
+    span: left
+    default: active
+    tab: Datos
+  enrolled_on:
+    label: Fecha de inscripción
+    type: datepicker
+    mode: date
+    span: right
+    tab: Datos
+  notes:
+    label: Notas
+    type: textarea
+    size: small
+    tab: Datos
+  discount_pct:
+    label: Descuento / beca (%)
+    type: number
+    span: left
+    default: 0
+    tab: Cobranza
+    comment: Se aplica a las cuotas que se generen desde ahora.
+  discount_note:
+    label: Motivo del descuento
+    span: right
+    tab: Cobranza
+  _guardian_hint:
+    type: section
+    label: Apoderado
+    comment: Vincule un apoderado existente o cree uno nuevo (puede agregar más guardando varias veces).
+    tab: Apoderados
+  guardian_id:
+    label: Apoderado existente
+    type: dropdown
+    span: full
+    emptyOption: — Ninguno —
+    tab: Apoderados
+  guardian_name:
+    label: "…o nuevo apoderado: nombre"
+    span: left
+    tab: Apoderados
+  guardian_phone:
+    label: Celular (WhatsApp)
+    span: right
+    tab: Apoderados
+  guardian_email:
+    label: Correo
+    span: left
+    tab: Apoderados
+  guardian_relationship:
+    label: Parentesco
+    span: right
+    placeholder: Madre, Padre, Tío…
+    tab: Apoderados

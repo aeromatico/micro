@@ -1,0 +1,10 @@
+name: Comunicado
+form: $/aero/school/models/announcement/fields.yaml
+modelClass: Aero\School\Models\Announcement
+defaultRedirect: aero/school/announcements
+create:
+  redirect: aero/school/announcements/update/:id
+  redirectClose: aero/school/announcements
+update:
+  redirect: aero/school/announcements
+  redirectClose: aero/school/announcements

@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/school/models/settings/fields.yaml
+modelClass: Aero\School\Models\Settings
+defaultRedirect: aero/school/settings
+create:
+  redirect: aero/school/settings/update/:id
+  redirectClose: aero/school/settings
+update:
+  redirect: aero/school/settings
+  redirectClose: aero/school/settings

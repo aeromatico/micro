@@ -1,0 +1,120 @@
+fields:
+  tenant_id:
+    label: Colegio (tenant)
+    type: dropdown
+    span: full
+    permissions:
+    - aero.school.superadmin
+    emptyOption: — Elegir —
+    tab: Colegio
+  enabled:
+    label: Sistema activo
+    type: switch
+    default: true
+    tab: Colegio
+    comment: Si lo apaga, se detienen los recordatorios y avisos automáticos.
+  school_name:
+    label: Nombre de la unidad educativa
+    span: left
+    tab: Colegio
+    comment: Aparece en el boletín y en los mensajes.
+  sie_code:
+    label: Código SIE
+    span: right
+    tab: Colegio
+  district:
+    label: Distrito educativo
+    span: left
+    tab: Colegio
+  city:
+    label: Ciudad
+    span: right
+    tab: Colegio
+  director:
+    label: Director(a)
+    span: left
+    tab: Colegio
+    comment: Aparece al pie del boletín.
+  passing_mark:
+    label: Nota mínima de aprobación
+    type: number
+    span: right
+    default: 51
+    tab: Colegio
+    comment: Escala 0–100. En Bolivia el mínimo es 51.
+  currency:
+    label: Moneda
+    type: dropdown
+    span: left
+    default: BOB
+    options:
+      BOB: Bolivianos (BOB)
+      USD: Dólares (USD)
+    tab: Cobranza
+  bank_account_id:
+    label: Cuenta para cobro por QR
+    type: dropdown
+    span: right
+    tab: Cobranza
+    comment: Cuenta de Pay donde se cobran las pensiones. Sin cuenta, solo cobro manual.
+  reminders_enabled:
+    label: Recordatorios de cobranza por WhatsApp
+    type: switch
+    default: true
+    tab: Cobranza
+  reminder_days:
+    label: Avisar antes del vencimiento (días)
+    span: left
+    default: '3,0'
+    tab: Cobranza
+    comment: Separados por coma. 3,0 = 3 días antes y el día del vencimiento.
+  overdue_every_days:
+    label: Repetir aviso de mora cada (días)
+    type: number
+    span: right
+    default: 7
+    tab: Cobranza
+  overdue_max:
+    label: Máximo de avisos de mora por cuota
+    type: number
+    span: left
+    default: 4
+    tab: Cobranza
+  reminder_template:
+    label: Mensaje antes del vencimiento
+    type: textarea
+    size: small
+    tab: Cobranza
+    comment: 'Variables: {apoderado} {estudiante} {colegio} {detalle} {total} {moneda}. Vacío = mensaje por defecto.'
+  overdue_template:
+    label: Mensaje de mora
+    type: textarea
+    size: small
+    tab: Cobranza
+    comment: 'Mismas variables. Vacío = mensaje por defecto.'
+  notify_absence:
+    label: Avisar al apoderado cuando hay falta
+    type: switch
+    default: true
+    tab: Asistencia
+  notify_late:
+    label: Avisar también los atrasos
+    type: switch
+    default: false
+    tab: Asistencia
+  absence_template:
+    label: Mensaje de falta o atraso
+    type: textarea
+    size: small
+    tab: Asistencia
+    comment: 'Variables: {apoderado} {estudiante} {curso} {estado} {fecha} {colegio}.'
+  portal_grades:
+    label: El padre ve notas y boletín en el portal
+    type: switch
+    default: true
+    tab: Portal
+  portal_block_if_debt:
+    label: Ocultar el boletín mientras haya deuda vencida
+    type: switch
+    default: false
+    tab: Portal
