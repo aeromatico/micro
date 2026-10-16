@@ -7,7 +7,7 @@
 <?php if ($tickets->isEmpty()): ?>
     <p class="text-muted">Todavía no abriste ningún ticket.</p>
 <?php else: ?>
-<table class="table data" style="background:#fff">
+<table class="table data">
     <thead><tr><th>N°</th><th>Asunto</th><th>Departamento</th><th>Estado</th><th>Creado</th></tr></thead>
     <tbody>
     <?php $states = ['open' => 'Abierto', 'pending' => 'En espera', 'resolved' => 'Resuelto', 'closed' => 'Cerrado']; ?>

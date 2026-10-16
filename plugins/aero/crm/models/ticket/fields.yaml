@@ -6,21 +6,19 @@ fields:
         required: true
 
     origin_tenant_id:
-        label: Tenant
+        label: Enviar a un tenant
         type: dropdown
         span: auto
-        emptyOption: — elegí —
-        required: true
-        comment: Negocio que recibe el ticket de soporte.
+        emptyOption: Ninguno (ticket de mi propio CRM)
+        comment: Elegí un tenant para abrir un ticket de soporte de la plataforma dirigido a uno de sus admins.
 
     requester_user_id:
         label: Administrador del tenant
         type: dropdown
         span: auto
-        emptyOption: — elegí —
-        required: true
+        emptyOption: — primero elegí el tenant —
         dependsOn: origin_tenant_id
-        comment: A quien se vincula el ticket; verá y responderá desde Soporte.
+        comment: Primero elegí «Enviar a un tenant»; aquí aparecen sus admins. Verá y responderá desde Soporte.
 
     department_id:
         label: Departamento
@@ -28,6 +26,7 @@ fields:
         span: auto
         required: true
         emptyOption: — elegí —
+        dependsOn: origin_tenant_id
 
     assigned_to:
         label: Asignado a
@@ -49,8 +48,9 @@ fields:
         span: auto
 
     description:
-        label: Descripción
-        type: textarea
+        label: Descripción (Markdown)
+        type: markdown
+        mode: split
         size: large
         span: full
 
@@ -88,8 +88,9 @@ fields:
         tab: Respuestas
 
     new_reply:
-        label: Nueva respuesta
-        type: textarea
+        label: Nueva respuesta (Markdown)
+        type: markdown
+        mode: split
         size: small
         span: full
         tab: Respuestas

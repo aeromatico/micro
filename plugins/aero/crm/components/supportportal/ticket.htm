@@ -22,7 +22,7 @@
                 <strong class="text-ink">{{ __SELF__.ticket.author_label }}</strong>
                 · {{ __SELF__.ticket.created_at|date('d/m/Y H:i') }}
             </p>
-            <div class="text-sm text-ink whitespace-pre-line">{{ __SELF__.ticket.description }}</div>
+            <div class="text-sm text-ink">{{ __SELF__.ticket.description_html|raw }}</div>
         </div>
 
         {% for r in __SELF__.replies %}
@@ -32,7 +32,7 @@
                 {% if not r.is_customer %}· Soporte{% endif %}
                 · {{ r.created_at|date('d/m/Y H:i') }}
             </p>
-            <div class="text-sm text-ink whitespace-pre-line">{{ r.body }}</div>
+            <div class="text-sm text-ink">{{ r.body_html|raw }}</div>
         </div>
         {% endfor %}
     </div>

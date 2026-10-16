@@ -45,10 +45,11 @@ class Tickets extends Controller
         }
     }
 
-    /** Tenant y admin vinculado solo existen en la mesa de la plataforma (sin tenant). */
+    /** Tenant y admin vinculado: solo para el superadmin / mesa de la plataforma. */
     public function formExtendFields($form): void
     {
-        $platform = $form->model->exists ? !$form->model->tenant_id : !TenantUsers::currentTenantId();
+        $user = BackendAuth::getUser();
+        $platform = $form->model->exists ? !$form->model->tenant_id : ($user?->is_superuser || !TenantUsers::currentTenantId());
 
         if (!$platform) {
             $form->removeField('origin_tenant_id');
@@ -67,7 +68,7 @@ class Tickets extends Controller
 
         $internal = !empty($data['reply_internal']);
 
-        TicketReply::create([
+        $reply = TicketReply::create([
             'ticket_id'   => $model->id,
             'user_id'     => BackendAuth::getUser()?->id,
             'body'        => $body,
@@ -77,6 +78,10 @@ class Tickets extends Controller
         if (!$internal && !$model->first_response_at) {
             $model->first_response_at = now();
             $model->forceSave();
+        }
+
+        if (!$internal) {
+            \Event::fire('aero.crm.ticket.agentReplied', [$model, $reply]);
         }
     }
 }

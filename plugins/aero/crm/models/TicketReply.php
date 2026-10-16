@@ -47,6 +47,12 @@ class TicketReply extends Model
         });
     }
 
+    /** Cuerpo en Markdown renderizado (HTML seguro). */
+    public function getBodyHtmlAttribute(): string
+    {
+        return \Aero\Crm\Classes\Md::html($this->body);
+    }
+
     /** Nombre a mostrar del autor, según su origen. */
     public function getAuthorLabelAttribute(): string
     {
@@ -63,5 +69,20 @@ class TicketReply extends Model
         }
 
         return trim(($this->user->first_name ?? '') . ' ' . ($this->user->last_name ?? '')) ?: 'Agente';
+    }
+
+    /**
+     * Nombre que ve el solicitante (tenant o cliente): del operador solo el primer
+     * nombre, nunca el apellido. El resto de autores se muestra igual que en el panel.
+     */
+    public function getPublicLabelAttribute(): string
+    {
+        if ($this->author_type !== self::AGENT) {
+            return $this->author_label;
+        }
+
+        $first = trim((string) strtok(trim((string) ($this->user->first_name ?? '')), ' '));
+
+        return $first !== '' ? $first : 'Soporte';
     }
 }

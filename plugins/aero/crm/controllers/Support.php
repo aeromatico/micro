@@ -80,6 +80,8 @@ class Support extends Controller
             'unread_for_agent' => true,
         ]);
 
+        \Event::fire('aero.crm.support.ticketCreated', [$ticket]);
+
         Flash::success('Ticket #' . $ticket->number . ' enviado al equipo de soporte.');
 
         return Redirect::to(\Backend::url('aero/crm/support/view/' . $ticket->id));
@@ -112,6 +114,8 @@ class Support extends Controller
             $ticket->status = Ticket::OPEN;
         }
         $ticket->save();
+
+        \Event::fire('aero.crm.support.ticketReplied', [$ticket]);
 
         return Redirect::refresh();
     }

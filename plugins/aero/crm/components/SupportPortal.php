@@ -185,9 +185,10 @@ class SupportPortal extends ComponentBase
             ->get()
             ->map(fn (TicketReply $r) => [
                 'id'         => $r->id,
-                'author'     => $r->author_label,
+                'author'     => $r->public_label,
                 'is_customer' => $r->author_type === TicketReply::CUSTOMER,
                 'body'       => $r->body,
+                'body_html'  => $r->body_html,
                 'created_at' => $r->created_at,
             ])
             ->all();

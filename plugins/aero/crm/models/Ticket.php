@@ -69,7 +69,7 @@ class Ticket extends Model
             $this->customMessages['assigned_to.required'] = 'Asigná el ticket a un responsable.';
 
             // Mesa de la plataforma: el ticket siempre es de un admin de un tenant.
-            if (!$this->tenant_id) {
+            if (!$this->tenant_id || $this->origin_tenant_id) {
                 $this->rules['origin_tenant_id'] = 'required|exists:aero_sites_tenants,id';
                 $this->rules['requester_user_id'] = 'required';
                 $this->customMessages['origin_tenant_id.required'] = 'Elegí el tenant.';
@@ -97,6 +97,11 @@ class Ticket extends Model
         });
 
         static::saving(function (self $t) {
+            // Con tenant de origen el ticket es de la mesa de la plataforma, no del CRM de un tenant.
+            if ($t->origin_tenant_id && !$t->exists) {
+                $t->tenant_id = null;
+            }
+
             foreach (['assigned_to', 'contact_id', 'frontend_user_id'] as $col) {
                 if ($t->{$col} === '' || $t->{$col} === '0') {
                     $t->{$col} = null;
@@ -127,6 +132,11 @@ class Ticket extends Model
         return static::priorityOptions();
     }
 
+    public function getDescriptionHtmlAttribute(): string
+    {
+        return \Aero\Crm\Classes\Md::html($this->description);
+    }
+
     public function getNumberAttribute(): string
     {
         return '#' . str_pad((string) $this->seq, 3, '0', STR_PAD_LEFT);
@@ -134,8 +144,13 @@ class Ticket extends Model
 
     public function getDepartmentIdOptions(): array
     {
+        $scope = $this->exists ? $this->tenant_id : TenantUsers::currentTenantId();
+        if ($this->origin_tenant_id) {
+            $scope = null; // ticket para un admin de tenant: departamentos de la plataforma
+        }
+
         return Department::active()
-            ->inScope($this->exists ? $this->tenant_id : TenantUsers::currentTenantId())
+            ->inScope($scope)
             ->orderBy('name')->pluck('name', 'id')->all();
     }
 
@@ -163,11 +178,13 @@ class Ticket extends Model
     }
 
     /** Administradores del tenant elegido (dueño + colaboradores con rol admin). */
-    public function getRequesterUserIdOptions(): array
+    public function getRequesterUserIdOptions($value = null, $formData = null): array
     {
-        return $this->origin_tenant_id
-            ? TenantUsers::admins((int) $this->origin_tenant_id, $this->requester_user_id)
-            : [];
+        // En un refresh del formulario el tenant puede venir solo en los datos del form.
+        $tenantId = $this->origin_tenant_id
+            ?: (is_object($formData) ? ($formData->origin_tenant_id ?? null) : ($formData['origin_tenant_id'] ?? null));
+
+        return $tenantId ? TenantUsers::admins((int) $tenantId, $this->requester_user_id) : [];
     }
 
     public function getContactIdOptions(): array
@@ -187,6 +204,12 @@ class Ticket extends Model
      */
     public function scopeVisibleTo($query, User $user, ?int $tenantId)
     {
+        // El superadmin atiende también la mesa de la plataforma (tenant_id NULL), aunque
+        // sea dueño de un tenant (p. ej. master) y su ámbito resuelva a ese tenant.
+        if ($user->is_superuser && $tenantId) {
+            return $query->where(fn ($q) => $q->where('tenant_id', $tenantId)->orWhereNull('tenant_id'));
+        }
+
         $tenantId ? $query->where('tenant_id', $tenantId) : $query->whereNull('tenant_id');
 
         if (static::seesEverything($user, $tenantId)) {

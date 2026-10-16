@@ -60,11 +60,11 @@ class TenantUsers
     }
 
     /** [id => nombre] solo de los administradores del tenant: dueño y colaboradores con rol admin. */
-    public static function admins(int $tenantId, int|array|null $keepUserId = null): array
+    public static function admins(int $tenantId, mixed $keepUserId = null): array
     {
         $ids = TenantUser::where('tenant_id', $tenantId)->where('role', 'admin')->pluck('user_id')
             ->push(Tenant::where('id', $tenantId)->value('backend_user_id'))
-            ->merge((array) $keepUserId)
+            ->merge(array_filter((array) $keepUserId))
             ->filter()->unique()->values();
 
         return User::whereIn('id', $ids)->orderBy('first_name')->get()
