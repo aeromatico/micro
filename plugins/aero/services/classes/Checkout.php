@@ -14,7 +14,8 @@ use Aero\Services\Models\ServicePurchase;
  * nunca genera un QR nuevo, así que si el saldo no alcanza la compra
  * simplemente falla y el tenant debe recargar antes (Wallet).
  *
- * No ejecuta el servicio: solo cobra y dEja la compra en `pending` para que
+ * No ejecuta el servicio: cobra y deja la compra en `pending` (ver autoFulfill: las
+ * compras sin trabajo manual se entregan solas) para que
  * el equipo la entregue manualmente (Purchases, backend superadmin) — estos
  * son servicios humanos (ecommerce, marketing), no algo que se aprovisiona solo.
  */
@@ -101,7 +102,7 @@ class Checkout
         }
 
         if ($method === 'free') {
-            return ServicePurchase::create([
+            return static::autoFulfill($service, $plan, ServicePurchase::create([
                 'tenant_id'      => $tenantId,
                 'service_id'     => $service->id,
                 'plan_index'     => $planIndex,
@@ -110,7 +111,7 @@ class Checkout
                 'amount'         => 0,
                 'status'         => ServicePurchase::PENDING,
                 'requested_by'   => $userId,
-            ]);
+            ]));
         }
 
         $cost = static::cost($plan, $method);
@@ -126,7 +127,7 @@ class Checkout
             'plan_index'    => $planIndex,
         ]);
 
-        return ServicePurchase::create([
+        return static::autoFulfill($service, $plan, ServicePurchase::create([
             'tenant_id'             => $tenantId,
             'service_id'            => $service->id,
             'plan_index'            => $planIndex,
@@ -137,7 +138,42 @@ class Checkout
             'credit_transaction_id' => $tx->id,
             'status'                => ServicePurchase::PENDING,
             'requested_by'          => $userId,
-        ]);
+        ]));
+    }
+
+    /**
+     * Entrega sola una compra legítima ya cobrada; si algo exige revisión la
+     * deja `pending` para el equipo. Solo se entrega sola si el plan no tiene
+     * plazo de entrega (no hay trabajo manual), el servicio enlaza al menos un
+     * plugin `built_with` y el plan de plataforma del tenant los incluye todos.
+     * Nunca rompe la compra: ante cualquier duda, queda pendiente.
+     */
+    public static function autoFulfill(Service $service, array $plan, ServicePurchase $purchase): ServicePurchase
+    {
+        try {
+            if ((int) ($plan['delivery_days'] ?? 0) > 0) {
+                return $purchase;
+            }
+
+            $tenant = \Aero\Sites\Models\Tenant::with('plan')->find($purchase->tenant_id);
+
+            if (!$tenant || $tenant->status !== 'active' || !$tenant->plan) {
+                return $purchase;
+            }
+
+            $plugins = collect((array) $service->plugin_links)
+                ->where('relation', 'built_with')->pluck('plugin')->filter();
+
+            if ($plugins->isEmpty() || $plugins->contains(fn ($code) => $code !== 'Aero.Sites' && !$tenant->plan->allowsPlugin($code))) {
+                return $purchase;
+            }
+
+            static::fulfill($purchase, null, 'Entrega automática: acceso incluido en el plan ' . $tenant->plan->name);
+        } catch (\Throwable $e) {
+            \Log::warning('Services autoFulfill falló: ' . $e->getMessage());
+        }
+
+        return $purchase;
     }
 
     /** Cancela una compra pendiente y reembolsa el cobro (si lo hubo). */
