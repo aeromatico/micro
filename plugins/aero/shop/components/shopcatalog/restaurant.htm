@@ -3,6 +3,8 @@
 .rest-bump{animation:rest-bump .45s ease-out}
 @media (prefers-reduced-motion:reduce){.rest-bump{animation:none}}
 .rest-tabs{display:flex;gap:.5rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:.75rem 1rem}
+.rest-tabs{--fl:1rem;--fr:1rem;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 var(--fl),#000 calc(100% - var(--fr)),transparent 100%)}
+.rest-tabs.fade-l{--fl:3rem}.rest-tabs.fade-r{--fr:3rem}
 .rest-tabs::-webkit-scrollbar{display:none}
 .rest-tabs.is-drag{cursor:grabbing;scroll-behavior:auto;user-select:none}
 .rest-tabs.is-moved a{pointer-events:none}
@@ -14,7 +16,8 @@
 {% set currency = __SELF__.currency %}
 {% set cfg = __SELF__.restaurant %}
 {# Presentación de los productos: 'lista' (por defecto), 'tarjetas' o 'compacta'. Solo cambia el render; el carrito y los popups son los mismos. #}
-{% set presentacion = presentacion|default('lista') %}
+{# Sin presentación explícita (/tienda), manda el diseño elegido en Configuración de la tienda. #}
+{% set presentacion = presentacion|default(cfg.layout|default('lista')) %}
 {% set cardView = presentacion == 'tarjetas' %}
 {% set compactView = presentacion == 'compacta' %}
 
@@ -52,7 +55,7 @@
                     @click="scrollTabs(-1)" aria-label="Categorías anteriores">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
-            <nav x-ref="tabs" class="rest-tabs" :class="(dragging ? 'is-drag ' : '') + (dragging && dragMoved ? 'is-moved' : '')"
+            <nav x-ref="tabs" class="rest-tabs" :class="(dragging ? 'is-drag ' : '') + (dragging && dragMoved ? 'is-moved ' : '') + (canL ? 'fade-l ' : '') + (canR ? 'fade-r' : '')"
                  @scroll.passive="updateArrows()"
                  @pointerdown="dragStart($event)" @pointermove="dragMove($event)" @pointerup="dragEnd()" @pointercancel="dragEnd()" @pointerleave="dragEnd()"
                  @click.capture="tabClick($event)">

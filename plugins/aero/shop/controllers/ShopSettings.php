@@ -166,6 +166,7 @@ class ShopSettings extends Controller
             'lead_minutes'  => min(1440, max(0, (int) ($data['rc_lead_minutes'] ?? 30))),
             'tables'        => min(500, max(0, (int) ($data['rc_tables'] ?? 0))),
             'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
+            'layout'        => array_key_exists($data['rc_layout'] ?? '', ShopSettingsModel::MENU_LAYOUTS) ? $data['rc_layout'] : 'lista',
         ];
     }
 
@@ -317,6 +318,14 @@ class ShopSettings extends Controller
                 'type'    => 'checkboxlist',
                 'default' => ['dine_in', 'pickup', 'delivery'],
                 'options' => ShopSettingsModel::ORDER_TYPES,
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_layout' => [
+                'label'   => 'Diseño de la carta',
+                'type'    => 'balloon-selector',
+                'default' => 'lista',
+                'options' => ShopSettingsModel::MENU_LAYOUTS,
+                'comment' => 'Cómo se ven los platos en tu página de la tienda (/tienda). Lista: una fila por plato con descripción y foto a la derecha. Tarjetas: cuadrícula con foto grande. Compacta: solo nombre y precio en dos columnas, sin fotos, ideal para cartas largas. El carrito y los pedidos funcionan igual en los tres.',
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'shipping_fee' => [

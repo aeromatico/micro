@@ -18,6 +18,8 @@ class ShopSettings extends Model
     public $jsonable = ['restaurant_config', 'schedule_hours', 'branches'];
 
     public const ORDER_TYPES = ['delivery' => 'Delivery', 'pickup' => 'Recoger', 'dine_in' => 'Comer en local'];
+    /** Presentaciones de la carta del restaurante (las mismas del contenido dinámico «Carta»). */
+    public const MENU_LAYOUTS = ['lista' => 'Lista', 'tarjetas' => 'Tarjetas', 'compacta' => 'Compacta'];
     public const DAYS = ['mon' => 'Lunes', 'tue' => 'Martes', 'wed' => 'Miércoles', 'thu' => 'Jueves', 'fri' => 'Viernes', 'sat' => 'Sábado', 'sun' => 'Domingo'];
 
     public $rules = [
@@ -72,6 +74,7 @@ class ShopSettings extends Model
     public function getRcBusyExtraAttribute() { return $this->restaurant()['busy_extra']; }
     public function getRcDeliveryExtraAttribute() { return $this->restaurant()['delivery_extra']; }
     public function getRcTablesAttribute() { return $this->restaurant()['tables']; }
+    public function getRcLayoutAttribute() { return array_key_exists($this->restaurant()['layout'], self::MENU_LAYOUTS) ? $this->restaurant()['layout'] : 'lista'; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
 
     public function isMarketplaceStore(): bool
@@ -109,6 +112,7 @@ class ShopSettings extends Model
             'busy_extra'       => 10,
             'delivery_extra'   => 15,   // asignar repartidor + trayecto
             'accept_closed'    => false,
+            'layout'           => 'lista', // presentación de la carta en /tienda: lista | tarjetas | compacta
         ], (array) $this->restaurant_config);
     }
 
