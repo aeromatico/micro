@@ -70,7 +70,7 @@ class TicketBridge
             !empty($ctx['errors']) && is_array($ctx['errors']) ? "Errores recientes:\n" . implode("\n", array_map(fn ($e) => mb_substr((string) $e, 0, 200), array_slice($ctx['errors'], 0, 5))) : null,
         ]);
 
-        return \Aero\Crm\Models\Ticket::create([
+        $ticket = \Aero\Crm\Models\Ticket::create([
             'tenant_id'        => null,
             'origin_tenant_id' => $tenantId,
             'requester_user_id' => $user->id,
@@ -83,5 +83,9 @@ class TicketBridge
             'requester_email'  => $user->email,
             'unread_for_agent' => true,
         ]);
+
+        \Event::fire('aero.crm.support.ticketCreated', [$ticket]);
+
+        return $ticket;
     }
 }
