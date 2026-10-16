@@ -12,10 +12,17 @@ class Tenant extends Model
 
     public $table = 'aero_sites_tenants';
 
+    /** Modo de color por defecto del sitio público (el visitante puede cambiarlo con el botón sol/luna). */
+    public const COLOR_MODES = [
+        'auto'  => 'Automático (según el dispositivo)',
+        'dark'  => 'Oscuro',
+        'light' => 'Claro',
+    ];
+
     public $fillable = [
         'site_id', 'backend_user_id', 'root_domain_id', 'name', 'handle',
         'niche_type', 'status', 'primary_color', 'logo_text', 'logo_text_font',
-        'design_theme_id', 'theme_overrides',
+        'design_theme_id', 'theme_overrides', 'color_mode',
         'plan_id', 'plan_price', 'billing_period', 'plan_expires_at', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain', 'signup_domain_source',
     ];
 
@@ -536,5 +543,11 @@ class Tenant extends Model
         }
 
         return null;
+    }
+
+    /** Modo de color por defecto válido: auto, dark o light (cualquier otro valor cae en auto). */
+    public function getEffectiveColorModeAttribute(): string
+    {
+        return array_key_exists((string) $this->color_mode, self::COLOR_MODES) ? $this->color_mode : 'auto';
     }
 }

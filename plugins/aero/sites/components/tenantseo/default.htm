@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 
 {% if __SELF__.tenant.favicon %}
-<link rel="icon" href="{{ __SELF__.tenant.favicon.getPath() }}" type="image/x-icon">
+<link rel="icon" href="{{ __SELF__.tenant.favicon.getPath() }}" type="{{ __SELF__.tenant.favicon.content_type ?: 'image/png' }}">
 {% endif %}
 
 <style>:root { --color-primary: {{ __SELF__.primaryColor }}; }</style>

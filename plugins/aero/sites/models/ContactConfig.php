@@ -11,8 +11,10 @@ class ContactConfig extends Model
     public $fillable = [
         'tenant_id', 'contact_email', 'phone', 'whatsapp',
         'contact_enabled', 'no_physical_address', 'city', 'region', 'address', 'lat', 'lng',
-        'form_enabled', 'success_message',
+        'form_enabled', 'success_message', 'business_hours',
     ];
+
+    protected $jsonable = ['business_hours'];
 
     /** Por ahora solo Bolivia: el país es fijo y los departamentos son la región. */
     public const COUNTRY_CODE = 'BO';
@@ -73,5 +75,11 @@ class ContactConfig extends Model
         $parts = array_filter([$this->city, $region]);
 
         return $parts ? implode(', ', $parts) : null;
+    }
+
+    /** Horario agrupado para mostrar: [['label' => 'Lun a Mar', 'value' => '8:00 – 19:30'], ...]. */
+    public function getHoursLinesAttribute(): array
+    {
+        return \Aero\Sites\Classes\BusinessHours::grouped((array) $this->business_hours);
     }
 }

@@ -439,3 +439,11 @@
 1.75.0:
     - "El rol tenant_admin recibe aero.invoicing.use (Facturación: sus emisores y facturas)."
     - grant_invoicing_to_tenant_admin.php
+
+1.76.0:
+    - "Configuración del sitio: nueva pestaña «Horarios» (horario por día, turnos partidos, sincroniza con la tienda), bloque dinámico «Horario» y horario en el pie de página."
+    - add_business_hours_to_contact_configs.php
+
+1.77.0:
+    - "Sitio público: modo de color por defecto configurable por tenant (automático según el dispositivo, oscuro o claro); antes era siempre oscuro."
+    - add_color_mode_to_tenants.php

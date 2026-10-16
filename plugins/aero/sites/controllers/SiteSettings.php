@@ -1,5 +1,6 @@
 <?php namespace Aero\Sites\Controllers;
 
+use Aero\Sites\Classes\BusinessHours;
 use Aero\Sites\Models\ContactConfig;
 use Aero\Sites\Models\ContactSubmission;
 use Aero\Notify\Models\Channel;
@@ -10,6 +11,8 @@ use Backend\Classes\Controller;
 use Backend\Widgets\Form;
 use BackendMenu;
 use Flash;
+use Event;
+use October\Rain\Exception\ApplicationException;
 
 class SiteSettings extends Controller
 {
@@ -56,6 +59,10 @@ class SiteSettings extends Controller
             $this->vars['channels'] = collect();
         }
 
+        $this->vars['businessHours'] = BusinessHours::byDay((array) ($contactConfig->business_hours ?? []));
+        $this->vars['hoursShopLinked'] = class_exists(\Aero\Shop\Models\ShopSettings::class)
+            && \Aero\Shop\Models\ShopSettings::where('tenant_id', $tenant->id)->exists();
+
         $this->vars['tenant']        = $tenant;
         $this->vars['contactConfig'] = $contactConfig;
         $this->vars['seoConfig']     = $seoConfig;
@@ -75,9 +82,13 @@ class SiteSettings extends Controller
         $data   = post('General', []);
 
         $tenant->niche_type = $data['niche_type'] ?? $tenant->niche_type;
+        $mode = $data['color_mode'] ?? null;
+        if ($mode !== null && array_key_exists($mode, \Aero\Sites\Models\Tenant::COLOR_MODES)) {
+            $tenant->color_mode = $mode;
+        }
         $tenant->save();
 
-        Flash::success('Rubro guardado correctamente.');
+        Flash::success('Configuración general guardada correctamente.');
         return [];
     }
 
@@ -111,6 +122,46 @@ class SiteSettings extends Controller
         $contactConfig->save();
 
         Flash::success('Información de contacto guardada.');
+        return [];
+    }
+
+    // -------------------------------------------------------------------------
+    // AJAX — Horarios
+    // -------------------------------------------------------------------------
+
+    public function onSaveHours()
+    {
+        $tenant = $this->getCurrentTenant();
+        $days = (array) post('days', []);
+        if (!$days) {
+            throw new ApplicationException('No llegó ningún día del formulario. Recarga la página e inténtalo de nuevo.');
+        }
+
+        [$list, $errors] = BusinessHours::fromForm($days);
+
+        if ($errors) {
+            throw new ApplicationException(implode("\n", $errors));
+        }
+
+        $contactConfig = ContactConfig::firstOrCreate(['tenant_id' => $tenant->id]);
+        $contactConfig->business_hours = $list;
+        $contactConfig->save();
+
+        // Mismo horario para los pedidos de la tienda (Aero.Shop es opcional).
+        $shopSynced = false;
+        if (post('apply_to_shop') && class_exists(\Aero\Shop\Models\ShopSettings::class)) {
+            $shop = \Aero\Shop\Models\ShopSettings::where('tenant_id', $tenant->id)->first();
+            if ($shop && BusinessHours::hasAny($list)) {
+                $shop->schedule_hours = $list;
+                $shop->schedule_mode  = 'scheduled';
+                $shop->save();
+                $shopSynced = true;
+            }
+        }
+
+        Event::fire('aero.sites.hoursUpdated', [$tenant, $list]);
+
+        Flash::success($shopSynced ? 'Horario guardado y aplicado a la tienda.' : 'Horario guardado.');
         return [];
     }
 
@@ -270,6 +321,14 @@ class SiteSettings extends Controller
                 'type'    => 'dropdown',
                 'span'    => 'left',
                 'comment' => 'Afecta el prompt sugerido al generar contenido con IA y las recomendaciones de temas visuales. No reescribe el contenido ya generado.',
+            ],
+            'color_mode' => [
+                'label'   => 'Modo de color por defecto',
+                'type'    => 'dropdown',
+                'span'    => 'right',
+                'options' => \Aero\Sites\Models\Tenant::COLOR_MODES,
+                'default' => 'auto',
+                'comment' => 'Cómo se ve tu sitio la primera vez que alguien entra. Automático sigue el modo claro u oscuro de su dispositivo. Quien use el botón sol/luna conserva su elección.',
             ],
         ];
 

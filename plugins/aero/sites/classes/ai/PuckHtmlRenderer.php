@@ -908,6 +908,18 @@ class PuckHtmlRenderer
     }
 
     /**
+     * Bloque «Contenido dinámico»: solo emite el marcador; el servidor lo
+     * reemplaza por el contenido vivo al mostrar la página (DynamicSources).
+     */
+    protected function renderDynamicBlock(array $p): string
+    {
+        $source = preg_replace('/[^a-z0-9_-]/', '', strtolower((string) ($p['source'] ?? '')));
+        $variant = preg_replace('/[^a-z0-9_-]/', '', strtolower((string) ($p['variant'] ?? '1'))) ?: '1';
+
+        return $source === '' ? '' : '<div data-aero-dynamic="' . $source . '" data-variant="' . $variant . '"></div>';
+    }
+
+    /**
      * Espejo exacto de Pricing en components.jsx. 3 variantes de 3 planes,
      * 1 de 2 planes y 1 de 1 plan/producto único.
      */

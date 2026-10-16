@@ -62,6 +62,9 @@ trait HasBrandingForm
                 'imageWidth'  => 400,
                 'imageHeight' => 200,
                 'span'        => 'left',
+                // Se asocia al tenant en el momento de subir: este formulario es un <form data-request>
+                // suelto, sin `_session_key`, así que con subida diferida el archivo nunca se confirmaba.
+                'attachOnUpload' => true,
                 'comment'     => 'Si subís una imagen, reemplaza al logo de texto de abajo.',
             ],
             'favicon' => [
@@ -71,6 +74,9 @@ trait HasBrandingForm
                 'imageWidth'  => 64,
                 'imageHeight' => 64,
                 'span'        => 'right',
+                // Se asocia al tenant en el momento de subir: este formulario es un <form data-request>
+                // suelto, sin `_session_key`, así que con subida diferida el archivo nunca se confirmaba.
+                'attachOnUpload' => true,
                 'comment'     => 'Recomendado: 32×32 o 64×64 px',
             ],
             'logo_text' => [
@@ -177,9 +183,18 @@ trait HasBrandingForm
             'body'     => $overrideFontBody ?: null,
         ]);
 
-        $overrides = [];
-        if ($colorOverrides) $overrides['colors'] = $colorOverrides;
-        if ($fontOverrides) $overrides['fonts'] = $fontOverrides;
+        // El formulario solo edita primario, acento y las 3 fuentes. Lo demás que pueda haber en
+        // theme_overrides (secundario, superficies por modo claro/oscuro, radio…) se conserva:
+        // reconstruirlo solo con estos campos lo borraría en silencio al guardar.
+        $existing = (array) ($tenant->theme_overrides ?? []);
+        $overrides = $existing;
+        $keptColors = array_diff_key((array) ($existing['colors'] ?? []), array_flip(['primary', 'accent']));
+        $colors = $keptColors + $colorOverrides;
+        $keptFonts = array_diff_key((array) ($existing['fonts'] ?? []), array_flip(['heading', 'heading2', 'body']));
+        $fonts = $keptFonts + $fontOverrides;
+        unset($overrides['colors'], $overrides['fonts']);
+        if ($colors) $overrides['colors'] = $colors;
+        if ($fonts) $overrides['fonts'] = $fonts;
         $tenant->theme_overrides = $overrides ?: null;
 
         // makeBrandingWidget() (ejecutado por index() antes de este handler AJAX,

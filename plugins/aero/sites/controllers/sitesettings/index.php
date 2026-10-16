@@ -41,6 +41,11 @@ $statusLabels = [
                     </a>
                 </li>
                 <li>
+                    <a href="#tab-horarios" data-toggle="tab">
+                        <i class="icon-clock-o"></i> Horarios
+                    </a>
+                </li>
+                <li>
                     <a href="#tab-seo" data-toggle="tab">
                         <i class="icon-search"></i> SEO
                     </a>
@@ -96,6 +101,30 @@ $statusLabels = [
                          ============================================================ -->
                     <div id="tab-contacto-info" class="tab-pane active">
                         <div class="layout padded-container">
+                            <?php $hoursLines = $contactConfig ? $contactConfig->hours_lines : []; ?>
+                            <div class="callout callout-<?= $hoursLines ? 'info' : 'warning' ?>" style="margin-bottom:20px">
+                                <div class="header"><i class="icon-clock-o"></i>
+                                    <h3>Horario de atención</h3>
+                                </div>
+                                <div class="content">
+                                    <?php if ($hoursLines): ?>
+                                    <table style="margin-bottom:8px">
+                                        <?php foreach ($hoursLines as $line): ?>
+                                        <tr>
+                                            <td style="padding:1px 24px 1px 0"><strong><?= e($line['label']) ?></strong></td>
+                                            <td class="<?= $line['closed'] ? 'text-muted' : '' ?>"><?= e($line['value']) ?></td>
+                                        </tr>
+                                        <?php endforeach ?>
+                                    </table>
+                                    <?php else: ?>
+                                    <p>Aún no cargaste tu horario: no se muestra en la página de contacto ni en el pie del sitio.</p>
+                                    <?php endif ?>
+                                    <a href="#tab-horarios" onclick="document.querySelector('a[href=&quot;#tab-horarios&quot;]').click(); return false;">
+                                        <?= $hoursLines ? 'Editar horarios' : 'Cargar horarios' ?> →
+                                    </a>
+                                </div>
+                            </div>
+
                             <form data-request="onSaveContactInfo" data-request-flash>
                                 <?= $contactInfoWidget->render() ?>
                                 <div class="form-buttons">
@@ -240,6 +269,18 @@ $statusLabels = [
                 </div>
 
                 <!-- ============================================================
+                     TAB: HORARIOS (horario de atención por día)
+                     ============================================================ -->
+                <div id="tab-horarios" class="tab-pane">
+                    <div class="layout padded-container">
+                        <?= $this->makePartial('hours_form', [
+                            'businessHours' => $this->vars['businessHours'],
+                            'shopLinked'    => $this->vars['hoursShopLinked'],
+                        ]) ?>
+                    </div>
+                </div>
+
+                <!-- ============================================================
                      TAB: SEO
                      ============================================================ -->
                 <div id="tab-seo" class="tab-pane">
@@ -259,3 +300,18 @@ $statusLabels = [
         </div><!-- /.control-tabs -->
     </div>
 </div>
+
+<script>
+// El mapa del selector de ubicación se crea con su pestaña oculta: al mostrarse hay que redibujarlo.
+(function () {
+    function refreshMaps() {
+        document.querySelectorAll('[data-aero-location-picker]').forEach(function (el) {
+            if (el._alpMap) { el._alpMap.invalidateSize(); }
+        });
+    }
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.nav-tabs a, a[href^="#tab-"]')) { setTimeout(refreshMaps, 50); setTimeout(refreshMaps, 400); }
+    });
+    window.addEventListener('load', function () { setTimeout(refreshMaps, 800); });
+})();
+</script>
