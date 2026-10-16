@@ -28,13 +28,29 @@ description = "Layout base — dark mode, SEO, Alpine.js"
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    {# Anti-parpadeo: fija .dark en <html> de forma síncrona ANTES de pintar,
-       leyendo la preferencia guardada (default 'dark', el tema es dark-first).
+    {# Anti-parpadeo: fija .dark en <html> de forma síncrona ANTES de pintar.
+       Prioridad: la elección guardada del visitante (botón sol/luna) y, si no hay,
+       el modo por defecto del tenant (Configuración del sitio → General):
+       'auto' sigue el dispositivo (prefers-color-scheme), 'dark' y 'light' lo fijan.
        El store Alpine (assets/js/app.js) solo sincroniza tras un click. #}
     <script>
         (function () {
-            var saved = localStorage.getItem('theme') || 'dark';
-            document.documentElement.classList.toggle('dark', saved === 'dark');
+            var root = document.documentElement, mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+            var def = '{{ tenant ? tenant.effective_color_mode : 'auto' }}';
+            function apply() {
+                var saved = null;
+                try { saved = localStorage.getItem('theme'); } catch (e) {}
+                var mode = saved === 'dark' || saved === 'light' ? saved : def;
+                root.classList.toggle('dark', mode === 'auto' ? !!(mq && mq.matches) : mode === 'dark');
+            }
+            apply();
+            // En automático el sitio acompaña los cambios del dispositivo mientras el visitante no elija.
+            if (mq && def === 'auto' && mq.addEventListener) {
+                mq.addEventListener('change', function () {
+                    apply();
+                    if (window.Alpine && Alpine.store('theme')) { Alpine.store('theme').current = root.classList.contains('dark') ? 'dark' : 'light'; }
+                });
+            }
         })();
     </script>
 
