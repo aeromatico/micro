@@ -61,6 +61,7 @@ class Plugin extends PluginBase
         $this->bootZeptomailMailer();
         $this->bootProFeaturesGate();
         $this->bootHideSystemMenuForTenants();
+        $this->bootImpersonationBar();
     }
 
     /**
@@ -343,6 +344,34 @@ class Plugin extends PluginBase
             $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/backend-compact.css') . '?v=' . filemtime($cssPath);
 
             return '<link rel="stylesheet" href="' . $assetUrl . '">';
+        });
+    }
+
+    /**
+     * Barra fija mientras un superadmin está "ingresado como" el admin de un
+     * tenant (Tenants → Ingresar), con salida a la sesión original.
+     */
+    protected function bootImpersonationBar(): void
+    {
+        Route::middleware(['web'])->get('backend/aero/sites/stop-impersonation', function () {
+            if (\BackendAuth::isImpersonator()) {
+                \BackendAuth::stopImpersonate();
+            }
+            return redirect(Backend::url('aero/sites/tenants'));
+        });
+
+        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+            if ($context !== 'default' || !\BackendAuth::isImpersonator()) {
+                return '';
+            }
+            $who = e(\BackendAuth::getUser()?->login ?? '');
+            $url = Backend::url('aero/sites/stop-impersonation');
+
+            return '<style>#imp-bar{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:99999;'
+                . 'background:#b45309;color:#fff;padding:8px 16px;border-radius:999px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.3)}'
+                . '#imp-bar a{color:#fff;font-weight:700;text-decoration:underline;margin-left:10px}</style>'
+                . '<script>document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.id="imp-bar";'
+                . 'd.innerHTML="Viendo como <b>' . $who . '</b> <a href=\"' . $url . '\">Volver a mi cuenta</a>";document.body.appendChild(d)})</script>';
         });
     }
 

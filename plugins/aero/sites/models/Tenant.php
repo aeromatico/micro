@@ -8,6 +8,7 @@ class Tenant extends Model
 {
     use \October\Rain\Database\Traits\Validation;
     use \October\Rain\Database\Traits\SoftDelete;
+    use \October\Rain\Database\Traits\Nullable;
 
     public $table = 'aero_sites_tenants';
 
@@ -38,6 +39,9 @@ class Tenant extends Model
         'designTheme'  => [DesignTheme::class, 'key' => 'design_theme_id'],
         'plan'         => [Plan::class, 'key' => 'plan_id'],
     ];
+
+    /** El formulario manda '' al elegir «Sin plan»; en columnas numéricas/fecha debe ser NULL. */
+    public $nullable = ['plan_id', 'plan_expires_at', 'signup_qr_code_id'];
 
     public $hasOne = [
         'seoConfig'     => [SeoConfig::class],
@@ -218,7 +222,7 @@ class Tenant extends Model
 
     public function getPlanIdOptions(): array
     {
-        return \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'code')->all();
+        return \Aero\Sites\Models\Plan::orderBy('sort_order')->pluck('name', 'id')->all();
     }
 
     public function getDesignThemeIdOptions(): array

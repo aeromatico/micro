@@ -61,3 +61,13 @@ columns:
         label: Creado
         type: datetime
         width: 160px
+
+    impersonate:
+        label: Acceso
+        type: partial
+        path: ~/plugins/aero/sites/models/tenant/_col_impersonate.php
+        valueFrom: id
+        clickable: false
+        sortable: false
+        searchable: false
+        width: 90px

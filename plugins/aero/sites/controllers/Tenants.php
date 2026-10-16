@@ -3,6 +3,7 @@
 use Aero\Sites\Classes\TenantProvisioner;
 use Aero\Sites\Models\Tenant;
 use Backend;
+use BackendAuth;
 use BackendMenu;
 use Backend\Classes\Controller;
 use Flash;
@@ -64,6 +65,31 @@ class Tenants extends Controller
 
         Flash::success("Tenant «{$name}» eliminado permanentemente.");
         return Redirect::to(Backend::url('aero/sites/tenants'));
+    }
+
+    // -------------------------------------------------------------------------
+    // Ingresar como administrador del tenant (solo superadmin)
+    // -------------------------------------------------------------------------
+
+    public function onImpersonate(mixed $recordId = null): mixed
+    {
+        $tenant = Tenant::findOrFail((int) ($recordId ?: post('recordId')));
+        $admin  = $tenant->backendUser;
+
+        if (!$admin) {
+            Flash::error('Este tenant no tiene un administrador asignado.');
+            return null;
+        }
+
+        if ($admin->is_superuser) {
+            Flash::error('El administrador del tenant es superusuario; no se puede suplantar.');
+            return null;
+        }
+
+        BackendAuth::impersonate($admin);
+        trace_log("Impersonación: {$this->user->login} → {$admin->login} (tenant {$tenant->id})");
+
+        return Redirect::to(Backend::url('backend'));
     }
 
     // -------------------------------------------------------------------------
