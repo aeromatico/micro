@@ -1,0 +1,315 @@
+url = "/docs/mcp"
+layout = "base"
+title = "MCP — Conecta Market a tu IA"
+description = "Conecta tus datos de Market (CRM, tienda, cobros, finanzas y más) a Claude, Codex, Cursor, Antigravity u OpenCode con un solo endpoint MCP y una API key."
+
+[mcpCatalog]
+==
+{% partial 'docs/tabs' active='mcp' %}
+
+<script type="application/json" id="mcp-modules">{{ mcpCatalog.modulesJson|raw }}</script>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10" x-data="mcpDocs()" x-init="init()" x-cloak>
+
+    <!-- Hero -->
+    <section class="mb-14">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-full mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span class="text-xs tracking-wide text-ink-dim uppercase">Model Context Protocol</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-bold text-pretty max-w-3xl">Tu negocio, al alcance de cualquier IA</h1>
+        <p class="text-ink-dim mt-4 max-w-2xl text-lg text-pretty">
+            Un solo endpoint para que Claude, Codex, Cursor, Antigravity u OpenCode consulten tus contactos, pedidos,
+            cobros y finanzas — y, si tú lo permites, actúen sobre ellos. Cada key ve únicamente los módulos que le concedas.
+        </p>
+
+        <div class="mt-7 flex flex-col sm:flex-row gap-3 max-w-2xl">
+            <div class="flex-1 flex items-center gap-3 bg-canvas-elev border border-edge rounded-xl px-4 py-3 min-w-0">
+                <span class="text-[10px] font-bold tracking-wide uppercase px-1.5 py-0.5 rounded bg-accent text-accent-fg shrink-0">POST</span>
+                <code class="text-sm sm:text-base truncate" x-text="endpoint"></code>
+            </div>
+            <button type="button" @click="copy(endpoint, 'endpoint')"
+                class="inline-flex items-center justify-center bg-accent text-accent-fg font-bold text-sm px-5 py-3 rounded-xl hover:-translate-y-px transition-transform">
+                <span x-text="copied === 'endpoint' ? '¡Copiado!' : 'Copiar URL'"></span>
+            </button>
+        </div>
+
+        <dl class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
+            <div class="bg-canvas-elev border border-edge rounded-xl p-4">
+                <dt class="text-xs text-ink-dim uppercase tracking-wide">Módulos</dt>
+                <dd class="text-2xl font-bold mt-1" x-text="modules.length"></dd>
+            </div>
+            <div class="bg-canvas-elev border border-edge rounded-xl p-4">
+                <dt class="text-xs text-ink-dim uppercase tracking-wide">Herramientas</dt>
+                <dd class="text-2xl font-bold mt-1" x-text="totalTools"></dd>
+            </div>
+            <div class="bg-canvas-elev border border-edge rounded-xl p-4">
+                <dt class="text-xs text-ink-dim uppercase tracking-wide">De solo lectura</dt>
+                <dd class="text-2xl font-bold mt-1" x-text="totalTools - totalWrites"></dd>
+            </div>
+            <div class="bg-canvas-elev border border-edge rounded-xl p-4">
+                <dt class="text-xs text-ink-dim uppercase tracking-wide">Guías de cliente</dt>
+                <dd class="text-2xl font-bold mt-1" x-text="clients.length"></dd>
+            </div>
+        </dl>
+    </section>
+
+    <!-- Qué puedes pedirle -->
+    <section class="mb-14">
+        <h2 class="text-2xl font-bold mb-2">Qué puedes pedirle a tu IA</h2>
+        <p class="text-ink-dim mb-6 max-w-2xl">Una vez conectada, habla en tu idioma. Ella elige las herramientas y tú ves qué hizo.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <template x-for="p in prompts" :key="p.q">
+                <div class="bg-canvas-elev border border-edge rounded-xl p-5">
+                    <p class="text-sm font-semibold text-ink text-pretty" x-text="'“' + p.q + '”'"></p>
+                    <p class="text-xs text-ink-dim mt-3">Usa: <span class="font-mono" x-text="p.tools"></span></p>
+                </div>
+            </template>
+        </div>
+    </section>
+
+    <!-- Conectar -->
+    <section class="mb-14" id="conectar">
+        <h2 class="text-2xl font-bold mb-2">Conéctalo en 2 minutos</h2>
+        <ol class="text-ink-dim mb-6 max-w-2xl space-y-1.5 list-decimal pl-5">
+            <li>En el panel abre <strong class="text-ink">API &amp; MCP → Keys MCP</strong> y crea una key: elige tenant, módulos y fecha de expiración.</li>
+            <li>Guárdala en la variable de entorno <code class="text-ink">MARKET_MCP_KEY</code> (solo se muestra una vez).</li>
+            <li>Pega la configuración de tu cliente.</li>
+        </ol>
+
+        <div class="flex flex-wrap gap-2 mb-4" role="tablist">
+            <template x-for="c in clients" :key="c.id">
+                <button type="button" role="tab" @click="client = c.id" :aria-selected="client === c.id"
+                    class="text-sm font-medium px-4 py-2 rounded-lg border transition-colors"
+                    :class="client === c.id ? 'bg-canvas-elev2 border-accent text-ink' : 'border-edge text-ink-dim hover:text-ink'"
+                    x-text="c.name"></button>
+            </template>
+        </div>
+
+        <template x-for="c in clients" :key="c.id">
+            <div x-show="client === c.id" class="bg-canvas-elev border border-edge rounded-2xl overflow-hidden">
+                <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-edge">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold" x-text="c.name"></p>
+                        <p class="text-xs text-ink-dim truncate" x-text="c.where"></p>
+                    </div>
+                    <button type="button" @click="copy(c.code, c.id)"
+                        class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors"
+                        x-text="copied === c.id ? '¡Copiado!' : 'Copiar'"></button>
+                </div>
+                <pre class="p-5 text-[13px] leading-relaxed overflow-x-auto"><code x-text="c.code"></code></pre>
+                <p class="px-5 pb-4 text-xs text-ink-dim text-pretty" x-show="c.note" x-text="c.note"></p>
+            </div>
+        </template>
+
+        <div class="mt-6 bg-canvas-elev border border-edge rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-edge">
+                <div>
+                    <p class="text-sm font-semibold">Probar con curl</p>
+                    <p class="text-xs text-ink-dim">Lista las herramientas que tu key puede usar</p>
+                </div>
+                <button type="button" @click="copy(curl, 'curl')"
+                    class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors"
+                    x-text="copied === 'curl' ? '¡Copiado!' : 'Copiar'"></button>
+            </div>
+            <pre class="p-5 text-[13px] leading-relaxed overflow-x-auto"><code x-text="curl"></code></pre>
+        </div>
+    </section>
+
+    <!-- Catálogo -->
+    <section class="mb-14" id="herramientas">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold mb-2">Todo lo que expone</h2>
+                <p class="text-ink-dim max-w-2xl">Catálogo en vivo. Una herramienta de lectura consulta datos; una de escritura los crea o modifica y requiere un permiso aparte en la key.</p>
+            </div>
+            <div class="relative sm:w-72">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-dim pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input type="search" x-model="search" placeholder="Buscar módulo o herramienta…"
+                    class="w-full bg-canvas-elev border border-edge rounded-lg pl-9 pr-3 py-2.5 text-sm placeholder:text-ink-dim focus:outline-none focus:border-accent">
+            </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 items-start">
+            <template x-for="m in filtered" :key="m.id">
+                <div class="bg-canvas-elev border border-edge rounded-xl overflow-hidden">
+                    <button type="button" @click="toggle(m.id)" class="w-full text-left p-5 hover:bg-canvas-elev2 transition-colors">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="font-semibold" x-text="m.label"></span>
+                            <svg class="w-4 h-4 text-ink-dim transition-transform shrink-0" :class="isOpen(m) && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <p class="text-xs text-ink-dim mt-1 text-pretty" x-show="m.blurb" x-text="m.blurb"></p>
+                        <p class="text-xs mt-3">
+                            <span class="text-ink-dim" x-text="m.tools.length + (m.tools.length === 1 ? ' herramienta' : ' herramientas')"></span>
+                            <span class="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-canvas-elev2 border border-edge" x-show="m.writes === 0">solo lectura</span>
+                            <span class="ml-2 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded border border-accent text-accent" x-show="m.writes > 0" x-text="m.writes + ' de escritura'"></span>
+                        </p>
+                    </button>
+                    <ul x-show="isOpen(m)" x-cloak class="border-t border-edge divide-y divide-edge max-h-80 overflow-y-auto">
+                        <template x-for="t in m.tools" :key="t.name">
+                            <li class="px-5 py-3">
+                                <p class="font-mono text-xs flex items-center gap-2">
+                                    <span x-text="t.name"></span>
+                                    <span class="text-[9px] font-bold uppercase px-1 py-0.5 rounded border border-accent text-accent" x-show="t.write">escribe</span>
+                                </p>
+                                <p class="text-xs text-ink-dim mt-1 text-pretty" x-text="t.summary"></p>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+        </div>
+        <p class="text-ink-dim text-sm mt-6" x-show="filtered.length === 0">Nada coincide con tu búsqueda.</p>
+    </section>
+
+    <!-- Seguridad -->
+    <section class="mb-14" id="seguridad">
+        <h2 class="text-2xl font-bold mb-2">Pensado para que lo controles tú</h2>
+        <p class="text-ink-dim mb-6 max-w-2xl">Darle acceso a una IA no debería ser un acto de fe. Estas reglas se aplican en el servidor, no dependen del cliente.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <template x-for="s in security" :key="s.t">
+                <div class="bg-canvas-elev border border-edge rounded-xl p-5">
+                    <p class="font-semibold text-sm" x-text="s.t"></p>
+                    <p class="text-sm text-ink-dim mt-2 text-pretty" x-text="s.d"></p>
+                </div>
+            </template>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="mb-6 max-w-3xl" id="preguntas">
+        <h2 class="text-2xl font-bold mb-4">Preguntas frecuentes</h2>
+        <div class="space-y-2">
+            <template x-for="f in faq" :key="f.q">
+                <details class="bg-canvas-elev border border-edge rounded-xl px-5 py-4 group">
+                    <summary class="cursor-pointer font-medium text-sm list-none flex items-center justify-between gap-3">
+                        <span x-text="f.q"></span>
+                        <svg class="w-4 h-4 text-ink-dim shrink-0 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+                    </summary>
+                    <p class="text-sm text-ink-dim mt-3 text-pretty" x-text="f.a"></p>
+                </details>
+            </template>
+        </div>
+        <p class="text-sm text-ink-dim mt-6">
+            ¿Necesitas llamar la API directamente en vez de usar MCP? Mira la <a href="/api" class="text-accent hover:underline">referencia de API</a>.
+        </p>
+    </section>
+</div>
+
+<script>
+    function mcpDocs() {
+        const origin = window.location.origin;
+        const endpoint = origin + '/mcp';
+        const KEY = 'TU_KEY_MCP';
+        const json = (o) => JSON.stringify(o, null, 2);
+
+        const clients = [
+            {
+                id: 'claude-code', name: 'Claude Code', where: 'Terminal',
+                code: 'export MARKET_MCP_KEY="' + KEY + '"\n\n'
+                    + 'claude mcp add --transport http market ' + endpoint + ' \\\n'
+                    + '  --header "Authorization: Bearer $MARKET_MCP_KEY"',
+                note: 'Añade --scope user para tenerlo en todos tus proyectos. Verifica con «claude mcp list».',
+            },
+            {
+                id: 'claude-desktop', name: 'Claude Desktop', where: 'claude_desktop_config.json',
+                code: json({ mcpServers: { market: {
+                    command: 'npx',
+                    args: ['-y', 'mcp-remote', endpoint, '--header', 'Authorization:${MARKET_AUTH}'],
+                    env: { MARKET_AUTH: 'Bearer ' + KEY },
+                } } }),
+                note: 'Claude Desktop conecta servidores remotos con cabeceras mediante el puente mcp-remote (requiere Node.js). Reinicia la aplicación al guardar.',
+            },
+            {
+                id: 'codex', name: 'Codex', where: '~/.codex/config.toml',
+                code: '[mcp_servers.market]\nurl = "' + endpoint + '"\nbearer_token_env_var = "MARKET_MCP_KEY"\n\n'
+                    + '# y en tu shell:\n# export MARKET_MCP_KEY="' + KEY + '"',
+                note: 'Codex lee la key de la variable de entorno; no la escribas en el archivo.',
+            },
+            {
+                id: 'cursor', name: 'Cursor', where: '~/.cursor/mcp.json (o .cursor/mcp.json en el proyecto)',
+                code: json({ mcpServers: { market: {
+                    url: endpoint,
+                    headers: { Authorization: 'Bearer ${env:MARKET_MCP_KEY}' },
+                } } }),
+                note: 'Cursor expande ${env:NOMBRE} al iniciar. Activa el servidor en Settings → MCP.',
+            },
+            {
+                id: 'antigravity', name: 'Antigravity', where: 'Agente → ⋯ → MCP Servers → Manage → View raw config (mcp_config.json)',
+                code: json({ mcpServers: { market: {
+                    serverUrl: endpoint,
+                    headers: { Authorization: 'Bearer ' + KEY },
+                } } }),
+                note: 'Antigravity no expande variables de entorno en este archivo: la key va dentro, así que no lo subas a un repositorio. Si tu versión espera «url» en lugar de «serverUrl», cámbialo.',
+            },
+            {
+                id: 'opencode', name: 'OpenCode', where: 'opencode.json (proyecto) o ~/.config/opencode/opencode.json',
+                code: json({ '$schema': 'https://opencode.ai/config.json', mcp: { market: {
+                    type: 'remote',
+                    url: endpoint,
+                    enabled: true,
+                    headers: { Authorization: 'Bearer {env:MARKET_MCP_KEY}' },
+                } } }),
+                note: 'OpenCode sustituye {env:NOMBRE} por la variable de entorno. Comprueba con «opencode mcp list».',
+            },
+        ];
+
+        return {
+            endpoint, clients,
+            client: 'claude-code',
+            modules: [],
+            search: '',
+            openId: null,
+            copied: null,
+            curl: 'curl -s ' + endpoint + ' \\\n'
+                + '  -H "Authorization: Bearer ' + KEY + '" \\\n'
+                + '  -H "Content-Type: application/json" \\\n'
+                + '  -d \'{"jsonrpc":"2.0","id":1,"method":"tools/list"}\'',
+            prompts: [
+                { q: '¿Qué contactos nuevos entraron esta semana por WhatsApp?', tools: 'crm_contacts_list' },
+                { q: 'Dame los pedidos pendientes de hoy y quién los pidió', tools: 'shop_orders_list · shop_customers_get' },
+                { q: '¿Qué cobros QR se pagaron ayer?', tools: 'pay_payments_list' },
+                { q: 'Resume mis ingresos y egresos del mes por cuenta', tools: 'finance_movements_list · finance_accounts_list' },
+                { q: 'Registra a este cliente en el CRM con su teléfono y correo', tools: 'crm_contacts_create' },
+                { q: '¿Qué clases de la semana tienen lista de espera?', tools: 'gym_sessions_list · gym_bookings_list' },
+            ],
+            security: [
+                { t: 'Cada key pertenece a un tenant', d: 'El tenant sale de la key, nunca de lo que envíe la IA. Un valor tenant_id en la petición se descarta; no hay forma de ver datos de otro negocio.' },
+                { t: 'Permisos por módulo', d: 'Concedes lectura y escritura por separado, módulo por módulo. Una herramienta fuera de la key responde igual que una que no existe.' },
+                { t: 'Lo sensible nunca sale', d: 'Tokens, contraseñas, credenciales y claves están en una lista negra; además cada recurso declara una lista blanca de campos.' },
+                { t: 'Escritura explícita y acotada', d: 'Casi todo es de solo lectura. Donde se puede escribir, el servidor acepta únicamente los campos declarados y valida cada uno.' },
+                { t: 'Caducidad y revocación', d: 'Las keys MCP llevan fecha de expiración, se revocan al instante y tienen un límite de peticiones por minuto.' },
+                { t: 'Auditoría', d: 'Cada llamada queda registrada con la key, la herramienta, el resultado y la IP de origen.' },
+            ],
+            faq: [
+                { q: '¿Qué es MCP?', a: 'Model Context Protocol es un estándar abierto para que las aplicaciones de IA usen herramientas y datos externos de forma segura. Market lo habla directamente: no necesitas instalar nada en nuestros servidores.' },
+                { q: '¿Funciona en claude.ai y en la app móvil?', a: 'Los conectores personalizados de claude.ai usan OAuth y todavía no son compatibles. Para Claude, usa Claude Code o Claude Desktop con los ejemplos de arriba.' },
+                { q: '¿Puedo dar acceso solo de lectura?', a: 'Sí, y es lo recomendable para empezar: crea la key solo con los permisos de lectura de los módulos que necesites.' },
+                { q: '¿Qué pasa si se filtra una key?', a: 'Revócala desde API & MCP → Keys MCP; deja de funcionar de inmediato. Por eso conviene que caduquen y que tengan los mínimos permisos.' },
+                { q: '¿Cuesta algo?', a: 'Las keys de un tenant pueden consumir créditos según el precio por petición de la plataforma. Consulta tu plan.' },
+            ],
+
+            init() {
+                try { this.modules = JSON.parse(document.getElementById('mcp-modules').textContent); } catch (e) { this.modules = []; }
+            },
+            get totalTools() { return this.modules.reduce((n, m) => n + m.tools.length, 0); },
+            get totalWrites() { return this.modules.reduce((n, m) => n + m.writes, 0); },
+            get filtered() {
+                const q = this.search.trim().toLowerCase();
+                if (!q) return this.modules;
+                return this.modules.map((m) => {
+                    if ((m.label + ' ' + m.id + ' ' + m.blurb).toLowerCase().includes(q)) return m;
+                    const tools = m.tools.filter((t) => (t.name + ' ' + t.summary).toLowerCase().includes(q));
+                    return tools.length ? Object.assign({}, m, { tools }) : null;
+                }).filter(Boolean);
+            },
+            isOpen(m) { return this.openId === m.id || this.search.trim() !== ''; },
+            toggle(id) { this.openId = this.openId === id ? null : id; },
+            copy(text, id) {
+                try { navigator.clipboard.writeText(text); } catch (e) {}
+                this.copied = id;
+                setTimeout(() => { if (this.copied === id) this.copied = null; }, 1800);
+            },
+        };
+    }
+</script>

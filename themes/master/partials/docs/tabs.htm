@@ -1,8 +1,9 @@
 {# Menú especial de Docs & API: une la documentación con la referencia de la API (/api) y el Hub.
-   Uso: {% partial 'docs/tabs' active='docs' %}  (docs | api | hub | elements) #}
+   Uso: {% partial 'docs/tabs' active='docs' %}  (docs | api | mcp | hub | elements) #}
 {% set tabs = [
     {id: 'docs', label: 'Documentación', url: '/docs', icon: 'M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z'},
     {id: 'api', label: 'Referencia de API', url: '/api', icon: 'M8 9l-4 3 4 3 M16 9l4 3-4 3 M13.5 6l-3 12'},
+    {id: 'mcp', label: 'MCP', url: '/docs/mcp', icon: 'M9 2v6 M15 2v6 M6 8h12v4a6 6 0 01-12 0V8z M12 18v4'},
     {id: 'hub', label: 'Hub', url: '/hub', icon: 'M12 2l9 5v10l-9 5-9-5V7l9-5z M12 12l9-5 M12 12v10 M12 12L3 7'},
     {id: 'elements', label: 'Elementos', url: '/elements/blocks', icon: 'M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z'}
 ] %}
