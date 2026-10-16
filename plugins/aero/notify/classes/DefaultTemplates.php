@@ -13,6 +13,12 @@ use Aero\Notify\Models\Template;
 class DefaultTemplates
 {
     public const TEXTS = [
+        'support.ticket.received' => ['Recibimos tu ticket {{ ticket_number }}', 'Hola {{ requester_name }}, recibimos tu ticket {{ ticket_number }} «{{ subject }}» y te responderemos a la brevedad. Puedes seguirlo aquí: {{ url }}'],
+        'support.ticket.opened' => ['Nuevo ticket {{ ticket_number }}', '{{ requester_name }}{% if requester_email %} ({{ requester_email }}){% endif %} abrió el ticket {{ ticket_number }} «{{ subject }}»{% if department %} en {{ department }}{% endif %}: {{ message }} {{ url }}'],
+        'support.ticket.customer_replied' => ['Respuesta en el ticket {{ ticket_number }}', '{{ requester_name }} respondió en «{{ subject }}» ({{ ticket_number }}): {{ message }} {{ url }}'],
+        'support.ticket.agent_replied' => ['Respondimos tu ticket {{ ticket_number }}', 'Hola {{ requester_name }}, respondimos tu ticket «{{ subject }}» ({{ ticket_number }}): {{ message }} Míralo y responde aquí: {{ url }}'],
+        'support.ticket.platform_opened' => ['Ticket {{ ticket_number }} de {{ tenant_name }}', '{{ requester_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %} abrió el ticket {{ ticket_number }} «{{ subject }}»: {{ message }} {{ url }}'],
+        'support.ticket.platform_customer_replied' => ['Respuesta en el ticket {{ ticket_number }}', '{{ requester_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %} respondió en «{{ subject }}» ({{ ticket_number }}): {{ message }} {{ url }}'],
         'community.comment.added' => ['Nuevo comentario', '{{ author_name }} comentó en «{{ title }}»: {{ comment }} {{ url }}'],
         'community.post.created' => ['{{ type_label }} nueva', '{{ author_name }}{% if tenant_name %} ({{ tenant_name }}){% endif %}: «{{ title }}». Compromiso: responder antes de {{ due_at }}. {{ url }}'],
         'community.post.overdue' => ['Compromiso vencido', '«{{ title }}» ({{ type_label }}) pasó su plazo sin respuesta. {{ url }}'],

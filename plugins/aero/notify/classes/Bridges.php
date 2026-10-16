@@ -134,6 +134,8 @@ class Bridges
         if (class_exists(\Aero\Community\Models\Post::class)) {
             static::registerCommunity();
         }
+
+        static::registerSupport();
     }
 
     /** Aero.Community → Notify. Nunca debe romper el guardado de una publicación. */
@@ -198,6 +200,118 @@ class Bridges
                 'tenant_id' => (int) $post->tenant_id, 'actor' => $actor, 'dedup_key' => 'community:comment:' . $comment->id,
             ]);
         }));
+    }
+
+    /**
+     * Tickets de soporte. Dos mesas que nunca se mezclan: el portal de cada
+     * tenant (ticket->tenant_id) avisa a los admins de ese tenant y al correo
+     * del área; la mesa de la plataforma (tenant_id null, origin_tenant_id)
+     * avisa a los superadmin. Quien abrió el ticket recibe confirmación y las
+     * respuestas del equipo.
+     */
+    protected static function registerSupport(): void
+    {
+        if (!class_exists(\Aero\Crm\Models\Ticket::class)) {
+            return;
+        }
+
+        Event::listen('aero.crm.support.ticketCreated', fn ($ticket) => static::safe(function () use ($ticket) {
+            $ctx = static::ticketContext($ticket) + ['message' => \Illuminate\Support\Str::limit((string) $ticket->description, 400)];
+            $requester = static::ticketRequester($ticket);
+
+            if ($requester) {
+                Notify::fire('support.ticket.received', $ctx + ['url' => static::requesterUrl($ticket)], [
+                    'tenant_id' => (int) $ticket->tenant_id, 'actor' => $requester, 'dedup_key' => 'ticket:received:' . $ticket->id,
+                ]);
+            }
+
+            static::fireStaff($ticket, 'opened', 'platform_opened', $ctx, 'ticket:opened:' . $ticket->id);
+        }));
+
+        Event::listen('aero.crm.support.ticketReplied', fn ($ticket) => static::safe(function () use ($ticket) {
+            $reply = $ticket->replies()->where('author_type', 'customer')->where('is_internal', false)->latest('id')->first();
+            $ctx = static::ticketContext($ticket) + ['message' => \Illuminate\Support\Str::limit((string) $reply?->body, 400)];
+
+            static::fireStaff($ticket, 'customer_replied', 'platform_customer_replied', $ctx, 'ticket:customer_replied:' . $ticket->id . ':' . ($reply?->id ?? 0));
+        }));
+
+        Event::listen('aero.crm.ticket.agentReplied', fn ($ticket, $reply) => static::safe(function () use ($ticket, $reply) {
+            $requester = static::ticketRequester($ticket);
+            if (!$requester) {
+                return;
+            }
+
+            $ctx = static::ticketContext($ticket) + [
+                'message'    => \Illuminate\Support\Str::limit((string) $reply->body, 600),
+                'agent_name' => $reply->user?->full_name ?: 'Equipo de soporte',
+                'url'        => static::requesterUrl($ticket),
+            ];
+            Notify::fire('support.ticket.agent_replied', $ctx, [
+                'tenant_id' => (int) $ticket->tenant_id, 'actor' => $requester, 'dedup_key' => 'ticket:agent_replied:' . $reply->id,
+            ]);
+        }));
+    }
+
+    protected static function ticketContext($ticket): array
+    {
+        $tenantId = (int) ($ticket->tenant_id ?: $ticket->origin_tenant_id);
+
+        return [
+            'ticket_number'   => $ticket->number,
+            'subject'         => $ticket->subject,
+            'requester_name'  => $ticket->requester_name ?: 'Cliente',
+            'requester_email' => $ticket->requester_email,
+            'department'      => $ticket->department?->name,
+            'tenant_name'     => static::tenantName($tenantId),
+        ];
+    }
+
+    protected static function ticketRequester($ticket): ?array
+    {
+        if (!$ticket->requester_email) {
+            return null;
+        }
+
+        return ['name' => $ticket->requester_name, 'email' => $ticket->requester_email];
+    }
+
+    /** Aviso al equipo: admins del tenant (+ correo del área) o superadmin si es de la plataforma. */
+    protected static function fireStaff($ticket, string $tenantEvent, string $platformEvent, array $ctx, string $dedup): void
+    {
+        if ($ticket->tenant_id) {
+            $adhoc = $ticket->department?->email ? [['name' => $ticket->department->name, 'email' => $ticket->department->email]] : [];
+
+            Notify::fire('support.ticket.' . $tenantEvent, $ctx + ['url' => static::staffUrl($ticket)], [
+                'tenant_id' => (int) $ticket->tenant_id, 'adhoc' => $adhoc, 'dedup_key' => $dedup,
+            ]);
+
+            return;
+        }
+
+        Notify::fire('support.ticket.' . $platformEvent, $ctx + ['url' => static::staffUrl($ticket)], [
+            'tenant_id' => 0, 'dedup_key' => $dedup,
+        ]);
+    }
+
+    protected static function staffUrl($ticket): string
+    {
+        return \Backend::url('aero/crm/tickets/update/' . $ticket->id);
+    }
+
+    /** Enlace para quien abrió el ticket: portal del tenant (con token si es invitado) o panel si es un tenant. */
+    protected static function requesterUrl($ticket): ?string
+    {
+        if ($ticket->tenant_id) {
+            $domain = \Aero\Sites\Models\Tenant::find($ticket->tenant_id)?->primary_domain;
+            if (!$domain) {
+                return null;
+            }
+            $url = 'https://' . $domain . '/soporte/ticket/' . $ticket->id;
+
+            return !$ticket->frontend_user_id && $ticket->access_token ? $url . '?token=' . urlencode($ticket->access_token) : $url;
+        }
+
+        return \Backend::url('aero/crm/support/view/' . $ticket->id);
     }
 
     protected static function tenantName($tenantId): ?string

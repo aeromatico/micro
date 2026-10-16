@@ -178,3 +178,7 @@
 1.5.8:
     - "Comunidad: el compromiso de respuesta pasa de días a minutos; fecha con hora en el aviso al equipo."
     - refresh_community_created_template.php
+
+1.5.9:
+    - "Eventos de tickets de soporte (Aero.Crm): support.ticket.received/opened/customer_replied/agent_replied y platform_opened/platform_customer_replied, con reglas y plantillas por defecto. Antes los tickets no enviaban ningún correo."
+    - seed_support_ticket_events.php

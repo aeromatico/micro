@@ -26,6 +26,7 @@ class EventCatalog
             static::shop(),
             static::office(),
             static::community(),
+            static::support(),
             static::hello(),
             static::credits(),
             static::system(),
@@ -655,6 +656,45 @@ class EventCatalog
             $mk('community.post.responded', 'Respondieron tu reporte', 'El equipo respondió o cambió el estado de lo que reportaste.', ['actor'], ['inapp', 'email']),
             $mk('community.post.shipped', 'Sugerencia implementada', 'Una sugerencia por la que votaste ya está disponible (aviso a quienes votaron).', ['adhoc'], ['email']),
             $mk('community.comment.added', 'Nuevo comentario en tu publicación', 'Alguien comentó en una publicación tuya.', ['actor'], ['inapp', 'email'], 4),
+        ];
+    }
+
+    /**
+     * Tickets de soporte (Aero.Crm): portal público /soporte de cada tenant y mesa
+     * de la plataforma (tenants → plataforma). Los de tenant avisan a sus
+     * admins; los de plataforma, a los superadmin. Nunca se mezclan.
+     */
+    protected static function support(): array
+    {
+        $vars = [
+            'ticket_number'   => ['type' => 'string', 'required' => true,  'label' => 'Número de ticket'],
+            'subject'         => ['type' => 'string', 'required' => true,  'label' => 'Asunto'],
+            'requester_name'  => ['type' => 'string', 'required' => false, 'label' => 'Quien lo envió'],
+            'requester_email' => ['type' => 'string', 'required' => false, 'label' => 'Correo de quien lo envió'],
+            'department'      => ['type' => 'string', 'required' => false, 'label' => 'Área'],
+            'message'         => ['type' => 'string', 'required' => false, 'label' => 'Mensaje'],
+            'agent_name'      => ['type' => 'string', 'required' => false, 'label' => 'Quien respondió'],
+            'url'             => ['type' => 'string', 'required' => false, 'label' => 'Enlace'],
+        ];
+        $sample = [
+            'ticket_number' => '#100', 'subject' => 'No me llegó mi pedido', 'requester_name' => 'María Quispe',
+            'requester_email' => 'maria@ejemplo.bo', 'department' => 'Atención al cliente',
+            'message' => 'Hice un pedido hace una hora y no tengo novedades.', 'agent_name' => 'Equipo de soporte',
+            'url' => 'https://demo.market.com.bo/soporte/ticket/1?token=abc', 'tenant_name' => 'Demo',
+        ];
+        $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 3) => [
+            'code' => $code, 'source_plugin' => 'Aero.Crm', 'category' => 'support', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ];
+
+        return [
+            $mk('support.ticket.received', 'Recibimos tu ticket', 'Confirmación a quien abrió un ticket, con el enlace para seguirlo.', ['actor'], ['email']),
+            $mk('support.ticket.opened', 'Nuevo ticket de un cliente', 'Un cliente abrió un ticket en el portal de soporte del tenant (aviso a sus admins y al correo del área).', ['tenant_admin', 'adhoc'], ['email', 'inapp', 'push']),
+            $mk('support.ticket.customer_replied', 'El cliente respondió su ticket', 'Un cliente respondió en el portal de soporte del tenant (aviso a sus admins y al correo del área).', ['tenant_admin', 'adhoc'], ['email', 'inapp', 'push']),
+            $mk('support.ticket.agent_replied', 'Respondieron tu ticket', 'El equipo respondió un ticket: aviso a quien lo abrió, con el enlace para verlo.', ['actor'], ['email']),
+            $mk('support.ticket.platform_opened', 'Nuevo ticket de un tenant', 'Un tenant abrió un ticket para la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
+            $mk('support.ticket.platform_customer_replied', 'Un tenant respondió su ticket', 'Un tenant respondió un ticket de la mesa de la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
         ];
     }
 
