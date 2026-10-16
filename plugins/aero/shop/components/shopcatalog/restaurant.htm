@@ -5,7 +5,7 @@
 .rest-tabs{display:flex;gap:.5rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:.75rem 1rem}
 .rest-tabs::-webkit-scrollbar{display:none}
 .rest-tabs.is-drag{cursor:grabbing;scroll-behavior:auto;user-select:none}
-.rest-tabs.is-drag a{pointer-events:none}
+.rest-tabs.is-moved a{pointer-events:none}
 .rest-tabs a{flex:none;-webkit-user-drag:none}
 .rest-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;border-radius:9999px;box-shadow:0 1px 6px rgba(0,0,0,.18);transition:opacity .15s}
 .rest-arrow-l{left:.5rem}.rest-arrow-r{right:.5rem}
@@ -46,13 +46,13 @@
 
     {% if menu|length > 1 %}
     {# Pestañas de categorías, fijas al hacer scroll #}
-    <div class="sticky top-0 z-30 -mx-4 sm:-mx-6 bg-surface/95 backdrop-blur border-b border-surface-border mb-6">
+    <div style="top:4rem" class="sticky z-30 -mx-4 sm:-mx-6 bg-surface/95 backdrop-blur border-b border-surface-border mb-6">
         <div class="relative">
             <button type="button" class="rest-arrow rest-arrow-l bg-surface text-ink border border-surface-border" x-show="canL" x-cloak
                     @click="scrollTabs(-1)" aria-label="Categorías anteriores">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
-            <nav x-ref="tabs" class="rest-tabs" :class="dragging ? 'is-drag' : ''"
+            <nav x-ref="tabs" class="rest-tabs" :class="(dragging ? 'is-drag ' : '') + (dragging && dragMoved ? 'is-moved' : '')"
                  @scroll.passive="updateArrows()"
                  @pointerdown="dragStart($event)" @pointermove="dragMove($event)" @pointerup="dragEnd()" @pointercancel="dragEnd()" @pointerleave="dragEnd()"
                  @click.capture="tabClick($event)">
@@ -71,7 +71,7 @@
     {% endif %}
 
     {% for section in menu %}
-    <section id="{{ section.id }}" data-section class="mb-10 scroll-mt-20">
+    <section id="{{ section.id }}" data-section class="mb-10" style="scroll-margin-top:8rem">
         <h2 class="text-xl font-bold text-ink mb-4">{{ section.name }}</h2>
         <div class="{{ cardView ? 'grid grid-cols-2 sm:grid-cols-3 gap-4' : (compactView ? 'grid grid-cols-1 sm:grid-cols-2 gap-x-8' : 'space-y-3') }}">
             {% for p in section.products %}

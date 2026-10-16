@@ -138,8 +138,9 @@ class ShopSettings extends Model
 
         $hours = (array) $this->schedule_hours;
         $now = ($at ? $at->copy() : now())->setTimezone($this->timezone ?: 'America/La_Paz');
-        $today = strtolower(substr($now->format('D'), 0, 3));
-        $yesterday = strtolower(substr($now->copy()->subDay()->format('D'), 0, 3));
+        // englishDayOfWeek: 'D' sale en español ("vie.") con el locale de la app y nunca coincidiría con 'fri'.
+        $today = strtolower(substr($now->englishDayOfWeek, 0, 3));
+        $yesterday = strtolower(substr($now->copy()->subDay()->englishDayOfWeek, 0, 3));
         $time = $now->format('H:i');
 
         foreach ($hours as $h) {
