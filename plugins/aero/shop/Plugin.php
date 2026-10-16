@@ -42,6 +42,26 @@ class Plugin extends PluginBase
         $this->bootChatbotsIntegration();
         $this->bootWorkflowsIntegration();
         $this->bootRestApi();
+        $this->bootEmbeddedCatalogAjax();
+    }
+
+    /**
+     * La carta embebida en cualquier página (contenido dinámico «Carta») trae
+     * formularios con data-request="shopCatalog::on…", pero esa página no declara
+     * el componente y October responde «El manejador de AJAX no se encuentra».
+     * Se registra el componente solo en la llamada AJAX que lo pide.
+     */
+    protected function bootEmbeddedCatalogAjax(): void
+    {
+        Event::listen('cms.page.initComponents', function ($controller) {
+            $handler = (string) $controller->getAjaxHandler();
+            if (!str_starts_with($handler, 'shopCatalog::')) {
+                return;
+            }
+            if (!$controller->findComponentByName('shopCatalog')) {
+                $controller->addComponent('shopCatalog', 'shopCatalog');
+            }
+        });
     }
 
     /**
