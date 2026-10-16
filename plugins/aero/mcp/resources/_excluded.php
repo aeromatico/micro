@@ -44,6 +44,9 @@ return [
     \Aero\Sites\Models\Layout::class => 'HTML a medida del sitio',
     \Aero\Docs\Models\TenantSetting::class => 'configuración',
 
+    \Aero\Invoicing\Models\Issuer::class => 'referencia de credencial del proveedor fiscal y configuración del emisor',
+    \Aero\Invoicing\Models\Cufd::class => 'códigos operativos de facturación (CUIS/CUFD), equivalen a credenciales diarias',
+
     // internos / efímeros / pendientes
     \Aero\Credits\Models\CreditHold::class => 'reservas internas del libro',
     \Aero\Credits\Models\CreditInvitation::class => 'códigos canjeables',

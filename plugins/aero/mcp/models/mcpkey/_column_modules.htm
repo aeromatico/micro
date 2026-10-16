@@ -1,0 +1,15 @@
+<?php
+$mods = [];
+foreach ((array) $record->scopes as $s) {
+    if (str_starts_with($s, 'mcp.module.')) {
+        $mods[] = substr($s, 11);
+    }
+}
+$extra = count(array_filter((array) $record->scopes, fn ($s) => !str_starts_with($s, 'mcp.')));
+?>
+<?php foreach (array_slice($mods, 0, 6) as $m): ?>
+    <span class="label <?= str_ends_with($m, '.write') ? 'label-warning' : 'label-info' ?>"><?= e($m) ?></span>
+<?php endforeach ?>
+<?php if (count($mods) > 6): ?><span class="text-muted">+<?= count($mods) - 6 ?></span><?php endif ?>
+<?php if (in_array('*', (array) $record->scopes, true)): ?><span class="label label-danger">acceso total (*)</span><?php endif ?>
+<?php if ($extra): ?><span class="label label-danger" title="Scopes ajenos al MCP">+<?= $extra ?> ajenos al MCP</span><?php endif ?>

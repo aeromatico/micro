@@ -35,6 +35,19 @@ class Plugin extends PluginBase
             require __DIR__ . '/routes.php';
         });
 
+        // Entrada «Keys MCP» dentro del menú «API & MCP» (que pertenece a Aero.Api).
+        Event::listen('backend.menu.extendItems', function ($manager) {
+            $manager->addSideMenuItems('Aero.Api', 'configuracion', [
+                'mcpkeys' => [
+                    'label'       => 'Keys MCP',
+                    'icon'        => 'icon-plug',
+                    'url'         => \Backend::url('aero/mcp/mcpkeys'),
+                    'permissions' => ['aero.mcp.manage_keys'],
+                    'order'       => 150,
+                ],
+            ]);
+        });
+
         // `mcp.use` da acceso al endpoint; cada tool tiene su scope `mcp.tool.<nombre>`
         // y ninguna key lo tiene por defecto.
         Event::listen('aero.api.registerScopes', function () {
@@ -56,6 +69,10 @@ class Plugin extends PluginBase
     public function registerPermissions(): array
     {
         return [
+            'aero.mcp.manage_keys' => [
+                'tab'   => 'MCP',
+                'label' => 'Gestionar keys MCP',
+            ],
             'aero.mcp.superadmin' => [
                 'tab'   => 'MCP',
                 'label' => 'Activar módulos del servidor MCP',

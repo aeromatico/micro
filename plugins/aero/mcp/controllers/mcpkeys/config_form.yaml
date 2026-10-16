@@ -1,0 +1,10 @@
+name: Key MCP
+form: $/aero/mcp/models/mcpkey/fields.yaml
+modelClass: Aero\Mcp\Models\McpKey
+defaultRedirect: aero/mcp/mcpkeys
+create:
+    redirect: aero/mcp/mcpkeys/update/:id
+    redirectClose: aero/mcp/mcpkeys
+update:
+    redirect: aero/mcp/mcpkeys
+    redirectClose: aero/mcp/mcpkeys

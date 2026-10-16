@@ -1,0 +1,32 @@
+fields:
+    name:
+        label: Nombre
+        type: text
+        span: left
+        comment: Para qué es esta key (el cliente MCP o la persona que la usará).
+
+    owner_id:
+        label: Tenant
+        type: dropdown
+        span: right
+        emptyOption: — elegir tenant —
+        comment: Las tools solo ven los datos de este tenant.
+
+    scopes:
+        label: Módulos permitidos
+        type: checkboxlist
+        span: full
+        comment: Concede lo mínimo. «lectura» lista y consulta; «escritura» permite crear/modificar. Un módulo desactivado en Ajustes → MCP sigue sin responder aunque la key lo tenga.
+
+    expires_at:
+        label: Expira el
+        type: datepicker
+        mode: date
+        span: left
+        comment: Obligatoria. Por defecto 90 días.
+
+    rate_limit_per_minute:
+        label: Límite por minuto
+        type: number
+        span: right
+        default: 60

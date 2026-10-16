@@ -1,0 +1,26 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+    key_prefix:
+        label: Key
+        searchable: true
+    owner_label:
+        label: Tenant
+        sortable: false
+    scopes:
+        label: Módulos
+        type: partial
+        path: $/aero/mcp/models/mcpkey/_column_modules.htm
+        sortable: false
+    status:
+        label: Estado
+        type: partial
+        path: $/aero/api/models/apikey/_column_status.htm
+        sortable: false
+    last_used_at:
+        label: Último uso
+        type: datetime
+    expires_at:
+        label: Expira
+        type: date

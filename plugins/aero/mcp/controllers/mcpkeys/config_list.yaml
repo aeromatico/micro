@@ -1,0 +1,12 @@
+list: $/aero/mcp/models/mcpkey/columns.yaml
+modelClass: Aero\Mcp\Models\McpKey
+title: Keys MCP
+noRecordsMessage: Aún no hay keys MCP.
+showSetup: false
+recordsPerPage: 20
+defaultSort:
+    column: created_at
+    direction: desc
+recordUrl: aero/mcp/mcpkeys/update/:id
+toolbar:
+    buttons: list_toolbar
