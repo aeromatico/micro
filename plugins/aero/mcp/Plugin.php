@@ -24,6 +24,13 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function registerComponents(): array
+    {
+        return [
+            Components\McpCatalog::class => 'mcpCatalog',
+        ];
+    }
+
     public function register(): void
     {
         $this->registerConsoleCommand('mcp.audit', Console\Audit::class);
