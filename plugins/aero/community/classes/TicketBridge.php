@@ -73,6 +73,7 @@ class TicketBridge
         return \Aero\Crm\Models\Ticket::create([
             'tenant_id'        => null,
             'origin_tenant_id' => $tenantId,
+            'requester_user_id' => $user->id,
             'subject'          => mb_substr($subject, 0, 255),
             'description'      => mb_substr($description, 0, 8000) . ($extra ? "\n\n— Contexto —\n" . implode("\n", $extra) : ''),
             'department_id'    => $department->id,
