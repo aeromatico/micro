@@ -110,6 +110,9 @@
                         <h3 class="font-semibold text-ink group-hover:text-brand-primary transition-colors line-clamp-2 mb-1.5">
                             {{ product.name }}
                         </h3>
+                        {% if product.seller %}
+                        <p class="text-xs text-ink-muted mb-1.5">Vendido por {{ product.seller.display_name }}</p>
+                        {% endif %}
                         <p class="text-sm font-bold text-ink">
                             {% if product.has_price_range %}Desde {% endif %}{{ currency.format(product.display_price) }}
                         </p>

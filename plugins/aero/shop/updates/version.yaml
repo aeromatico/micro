@@ -154,3 +154,7 @@
 
 1.9.5:
     - "Eventos aero.shop.orderPaid y aero.shop.orderRefunded (para que Aero.Finance registre ventas y reembolsos en el libro)."
+
+1.10.0:
+    - "Modo Marketplace: comerciantes (miembros del equipo) con cuenta de cobro y comisión (% o fija), productos por comerciante, pedidos divididos por comerciante, «Mis ventas» con balance y detalle por comerciante para el admin."
+    - add_marketplace_mode.php

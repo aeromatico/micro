@@ -1,0 +1,14 @@
+title: Comerciantes
+list: $/aero/shop/models/seller/columns.yaml
+modelClass: Aero\Shop\Models\Seller
+recordUrl: aero/shop/sellers/detail/:id
+noRecordsMessage: Aún no hay comerciantes. Marca a un miembro de tu equipo como comerciante.
+recordsPerPage: 20
+showCheckboxes: false
+
+toolbar:
+    buttons: list_toolbar
+
+defaultSort:
+    column: display_name
+    direction: asc

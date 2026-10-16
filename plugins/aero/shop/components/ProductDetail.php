@@ -44,7 +44,7 @@ class ProductDetail extends ComponentBase
         $this->product = Product::forTenant($tenant->id)
             ->active()
             ->where('slug', $this->property('slug'))
-            ->with(['images', 'collection', 'options.values', 'variants.option_values'])
+            ->with(['images', 'collection', 'seller', 'options.values', 'variants.option_values'])
             ->first();
 
         if (!$this->product) {

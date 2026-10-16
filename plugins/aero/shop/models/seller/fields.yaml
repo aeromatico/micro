@@ -1,0 +1,43 @@
+fields:
+    backend_user_id:
+        label: Miembro del equipo
+        type: dropdown
+        span: left
+        required: true
+        placeholder: "-- Elige a un miembro del equipo --"
+        comment: "Se gestiona en CRM → Equipo. Solo ve y cobra sus propios productos."
+
+    display_name:
+        label: Nombre visible
+        type: text
+        span: right
+        comment: "Se muestra al comprador junto a sus productos. Vacío = el nombre del miembro."
+
+    bank_account_id:
+        label: Cuenta de cobro
+        type: dropdown
+        span: left
+        required: true
+        placeholder: "-- Elige la cuenta donde cobra --"
+        comment: "Se configura en Bolivia Pay → Cuentas bancarias. Los pagos de sus pedidos van directo a esta cuenta."
+
+    is_active:
+        label: Activo
+        type: switch
+        span: right
+        default: true
+
+    commission_type:
+        label: Tipo de comisión
+        type: dropdown
+        span: left
+        default: percent
+        comment: "Lo que retiene la tienda sobre los productos de cada pedido."
+
+    commission_value:
+        label: Valor de la comisión
+        type: number
+        span: right
+        default: 0
+        step: 0.01
+        min: 0

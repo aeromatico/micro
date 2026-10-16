@@ -2,6 +2,7 @@
 
 use Aero\Shop\Classes\InventoryService;
 use Aero\Shop\Models\Order;
+use Aero\Shop\Models\Seller;
 use Aero\Sites\Traits\ResolvesCurrentTenant;
 use Backend\Classes\Controller;
 use BackendAuth;
@@ -32,17 +33,29 @@ class Orders extends Controller
     public function listExtendQuery($query): void
     {
         $this->scopeQueryToTenant($query);
+        Seller::restrictQuery($query, BackendAuth::getUser(), $this->getCurrentTenantId());
     }
 
     public function formExtendQuery($query): void
     {
         $this->scopeQueryToTenant($query);
+        Seller::restrictQuery($query, BackendAuth::getUser(), $this->getCurrentTenantId());
+    }
+
+    /** Pedido del tenant visible para el usuario actual (en Marketplace, un comerciante solo alcanza los suyos). */
+    protected function findVisibleOrder(int $orderId): Order
+    {
+        $tenantId = $this->getCurrentTenantId();
+        $query = Order::forTenant($tenantId);
+        Seller::restrictQuery($query, BackendAuth::getUser(), $tenantId);
+
+        return $query->findOrFail($orderId);
     }
 
     protected function transition(int $orderId, string $toStatus, ?callable $sideEffect = null)
     {
         $tenantId = $this->getCurrentTenantId();
-        $order = Order::forTenant($tenantId)->findOrFail($orderId);
+        $order = $this->findVisibleOrder($orderId);
         $fromStatus = $order->status;
         $userId = BackendAuth::getUser()->id;
 
@@ -74,7 +87,7 @@ class Orders extends Controller
         $orderId = $recordId ?: post('order_id');
         // El stock ya se reservó al crear el pedido (checkout público, vía
         // InventoryService::reserveForOrderStrict) — aquí solo se confirma el pago.
-        $order = Order::forTenant($this->getCurrentTenantId())->findOrFail((int) $orderId);
+        $order = $this->findVisibleOrder((int) $orderId);
         (new \Aero\Shop\Classes\OrderService())->markPaid($order, null, null, BackendAuth::getUser()->id);
 
         Flash::success('Pedido marcado como pagado.');

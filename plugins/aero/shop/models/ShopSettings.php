@@ -74,6 +74,16 @@ class ShopSettings extends Model
     public function getRcTablesAttribute() { return $this->restaurant()['tables']; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
 
+    public function isMarketplaceStore(): bool
+    {
+        return $this->store_mode === 'marketplace';
+    }
+
+    public static function isMarketplaceForTenant(int $tenantId): bool
+    {
+        return static::where('tenant_id', $tenantId)->value('store_mode') === 'marketplace';
+    }
+
     public function isRestaurantStore(): bool
     {
         return $this->store_mode === 'restaurant';

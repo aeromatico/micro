@@ -20,7 +20,8 @@ class Order extends Model
         'paid_at', 'paid_confirmed_by_backend_user_id', 'fulfilled_at', 'cancelled_at',
         'cancel_reason', 'shipping_address_id', 'billing_address_id', 'notes',
         'customer_notes', 'requires_shipping', 'order_type', 'table_label', 'scheduled_for', 'kitchen_status', 'kitchen_updated_at', 'ready_at', 'accepted_at', 'promised_at',
-        'source', 'cashier_backend_user_id',
+        'source', 'cashier_backend_user_id', 'branch_id', 'branch_name',
+        'seller_id', 'order_group', 'commission_amount', 'seller_net',
     ];
 
     protected $dates = ['paid_at', 'fulfilled_at', 'cancelled_at', 'scheduled_for', 'kitchen_updated_at', 'ready_at', 'accepted_at', 'promised_at'];
@@ -41,6 +42,7 @@ class Order extends Model
         'shipping_address' => [Address::class, 'key' => 'shipping_address_id'],
         'billing_address'  => [Address::class, 'key' => 'billing_address_id'],
         'cashier'          => [\Backend\Models\User::class, 'key' => 'cashier_backend_user_id'],
+        'seller'           => [Seller::class],
     ];
 
     public $hasMany = [

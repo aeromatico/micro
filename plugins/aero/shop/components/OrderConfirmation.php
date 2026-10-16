@@ -9,6 +9,8 @@ class OrderConfirmation extends ComponentBase
     public ?Order $order = null;
     public ?\Aero\Shop\Models\Currency $currency = null;
     public $qrCode = null;
+    /** Marketplace: los otros pedidos de la misma compra (uno por comerciante). */
+    public $siblings = [];
     public string $timezone = 'America/La_Paz';
 
     public function componentDetails(): array
@@ -60,6 +62,11 @@ class OrderConfirmation extends ComponentBase
         if (!$this->order) {
             return false;
         }
+
+        $this->siblings = $this->order->order_group
+            ? Order::forTenant($tenant->id)->where('order_group', $this->order->order_group)
+                ->where('id', '!=', $this->order->id)->with('seller')->orderBy('id')->get()
+            : [];
 
         $this->loadQrCode();
 

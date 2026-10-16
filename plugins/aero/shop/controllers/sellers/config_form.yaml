@@ -1,0 +1,14 @@
+name: Comerciante
+form: $/aero/shop/models/seller/fields.yaml
+modelClass: Aero\Shop\Models\Seller
+defaultRedirect: aero/shop/sellers
+
+create:
+    title: Nuevo comerciante
+    redirect: aero/shop/sellers
+    redirectClose: aero/shop/sellers
+
+update:
+    title: Editar comerciante
+    redirect: aero/shop/sellers
+    redirectClose: aero/shop/sellers

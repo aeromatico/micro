@@ -10,6 +10,8 @@
         'orders'            => 'Pedidos',
         'customers'         => 'Clientes',
         'kitchen'           => 'Cocina',
+        'sellers'           => 'Comerciantes',
+        'my_sales'          => 'Mis ventas',
         'inventory'         => 'Inventario',
         'payment_gateways'  => 'Métodos de pago',
         'settings'          => 'Configuración',
@@ -21,5 +23,7 @@
         'manage_inventory'         => 'Gestionar inventario',
         'manage_payment_gateways'  => 'Gestionar métodos de pago',
         'manage_settings'          => 'Gestionar configuración de la tienda',
+        'manage_sellers'           => 'Gestionar comerciantes del marketplace',
+        'sell'                     => 'Ver mis ventas y balance (comerciante)',
     ],
 ];

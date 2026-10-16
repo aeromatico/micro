@@ -204,16 +204,9 @@ class Plugin extends PluginBase
                 return;
             }
 
-            $order->status = 'paid';
-            $order->paid_at = now();
-            $order->save();
-
-            $order->status_history()->create([
-                'from_status' => 'awaiting_payment',
-                'to_status'   => 'paid',
-            ]);
-
-            \Aero\Shop\Classes\OrderNotifier::fire($order, 'paid');
+            // markPaid es idempotente, deja el historial, avisa y dispara aero.shop.orderPaid
+            // (Finance y el balance de comerciantes dependen de ese evento).
+            (new \Aero\Shop\Classes\OrderService())->markPaid($order);
         });
     }
 
@@ -285,6 +278,10 @@ class Plugin extends PluginBase
                     'permissions' => ['aero.shop.manage_inventory'],
                 ];
             }
+
+            if ($this->isMarketplaceForCurrentTenant()) {
+                $sideMenu = $this->marketplaceMenu($sideMenu);
+            }
         }
 
         return [
@@ -295,6 +292,7 @@ class Plugin extends PluginBase
                 'permissions' => [
                     'aero.shop.manage_products', 'aero.shop.manage_collections', 'aero.shop.manage_orders',
                     'aero.shop.manage_inventory', 'aero.shop.manage_payment_gateways', 'aero.shop.manage_settings',
+                    'aero.shop.manage_sellers', 'aero.shop.sell',
                 ],
                 'order'       => 150,
                 'sideMenu'    => $sideMenu,
@@ -337,6 +335,48 @@ class Plugin extends PluginBase
         $tenantId = $this->resolveCurrentBackendTenantId();
 
         return $tenantId && \Aero\Shop\Models\ShopSettings::isRestaurantForTenant($tenantId);
+    }
+
+    /**
+     * Marketplace: el admin ve «Comerciantes»; quien es comerciante ve «Mis ventas».
+     * Un comerciante que no es admin solo conserva Productos, Pedidos y Mis ventas
+     * (todos los miembros del equipo comparten el rol tenant_admin, por eso se decide aquí).
+     */
+    protected function marketplaceMenu(array $sideMenu): array
+    {
+        $tenantId = $this->resolveCurrentBackendTenantId();
+        $user = \BackendAuth::getUser();
+        $isAdmin = \Aero\Shop\Models\Seller::seesEverything($user, $tenantId);
+        $isSeller = (bool) \Aero\Shop\Models\Seller::forUser($user, $tenantId);
+
+        if (!$isAdmin) {
+            $sideMenu = array_intersect_key($sideMenu, array_flip(['shop-productos', 'shop-pedidos']));
+        } else {
+            $sideMenu['shop-vendedores'] = [
+                'label'       => 'aero.shop::lang.menu.sellers',
+                'icon'        => 'icon-users',
+                'url'         => Backend::url('aero/shop/sellers'),
+                'permissions' => ['aero.shop.manage_sellers'],
+            ];
+        }
+
+        if ($isSeller) {
+            $sideMenu['shop-mis-ventas'] = [
+                'label'       => 'aero.shop::lang.menu.my_sales',
+                'icon'        => 'icon-line-chart',
+                'url'         => Backend::url('aero/shop/mysales'),
+                'permissions' => ['aero.shop.sell'],
+            ];
+        }
+
+        return $sideMenu;
+    }
+
+    protected function isMarketplaceForCurrentTenant(): bool
+    {
+        $tenantId = $this->resolveCurrentBackendTenantId();
+
+        return $tenantId && \Aero\Shop\Models\ShopSettings::isMarketplaceForTenant($tenantId);
     }
 
     protected function resolveCurrentBackendTenantId(): ?int
@@ -401,6 +441,7 @@ class Plugin extends PluginBase
                 $collection->forceDelete();
             });
 
+            \Aero\Shop\Models\Seller::where('tenant_id', $tenantId)->delete();
             \Aero\Shop\Models\TenantCurrency::where('tenant_id', $tenantId)->delete();
             \Aero\Shop\Models\ShopSettings::where('tenant_id', $tenantId)->delete();
         });
@@ -432,6 +473,14 @@ class Plugin extends PluginBase
             'aero.shop.manage_settings' => [
                 'tab'   => 'Shop',
                 'label' => 'aero.shop::lang.permissions.manage_settings',
+            ],
+            'aero.shop.manage_sellers' => [
+                'tab'   => 'Shop',
+                'label' => 'aero.shop::lang.permissions.manage_sellers',
+            ],
+            'aero.shop.sell' => [
+                'tab'   => 'Shop',
+                'label' => 'aero.shop::lang.permissions.sell',
             ],
         ];
     }

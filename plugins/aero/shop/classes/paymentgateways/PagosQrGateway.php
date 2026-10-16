@@ -27,7 +27,7 @@ class PagosQrGateway
      * marcar como pagado. Lanza RuntimeException (nunca tipos de aero/qrbo)
      * para que Checkout no necesite conocer esa dependencia opcional.
      */
-    public static function issueForOrder(PaymentGateway $gateway, Order $order): void
+    public static function issueForOrder(PaymentGateway $gateway, Order $order, ?\Aero\Shop\Models\Seller $seller = null): void
     {
         if (!class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
             throw new \RuntimeException('El plugin de Bolivia Pay no está disponible en este momento.');
@@ -37,8 +37,14 @@ class PagosQrGateway
         // PASARELA de este tenant apunte a esta cuenta — el dueño de la
         // cuenta puede ser otro tenant del mismo dueño (comparten un solo
         // API bancario). Ver QrIssuer::issue()/tenantId.
-        $bankAccount = \Aero\Pay\Models\BankAccount::active()
-            ->find($gateway->qrbo_bank_account_id);
+        // Marketplace: cobra el comerciante, con una cuenta activa DE ESTE tenant (sin préstamos entre tenants).
+        $bankAccount = $seller
+            ? \Aero\Pay\Models\BankAccount::active()->forTenant($order->tenant_id)->find($seller->bank_account_id)
+            : \Aero\Pay\Models\BankAccount::active()->find($gateway->qrbo_bank_account_id);
+
+        if ($seller && !$bankAccount) {
+            throw new \RuntimeException('«' . $seller->display_name . '» no tiene una cuenta de cobro activa; no se puede generar el pago.');
+        }
 
         if (!$bankAccount) {
             throw new \RuntimeException('La cuenta configurada para Bolivia Pay ya no está disponible.');

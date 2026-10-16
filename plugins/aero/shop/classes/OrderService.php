@@ -9,9 +9,11 @@ use Aero\Shop\Models\OrderItem;
 use Aero\Shop\Models\PaymentGateway;
 use Aero\Shop\Models\Product;
 use Aero\Shop\Models\ProductVariant;
+use Aero\Shop\Models\Seller;
 use Aero\Shop\Models\ShopSettings;
 use Db;
 use Event;
+use Illuminate\Support\Str;
 
 /**
  * Crea y cancela pedidos reales de la tienda de un tenant. Es el único
@@ -73,7 +75,52 @@ class OrderService
             throw new OrderException('Falta el correo o el teléfono del cliente.');
         }
 
-        $order = Db::transaction(function () use ($tenantId, $settings, $lines, $customer, $gateway, $requiresShipping, $shipping, $options, $restaurant) {
+        // Marketplace: una compra se divide en un pedido por comerciante (cada uno cobra en su cuenta).
+        $groups = $settings->isMarketplaceStore()
+            ? $this->groupBySeller($tenantId, $lines)
+            : [['seller' => null, 'lines' => $lines]];
+        $orderGroup = count($groups) > 1 || $groups[0]['seller'] ? Str::random(32) : null;
+
+        $orders = Db::transaction(function () use ($tenantId, $settings, $groups, $orderGroup, $customer, $gateway, $requiresShipping, $shipping, $options, $restaurant, $branch) {
+            return array_map(fn ($g) => $this->placeOrder(
+                $tenantId, $settings, $g['lines'], $g['seller'], $orderGroup, $customer, $gateway,
+                $requiresShipping, $shipping, $options, $restaurant, $branch
+            ), $groups);
+        });
+
+        foreach ($orders as $placed) {
+            OrderNotifier::fire($placed->fresh(['items', 'customer', 'currency', 'payment_gateway']), 'placed');
+        }
+
+        return $orders[0]->fresh(['items', 'customer', 'currency', 'payment_gateway']);
+    }
+
+    /** Agrupa las líneas por comerciante dueño del producto (null = productos del propio tenant). */
+    protected function groupBySeller(int $tenantId, array $lines): array
+    {
+        $sellers = Seller::forTenant($tenantId)->get()->keyBy('id');
+        $groups = [];
+        foreach ($lines as $line) {
+            $sellerId = $line['product']->seller_id;
+            $seller = $sellerId ? $sellers->get($sellerId) : null;
+            if ($sellerId && (!$seller || !$seller->is_active)) {
+                throw new OrderException('«' . $line['product']->name . '» ya no está disponible.');
+            }
+            $groups[$sellerId ?: 0]['seller'] = $seller;
+            $groups[$sellerId ?: 0]['lines'][] = $line;
+        }
+
+        return array_values($groups);
+    }
+
+    protected function placeOrder(int $tenantId, ShopSettings $settings, array $lines, ?Seller $seller, ?string $orderGroup, array $customer, ?PaymentGateway $gateway, bool $requiresShipping, $shipping, array $options, ?array $restaurant, ?array $branch): Order
+    {
+        // En marketplace cada pedido lleva envío solo si sus propios productos lo requieren.
+        if ($seller || $orderGroup) {
+            $requiresShipping = collect($lines)->contains(fn ($l) => $l['product']->requires_shipping);
+        }
+
+        return (function () use ($tenantId, $settings, $lines, $seller, $orderGroup, $customer, $gateway, $requiresShipping, $shipping, $options, $restaurant, $branch) {
             $customerModel = empty($customer['email']) && empty($customer['phone'])
                 ? $this->walkInCustomer($tenantId)
                 : $this->resolveCustomer($tenantId, $customer);
@@ -107,6 +154,8 @@ class OrderService
                 ? ($restaurant['delivery_fee'] ?? 0)
                 : ($requiresShipping ? (float) $settings->shipping_fee : 0.0);
 
+            $commission = $seller ? $seller->commissionFor($subtotal) : 0.0;
+
             $order = Order::create([
                 'tenant_id' => $tenantId, 'customer_id' => $customerModel->id,
                 'order_number' => (new OrderNumberGenerator())->generate($tenantId), 'status' => $status,
@@ -120,6 +169,8 @@ class OrderService
                 'kitchen_status' => $restaurant ? 'new' : null, 'kitchen_updated_at' => $restaurant ? now() : null,
                 'source' => $options['source'] ?? 'web', 'cashier_backend_user_id' => $options['cashier_id'] ?? null,
                 'branch_id' => $branch['id'] ?? null, 'branch_name' => $branch['name'] ?? null,
+                'seller_id' => $seller?->id, 'order_group' => $orderGroup, 'commission_amount' => $commission,
+                'seller_net' => $seller ? round($subtotal + $deliveryFee - $commission, 4) : null,
             ]);
 
             foreach ($lines as $line) {
@@ -139,16 +190,12 @@ class OrderService
             $order->status_history()->create(['from_status' => null, 'to_status' => $status, 'note' => $options['source'] ?? null]);
 
             if ($gateway && $gateway->driver === 'pagos_qr') {
-                \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::issueForOrder($gateway, $order);
+                // Marketplace: el QR se emite con la cuenta de cobro del comerciante, no la de la pasarela.
+                \Aero\Shop\Classes\PaymentGateways\PagosQrGateway::issueForOrder($gateway, $order, $seller);
             }
 
             return $order;
-        });
-
-        $order = $order->fresh(['items', 'customer', 'currency', 'payment_gateway']);
-        OrderNotifier::fire($order, 'placed');
-
-        return $order;
+        })();
     }
 
     /** Cancela un pedido sin pagar y devuelve el stock reservado. */

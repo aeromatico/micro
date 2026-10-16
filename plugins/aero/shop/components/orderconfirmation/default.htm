@@ -14,6 +14,22 @@
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
     </div>
 
+    {% if __SELF__.siblings|length %}
+    <div class="card p-5 mb-6 text-sm">
+        <p class="font-semibold text-ink">Tu compra se dividió en {{ __SELF__.siblings|length + 1 }} pedidos, uno por comerciante</p>
+        <p class="text-ink-muted mt-1">Cada comerciante cobra en su propia cuenta: paga cada pedido por separado.</p>
+        <ul class="mt-3 space-y-2">
+            <li class="flex justify-between gap-3"><span class="text-ink font-medium">{{ order.order_number }}{% if order.seller %} · {{ order.seller.display_name }}{% endif %} (este)</span><span class="text-ink">{{ currency.format(order.grand_total) }}</span></li>
+            {% for sib in __SELF__.siblings %}
+            <li class="flex justify-between gap-3">
+                <a class="underline text-brand-primary" href="/tienda/pedido/{{ sib.access_token }}">{{ sib.order_number }}{% if sib.seller %} · {{ sib.seller.display_name }}{% endif %}</a>
+                <span class="text-ink">{{ currency.format(sib.grand_total) }}{% if sib.paid_at %} · pagado{% endif %}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
     {# Guardar el enlace para volver al seguimiento #}
     <div class="card p-4 mb-6 text-sm" x-data="orderLink()" x-init="remember()">
         <p class="font-semibold text-ink">Guarda este enlace para ver el estado de tu pedido cuando quieras</p>

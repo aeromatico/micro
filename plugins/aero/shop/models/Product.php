@@ -14,7 +14,7 @@ class Product extends Model
         'tenant_id', 'collection_id', 'type', 'name', 'slug', 'description', 'sku',
         'has_variants', 'base_price', 'compare_at_price', 'cost_price', 'weight_grams',
         'requires_shipping', 'track_inventory', 'stock_quantity', 'allow_backorder',
-        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'barcode', 'is_internal', 'seo_title', 'seo_description',
+        'status', 'is_featured', 'published_at', 'prep_minutes', 'min_quantity', 'barcode', 'is_internal', 'seller_id', 'seo_title', 'seo_description',
     ];
 
     protected $dates = ['deleted_at', 'published_at'];
@@ -31,6 +31,7 @@ class Product extends Model
     public $belongsTo = [
         'tenant'     => [\Aero\Sites\Models\Tenant::class],
         'collection' => [Collection::class],
+        'seller'     => [Seller::class],
     ];
 
     public $hasMany = [
@@ -98,7 +99,10 @@ class Product extends Model
     /** Publicados y visibles: excluye los productos internos (ej. «Venta libre» del POS). */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active')->where('is_internal', false);
+        // Un comerciante desactivado (Marketplace) deja de aparecer en la tienda pública.
+        return $query->where('status', 'active')->where('is_internal', false)
+            ->where(fn ($q) => $q->whereNull('seller_id')
+                ->orWhereIn('seller_id', fn ($s) => $s->select('id')->from('aero_shop_sellers')->where('is_active', true)));
     }
 
     public function getCollectionIdOptions(): array

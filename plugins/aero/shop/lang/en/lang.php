@@ -10,6 +10,8 @@
         'orders'            => 'Orders',
         'customers'         => 'Customers',
         'kitchen'           => 'Kitchen',
+        'sellers'           => 'Sellers',
+        'my_sales'          => 'My sales',
         'inventory'         => 'Inventory',
         'payment_gateways'  => 'Payment methods',
         'settings'          => 'Settings',
@@ -21,5 +23,7 @@
         'manage_inventory'         => 'Manage inventory',
         'manage_payment_gateways'  => 'Manage payment methods',
         'manage_settings'          => 'Manage shop settings',
+        'manage_sellers'           => 'Manage marketplace sellers',
+        'sell'                     => 'View my sales and balance (seller)',
     ],
 ];

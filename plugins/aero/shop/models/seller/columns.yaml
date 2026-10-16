@@ -1,0 +1,29 @@
+columns:
+    display_name:
+        label: Comerciante
+        type: text
+        searchable: true
+
+    user_email:
+        label: Correo
+        select: email
+        relation: user
+        type: text
+
+    commission:
+        label: Comisión
+        type: partial
+        path: ~/plugins/aero/shop/models/seller/_col_commission.php
+        sortable: false
+
+    net:
+        label: Neto cobrado
+        type: partial
+        path: ~/plugins/aero/shop/models/seller/_col_net.php
+        sortable: false
+        width: 130px
+
+    is_active:
+        label: Activo
+        type: switch
+        width: 90px

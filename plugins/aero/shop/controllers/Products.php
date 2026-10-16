@@ -1,7 +1,9 @@
 <?php namespace Aero\Shop\Controllers;
 
 use Aero\Sites\Traits\ResolvesCurrentTenant;
+use Aero\Shop\Models\Seller;
 use Backend\Classes\Controller;
+use BackendAuth;
 use BackendMenu;
 
 class Products extends Controller
@@ -30,6 +32,13 @@ class Products extends Controller
     {
         $this->scopeQueryToTenant($query);
         $query->where('is_internal', false);
+        Seller::restrictQuery($query, BackendAuth::getUser(), $this->getCurrentTenantId());
+    }
+
+    public function formExtendQuery($query): void
+    {
+        $this->scopeQueryToTenant($query);
+        Seller::restrictQuery($query, BackendAuth::getUser(), $this->getCurrentTenantId());
     }
 
     public function formExtendModel($model): void
@@ -38,6 +47,39 @@ class Products extends Controller
             $model->tenant_id = $this->getCurrentTenantId();
             $model->type = 'physical';
         }
+    }
+
+    /** Marketplace: el comerciante vende solo lo suyo; el admin elige el dueño (o lo deja del tenant). */
+    public function formBeforeSave($model): void
+    {
+        $tenantId = $this->getCurrentTenantId();
+        if (!$tenantId || !\Aero\Shop\Models\ShopSettings::isMarketplaceForTenant($tenantId)) {
+            return;
+        }
+
+        $user = BackendAuth::getUser();
+        if (!Seller::seesEverything($user, $tenantId)) {
+            $mine = Seller::forUser($user, $tenantId);
+            if (!$mine) {
+                throw new \ApplicationException('No estás registrado como comerciante de esta tienda.');
+            }
+            $model->seller_id = $mine->id;
+        } elseif ($model->seller_id && !Seller::forTenant($tenantId)->where('id', $model->seller_id)->exists()) {
+            throw new \ApplicationException('El comerciante elegido no pertenece a tu tienda.');
+        }
+    }
+
+    /** Solo el admin ve y elige el comerciante dueño del producto. */
+    protected function sellerFieldOptions(): ?array
+    {
+        $tenantId = $this->getCurrentTenantId();
+        if (!$tenantId || !\Aero\Shop\Models\ShopSettings::isMarketplaceForTenant($tenantId)
+            || !Seller::seesEverything(BackendAuth::getUser(), $tenantId)) {
+            return null;
+        }
+
+        return ['' => '— Producto de la tienda (sin comerciante) —']
+            + Seller::forTenant($tenantId)->active()->orderBy('display_name')->pluck('display_name', 'id')->all();
     }
 
     protected function isRestaurantTenant(): bool
@@ -71,6 +113,13 @@ class Products extends Controller
     {
         if (!$form->model instanceof \Aero\Shop\Models\Product) {
             return;
+        }
+
+        if (($sellerOptions = $this->sellerFieldOptions()) !== null) {
+            $form->addFields(['seller_id' => [
+                'label' => 'Comerciante', 'type' => 'dropdown', 'options' => $sellerOptions,
+                'span' => 'auto', 'comment' => 'Quién vende este producto y cobra en su cuenta.',
+            ]]);
         }
 
         $tenantId = (int) ($form->model->tenant_id ?: $this->getCurrentTenantId());

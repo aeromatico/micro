@@ -75,7 +75,7 @@ class ShopCatalog extends ComponentBase
 
         $query = Product::forTenant($tenant->id)
             ->active()
-            ->with(['images', 'collection'])
+            ->with(['images', 'collection', 'seller'])
             ->orderByDesc('is_featured')
             ->orderByDesc('published_at');
 
