@@ -9,3 +9,11 @@
 .app, .inbox { height: calc(100dvh - 40px); }
 .center { min-height: calc(100dvh - 40px); }
 .link { display: none; }
+/* La barra del demo (z-index 50) tapaba la cabecera del panel Contacto/Ticket/Lead, con su botón de cerrar. */
+.sheet.drawer { top: 40px; height: calc(100dvh - 40px); }
+.drawer .tabs { overflow-x: auto; scrollbar-width: none; }
+.drawer .tabs::-webkit-scrollbar { display: none; }
+.drawer .tab { flex: 1 0 auto; padding: 0 9px; font-size: 13px; }
+.drawer-head .back { display: none; }
+@media (max-width: 899px) { .drawer-head .back { display: inline-flex; } }
+.drawer-head .icon-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

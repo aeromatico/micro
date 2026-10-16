@@ -45,6 +45,10 @@ def partial(m):
 page = body_of(read(THEME / 'pages/app.htm'))
 page = re.sub(r"\{%\s*partial '(\w+)'\s*%\}", partial, page)
 assert '{%' not in page and '{{' not in page
+# Flecha "volver" en el panel Contacto/Ticket/Lead (en móvil; en escritorio basta la X).
+_crm_head = '<div class="grow"><b x-text="crm && crm.contact ? crm.contact.name'
+assert page.count(_crm_head) == 1, 'el panel CRM cambió y el parche de la flecha ya no aplica'
+page = page.replace(_crm_head, '<button type="button" class="icon-btn back" @click="sheet = \'\'" aria-label="Volver al chat"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>' + _crm_head)
 
 css = read(THEME / 'assets/css/app.css') + '\n' + read(HERE / 'demo.css')
 alpine = read(THEME / 'assets/js/alpine.min.js')
