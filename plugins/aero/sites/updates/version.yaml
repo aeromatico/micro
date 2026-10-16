@@ -435,3 +435,7 @@
 1.74.0:
     - "Planes: nuevo modo de créditos «Una sola vez» (cuota inicial sin vencimiento ni repetición en renovaciones); todos los planes actuales pasan a ese modo."
     - set_plan_credits_mode_once.php
+
+1.75.0:
+    - "El rol tenant_admin recibe aero.invoicing.use (Facturación: sus emisores y facturas)."
+    - grant_invoicing_to_tenant_admin.php
