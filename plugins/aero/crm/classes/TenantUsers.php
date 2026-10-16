@@ -58,4 +58,17 @@ class TenantUsers
             ->mapWithKeys(fn ($u) => [$u->id => trim($u->first_name . ' ' . $u->last_name) ?: $u->login])
             ->all();
     }
+
+    /** [id => nombre] solo de los administradores del tenant: dueño y colaboradores con rol admin. */
+    public static function admins(int $tenantId, int|array|null $keepUserId = null): array
+    {
+        $ids = TenantUser::where('tenant_id', $tenantId)->where('role', 'admin')->pluck('user_id')
+            ->push(Tenant::where('id', $tenantId)->value('backend_user_id'))
+            ->merge((array) $keepUserId)
+            ->filter()->unique()->values();
+
+        return User::whereIn('id', $ids)->orderBy('first_name')->get()
+            ->mapWithKeys(fn ($u) => [$u->id => (trim($u->first_name . ' ' . $u->last_name) ?: $u->login) . ' · ' . $u->email])
+            ->all();
+    }
 }

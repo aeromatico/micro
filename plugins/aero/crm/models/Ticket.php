@@ -18,10 +18,12 @@ class Ticket extends Model
 
     public const OPEN = 'open', PENDING = 'pending', RESOLVED = 'resolved', CLOSED = 'closed';
 
+    public const FIRST_SEQ = 100;
+
     public $table = 'aero_crm_tickets';
 
     public $fillable = [
-        'tenant_id', 'origin_tenant_id', 'subject', 'description', 'department_id', 'contact_id',
+        'tenant_id', 'origin_tenant_id', 'requester_user_id', 'subject', 'description', 'department_id', 'contact_id',
         'frontend_user_id', 'access_token', 'unread_for_agent', 'last_customer_reply_at',
         'requester_name', 'requester_email', 'requester_phone',
         'assigned_to', 'status', 'priority', 'source', 'new_reply', 'reply_internal',
@@ -48,6 +50,7 @@ class Ticket extends Model
     public $belongsTo = [
         'tenant'       => [Tenant::class],
         'originTenant' => [Tenant::class, 'key' => 'origin_tenant_id'],
+        'requesterUser' => [User::class, 'key' => 'requester_user_id'],
         'department'   => [Department::class],
         'contact'      => [Contact::class],
         'assignee'     => [User::class, 'key' => 'assigned_to'],
@@ -58,15 +61,39 @@ class Ticket extends Model
         'replies' => [TicketReply::class, 'order' => 'created_at asc'],
     ];
 
+    /** Un ticket creado a mano en el panel siempre lleva responsable. */
+    public function beforeValidate()
+    {
+        if (!$this->exists && ($this->source ?? 'manual') === 'manual') {
+            $this->rules['assigned_to'] = 'required';
+            $this->customMessages['assigned_to.required'] = 'Asigná el ticket a un responsable.';
+
+            // Mesa de la plataforma: el ticket siempre es de un admin de un tenant.
+            if (!$this->tenant_id) {
+                $this->rules['origin_tenant_id'] = 'required|exists:aero_sites_tenants,id';
+                $this->rules['requester_user_id'] = 'required';
+                $this->customMessages['origin_tenant_id.required'] = 'Elegí el tenant.';
+                $this->customMessages['requester_user_id.required'] = 'Elegí el administrador del tenant.';
+            }
+        }
+
+        // El solicitante se completa desde el admin vinculado.
+        if ($this->requester_user_id && !$this->requester_email && ($u = User::find($this->requester_user_id))) {
+            $this->requester_name = trim($u->first_name . ' ' . $u->last_name) ?: $u->login;
+            $this->requester_email = $u->email;
+        }
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function (self $t) {
-            $t->seq = 1 + (int) Db::table('aero_crm_tickets')
+            // La numeración arranca en #100 (FIRST_SEQ) en cada ámbito.
+            $t->seq = 1 + max(self::FIRST_SEQ - 1, (int) Db::table('aero_crm_tickets')
                 ->when($t->tenant_id, fn ($q) => $q->where('tenant_id', $t->tenant_id), fn ($q) => $q->whereNull('tenant_id'))
                 ->lockForUpdate()
-                ->max('seq');
+                ->max('seq'));
         });
 
         static::saving(function (self $t) {
@@ -102,7 +129,7 @@ class Ticket extends Model
 
     public function getNumberAttribute(): string
     {
-        return '#' . str_pad((string) $this->seq, 4, '0', STR_PAD_LEFT);
+        return '#' . str_pad((string) $this->seq, 3, '0', STR_PAD_LEFT);
     }
 
     public function getDepartmentIdOptions(): array
@@ -117,13 +144,30 @@ class Ticket extends Model
     {
         $dept = $this->department_id ? Department::find($this->department_id) : null;
 
-        if ($dept) {
-            $ids = array_merge($dept->users()->pluck('backend_users.id')->all(), array_filter((array) $this->assigned_to));
+        $scope = $dept ? $dept->tenant_id : ($this->exists ? $this->tenant_id : TenantUsers::currentTenantId());
+        $keep = array_filter((array) $this->assigned_to);
 
-            return array_intersect_key(TenantUsers::options($dept->tenant_id, $ids), array_flip($ids));
+        if ($dept && ($members = $dept->users()->pluck('backend_users.id')->all())) {
+            $ids = array_merge($members, $keep);
+
+            return array_intersect_key(TenantUsers::options($scope, $ids), array_flip($ids));
         }
 
-        return [];
+        // Departamento sin integrantes (o aún sin elegir): cualquier admin del ámbito.
+        return TenantUsers::options($scope, $keep);
+    }
+
+    public function getOriginTenantIdOptions(): array
+    {
+        return Tenant::orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /** Administradores del tenant elegido (dueño + colaboradores con rol admin). */
+    public function getRequesterUserIdOptions(): array
+    {
+        return $this->origin_tenant_id
+            ? TenantUsers::admins((int) $this->origin_tenant_id, $this->requester_user_id)
+            : [];
     }
 
     public function getContactIdOptions(): array

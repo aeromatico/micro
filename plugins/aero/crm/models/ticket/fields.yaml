@@ -5,6 +5,23 @@ fields:
         span: full
         required: true
 
+    origin_tenant_id:
+        label: Tenant
+        type: dropdown
+        span: auto
+        emptyOption: — elegí —
+        required: true
+        comment: Negocio que recibe el ticket de soporte.
+
+    requester_user_id:
+        label: Administrador del tenant
+        type: dropdown
+        span: auto
+        emptyOption: — elegí —
+        required: true
+        dependsOn: origin_tenant_id
+        comment: A quien se vincula el ticket; verá y responderá desde Soporte.
+
     department_id:
         label: Departamento
         type: dropdown
@@ -16,9 +33,10 @@ fields:
         label: Asignado a
         type: dropdown
         span: auto
-        emptyOption: Sin asignar
+        emptyOption: — elegí —
+        required: true
         dependsOn: department_id
-        comment: Solo integrantes del departamento.
+        comment: Integrantes del departamento; si no tiene, cualquier admin del ámbito.
 
     priority:
         label: Prioridad

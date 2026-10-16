@@ -45,6 +45,17 @@ class Tickets extends Controller
         }
     }
 
+    /** Tenant y admin vinculado solo existen en la mesa de la plataforma (sin tenant). */
+    public function formExtendFields($form): void
+    {
+        $platform = $form->model->exists ? !$form->model->tenant_id : !TenantUsers::currentTenantId();
+
+        if (!$platform) {
+            $form->removeField('origin_tenant_id');
+            $form->removeField('requester_user_id');
+        }
+    }
+
     public function formAfterSave($model): void
     {
         $data = post('Ticket', []);

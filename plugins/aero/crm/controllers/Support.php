@@ -74,6 +74,7 @@ class Support extends Controller
             'department_id'    => (int) post('department_id'),
             'priority'         => in_array(post('priority'), ['low', 'normal', 'high', 'urgent'], true) ? post('priority') : 'normal',
             'source'           => 'tenant',
+            'requester_user_id' => $user->id,
             'requester_name'   => trim($user->first_name . ' ' . $user->last_name) ?: $user->login,
             'requester_email'  => $user->email,
             'unread_for_agent' => true,

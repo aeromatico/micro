@@ -153,3 +153,7 @@
 1.11.0:
     - "Agente de CRM: herramientas privadas para consultar, analizar (informes con cifras calculadas) y gestionar contactos, empresas, leads, negocios, actividades y cobranzas con plan acordado, confirmación y deshacer."
     - create_agent_changes_table.php
+
+1.12.0:
+    - "Soporte de plataforma: cada ticket queda vinculado al administrador del tenant que lo abre (o a quien el equipo le abre el ticket en su nombre), con tenant y admin elegibles al crear desde CRM > Tickets."
+    - add_requester_user_to_tickets.php

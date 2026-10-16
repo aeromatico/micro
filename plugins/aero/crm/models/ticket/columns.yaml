@@ -14,6 +14,12 @@ columns:
         select: name
         width: 140px
 
+    requesterUser:
+        label: Admin del tenant
+        relation: requesterUser
+        select: first_name
+        width: 140px
+
     requester_name:
         label: Solicitante
         searchable: true
