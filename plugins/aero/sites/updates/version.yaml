@@ -427,3 +427,7 @@
 1.72.0:
     - "Aero.School: el rol tenant_admin recibe aero.school.use (Colegio: estudiantes, cobranza, asistencia, calificaciones, comunicados y reportes)."
     - grant_school_to_tenant_admin.php
+
+1.73.0:
+    - "Aero.Shop Marketplace: el rol tenant_admin recibe aero.shop.manage_sellers y aero.shop.sell (vendedores y «Mis ventas»; el modo Marketplace restringe por código)."
+    - grant_shop_marketplace_to_tenant_admin.php
