@@ -26,6 +26,7 @@ esté apagada, el menú de catálogo y pedidos no aparece.
 | **Tienda estándar** | Checkout normal (valor por defecto). |
 | **Tienda para WhatsApp** | El checkout solo pide el celular del cliente (prefijo 591) y manda el pedido al chat. |
 | **Restaurante** | Agrega extras por plato, tipo de pedido, mesas por QR, tiempos y la pantalla de [Cocina](shop-cocina). |
+| **Marketplace** | Miembros de tu equipo son comerciantes: cada uno vende sus productos, cobra en su cuenta y ve su balance. Ver [Comerciantes](shop-comerciantes). |
 
 ### Tienda para WhatsApp
 
@@ -93,4 +94,4 @@ Se administran en la misma pantalla:
 > Deja la **compra como invitado** activada para reducir la fricción; puedes
 > vincular al comprador con un cliente después.
 
-**Versión documentada:** 1.8.0
+**Versión documentada:** 1.10.0

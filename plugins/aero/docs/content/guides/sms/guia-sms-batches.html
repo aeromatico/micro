@@ -1,0 +1,188 @@
+<!doctype html>
+<!--guide {"title":"Lote de SMS","article":"sms-lotes","sort":30} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Lote de SMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--ok-soft:#dff2e8;--err:#b3261e;--err-soft:#fbe4e2;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media (min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0;text-wrap:balance}
+.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;--surface:var(--g-surface);--surface-2:var(--g-surface-2);--line:var(--g-line);--ink:var(--g-ink);--ink-2:var(--g-ink-2);--accent:var(--g-accent);--accent-ink:var(--g-accent-ink);--accent-soft:var(--g-accent-soft);color:var(--ink)}
+@media (min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;padding:10px 14px;font-size:15px;font-weight:600;border-radius:6px;border:2px solid var(--accent)}
+#gPrev{background:var(--accent-soft);color:var(--accent)}#gPrev:hover:not(:disabled){background:var(--accent);color:var(--accent-ink)}
+#gNext{background:var(--accent);color:var(--accent-ink)}#gNext:hover:not(:disabled){filter:brightness(1.1)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0;text-wrap:balance}
+.progress{height:4px;background:var(--surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin-bottom:2px}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.danger{background:var(--err);color:#fff;border-color:var(--err)}
+.btn.ghost{border-color:transparent;color:var(--accent);background:transparent;padding-inline:6px}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible,.steps button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--ink-2)}
+.steps button:hover{background:var(--surface-2)}.steps button[aria-current="step"]{background:var(--accent-soft);color:var(--ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:var(--surface)}.steps [aria-current="step"] .dot{border-color:var(--accent);color:var(--accent)}
+.formcol{grid-area:form;min-width:0;display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}
+@media (max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}.field[hidden]{display:none!important}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+input[readonly],textarea[readonly]{background:var(--surface-2);color:var(--ink-2)}
+textarea{resize:vertical;min-height:70px}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 6px 6px;align-items:center}.toolbar .spacer{flex:1}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.callout{border:1px solid var(--accent);border-radius:6px;padding:10px 14px;background:var(--accent-soft)}.callout h3{margin:0 0 4px;font-size:14px}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+  <header><div><h1 id="h1"></h1><div class="crumb" id="crumb"></div></div><span class="badge">Demo: no guarda nada real</span></header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn primary" id="gNext" type="button">Siguiente →</button></div>
+      <h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol"><div class="card">
+    <div class="ctx" id="ctxLine"></div>
+    <div class="panel" id="panel"></div>
+    <div class="toolbar" id="toolbar"></div>
+  </div></main>
+</div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function () {
+  var P = { total: 3, queued: 2, sent: 1, delivered: 0, failed: 0, blocked: 0, cancelled: 0 };
+  var progEl;
+  function renderProg() {
+    progEl.innerHTML = '';
+    var h = document.createElement('h3'); h.textContent = 'Progreso'; progEl.appendChild(h);
+    var d = document.createElement('div');
+    d.textContent = 'Total ' + P.total + ' · En cola ' + P.queued + ' · Enviados ' + P.sent + ' · Entregados ' + P.delivered + ' · Fallidos ' + P.failed + ' · Bloqueados ' + P.blocked + ' · Cancelados ' + P.cancelled;
+    progEl.appendChild(d);
+  }
+  var cancelled = false;
+  var CFG = {
+    title: 'Lote', crumb: '/backend/aero/sms/batches/preview/8 · Guía de capacitación',
+    ctx: 'Ficha de solo lectura (preview): los lotes los crea el envío masivo, aquí solo se revisan',
+    fields: [
+      { id: 'progress', label: '', full: true,
+        build: function (box) { progEl = document.createElement('div'); progEl.className = 'callout'; box.appendChild(progEl); renderProg(); },
+        step: { title: 'Progreso del lote', body: 'Arriba de la ficha ves cuántos mensajes hay en total y en cada situación: en cola, enviados, entregados, fallidos, bloqueados y cancelados.', tip: 'Los bloqueados son números que están en la lista de bajas.' } },
+      { id: 'uuid', label: 'ID público', def: 'b7c1e2f0-1a2b-4c3d-9e8f-ejemplo000001', step: { title: 'ID público', body: 'Identificador del lote. Solo lectura.', tip: '' } },
+      { id: 'status', label: 'Estado', def: 'running', step: { title: 'Estado del lote', body: 'Situación del lote: scheduled (programado), running (en curso), completed (terminado) o cancelled (cancelado).', tip: 'Pasa a completed solo cuando no queda ningún mensaje en cola.' } },
+      { id: 'name', label: 'Nombre', def: 'Aviso de promoción octubre', step: { title: 'Nombre', body: 'El nombre del envío masivo.', tip: '' } },
+      { id: 'consumer', label: 'API key', def: 'Mi tienda (clave de producción)', step: { title: 'API key', body: 'La credencial que originó el envío.', tip: 'Útil para saber qué sistema o integración disparó el lote.' } },
+      { id: 'total', label: 'Destinatarios', def: '3', step: { title: 'Destinatarios', body: 'Cuántos números incluye el lote.', tip: '' } },
+      { id: 'credits_charged', label: 'Créditos cobrados', def: '3', step: { title: 'Créditos cobrados', body: 'El costo total del lote, en créditos.', tip: 'Al cancelar el lote, los créditos de los mensajes anulados se devuelven.' } },
+      { id: 'scheduled_at', label: 'Programado', def: '—', step: { title: 'Programado', body: 'Fecha y hora si el envío se programó para más tarde.', tip: '' } },
+      { id: 'completed_at', label: 'Terminado', def: '—', step: { title: 'Terminado', body: 'Cuándo finalizó el lote. Queda vacío mientras sigue en curso.', tip: '' } }
+    ],
+    steps: [
+      { id: 'cancel', fields: [], opt: true, title: 'Cancelar el lote', fillLabel: 'Cancelar lote (simulado)',
+        body: 'Mientras el lote no esté completed ni cancelled aparece el botón Cancelar lote. Anula los mensajes que aún están en cola y devuelve sus créditos.', tip: 'Los mensajes que ya salieron no se pueden recuperar: solo se cancela lo que sigue en cola.', ex: '',
+        fill: function () { doCancel(); }, done: function () { return cancelled; } }
+    ]
+  };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var S = { step: 0, armed: false }, steps = [], ft;
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  function flash(m, bad) { var f = $('#flash'); f.textContent = m; f.className = bad ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+  function doCancel() {
+    var st = $('#f_status').value;
+    if (st === 'completed' || st === 'cancelled') { flash('Este lote ya terminó o está cancelado.', true); return; }
+    var n = P.queued; P.cancelled += n; P.queued = 0; renderProg();
+    $('#f_status').value = 'cancelled'; $('#f_completed_at').value = '16/10/2026 11:20'; cancelled = true;
+    flash('Lote cancelado: ' + n + ' mensajes anulados y sus créditos devueltos.'); refresh();
+  }
+  function buildForm() {
+    var host = $('#panel');
+    CFG.fields.forEach(function (f) {
+      var box = el('div', 'field' + (f.full ? ' full' : '')); box.setAttribute('data-f', f.id);
+      if (f.label) { var lb = el('label', 'lbl', f.label); lb.setAttribute('for', 'f_' + f.id); box.appendChild(lb); }
+      if (f.build) f.build(box);
+      else { var c = el('input'); c.type = 'text'; c.readOnly = true; c.id = 'f_' + f.id; c.value = f.def || ''; box.appendChild(c); }
+      host.appendChild(box);
+    });
+  }
+  function build() {
+    var s = [];
+    CFG.fields.forEach(function (f) { var st = f.step; s.push({ id: f.id, fields: [f.id], title: st.title, body: st.body, tip: st.tip, ex: st.ex, fill: null, done: function () { return true; } }); });
+    return s.concat(CFG.steps);
+  }
+  function renderGuide() {
+    var cur = steps[S.step];
+    $('#gEyebrow').textContent = 'Paso ' + (S.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    body.appendChild(el('p', null, cur.body));
+    if (cur.ex) { var w = el('div'); w.appendChild(el('div', 'g-sub', 'Ejemplo')); w.appendChild(el('div', 'example', cur.ex)); body.appendChild(w); }
+    if (cur.tip) { var n = el('div', 'note'); n.appendChild(el('b', null, 'Ojo. ')); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    $('#gBar').style.width = Math.round(100 * (S.step + 1) / steps.length) + '%';
+    $('#gPrev').disabled = S.step === 0; $('#gNext').disabled = S.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill; $('#gFill').textContent = cur.fillLabel || 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = el('li'), bt = el('button'); bt.type = 'button';
+      if (i === S.step) bt.setAttribute('aria-current', 'step');
+      var d = i < S.step || (s.id === 'cancel' && cancelled); if (d) bt.className = 'done';
+      bt.appendChild(el('span', 'dot', d ? '✓' : String(i + 1))); bt.appendChild(el('span', null, s.title));
+      bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field').forEach(function (f) { f.classList.remove('is-guided'); });
+    cur.fields.forEach(function (f) { var e = $('[data-f="' + f + '"]'); if (e) e.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    S.step = Math.max(0, Math.min(steps.length - 1, i)); renderGuide();
+    var f = steps[S.step].fields[0], e = f && $('[data-f="' + f + '"]'); if (e) e.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  function refresh() { renderToolbar(); renderGuide(); }
+  function renderToolbar() {
+    var t = $('#toolbar'); t.innerHTML = '';
+    var st = $('#f_status').value;
+    if (st !== 'completed' && st !== 'cancelled') {
+      var b = el('button', 'btn danger', S.armed ? '¿Cancelar los mensajes en cola y devolver sus créditos? Pulsa de nuevo' : 'Cancelar lote'); b.type = 'button'; b.id = 'btnCancel';
+      b.onclick = function () { if (!S.armed) { S.armed = true; renderToolbar(); setTimeout(function () { if (S.armed) { S.armed = false; renderToolbar(); } }, 3500); return; } S.armed = false; doCancel(); };
+      t.appendChild(b);
+    }
+    var r = el('button', 'btn', 'Reiniciar demo'); r.type = 'button'; r.onclick = function () { location.reload(); }; t.appendChild(r);
+  }
+  $('#gPrev').onclick = function () { go(S.step - 1); };
+  $('#gNext').onclick = function () { go(S.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[S.step]; if (s.fill) s.fill(); };
+  $('#h1').textContent = CFG.title; $('#crumb').textContent = CFG.crumb; $('#ctxLine').textContent = CFG.ctx;
+  buildForm(); steps = build(); renderToolbar(); renderGuide();
+})();
+</script>
+</body></html>

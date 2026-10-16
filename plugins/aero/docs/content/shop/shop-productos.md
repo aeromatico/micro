@@ -8,6 +8,10 @@
 El catálogo de la tienda. Cada producto puede ser **físico** (con inventario) o
 **digital** (entrega tras el pago), y puede tener **variantes**.
 
+> [!NOTE]
+> En el modo [Marketplace](shop-comerciantes) aparece el campo **Comerciante** (solo
+> para el administrador). Un comerciante solo ve y crea sus propios productos.
+
 ## Pestaña General
 
 | Campo | Reglas | Para qué sirve |
@@ -77,4 +81,4 @@ Cada grupo de extras tiene: **Nombre del grupo**, **Mínimo a elegir** (0 = opci
 > Usa **Borrador** mientras preparas un producto y publica en **Activo** solo
 > cuando esté listo.
 
-**Versión documentada:** 1.7.0
+**Versión documentada:** 1.10.0

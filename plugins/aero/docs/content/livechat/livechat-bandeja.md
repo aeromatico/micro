@@ -86,4 +86,9 @@ y quién lo aplicó.
 > Banear y Finalizar desde la app de Aero Chat requieren que el canal de chat web
 > esté conectado en Aero Chat. La Bandeja del panel no incluye el botón Banear.
 
-**Versión documentada:** 1.6.0
+> [!NOTE]
+> Cuando el chat se abre con la identidad de un usuario registrado, la
+> conversación se asocia a su contacto (por correo) y, si trae un ticket, el
+> primer mensaje lo muestra con el icono 🎫.
+
+**Versión documentada:** 1.10.0

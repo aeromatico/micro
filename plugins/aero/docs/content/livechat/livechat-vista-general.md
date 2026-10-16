@@ -22,6 +22,21 @@ Visitante (widget en tu web)
 Visitante
 ```
 
+## Usuarios registrados (sin pre-chat)
+
+Si quien escribe ya inició sesión en tu sistema, el widget puede abrirse con su
+**identidad firmada** (nombre y correo, y opcionalmente celular y un ticket): no
+muestra el formulario previo ni lo trata como invitado, y la conversación queda
+asociada a ese contacto. La identidad caduca a los 15 minutos.
+
+- `AeroLivechat.open(identidad)` abre el chat con esa identidad.
+- Con el atributo `data-livechat-launcher="off"` en el código del widget, la
+  burbuja flotante se oculta hasta que se abre con una identidad.
+
+> [!NOTE]
+> La identidad la firma el servidor de la plataforma; el widget no la acepta sin
+> firma válida ni vencida (responde «La sesión del chat caducó»).
+
 ## Menú
 
 | Sección | Para qué sirve |
@@ -45,4 +60,4 @@ Visitante
 > Todo lo que ves aquí es de **tu sitio**. Otros negocios no ven tus inboxes ni
 > tus conversaciones, y tú tampoco ves los suyos.
 
-**Versión documentada:** 1.6.0
+**Versión documentada:** 1.10.0

@@ -18,7 +18,9 @@ La tienda se **activa por sitio** desde su configuración.
 | **Métodos de pago** | Cómo se cobra (Bolivia Pay u offline). |
 | **Cocina** | Tablero de pedidos del restaurante (solo en tipo *Restaurante*). |
 | **Inventario** | Movimientos de stock (visible si el inventario está activo). |
-| **Configuración de tienda** | Activar la tienda, tipo de tienda (estándar, WhatsApp, restaurante), horario, sucursales, moneda, inventario e invitados. |
+| **Comerciantes** | Equipo que vende con su propia cuenta y comisión (solo en tipo *Marketplace*, para el administrador). |
+| **Mis ventas** | Balance y pedidos propios del comerciante (solo en tipo *Marketplace*). |
+| **Configuración de tienda** | Activar la tienda, tipo de tienda (estándar, WhatsApp, restaurante, marketplace), horario, sucursales, moneda, inventario e invitados. |
 
 ## Flujo de una compra
 
@@ -38,6 +40,7 @@ Catálogo  →  Carrito  →  Checkout  →  Pedido (reserva stock)
 - [Clientes](shop-clientes) — compradores.
 - [Métodos de pago](shop-metodos-pago) — cobro online u offline.
 - [Cocina](shop-cocina) — pantalla de cocina del restaurante.
+- [Comerciantes](shop-comerciantes) — modo Marketplace: comisión, cuenta de cobro y balance.
 - [Inventario](shop-inventario) — movimientos de stock.
 
 ## Costo de envío
@@ -74,4 +77,4 @@ Si el cliente compartió su ubicación en el chat, el pedido la guarda y la dire
 | `aero.shop.manage_payment_gateways` | Métodos de pago |
 | `aero.shop.manage_settings` | Configuración de tienda |
 
-**Versión documentada:** 1.9.5
+**Versión documentada:** 1.10.0

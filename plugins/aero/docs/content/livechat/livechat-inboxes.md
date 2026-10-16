@@ -47,6 +47,14 @@ Pegá el **Código para el sitio** justo antes de `</head>`:
 
 El chat aparece solo, como una burbuja flotante; no hace falta tocar nada más.
 
+## Widget para usuarios registrados
+
+Si tu sistema ya conoce al usuario, puedes abrir el chat con su identidad en vez
+de pedirle datos: `AeroLivechat.open(identidad)`. Para que la burbuja flotante no
+aparezca hasta ese momento, agrega `data-livechat-launcher="off"` al `<script>`
+del **Código para el sitio**. Con ese atributo el visitante anónimo nunca ve el
+formulario previo. Más detalle en la [vista general](livechat-vista-general).
+
 > [!TIP]
 > Guardá el inbox primero: el código y el botón de Telegram se generan al
 > guardar.
@@ -54,3 +62,5 @@ El chat aparece solo, como una burbuja flotante; no hace falta tocar nada más.
 > [!WARNING]
 > El **Token del bot** es un secreto: no lo compartas. La **Widget key**, en
 > cambio, es pública por diseño.
+
+**Versión documentada:** 1.10.0

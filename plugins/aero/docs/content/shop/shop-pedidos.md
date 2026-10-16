@@ -74,8 +74,13 @@ Registro de cambios de estado, con fecha y nota.
 > En restaurantes, el avance en cocina (nuevo, preparando, listo, entregado) se
 > gestiona en [Cocina](shop-cocina); al marcar *Entregado* el pedido pasa a despachado.
 
+> [!NOTE]
+> En el modo [Marketplace](shop-comerciantes), una compra con productos de varios
+> comerciantes se divide en un pedido por comerciante. Cada comerciante ve y
+> gestiona solo sus pedidos; el administrador ve todos.
+
 > [!TIP]
 > Al cambiar de estado se pueden enviar avisos al cliente (pago, envío,
 > cancelación) por el plugin de notificaciones, si están configurados.
 
-**Versión documentada:** 1.8.0
+**Versión documentada:** 1.10.0

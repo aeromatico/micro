@@ -1,0 +1,262 @@
+<!doctype html>
+<!--guide {"title":"Conversación de la Bandeja","article":"livechat-bandeja","sort":20} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Conversación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--ok-soft:#dff2e8;--err:#b3261e;--err-soft:#fbe4e2;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;margin:0;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media (min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0;text-wrap:balance}
+.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;--surface:var(--g-surface);--surface-2:var(--g-surface-2);--line:var(--g-line);--ink:var(--g-ink);--ink-2:var(--g-ink-2);--accent:var(--g-accent);--accent-ink:var(--g-accent-ink);--accent-soft:var(--g-accent-soft);color:var(--ink)}
+@media (min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;padding:10px 14px;font-size:15px;font-weight:600;border-radius:6px;border:2px solid var(--accent)}
+#gPrev{background:var(--accent-soft);color:var(--accent)}#gPrev:hover:not(:disabled){background:var(--accent);color:var(--accent-ink)}
+#gNext{background:var(--accent);color:var(--accent-ink)}#gNext:hover:not(:disabled){filter:brightness(1.1)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0;text-wrap:balance}
+.progress{height:4px;background:var(--surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin-bottom:2px}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:var(--ink)}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.danger{background:var(--err);color:#fff;border-color:var(--err)}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn.ghost{border-color:transparent;color:var(--accent);background:transparent;padding-inline:6px}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible,.steps button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--ink-2)}
+.steps button:hover{background:var(--surface-2)}.steps button[aria-current="step"]{background:var(--accent-soft);color:var(--ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:var(--surface)}.steps [aria-current="step"] .dot{border-color:var(--accent);color:var(--accent)}
+.formcol{grid-area:form;min-width:0;display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.tabs{display:flex;gap:2px;padding:8px 8px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:transparent;border:0;padding:8px 14px;border-bottom:2px solid transparent;color:var(--ink-2);font-weight:500;white-space:nowrap}.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}
+@media (max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.panel[hidden]{display:none}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}.field[hidden]{display:none!important}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text],input[type=number],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+input[readonly],textarea[readonly]{background:var(--surface-2);color:var(--ink-2)}
+textarea{resize:vertical}textarea.small{min-height:84px}
+input.err,select.err,textarea.err{border-color:var(--err)}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.trig{font-family:var(--font-mono);font-size:11px;color:var(--accent);background:var(--accent-soft);border-radius:3px;padding:1px 6px;margin-left:6px;font-weight:400}
+body:not(.show-tech) .trig{display:none}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 6px 6px;align-items:center}.toolbar .spacer{flex:1}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.sample{font-size:11px;color:var(--ink-2);font-style:italic}
+.log{max-height:260px;overflow-y:auto;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);display:grid;gap:8px;margin-bottom:10px}
+.msg{max-width:80%;padding:7px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}.msg.agent{justify-self:end;background:var(--accent-soft)}.msg.sys{justify-self:center;font-size:12px;color:var(--ink-2);background:transparent;border:0}
+.msg small{display:block;color:var(--ink-2);font-size:11px}
+.replyrow{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}.replyrow .push{margin-left:auto}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}#flash.err{background:var(--err);color:#fff}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+  <header><div><h1 id="h1"></h1><div class="crumb" id="crumb"></div></div><span class="badge">Demo: no guarda nada real</span></header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head">
+      <div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn primary" id="gNext" type="button">Siguiente →</button></div>
+      <h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol"><div class="card">
+    <div class="ctx" id="ctxLine"></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="panels"></div>
+    <div class="toolbar" id="toolbar"></div>
+  </div></main>
+</div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function () {
+  var AGENTS = [['1', 'Ana Rojas'], ['2', 'Luis Vargas']];
+  var logEl, replyEl;
+  function addMsg(kind, who, text) {
+    var m = document.createElement('div'); m.className = 'msg ' + kind;
+    if (who) { var s = document.createElement('small'); s.textContent = who; m.appendChild(s); }
+    m.appendChild(document.createTextNode(text)); logEl.appendChild(m); logEl.scrollTop = logEl.scrollHeight;
+  }
+  var CFG = {
+    title: 'Conversación', crumb: '/backend/aero/livechat/conversations/update/12 · Guía de capacitación',
+    ctx: 'context: update · las conversaciones las crea el widget de tu web; la Bandeja solo las abre, no tiene «Nuevo»',
+    mode: 'view', canCreate: false, editable: true, canSave: true,
+    tabs: [['main', 'Conversación']],
+    fields: [
+      { id: 'contact_label', label: 'Visitante', tab: 'main', type: 'ro', def: 'María Quispe (maria@correo.com · +591 700 00000)',
+        step: { info: true, title: 'Visitante', body: 'Solo lectura. Muestra quién escribe: su nombre (o «Visitante #n») con su correo y celular, si los dejó.', tip: 'No se edita desde aquí: es lo que el visitante escribió en el widget.' } },
+      { id: 'inbox', label: 'Inbox', tab: 'main', type: 'ro', def: 'Web principal',
+        step: { info: true, title: 'Inbox de origen', body: 'Solo lectura. El widget (inbox) por el que llegó la conversación.', tip: 'Si tienes varios inboxes, sirve para saber desde qué sitio o marca escriben.' } },
+      { id: 'status', label: 'Estado', tab: 'main', type: 'select', def: 'open', opts: [['open', 'Abierta'], ['resolved', 'Resuelta']],
+        step: { title: 'Estado', body: 'Abierta o Resuelta. «Finalizar» en el cuadro de respuesta la marca como Resuelta; también puedes cambiarla aquí y guardar.', tip: 'Si el visitante vuelve a escribir en una conversación resuelta, se reabre sola.', ex: 'Resuelta', fill: 'resolved' } },
+      { id: 'assigned_to', label: 'Asignado a', tab: 'main', type: 'select', ph: 'Sin asignar', opts: AGENTS,
+        step: { title: 'Asignar a una persona', body: 'Elige quién de tu equipo se encarga. «Sin asignar» deja la conversación libre.', tip: 'Solo aparecen las personas de tu sitio (dueño y equipo).', ex: 'Ana Rojas', fill: '1' } },
+      { id: 'page_url', label: 'Página de origen', tab: 'main', type: 'ro', full: true, def: 'https://mitienda.bo/productos/mochila-andina',
+        step: { info: true, title: 'Página de origen', body: 'Solo lectura. La dirección donde el visitante abrió el chat.', tip: 'Te dice qué estaba mirando cuando preguntó.' } },
+      { id: '_messages', label: 'Conversación', tab: 'main', full: true,
+        build: function (box) {
+          logEl = document.createElement('div'); logEl.className = 'log'; logEl.id = 'msgLog'; box.appendChild(logEl);
+          addMsg('', 'María Quispe', 'Hola, ¿tienen la mochila en color verde?');
+          addMsg('agent', 'Bienvenida automática', 'Hola, ¿en qué podemos ayudarte?');
+          addMsg('', 'María Quispe', 'Quiero saber si hacen envíos a Cochabamba.');
+          replyEl = document.createElement('textarea'); replyEl.id = 'f__reply'; replyEl.placeholder = 'Escribe una respuesta...'; replyEl.rows = 2; box.appendChild(replyEl);
+          var row = document.createElement('div'); row.className = 'replyrow';
+          function mk(label, cls, id, fn) { var b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + cls; b.id = id; b.textContent = label; b.onclick = fn; row.appendChild(b); return b; }
+          mk('Enviar', 'primary', 'btnSend', function () {
+            var t = replyEl.value.trim(); if (!t) { api.flash('Escribe una respuesta antes de enviar.', true); return; }
+            addMsg('agent', 'Tú', t); replyEl.value = ''; S.sent = true; api.flash('Respuesta enviada (ejemplo).'); refresh();
+          });
+          mk('Adjuntar', '', 'btnAttach', function () { api.flash('En la app real se abre el selector: imágenes, PDF, Word/Excel, TXT/CSV, ZIP o audio.'); S.attached = true; refresh(); });
+          var fin = mk('Finalizar', 'danger push', 'btnFinish', function () {
+            if (S.armed !== 'fin') { S.armed = 'fin'; fin.textContent = '¿Finalizar esta conversación? Pulsa de nuevo'; setTimeout(function () { S.armed = null; fin.textContent = 'Finalizar'; }, 3500); return; }
+            S.armed = null; fin.textContent = 'Finalizar'; setv('status', 'resolved'); S.finished = true; addMsg('sys', '', 'Conversación finalizada'); api.flash('Conversación marcada como Resuelta.'); refresh();
+          });
+          box.appendChild(row);
+          var h = document.createElement('div'); h.className = 'help'; h.textContent = 'La conversación se refresca sola cada pocos segundos mientras la tienes abierta. Al abrirla, lo que estaba sin leer queda leído.'; box.appendChild(h);
+        },
+        step: { title: 'Responder al visitante', body: 'Escribe en el cuadro y pulsa Enviar. Con Adjuntar compartes un archivo (imágenes, PDF, Word/Excel, TXT/CSV o ZIP). Finalizar cierra la conversación.', tip: 'Si el inbox tiene Telegram conectado, tus respuestas también llegan al chat de Telegram.', ex: 'Sí, enviamos a todo el país. ¿Qué color de mochila prefieres?', fill: function () { replyEl.value = 'Sí, enviamos a todo el país. ¿Qué color de mochila prefieres?'; }, fillLabel: 'Escribir respuesta de ejemplo' } }
+    ],
+    steps: [],
+    actions: [],
+    validate: function () { return []; },
+    saveTip: 'Pulsa Guardar para aplicar el Estado y la persona asignada. Enviar, Adjuntar y Finalizar actúan al momento, sin pasar por Guardar.',
+    saveTip2: 'Guardar y cerrar te devuelve a la lista de la Bandeja.',
+    saveMsg: 'Conversación guardada (ejemplo).'
+  };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var S = { step: 0, tab: CFG.tabs[0][0], mode: CFG.mode, armed: null }, steps = [], ft;
+  function el(t, c, x) { var e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; }
+  function V(id) { var e = $('#f_' + id); if (!e) return ''; return e.type === 'checkbox' ? (e.checked ? '1' : '') : (e.value || '').trim(); }
+  function setv(id, v) { var e = $('#f_' + id); if (!e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }
+  function F(id) { return CFG.fields.filter(function (f) { return f.id === id; })[0]; }
+  function vals() { var o = {}; CFG.fields.forEach(function (f) { o[f.id] = V(f.id); }); return o; }
+  function flash(m, bad) { var f = $('#flash'); f.textContent = m; f.className = bad ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+  function shown(f) { return (!f.upd || S.mode === 'edit') && (!f.show || f.show(vals())); }
+  var api = { set: function (id, v) { var e = $('#f_' + id); if (e) { e.value = v; } }, flash: flash, V: V };
+
+  function buildForm() {
+    var host = $('#panels');
+    CFG.tabs.forEach(function (t) { var p = el('div', 'panel'); p.id = 'tab-' + t[0]; p.setAttribute('role', 'tabpanel'); host.appendChild(p); });
+    CFG.fields.forEach(function (f) {
+      var box = el('div', 'field' + (f.full ? ' full' : '')); box.setAttribute('data-f', f.id);
+      var lb = el('label', 'lbl', f.label); lb.setAttribute('for', 'f_' + f.id);
+      if (f.req) lb.appendChild(el('span', 'req', '*'));
+      if (f.trig) lb.appendChild(el('span', 'trig', f.trig));
+      box.appendChild(lb);
+      if (f.build) { f.build(box); $('#tab-' + f.tab).appendChild(box); return; }
+      var c;
+      if (f.type === 'textarea' || (f.type === 'ro' && f.area)) { c = el('textarea', 'small'); if (f.type === 'ro') c.readOnly = true; }
+      else if (f.type === 'switch') { c = el('input'); c.type = 'checkbox'; c.checked = !!f.def; }
+      else if (f.type === 'select') {
+        c = el('select');
+        var o0 = el('option', null, f.ph || '— seleccionar —'); o0.value = ''; if (f.def !== undefined) o0.remove(); else c.appendChild(o0);
+        f.opts.forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; c.appendChild(op); });
+        if (f.def !== undefined) c.value = f.def;
+      }
+      else if (f.type === 'number') { c = el('input'); c.type = 'number'; if (f.min !== undefined) c.min = f.min; c.step = '0.01'; c.value = f.def || ''; }
+      else { c = el('input'); c.type = 'text'; c.autocomplete = 'off'; if (f.type === 'ro') c.readOnly = true; }
+      c.id = 'f_' + f.id; if (f.type === 'ro' || f.type === 'text') { if (f.def) c.value = f.def; }
+      box.appendChild(c);
+      if (f.help) box.appendChild(el('div', 'help', f.help));
+      var em = el('div', 'errmsg'); em.hidden = true; box.appendChild(em);
+      $('#tab-' + f.tab).appendChild(box);
+      ['input', 'change'].forEach(function (ev) { c.addEventListener(ev, function () { if (c.classList.contains('err')) { c.classList.remove('err'); em.hidden = true; } refresh(); }); });
+      c.addEventListener('focus', function () { var i = ids().indexOf(f.id); if (i >= 0 && i !== S.step) go(i, false); });
+    });
+  }
+  function renderTabs() {
+    var t = $('#tabs'); t.innerHTML = ''; t.hidden = CFG.tabs.length < 2;
+    CFG.tabs.forEach(function (x) { var b = el('button', 'tab', x[1]); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(S.tab === x[0])); b.onclick = function () { selectTab(x[0]); }; t.appendChild(b); });
+  }
+  function selectTab(id) { S.tab = id; CFG.tabs.forEach(function (x) { $('#tab-' + x[0]).hidden = x[0] !== id; }); renderTabs(); }
+  function applyVis() { CFG.fields.forEach(function (f) { var b = $('[data-f="' + f.id + '"]'); if (b) b.hidden = !shown(f); }); }
+
+  function build() {
+    var s = [];
+    CFG.fields.forEach(function (f) {
+      if (!f.step || !shown(f)) return;
+      var st = f.step;
+      var dn = f.id === '_messages' ? function () { return !!(S.sent || S.attached || S.finished); } : function () { return f.req ? V(f.id) !== '' : true; };
+      s.push({ id: f.id, tab: f.tab, fields: [f.id], title: st.title, body: st.body, tip: st.tip, ex: st.ex, req: f.req, opt: !f.req && f.type !== 'ro' && !st.info && f.id !== '_messages',
+        fill: st.fill === undefined ? null : function () { if (typeof st.fill === 'function') st.fill(); else setv(f.id, st.fill); }, fillLabel: st.fillLabel, done: dn });
+    });
+    CFG.steps.forEach(function (x) { if (!x.upd && !x.after) s.push(x); });
+    if (CFG.canSave) s.push({ id: 'save', tab: CFG.tabs[0][0], fields: [], title: CFG.canCreate ? 'Guardar' : 'Guardar cambios', body: CFG.saveTip, tip: CFG.saveTip2 || '', ex: '', fill: function () { save(); }, done: function () { return false; } });
+    return s;
+  }
+  function ids() { return steps.map(function (s) { return s.fields[0] || s.id; }); }
+  function renderGuide() {
+    var cur = steps[S.step];
+    $('#gEyebrow').textContent = 'Paso ' + (S.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var body = $('#gBody'); body.innerHTML = '';
+    body.appendChild(el('p', null, cur.body));
+    if (cur.ex) { var w = el('div'); w.appendChild(el('div', 'g-sub', 'Ejemplo')); w.appendChild(el('div', 'example', cur.ex)); body.appendChild(w); }
+    if (cur.tip) { var n = el('div', 'note'); n.appendChild(el('b', null, 'Ojo. ')); n.appendChild(document.createTextNode(cur.tip)); body.appendChild(n); }
+    var ok = steps.filter(function (s) { return s.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = S.step === 0; $('#gNext').disabled = S.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill;
+    $('#gFill').textContent = cur.id === 'save' ? 'Guardar con los datos actuales' : (cur.fillLabel || 'Rellenar ejemplo');
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = el('li'), bt = el('button'); bt.type = 'button';
+      var d = s.done();
+      if (i === S.step) bt.setAttribute('aria-current', 'step');
+      if (d) bt.className = 'done';
+      bt.appendChild(el('span', 'dot', d ? '✓' : String(i + 1))); bt.appendChild(el('span', null, s.title));
+      bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field,.upd').forEach(function (f) { f.classList.remove('is-guided'); });
+    if (cur.tab) selectTab(cur.tab);
+    cur.fields.forEach(function (f) { var e = $('[data-f="' + f + '"]'); if (e && !e.hidden) e.classList.add('is-guided'); });
+  }
+  function go(i, scroll) {
+    S.step = Math.max(0, Math.min(steps.length - 1, i)); renderGuide();
+    if (scroll !== false) { var f = steps[S.step].fields[0], e = f && $('[data-f="' + f + '"]'); if (e && !e.hidden) e.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  }
+  function refresh() { var cur = steps[S.step].id; steps = build(); var i = steps.map(function (s) { return s.id; }).indexOf(cur); S.step = i >= 0 ? i : Math.min(S.step, steps.length - 1); applyVis(); renderToolbar(); renderGuide(); }
+  function save() { flash(CFG.saveMsg); S.saved = true; }
+  function renderToolbar() {
+    var t = $('#toolbar'); t.innerHTML = '';
+    var a = el('button', 'btn primary', 'Guardar'); a.type = 'button'; a.onclick = save; t.appendChild(a);
+    var c = el('button', 'btn', 'Guardar y cerrar'); c.type = 'button'; c.onclick = function () { flash('Conversación guardada. En la app real vuelves a la lista de la Bandeja.'); }; t.appendChild(c);
+    var r = el('button', 'btn', 'Reiniciar demo'); r.type = 'button'; r.onclick = function () { location.reload(); }; t.appendChild(r);
+    t.appendChild(el('span', 'spacer'));
+    var l = el('label', 'chk'), k = el('input'); k.type = 'checkbox'; k.onchange = function () { document.body.classList.toggle('show-tech', k.checked); }; k.checked = document.body.classList.contains('show-tech');
+    l.appendChild(k); l.appendChild(document.createTextNode(' Mostrar reglas técnicas (trigger)')); t.appendChild(l);
+  }
+  $('#gPrev').onclick = function () { go(S.step - 1); };
+  $('#gNext').onclick = function () { go(S.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[S.step]; if (s.fill) s.fill(api); if (s.id !== 'save') refresh(); };
+  $('#h1').textContent = CFG.title; $('#crumb').textContent = CFG.crumb; $('#ctxLine').textContent = CFG.ctx;
+  buildForm(); renderTabs(); steps = build(); applyVis(); renderToolbar(); selectTab(CFG.tabs[0][0]); renderGuide();
+})();
+</script>
+</body></html>

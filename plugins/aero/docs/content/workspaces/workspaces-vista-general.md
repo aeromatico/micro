@@ -37,4 +37,4 @@ Workspaces es la **Oficina de agentes de IA**: contratas agentes del Mercado y c
 > [!IMPORTANT]
 > El cobro por puntos está apagado por ahora. Cuando se active, los encargos y mensajes consumirán puntos según la tarifa del agente, y al cancelar un encargo en curso se devolverán los puntos cobrados.
 
-**Versión documentada:** 1.15.0
+**Versión documentada:** 1.18.0
