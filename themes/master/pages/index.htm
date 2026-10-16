@@ -95,6 +95,8 @@ function onStart()
 
 {% partial 'site/landing/industry' items=industryServices %}
 
+{% partial 'site/landing/payments' %}
+
 {% partial 'site/landing/omnichat' %}
 
 {% partial 'site/landing/whatsapp-comparison' %}
@@ -104,8 +106,6 @@ function onStart()
 {% if collection %}
     {% partial 'site/_services_collection' collection=collection id='coleccion-rubro' %}
 {% endif %}
-
-{% partial 'site/landing/payments' %}
 
 {% partial 'site/landing/wordpress-woocommerce' %}
 

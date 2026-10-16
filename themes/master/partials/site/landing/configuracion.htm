@@ -20,15 +20,33 @@
                     <span class="text-[11px] font-bold text-ink-dim border border-edge px-3 py-1 rounded-full">Incluido</span>
                 </div>
 
-                <div class="flex items-center justify-between gap-4 py-5">
-                    <div class="flex items-center gap-3.5">
-                        <svg class="w-5 h-5 text-ink-dim" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
-                        <div>
-                            <div class="text-sm font-bold">Tienda Online</div>
-                            <div class="text-xs text-ink-dim">Catálogo, pedidos e inventario.</div>
+                <div class="py-5" x-data="{ mode: 0, modes: [
+                        { name: 'Tienda estándar', desc: 'Catálogo, carrito y checkout en tu propio sitio.' },
+                        { name: 'Para WhatsApp', desc: 'Compartes el catálogo y cierras el pedido por chat, con cobro QR.' },
+                        { name: 'Restaurante', desc: 'Menú, mesas y pedidos para comer en el local o llevar.' },
+                        { name: 'Marketplace', desc: 'Varios vendedores publicando en una misma tienda.' }
+                    ] }">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <svg class="w-5 h-5 text-ink-dim" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+                            <div>
+                                <div class="text-sm font-bold">Tienda Online</div>
+                                <div class="text-xs text-ink-dim">Catálogo, pedidos e inventario.</div>
+                            </div>
                         </div>
+                        <div class="w-10 h-[22px] rounded-full bg-accent p-0.5 flex justify-end"><div class="w-[18px] h-[18px] rounded-full bg-canvas"></div></div>
                     </div>
-                    <div class="w-10 h-[22px] rounded-full bg-accent p-0.5 flex justify-end"><div class="w-[18px] h-[18px] rounded-full bg-canvas"></div></div>
+                    <div class="mt-4" style="margin-left:34px">
+                        <div class="text-[11px] tracking-wide text-ink-dim uppercase font-bold mb-2">Modo de tienda</div>
+                        <div class="flex flex-wrap gap-2" role="tablist" aria-label="Modo de tienda">
+                            <template x-for="(m, i) in modes" :key="m.name">
+                                <button type="button" role="tab" :aria-selected="mode === i" @click="mode = i"
+                                        :class="mode === i ? 'bg-accent text-canvas border-accent' : 'bg-transparent text-ink-dim border-edge hover:text-ink hover:border-ink-dim'"
+                                        class="text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-colors" x-text="m.name"></button>
+                            </template>
+                        </div>
+                        <p class="text-xs text-ink-dim mt-2.5" x-text="modes[mode].desc"></p>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-between gap-4 py-5">
@@ -147,23 +165,23 @@
 
                 <div class="flex items-start gap-3 p-4 border border-edge rounded-xl">
                     <span class="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                    <span class="text-sm text-ink-dim"><strong class="text-ink">Solo Tienda</strong> — vende desde tu sitio con pagos integrados, sin CRM ni WhatsApp.</span>
+                    <span class="text-sm text-ink-dim"><strong class="block text-ink mb-0.5">Solo Tienda</strong>Vende desde tu sitio con pagos integrados, sin CRM ni WhatsApp.</span>
                 </div>
                 <div class="flex items-start gap-3 p-4 border border-edge rounded-xl">
                     <span class="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                    <span class="text-sm text-ink-dim"><strong class="text-ink">Solo CRM</strong> — gestiona contactos y cobranzas sin abrir una tienda.</span>
+                    <span class="text-sm text-ink-dim"><strong class="block text-ink mb-0.5">Solo CRM</strong>Gestiona contactos y cobranzas sin abrir una tienda.</span>
                 </div>
                 <div class="flex items-start gap-3 p-4 border border-edge rounded-xl">
                     <span class="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                    <span class="text-sm text-ink-dim"><strong class="text-ink">Solo Pagos QR</strong> — cobra con QR propio sin usar el resto del panel.</span>
+                    <span class="text-sm text-ink-dim"><strong class="block text-ink mb-0.5">Solo Pagos QR</strong>Cobra con QR propio sin usar el resto del panel.</span>
                 </div>
                 <div class="flex items-start gap-3 p-4 border border-edge rounded-xl">
                     <span class="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                    <span class="text-sm text-ink-dim"><strong class="text-ink">Solo IA y Chatbots</strong> — automatiza WhatsApp sin tienda ni CRM.</span>
+                    <span class="text-sm text-ink-dim"><strong class="block text-ink mb-0.5">Solo IA y Chatbots</strong>Automatiza WhatsApp sin tienda ni CRM.</span>
                 </div>
                 <div class="flex items-start gap-3 p-4 border border-edge rounded-xl">
                     <span class="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                    <span class="text-sm text-ink-dim"><strong class="text-ink">Plataforma de APIs</strong> — apaga el panel y consume Market desde tus propios sistemas.</span>
+                    <span class="text-sm text-ink-dim"><strong class="block text-ink mb-0.5">Plataforma de APIs</strong>Apaga el panel y consume Market desde tus propios sistemas.</span>
                 </div>
             </div>
         </div>

@@ -27,7 +27,7 @@
     <div :style="{ maxWidth: mode === 'mobile' ? '400px' : '100%' }"
          style="margin-left:auto;margin-right:auto;width:100%;transition:max-width .5s ease-in-out"
          class="relative border border-edge rounded-2xl overflow-hidden shadow-2xl bg-canvas-elev">
-        <iframe src="{{ 'assets/demo/altiplano-demo.html' | theme }}?v=6" title="Demo interactivo de la bandeja de chat" loading="lazy" sandbox="allow-scripts" style="display:block;width:100%;height:min(760px,85vh);min-height:560px;border:0"></iframe>
+        <iframe src="{{ 'assets/demo/altiplano-demo.html' | theme }}?v=7" title="Demo interactivo de la bandeja de chat" loading="lazy" sandbox="allow-scripts" style="display:block;width:100%;height:min(760px,85vh);min-height:560px;border:0"></iframe>
 
         {# Capa de invitación: evita que parezca una imagen estática. Se descarta al primer toque. #}
         <button type="button" x-show="!active" x-transition.opacity.duration.300ms @click="active = true"
