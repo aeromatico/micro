@@ -10,7 +10,7 @@ description = "Shell de la PWA de chat"
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="robots" content="noindex">
-    <link rel="manifest" href="/manifest.webmanifest?h={{ this.param.handle }}&v=2">
+    <link rel="manifest" href="/manifest.webmanifest?h={{ this.param.handle }}&v=4">
     <link rel="icon" type="image/png" href="{{ 'assets/img/favicon.png' | theme }}?v=1">
     <link rel="apple-touch-icon" href="{{ 'assets/img/favicon.png' | theme }}?v=1">
     <script>
@@ -21,11 +21,13 @@ description = "Shell de la PWA de chat"
             } catch (e) {}
         })();
     </script>
+    <style id="boot-bg">html{background:#111b21}</style>{# arranque oscuro (como el icono), sin importar el tema; se libera al cargar #}
     <link rel="stylesheet" href="{{ 'assets/css/app.css' | theme }}?v=28">
     <script defer src="{{ 'assets/js/app.js' | theme }}?v=75"></script>
     <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=11.16.3"></script>
 </head>
 <body>
 {% page %}
+<script>window.addEventListener('load', function () { document.getElementById("boot-bg").disabled = true; });</script>
 </body>
 </html>
