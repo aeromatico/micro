@@ -431,3 +431,7 @@
 1.73.0:
     - "Aero.Shop Marketplace: el rol tenant_admin recibe aero.shop.manage_sellers y aero.shop.sell (vendedores y «Mis ventas»; el modo Marketplace restringe por código)."
     - grant_shop_marketplace_to_tenant_admin.php
+
+1.74.0:
+    - "Planes: nuevo modo de créditos «Una sola vez» (cuota inicial sin vencimiento ni repetición en renovaciones); todos los planes actuales pasan a ese modo."
+    - set_plan_credits_mode_once.php

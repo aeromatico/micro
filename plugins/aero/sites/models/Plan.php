@@ -6,7 +6,7 @@ use System\Classes\PluginManager;
 
 /**
  * Plan de plataforma. `code` es el valor que guarda Tenant.plan.
- *  - credits:  [{credit_type: 'azul', amount: 500, mode: 'accumulate'|'expiring'}] — se otorga al
+ *  - credits:  [{credit_type: 'azul', amount: 500, mode: 'once'|'accumulate'|'expiring'}] — se otorga al
  *              activar el plan (una vez por tenant+plan). `mode` distingue créditos acumulables
  *              (suman al saldo fungible, no vencen) de vencibles (se pierden al renovar si no se
  *              usan) — hoy solo se guarda: el motor de renovación que le da efecto aún no existe.
@@ -117,7 +117,7 @@ class Plan extends Model
         }
     }
 
-    public const CREDIT_MODES = ['accumulate', 'expiring'];
+    public const CREDIT_MODES = ['once', 'accumulate', 'expiring'];
 
     public function beforeSave()
     {
@@ -126,7 +126,7 @@ class Plan extends Model
         foreach ((array) $this->credits as $row) {
             $amount = (int) ($row['amount'] ?? 0);
             if (!empty($row['credit_type']) && $amount > 0) {
-                $mode = in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'accumulate';
+                $mode = in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'once';
                 $byType[$row['credit_type']] = ['credit_type' => $row['credit_type'], 'amount' => $amount, 'mode' => $mode];
             }
         }
@@ -145,7 +145,7 @@ class Plan extends Model
         return collect((array) $this->credits)->map(fn ($row) => [
             'credit_type' => $row['credit_type'] ?? null,
             'amount' => (int) ($row['amount'] ?? 0),
-            'mode' => in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'accumulate',
+            'mode' => in_array($row['mode'] ?? null, static::CREDIT_MODES, true) ? $row['mode'] : 'once',
         ])->all();
     }
 

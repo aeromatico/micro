@@ -34,8 +34,13 @@ class PlanCredits
                 continue;
             }
 
+            // «Una sola vez»: solo en la activación, nunca en renovaciones.
+            if ($row['mode'] === 'once' && $cycleKey) {
+                continue;
+            }
+
             try {
-                $key = $cycleKey
+                $key = ($cycleKey && $row['mode'] !== 'once')
                     ? "plan:{$tenant->id}:{$plan->id}:{$color}:{$cycleKey}"
                     : "plan:{$tenant->id}:{$plan->id}:{$color}";
                 // mode=expiring: el regalo vence si no se usa antes del

@@ -63,9 +63,11 @@ class SignupPlans
         $types = \Aero\Credits\Models\CreditType::active()->get()->keyBy('code');
         $out = [];
 
-        foreach ($plan->creditsByType() as $code => $amount) {
-            if ($type = $types->get($code)) {
-                $out[] = ['label' => $type->label, 'color' => $type->color, 'amount' => $amount];
+        foreach ($plan->creditsConfig() as $row) {
+            $code = $row['credit_type'];
+            $amount = $row['amount'];
+            if ($code && $amount > 0 && ($type = $types->get($code))) {
+                $out[] = ['label' => $type->label, 'color' => $type->color, 'amount' => $amount, 'mode' => $row['mode']];
             }
         }
 

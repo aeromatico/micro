@@ -79,7 +79,7 @@ tabs:
             label: Créditos incluidos por color
             type: repeater
             prompt: Agregar color
-            comment: Se otorgan al tenant una sola vez al activar este plan (o al cambiarse a él). Un monto por color. El modo "Vence al renovar" todavía no tiene efecto — el cobro automático de renovación no existe aún.
+            comment: Un monto por color. «Una sola vez»: cuota inicial al activar el plan (o cambiarse a él), sin vencimiento y sin repetirse en renovaciones. «Acumulable»: se otorga también en cada renovación y no vence. «Vence al renovar»: se otorga en cada renovación y se pierde si no se usa.
             form:
                 fields:
                     credit_type:
@@ -97,8 +97,9 @@ tabs:
                         label: Modo
                         type: dropdown
                         span: full
-                        default: accumulate
+                        default: once
                         options:
+                            once: 'Una sola vez (no vence, no se repite)'
                             accumulate: 'Acumulable (no vence)'
                             expiring: 'Vence al renovar si no se usa'
 
