@@ -1,0 +1,35 @@
+columns:
+    id:
+        label: ID
+    number:
+        label: N.º
+        searchable: true
+    buyer_name:
+        label: Cliente
+        searchable: true
+    buyer_nit:
+        label: NIT/CI
+        searchable: true
+    total:
+        label: Total (Bs)
+        type: number
+    status:
+        label: Estado
+        type: selectable
+        options:
+            draft: Borrador
+            pending: Enviando
+            received: Recibida
+            validated: Válida
+            rejected: Rechazada
+            voided: Anulada
+            error: Error
+    reference:
+        label: Referencia
+        searchable: true
+    issued_at:
+        label: Emitida
+        type: datetime
+    created_at:
+        label: Creada
+        type: datetime

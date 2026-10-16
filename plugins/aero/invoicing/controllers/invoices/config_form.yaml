@@ -1,0 +1,10 @@
+name: Factura
+form: $/aero/invoicing/models/invoice/fields.yaml
+modelClass: Aero\Invoicing\Models\Invoice
+defaultRedirect: aero/invoicing/invoices
+create:
+    redirect: aero/invoicing/invoices/update/:id
+    redirectClose: aero/invoicing/invoices
+update:
+    redirect: aero/invoicing/invoices/update/:id
+    redirectClose: aero/invoicing/invoices

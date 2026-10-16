@@ -1,0 +1,10 @@
+name: Emisor
+form: $/aero/invoicing/models/issuer/fields.yaml
+modelClass: Aero\Invoicing\Models\Issuer
+defaultRedirect: aero/invoicing/issuers
+create:
+    redirect: aero/invoicing/issuers/update/:id
+    redirectClose: aero/invoicing/issuers
+update:
+    redirect: aero/invoicing/issuers
+    redirectClose: aero/invoicing/issuers

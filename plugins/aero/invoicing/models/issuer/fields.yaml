@@ -1,0 +1,69 @@
+fields:
+    name:
+        label: Nombre interno
+        span: left
+        comment: Para reconocerlo en listas (ej. «Casa matriz»).
+    is_active:
+        label: Activo
+        type: switch
+        span: right
+        default: true
+    nit:
+        label: NIT del emisor
+        span: left
+    legal_name:
+        label: Razón social
+        span: right
+    trade_name:
+        label: Nombre comercial
+        span: left
+    phone:
+        label: Teléfono
+        span: right
+    address:
+        label: Dirección
+        span: left
+    municipality:
+        label: Municipio
+        span: right
+    branch_code:
+        label: Código de sucursal
+        type: number
+        span: left
+        default: 0
+        comment: 0 = casa matriz. Debe coincidir con lo registrado en el SIN.
+    pos_code:
+        label: Código de punto de venta
+        type: number
+        span: right
+        default: 0
+        comment: 0 = punto por defecto. Los demás se registran antes en el SIN.
+    modality:
+        label: Modalidad
+        type: dropdown
+        span: left
+        default: 1
+    system_code:
+        label: Código de sistema
+        span: right
+        comment: Lo asigna el SIN al registrar el sistema. Si no lo tienes, déjalo vacío.
+    section_provider:
+        label: Proveedor (solo plataforma)
+        type: section
+        permissions: aero.invoicing.superadmin
+    driver:
+        label: Driver
+        type: dropdown
+        span: left
+        permissions: aero.invoicing.superadmin
+    environment:
+        label: Ambiente
+        type: dropdown
+        span: right
+        permissions: aero.invoicing.superadmin
+        comment: Producción solo después de certificar en el piloto del SIN.
+    provider_credential:
+        label: Credencial SIAT en el proveedor
+        span: full
+        permissions: aero.invoicing.superadmin
+        comment: Referencia de la credencial `siat` creada en Floogos (certificado y token del SIN viven allí).

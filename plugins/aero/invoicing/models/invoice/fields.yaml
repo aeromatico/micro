@@ -1,0 +1,58 @@
+fields:
+    issuer_id:
+        label: Emisor
+        type: dropdown
+        span: left
+    reference:
+        label: Referencia externa
+        span: right
+        comment: Opcional. Evita duplicar la misma venta.
+    buyer_doc_type:
+        label: Tipo de documento
+        type: dropdown
+        span: left
+        default: 5
+    buyer_nit:
+        label: NIT / CI del cliente
+        span: right
+    buyer_name:
+        label: Razón social / nombre
+        span: left
+    buyer_email:
+        label: Correo (opcional)
+        span: right
+    items:
+        label: Ítems
+        type: repeater
+        prompt: Agregar ítem
+        form:
+            fields:
+                description:
+                    label: Descripción
+                    span: full
+                quantity:
+                    label: Cantidad
+                    type: number
+                    span: left
+                    default: 1
+                unit_price:
+                    label: Precio unitario (IVA 13 % incluido)
+                    type: number
+                    span: right
+                sin_product_code:
+                    label: Código de producto SIN
+                    span: left
+                    comment: Del catálogo de productos del SIN.
+                economic_activity:
+                    label: Actividad económica
+                    span: right
+    total:
+        label: Total (Bs)
+        span: left
+        disabled: true
+        context: update
+    iva:
+        label: IVA incluido (Bs)
+        span: right
+        disabled: true
+        context: update

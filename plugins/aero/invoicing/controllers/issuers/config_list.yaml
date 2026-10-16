@@ -1,0 +1,10 @@
+title: Emisores
+list: $/aero/invoicing/models/issuer/columns.yaml
+modelClass: Aero\Invoicing\Models\Issuer
+recordUrl: aero/invoicing/issuers/update/:id
+noRecordsMessage: No hay emisores. Crea uno con tu NIT para empezar a facturar.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

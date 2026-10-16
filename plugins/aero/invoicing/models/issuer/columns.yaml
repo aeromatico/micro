@@ -1,0 +1,23 @@
+columns:
+    name:
+        label: Nombre
+        searchable: true
+    nit:
+        label: NIT
+        searchable: true
+    legal_name:
+        label: Razón social
+        searchable: true
+    branch_code:
+        label: Sucursal
+    pos_code:
+        label: Punto de venta
+    environment:
+        label: Ambiente
+        type: selectable
+        options:
+            test: Pruebas
+            production: Producción
+    is_active:
+        label: Activo
+        type: switch

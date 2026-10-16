@@ -1,0 +1,13 @@
+title: Facturas
+list: $/aero/invoicing/models/invoice/columns.yaml
+modelClass: Aero\Invoicing\Models\Invoice
+recordUrl: aero/invoicing/invoices/update/:id
+noRecordsMessage: No hay facturas.
+recordsPerPage: 30
+defaultSort:
+    column: id
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
