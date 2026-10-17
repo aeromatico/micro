@@ -19,8 +19,10 @@
 <style>:root { --color-primary: {{ __SELF__.primaryColor }}; }</style>
 
 {% if __SELF__.analyticsId %}
-<script async src="https://www.googletagmanager.com/gtag/js?id={{ __SELF__.analyticsId }}"></script>
-<script>
+{# RGPD (aero/rgpd): con el aviso activo, Analytics espera el consentimiento de análisis. #}
+{% set rgpdOn = __SELF__.rgpdActive %}
+<script {% if rgpdOn %}type="text/plain" data-rgpd="analytics" {% endif %}async src="https://www.googletagmanager.com/gtag/js?id={{ __SELF__.analyticsId }}"></script>
+<script {% if rgpdOn %}type="text/plain" data-rgpd="analytics"{% endif %}>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());

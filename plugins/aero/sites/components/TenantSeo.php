@@ -17,6 +17,7 @@ class TenantSeo extends ComponentBase
     public string $jsVersion = '1';
     public bool $isShopEnabled = false;
     public bool $isRestaurant = false;
+    public bool $rgpdActive = false;
 
     public function componentDetails(): array
     {
@@ -66,6 +67,11 @@ class TenantSeo extends ComponentBase
         $this->ogImageUrl = $seo?->og_image?->getPath();
         $this->analyticsId = $seo?->google_analytics_id;
         $this->canonicalUrl = url()->current();
+
+        // Dependencia blanda hacia Aero.Rgpd: con el aviso activo, Analytics espera consentimiento.
+        if (class_exists(\Aero\Rgpd\Models\Config::class)) {
+            $this->rgpdActive = (bool) \Aero\Rgpd\Models\Config::forScope($this->tenant->id)?->is_enabled;
+        }
         $this->primaryColor = $this->tenant->primary_color ?? '#6366f1';
 
         // Dependencia blanda hacia Aero.Shop (plugin opcional) — si no está

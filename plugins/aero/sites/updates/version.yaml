@@ -451,3 +451,11 @@
 1.78.0:
     - "El rol tenant_admin recibe aero.help.use (Ayuda guiada: panel de ayuda contextual del botón flotante)."
     - grant_help_to_tenant_admin.php
+
+1.79.0:
+    - "El rol tenant_admin recibe aero.shortcuts.use (Atajos: botones rápidos del dashboard)."
+    - grant_shortcuts_to_tenant_admin.php
+
+1.80.0:
+    - "El rol tenant_admin recibe aero.rgpd.use (Cookies RGPD: aviso de consentimiento de su sitio, apagado por defecto)."
+    - grant_rgpd_to_tenant_admin.php
