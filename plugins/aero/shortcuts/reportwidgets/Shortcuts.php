@@ -21,8 +21,6 @@ class Shortcuts extends ReportWidgetBase
             ->where('tenant_id', $tenantId)
             ->orderBy('sort_order')->orderBy('id')
             ->get();
-        $this->vars['title'] = (string) $this->property('title', 'Atajos');
-        $this->vars['showTitle'] = filter_var($this->property('show_title', false), FILTER_VALIDATE_BOOLEAN);
         $this->vars['reorderUrl'] = Backend::url('aero/shortcuts/items');
         $this->vars['manageUrl'] = Backend::url('aero/shortcuts/items');
         $this->vars['createUrl'] = Backend::url('aero/shortcuts/items/create');
@@ -33,15 +31,11 @@ class Shortcuts extends ReportWidgetBase
     public function defineProperties()
     {
         return [
-            'show_title' => [
-                'title'   => 'Mostrar título',
-                'type'    => 'checkbox',
-                'default' => false,
-            ],
             'title' => [
                 'title'   => 'Título',
                 'type'    => 'string',
                 'default' => 'Atajos',
+                'description' => 'Déjalo vacío para ocultarlo. Los botones se editan en Atajos › Mis atajos (fuera del modo edición del dashboard).',
             ],
         ];
     }

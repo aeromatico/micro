@@ -8,20 +8,23 @@
     document.addEventListener('dragstart', function (e) {
         var it = item(e.target);
         if (!it) return;
+        // El dashboard cancela dragstart en un contenedor (stop+prevent): se atiende antes, en captura.
+        e.stopPropagation();
         dragged = it;
         it.classList.add('is-dragging');
         e.dataTransfer.effectAllowed = 'move';
         try { e.dataTransfer.setData('text/plain', it.dataset.id); } catch (err) {}
-    });
+    }, true);
 
     document.addEventListener('dragover', function (e) {
         var it = item(e.target);
         if (!dragged || !it || it === dragged || row(it) !== row(dragged)) return;
         e.preventDefault();
+        e.stopPropagation();
         var rect = it.getBoundingClientRect();
         var after = e.clientX > rect.left + rect.width / 2;
         it.parentNode.insertBefore(dragged, after ? it.nextSibling : it);
-    });
+    }, true);
 
     document.addEventListener('dragend', function () {
         if (!dragged) return;
@@ -46,5 +49,5 @@
             },
             body: body.toString()
         });
-    });
+    }, true);
 })();
