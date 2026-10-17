@@ -495,14 +495,15 @@ class Plugin extends PluginBase
 
             $json = json_encode($entries, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-            return '<style>#menu-search-item{position:sticky;top:0;z-index:5;background-color:#1f2937}</style>'
+            return '<style>#menu-search-item{position:sticky;top:0;z-index:5;background-color:#1f2937}#menu-search-item .ms-kbd{margin-left:6px;padding:1px 6px;border:1px solid rgba(255,255,255,.3);border-bottom-width:2px;border-radius:5px;background:rgba(255,255,255,.08);color:inherit;font:600 10px/1.4 ui-monospace,monospace;vertical-align:middle;white-space:nowrap}</style>'
                 . $this->floatingModalCss()
                 . '<script>(function(){var E=' . $json . ';'
                 . 'function n(t){return String(t).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()}'
                 . 'E.forEach(function(e){e.k=n(e.l+" "+e.g)});'
                 . 'function init(){var ul=document.querySelector("#layout-mainmenu-left ul.mainmenu-general");if(!ul||document.getElementById("menu-search-item"))return;'
                 . 'var li=document.createElement("li");li.id="menu-search-item";li.className="mainmenu-item";li.title="Buscar en el menú (/ o Ctrl+K)";'
-                . 'li.innerHTML=\'<a href="javascript:;"><span class="nav-icon"><i class="icon-search"></i></span><span class="nav-label">Buscar</span></a>\';'
+                . 'li.innerHTML=\'<a href="javascript:;"><span class="nav-icon"><i class="icon-search"></i></span><span class="nav-label">Buscar <kbd class="ms-kbd"></kbd></span></a>\';'
+                . 'li.querySelector(".ms-kbd").textContent=/Mac|iPhone|iPad/.test(navigator.platform)?"⌘ K":"Ctrl K";'
                 . 'ul.insertBefore(li,ul.firstChild);'
                 . 'for(var p=ul,bg;p&&p!==document;p=p.parentElement){bg=getComputedStyle(p).backgroundColor;if(bg&&bg!=="transparent"&&!/rgba\(.*,\s*0\)$/.test(bg)){li.style.backgroundColor=bg;break}}'
                 . 'var dlg=null,sel=0;'
