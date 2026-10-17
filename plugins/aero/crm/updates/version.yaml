@@ -157,3 +157,11 @@
 1.12.0:
     - "Soporte de plataforma: cada ticket queda vinculado al administrador del tenant que lo abre (o a quien el equipo le abre el ticket en su nombre), con tenant y admin elegibles al crear desde CRM > Tickets."
     - add_requester_user_to_tickets.php
+
+1.13.0:
+    - "Respuestas rapidas: plantilla de WhatsApp aprobada opcional (nombre, idioma, categoria utility/marketing). Con la ventana de 24 h cerrada se envia esa plantilla con sus saltos de linea en vez de la generica."
+    - add_template_to_quick_replies.php
+
+1.14.0:
+    - "Respuestas rapidas con tipo: texto, botones, menu, enlace, pedir ubicacion, llamada, ubicacion, contacto y encuesta. Si la cuenta no admite el tipo se envia el texto de respaldo."
+    - add_kind_config_to_quick_replies.php

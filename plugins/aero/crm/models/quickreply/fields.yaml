@@ -19,6 +19,13 @@ fields:
         type: dropdown
         span: auto
 
+    kind:
+        label: Tipo de mensaje
+        type: dropdown
+        span: full
+        default: text
+        comment: Texto simple, o un mensaje con botones/menú/ubicación. Si la cuenta que envía no admite el tipo (p. ej. botones en WhatsApp Web), se envía el texto de respaldo con las opciones escritas.
+
     sort_order:
         label: Orden
         type: number
@@ -45,9 +52,182 @@ fields:
         span: full
         comment: Opcional. Sin marcar ninguna, la respuesta aparece en todas las cuentas; si marcas algunas, solo en las conversaciones de esas cuentas.
 
+    config[buttons]:
+        label: Botones (1 a 3, máx. 20 caracteres)
+        type: repeater
+        span: full
+        prompt: Agregar botón
+        maxItems: 3
+        form:
+            fields:
+                title:
+                    label: Texto del botón
+                    type: text
+        trigger:
+            action: show
+            field: kind
+            condition: value[buttons]
+
+    config[list_button]:
+        label: Texto del botón del menú
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[list]
+
+    config[list_section]:
+        label: Título de la sección (opcional)
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[list]
+
+    config[list_rows]:
+        label: Opciones del menú (hasta 10)
+        type: repeater
+        span: full
+        prompt: Agregar opción
+        maxItems: 10
+        form:
+            fields:
+                title:
+                    label: Título (máx. 24)
+                    type: text
+                    span: auto
+                description:
+                    label: Descripción (opcional)
+                    type: text
+                    span: auto
+        trigger:
+            action: show
+            field: kind
+            condition: value[list]
+
+    config[cta_text]:
+        label: Texto del botón de enlace
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[cta_url]
+
+    config[cta_url]:
+        label: Enlace (https://…)
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[cta_url]
+
+    config[call_text]:
+        label: Texto del botón de llamada (opcional)
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[voice_call]
+
+    config[location]:
+        label: Coordenadas "lat, lng" o enlace de Google Maps
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[location]
+
+    config[location_name]:
+        label: Nombre del lugar (opcional)
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[location]
+
+    config[contact_name]:
+        label: Nombre del contacto a compartir
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[contact]
+
+    config[contact_phone]:
+        label: Teléfono del contacto
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[contact]
+
+    config[poll_name]:
+        label: Pregunta de la encuesta
+        type: text
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[poll]
+
+    config[poll_options]:
+        label: Opciones (2 a 12)
+        type: repeater
+        span: full
+        prompt: Agregar opción
+        maxItems: 12
+        form:
+            fields:
+                title:
+                    label: Opción
+                    type: text
+        trigger:
+            action: show
+            field: kind
+            condition: value[poll]
+
+    config[poll_multiple]:
+        label: Permitir elegir varias
+        type: switch
+        span: full
+        trigger:
+            action: show
+            field: kind
+            condition: value[poll]
+
     body:
-        label: Mensaje
+        label: Mensaje (texto principal)
         type: textarea
         size: large
         span: full
         required: true
+
+    template_name:
+        label: Plantilla de WhatsApp (nombre)
+        type: text
+        span: auto
+        placeholder: market_que_es
+        comment: Opcional. Nombre exacto de la plantilla ya aprobada en Meta, sin variables y con este mismo texto. Se usa cuando pasaron más de 24 h del último mensaje del contacto; conserva los saltos de línea.
+
+    template_language:
+        label: Idioma de la plantilla
+        type: text
+        span: auto
+        default: es
+        placeholder: es
+
+    template_category:
+        label: Categoría de la plantilla
+        type: dropdown
+        span: auto
+        emptyOption: —
+        comment: Informativa (la define Meta al aprobarla).
