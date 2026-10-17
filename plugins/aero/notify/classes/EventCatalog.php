@@ -28,6 +28,7 @@ class EventCatalog
             static::medical(),
             static::community(),
             static::support(),
+            static::plan(),
             static::hello(),
             static::credits(),
             static::system(),
@@ -732,6 +733,45 @@ class EventCatalog
             $mk('support.ticket.agent_replied', 'Respondieron tu ticket', 'El equipo respondió un ticket: aviso a quien lo abrió, con el enlace para verlo.', ['actor'], ['email']),
             $mk('support.ticket.platform_opened', 'Nuevo ticket de un tenant', 'Un tenant abrió un ticket para la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
             $mk('support.ticket.platform_customer_replied', 'Un tenant respondió su ticket', 'Un tenant respondió un ticket de la mesa de la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
+        ];
+    }
+
+    /**
+     * Plan de 30 días (Aero.Plan): el dueño avisa a los superadmin de lo que
+     * envía, escribe, pausa o retoma; el equipo avisa al dueño de lo que
+     * aprueba, pide o responde. WhatsApp entrega solo si hay canal configurado.
+     */
+    protected static function plan(): array
+    {
+        $vars = [
+            'step_number' => ['type' => 'string', 'required' => false, 'label' => 'Número del paso'],
+            'step_name'   => ['type' => 'string', 'required' => false, 'label' => 'Nombre del paso'],
+            'next_step'   => ['type' => 'string', 'required' => false, 'label' => 'Paso que se abre'],
+            'message'     => ['type' => 'string', 'required' => false, 'label' => 'Mensaje'],
+            'day'         => ['type' => 'string', 'required' => false, 'label' => 'Día del plan'],
+            'url'         => ['type' => 'string', 'required' => false, 'label' => 'Enlace'],
+        ];
+        $sample = [
+            'step_number' => '2', 'step_name' => 'Diseñar el plan', 'next_step' => 'Construir y conectar',
+            'message' => 'Falta aclarar qué módulos entran en el lanzamiento.', 'day' => '9',
+            'url' => 'https://panel.market.com.bo/backend/aero/plan/plan', 'tenant_name' => 'Demo',
+        ];
+        $ch = ['whatsapp', 'email', 'inapp', 'push'];
+        $mk = fn (string $code, string $name, string $desc, array $aud, int $prio = 3) => [
+            'code' => $code, 'source_plugin' => 'Aero.Plan', 'category' => 'support', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ];
+
+        return [
+            $mk('plan.step.submitted', 'Un paso del plan espera revisión', 'Un tenant envió un paso de su Plan de 30 días: hay que revisarlo y aprobarlo o pedir cambios.', ['superadmin'], 2),
+            $mk('plan.message.from_client', 'Mensaje de un tenant en su plan', 'Un tenant escribió en la conversación de un paso de su Plan de 30 días.', ['superadmin']),
+            $mk('plan.paused', 'Un tenant dejó su plan', 'Un tenant decidió seguir por su cuenta: el plan queda en pausa y el contador se detiene.', ['superadmin']),
+            $mk('plan.resumed', 'Un tenant retomó su plan', 'Un tenant retomó su Plan de 30 días tras una pausa.', ['superadmin']),
+            $mk('plan.step.approved', 'Aprobamos un paso de tu plan', 'El equipo aprobó un paso del Plan de 30 días y se abrió el siguiente.', ['tenant_admin']),
+            $mk('plan.changes.requested', 'Pedimos ajustes en tu plan', 'El equipo pidió cambios en un paso del Plan de 30 días.', ['tenant_admin'], 2),
+            $mk('plan.message.from_team', 'Nuevo mensaje en tu plan', 'El equipo escribió en la conversación de un paso de tu Plan de 30 días.', ['tenant_admin']),
+            $mk('plan.completed', '¡Plan de 30 días completado!', 'Se aprobó el último paso del Plan de 30 días.', ['tenant_admin']),
         ];
     }
 

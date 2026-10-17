@@ -136,6 +136,67 @@ class Bridges
         }
 
         static::registerSupport();
+
+        if (class_exists(\Aero\Plan\Models\Plan::class)) {
+            static::registerPlan();
+        }
+    }
+
+    /**
+     * Aero.Plan → Notify. El dueño avisa a los superadmin y el equipo avisa al
+     * dueño (admins del tenant). Nunca debe romper una acción del plan.
+     */
+    protected static function registerPlan(): void
+    {
+        $ctx = fn ($plan, $step = null, array $extra = []) => array_filter([
+            'tenant_name' => static::tenantName($plan->tenant_id),
+            'day'         => (string) $plan->day,
+            'step_number' => $step ? (string) $step->number : null,
+            'step_name'   => $step ? (\Aero\Plan\Classes\Stages::find($step->number)['name'] ?? null) : null,
+            'url'         => \Backend::url('aero/plan/plans/review/' . $plan->id),
+        ] + $extra, fn ($v) => $v !== null);
+        $owner = fn ($plan, $step = null, array $extra = []) => ['url' => \Backend::url('aero/plan/plan')] + $ctx($plan, $step, $extra);
+        $opts = fn ($plan, string $key) => ['tenant_id' => (int) $plan->tenant_id, 'dedup_key' => 'plan:' . $plan->id . ':' . $key];
+        $stepName = fn (int $n) => \Aero\Plan\Classes\Stages::find($n)['name'] ?? null;
+
+        Event::listen('aero.plan.stageSubmitted', fn ($plan, $step) => static::safe(fn () => Notify::fire(
+            'plan.step.submitted', $ctx($plan, $step), $opts($plan, 'submitted:' . $step->number . ':' . optional($step->submitted_at)->timestamp)
+        )));
+
+        Event::listen('aero.plan.stageApproved', fn ($plan, $step, $next) => static::safe(function () use ($plan, $step, $next, $owner, $opts, $stepName) {
+            if (!$next) {
+                return; // el último paso lo avisa aero.plan.completed
+            }
+            Notify::fire('plan.step.approved', $owner($plan, $step, ['next_step' => $stepName($next->number)]), $opts($plan, 'approved:' . $step->number));
+        }));
+
+        Event::listen('aero.plan.changesRequested', fn ($plan, $step, $note) => static::safe(fn () => Notify::fire(
+            'plan.changes.requested', $owner($plan, $step, ['message' => \Illuminate\Support\Str::limit((string) $note, 400)]),
+            $opts($plan, 'changes:' . $step->number . ':' . md5((string) $note))
+        )));
+
+        Event::listen('aero.plan.messagePosted', fn ($plan, $message) => static::safe(function () use ($plan, $message, $ctx, $owner, $opts) {
+            $step = $plan->steps()->where('number', $message->step_number)->first();
+            $text = ['message' => \Illuminate\Support\Str::limit((string) $message->body, 400)];
+
+            $message->author === 'team'
+                ? Notify::fire('plan.message.from_team', $owner($plan, $step, $text), $opts($plan, 'msg:' . $message->id))
+                : Notify::fire('plan.message.from_client', $ctx($plan, $step, $text), $opts($plan, 'msg:' . $message->id));
+        }));
+
+        Event::listen('aero.plan.paused', fn ($plan) => static::safe(fn () => Notify::fire(
+            'plan.paused', $ctx($plan), $opts($plan, 'paused:' . optional($plan->paused_at)->timestamp)
+        )));
+
+        Event::listen('aero.plan.resumed', fn ($plan) => static::safe(function () use ($plan, $ctx, $opts) {
+            $open = $plan->steps()->whereIn('status', ['open', 'review', 'changes'])->orderBy('number')->first();
+
+            Notify::fire('plan.resumed', $ctx($plan, $open), $opts($plan, 'resumed:' . now()->timestamp));
+        }));
+
+        Event::listen('aero.plan.completed', fn ($plan) => static::safe(fn () => Notify::fire(
+            'plan.completed', $owner($plan), $opts($plan, 'completed')
+        )));
     }
 
     /** Aero.Community → Notify. Nunca debe romper el guardado de una publicación. */

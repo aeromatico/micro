@@ -190,3 +190,7 @@
 1.5.11:
     - "Aviso de desparasitación próxima (medical.deworming.due) para Historia clínica, con su regla y plantilla por defecto."
     - seed_medical_deworming_event.php
+
+1.5.12:
+    - "Avisos del Plan de 30 días (Aero.Plan): paso enviado, mensajes, pausa y retoma hacia los superadmin; paso aprobado, cambios pedidos, mensajes y plan completado hacia el dueño, con sus reglas y plantillas por defecto."
+    - seed_plan_events.php
