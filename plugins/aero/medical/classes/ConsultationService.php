@@ -135,6 +135,8 @@ class ConsultationService
                 $c->patient->save();
             }
 
+            app(ClinicalItems::class)->bumpFrequents($c);
+
             Audit::record('sign', $c->tenant_id, $c->patient_id, 'consultation', $c->id);
         });
 
@@ -176,6 +178,16 @@ class ConsultationService
     {
         $this->assertAuthorDraft($c, $user);
         Vitals::where('consultation_id', $c->id)->delete();
+        \Aero\Medical\Models\Diagnosis::where('consultation_id', $c->id)->delete();
+        \Aero\Medical\Models\QuestionnaireAnswer::where('consultation_id', $c->id)->delete();
+        if ($rx = \Aero\Medical\Models\Prescription::where('consultation_id', $c->id)->first()) {
+            \Aero\Medical\Models\PrescriptionItem::where('prescription_id', $rx->id)->delete();
+            $rx->delete();
+        }
+        if ($o = \Aero\Medical\Models\Order::where('consultation_id', $c->id)->first()) {
+            \Aero\Medical\Models\OrderItem::where('order_id', $o->id)->delete();
+            $o->delete();
+        }
         $c->delete();
         Audit::record('delete', $c->tenant_id, $c->patient_id, 'consultation', $c->id);
     }

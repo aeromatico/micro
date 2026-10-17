@@ -1,0 +1,10 @@
+name: Examen
+form: $/aero/medical/models/examcatalog/fields.yaml
+modelClass: Aero\Medical\Models\ExamCatalog
+defaultRedirect: aero/medical/examcatalogs
+create:
+  redirect: aero/medical/examcatalogs
+  redirectClose: aero/medical/examcatalogs
+update:
+  redirect: aero/medical/examcatalogs
+  redirectClose: aero/medical/examcatalogs

@@ -1,0 +1,69 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Nombre
+    span: left
+    required: true
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: right
+  description:
+    label: Descripción o instrucciones
+    type: textarea
+    size: small
+    span: full
+  questions:
+    label: Preguntas
+    type: repeater
+    prompt: Agregar pregunta
+    span: full
+    comment: Cada opción suma su puntaje; el total y su interpretación los calcula el sistema.
+    form:
+      fields:
+        text:
+          label: Pregunta
+          span: full
+        options:
+          label: Opciones de respuesta
+          type: repeater
+          prompt: Agregar opción
+          span: full
+          form:
+            fields:
+              label:
+                label: Opción
+                span: left
+              score:
+                label: Puntaje
+                type: number
+                step: 0.5
+                span: right
+  ranges:
+    label: Interpretación por rangos del puntaje total
+    type: repeater
+    prompt: Agregar rango
+    span: full
+    comment: Por ejemplo «0 a 7 → Leve». Los límites incluyen el mínimo y el máximo.
+    form:
+      fields:
+        min:
+          label: Desde
+          type: number
+          step: 0.5
+          span: left
+        max:
+          label: Hasta
+          type: number
+          step: 0.5
+          span: left
+        label:
+          label: Interpretación
+          span: left

@@ -3,7 +3,8 @@
 <?php Block::endPut() ?>
 <?php if (!$this->fatalError): ?>
 <?php if (BackendAuth::getUser()->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)): ?>
-<?= $this->makePartial('notes', ['p' => $formModel]) ?>
+<?= $this->makePartial('ficha', ['p' => $formModel]) ?>
+<details style="margin-bottom:16px"><summary style="cursor:pointer;font-weight:600;margin-bottom:8px">Datos del paciente</summary>
 <?php endif ?>
 <?= Form::open(['class' => 'layout']) ?>
     <div class="layout-row"><?= $this->formRender() ?></div>
@@ -13,6 +14,7 @@
         <a href="<?= Backend::url('aero/medical/patients') ?>" class="btn btn-default">Cancelar</a>
     </div>
 <?= Form::close() ?>
+<?php if (BackendAuth::getUser()->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)): ?></details><?php endif ?>
 <?php else: ?>
     <p class="flash-message static error"><?= e($this->fatalError) ?></p>
 <?php endif ?>

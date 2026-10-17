@@ -1,0 +1,17 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+  label:
+    label: Diagnóstico
+    searchable: true
+  source:
+    label: Origen
+    type: selectable
+    options: getSourceOptions
+  pinned:
+    label: Frecuente fijado
+    type: switch
+  uses:
+    label: Veces usado
+    sortable: true

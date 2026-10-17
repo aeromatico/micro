@@ -1,0 +1,10 @@
+title: Rangos alto/bajo
+list: $/aero/medical/models/range/columns.yaml
+modelClass: Aero\Medical\Models\Range
+recordUrl: aero/medical/ranges/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

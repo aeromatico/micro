@@ -1,0 +1,10 @@
+title: Cuestionarios
+list: $/aero/medical/models/questionnaire/columns.yaml
+modelClass: Aero\Medical\Models\Questionnaire
+recordUrl: aero/medical/questionnaires/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -92,6 +92,45 @@ class Patients extends Controller
         return \Backend::redirect('aero/medical/consultations/update/' . $note->id);
     }
 
+    // ---- Hoja de seguimiento y laboratorio manual (solo personal clínico) ----
+
+    public function update_onAddLab($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        try {
+            app(\Aero\Medical\Classes\ClinicalItems::class)->addLab($p, [
+                'analyte_id' => post('analyte_id'), 'analyte_name' => post('analyte_name'), 'value' => post('value'),
+                'unit' => post('unit'), 'measured_on' => post('measured_on'), 'note' => post('note'),
+            ], \BackendAuth::getUser());
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+
+        return $this->sheetUpdate($p);
+    }
+
+    public function update_onDeleteLab($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        \Aero\Medical\Models\LabResult::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->findOrFail((int) post('lab_id'))->delete();
+
+        return $this->sheetUpdate($p);
+    }
+
+    protected function sheetUpdate(Patient $p): array
+    {
+        return ['#mc-sheet' => $this->makePartial('sheet', ['p' => $p]), '#mc-labs' => $this->makePartial('labs', ['p' => $p])];
+    }
+
+    protected function clinicalPatient($id): Patient
+    {
+        if (!\BackendAuth::getUser()->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)) {
+            throw new \ApplicationException('Solo el personal clínico puede ver o anotar resultados.');
+        }
+
+        return $this->scopeToTenant(Patient::whereKey((int) $id))->firstOrFail();
+    }
+
     /** Lo que crea un tenant es suyo; el superadmin elige el negocio en el formulario. */
     public function formBeforeCreate($model): void
     {

@@ -1,0 +1,26 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Analito
+    span: full
+    required: true
+    comment: Lo que se anota a mano y sigue en la hoja (glucosa, HbA1c…).
+  unit:
+    label: Unidad
+    span: left
+  sort:
+    label: Orden
+    type: number
+    span: right
+    default: 0
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left

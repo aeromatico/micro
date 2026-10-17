@@ -22,6 +22,12 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('medical:import-cie10', \Aero\Medical\Console\ImportCie10::class);
+        $this->registerConsoleCommand('medical:import-liname', \Aero\Medical\Console\ImportLiname::class);
+    }
+
     public function boot(): void
     {
         // Botón en la reserva de Office (punto de extensión mínimo en su vista): solo personal clínico.
@@ -70,6 +76,7 @@ class Plugin extends PluginBase
     {
         $all = ['aero.medical.use', 'aero.medical.reception', 'aero.medical.professional', 'aero.medical.superadmin'];
         $clinical = ['aero.medical.professional', 'aero.medical.superadmin'];
+        $catalog = ['aero.medical.professional', 'aero.medical.settings', 'aero.medical.superadmin'];
         $owner = ['aero.medical.settings', 'aero.medical.superadmin'];
         $item = fn (string $label, string $icon, string $path, array $p) => [
             'label' => $label, 'icon' => $icon, 'url' => Backend::url('aero/medical/' . $path), 'permissions' => $p,
@@ -89,6 +96,12 @@ class Plugin extends PluginBase
                     'consultations' => $item('Consultas', 'icon-heartbeat', 'consultations', $clinical),
                     'signature' => $item('Mi firma', 'icon-pencil', 'signature', $clinical),
                     'notetemplates' => $item('Plantillas de nota', 'icon-file-text', 'notetemplates', $owner),
+                    'diagnosiscatalogs' => $item('Diagnósticos del negocio', 'icon-tags', 'diagnosiscatalogs', $catalog),
+                    'medications' => $item('Medicamentos', 'icon-tags', 'medications', $catalog),
+                    'examcatalogs' => $item('Exámenes', 'icon-tags', 'examcatalogs', $catalog),
+                    'analytes' => $item('Analitos', 'icon-tags', 'analytes', $catalog),
+                    'questionnaires' => $item('Cuestionarios', 'icon-file-text', 'questionnaires', $catalog),
+                    'ranges' => $item('Rangos alto/bajo', 'icon-bar-chart', 'ranges', $catalog),
                     'auditlogs' => $item('Bitácora', 'icon-list', 'auditlogs', $owner),
                     'settings'  => $item('Configuración', 'icon-cog', 'settings', $owner),
                 ],

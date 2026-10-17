@@ -1,0 +1,26 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  label:
+    label: Diagnóstico
+    span: full
+    required: true
+    comment: Texto que verá el profesional. En veterinaria es el catálogo principal (CIE-10 no aplica).
+  code:
+    label: Código (opcional)
+    span: left
+    comment: Código propio o CIE-10. Si es un CIE-10 déjelo con ese código.
+  source:
+    label: Origen
+    type: dropdown
+    span: right
+    default: custom
+  pinned:
+    label: Fijar entre los Frecuentes
+    type: switch
+    span: left

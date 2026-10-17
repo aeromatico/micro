@@ -9,3 +9,13 @@
 1.1.1:
     - "Corrige el almacenamiento de la firma y el sello del profesional: ahora se guardan cifrados en la base de datos y no como archivos."
     - add_signature_images_to_professionals.php
+
+1.2.0:
+    - "Diagnósticos con CIE-10, receta y órdenes dentro de la consulta."
+    - create_clinical_tables.php
+
+1.3.0:
+    - "Hoja de seguimiento del paciente con laboratorio manual y valores fuera de rango en rojo."
+
+1.4.0:
+    - "Cuestionarios configurables con puntaje sumado e interpretación por rangos."

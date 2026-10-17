@@ -1,0 +1,10 @@
+title: Medicamentos del negocio
+list: $/aero/medical/models/medication/columns.yaml
+modelClass: Aero\Medical\Models\Medication
+recordUrl: aero/medical/medications/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

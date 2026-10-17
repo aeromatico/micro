@@ -1,0 +1,10 @@
+title: Diagnósticos del negocio
+list: $/aero/medical/models/diagnosiscatalog/columns.yaml
+modelClass: Aero\Medical\Models\DiagnosisCatalog
+recordUrl: aero/medical/diagnosiscatalogs/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

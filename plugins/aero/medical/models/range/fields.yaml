@@ -1,0 +1,38 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  mode:
+    label: Modo
+    type: dropdown
+    span: left
+    required: true
+    comment: Los rangos de personas y de animales son independientes.
+  species:
+    label: Especie
+    type: dropdown
+    span: right
+    trigger:
+      action: show
+      field: mode
+      condition: value[animal]
+    comment: Solo animal. «Todas» aplica si no hay un rango para la especie.
+  metric:
+    label: Medición
+    type: dropdown
+    span: full
+    required: true
+  low:
+    label: Límite bajo (se marca si el valor es menor)
+    type: number
+    step: 0.001
+    span: left
+  high:
+    label: Límite alto (se marca si el valor es mayor)
+    type: number
+    step: 0.001
+    span: right

@@ -30,9 +30,17 @@ class Consultation extends Model
         'patient' => [Patient::class, 'key' => 'patient_id'],
     ];
 
-    public $hasOne = ['vitals' => [Vitals::class, 'key' => 'consultation_id']];
+    public $hasOne = [
+        'vitals'       => [Vitals::class, 'key' => 'consultation_id'],
+        'prescription' => [Prescription::class, 'key' => 'consultation_id'],
+        'exam_order'   => [Order::class, 'key' => 'consultation_id'],
+    ];
 
-    public $hasMany = ['addenda' => [Addendum::class, 'key' => 'consultation_id', 'order' => 'id']];
+    public $hasMany = [
+        'addenda'   => [Addendum::class, 'key' => 'consultation_id', 'order' => 'id asc'],
+        'diagnoses' => [Diagnosis::class, 'key' => 'consultation_id', 'order' => 'position asc'],
+        'answers'   => [QuestionnaireAnswer::class, 'key' => 'consultation_id', 'order' => 'id asc'],
+    ];
 
     public function isSigned(): bool
     {
@@ -78,6 +86,32 @@ class Consultation extends Model
         $vit = $this->vitals ? collect($this->vitals->only(['systolic', 'diastolic', 'heart_rate', 'resp_rate', 'temperature_c', 'spo2', 'weight_kg', 'height_cm', 'bmi', 'mucous', 'crt_seconds', 'body_condition']))
             ->map(fn ($v) => $v === null ? null : (string) $v)->all() : [];
 
+        // Lo clínico estructurado entra en la huella solo si existe (las notas anteriores a la fase 3 siguen verificando).
+        $extra = [];
+        $dx = Diagnosis::where('consultation_id', $this->id)->orderBy('position')->orderBy('id')->get()
+            ->map(fn ($d) => [$d->source, (string) $d->code, $d->label, (int) $d->is_primary, $d->certainty])->all();
+        if ($dx) {
+            $extra['diagnoses'] = $dx;
+        }
+        if ($rx = Prescription::where('consultation_id', $this->id)->first()) {
+            $items = PrescriptionItem::where('prescription_id', $rx->id)->orderBy('position')->orderBy('id')->get()
+                ->map(fn ($i) => [$i->medication, $i->dose, $i->route, $i->frequency, $i->duration, $i->quantity, $i->instructions])->all();
+            if ($items || $rx->notes) {
+                $extra['prescription'] = ['notes' => $rx->notes, 'items' => $items];
+            }
+        }
+        if ($ord = Order::where('consultation_id', $this->id)->first()) {
+            $items = OrderItem::where('order_id', $ord->id)->orderBy('position')->orderBy('id')->get()->map(fn ($i) => [$i->category, $i->exam_name, $i->instructions])->all();
+            if ($items || $ord->notes) {
+                $extra['orders'] = ['notes' => $ord->notes, 'items' => $items];
+            }
+        }
+        $qa = QuestionnaireAnswer::where('consultation_id', $this->id)->orderBy('id')->get()
+            ->map(fn ($a) => [(int) $a->questionnaire_id, $a->questionnaire_name, (string) (float) $a->score, (string) $a->interpretation, (array) $a->answers])->all();
+        if ($qa) {
+            $extra['questionnaires'] = $qa;
+        }
+
         return hash('sha256', json_encode([
             'tenant'  => (int) $this->tenant_id,
             'patient' => (int) $this->patient_id,
@@ -88,7 +122,7 @@ class Consultation extends Model
             'vitals'  => $vit,
             'at'      => $this->consulted_at?->toIso8601String(),
             'signed'  => $this->signed_at?->toIso8601String(),
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        ] + $extra, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     /** ¿Lo guardado sigue siendo lo que se firmó? */

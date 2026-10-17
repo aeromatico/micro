@@ -1,0 +1,15 @@
+columns:
+  mode:
+    label: Modo
+    type: selectable
+    options: getModeOptions
+  species:
+    label: Especie
+  metric:
+    label: Medición
+    type: selectable
+    options: getMetricOptions
+  low:
+    label: Bajo (menor a)
+  high:
+    label: Alto (mayor a)

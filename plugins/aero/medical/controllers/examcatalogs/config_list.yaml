@@ -1,0 +1,10 @@
+title: Exámenes que se pueden pedir
+list: $/aero/medical/models/examcatalog/columns.yaml
+modelClass: Aero\Medical\Models\ExamCatalog
+recordUrl: aero/medical/examcatalogs/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

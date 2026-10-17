@@ -1,0 +1,26 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Medicamento (nombre genérico o comercial)
+    span: full
+    required: true
+  form:
+    label: Forma farmacéutica
+    span: left
+  concentration:
+    label: Concentración
+    span: right
+  notes:
+    label: Notas
+    span: full
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left

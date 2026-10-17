@@ -126,6 +126,8 @@ $allergies = trim((string) $p->allergies);
     <?php endforeach ?>
 <?php endif ?>
 
+<?= $this->makePartial('clinical_cards') ?>
+
 <?php if ($c->isSigned()): ?>
     <div class="mc-card">
         <h5>Firma</h5>

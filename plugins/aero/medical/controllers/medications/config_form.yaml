@@ -1,0 +1,10 @@
+name: Medicamento
+form: $/aero/medical/models/medication/fields.yaml
+modelClass: Aero\Medical\Models\Medication
+defaultRedirect: aero/medical/medications
+create:
+  redirect: aero/medical/medications
+  redirectClose: aero/medical/medications
+update:
+  redirect: aero/medical/medications
+  redirectClose: aero/medical/medications

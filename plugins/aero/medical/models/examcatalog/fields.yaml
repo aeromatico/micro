@@ -1,0 +1,27 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Examen
+    span: full
+    required: true
+  category:
+    label: Tipo
+    type: dropdown
+    span: left
+    default: lab
+  sort:
+    label: Orden
+    type: number
+    span: right
+    default: 0
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
