@@ -22,6 +22,25 @@ class Ranges extends Controller
         BackendMenu::setContext('Aero.Medical', 'medical', 'ranges');
     }
 
+    /** Carga el borrador de referencia para adultos: solo lo que falta, solo modo humano, nunca pisa lo del negocio. */
+    public function index_onLoadReference()
+    {
+        $tenantId = (int) CurrentTenant::id();
+        if (!$tenantId) {
+            throw new \ApplicationException('No se pudo determinar su negocio.');
+        }
+
+        try {
+            $r = \Aero\Medical\Classes\ReferenceRanges::load($tenantId);
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+        \Aero\Medical\Classes\Audit::record('update', $tenantId, null, 'ranges', null, ['reference_loaded']);
+        \Flash::success("Rangos de referencia: {$r['created']} agregados, {$r['skipped']} ya existían. Son un borrador: pida a un médico que los revise.");
+
+        return \Backend::redirect('aero/medical/ranges');
+    }
+
     public function formBeforeCreate($model): void
     {
         if (!CurrentTenant::isAdmin()) {

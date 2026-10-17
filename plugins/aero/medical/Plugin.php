@@ -31,6 +31,39 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // API de pacientes (solo datos administrativos): únicamente si Aero.Api está instalado.
+        if (class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
+            $this->app['router']->group([], function () {
+                require __DIR__ . '/routes.php';
+            });
+
+            \Event::listen('aero.api.registerScopes', fn () => ['medical' => ['label' => 'Historia clínica', 'scopes' => \Aero\Medical\Classes\Api\Scopes::all()]]);
+
+            \Event::listen('aero.api.registerEndpoints', fn () => ['medical' => [
+                'label' => 'Historia clínica',
+                'endpoints' => [
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/medical/patients', 'scope' => \Aero\Medical\Classes\Api\Scopes::PATIENTS_READ,
+                        'summary' => 'Lista de pacientes (solo datos administrativos; nunca contenido clínico). Requiere la key del negocio.',
+                        'query' => [
+                            ['name' => 'q', 'type' => 'string', 'help' => 'Nombre, documento o microchip.'],
+                            ['name' => 'kind', 'type' => 'string', 'help' => 'human o animal.'],
+                            ['name' => 'active', 'type' => 'boolean'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 50, 'help' => 'Máx. 200.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/medical/patients/{id}', 'scope' => \Aero\Medical\Classes\Api\Scopes::PATIENTS_READ,
+                        'summary' => 'Detalle administrativo de un paciente.',
+                        'path_params' => [['name' => 'id', 'type' => 'integer', 'required' => true, 'help' => 'Id del paciente.']],
+                    ],
+                ],
+            ]]);
+        }
+
+        // Conciliación de cobros por QR: Aero.Pay avisa el cambio de estado (solo actúa sobre sus propios QR).
+        \Event::listen('aero.pay.qrStatusChanged', [\Aero\Medical\Classes\ChargeService::class, 'onQrStatus']);
+
         // Botón en la reserva de Office (punto de extensión mínimo en su vista): solo personal clínico.
         \Event::listen('aero.office.bookingDetailActions', function ($booking) {
             $user = \BackendAuth::getUser();
@@ -120,6 +153,7 @@ class Plugin extends PluginBase
                     'ranges' => $item('Rangos alto/bajo', 'icon-bar-chart', 'ranges', $catalog),
                     'vaccines' => $item('Vacunas', 'icon-tags', 'vaccines', $catalog),
                     'documenttemplates' => $item('Formatos de documentos', 'icon-file-text', 'documenttemplates', $catalog),
+                    'charges' => $item('Cobros', 'icon-list', 'charges', $grooming),
                     'imports' => $item('Importar historias', 'icon-list', 'imports', $catalog),
                     'exports' => $item('Exportar datos', 'icon-list', 'exports', $catalog),
                     'auditlogs' => $item('Bitácora', 'icon-list', 'auditlogs', $owner),

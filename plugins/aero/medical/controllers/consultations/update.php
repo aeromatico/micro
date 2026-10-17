@@ -54,6 +54,7 @@ $allergies = trim((string) $p->allergies);
     <div>
         <?php if ($c->isSigned()): ?>
             <a class="btn btn-default" target="_blank" href="<?= Backend::url('aero/medical/consultations/print/' . $c->id) ?>">Imprimir con firma y sello</a>
+            <a class="btn btn-default" href="<?= Backend::url('aero/medical/charges?consultation_id=' . $c->id) ?>">Registrar cobro</a>
         <?php endif ?>
         <a class="btn btn-default" href="<?= Backend::url('aero/medical/patients/update/' . $p->id) ?>">Ficha del paciente</a>
     </div>

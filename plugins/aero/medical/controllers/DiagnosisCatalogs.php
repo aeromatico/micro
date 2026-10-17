@@ -22,6 +22,24 @@ class DiagnosisCatalogs extends Controller
         BackendMenu::setContext('Aero.Medical', 'medical', 'diagnosiscatalogs');
     }
 
+    /** Lista inicial de medicina general (solo códigos CIE-10 existentes; borrador sin revisión médica). */
+    public function index_onLoadStarter()
+    {
+        $tenantId = (int) CurrentTenant::id();
+        if (!$tenantId) {
+            throw new \ApplicationException('No se pudo determinar su negocio.');
+        }
+
+        try {
+            $r = \Aero\Medical\Classes\StarterDiagnoses::load($tenantId);
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+        \Flash::success("Lista inicial: {$r['created']} agregados, {$r['skipped']} ya estaban" . ($r['missing'] ? ', ' . count($r['missing']) . ' códigos no están en el catálogo (' . implode(', ', $r['missing']) . ')' : '') . '. Es una selección sin revisión médica: ajústela.');
+
+        return \Backend::redirect('aero/medical/diagnosiscatalogs');
+    }
+
     public function formBeforeCreate($model): void
     {
         if (!CurrentTenant::isAdmin()) {

@@ -13,3 +13,7 @@ columns:
     label: Bajo (menor a)
   high:
     label: Alto (mayor a)
+  source:
+    label: Origen
+    type: selectable
+    options: getSourceOptions

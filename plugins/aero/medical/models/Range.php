@@ -16,7 +16,7 @@ class Range extends Model
 
     public $table = 'aero_medical_ranges';
 
-    public $fillable = ['tenant_id', 'mode', 'species', 'metric', 'low', 'high'];
+    public $fillable = ['tenant_id', 'mode', 'species', 'metric', 'low', 'high', 'source'];
 
     public $rules = [
         'mode'   => 'required|in:human,animal',
@@ -40,6 +40,9 @@ class Range extends Model
     {
         $mode = $this->mode ?: (Mode::forTenant($this->tenant_id ?: \Aero\Medical\Classes\CurrentTenant::id()) ?: Mode::HUMAN);
         $out = [];
+        if ($mode === Mode::HUMAN) {
+            $out['bmi'] = 'IMC (kg/m²)'; // calculado: no se escribe, pero sí tiene rango
+        }
         foreach (VitalsSchema::editable($mode) as $k => $f) {
             if (!isset($f['options'])) {
                 $out[$k] = $f['label'] . ($f['unit'] ? " ({$f['unit']})" : '');
@@ -55,8 +58,19 @@ class Range extends Model
         return $out;
     }
 
+    public function getSourceOptions(): array
+    {
+        return ['custom' => 'Del negocio', 'reference' => 'Referencia (borrador sin revisión médica)'];
+    }
+
     public function beforeValidate(): void
     {
+        // Un rango de referencia que el negocio edita pasa a ser suyo.
+        $this->source = $this->source ?: 'custom';
+        if ($this->exists && $this->source === 'reference' && $this->isDirty(['low', 'high', 'metric', 'mode', 'species'])) {
+            $this->source = 'custom';
+        }
+
         $this->species = $this->species ?: null;
         if ($this->mode !== Mode::ANIMAL) {
             $this->species = null;

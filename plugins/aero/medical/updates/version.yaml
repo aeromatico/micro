@@ -43,3 +43,11 @@
 1.10.1:
     - "Corrige las fotos de peluquería, que no se guardaban en MySQL por el tamaño de la columna del tipo de archivo."
     - widen_file_kind_column.php
+
+1.11.0:
+    - "Rangos alto/bajo de referencia para adultos que el negocio carga con un botón, como borrador editable."
+    - add_source_to_ranges.php
+
+1.12.0:
+    - "Cobros de la atención en efectivo, transferencia o QR de Bolivia Pay, con registro automático en Finanzas."
+    - create_charges_table.php

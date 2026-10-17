@@ -32,6 +32,24 @@ class NoteTemplates extends Controller
         $this->asExtension('ListController')->index();
     }
 
+    /** Agrega las plantillas sugeridas (control crónico y chequeo preventivo) que falten. */
+    public function index_onAddSuggested()
+    {
+        $tenantId = (int) CurrentTenant::id();
+        if (!$tenantId) {
+            throw new \ApplicationException('No se pudo determinar su negocio.');
+        }
+
+        try {
+            $r = \Aero\Medical\Classes\SuggestedTemplates::load($tenantId);
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+        \Flash::success("Plantillas sugeridas: {$r['created']} agregadas, {$r['skipped']} ya existían. Edítelas a su manera.");
+
+        return \Backend::redirect('aero/medical/notetemplates');
+    }
+
     public function formBeforeCreate($model): void
     {
         if (!CurrentTenant::isAdmin()) {
