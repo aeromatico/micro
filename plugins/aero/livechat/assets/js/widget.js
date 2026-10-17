@@ -715,6 +715,8 @@
             if (res.enabled === false) { applyEnabled(false); return; }
             if (res.enabled === true) { applyEnabled(true); }
             if (!token) return;
+            // La respuesta puede llegar con el panel ya abierto (open(identity) justo tras cargar): no pisar esa sesión nueva.
+            if (state.open) return;
             if (res.status === 'resolved') { handleResolvedElsewhere(); return; }
 
             var badge = document.getElementById('aero-livechat-badge');
