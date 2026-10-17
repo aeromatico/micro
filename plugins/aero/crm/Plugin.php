@@ -61,7 +61,6 @@ class Plugin extends PluginBase
         $this->bootShopCustomerSync();
         $this->bootPayPaymentBridge();
         $this->bootHelloSync();
-        $this->bootSupportToolbarItem();
 
         // Herramientas privadas para el agente de CRM de Workspaces (acoplamiento blando: solo anuncia).
         Event::listen('aero.workspaces.registerAgentTools', fn () => \Aero\Crm\Classes\AgentTools::tools());
@@ -72,23 +71,6 @@ class Plugin extends PluginBase
      * se enlaza en el CRM del tenant, y los cambios de nombre en Hello se
      * copian al CRM (el otro sentido vive en Contact::syncHelloContact()).
      */
-    /**
-     * «Soporte» en el menú inferior del panel: los tenants abren tickets en la
-     * mesa de ayuda de la PLATAFORMA. No confundir con CRM → Tickets (el
-     * sistema de tickets propio del tenant). Un superadmin sin tenant ya
-     * atiende esos tickets desde CRM → Tickets, así que no lo ve.
-     */
-    protected function bootSupportToolbarItem(): void
-    {
-        Event::listen('backend.layout.extendMainMenuToolbar', function () {
-            if (!\BackendAuth::getUser() || !\Aero\Crm\Classes\TenantUsers::currentTenantId()) {
-                return '';
-            }
-
-            return '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0"><li class="mainmenu-item" title="Soporte de la plataforma"><a href="' . e(Backend::url('aero/crm/support')) . '"><span class="nav-icon"><i class="icon-life-ring"></i></span><span class="nav-label">Soporte</span></a></li></ul></div>';
-        });
-    }
-
     protected function bootHelloSync(): void
     {
         if (!class_exists(\Aero\Hello\Models\ContactIdentity::class)) {
