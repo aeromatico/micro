@@ -1,0 +1,7 @@
+name: Mi firma
+form: $/aero/medical/models/professional/fields.yaml
+modelClass: Aero\Medical\Models\Professional
+defaultRedirect: aero/medical/signature
+update:
+  redirect: aero/medical/signature
+  redirectClose: aero/medical/patients

@@ -22,6 +22,24 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function boot(): void
+    {
+        // Botón en la reserva de Office (punto de extensión mínimo en su vista): solo personal clínico.
+        \Event::listen('aero.office.bookingDetailActions', function ($booking) {
+            $user = \BackendAuth::getUser();
+            if (!$user || !$user->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)
+                || !in_array($booking->status, ['confirmed', 'in_service', 'completed'], true)) {
+                return null;
+            }
+
+            $note = \Aero\Medical\Models\Consultation::where('tenant_id', $booking->tenant_id)->where('booking_id', $booking->id)->first();
+
+            return $note
+                ? '<a class="btn btn-primary" href="' . e(Backend::url('aero/medical/consultations/update/' . $note->id)) . '">Abrir la nota clínica</a>'
+                : '<a class="btn btn-primary" href="' . e(Backend::url('aero/medical/today/booking/' . $booking->id)) . '">Iniciar consulta</a>';
+        });
+    }
+
     public function registerPermissions(): array
     {
         return [
@@ -51,6 +69,7 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         $all = ['aero.medical.use', 'aero.medical.reception', 'aero.medical.professional', 'aero.medical.superadmin'];
+        $clinical = ['aero.medical.professional', 'aero.medical.superadmin'];
         $owner = ['aero.medical.settings', 'aero.medical.superadmin'];
         $item = fn (string $label, string $icon, string $path, array $p) => [
             'label' => $label, 'icon' => $icon, 'url' => Backend::url('aero/medical/' . $path), 'permissions' => $p,
@@ -65,7 +84,11 @@ class Plugin extends PluginBase
                 'permissions' => $all,
                 'order'       => 526,
                 'sideMenu'    => [
+                    'today'     => $item('Agenda de hoy', 'icon-calendar', 'today', $clinical),
                     'patients'  => $item('Pacientes', 'icon-users', 'patients', $all),
+                    'consultations' => $item('Consultas', 'icon-heartbeat', 'consultations', $clinical),
+                    'signature' => $item('Mi firma', 'icon-pencil', 'signature', $clinical),
+                    'notetemplates' => $item('Plantillas de nota', 'icon-file-text', 'notetemplates', $owner),
                     'auditlogs' => $item('Bitácora', 'icon-list', 'auditlogs', $owner),
                     'settings'  => $item('Configuración', 'icon-cog', 'settings', $owner),
                 ],

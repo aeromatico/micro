@@ -63,4 +63,10 @@ return [
     \Aero\Medical\Models\Patient::class => 'datos de salud (cifrados): no se exponen por MCP',
     \Aero\Medical\Models\ClinicSettings::class => 'configuración',
     \Aero\Medical\Models\AuditLog::class => 'bitácora de accesos a datos de salud',
+    \Aero\Medical\Models\Consultation::class => 'notas clínicas (cifradas): datos de salud',
+    \Aero\Medical\Models\Vitals::class => 'signos vitales: datos de salud',
+    \Aero\Medical\Models\Addendum::class => 'adendas de notas clínicas (cifradas)',
+    \Aero\Medical\Models\NoteTemplate::class => 'plantillas de nota (configuración)',
+    \Aero\Medical\Models\Professional::class => 'firma y sello del profesional (archivos privados)',
+    \Aero\Medical\Models\BookingPatient::class => 'vínculo reserva-paciente (datos de salud)',
 ];

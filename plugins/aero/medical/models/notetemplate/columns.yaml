@@ -1,0 +1,14 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+  kind:
+    label: Tipo
+    type: selectable
+    options: getKindOptions
+  is_active:
+    label: Activa
+    type: switch
+  updated_at:
+    label: Modificada
+    type: date

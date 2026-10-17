@@ -1,0 +1,10 @@
+name: Plantilla de nota
+form: $/aero/medical/models/notetemplate/fields.yaml
+modelClass: Aero\Medical\Models\NoteTemplate
+defaultRedirect: aero/medical/notetemplates
+create:
+  redirect: aero/medical/notetemplates
+  redirectClose: aero/medical/notetemplates
+update:
+  redirect: aero/medical/notetemplates
+  redirectClose: aero/medical/notetemplates

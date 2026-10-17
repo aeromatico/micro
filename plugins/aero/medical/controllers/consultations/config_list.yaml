@@ -1,0 +1,13 @@
+title: Consultas
+list: $/aero/medical/models/consultation/columns.yaml
+modelClass: Aero\Medical\Models\Consultation
+recordUrl: aero/medical/consultations/update/:id
+noRecordsMessage: No hay notas.
+recordsPerPage: 30
+showSorting: true
+defaultSort:
+  column: consulted_at
+  direction: desc
+toolbar:
+  search:
+    prompt: Buscar por paciente

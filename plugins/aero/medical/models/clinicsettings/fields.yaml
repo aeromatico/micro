@@ -17,6 +17,15 @@ fields:
     type: checkbox
     span: full
     comment: Solo hace falta si ya hay pacientes cargados. Los existentes conservan su modo original.
+  consultation_template_id:
+    label: Plantilla con la que abre cada Consulta
+    type: dropdown
+    span: left
+    comment: Se edita en Plantillas de nota.
+  control_template_id:
+    label: Plantilla con la que abre cada Control
+    type: dropdown
+    span: right
   enabled:
     label: Módulo activo
     type: switch

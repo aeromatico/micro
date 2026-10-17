@@ -1,3 +1,11 @@
 1.0.0:
     - "Primera versión (fase 1): modo humano o animal por negocio, pacientes vinculados a clientes de Aero.Office (persona o tutor), permisos aero.medical.*, bitácora de accesos y cambios inmutable."
     - create_medical_tables.php
+
+1.1.0:
+    - "Consultas y controles con plantilla editable, autoguardado, signos vitales y firma inmutable con adendas."
+    - create_consultation_tables.php
+
+1.1.1:
+    - "Corrige el almacenamiento de la firma y el sello del profesional: ahora se guardan cifrados en la base de datos y no como archivos."
+    - add_signature_images_to_professionals.php

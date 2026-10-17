@@ -2,6 +2,9 @@
     <ul><li><a href="<?= Backend::url('aero/medical/patients') ?>"><?= e("Pacientes") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
 <?php Block::endPut() ?>
 <?php if (!$this->fatalError): ?>
+<?php if (BackendAuth::getUser()->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)): ?>
+<?= $this->makePartial('notes', ['p' => $formModel]) ?>
+<?php endif ?>
 <?= Form::open(['class' => 'layout']) ?>
     <div class="layout-row"><?= $this->formRender() ?></div>
     <div class="form-buttons">

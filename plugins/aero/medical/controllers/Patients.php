@@ -61,6 +61,37 @@ class Patients extends Controller
         return $result;
     }
 
+    /** Desde la agenda: /patients/create?customer_id=… deja elegido al tutor. */
+    public function formCreateModelObject()
+    {
+        $model = $this->asExtension('FormController')->formCreateModelObject();
+        if ($cid = (int) get('customer_id')) {
+            $model->customer_id = $cid;
+        }
+
+        return $model;
+    }
+
+    /** Abre una nota nueva (consulta o control) para este paciente. Solo personal clínico. */
+    public function update_onStartNote($recordId = null)
+    {
+        $user = \BackendAuth::getUser();
+        if (!$user->hasAccess(['aero.medical.professional', 'aero.medical.superadmin'], false)) {
+            throw new \ApplicationException('Solo el personal clínico puede abrir notas.');
+        }
+
+        $patient = $this->scopeToTenant(Patient::whereKey((int) $recordId))->firstOrFail();
+        $kind = post('kind') === 'control' ? 'control' : 'consultation';
+
+        try {
+            $note = app(\Aero\Medical\Classes\ConsultationService::class)->start($patient, $kind, $user);
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+
+        return \Backend::redirect('aero/medical/consultations/update/' . $note->id);
+    }
+
     /** Lo que crea un tenant es suyo; el superadmin elige el negocio en el formulario. */
     public function formBeforeCreate($model): void
     {

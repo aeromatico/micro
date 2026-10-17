@@ -14,7 +14,7 @@ class ClinicSettings extends Model
 
     public $table = 'aero_medical_settings';
 
-    public $fillable = ['tenant_id', 'mode', 'enabled'];
+    public $fillable = ['tenant_id', 'mode', 'enabled', 'consultation_template_id', 'control_template_id'];
 
     /** Casilla del formulario, no es columna. */
     public $purgeable = ['confirm_mode_change'];
@@ -26,6 +26,16 @@ class ClinicSettings extends Model
     public static function forTenant(?int $tenantId): self
     {
         return static::firstOrNew(['tenant_id' => $tenantId]);
+    }
+
+    public function getConsultationTemplateIdOptions(): array
+    {
+        return ['' => '— Plantilla por defecto —'] + NoteTemplate::templateOptions($this->tenant_id ?: \Aero\Medical\Classes\CurrentTenant::id(), 'consultation');
+    }
+
+    public function getControlTemplateIdOptions(): array
+    {
+        return ['' => '— Plantilla por defecto —'] + NoteTemplate::templateOptions($this->tenant_id ?: \Aero\Medical\Classes\CurrentTenant::id(), 'control');
     }
 
     public function getModeOptions(): array

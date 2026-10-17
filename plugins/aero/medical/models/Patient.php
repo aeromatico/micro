@@ -92,6 +92,10 @@ class Patient extends Model
 
     public function beforeValidate(): void
     {
+        if ($this->is_active === null) {
+            $this->is_active = true;
+        }
+
         if (!$this->exists || !$this->kind) {
             $this->kind = Mode::forTenant($this->tenant_id) ?? Mode::HUMAN;
         }

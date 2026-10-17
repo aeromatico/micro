@@ -1,0 +1,49 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Nombre
+    span: left
+    required: true
+  kind:
+    label: Tipo de nota
+    type: dropdown
+    span: right
+    required: true
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+    span: left
+  sections:
+    label: Secciones
+    type: repeater
+    prompt: Agregar sección
+    span: full
+    comment: En el orden en que aparecen en la nota. Una sola sección puede ser de signos vitales. Cambiar la plantilla no modifica las notas ya escritas.
+    form:
+      fields:
+        label:
+          label: Título
+          span: left
+        type:
+          label: Tipo
+          type: dropdown
+          options:
+            text: Texto
+            vitals: Signos vitales
+          span: left
+        rows:
+          label: Líneas
+          type: number
+          default: 3
+          span: left
+        key:
+          label: Clave
+          span: left
+          comment: Se genera sola; no la cambie en plantillas ya usadas.

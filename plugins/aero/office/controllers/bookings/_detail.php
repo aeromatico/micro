@@ -41,6 +41,12 @@ $workers = $final ? [] : $this->workerChoices($b);
         <?php endif ?>
     </div>
 
+    <?php endif ?>
+    <?php // Punto de extensión: otros plugins (p. ej. Medical «Iniciar consulta») añaden botones aquí. ?>
+    <?php $extra = array_filter((array) Event::fire('aero.office.bookingDetailActions', [$b])); if ($extra): ?>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"><?php foreach ($extra as $html) echo $html; ?></div>
+    <?php endif ?>
+    <?php if (!$final): ?>
     <?php if ($front): ?>
     <div class="row" style="max-width:720px;margin-top:10px">
         <form class="col-sm-6" data-request="onReschedule">
