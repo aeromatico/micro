@@ -360,7 +360,10 @@
     function mountFab() {
         el.fab = h('button', { type: 'button', 'class': 'aco-fab', 'aria-label': 'Soporte rápido' }, []);
         el.fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Ayuda</span>';
-        el.fab.addEventListener('click', function () { open(); });
+        el.fab.addEventListener('click', function () {
+            // Con Aero.Help el botón abre la ayuda guiada; este popup queda como su escalado a soporte.
+            if (window.AeroHelp) { window.AeroHelp.open({ area: guessArea() }); } else { open(); }
+        });
         document.body.appendChild(el.fab);
     }
 
@@ -372,7 +375,7 @@
         }
     });
 
-    window.AeroCommunity = { open: open };
+    window.AeroCommunity = { open: open, startChat: startChat };
     function boot() { mountFab(); resumeChat(); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
 })();
