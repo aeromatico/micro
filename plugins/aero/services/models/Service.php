@@ -290,6 +290,10 @@ class Service extends Model
             if (filled($plan['price'] ?? null)) {
                 $prefix = !empty($plan['price_from']) ? 'Desde ' : '';
                 $lines[] = ['primary' => true, 'text' => $prefix . ($plan['currency'] ?? 'BOB') . ' ' . $plan['price']];
+
+                if ((float) ($plan['setup_fee'] ?? 0) > 0) {
+                    $lines[] = ['primary' => false, 'text' => '+ ' . ($plan['currency'] ?? 'BOB') . ' ' . $plan['setup_fee'] . ' de implementación (una vez)'];
+                }
             }
             elseif ($mode === 'money') {
                 $lines[] = ['primary' => true, 'text' => 'A cotizar'];
@@ -303,13 +307,51 @@ class Service extends Model
 
             $lines[] = ['primary' => empty($lines), 'text' => $plan['credit_price'] . ' ' . ($type->label ?? 'créditos')];
 
-            if ($type && $type->price_bob) {
+            if ($type && $type->price_bob && $mode === 'credits') {
                 $bob = rtrim(rtrim(number_format($plan['credit_price'] * $type->price_bob, 2, '.', ''), '0'), '.');
                 $lines[] = ['primary' => false, 'text' => '≈ Bs ' . $bob];
             }
+
+            if ((int) ($plan['credit_setup_fee'] ?? 0) > 0) {
+                $lines[] = ['primary' => false, 'text' => '+ ' . $plan['credit_setup_fee'] . ' ' . ($type->label ?? 'créditos') . ' de implementación (una vez)'];
+            }
+        }
+
+        if ($mode === 'both' && ($saving = $this->planCurrencySaving($plan))) {
+            $lines[] = ['primary' => false, 'text' => $saving];
         }
 
         return $lines ?: [['primary' => true, 'text' => 'A cotizar']];
+    }
+
+    /**
+     * Los precios en Bs y en créditos son independientes (no una conversión):
+     * si el plan admite ambos, indica cuánto % menos cuesta pagar con la divisa
+     * más barata (primer cobro, implementación incluida; créditos valuados al
+     * precio en Bs del tipo). Null si no hay con qué comparar o cuestan igual.
+     */
+    public function planCurrencySaving(array $plan): ?string
+    {
+        if (!class_exists(\Aero\Credits\Models\CreditType::class) || !filled($plan['price'] ?? null) || !filled($plan['credit_price'] ?? null)) {
+            return null;
+        }
+
+        $type = \Aero\Credits\Models\CreditType::findByCode((string) ($plan['credit_type'] ?? ''));
+        $money = (float) $plan['price'] + (float) ($plan['setup_fee'] ?? 0);
+        $credits = ((float) $plan['credit_price'] + (float) ($plan['credit_setup_fee'] ?? 0)) * (float) ($type->price_bob ?? 0);
+
+        if (!$type || $money <= 0 || $credits <= 0 || abs($money - $credits) < 0.005) {
+            return null;
+        }
+
+        $cheaperIsCredits = $credits < $money;
+        $pct = (int) round((1 - ($cheaperIsCredits ? $credits / $money : $money / $credits)) * 100);
+
+        if ($pct < 1) {
+            return null;
+        }
+
+        return "Ahorras {$pct}% pagando " . ($cheaperIsCredits ? 'con ' . $type->label : 'con saldo en Bs');
     }
 
     public function beforeValidate(): void
@@ -379,14 +421,14 @@ class Service extends Model
                 }
 
                 if ($plan['type'] === 'free') {
-                    $plan['price'] = $plan['setup_fee'] = $plan['credit_price'] = $plan['credit_type'] = null;
+                    $plan['price'] = $plan['setup_fee'] = $plan['credit_price'] = $plan['credit_type'] = $plan['credit_setup_fee'] = null;
                     $plan['price_from'] = false;
                 }
                 elseif ($plan['pricing_mode'] === 'credits') {
                     $plan['price'] = $plan['setup_fee'] = null;
                 }
                 elseif ($plan['pricing_mode'] === 'money') {
-                    $plan['credit_price'] = $plan['credit_type'] = null;
+                    $plan['credit_price'] = $plan['credit_type'] = $plan['credit_setup_fee'] = null;
                 }
 
                 return $plan;

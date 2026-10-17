@@ -190,6 +190,14 @@ tabs:
                         label: Plazo de entrega (días)
                         type: number
                         span: right
+                    section_money:
+                        label: Dinero (Bs)
+                        type: section
+                        comment: Precio cobrado del saldo en Bs del cliente.
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[money] value[both]
                     price:
                         label: Precio
                         comment: Déjalo vacío para "a cotizar".
@@ -211,7 +219,8 @@ tabs:
                             field: pricing_mode
                             condition: value[money] value[both]
                     setup_fee:
-                        label: Costo de implementación (una vez)
+                        label: Costo de implementación en Bs (una vez)
+                        comment: Se suma al precio solo en el primer cobro.
                         type: number
                         step: 0.01
                         span: left
@@ -219,11 +228,10 @@ tabs:
                             action: show
                             field: pricing_mode
                             condition: value[money] value[both]
-                    credit_price:
-                        label: Precio en créditos
-                        comment: Créditos por cobro (por periodo si es recurrente).
-                        type: number
-                        span: right
+                    section_credits:
+                        label: Créditos (monedas)
+                        type: section
+                        comment: Precio cobrado de las monedas del cliente.
                         trigger:
                             action: show
                             field: pricing_mode
@@ -233,6 +241,24 @@ tabs:
                         type: dropdown
                         options: Aero\Services\Classes\PlanOptions::creditTypeOptions
                         emptyOption: '— Elige —'
+                        span: left
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
+                    credit_price:
+                        label: Precio en créditos
+                        comment: Créditos por cobro (por periodo si es recurrente).
+                        type: number
+                        span: right
+                        trigger:
+                            action: show
+                            field: pricing_mode
+                            condition: value[credits] value[both]
+                    credit_setup_fee:
+                        label: Costo de implementación en créditos (una vez)
+                        comment: Se suma al precio solo en el primer cobro, en el mismo tipo de crédito.
+                        type: number
                         span: left
                         trigger:
                             action: show

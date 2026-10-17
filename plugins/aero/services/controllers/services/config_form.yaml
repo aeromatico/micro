@@ -3,7 +3,7 @@ form: $/aero/services/models/service/fields.yaml
 modelClass: Aero\Services\Models\Service
 defaultRedirect: aero/services/services
 create:
-    redirect: aero/services/services/update/:id
+    redirect: aero/services/services
     redirectClose: aero/services/services
 update:
     redirect: aero/services/services

@@ -61,7 +61,7 @@ class Checkout
                 throw new \InvalidArgumentException('Este plan no tiene un precio en créditos configurado.');
             }
 
-            return ['amount' => (int) $plan['credit_price'], 'type' => $type];
+            return ['amount' => (int) $plan['credit_price'] + (int) ($plan['credit_setup_fee'] ?? 0), 'type' => $type];
         }
 
         if ($method === 'money') {
