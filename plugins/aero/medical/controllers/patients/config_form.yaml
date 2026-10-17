@@ -1,0 +1,10 @@
+name: Paciente
+form: $/aero/medical/models/patient/fields.yaml
+modelClass: Aero\Medical\Models\Patient
+defaultRedirect: aero/medical/patients
+create:
+  redirect: aero/medical/patients/update/:id
+  redirectClose: aero/medical/patients
+update:
+  redirect: aero/medical/patients
+  redirectClose: aero/medical/patients

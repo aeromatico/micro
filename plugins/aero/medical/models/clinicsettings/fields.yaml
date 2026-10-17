@@ -1,0 +1,24 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  mode:
+    label: Modo del negocio
+    type: radio
+    span: full
+    required: true
+    comment: Humano o animal. Fija los textos, campos y módulos. Se elige al activar el módulo; cambiarlo después no borra nada.
+  confirm_mode_change:
+    label: Confirmo el cambio de modo
+    type: checkbox
+    span: full
+    comment: Solo hace falta si ya hay pacientes cargados. Los existentes conservan su modo original.
+  enabled:
+    label: Módulo activo
+    type: switch
+    default: true
+    span: full

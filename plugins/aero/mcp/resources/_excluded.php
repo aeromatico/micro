@@ -60,4 +60,7 @@ return [
     \Aero\Help\Models\SearchLog::class => 'búsquedas de ayuda de cada persona, uso interno para mejorar el contenido',
     \Aero\Rgpd\Models\Config::class => 'configuración legal del aviso de cookies (la gestiona el propio tenant en el panel)',
     \Aero\Rgpd\Models\Consent::class => 'prueba de consentimiento de visitantes (datos personales seudonimizados)',
+    \Aero\Medical\Models\Patient::class => 'datos de salud (cifrados): no se exponen por MCP',
+    \Aero\Medical\Models\ClinicSettings::class => 'configuración',
+    \Aero\Medical\Models\AuditLog::class => 'bitácora de accesos a datos de salud',
 ];

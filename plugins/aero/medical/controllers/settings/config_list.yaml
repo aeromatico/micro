@@ -1,0 +1,5 @@
+title: Configuración
+list: $/aero/medical/models/clinicsettings/columns.yaml
+modelClass: Aero\Medical\Models\ClinicSettings
+recordUrl: aero/medical/settings/update/:id
+recordsPerPage: 30

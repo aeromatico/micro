@@ -1,0 +1,126 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+    tab: Identificación
+  name:
+    label: Nombre
+    span: left
+    required: true
+    tab: Identificación
+  document:
+    label: Documento
+    span: right
+    tab: Identificación
+  birth_date:
+    label: Fecha de nacimiento
+    type: datepicker
+    mode: date
+    span: left
+    tab: Identificación
+  approx_age:
+    label: Edad aproximada
+    span: right
+    comment: Si no se conoce la fecha de nacimiento (por ejemplo «3 años»).
+    tab: Identificación
+  sex:
+    label: Sexo
+    type: dropdown
+    emptyOption: — Sin indicar —
+    span: left
+    tab: Identificación
+  species:
+    label: Especie
+    type: dropdown
+    emptyOption: — Elegir —
+    span: right
+    tab: Identificación
+  breed:
+    label: Raza
+    span: left
+    tab: Identificación
+  neutered:
+    label: Esterilizado
+    type: switch
+    span: right
+    tab: Identificación
+  color_marks:
+    label: Color y señas
+    span: left
+    tab: Identificación
+  microchip:
+    label: Microchip
+    span: right
+    tab: Identificación
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
+    tab: Identificación
+  customer_id:
+    label: Cliente de Reservas
+    type: dropdown
+    span: full
+    comment: La persona o el tutor. Sus datos de contacto salen de Reservas; no se duplican aquí.
+    tab: Contacto
+  contact_name:
+    label: Nombre del tutor
+    span: full
+    comment: Solo si el tutor aún no existe como cliente. Se crea (o se reutiliza si el teléfono o correo ya existen).
+    tab: Contacto
+  contact_phone:
+    label: Teléfono
+    span: left
+    tab: Contacto
+  contact_email:
+    label: Correo
+    span: right
+    tab: Contacto
+  weight_kg:
+    label: Peso (kg)
+    type: number
+    step: 0.01
+    span: left
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  blood_type:
+    label: Grupo sanguíneo
+    span: right
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  allergies:
+    label: Alergias
+    type: textarea
+    size: small
+    comment: Se muestran siempre arriba de cada nota.
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  medications:
+    label: Medicación actual
+    type: textarea
+    size: small
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  personal_history:
+    label: Antecedentes personales
+    type: textarea
+    size: large
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  family_history:
+    label: Antecedentes familiares
+    type: textarea
+    size: large
+    permissions: [aero.medical.professional]
+    tab: Clínico
+  clinical_notes:
+    label: Observaciones clínicas
+    type: textarea
+    size: large
+    permissions: [aero.medical.professional]
+    tab: Clínico

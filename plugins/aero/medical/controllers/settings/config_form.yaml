@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/medical/models/clinicsettings/fields.yaml
+modelClass: Aero\Medical\Models\ClinicSettings
+defaultRedirect: aero/medical/settings
+create:
+  redirect: aero/medical/patients
+  redirectClose: aero/medical/patients
+update:
+  redirect: aero/medical/settings
+  redirectClose: aero/medical/patients

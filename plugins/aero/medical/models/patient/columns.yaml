@@ -1,0 +1,38 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+    sortable: true
+  document:
+    label: Documento
+    searchable: true
+  species:
+    label: Especie
+    type: selectable
+    options: getSpeciesOptions
+  breed:
+    label: Raza
+    searchable: true
+  microchip:
+    label: Microchip
+    searchable: true
+  customer:
+    label: Cliente / tutor
+    relation: customer
+    select: name
+    searchable: true
+  sex:
+    label: Sexo
+    type: selectable
+    options: getSexOptions
+  birth_date:
+    label: Nacimiento
+    type: date
+    sortable: true
+  is_active:
+    label: Activo
+    type: switch
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

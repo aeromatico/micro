@@ -459,3 +459,9 @@
 1.80.0:
     - "El rol tenant_admin recibe aero.rgpd.use (Cookies RGPD: aviso de consentimiento de su sitio, apagado por defecto)."
     - grant_rgpd_to_tenant_admin.php
+
+1.81.0:
+    - "Aero.Medical (historia clínica): el rol tenant_admin recibe aero.medical.use/settings/reception/professional; roles medical_admin, medical_receptionist y medical_professional; el plugin entra en el plan PRO."
+    - grant_medical_to_tenant_admin.php
+    - create_medical_roles.php
+    - add_medical_to_pro_plan.php

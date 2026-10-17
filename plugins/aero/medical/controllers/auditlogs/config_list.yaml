@@ -1,0 +1,11 @@
+title: Bitácora
+list: $/aero/medical/models/auditlog/columns.yaml
+modelClass: Aero\Medical\Models\AuditLog
+recordsPerPage: 50
+showSorting: true
+defaultSort:
+  column: created_at
+  direction: desc
+toolbar:
+  search:
+    prompt: Buscar por usuario
