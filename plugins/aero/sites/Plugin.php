@@ -371,15 +371,17 @@ class Plugin extends PluginBase
 
     /**
      * Selector de espacio en el panel general (panel.…): quien administra más
-     * de un tenant elige con cuál trabaja; el primero es el propio. Cambiar =
-     * recargar la página actual con ?tenant={handle} (ver
-     * Tenant::resolveForBackendUser). En el subdominio de un tenant no aparece.
+     * de un tenant elige con cuál trabaja; el primero es el propio. Va en el
+     * menú inferior, justo encima de «Vista previa del Sitio» (mismo punto de
+     * extensión que Wallet/Invitar). Elegir = recargar la página actual con
+     * ?tenant={handle} (ver Tenant::resolveForBackendUser). En el subdominio
+     * de un tenant no aparece.
      */
     protected function bootTenantSwitcher(): void
     {
-        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+        Event::listen('backend.layout.extendMainMenuToolbar', function () {
             $user = BackendAuth::getUser();
-            if ($context !== 'default' || !$user || $user->is_superuser || BackendAuth::isImpersonator()) {
+            if (!$user || $user->is_superuser || BackendAuth::isImpersonator()) {
                 return '';
             }
 
@@ -399,15 +401,26 @@ class Plugin extends PluginBase
                 'current' => $current && $current->id === $t->id,
             ])->all();
             $json = json_encode($options, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+            $name = e($current?->name ?? 'Espacio');
 
-            return '<style>#tenant-switch{position:fixed;bottom:12px;left:12px;z-index:99998;background:#1f2937;color:#fff;'
-                . 'padding:6px 10px;border-radius:999px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center}'
-                . '#tenant-switch select{background:#374151;color:#fff;border:0;border-radius:6px;padding:2px 6px;font-size:12px;max-width:200px}</style>'
-                . '<script>document.addEventListener("DOMContentLoaded",function(){var o=' . $json . ',d=document.createElement("div");d.id="tenant-switch";'
-                . 'var l=document.createElement("span");l.textContent="Espacio:";var s=document.createElement("select");'
-                . 'o.forEach(function(t){var e=document.createElement("option");e.value=t.handle;e.textContent=t.label;e.selected=t.current;s.appendChild(e)});'
-                . 's.onchange=function(){var u=new URL(location.href);u.searchParams.set("tenant",s.value);location.href=u.toString()};'
-                . 'd.appendChild(l);d.appendChild(s);document.body.appendChild(d)})</script>';
+            return '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0">'
+                . '<li class="mainmenu-item" id="tenant-switch" title="Cambiar de espacio"><a href="javascript:;">'
+                . '<span class="nav-icon"><i class="icon-exchange"></i></span><span class="nav-label">' . $name . '</span></a></li></ul></div>'
+                . '<style>#tenant-switch-pop{position:fixed;z-index:99998;background:#1f2937;color:#fff;border-radius:8px;padding:6px;'
+                . 'box-shadow:0 4px 16px rgba(0,0,0,.35);min-width:180px;max-width:260px;font-size:13px}'
+                . '#tenant-switch-pop a{display:block;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none}'
+                . '#tenant-switch-pop a:hover{background:#374151}#tenant-switch-pop a.is-current{font-weight:700;background:#374151}</style>'
+                . '<script>(function(){var o=' . $json . ';function init(){var li=document.getElementById("tenant-switch");if(!li)return;'
+                . 'var pop=null;function close(){if(pop){pop.remove();pop=null}}'
+                . 'li.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();if(pop){close();return}'
+                . 'pop=document.createElement("div");pop.id="tenant-switch-pop";'
+                . 'o.forEach(function(t){var a=document.createElement("a");a.textContent=t.label;if(t.current)a.className="is-current";'
+                . 'a.href="javascript:;";a.onclick=function(){var u=new URL(location.href);u.searchParams.set("tenant",t.handle);location.href=u.toString()};pop.appendChild(a)});'
+                . 'document.body.appendChild(pop);var r=li.getBoundingClientRect();'
+                . 'pop.style.left=Math.min(r.right+6,window.innerWidth-pop.offsetWidth-8)+"px";'
+                . 'pop.style.top=Math.max(8,Math.min(r.top,window.innerHeight-pop.offsetHeight-8))+"px"});'
+                . 'document.addEventListener("click",close)}'
+                . 'document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})()</script>';
         });
     }
 
