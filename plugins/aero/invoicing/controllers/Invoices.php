@@ -1,5 +1,6 @@
 <?php namespace Aero\Invoicing\Controllers;
 
+use Aero\Invoicing\Classes\InvoicePdf;
 use Aero\Invoicing\Classes\InvoiceService;
 use Aero\Invoicing\Classes\ScopesToTenant;
 use Aero\Invoicing\Models\Invoice;
@@ -69,6 +70,23 @@ class Invoices extends Controller
         }
 
         return \Backend::redirect('aero/invoicing/invoices/update/' . $invoice->id);
+    }
+
+    /** Representación gráfica en PDF (si no hay dompdf, versión HTML imprimible). Por el scope del tenant. */
+    public function pdf($id = null)
+    {
+        $invoice = $this->findScoped((int) $id);
+        $renderer = new InvoicePdf();
+        $pdf = $renderer->pdf($invoice);
+
+        if ($pdf === null) {
+            return response($renderer->html($invoice), 200, ['Content-Type' => 'text/html; charset=utf-8']);
+        }
+
+        return response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . InvoicePdf::filename($invoice) . '"',
+        ]);
     }
 
     /** Siempre por el scope del tenant: un id ajeno responde 404, no una factura ajena. */

@@ -180,6 +180,32 @@ class SmokeTest extends PluginTestCase
         InvoiceService::issue($inv);
     }
 
+    public function testPdfRendersIssuedInvoiceWithQrAndWords(): void
+    {
+        $inv = InvoiceService::issue(InvoiceService::create($this->issuer(), $this->data()));
+        $inv->update(['qr_url' => 'https://siat.impuestos.gob.bo/consulta/QR?nit=1&cuf=X&numero=1']);
+
+        $html = (new \Aero\Invoicing\Classes\InvoicePdf())->html($inv->fresh());
+        $this->assertStringContainsString('data:image/svg+xml', $html);
+        $this->assertStringContainsString('Son: ciento trece 00/100 bolivianos', $html);
+        $this->assertStringContainsString('AMBIENTE DE PRUEBAS', $html);
+
+        $draft = InvoiceService::create($this->issuer(1, '999999999'), $this->data());
+        $this->assertStringContainsString('SIN VALOR FISCAL', (new \Aero\Invoicing\Classes\InvoicePdf())->html($draft));
+
+        $pdf = (new \Aero\Invoicing\Classes\InvoicePdf())->pdf($inv->fresh());
+        $this->assertStringStartsWith('%PDF', (string) $pdf);
+    }
+
+    public function testAmountInWords(): void
+    {
+        $w = fn ($n) => \Aero\Invoicing\Classes\InvoicePdf::amountInWords($n);
+        $this->assertSame('Son: mil 50/100 bolivianos', $w(1000.5));
+        $this->assertSame('Son: veintiún mil doscientos cincuenta y uno 00/100 bolivianos', $w(21251));
+        $this->assertSame('Son: cien 00/100 bolivianos', $w(100));
+        $this->assertSame('Son: un millón 99/100 bolivianos', $w(1000000.99));
+    }
+
     public function testTenantScopeFailsClosed(): void
     {
         InvoiceService::create($this->issuer(1), $this->data());

@@ -32,6 +32,9 @@
                     data-request-confirm="¿Anular esta factura? No se puede deshacer."
                     data-load-indicator="Anulando…">Anular factura</button>
             <?php endif ?>
+            <?php if ($inv->exists && $inv->status !== 'draft'): ?>
+                <a href="<?= Backend::url('aero/invoicing/invoices/pdf/' . $inv->id) ?>" target="_blank" class="btn btn-default oc-icon-file-pdf-o">Ver PDF</a>
+            <?php endif ?>
             <a href="<?= Backend::url('aero/invoicing/invoices') ?>" class="btn btn-default">Volver</a>
         </div>
     <?= Form::close() ?>

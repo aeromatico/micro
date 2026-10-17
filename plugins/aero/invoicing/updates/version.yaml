@@ -1,3 +1,5 @@
 1.0.0:
     - "Primera versión: facturación electrónica de Bolivia (SIAT). Emisores por tenant, facturas, caché de CUFD y drivers Simulado y Floogos."
     - create_invoicing_tables.php
+1.1.0:
+    - "Ahora cada factura se puede ver y descargar en PDF, con código QR e importe en letras."
