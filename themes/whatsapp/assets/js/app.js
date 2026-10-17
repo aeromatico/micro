@@ -52,7 +52,7 @@
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
-            newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
+            newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, ixForm: { kind: 'buttons', body: '', buttons: ['', ''], listButton: '', listSection: '', rows: [{ t: '', d: '' }], ctaText: '', ctaUrl: '', callText: '' }, ixBusy: false, quickCard: null, quickBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
             filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }, { id: 'archived', label: 'Archivados' }],
             _timers: [], _toastTimer: null, _seq: 0,
 
@@ -270,7 +270,7 @@
             async loadQuick() {
                 // Se vacía al cambiar de conversación y se descarta toda respuesta que llegue de otra cuenta.
                 var acc = this.current && this.current.account_id ? this.current.account_id : 0;
-                this.quick = [];
+                this.quick = []; this.quickCard = null;
                 try {
                     var rows = await this.api('/quick-replies' + (acc ? '?account_id=' + acc : ''));
                     var now = this.current && this.current.account_id ? this.current.account_id : 0;
@@ -296,12 +296,32 @@
             },
             pickQuick: function (q) {
                 if (!q) return;
+                if (q.structured) {
+                    // botones, menú, ubicación…: no caben en el textarea; se muestra una vista previa para confirmar el envío
+                    if (this.draft.trim().charAt(0) === '/') this.draft = '';
+                    this.quickCard = q; this.slashIdx = 0;
+                    return;
+                }
                 var d = this.draft.trim();
                 this.draft = (d && d.charAt(0) !== '/') ? d + '\n' + q.body : q.body;
                 this.slashIdx = 0; q.uses_count++;
                 this.api('/quick-replies/' + q.id + '/use', { method: 'POST' }).catch(function () {});
                 var self = this;
                 this.$nextTick(function () { var ta = document.querySelector('.composer textarea'); if (ta) { autoGrow(ta); ta.focus(); } });
+            },
+
+            async sendQuickCard() {
+                var c = this.current, q = this.quickCard; if (!c || !q || this.quickBusy) return;
+                this.quickBusy = true;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/quick-replies/' + q.id + '/send', { method: 'POST' });
+                    q.uses_count++; this.quickCard = null;
+                    this.msgs.push(res); this.scrollDown(true);
+                    c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
+                    if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
+                } catch (e) { this.notify(e.message, 8000); }
+                finally { this.quickBusy = false; }
             },
 
             // ---------- nuevo chat ----------
@@ -557,6 +577,39 @@
                     this.spendCredit();
                 } catch (e) { this.notify(e.message, 8000); }
                 finally { this.pollBusy = false; }
+            },
+
+            // ---------- mensajes interactivos (botones, menú, enlace, ubicación, llamada: solo API oficial / Zernio) ----------
+            get canInteractive() {
+                var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
+                return !!(a && a.capabilities && a.capabilities.buttons);
+            },
+            openInteractive: function () {
+                this.ixForm = { kind: 'buttons', body: '', buttons: ['', ''], listButton: '', listSection: '', rows: [{ t: '', d: '' }], ctaText: '', ctaUrl: '', callText: '' };
+                this.sheet = 'interactive';
+            },
+            ixKinds: [['buttons', 'Botones'], ['list', 'Menú'], ['cta_url', 'Enlace'], ['location_request', 'Pedir ubicación'], ['voice_call', 'Llamada']],
+            async sendInteractive() {
+                var c = this.current, f = this.ixForm; if (!c || this.ixBusy) return;
+                if (!f.body.trim()) { this.notify('Escribe el texto del mensaje.'); return; }
+                var body = { kind: f.kind, ix_body: f.body.trim() };
+                if (f.kind === 'buttons') body.buttons = f.buttons.map(function (b) { return b.trim(); }).filter(Boolean);
+                if (f.kind === 'list') {
+                    var rows = f.rows.filter(function (r) { return r.t.trim(); });
+                    body.list_button = f.listButton.trim(); body.list_section = f.listSection.trim();
+                    body.list_rows = rows.map(function (r) { return r.t.trim(); }); body.list_descriptions = rows.map(function (r) { return r.d.trim(); });
+                }
+                if (f.kind === 'cta_url') { body.cta_text = f.ctaText.trim(); body.cta_url = f.ctaUrl.trim(); }
+                if (f.kind === 'voice_call') body.call_text = f.callText.trim();
+                this.ixBusy = true;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/interactive', { method: 'POST', body: body });
+                    this.msgs.push(res); this.sheet = ''; this.scrollDown(true);
+                    c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
+                    if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
+                } catch (e) { this.notify(e.message, 8000); }
+                finally { this.ixBusy = false; }
             },
 
             async refreshAccounts() { try { this.accounts = await this.api('/accounts'); } catch (e) {} },

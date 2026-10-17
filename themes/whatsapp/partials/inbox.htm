@@ -121,17 +121,7 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </div>
 
                 <form class="composer" @submit.prevent="send()" :class="{ note: mode === 'note' }">
-                    <div class="modes" x-show="!recording">
-                        <button type="button" class="chip" :class="{ on: mode === 'reply' }" @click="mode = 'reply'">Responder</button>
-                        <button type="button" class="chip ico emoji-hint" x-show="mode === 'reply'" @click="showEmojiHint()" title="Atajo de emojis del sistema" aria-label="Atajo de emojis del sistema"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
-                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="$refs.file.click()" title="Adjuntar imagen o archivo" aria-label="Adjuntar archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.500 3.500 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L15 7"/></svg></button>
-                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-                        <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
-                        <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
-                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="finishLivechat()" title="Finalizar chat web" aria-label="Finalizar chat web"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M20 6 9 17l-5-5"/></svg></button>
-                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="openBan()" title="Banear visitante" aria-label="Banear visitante"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="m5 5 14 14"/></svg></button>
-                        <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
-                        <template x-if="topQuick.length"><span class="modes-sep" aria-hidden="true"></span></template>
+                    <div class="modes quick-bar" x-show="!recording && topQuick.length" aria-label="Respuestas rápidas">
                         <template x-for="q in topQuick" :key="q.id">
                             <button type="button" class="chip quick" :title="q.title" @click="pickQuick(q)" x-text="q.shortcut"></button>
                         </template>
@@ -154,6 +144,11 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                         <span class="grow" x-text="activeQuote ? quoteLabel(activeQuote) : ''"></span>
                         <button type="button" class="icon-btn" @click="replyTo = null" aria-label="Cancelar cita">✕</button>
                     </div>
+                    <div class="quote-bar quick-card" x-show="quickCard && !recording" x-cloak>
+                        <span class="grow" x-text="quickCard ? quickCard.body : ''"></span>
+                        <button type="button" class="chip" @click="quickCard = null">Cancelar</button>
+                        <button type="button" class="chip on" :disabled="quickBusy" @click="sendQuickCard()" x-text="quickBusy ? 'Enviando…' : 'Enviar'"></button>
+                    </div>
                     <div class="input-row" x-show="!recording">
                         <div class="ta-wrap">
                             <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
@@ -162,6 +157,17 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                             </span>
                         </div>
                         <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+                    </div>
+                    <div class="modes toolbar" x-show="!recording">
+                        <button type="button" class="chip ico emoji-hint" x-show="mode === 'reply'" @click="showEmojiHint()" title="Atajo de emojis del sistema" aria-label="Atajo de emojis del sistema"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="$refs.file.click()" title="Adjuntar imagen o archivo" aria-label="Adjuntar archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.500 3.500 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L15 7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canInteractive && mode === 'reply'" @click="openInteractive()" title="Botones, menú, enlace, ubicación o llamada" aria-label="Mensaje interactivo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="finishLivechat()" title="Finalizar chat web" aria-label="Finalizar chat web"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M20 6 9 17l-5-5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="openBan()" title="Banear visitante" aria-label="Banear visitante"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="m5 5 14 14"/></svg></button>
+                        <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
                     </div>
                 </form>
             </div>
@@ -243,6 +249,52 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
         <button type="button" class="chip" x-show="pollForm.options.length < 12" @click="addPollOption()">+ Agregar opción</button>
         <label class="check"><input type="checkbox" x-model="pollForm.multiple"><span>Permitir elegir varias opciones</span></label>
         <button type="submit" class="btn primary" :disabled="pollBusy" x-text="pollBusy ? 'Enviando…' : 'Enviar encuesta'"></button>
+    </form>
+
+    <form class="sheet" x-show="sheet === 'interactive'" x-transition role="dialog" aria-label="Mensaje interactivo" @submit.prevent="sendInteractive()">
+        <h2>Mensaje interactivo</h2>
+        <div class="chips-wrap">
+            <template x-for="k in ixKinds" :key="k[0]"><button type="button" class="chip" :class="{ on: ixForm.kind === k[0] }" @click="ixForm.kind = k[0]" x-text="k[1]"></button></template>
+        </div>
+        <label class="field"><span>Texto del mensaje</span><textarea x-model="ixForm.body" rows="3" maxlength="1024" placeholder="¿En qué te ayudamos?" required></textarea></label>
+
+        <template x-if="ixForm.kind === 'buttons'"><div class="stack">
+            <template x-for="(b, i) in ixForm.buttons" :key="i">
+                <div class="poll-opt">
+                    <input type="text" x-model="ixForm.buttons[i]" maxlength="20" :placeholder="'Botón ' + (i + 1) + ' (máx. 20)'" :aria-label="'Botón ' + (i + 1)">
+                    <button type="button" class="icon-btn" x-show="ixForm.buttons.length > 1" @click="ixForm.buttons.splice(i, 1)" aria-label="Quitar botón"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+                </div>
+            </template>
+            <button type="button" class="chip" x-show="ixForm.buttons.length < 3" @click="ixForm.buttons.push('')">+ Agregar botón</button>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'list'"><div class="stack">
+            <label class="field"><span>Texto del botón del menú</span><input type="text" x-model="ixForm.listButton" maxlength="20" placeholder="Ver opciones"></label>
+            <label class="field"><span>Título de la sección (opcional)</span><input type="text" x-model="ixForm.listSection" maxlength="24"></label>
+            <template x-for="(r, i) in ixForm.rows" :key="i">
+                <div class="ix-row">
+                    <div class="poll-opt">
+                        <input type="text" x-model="r.t" maxlength="24" :placeholder="'Opción ' + (i + 1) + ' (máx. 24)'" :aria-label="'Opción ' + (i + 1)">
+                        <button type="button" class="icon-btn" x-show="ixForm.rows.length > 1" @click="ixForm.rows.splice(i, 1)" aria-label="Quitar opción"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+                    </div>
+                    <div class="poll-opt"><input type="text" x-model="r.d" maxlength="72" placeholder="Descripción (opcional)" :aria-label="'Descripción ' + (i + 1)"></div>
+                </div>
+            </template>
+            <button type="button" class="chip" x-show="ixForm.rows.length < 10" @click="ixForm.rows.push({ t: '', d: '' })">+ Agregar opción</button>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'cta_url'"><div class="stack">
+            <label class="field"><span>Texto del botón</span><input type="text" x-model="ixForm.ctaText" maxlength="20" placeholder="Ver catálogo" required></label>
+            <label class="field"><span>Enlace</span><input type="url" x-model="ixForm.ctaUrl" placeholder="https://" required></label>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'voice_call'">
+            <label class="field"><span>Texto del botón (opcional)</span><input type="text" x-model="ixForm.callText" maxlength="20" placeholder="Llamar"></label>
+        </template>
+
+        <p class="muted" x-show="ixForm.kind === 'location_request'">El cliente verá un botón para enviarte su ubicación.</p>
+        <p class="muted">Solo se entregan dentro de las 24 h desde el último mensaje del cliente.</p>
+        <button type="submit" class="btn primary" :disabled="ixBusy" x-text="ixBusy ? 'Enviando…' : 'Enviar'"></button>
     </form>
 
     <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
