@@ -1,0 +1,43 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Vacuna
+    span: full
+    required: true
+  species:
+    label: Especie
+    type: dropdown
+    span: left
+    comment: Solo animal. «Todas» si aplica a cualquier especie.
+  booster_every_days:
+    label: Refuerzo periódico cada (días)
+    type: number
+    span: right
+    comment: Días desde la última dosis hasta el próximo refuerzo. Vacío = sin refuerzo.
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+    span: left
+  schedule:
+    label: Esquema de dosis
+    type: repeater
+    prompt: Agregar dosis
+    span: full
+    comment: En orden. La primera dosis no lleva días; las demás, los días desde la dosis anterior. Lo define el negocio (esquema oficial vigente o el que usted indique): el sistema no trae cifras de fábrica.
+    form:
+      fields:
+        label:
+          label: Dosis
+          span: left
+          placeholder: 1.ª dosis
+        after_days:
+          label: Días desde la anterior
+          type: number
+          span: right

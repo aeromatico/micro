@@ -22,6 +22,19 @@ Como **datos y configuración**, no como dos plugins ni `if` repartidos:
 - **Animal:** solo medicamentos del negocio o texto libre.
 - Dosis, vía, frecuencia, duración, cantidad e indicaciones las escribe siempre el profesional. Todo va cifrado.
 
+## Fase 4: vacunas, archivos, documentos, importación y exportación
+- **Vacunación:** catálogo y esquema (dosis y días entre una y otra, refuerzo periódico) definidos por el negocio; el sistema no trae cifras.
+  La próxima dosis sale del esquema o se indica a mano. Calendario del paciente con vencidas/próximas y «Agendar» (Office, `BookingService`).
+- **Recordatorios:** `medical:remind` (diario 09:00). Apagado por defecto, por negocio (`vaccine_reminders`). Notify `medical.vaccine.due`;
+  en personas el aviso no nombra la vacuna. El evento `aero.medical.vaccineDue` lleva solo ids.
+- **Archivos clínicos:** cifrados en disco (`storage/app/medical-private`, nombre aleatorio), tipo decidido por el contenido (PDF, PNG, JPG, WebP, Word, texto),
+  máx. 20 MB, lectura solo por `Controllers\Files` (permiso clínico + tenant + bitácora) con `nosniff` y CSP `sandbox`. Los resultados numéricos de un estudio van a la hoja.
+- **Formatos de documentos:** texto plano con `{{variables}}` conocidas (se rechazan las desconocidas); el documento emitido guarda el texto ya resuelto,
+  con huella, firma y sello; borrador editable por su autor. Los datos faltantes salen como `__________` y solo un consentimiento puede emitirse así.
+- **Importación:** el original se conserva; la asociación (documento/nombre en el nombre del archivo y en el texto de Word/txt) es una *sugerencia*: nada entra
+  a una ficha hasta que una persona la confirma. PDF e imágenes solo se asocian por el nombre del archivo.
+- **Exportación:** ZIP con JSON descifrado y los archivos originales, por paciente y del negocio (propietario). Quedan en la bitácora.
+
 ## Seguridad
 - Texto clínico cifrado en la BD (`encrypted`). Firma y sello cifrados en la BD (nginx publica `storage/`, ni el disco «protegido» es privado).
 - Nota firmada = inmutable (modelo + huella SHA-256 con contenido, signos vitales, diagnósticos, receta, órdenes y cuestionarios). Cambios = adendas.

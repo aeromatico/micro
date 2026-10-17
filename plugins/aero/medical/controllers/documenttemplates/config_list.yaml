@@ -1,0 +1,10 @@
+title: Formatos de documentos
+list: $/aero/medical/models/documenttemplate/columns.yaml
+modelClass: Aero\Medical\Models\DocumentTemplate
+recordUrl: aero/medical/documenttemplates/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

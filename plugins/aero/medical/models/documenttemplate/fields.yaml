@@ -1,0 +1,30 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.medical.superadmin
+  name:
+    label: Nombre
+    span: left
+    required: true
+  kind:
+    label: Tipo
+    type: dropdown
+    span: right
+    default: certificate
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
+  body:
+    label: Texto del formato
+    type: textarea
+    size: giant
+    span: full
+    required: true
+    commentHtml: true
+    comment: 'Variables: {{paciente}} {{documento}} {{edad}} {{fecha_nacimiento}} {{sexo}} {{tutor}} {{especie}} {{raza}} {{microchip}} {{fecha}} {{hora}} {{profesional}} {{matricula}} {{especialidad}} {{negocio}} {{diagnostico}} {{diagnosticos}} {{motivo}}. Si un dato no existe sale una línea en blanco.'

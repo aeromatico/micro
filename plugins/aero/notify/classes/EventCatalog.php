@@ -25,6 +25,7 @@ class EventCatalog
             static::crm(),
             static::shop(),
             static::office(),
+            static::medical(),
             static::community(),
             static::support(),
             static::hello(),
@@ -622,6 +623,29 @@ class EventCatalog
             $mk('office.booking.rescheduled_by_customer', 'Reserva reprogramada por el cliente', 'El cliente movió su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
             $mk('office.booking.reminder', 'Recordatorio de cita', 'Recordatorio al cliente antes de su cita (horas configurables por negocio).', ['actor'], ['whatsapp', 'email'], 4),
         ];
+    }
+
+    /** Aero.Medical: avisos al cliente (persona o tutor). Los dispara Aero\Medical\Classes\Notifier; nunca llevan contenido de notas clínicas. */
+    protected static function medical(): array
+    {
+        $vars = [
+            'customer_name' => ['type' => 'string', 'required' => true,  'label' => 'Cliente o tutor'],
+            'patient_name'  => ['type' => 'string', 'required' => true,  'label' => 'Paciente'],
+            'vaccine_text'  => ['type' => 'string', 'required' => true,  'label' => 'Qué vacuna (genérico en personas)'],
+            'due_date'      => ['type' => 'string', 'required' => true,  'label' => 'Fecha de la dosis'],
+            'business_name' => ['type' => 'string', 'required' => false, 'label' => 'Negocio'],
+        ];
+        $sample = [
+            'customer_name' => 'María Quispe', 'patient_name' => 'Firulais', 'vaccine_text' => 'una dosis de vacuna',
+            'due_date' => 'martes 13/10', 'business_name' => 'Veterinaria Patitas', 'tenant_name' => 'Demo',
+        ];
+
+        return [[
+            'code' => 'medical.vaccine.due', 'source_plugin' => 'Aero.Medical', 'category' => 'health', 'name' => 'Vacuna próxima',
+            'description' => 'Recordatorio al cliente o tutor de una dosis de vacuna que se acerca (se activa por negocio; apagado por defecto).',
+            'priority' => 3, 'default_audiences' => ['actor'], 'default_channels' => ['whatsapp', 'email'],
+            'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ]];
     }
 
     /** Aero.Community: foro, sugerencias y soporte rápido. Los emite classes/Bridges.php desde los eventos aero.community.*. */

@@ -82,4 +82,10 @@ return [
     \Aero\Medical\Models\Analyte::class => 'analitos del negocio (configuración)',
     \Aero\Medical\Models\LabResult::class => 'resultados de laboratorio: datos de salud',
     \Aero\Medical\Models\Range::class => 'rangos alto/bajo del negocio (configuración clínica)',
+    \Aero\Medical\Models\MedicalFile::class => 'archivos clínicos (cifrados): datos de salud',
+    \Aero\Medical\Models\ImportBatch::class => 'lotes de importación de historias (datos de salud pendientes de asociar)',
+    \Aero\Medical\Models\Vaccine::class => 'catálogo de vacunas del negocio (configuración clínica)',
+    \Aero\Medical\Models\Vaccination::class => 'vacunas aplicadas: datos de salud',
+    \Aero\Medical\Models\DocumentTemplate::class => 'formatos de documentos del negocio (configuración)',
+    \Aero\Medical\Models\MedicalDocument::class => 'documentos clínicos emitidos (cifrados): datos de salud',
 ];

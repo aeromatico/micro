@@ -1,0 +1,10 @@
+title: Vacunas
+list: $/aero/medical/models/vaccine/columns.yaml
+modelClass: Aero\Medical\Models\Vaccine
+recordUrl: aero/medical/vaccines/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

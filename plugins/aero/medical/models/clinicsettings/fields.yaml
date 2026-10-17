@@ -26,6 +26,16 @@ fields:
     label: Plantilla con la que abre cada Control
     type: dropdown
     span: right
+  vaccine_reminders:
+    label: Avisar al cliente las vacunas próximas
+    type: switch
+    span: left
+    comment: Apagado por defecto. Al activarlo, cada día se avisa por WhatsApp o correo (Aero.Notify) al cliente o tutor. En personas el aviso no nombra la vacuna.
+  reminder_days_before:
+    label: Días de anticipación
+    type: number
+    default: 7
+    span: right
   enabled:
     label: Módulo activo
     type: switch

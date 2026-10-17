@@ -35,7 +35,7 @@ class Audit
     {
         return [
             'view' => 'Abrió', 'create' => 'Creó', 'update' => 'Editó', 'delete' => 'Eliminó', 'restore' => 'Restauró',
-            'settings' => 'Cambió la configuración', 'sign' => 'Firmó', 'print' => 'Imprimió', 'export' => 'Exportó',
+            'settings' => 'Cambió la configuración', 'sign' => 'Firmó', 'print' => 'Imprimió', 'export' => 'Exportó', 'addendum' => 'Agregó una adenda', 'import' => 'Importó archivos', 'download' => 'Descargó un archivo',
         ];
     }
 }

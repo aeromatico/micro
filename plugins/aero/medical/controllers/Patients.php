@@ -117,6 +117,84 @@ class Patients extends Controller
         return $this->sheetUpdate($p);
     }
 
+    // ---- Vacunación, estudios, documentos y control (cada handler refresca su sección) ----
+
+    public function update_onApplyVaccine($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        $this->orFail(fn () => app(\Aero\Medical\Classes\VaccineService::class)->apply($p, [
+            'vaccine_id' => post('vaccine_id'), 'vaccine_name' => post('vaccine_name'), 'dose_label' => post('dose_label'), 'applied_on' => post('applied_on'),
+            'lot' => post('lot'), 'next_due_on' => post('next_due_on'), 'notes' => post('notes'),
+        ], \BackendAuth::getUser()));
+
+        return ['#mf-vaccines' => $this->makePartial('vaccines', ['p' => $p])];
+    }
+
+    public function update_onDeleteVaccination($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        \Aero\Medical\Models\Vaccination::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->findOrFail((int) post('vaccination_id'))->delete();
+
+        return ['#mf-vaccines' => $this->makePartial('vaccines', ['p' => $p])];
+    }
+
+    public function update_onUploadStudy($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        $file = \Request::file('study_file');
+        if (!$file instanceof \Illuminate\Http\UploadedFile) {
+            throw new \ApplicationException('Elija un archivo.');
+        }
+
+        $this->orFail(fn () => app(\Aero\Medical\Classes\FileService::class)->attach($p, $file, [
+            'kind' => post('kind'), 'title' => post('title'), 'taken_on' => post('taken_on'), 'consultation_id' => post('consultation_id'),
+            'notes' => post('notes'), 'results' => (array) post('results', []),
+        ], \BackendAuth::getUser()));
+        \Flash::success('Archivo guardado (cifrado).');
+
+        return $this->sheetUpdate($p) + ['#mf-studies' => $this->makePartial('studies', ['p' => $p])];
+    }
+
+    public function update_onDeleteFile($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        \Aero\Medical\Models\MedicalFile::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->findOrFail((int) post('file_id'))->delete();
+
+        return ['#mf-studies' => $this->makePartial('studies', ['p' => $p])];
+    }
+
+    public function update_onGenerateDocument($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        $t = \Aero\Medical\Models\DocumentTemplate::forTenant((int) $p->tenant_id)->where('is_active', true)->findOrFail((int) post('template_id'));
+        $c = post('consultation_id') ? \Aero\Medical\Models\Consultation::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->findOrFail((int) post('consultation_id')) : null;
+
+        $doc = $this->orFail(fn () => app(\Aero\Medical\Classes\DocumentService::class)->generate($p, $t, \BackendAuth::getUser(), $c));
+
+        return \Backend::redirect('aero/medical/documents/update/' . $doc->id);
+    }
+
+    public function update_onBookControl($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        $b = $this->orFail(fn () => \Aero\Medical\Classes\Scheduling::bookControl($p, [
+            'branch_id' => post('branch_id'), 'service_id' => post('service_id'), 'worker_id' => post('worker_id'),
+            'starts_at' => post('starts_at'), 'reason' => post('reason'),
+        ], \BackendAuth::getUser()));
+        \Flash::success('Control agendado para el ' . $b->starts_at->format('d/m/Y H:i') . ' (reserva ' . $b->code . ').');
+
+        return ['#mf-book' => $this->makePartial('book', ['p' => $p])];
+    }
+
+    protected function orFail(callable $fn)
+    {
+        try {
+            return $fn();
+        } catch (\Aero\Medical\Classes\MedicalException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+    }
+
     protected function sheetUpdate(Patient $p): array
     {
         return ['#mc-sheet' => $this->makePartial('sheet', ['p' => $p]), '#mc-labs' => $this->makePartial('labs', ['p' => $p])];

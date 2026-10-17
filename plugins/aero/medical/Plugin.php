@@ -26,6 +26,7 @@ class Plugin extends PluginBase
     {
         $this->registerConsoleCommand('medical:import-cie10', \Aero\Medical\Console\ImportCie10::class);
         $this->registerConsoleCommand('medical:import-liname', \Aero\Medical\Console\ImportLiname::class);
+        $this->registerConsoleCommand('medical:remind', \Aero\Medical\Console\RemindCommand::class);
     }
 
     public function boot(): void
@@ -44,6 +45,11 @@ class Plugin extends PluginBase
                 ? '<a class="btn btn-primary" href="' . e(Backend::url('aero/medical/consultations/update/' . $note->id)) . '">Abrir la nota clínica</a>'
                 : '<a class="btn btn-primary" href="' . e(Backend::url('aero/medical/today/booking/' . $booking->id)) . '">Iniciar consulta</a>';
         });
+    }
+
+    public function registerSchedule($schedule): void
+    {
+        $schedule->command('medical:remind')->dailyAt('09:00');
     }
 
     public function registerPermissions(): array
@@ -102,6 +108,10 @@ class Plugin extends PluginBase
                     'analytes' => $item('Analitos', 'icon-tags', 'analytes', $catalog),
                     'questionnaires' => $item('Cuestionarios', 'icon-file-text', 'questionnaires', $catalog),
                     'ranges' => $item('Rangos alto/bajo', 'icon-bar-chart', 'ranges', $catalog),
+                    'vaccines' => $item('Vacunas', 'icon-tags', 'vaccines', $catalog),
+                    'documenttemplates' => $item('Formatos de documentos', 'icon-file-text', 'documenttemplates', $catalog),
+                    'imports' => $item('Importar historias', 'icon-list', 'imports', $catalog),
+                    'exports' => $item('Exportar datos', 'icon-list', 'exports', $catalog),
                     'auditlogs' => $item('Bitácora', 'icon-list', 'auditlogs', $owner),
                     'settings'  => $item('Configuración', 'icon-cog', 'settings', $owner),
                 ],

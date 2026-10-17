@@ -19,3 +19,19 @@
 
 1.4.0:
     - "Cuestionarios configurables con puntaje sumado e interpretación por rangos."
+
+1.5.0:
+    - "Vacunación: catálogo de vacunas con esquema, dosis aplicadas, próxima dosis y calendario del paciente."
+    - create_complement_tables.php
+
+1.6.0:
+    - "Imágenes diagnósticas y exámenes de laboratorio con archivos cifrados y resultados numéricos en la hoja."
+
+1.7.0:
+    - "Formatos de documentos con variables: certificados, constancias, informes y consentimientos con firma y sello."
+
+1.8.0:
+    - "Importación asistida de historias anteriores y exportación completa de los datos del paciente y del negocio."
+
+1.9.0:
+    - "Recordatorios de vacuna al cliente y agendar un control desde la ficha del paciente."

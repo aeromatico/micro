@@ -1,0 +1,10 @@
+name: Vacuna
+form: $/aero/medical/models/vaccine/fields.yaml
+modelClass: Aero\Medical\Models\Vaccine
+defaultRedirect: aero/medical/vaccines
+create:
+  redirect: aero/medical/vaccines
+  redirectClose: aero/medical/vaccines
+update:
+  redirect: aero/medical/vaccines
+  redirectClose: aero/medical/vaccines

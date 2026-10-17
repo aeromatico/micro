@@ -182,3 +182,7 @@
 1.5.9:
     - "Eventos de tickets de soporte (Aero.Crm): support.ticket.received/opened/customer_replied/agent_replied y platform_opened/platform_customer_replied, con reglas y plantillas por defecto. Antes los tickets no enviaban ningún correo."
     - seed_support_ticket_events.php
+
+1.5.10:
+    - "Aviso de vacuna próxima (medical.vaccine.due) para Historia clínica, con su regla y plantilla por defecto."
+    - seed_medical_events.php

@@ -84,6 +84,8 @@ if (class_exists(\Aero\Office\Models\Booking::class) && $p->customer_id) {
         <?= Form::close() ?>
         <div id="mc-labs" style="margin-top:10px"><?= $this->makePartial('labs', ['p' => $p]) ?></div>
     </div>
+
+    <?= $this->makePartial('extras', ['p' => $p]) ?>
 </section>
 </div>
 <script>
