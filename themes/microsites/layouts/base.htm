@@ -1,4 +1,6 @@
 description = "Layout base — dark mode, SEO, Alpine.js"
+
+[rgpdBanner]
 ==
 {% set tenant = sitesSeo.tenant %}
 {% set customLayout = tenant and tenant.layout and tenant.layout.mode == 'custom' and tenant.layout.custom_html %}
@@ -13,7 +15,7 @@ description = "Layout base — dark mode, SEO, Alpine.js"
    dos placeholders literales en su HTML. Ver Aero\Sites\Models\Layout
    y la pestaña "Plantilla" del editor de contenidos. #}
 {% set pageContent %}{% page %}{% endset %}
-{% set frameworkScripts %}{% framework extras %}{% endset %}
+{% set frameworkScripts %}{% framework extras %}{% component 'rgpdBanner' %}{% endset %}
 {{ tenant.layout.custom_html
     | replace({
         '<!-- AERO:CONTENT -->': pageContent,
@@ -127,6 +129,8 @@ description = "Layout base — dark mode, SEO, Alpine.js"
     {% if not underConstruction and (layoutOn or tenant.layout.show_footer) %}
     {% partial 'site/footer' %}
     {% endif %}
+
+    {% component 'rgpdBanner' %}
 
 </body>
 </html>
