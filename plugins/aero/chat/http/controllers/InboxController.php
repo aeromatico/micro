@@ -380,6 +380,96 @@ class InboxController extends Controller
         ], 202);
     }
 
+    /**
+     * POST conversations/{id}/interactive {kind: buttons|list|cta_url|location_request|voice_call, ix_body, ...}
+     * — mensaje interactivo de la API oficial de WhatsApp (Zernio). Misma validación que Hello → Redactar.
+     */
+    public function interactive(Request $request, $id)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        $kind = (string) $request->input('kind');
+        if (!in_array($kind, \Aero\Hello\Classes\StructuredMessage::INTERACTIVE, true) || !$conversation->account->can($kind)) {
+            return $this->error('unsupported', 'Este número no admite botones ni menús (solo la API oficial de WhatsApp).', 422);
+        }
+
+        $data = $this->check($request, [
+            'ix_body' => 'required|string|max:1024',
+            'buttons' => 'nullable|array|max:3', 'buttons.*' => 'nullable|string|max:20',
+            'list_button' => 'nullable|string|max:20', 'list_section' => 'nullable|string|max:24',
+            'list_rows' => 'nullable|array|max:10', 'list_rows.*' => 'nullable|string|max:24',
+            'list_descriptions' => 'nullable|array', 'list_descriptions.*' => 'nullable|string|max:72',
+            'cta_text' => 'nullable|string|max:20', 'cta_url' => 'nullable|string|max:2000',
+            'call_text' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $structured = \Aero\Hello\Classes\StructuredMessage::build($kind, $data);
+        } catch (\InvalidArgumentException $e) {
+            return $this->error('validation_failed', $e->getMessage(), 422);
+        }
+
+        return $this->deliverStructured($request, $conversation, $kind, $structured);
+    }
+
+    /** Cobra un crédito, envía un mensaje estructurado y lo devuelve en el formato de la bandeja. */
+    protected function deliverStructured(Request $request, Conversation $conversation, string $type, array $structured)
+    {
+        try {
+            $tx = ApiCredits::charge($this->tenantId($request));
+        } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
+            return $this->error('insufficient_credits', $e->getMessage(), 402);
+        }
+
+        try {
+            $message = MessageComposer::sendToContact($conversation->account, $conversation->contact_id, $structured['body'],
+                ['type' => $type, 'provider_payload' => $structured['payload'], 'credit_transaction_id' => $tx]);
+        } catch (\Throwable $e) {
+            return $this->error('send_failed', $e->getMessage(), 422);
+        }
+
+        $update = ['unread_count' => 0];
+        if (!$conversation->assigned_to) {
+            $update['assigned_to'] = $request->attributes->get('chat_user')->id;
+        }
+        $conversation->update($update);
+
+        return $this->data([
+            'kind' => 'message', 'id' => 'm' . $message->id, 'direction' => 'outbound', 'type' => $type,
+            'body' => $message->body, 'status' => $message->status, 'at' => optional($message->created_at)->toIso8601String(),
+        ], 202);
+    }
+
+    /** POST conversations/{id}/quick-replies/{qid}/send — envía una respuesta rápida estructurada (botones, menú…) resuelta para la cuenta del chat. */
+    public function sendQuick(Request $request, $id, $qid)
+    {
+        $conversation = $this->find($request, $id);
+        if (!$conversation) {
+            return $this->notFound();
+        }
+
+        $reply = class_exists(\Aero\Crm\Models\QuickReply::class)
+            ? \Aero\Crm\Models\QuickReply::inScope($this->tenantId($request))->active()->find($qid)
+            : null;
+        if (!$reply) {
+            return $this->notFound();
+        }
+
+        $name = trim((string) optional($conversation->contact)->name);
+        $out = $reply->resolve($conversation->account, ['nombre' => $name, 'name' => $name]);
+
+        if (!$out['payload']) {
+            return $this->error('not_structured', 'Esta respuesta se envía como texto desde el cuadro de mensaje.', 422);
+        }
+
+        $reply->newQuery()->whereKey($reply->id)->increment('uses_count');
+
+        return $this->deliverStructured($request, $conversation, $out['type'], $out);
+    }
+
     /** POST conversations/{id}/location {latitude, longitude, accuracy?} — ubicación del operador. */
     public function location(Request $request, $id)
     {

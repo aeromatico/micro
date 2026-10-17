@@ -29,6 +29,8 @@ Route::prefix('api/v1/chat')->middleware(['api', ForceJson::class])->group(funct
         Route::post('conversations/{id}/reply', [InboxController::class, 'reply']);
         Route::post('conversations/{id}/attachment', [InboxController::class, 'attachment']);
         Route::post('conversations/{id}/poll', [InboxController::class, 'poll']);
+        Route::post('conversations/{id}/quick-replies/{qid}/send', [InboxController::class, 'sendQuick']);
+        Route::post('conversations/{id}/interactive', [InboxController::class, 'interactive']);
         Route::post('conversations/{id}/location', [InboxController::class, 'location']);
         Route::post('conversations/{id}/note', [InboxController::class, 'note']);
         Route::post('conversations/{id}/read', [InboxController::class, 'markRead']);

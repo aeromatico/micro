@@ -13,21 +13,31 @@ class QuickReplyController extends Controller
             return response()->json(['data' => []]);
         }
 
+        $account = ($aid = (int) $request->query('account_id')) && class_exists(\Aero\Hello\Models\Account::class)
+            ? \Aero\Hello\Models\Account::forTenant($this->tenantId($request))->find($aid)
+            : null;
+
         $rows = QuickReply::inScope($this->tenantId($request))->active()
             ->forAccount((int) $request->query('account_id') ?: null)
             ->orderBy('sort_order')->orderBy('shortcut')
-            ->get(['id', 'shortcut', 'title', 'area', 'body', 'sort_order', 'uses_count']);
+            ->get(['id', 'shortcut', 'title', 'area', 'kind', 'config', 'body', 'sort_order', 'uses_count']);
 
-        return response()->json(['data' => $rows->map(fn ($r) => [
+        return response()->json(['data' => $rows->map(function ($r) use ($account) {
+            $out = $r->resolve($account);
+
+            return [
             'id'         => $r->id,
             'shortcut'   => $r->shortcut,
             'title'      => $r->title,
             'area'       => $r->area,
             'area_label' => $r->area_label,
-            'body'       => $r->body,
+            'body'       => $out['body'],
+            'structured' => $out['payload'] !== null,
+            'kind'       => $out['type'] ?? 'text',
             'sort_order' => (int) $r->sort_order,
             'uses_count' => (int) $r->uses_count,
-        ])->all()]);
+            ];
+        })->all()]);
     }
 
     /** POST quick-replies/{id}/use — suma un uso (atómico). */
