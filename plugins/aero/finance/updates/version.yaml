@@ -13,3 +13,7 @@
 1.3.0:
     - "Contabilidad del portal separada de la de los tenants: cada libro es independiente (el superadmin ve solo el del negocio actual), y el libro del master registra solo las renovaciones de plan y recargas de créditos que cobra la plataforma."
     - add_portal_switch_to_settings.php
+
+1.4.0:
+    - "Finanzas registra de forma automática los cobros de la atención clínica (Historia clínica), sin datos clínicos en el asiento."
+    - add_medical_switch_to_settings.php

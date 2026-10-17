@@ -30,3 +30,9 @@ fields:
     type: switch
     span: right
     default: true
+  post_medical:
+    label: Cobros de la atención clínica
+    type: switch
+    span: right
+    default: true
+    comment: Asienta cada cobro registrado en Historia clínica. El asiento no lleva datos clínicos (solo «Atención #n» y el cliente).

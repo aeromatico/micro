@@ -15,6 +15,9 @@ class Listeners
         \Event::listen('aero.shop.orderPaid', fn ($order) => self::safely(fn () => self::shopPaid($order)));
         \Event::listen('aero.shop.orderRefunded', fn ($order) => self::safely(fn () => self::voidBySource('shop_order', $order->id, $order->tenant_id, 'Pedido reembolsado')));
         \Event::listen('aero.gym.membershipActivated', fn ($m) => self::safely(fn () => self::gymActivated($m)));
+        // Historia clínica (solo ids en el evento; el asiento no lleva nada clínico).
+        \Event::listen('aero.medical.chargePaid', fn ($p) => self::safely(fn () => self::medicalPaid($p)));
+        \Event::listen('aero.medical.chargeVoided', fn ($p) => self::safely(fn () => self::voidBySource('medical_charge', $p['charge_id'] ?? 0, $p['tenant_id'] ?? 0, 'Cobro anulado')));
 
         self::registerPortalSources();
     }
@@ -157,6 +160,36 @@ class Listeners
             'description'         => 'Membresía ' . ($name ?: '#' . $m->id),
             'counterparty'        => $m->member?->name,
         ], ['type' => 'gym_membership', 'id' => $m->id]);
+    }
+
+    protected static function medicalPaid($payload): void
+    {
+        if (!class_exists(\Aero\Medical\Models\Charge::class)) {
+            return;
+        }
+        $c = \Aero\Medical\Models\Charge::find((int) ($payload['charge_id'] ?? 0));
+        if (!$c || $c->status !== 'paid' || (float) $c->amount <= 0) {
+            return;
+        }
+        $tenantId = (int) $c->tenant_id;
+        if (!FinanceSettings::allows($tenantId, 'medical') || self::exists($tenantId, 'medical_charge', $c->id)) {
+            return;
+        }
+
+        AccountSeeder::ensure($tenantId);
+        $currency = strtoupper($c->currency ?: 'BOB');
+        $customer = $c->patient?->customer?->name;
+
+        app(MovementService::class)->record($tenantId, [
+            'kind'                => 'income',
+            'date'                => ($c->paid_at ?: now())->toDateString(),
+            'amount'              => round((float) $c->amount, 2),
+            'currency'            => $currency,
+            'category_account_id' => AccountSeeder::system($tenantId, 'memberships')->id,   // «Membresías y servicios»
+            'cash_account_id'     => AccountSeeder::system($tenantId, in_array($c->method, ['qr', 'transfer'], true) ? 'bank' : 'cash')->id,
+            'description'         => 'Atención #' . $c->id,                                  // genérico: sin concepto ni diagnóstico
+            'counterparty'        => $customer,
+        ], ['type' => 'medical_charge', 'id' => $c->id]);
     }
 
     protected static function voidBySource(string $type, $id, $tenantId, string $reason): void
