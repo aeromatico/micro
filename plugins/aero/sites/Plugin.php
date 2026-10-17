@@ -46,6 +46,7 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         $this->registerApiRoutes();
+        $this->bootPanelRootRedirect();
         $this->bootSiteContext();
         $this->bootDashboardIndicators();
         $this->bootDashboardGuards();
@@ -62,6 +63,7 @@ class Plugin extends PluginBase
         $this->bootProFeaturesGate();
         $this->bootHideSystemMenuForTenants();
         $this->bootImpersonationBar();
+        $this->bootTenantSwitcher();
     }
 
     /**
@@ -344,6 +346,67 @@ class Plugin extends PluginBase
             $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/backend-compact.css') . '?v=' . filemtime($cssPath);
 
             return '<link rel="stylesheet" href="' . $assetUrl . '">';
+        });
+    }
+
+    /**
+     * La raíz del host del panel (APP_URL, panel.…) solo sirve para entrar: va
+     * directo al backend. El resto de hosts (market.com.bo, tenants) no cambia.
+     */
+    protected function bootPanelRootRedirect(): void
+    {
+        if (App::runningInConsole()) {
+            return;
+        }
+
+        $panelHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+
+        if (!$panelHost) {
+            return;
+        }
+
+        Route::middleware(['web'])->domain($panelHost)->get('/', fn () => redirect(Backend::url('/')));
+    }
+
+    /**
+     * Selector de espacio en el panel general (panel.…): quien administra más
+     * de un tenant elige con cuál trabaja; el primero es el propio. Cambiar =
+     * recargar la página actual con ?tenant={handle} (ver
+     * Tenant::resolveForBackendUser). En el subdominio de un tenant no aparece.
+     */
+    protected function bootTenantSwitcher(): void
+    {
+        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+            $user = BackendAuth::getUser();
+            if ($context !== 'default' || !$user || $user->is_superuser || BackendAuth::isImpersonator()) {
+                return '';
+            }
+
+            if (Tenant::resolveFromSubdomain(request()->getHost())) {
+                return '';
+            }
+
+            $tenants = Tenant::accessibleFor($user);
+            if ($tenants->count() < 2) {
+                return '';
+            }
+
+            $current = Tenant::resolveForBackendUser($user);
+            $options = $tenants->map(fn ($t) => [
+                'handle'  => $t->handle,
+                'label'   => $t->name . ((int) $t->backend_user_id === (int) $user->id ? ' ★' : ''),
+                'current' => $current && $current->id === $t->id,
+            ])->all();
+            $json = json_encode($options, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+
+            return '<style>#tenant-switch{position:fixed;bottom:12px;left:12px;z-index:99998;background:#1f2937;color:#fff;'
+                . 'padding:6px 10px;border-radius:999px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.3);display:flex;gap:6px;align-items:center}'
+                . '#tenant-switch select{background:#374151;color:#fff;border:0;border-radius:6px;padding:2px 6px;font-size:12px;max-width:200px}</style>'
+                . '<script>document.addEventListener("DOMContentLoaded",function(){var o=' . $json . ',d=document.createElement("div");d.id="tenant-switch";'
+                . 'var l=document.createElement("span");l.textContent="Espacio:";var s=document.createElement("select");'
+                . 'o.forEach(function(t){var e=document.createElement("option");e.value=t.handle;e.textContent=t.label;e.selected=t.current;s.appendChild(e)});'
+                . 's.onchange=function(){var u=new URL(location.href);u.searchParams.set("tenant",s.value);location.href=u.toString()};'
+                . 'd.appendChild(l);d.appendChild(s);document.body.appendChild(d)})</script>';
         });
     }
 

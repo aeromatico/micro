@@ -454,24 +454,29 @@ class Tenant extends Model
         return null;
     }
 
-    /** URL del backend en el subdominio del tenant (nunca en dominio custom). */
+    /**
+     * URL del backend de este tenant en el panel general (panel.…), con
+     * ?tenant={handle} para que el panel lo deje como espacio activo. Un solo
+     * acceso para todos (soporte, enlaces, invitaciones); el subdominio del
+     * tenant sigue funcionando pero ya no se entrega.
+     */
     public function backendUrl(string $path = 'backend'): string
     {
-        $host = $this->handle . '.' . ($this->rootDomain?->domain ?? request()->getHost());
+        $url = \Backend::url($path);
 
-        return request()->getScheme() . '://' . $host . parse_url(\Backend::url($path), PHP_URL_PATH);
+        return $url . (str_contains($url, '?') ? '&' : '?') . 'tenant=' . urlencode((string) $this->handle);
     }
 
     /**
-     * Cambia el host general del panel (panel.…) por el del tenant en los enlaces
-     * del backend de un texto o URL: así cada cliente recibe siempre enlaces a SU
-     * panel ({handle}.{dominio}). Sin handle o dominio raíz devuelve el texto igual.
+     * Los enlaces del backend de un texto apuntan al panel general con
+     * ?tenant={handle}: el panel abre directo en el espacio de ese cliente.
+     * Los enlaces que ya estén en el subdominio del tenant se dejan igual.
      */
     public static function localizeBackendUrls(int $tenantId, string $text): string
     {
-        $tenant = static::with('rootDomain')->find($tenantId);
+        $tenant = static::find($tenantId);
 
-        if (!$tenant || !$tenant->handle || !$tenant->rootDomain?->domain) {
+        if (!$tenant || !$tenant->handle) {
             return $text;
         }
 
@@ -481,9 +486,56 @@ class Tenant extends Model
             return $text;
         }
 
-        $host = $tenant->handle . '.' . $tenant->rootDomain->domain;
+        return preg_replace_callback(
+            '#(https?://' . preg_quote($panel, '#') . '/backend/[^\s"\'<>)\]]*)#i',
+            fn ($m) => $m[1] . (str_contains($m[1], '?') ? '&' : '?') . 'tenant=' . urlencode($tenant->handle),
+            $text
+        );
+    }
 
-        return preg_replace('#(https?://)' . preg_quote($panel, '#') . '(/backend/)#i', '$1' . $host . '$2', $text);
+    /**
+     * Tenants a los que el usuario puede entrar: primero los que posee, luego
+     * aquellos donde es miembro; dentro de cada grupo, los activos antes.
+     *
+     * @return \Illuminate\Support\Collection<int, self>
+     */
+    public static function accessibleFor(\Backend\Models\User $user): \Illuminate\Support\Collection
+    {
+        $memberOf = TenantUser::where('user_id', $user->id)->pluck('tenant_id');
+
+        return static::where(fn ($q) => $q->where('backend_user_id', $user->id)->orWhereIn('id', $memberOf))
+            ->get()
+            ->sortBy(fn ($t) => [
+                (int) $t->backend_user_id === (int) $user->id ? 0 : 1,
+                $t->status === 'active' ? 0 : 1,
+                mb_strtolower((string) $t->name),
+            ])
+            ->values();
+    }
+
+    /** Fija el tenant activo del panel general (se valida en cada resolución). */
+    public static function rememberActive(\Backend\Models\User $user, self $tenant): bool
+    {
+        if (!$tenant->isAccessibleBy($user)) {
+            return false;
+        }
+
+        session(['aero_sites_active_tenant' => $tenant->id]);
+        return true;
+    }
+
+    /** Admin (dueño) para la lista: nombre y correo; avisa si tiene más de un espacio. */
+    public function getAdminLabelAttribute(): string
+    {
+        $u = $this->backendUser;
+        if (!$u) {
+            return '—';
+        }
+
+        $name  = trim("{$u->first_name} {$u->last_name}") ?: $u->login;
+        $count = static::accessibleFor($u)->count();
+
+        return $name . ' <' . $u->email . '>' . ($count > 1 ? ' · ' . $count . ' espacios' : '');
     }
 
     public function isAccessibleBy(\Backend\Models\User $user): bool
@@ -514,12 +566,20 @@ class Tenant extends Model
             return null;
         }
 
-        $tenant = static::where('backend_user_id', $user->id)->first();
-        if (!$tenant && ($tenantUser = TenantUser::where('user_id', $user->id)->first())) {
-            $tenant = static::find($tenantUser->tenant_id);
+        // Panel general: el tenant elegido en el selector (si sigue siendo
+        // accesible); si no, el propio, y luego el primero donde es miembro.
+        $accessible = static::accessibleFor($user);
+
+        // ?tenant={handle} (enlaces de soporte/invitación) fija el espacio activo.
+        if (($handle = request()->query('tenant')) && is_string($handle)
+            && ($wanted = $accessible->firstWhere('handle', $handle))) {
+            session(['aero_sites_active_tenant' => $wanted->id]);
+            return $wanted;
         }
 
-        return $tenant;
+        $chosen = (int) session('aero_sites_active_tenant', 0);
+
+        return $accessible->firstWhere('id', $chosen) ?? $accessible->first();
     }
 
     protected static function lookupByDomain(string $host): ?self

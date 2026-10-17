@@ -89,7 +89,10 @@ class Tenants extends Controller
         BackendAuth::impersonate($admin);
         trace_log("Impersonación: {$this->user->login} → {$admin->login} (tenant {$tenant->id})");
 
-        return Redirect::to(Backend::url('backend'));
+        // El admin puede tener varios espacios: abrir justo este.
+        session(['aero_sites_active_tenant' => $tenant->id]);
+
+        return Redirect::to($tenant->backendUrl());
     }
 
     // -------------------------------------------------------------------------
