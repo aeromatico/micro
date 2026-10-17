@@ -65,6 +65,7 @@ class Plugin extends PluginBase
         $this->bootHideSystemMenuForTenants();
         $this->bootImpersonationBar();
         $this->bootTenantSwitcher();
+        $this->bootMenuSearch();
     }
 
     /**
@@ -370,10 +371,39 @@ class Plugin extends PluginBase
     }
 
     /**
+     * CSS compartido de las ventanas flotantes del panel (selector de espacio
+     * y buscador de menú): <dialog> modal centrado, fondo sólido y telón con
+     * desenfoque, así no dependen de dónde esté el rail ni de si se contrae.
+     */
+    protected function floatingModalCss(): string
+    {
+        return '<style>'
+            . 'dialog.aero-modal{border:0;padding:0;border-radius:16px;background:#111827;color:#f9fafb;width:min(560px,92vw);max-height:76vh;'
+            . 'box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.08);overflow:hidden;font-size:14px;'
+            . 'margin:12vh auto auto;animation:aero-modal-in .14s ease-out}'
+            . 'dialog.aero-modal.is-center{margin:auto;width:min(420px,92vw)}'
+            . 'dialog.aero-modal::backdrop{background:rgba(3,7,18,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}'
+            . '@keyframes aero-modal-in{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}'
+            . 'dialog.aero-modal .am-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.08)}'
+            . 'dialog.aero-modal .am-head i{opacity:.6;font-size:16px}'
+            . 'dialog.aero-modal .am-head input{flex:1;background:transparent;border:0;outline:0;color:#f9fafb;font-size:16px;padding:0;box-shadow:none}'
+            . 'dialog.aero-modal .am-title{font-weight:600;font-size:15px}'
+            . 'dialog.aero-modal .am-list{padding:8px;overflow-y:auto;max-height:calc(76vh - 110px)}'
+            . 'dialog.aero-modal .am-list a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;color:#f9fafb;text-decoration:none;cursor:pointer}'
+            . 'dialog.aero-modal .am-list a small{color:#9ca3af;font-size:12px}'
+            . 'dialog.aero-modal .am-list a:hover,dialog.aero-modal .am-list a.is-sel{background:#1f2937}'
+            . 'dialog.aero-modal .am-list a.is-current{background:#1e3a8a}'
+            . 'dialog.aero-modal .am-empty{padding:18px;text-align:center;color:#9ca3af}'
+            . 'dialog.aero-modal .am-foot{padding:8px 18px;border-top:1px solid rgba(255,255,255,.08);color:#9ca3af;font-size:12px;display:flex;gap:14px}'
+            . 'dialog.aero-modal kbd{background:#1f2937;border-radius:4px;padding:1px 6px;font-size:11px;color:#d1d5db}'
+            . '</style>';
+    }
+
+    /**
      * Selector de espacio en el panel general (panel.…): quien administra más
-     * de un tenant elige con cuál trabaja; el primero es el propio. Va en el
-     * menú inferior, justo encima de «Vista previa del Sitio» (mismo punto de
-     * extensión que Wallet/Invitar). Elegir = recargar la página actual con
+     * de un tenant elige con cuál trabaja; el primero es el propio. Es un botón
+     * del menú inferior (encima de «Vista previa del Sitio») que abre una
+     * ventana flotante centrada. Elegir = recargar la página actual con
      * ?tenant={handle} (ver Tenant::resolveForBackendUser). En el subdominio
      * de un tenant no aparece.
      */
@@ -397,7 +427,8 @@ class Plugin extends PluginBase
             $current = Tenant::resolveForBackendUser($user);
             $options = $tenants->map(fn ($t) => [
                 'handle'  => $t->handle,
-                'label'   => $t->name . ((int) $t->backend_user_id === (int) $user->id ? ' ★' : ''),
+                'label'   => $t->name,
+                'own'     => (int) $t->backend_user_id === (int) $user->id,
                 'current' => $current && $current->id === $t->id,
             ])->all();
             $json = json_encode($options, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
@@ -406,20 +437,95 @@ class Plugin extends PluginBase
             return '<div class="toolbar-item fix-width" style="padding:0"><ul class="mainmenu-items" data-main-menu style="margin:0;padding:0">'
                 . '<li class="mainmenu-item" id="tenant-switch" title="Cambiar de espacio"><a href="javascript:;">'
                 . '<span class="nav-icon"><i class="icon-exchange"></i></span><span class="nav-label">' . $name . '</span></a></li></ul></div>'
-                . '<style>#tenant-switch-pop{position:fixed;z-index:99998;background:#1f2937;color:#fff;border-radius:8px;padding:6px;'
-                . 'box-shadow:0 4px 16px rgba(0,0,0,.35);min-width:180px;max-width:260px;font-size:13px}'
-                . '#tenant-switch-pop a{display:block;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none}'
-                . '#tenant-switch-pop a:hover{background:#374151}#tenant-switch-pop a.is-current{font-weight:700;background:#374151}</style>'
+                . $this->floatingModalCss()
                 . '<script>(function(){var o=' . $json . ';function init(){var li=document.getElementById("tenant-switch");if(!li)return;'
-                . 'var pop=null;function close(){if(pop){pop.remove();pop=null}}'
-                . 'li.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();if(pop){close();return}'
-                . 'pop=document.createElement("div");pop.id="tenant-switch-pop";'
-                . 'o.forEach(function(t){var a=document.createElement("a");a.textContent=t.label;if(t.current)a.className="is-current";'
-                . 'a.href="javascript:;";a.onclick=function(){var u=new URL(location.href);u.searchParams.set("tenant",t.handle);location.href=u.toString()};pop.appendChild(a)});'
-                . 'document.body.appendChild(pop);var r=li.getBoundingClientRect();'
-                . 'pop.style.left=Math.min(r.right+6,window.innerWidth-pop.offsetWidth-8)+"px";'
-                . 'pop.style.top=Math.max(8,Math.min(r.top,window.innerHeight-pop.offsetHeight-8))+"px"});'
-                . 'document.addEventListener("click",close)}'
+                . 'li.addEventListener("click",function(e){e.preventDefault();var d=document.createElement("dialog");d.className="aero-modal is-center";'
+                . 'd.innerHTML=\'<div class="am-head"><i class="icon-exchange"></i><span class="am-title">Cambiar de espacio</span></div><div class="am-list"></div>\';'
+                . 'var box=d.querySelector(".am-list");'
+                . 'o.forEach(function(t){var a=document.createElement("a");if(t.current)a.className="is-current";var n=document.createElement("span");n.textContent=t.label;a.appendChild(n);'
+                . 'var s=document.createElement("small");s.textContent=t.current?"Actual":(t.own?"Tu espacio":"Miembro");a.appendChild(s);'
+                . 'a.onclick=function(){var u=new URL(location.href);u.searchParams.set("tenant",t.handle);location.href=u.toString()};box.appendChild(a)});'
+                . 'd.addEventListener("click",function(ev){if(ev.target===d)d.close()});d.addEventListener("close",function(){d.remove()});'
+                . 'document.body.appendChild(d);d.showModal()})}'
+                . 'document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})()</script>';
+        });
+    }
+
+    /**
+     * Buscador rápido del menú: primer ítem del rail izquierdo. Abre una
+     * ventana flotante centrada (clic, «/» o Ctrl+K) que busca en los ítems
+     * principales y en los del menú lateral que el usuario puede ver. Los
+     * ítems salen del propio BackendMenu, así que ya vienen filtrados por
+     * permisos (y por el tenant) igual que el menú.
+     */
+    protected function bootMenuSearch(): void
+    {
+        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+            if ($context !== 'default' || !BackendAuth::getUser()) {
+                return '';
+            }
+
+            $entries = [];
+            $seen = [];
+            $add = function (string $group, $item) use (&$entries, &$seen) {
+                $label = trim(strip_tags((string) __($item->label)));
+                $url = (string) $item->url;
+                if ($label === '' || $url === '' || $url === '#' || str_starts_with($url, 'javascript') || isset($seen[$url . '|' . $label])) {
+                    return;
+                }
+                $seen[$url . '|' . $label] = true;
+                $entries[] = ['l' => $label, 'g' => $group, 'u' => $url];
+            };
+
+            foreach (\BackendMenu::listMainMenuItemsWithSubitems() as $info) {
+                $main = $info->mainMenuItem;
+                $group = trim(strip_tags((string) __($main->label)));
+                $add('', $main);
+                foreach ($info->subMenuItems as $sub) {
+                    if (in_array($sub->itemType ?? null, ['section', 'ruler'], true) || !\BackendMenu::isSideMenuItemVisible($sub)) {
+                        continue;
+                    }
+                    $add($group, $sub);
+                }
+            }
+
+            if (!$entries) {
+                return '';
+            }
+
+            $json = json_encode($entries, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            return '<style>#menu-search-item{position:sticky;top:0;z-index:5;background-color:#1f2937}</style>'
+                . $this->floatingModalCss()
+                . '<script>(function(){var E=' . $json . ';'
+                . 'function n(t){return String(t).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()}'
+                . 'E.forEach(function(e){e.k=n(e.l+" "+e.g)});'
+                . 'function init(){var ul=document.querySelector("#layout-mainmenu-left ul.mainmenu-general");if(!ul||document.getElementById("menu-search-item"))return;'
+                . 'var li=document.createElement("li");li.id="menu-search-item";li.className="mainmenu-item";li.title="Buscar en el menú (/ o Ctrl+K)";'
+                . 'li.innerHTML=\'<a href="javascript:;"><span class="nav-icon"><i class="icon-search"></i></span><span class="nav-label">Buscar</span></a>\';'
+                . 'ul.insertBefore(li,ul.firstChild);'
+                . 'for(var p=ul,bg;p&&p!==document;p=p.parentElement){bg=getComputedStyle(p).backgroundColor;if(bg&&bg!=="transparent"&&!/rgba\(.*,\s*0\)$/.test(bg)){li.style.backgroundColor=bg;break}}'
+                . 'var dlg=null,sel=0;'
+                . 'function render(q){var box=dlg.querySelector(".am-list");q=n(q).trim();'
+                . 'var shown=(q?E.filter(function(e){return q.split(/\s+/).every(function(w){return e.k.indexOf(w)>-1})}):E.filter(function(e){return !e.g})).slice(0,12);'
+                . 'sel=0;box.innerHTML="";if(!shown.length){box.innerHTML=\'<div class="am-empty">Sin resultados</div>\';return}'
+                . 'shown.forEach(function(e,i){var a=document.createElement("a");a.href=e.u;a.className=i?"":"is-sel";var t=document.createElement("span");t.textContent=e.l;a.appendChild(t);'
+                . 'if(e.g){var s=document.createElement("small");s.textContent=e.g;a.appendChild(s)}box.appendChild(a)})}'
+                . 'function mark(d){var as=dlg.querySelectorAll(".am-list a");if(!as.length)return;as[sel].classList.remove("is-sel");'
+                . 'sel=(sel+d+as.length)%as.length;as[sel].classList.add("is-sel");as[sel].scrollIntoView({block:"nearest"})}'
+                . 'function open(){if(dlg)return;dlg=document.createElement("dialog");dlg.className="aero-modal";'
+                . 'dlg.innerHTML=\'<div class="am-head"><i class="icon-search"></i><input type="text" placeholder="Buscar en el menú…" autocomplete="off"></div><div class="am-list"></div>'
+                . '<div class="am-foot"><span><kbd>↑</kbd> <kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> abrir</span><span><kbd>Esc</kbd> cerrar</span></div>\';'
+                . 'document.body.appendChild(dlg);var inp=dlg.querySelector("input");render("");dlg.showModal();inp.focus();'
+                . 'inp.addEventListener("input",function(){render(inp.value)});'
+                . 'inp.addEventListener("keydown",function(ev){if(ev.key==="ArrowDown"){ev.preventDefault();mark(1)}'
+                . 'else if(ev.key==="ArrowUp"){ev.preventDefault();mark(-1)}'
+                . 'else if(ev.key==="Enter"){ev.preventDefault();var a=dlg.querySelectorAll(".am-list a")[sel];if(a)location.href=a.href}});'
+                . 'dlg.addEventListener("click",function(ev){if(ev.target===dlg)dlg.close()});'
+                . 'dlg.addEventListener("close",function(){dlg.remove();dlg=null})}'
+                . 'li.addEventListener("click",function(ev){ev.preventDefault();open()});'
+                . 'document.addEventListener("keydown",function(ev){var t=ev.target,typing=t&&(t.isContentEditable||/^(input|textarea|select)$/i.test(t.tagName));'
+                . 'if((ev.key==="k"&&(ev.ctrlKey||ev.metaKey))||(ev.key==="/"&&!typing&&!ev.ctrlKey&&!ev.metaKey)){ev.preventDefault();open()}})}'
                 . 'document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})()</script>';
         });
     }
