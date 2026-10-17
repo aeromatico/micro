@@ -60,12 +60,14 @@
     var AGENTS = [ME, { id: 2, name: 'Diego Quispe', initials: 'DQ' }, { id: 3, name: 'Camila Rojas', initials: 'CR' }];
     function agent(id) { return AGENTS.filter(function (a) { return a.id === id; })[0] || null; }
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
+    // Ventas = API oficial (Cloud): botones/menús interactivos, sin encuestas. Soporte = WhatsApp Web: encuestas, sin interactivos.
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
+    var CAPS_CLOUD = { quote_reply: true, poll: false, location: false, media: true, buttons: true, list: true, cta_url: true, location_request: true, voice_call: true };
     // Livechat (chat del sitio web) es texto+adjuntos nomás: sin encuestas, ubicación
     // ni citar — así el PWA oculta solo esos botones para este canal (ver mediaKind/capabilities).
     var LIVECHAT_CAPS = { text: true, media: true, templates: false, window_24h: false, calls: false, posts: false, location: false, contact: false, poll: false, quote_reply: false };
     var ACCOUNTS = [
-        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
+        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS_CLOUD },
         { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
         { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
         { id: 4, label: 'Livechat', platform: 'livechat', status: 'connected', phone_number: null, capabilities: LIVECHAT_CAPS },
@@ -96,6 +98,7 @@
         { id: 4, shortcut: 'horario', title: 'Horario', area_label: 'Ventas', uses_count: 9, sort_order: 4, body: 'Atendemos de lunes a sábado, de 8:00 a 19:00. Los domingos solo pedidos web.' },
         { id: 5, shortcut: 'mayorista', title: 'Mayoristas', area_label: 'Ventas', uses_count: 7, sort_order: 5, body: 'Para compras desde 5 kg manejamos precio mayorista y factura. ¿Cuántos kg necesitas al mes?' },
         { id: 6, shortcut: 'postventa', title: 'Postventa', area_label: 'Soporte', uses_count: 12, sort_order: 6, body: 'Lamentamos el inconveniente. Ya abrimos un ticket y te avisamos por aquí apenas lo resolvamos.' },
+        { id: 8, shortcut: 'menu', title: 'Menú de atención', area_label: 'Ventas', kind: 'buttons', structured: true, uses_count: 21, sort_order: 8, body: '🔘 ¿Qué necesitas hoy?\n▫️ Hacer un pedido\n▫️ Cobrar / pagar\n▫️ Soporte' },
         { id: 7, shortcut: 'gracias', title: 'Gracias', area_label: 'Soporte', uses_count: 15, sort_order: 7, body: '¡Gracias por tu compra! Cualquier duda, aquí estamos ☕' },
     ];
 
@@ -364,6 +367,27 @@
             var m = push(c, M('outbound', r.form.get('caption') || '', nowIso(), { status: 'sent', type: kind, media_type: kind, media_url: uri, file_name: f.name })); progress(m);
             return ok(m, 201);
         });
+    });
+    // Mensajes interactivos (API oficial): botones, menú, enlace, pedir ubicación, llamada.
+    on('POST', '/conversations/(\\d+)/interactive', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var b = r.body, t = b.ix_body, txt;
+        if (b.kind === 'buttons') txt = '🔘 ' + t + '\n' + (b.buttons || []).map(function (x) { return '▫️ ' + x; }).join('\n');
+        else if (b.kind === 'list') txt = '📋 ' + t + '\n' + (b.list_rows || []).map(function (x) { return '▫️ ' + x; }).join('\n');
+        else if (b.kind === 'cta_url') txt = '🔗 ' + t + '\n▫️ ' + b.cta_text + ': ' + b.cta_url;
+        else if (b.kind === 'location_request') txt = '📍 ' + t + '\n▫️ (botón: enviar ubicación)';
+        else txt = '📞 ' + t + '\n▫️ (botón: ' + (b.call_text || 'Llamar') + ')';
+        if (!c.assigned_to) c.assigned_to = ME.id;
+        var m = push(c, M('outbound', txt, nowIso(), { status: 'sent', type: b.kind })); progress(m);
+        return ok(m, 202);
+    });
+    on('POST', '/conversations/(\\d+)/quick-replies/(\\d+)/send', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var q = QUICK.filter(function (x) { return x.id === +r.p[2]; })[0]; if (!q) return NOT_FOUND;
+        q.uses_count++;
+        if (!c.assigned_to) c.assigned_to = ME.id;
+        var m = push(c, M('outbound', q.body, nowIso(), { status: 'sent', type: q.kind || 'text' })); progress(m);
+        return ok(m, 202);
     });
     on('GET', '/quick-replies', function () { return ok(QUICK); });
     on('POST', '/quick-replies/(\\d+)/use', function (r) { QUICK.forEach(function (q) { if (q.id === +r.p[1]) q.uses_count++; }); return ok({}); });

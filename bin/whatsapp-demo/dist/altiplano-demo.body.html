@@ -169,6 +169,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .composer { position: relative; }
 .modes { align-items: center; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
 .modes .chip { scroll-snap-align: start; }
+.composer .quick-bar { padding-bottom: 2px; }
 .modes-sep { flex-shrink: 0; width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
 .chip { display: inline-flex; align-items: center; justify-content: center; line-height: 1; white-space: nowrap; text-align: center; }
 .chip.quick { height: 32px; padding: 0 12px; font-size: 12px; background: var(--bg); }
@@ -181,7 +182,7 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .ta-wrap { position: relative; flex: 1; min-width: 0; }
 .credit-mini { position: absolute; top: 6px; right: 10px; display: flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 600; color: var(--muted); opacity: .55; pointer-events: none; }
 .credit-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; display: block; }
-.input-row textarea { width: 100%; resize: none; max-height: 140px; min-height: 46px; padding: 11px 40px 11px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); font-size: 16px; line-height: 1.35; }
+.input-row textarea { display: block; width: 100%; resize: none; max-height: 140px; min-height: 46px; padding: 11px 40px 11px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); font-size: 16px; line-height: 1.35; }
 .composer.note textarea { border-color: var(--note-line); }
 .send { width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px; border: 0; background: var(--brand); color: var(--brand-ink); display: flex; align-items: center; justify-content: center; }
 .send:disabled { opacity: .45; }
@@ -292,6 +293,13 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 .quote-bar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ticks { margin-left: 4px; letter-spacing: -2px; font-weight: 600; }
 .ticks.t-read { color: #34b7f1; }
+.sheet .stack { display: flex; flex-direction: column; gap: 6px; }
+.quick-card { align-items: flex-start; }
+.quick-card span { white-space: pre-line; max-height: 120px; overflow-y: auto; text-overflow: clip; }
+.quick-card .chip { height: 32px; }
+.ix-row { display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.ix-row:last-of-type { border-bottom: 0; }
+.composer .modes.toolbar { padding: 8px 0 0; }
 
 /* Barra del demo y ajustes de altura; el resto es el CSS real del tema whatsapp. */
 .demo-bar { position: relative; z-index: 50; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); font-size: 12px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
@@ -525,17 +533,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                 </div>
 
                 <form class="composer" @submit.prevent="send()" :class="{ note: mode === 'note' }">
-                    <div class="modes" x-show="!recording">
-                        <button type="button" class="chip" :class="{ on: mode === 'reply' }" @click="mode = 'reply'">Responder</button>
-                        <button type="button" class="chip ico emoji-hint" x-show="mode === 'reply'" @click="showEmojiHint()" title="Atajo de emojis del sistema" aria-label="Atajo de emojis del sistema"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
-                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="$refs.file.click()" title="Adjuntar imagen o archivo" aria-label="Adjuntar archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.500 3.500 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L15 7"/></svg></button>
-                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-                        <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
-                        <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
-                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="finishLivechat()" title="Finalizar chat web" aria-label="Finalizar chat web"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M20 6 9 17l-5-5"/></svg></button>
-                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="openBan()" title="Banear visitante" aria-label="Banear visitante"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="m5 5 14 14"/></svg></button>
-                        <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
-                        <template x-if="topQuick.length"><span class="modes-sep" aria-hidden="true"></span></template>
+                    <div class="modes quick-bar" x-show="!recording && topQuick.length" aria-label="Respuestas rápidas">
                         <template x-for="q in topQuick" :key="q.id">
                             <button type="button" class="chip quick" :title="q.title" @click="pickQuick(q)" x-text="q.shortcut"></button>
                         </template>
@@ -558,6 +556,11 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                         <span class="grow" x-text="activeQuote ? quoteLabel(activeQuote) : ''"></span>
                         <button type="button" class="icon-btn" @click="replyTo = null" aria-label="Cancelar cita">✕</button>
                     </div>
+                    <div class="quote-bar quick-card" x-show="quickCard && !recording" x-cloak>
+                        <span class="grow" x-text="quickCard ? quickCard.body : ''"></span>
+                        <button type="button" class="chip" @click="quickCard = null">Cancelar</button>
+                        <button type="button" class="chip on" :disabled="quickBusy" @click="sendQuickCard()" x-text="quickBusy ? 'Enviando…' : 'Enviar'"></button>
+                    </div>
                     <div class="input-row" x-show="!recording">
                         <div class="ta-wrap">
                             <textarea x-model="draft" rows="1" :placeholder="mode === 'note' ? 'Nota visible solo para el equipo' : 'Escribe un mensaje'" aria-label="Mensaje" @keydown="slashKey($event)" @keydown.enter.prevent="if (slashOpen) return; if (!$event.shiftKey) send(); else draft += '\n'" @input="autoGrow($event.target); slashIdx = 0"></textarea>
@@ -566,6 +569,17 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                             </span>
                         </div>
                         <button type="submit" class="send" aria-label="Enviar" :disabled="!draft.trim()"><svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+                    </div>
+                    <div class="modes toolbar" x-show="!recording">
+                        <button type="button" class="chip ico emoji-hint" x-show="mode === 'reply'" @click="showEmojiHint()" title="Atajo de emojis del sistema" aria-label="Atajo de emojis del sistema"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="$refs.file.click()" title="Adjuntar imagen o archivo" aria-label="Adjuntar archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.500 3.500 0 0 1 5 5l-8.500 8.500a2 2 0 0 1-3-3L15 7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="mode === 'reply'" @click="startRec()" title="Grabar audio" aria-label="Grabar audio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canPoll && mode === 'reply'" @click="openPoll()" title="Crear encuesta" aria-label="Encuesta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canInteractive && mode === 'reply'" @click="openInteractive()" title="Botones, menú, enlace, ubicación o llamada" aria-label="Mensaje interactivo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/></svg></button>
+                        <button type="button" class="chip ico" x-show="canLocate && mode === 'reply'" :disabled="geoBusy" @click="sendLocation()" title="Enviar mi ubicación actual" aria-label="Enviar mi ubicación"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="finishLivechat()" title="Finalizar chat web" aria-label="Finalizar chat web"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><path d="M20 6 9 17l-5-5"/></svg></button>
+                        <button type="button" class="chip ico" x-show="isLivechatChat && mode === 'reply'" @click="openBan()" title="Banear visitante" aria-label="Banear visitante"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor"><circle cx="12" cy="12" r="9"/><path d="m5 5 14 14"/></svg></button>
+                        <button type="button" class="chip ico" :class="{ on: mode === 'note' }" @click="mode = mode === 'note' ? 'reply' : 'note'" title="Nota interna (solo el equipo la ve)" aria-label="Nota interna" :aria-pressed="mode === 'note'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h5"/></svg></button>
                     </div>
                 </form>
             </div>
@@ -647,6 +661,52 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         <button type="button" class="chip" x-show="pollForm.options.length < 12" @click="addPollOption()">+ Agregar opción</button>
         <label class="check"><input type="checkbox" x-model="pollForm.multiple"><span>Permitir elegir varias opciones</span></label>
         <button type="submit" class="btn primary" :disabled="pollBusy" x-text="pollBusy ? 'Enviando…' : 'Enviar encuesta'"></button>
+    </form>
+
+    <form class="sheet" x-show="sheet === 'interactive'" x-transition role="dialog" aria-label="Mensaje interactivo" @submit.prevent="sendInteractive()">
+        <h2>Mensaje interactivo</h2>
+        <div class="chips-wrap">
+            <template x-for="k in ixKinds" :key="k[0]"><button type="button" class="chip" :class="{ on: ixForm.kind === k[0] }" @click="ixForm.kind = k[0]" x-text="k[1]"></button></template>
+        </div>
+        <label class="field"><span>Texto del mensaje</span><textarea x-model="ixForm.body" rows="3" maxlength="1024" placeholder="¿En qué te ayudamos?" required></textarea></label>
+
+        <template x-if="ixForm.kind === 'buttons'"><div class="stack">
+            <template x-for="(b, i) in ixForm.buttons" :key="i">
+                <div class="poll-opt">
+                    <input type="text" x-model="ixForm.buttons[i]" maxlength="20" :placeholder="'Botón ' + (i + 1) + ' (máx. 20)'" :aria-label="'Botón ' + (i + 1)">
+                    <button type="button" class="icon-btn" x-show="ixForm.buttons.length > 1" @click="ixForm.buttons.splice(i, 1)" aria-label="Quitar botón"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+                </div>
+            </template>
+            <button type="button" class="chip" x-show="ixForm.buttons.length < 3" @click="ixForm.buttons.push('')">+ Agregar botón</button>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'list'"><div class="stack">
+            <label class="field"><span>Texto del botón del menú</span><input type="text" x-model="ixForm.listButton" maxlength="20" placeholder="Ver opciones"></label>
+            <label class="field"><span>Título de la sección (opcional)</span><input type="text" x-model="ixForm.listSection" maxlength="24"></label>
+            <template x-for="(r, i) in ixForm.rows" :key="i">
+                <div class="ix-row">
+                    <div class="poll-opt">
+                        <input type="text" x-model="r.t" maxlength="24" :placeholder="'Opción ' + (i + 1) + ' (máx. 24)'" :aria-label="'Opción ' + (i + 1)">
+                        <button type="button" class="icon-btn" x-show="ixForm.rows.length > 1" @click="ixForm.rows.splice(i, 1)" aria-label="Quitar opción"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+                    </div>
+                    <div class="poll-opt"><input type="text" x-model="r.d" maxlength="72" placeholder="Descripción (opcional)" :aria-label="'Descripción ' + (i + 1)"></div>
+                </div>
+            </template>
+            <button type="button" class="chip" x-show="ixForm.rows.length < 10" @click="ixForm.rows.push({ t: '', d: '' })">+ Agregar opción</button>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'cta_url'"><div class="stack">
+            <label class="field"><span>Texto del botón</span><input type="text" x-model="ixForm.ctaText" maxlength="20" placeholder="Ver catálogo" required></label>
+            <label class="field"><span>Enlace</span><input type="url" x-model="ixForm.ctaUrl" placeholder="https://" required></label>
+        </div></template>
+
+        <template x-if="ixForm.kind === 'voice_call'">
+            <label class="field"><span>Texto del botón (opcional)</span><input type="text" x-model="ixForm.callText" maxlength="20" placeholder="Llamar"></label>
+        </template>
+
+        <p class="muted" x-show="ixForm.kind === 'location_request'">El cliente verá un botón para enviarte su ubicación.</p>
+        <p class="muted">Solo se entregan dentro de las 24 h desde el último mensaje del cliente.</p>
+        <button type="submit" class="btn primary" :disabled="ixBusy" x-text="ixBusy ? 'Enviando…' : 'Enviar'"></button>
     </form>
 
     <form class="sheet" x-show="sheet === 'new'" x-transition role="dialog" aria-label="Nuevo chat" @submit.prevent="startChat()">
@@ -986,12 +1046,14 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
     var AGENTS = [ME, { id: 2, name: 'Diego Quispe', initials: 'DQ' }, { id: 3, name: 'Camila Rojas', initials: 'CR' }];
     function agent(id) { return AGENTS.filter(function (a) { return a.id === id; })[0] || null; }
     var TENANT = { handle: 'altiplano', name: 'Altiplano Café' };
+    // Ventas = API oficial (Cloud): botones/menús interactivos, sin encuestas. Soporte = WhatsApp Web: encuestas, sin interactivos.
     var CAPS = { quote_reply: true, poll: true, location: true, media: true };
+    var CAPS_CLOUD = { quote_reply: true, poll: false, location: false, media: true, buttons: true, list: true, cta_url: true, location_request: true, voice_call: true };
     // Livechat (chat del sitio web) es texto+adjuntos nomás: sin encuestas, ubicación
     // ni citar — así el PWA oculta solo esos botones para este canal (ver mediaKind/capabilities).
     var LIVECHAT_CAPS = { text: true, media: true, templates: false, window_24h: false, calls: false, posts: false, location: false, contact: false, poll: false, quote_reply: false };
     var ACCOUNTS = [
-        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS },
+        { id: 1, label: 'Ventas', platform: 'whatsapp', status: 'connected', phone_number: '+591 71234567', capabilities: CAPS_CLOUD },
         { id: 2, label: 'Soporte', platform: 'whatsapp', status: 'connected', phone_number: '+591 72345678', capabilities: CAPS },
         { id: 3, label: 'Instagram', platform: 'instagram', status: 'connected', phone_number: null, capabilities: {} },
         { id: 4, label: 'Livechat', platform: 'livechat', status: 'connected', phone_number: null, capabilities: LIVECHAT_CAPS },
@@ -1022,6 +1084,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
         { id: 4, shortcut: 'horario', title: 'Horario', area_label: 'Ventas', uses_count: 9, sort_order: 4, body: 'Atendemos de lunes a sábado, de 8:00 a 19:00. Los domingos solo pedidos web.' },
         { id: 5, shortcut: 'mayorista', title: 'Mayoristas', area_label: 'Ventas', uses_count: 7, sort_order: 5, body: 'Para compras desde 5 kg manejamos precio mayorista y factura. ¿Cuántos kg necesitas al mes?' },
         { id: 6, shortcut: 'postventa', title: 'Postventa', area_label: 'Soporte', uses_count: 12, sort_order: 6, body: 'Lamentamos el inconveniente. Ya abrimos un ticket y te avisamos por aquí apenas lo resolvamos.' },
+        { id: 8, shortcut: 'menu', title: 'Menú de atención', area_label: 'Ventas', kind: 'buttons', structured: true, uses_count: 21, sort_order: 8, body: '🔘 ¿Qué necesitas hoy?\n▫️ Hacer un pedido\n▫️ Cobrar / pagar\n▫️ Soporte' },
         { id: 7, shortcut: 'gracias', title: 'Gracias', area_label: 'Soporte', uses_count: 15, sort_order: 7, body: '¡Gracias por tu compra! Cualquier duda, aquí estamos ☕' },
     ];
 
@@ -1291,6 +1354,27 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             return ok(m, 201);
         });
     });
+    // Mensajes interactivos (API oficial): botones, menú, enlace, pedir ubicación, llamada.
+    on('POST', '/conversations/(\\d+)/interactive', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var b = r.body, t = b.ix_body, txt;
+        if (b.kind === 'buttons') txt = '🔘 ' + t + '\n' + (b.buttons || []).map(function (x) { return '▫️ ' + x; }).join('\n');
+        else if (b.kind === 'list') txt = '📋 ' + t + '\n' + (b.list_rows || []).map(function (x) { return '▫️ ' + x; }).join('\n');
+        else if (b.kind === 'cta_url') txt = '🔗 ' + t + '\n▫️ ' + b.cta_text + ': ' + b.cta_url;
+        else if (b.kind === 'location_request') txt = '📍 ' + t + '\n▫️ (botón: enviar ubicación)';
+        else txt = '📞 ' + t + '\n▫️ (botón: ' + (b.call_text || 'Llamar') + ')';
+        if (!c.assigned_to) c.assigned_to = ME.id;
+        var m = push(c, M('outbound', txt, nowIso(), { status: 'sent', type: b.kind })); progress(m);
+        return ok(m, 202);
+    });
+    on('POST', '/conversations/(\\d+)/quick-replies/(\\d+)/send', function (r) {
+        var c = conv(r.p[1]); if (!c) return NOT_FOUND;
+        var q = QUICK.filter(function (x) { return x.id === +r.p[2]; })[0]; if (!q) return NOT_FOUND;
+        q.uses_count++;
+        if (!c.assigned_to) c.assigned_to = ME.id;
+        var m = push(c, M('outbound', q.body, nowIso(), { status: 'sent', type: q.kind || 'text' })); progress(m);
+        return ok(m, 202);
+    });
     on('GET', '/quick-replies', function () { return ok(QUICK); });
     on('POST', '/quick-replies/(\\d+)/use', function (r) { QUICK.forEach(function (q) { if (q.id === +r.p[1]) q.uses_count++; }); return ok({}); });
 
@@ -1495,7 +1579,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             _allTabs: [{ id: 'contact', label: 'Contacto' }, { id: 'ticket', label: 'Ticket' }, { id: 'lead', label: 'Lead' }, { id: 'sale', label: 'Tienda' }, { id: 'pay', label: 'Cobro' }],
             ticketStatuses: [{ id: 'open', label: 'Abierto' }, { id: 'pending', label: 'En espera' }, { id: 'resolved', label: 'Resuelto' }, { id: 'closed', label: 'Cerrado' }],
             leadStatuses: [{ id: 'new', label: 'Nuevo' }, { id: 'contacted', label: 'Contactado' }, { id: 'qualified', label: 'Calificado' }, { id: 'disqualified', label: 'Descartado' }],
-            newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
+            newForm: { account: null, phone: '', name: '', body: '' }, newBusy: false, pollForm: { question: '', options: ['', ''], multiple: false }, pollBusy: false, ixForm: { kind: 'buttons', body: '', buttons: ['', ''], listButton: '', listSection: '', rows: [{ t: '', d: '' }], ctaText: '', ctaUrl: '', callText: '' }, ixBusy: false, quickCard: null, quickBusy: false, geoState: 'unknown', attach: null, attachCaption: '', recording: false, recSecs: 0, _rec: null, _recTimer: null, geoBusy: false, cardBusy: 0, lightbox: '', slashIdx: 0, ticketSubject: '', toast: '', theme: 'auto', installPrompt: null, online: navigator.onLine, pushState: 'unsupported', unread: 0, replyTo: null,
             filters: [{ id: 'all', label: 'Todos' }, { id: 'mine', label: 'Míos' }, { id: 'free', label: 'Sin asignar' }, { id: 'unread', label: 'No leídos' }, { id: 'archived', label: 'Archivados' }],
             _timers: [], _toastTimer: null, _seq: 0,
 
@@ -1713,7 +1797,7 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             async loadQuick() {
                 // Se vacía al cambiar de conversación y se descarta toda respuesta que llegue de otra cuenta.
                 var acc = this.current && this.current.account_id ? this.current.account_id : 0;
-                this.quick = [];
+                this.quick = []; this.quickCard = null;
                 try {
                     var rows = await this.api('/quick-replies' + (acc ? '?account_id=' + acc : ''));
                     var now = this.current && this.current.account_id ? this.current.account_id : 0;
@@ -1739,12 +1823,32 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
             },
             pickQuick: function (q) {
                 if (!q) return;
+                if (q.structured) {
+                    // botones, menú, ubicación…: no caben en el textarea; se muestra una vista previa para confirmar el envío
+                    if (this.draft.trim().charAt(0) === '/') this.draft = '';
+                    this.quickCard = q; this.slashIdx = 0;
+                    return;
+                }
                 var d = this.draft.trim();
                 this.draft = (d && d.charAt(0) !== '/') ? d + '\n' + q.body : q.body;
                 this.slashIdx = 0; q.uses_count++;
                 this.api('/quick-replies/' + q.id + '/use', { method: 'POST' }).catch(function () {});
                 var self = this;
                 this.$nextTick(function () { var ta = document.querySelector('.composer textarea'); if (ta) { autoGrow(ta); ta.focus(); } });
+            },
+
+            async sendQuickCard() {
+                var c = this.current, q = this.quickCard; if (!c || !q || this.quickBusy) return;
+                this.quickBusy = true;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/quick-replies/' + q.id + '/send', { method: 'POST' });
+                    q.uses_count++; this.quickCard = null;
+                    this.msgs.push(res); this.scrollDown(true);
+                    c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
+                    if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
+                } catch (e) { this.notify(e.message, 8000); }
+                finally { this.quickBusy = false; }
             },
 
             // ---------- nuevo chat ----------
@@ -2000,6 +2104,39 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
                     this.spendCredit();
                 } catch (e) { this.notify(e.message, 8000); }
                 finally { this.pollBusy = false; }
+            },
+
+            // ---------- mensajes interactivos (botones, menú, enlace, ubicación, llamada: solo API oficial / Zernio) ----------
+            get canInteractive() {
+                var a = this.current && this.accounts.find(function (x) { return x.id === this.current.account_id; }, this);
+                return !!(a && a.capabilities && a.capabilities.buttons);
+            },
+            openInteractive: function () {
+                this.ixForm = { kind: 'buttons', body: '', buttons: ['', ''], listButton: '', listSection: '', rows: [{ t: '', d: '' }], ctaText: '', ctaUrl: '', callText: '' };
+                this.sheet = 'interactive';
+            },
+            ixKinds: [['buttons', 'Botones'], ['list', 'Menú'], ['cta_url', 'Enlace'], ['location_request', 'Pedir ubicación'], ['voice_call', 'Llamada']],
+            async sendInteractive() {
+                var c = this.current, f = this.ixForm; if (!c || this.ixBusy) return;
+                if (!f.body.trim()) { this.notify('Escribe el texto del mensaje.'); return; }
+                var body = { kind: f.kind, ix_body: f.body.trim() };
+                if (f.kind === 'buttons') body.buttons = f.buttons.map(function (b) { return b.trim(); }).filter(Boolean);
+                if (f.kind === 'list') {
+                    var rows = f.rows.filter(function (r) { return r.t.trim(); });
+                    body.list_button = f.listButton.trim(); body.list_section = f.listSection.trim();
+                    body.list_rows = rows.map(function (r) { return r.t.trim(); }); body.list_descriptions = rows.map(function (r) { return r.d.trim(); });
+                }
+                if (f.kind === 'cta_url') { body.cta_text = f.ctaText.trim(); body.cta_url = f.ctaUrl.trim(); }
+                if (f.kind === 'voice_call') body.call_text = f.callText.trim();
+                this.ixBusy = true;
+                try {
+                    var res = await this.api('/conversations/' + c.id + '/interactive', { method: 'POST', body: body });
+                    this.msgs.push(res); this.sheet = ''; this.scrollDown(true);
+                    c.last_message = { body: res.body, direction: 'outbound' }; c.last_message_at = res.at;
+                    if (!c.assigned_to) c.assigned_to = this.user;
+                    this.spendCredit();
+                } catch (e) { this.notify(e.message, 8000); }
+                finally { this.ixBusy = false; }
             },
 
             async refreshAccounts() { try { this.accounts = await this.api('/accounts'); } catch (e) {} },
