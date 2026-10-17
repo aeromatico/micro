@@ -1,0 +1,451 @@
+#!/usr/bin/env python3
+"""
+video-cli — crea videos de Market con Claude (HyperFrames + voz ElevenLabs + fondo musical). Nada es automático.
+
+Te pregunta qué tipo de video, el tema, la voz (de TU biblioteca de ElevenLabs) y el fondo (lo que haya en
+storage/app/media/audio-backgrounds), prepara videos/<nombre>/ y lanza una sesión de `claude -p` que sigue el skill
+correspondiente (market-video para los explicativos). La voz real (gasta caracteres) y el render van aparte.
+
+  video-cli                         asistente interactivo (tipo → tema → voz → fondo → Claude diseña)
+  video-cli new [name] [--tipo T] [--voz id|texto] [--fondo archivo|ninguno] [--servicio ID] [--nota "…"] [--si]
+  video-cli voices [--json]         voces de tu biblioteca de ElevenLabs
+  video-cli bg list                 fondos disponibles en audio-backgrounds
+  video-cli list                    videos en videos/ y su estado
+  video-cli voice <name>            genera la locución real (gasta caracteres) y mezcla
+  video-cli render <name>           renderiza 16:9 y 9:16
+  video-cli publish <name> <vN> [servicio_id] ["Título"]   sube a Medios y al repetidor del servicio
+  video-cli tweak <name> "qué cambiar"   nueva sesión de Claude sobre un video existente
+"""
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+VIDEOS = ROOT / "videos"
+BG_DIR = ROOT / "storage/app/media/audio-backgrounds"
+SKILL = ROOT / ".claude/skills/market-video"
+ENV_FILE = Path("/root/.elevenlabs.env")
+STATE = ROOT / ".git/video-cli.json"          # dentro de .git: nunca se versiona
+CLAUDE = os.environ.get("CLAUDE_BIN") or shutil.which("claude") or "/root/.local/bin/claude"
+HYPERFRAMES = "hyperframes@0.8.146"
+AUDIO_EXT = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".aac"}
+CFG = {"model": "sonnet", "max_turns": 90, "max_budget_usd": 6, "timeout_min": 40}
+
+TYPES = {
+    "explicativo": {
+        "label": "Explicativo de palitos (estilo Bolivia Pay) — 16:9 y 9:16, ~60 s",
+        "skill": "market-video",
+        "brief": "Sigue el flujo COMPLETO del skill market-video hasta el paso 5 inclusive (verificar producto, scaffold ya hecho, guion, escenas, "
+                 "iterar con NO_TTS=1 y check-video + fotogramas). NO ejecutes la voz real, NO renderices y NO publiques.",
+    },
+    "promo": {
+        "label": "Promo / lanzamiento de producto (URL o brief)",
+        "skill": "product-launch-video",
+        "brief": "Usa el skill product-launch-video (entrada: hyperframes). Identidad de marca Market. Deja la composición lista y verificada; no renderices.",
+    },
+    "explainer": {
+        "label": "Explainer sin personajes (tipografía y gráficos abstractos a partir de un texto)",
+        "skill": "faceless-explainer",
+        "brief": "Usa el skill faceless-explainer. Identidad de marca Market. Deja la composición lista y verificada; no renderices.",
+    },
+    "motion": {
+        "label": "Motion graphic corto (título animado, cifra, sello, lower-third)",
+        "skill": "motion-graphics",
+        "brief": "Usa el skill motion-graphics. Identidad de marca Market. Deja la composición lista y verificada; no renderices.",
+    },
+    "libre": {
+        "label": "Otro / libre (HyperFrames)",
+        "skill": "hyperframes",
+        "brief": "Empieza por el skill hyperframes para elegir el flujo adecuado. Deja la composición lista y verificada; no renderices.",
+    },
+}
+
+
+# ───────────────────────── utilidades ─────────────────────────
+def ask(question, default=None):
+    suffix = f" [{default}]" if default else ""
+    ans = input(f"{question}{suffix}: ").strip()
+    return ans or (default or "")
+
+
+def yn(question, default=True):
+    ans = input(f"{question} [{'S/n' if default else 's/N'}] ").strip().lower()
+    return default if not ans else ans in ("s", "si", "sí", "y", "yes")
+
+
+def pick(title, options, default=1):
+    """options: lista de str. Devuelve índice base 0."""
+    print(f"\n{title}")
+    for i, o in enumerate(options, 1):
+        print(f"  {i:>2}) {o}")
+    while True:
+        raw = ask("Elige número", str(default))
+        if raw.isdigit() and 1 <= int(raw) <= len(options):
+            return int(raw) - 1
+        print("  número fuera de rango")
+
+
+def load_state():
+    try:
+        return json.loads(STATE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def save_state(st):
+    try:
+        STATE.write_text(json.dumps(st, ensure_ascii=False, indent=2))
+    except OSError:
+        pass
+
+
+def slugify(text):
+    import re
+    import unicodedata
+    t = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")[:48]
+
+
+def api_key():
+    try:
+        for line in ENV_FILE.read_text().splitlines():
+            if line.startswith("ELEVENLABS_API_KEY="):
+                return line.split("=", 1)[1].strip()
+    except OSError:
+        pass
+    sys.exit(f"Falta ELEVENLABS_API_KEY en {ENV_FILE}")
+
+
+def duration(path):
+    try:
+        out = subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)], timeout=20)
+        return float(out.decode().strip())
+    except (subprocess.SubprocessError, ValueError):
+        return 0.0
+
+
+# ───────────────────────── voces ─────────────────────────
+def fetch_voices():
+    """Voces de la biblioteca de la cuenta (propias, clonadas, añadidas y premade). Pagina la API v2."""
+    voices, token = [], None
+    while True:
+        url = "https://api.elevenlabs.io/v2/voices?page_size=100" + (f"&next_page_token={token}" if token else "")
+        req = urllib.request.Request(url, headers={"xi-api-key": api_key()})
+        try:
+            data = json.load(urllib.request.urlopen(req, timeout=30))
+        except Exception as e:
+            sys.exit(f"No pude leer las voces de ElevenLabs: {e}")
+        voices += data.get("voices", [])
+        token = data.get("next_page_token")
+        if not data.get("has_more") or not token:
+            break
+    order = {"professional": 0, "cloned": 1, "generated": 2, "famous": 3, "premade": 4}
+    voices.sort(key=lambda v: (order.get(v.get("category"), 9), (v.get("name") or "").lower()))
+    return voices
+
+
+def voice_row(v):
+    lab = v.get("labels") or {}
+    bits = [lab.get(k) for k in ("gender", "age", "accent", "use_case") if lab.get(k)]
+    langs = sorted({(x.get("language") or "") for x in (v.get("verified_languages") or []) if x.get("language")})
+    if langs:
+        bits.append("idiomas: " + ",".join(langs[:6]))
+    return f"{(v.get('name') or '?')[:46]:<46} {v.get('category', ''):<12} {' · '.join(bits)}"
+
+
+def find_voice(voices, text):
+    t = text.lower()
+    for v in voices:
+        if v["voice_id"] == text:
+            return v
+    hits = [v for v in voices if t in (v.get("name") or "").lower()]
+    return hits[0] if len(hits) == 1 else None
+
+
+def choose_voice(voices, st):
+    last = st.get("voice_id")
+    # primero las que sirven para español, luego el resto
+    def es(v):
+        return any((x.get("language") or "") == "es" for x in (v.get("verified_languages") or []))
+    sorted_v = sorted(voices, key=lambda v: (not es(v), voices.index(v)))
+    default = next((i + 1 for i, v in enumerate(sorted_v) if v["voice_id"] == last), 1)
+    rows = [voice_row(v) + ("   ★ última usada" if v["voice_id"] == last else "") for v in sorted_v]
+    i = pick("Voz (de tu biblioteca de ElevenLabs; las verificadas en español van primero):", rows, default)
+    return sorted_v[i]
+
+
+# ───────────────────────── fondos ─────────────────────────
+def list_backgrounds():
+    if not BG_DIR.is_dir():
+        return []
+    files = sorted(p for p in BG_DIR.iterdir() if p.is_file() and p.suffix.lower() in AUDIO_EXT)
+    return [(p, duration(p)) for p in files]
+
+
+def bg_label(p, d):
+    return f"{p.name}  ({int(d // 60)}:{int(d % 60):02d}, {p.stat().st_size / 1e6:.1f} MB)"
+
+
+def choose_background(st):
+    bgs = list_backgrounds()
+    if not bgs:
+        print(f"(no hay audios en {BG_DIR.relative_to(ROOT)}; el video irá sin fondo)")
+        return None
+    last = st.get("background")
+    rows = [bg_label(p, d) + ("   ★ último usado" if p.name == last else "") for p, d in bgs] + ["Sin fondo musical", "Usar el fondo por defecto del skill"]
+    default = next((i + 1 for i, (p, _) in enumerate(bgs) if p.name == last), len(rows))
+    i = pick(f"Fondo musical (carpeta Medios → audio-backgrounds, {len(bgs)} archivo(s)):", rows, default)
+    if i < len(bgs):
+        return bgs[i][0]
+    return "none" if i == len(bgs) else None
+
+
+# ───────────────────────── preparar el video ─────────────────────────
+def scaffold(name, voice, background, tipo):
+    dest = VIDEOS / name
+    r = subprocess.run([str(SKILL / "scripts/new-video"), name], cwd=ROOT, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit((r.stdout + r.stderr).strip())
+    cfgp = dest / "video.json"
+    cfg = json.loads(cfgp.read_text())
+    cfg["voice"] = voice["voice_id"]
+    cfg["tipo"] = tipo
+    cfgp.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n")
+    fondo = dest / "assets/fondo.mp3"
+    if background == "none":
+        cfg["music_vol"] = 0
+        cfg["sin_fondo"] = True
+        cfgp.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n")
+    elif background:
+        # siempre a mp3 estéreo 44.1k/160k: build.py espera assets/fondo.mp3 y los .wav pesan 10–27 MB
+        subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", str(background), "-vn", "-ac", "2", "-ar", "44100", "-b:a", "160k", str(fondo)])
+    return dest
+
+
+def build_prompt(name, tipo, voice, background, tema, service_id, note):
+    t = TYPES[tipo]
+    bg = ("sin fondo musical (video.json ya tiene music_vol 0; usa MUSIC=0 al construir)" if background == "none"
+          else f"assets/fondo.mp3 ya copiado desde audio-backgrounds/{background.name}" if background
+          else "el fondo.mp3 por defecto del skill")
+    parts = [
+        f"Vas a crear el video «{name}» en videos/{name}/ (ya existe el scaffold del skill market-video).",
+        f"Tipo: {t['label']}.",
+        f"Tema / lo que debe explicar: {tema}",
+        f"Voz elegida: {voice.get('name')} (id {voice['voice_id']}, ya en video.json). Fondo: {bg}.",
+    ]
+    if service_id:
+        parts.append(f"Se publicará en la página del servicio {service_id} (revisa en el código qué hace realmente su plugin antes de escribir el guion).")
+    if note:
+        parts.append(f"Instrucciones del usuario: {note}")
+    parts += [
+        t["brief"],
+        "Respeta los criterios aprobados del skill market-video (marca Market, sin «micro», carátula, subtítulos, sin whoosh, 9:16 real, ≤ 65 s).",
+        "Al terminar responde en español con: guion final por escena, duración estimada, caracteres que gastará la voz real y qué falta (voz, render, publicar).",
+    ]
+    return "\n".join(parts)
+
+
+def run_claude(prompt):
+    if not Path(CLAUDE).exists() and not shutil.which("claude"):
+        sys.exit("No encuentro el binario de claude (CLAUDE_BIN).")
+    env = dict(os.environ)
+    env["PATH"] = f"{Path(CLAUDE).parent}:/usr/local/bin:/usr/bin:/bin:" + env.get("PATH", "")
+    env.setdefault("HOME", "/root")
+    allowed = ["Read", "Write", "Edit", "Glob", "Grep", "Bash(python3:*)", "Bash(NO_TTS=1 python3:*)", "Bash(MUSIC=0 NO_TTS=1 python3:*)",
+               "Bash(npx:*)", "Bash(ffmpeg:*)", "Bash(ffprobe:*)", "Bash(ls:*)", "Bash(cat:*)", "Bash(grep:*)", "Bash(sed:*)", "Bash(mkdir:*)",
+               "Bash(cp:*)", "Bash(rm:*)", f"Bash({SKILL}/scripts/check-video:*)", "Bash(.claude/skills/market-video/scripts/check-video:*)"]
+    cmd = [CLAUDE, "-p", prompt, "--model", CFG["model"], "--max-turns", str(CFG["max_turns"]),
+           "--max-budget-usd", str(CFG["max_budget_usd"]), "--permission-mode", "dontAsk",
+           "--setting-sources", "project", "--allowedTools", ",".join(allowed), "--no-session-persistence"]
+    print(f"\nClaude trabajando (modelo {CFG['model']}, tope ${CFG['max_budget_usd']}, hasta {CFG['timeout_min']} min)…\n")
+    try:
+        return subprocess.run(cmd, cwd=ROOT, env=env, timeout=CFG["timeout_min"] * 60).returncode
+    except subprocess.TimeoutExpired:
+        print("Claude excedió el tiempo; revisa videos/ (puede haber quedado a medias).")
+        return 1
+
+
+# ───────────────────────── comandos ─────────────────────────
+def cmd_voces(args):
+    voices = fetch_voices()
+    if args.json:
+        print(json.dumps([{"id": v["voice_id"], "name": v.get("name"), "category": v.get("category"), "labels": v.get("labels")} for v in voices], ensure_ascii=False, indent=2))
+        return 0
+    print(f"{len(voices)} voz(ces) en tu biblioteca:\n")
+    for v in voices:
+        print(f"{v['voice_id']}  {voice_row(v)}")
+    return 0
+
+
+def cmd_fondos(_):
+    bgs = list_backgrounds()
+    if not bgs:
+        print(f"Sin audios en {BG_DIR}")
+        return 1
+    for p, d in bgs:
+        print(bg_label(p, d))
+    print(f"\nCarpeta: {BG_DIR} (Medios → audio-backgrounds). Se aceptan {', '.join(sorted(AUDIO_EXT))}.")
+    return 0
+
+
+def cmd_lista(_):
+    if not VIDEOS.is_dir():
+        print("Sin carpeta videos/")
+        return 1
+    print(f"{'VIDEO':<28} {'TIPO':<12} {'VOZ':<8} {'RENDER':<8} PUBLICADO")
+    pub = ROOT / "storage/app/media/videos"
+    for d in sorted(p for p in VIDEOS.iterdir() if p.is_dir() and not p.name.endswith("-vertical") and (p / "build.py").exists()):
+        try:
+            cfg = json.loads((d / "video.json").read_text())
+        except (OSError, ValueError):
+            cfg = {}
+        voz = "sí" if list(d.glob("assets/s1.mp3")) and (d / "assets/mezcla.mp3").exists() else "no"
+        rend = "sí" if list(d.glob("renders/*.mp4")) else "no"
+        vers = sorted(f.name for f in pub.glob(f"{d.name}-v*.mp4")) if pub.is_dir() else []
+        print(f"{d.name:<28} {cfg.get('tipo', 'explicativo'):<12} {voz:<8} {rend:<8} {', '.join(vers) or '—'}")
+    return 0
+
+
+def video_dir(name):
+    d = VIDEOS / name
+    if not d.is_dir():
+        sys.exit(f"No existe videos/{name} (usa `video-cli list`).")
+    return d
+
+
+def cmd_voz(args):
+    d = video_dir(args.nombre)
+    cfg = json.loads((d / "video.json").read_text())
+    chars = sum(len(s["text"]) for s in cfg["scenes"])
+    todo = [i + 1 for i in range(len(cfg["scenes"])) if not (d / f"assets/s{i + 1}.mp3").exists() or (d / f"assets/s{i + 1}.mp3").stat().st_size < 3000]
+    print(f"Voz id {cfg.get('voice')} · {len(cfg['scenes'])} escenas · ~{chars} caracteres de ElevenLabs.")
+    if todo and any((d / f"assets/s{i}.mp3").exists() for i in todo):
+        print("Hay locuciones de relleno (NO_TTS) y se regenerarán todas.")
+    if not args.si and not yn("¿Generar la voz real (gasta caracteres)?", False):
+        return 0
+    for f in d.glob("assets/s[0-9]*.mp3"):
+        f.unlink()
+    env = dict(os.environ)
+    if cfg.get("sin_fondo"):
+        env["MUSIC"] = "0"
+    return subprocess.run(["python3", "build.py"], cwd=d, env=env).returncode
+
+
+def cmd_render(args):
+    d = video_dir(args.nombre)
+    dirs = [d] + ([VIDEOS / f"{args.nombre}-vertical"] if (VIDEOS / f"{args.nombre}-vertical").is_dir() else [])
+    if not args.si and not yn(f"¿Renderizar {len(dirs)} versión(es)? (1–7 min cada una)", True):
+        return 0
+    procs = [(x, subprocess.Popen(["npx", "--yes", HYPERFRAMES, "render"], cwd=x)) for x in dirs]
+    rc = 0
+    for x, p in procs:
+        rc |= p.wait()
+        print(f"{x.name}: {'ok' if p.returncode == 0 else 'ERROR'}")
+    return rc
+
+
+def cmd_publicar(args):
+    cmd = [str(SKILL / "scripts/publish-video"), args.nombre, args.version] + ([args.servicio] if args.servicio else []) + ([args.titulo] if args.titulo else [])
+    return subprocess.run(cmd, cwd=ROOT).returncode
+
+
+def cmd_ajustar(args):
+    d = video_dir(args.nombre)
+    cfg = json.loads((d / "video.json").read_text())
+    tipo = cfg.get("tipo", "explicativo")
+    prompt = (f"Ajusta el video existente videos/{args.nombre}/ (tipo {tipo}). Cambio pedido: {args.cambio}\n"
+              f"Sigue el skill {TYPES.get(tipo, TYPES['libre'])['skill']}. Itera con NO_TTS=1 si cambia el guion (borra assets/s*.mp3 solo en ese caso, "
+              "y avisa que la voz real hay que regenerarla). No renderices ni publiques. Responde en español con lo que cambió.")
+    return run_claude(prompt)
+
+
+def create(args, interactive):
+    st = load_state()
+    if interactive:
+        keys = list(TYPES)
+        tipo = keys[pick("¿Qué tipo de video vamos a construir?", [TYPES[k]["label"] for k in keys], 1)]
+    else:
+        tipo = args.tipo or "explicativo"
+    tema = args.tema if getattr(args, "tema", None) else ask("\nTema: ¿qué debe explicar/mostrar el video? (qué módulo, a quién va, qué problema resuelve)")
+    if not tema:
+        sys.exit("Hace falta un tema.")
+    name = args.nombre or slugify(ask("Nombre de la carpeta (kebab-case)", slugify(tema)[:32]))
+    if (VIDEOS / name).exists():
+        sys.exit(f"videos/{name} ya existe (usa `video-cli tweak {name} \"…\"`).")
+    service_id = args.servicio if args.servicio is not None else (ask("ID del servicio donde se publicará (vacío = ninguno)") if interactive else "")
+
+    voices = fetch_voices()
+    if args.voz:
+        voice = find_voice(voices, args.voz)
+        if not voice:
+            sys.exit(f"No encuentro una voz única que coincida con «{args.voz}» (usa `video-cli voices`).")
+    else:
+        voice = choose_voice(voices, st)
+
+    if args.fondo:
+        if args.fondo == "ninguno":
+            background = "none"
+        else:
+            background = BG_DIR / args.fondo
+            if not background.is_file():
+                sys.exit(f"No existe {background} (usa `video-cli bg list`).")
+    else:
+        background = choose_background(st)
+
+    note = args.nota or (ask("Instrucciones extra para Claude (opcional)") if interactive else "")
+    bg_txt = "ninguno" if background == "none" else background.name if background else "por defecto del skill"
+    print(f"\nResumen\n  tipo:   {tipo}\n  nombre: videos/{name}\n  tema:   {tema}\n  voz:    {voice.get('name')}\n  fondo:  {bg_txt}\n  servicio: {service_id or '—'}\n  nota:   {note or '—'}")
+    print("Claude diseña guion y escenas SIN gastar voz; la voz real, el render y la publicación son pasos aparte.")
+    if not args.si and not yn("¿Continuar?", True):
+        return 0
+
+    save_state({**st, "voice_id": voice["voice_id"], "background": background.name if isinstance(background, Path) else st.get("background")})
+    scaffold(name, voice, background, tipo)
+    rc = run_claude(build_prompt(name, tipo, voice, background, tema, service_id, note))
+    print(f"\n{'Listo' if rc == 0 else 'Terminó con errores'}: videos/{name}")
+    print(f"Siguiente:\n  revisar fotogramas →  cd videos/{name} && npx --yes {HYPERFRAMES} snapshot --at 4,12,25 -o /tmp/snap --no-end\n"
+          f"  video-cli tweak {name} \"…\"   (cambios)\n  video-cli voice {name}             (voz real)\n  video-cli render {name}\n  video-cli publish {name} v1 {service_id or '<servicio_id>'} \"Título\"")
+    return rc
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="video-cli", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd")
+    n = sub.add_parser("new", aliases=["nuevo"])
+    n.add_argument("nombre", nargs="?")
+    n.add_argument("--tipo", choices=list(TYPES))
+    n.add_argument("--tema")
+    n.add_argument("--voz")
+    n.add_argument("--fondo")
+    n.add_argument("--servicio")
+    n.add_argument("--nota")
+    n.add_argument("--si", action="store_true", help="sin confirmación final")
+    v = sub.add_parser("voices", aliases=["voces"]); v.add_argument("--json", action="store_true")
+    bg = sub.add_parser("bg", aliases=["fondos"]); bg.add_argument("action", nargs="?", default="list", choices=["list"])
+    sub.add_parser("list", aliases=["lista"])
+    vz = sub.add_parser("voice", aliases=["voz"]); vz.add_argument("nombre"); vz.add_argument("--si", action="store_true")
+    rd = sub.add_parser("render"); rd.add_argument("nombre"); rd.add_argument("--si", action="store_true")
+    pb = sub.add_parser("publish", aliases=["publicar"]); pb.add_argument("nombre"); pb.add_argument("version"); pb.add_argument("servicio", nargs="?"); pb.add_argument("titulo", nargs="?")
+    aj = sub.add_parser("tweak", aliases=["ajustar"]); aj.add_argument("nombre"); aj.add_argument("cambio")
+    args = ap.parse_args()
+
+    if args.cmd is None:
+        if not sys.stdin.isatty():
+            print(__doc__)
+            return 0
+        args = n.parse_args([])
+        return create(args, interactive=True)
+    table = {"new": lambda a: create(a, interactive=sys.stdin.isatty() and not (a.tipo and a.tema)),
+             "voices": cmd_voces, "bg": cmd_fondos, "list": cmd_lista, "voice": cmd_voz,
+             "render": cmd_render, "publish": cmd_publicar, "tweak": cmd_ajustar}
+    alias = {"nuevo": "new", "voces": "voices", "fondos": "bg", "lista": "list", "voz": "voice", "publicar": "publish", "ajustar": "tweak"}
+    return table[alias.get(args.cmd, args.cmd)](args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
