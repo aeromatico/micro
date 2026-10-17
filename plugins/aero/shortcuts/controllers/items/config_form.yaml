@@ -1,0 +1,10 @@
+name: Atajo
+form: $/aero/shortcuts/models/item/fields.yaml
+modelClass: Aero\Shortcuts\Models\Item
+defaultRedirect: aero/shortcuts/items
+create:
+    redirect: aero/shortcuts/items
+    redirectClose: aero/shortcuts/items
+update:
+    redirect: aero/shortcuts/items
+    redirectClose: aero/shortcuts/items

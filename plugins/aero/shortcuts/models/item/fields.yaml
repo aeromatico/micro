@@ -1,0 +1,43 @@
+fields:
+    label:
+        label: Nombre del botón
+        span: left
+        required: true
+    kind:
+        label: Tipo
+        type: dropdown
+        span: right
+        default: list
+    target:
+        label: Pantalla
+        type: dropdown
+        span: full
+        emptyOption: '-- Elegir --'
+        comment: 'Lista: abre la pantalla. Formulario: abre «Nuevo» de esa pantalla.'
+        trigger:
+            action: show
+            field: kind
+            condition: value[list][form]
+    url:
+        label: URL
+        span: full
+        placeholder: 'https://...'
+        comment: 'Se abre en una pestaña nueva.'
+        trigger:
+            action: show
+            field: kind
+            condition: value[url]
+    icon:
+        label: Ícono
+        type: dropdown
+        span: left
+        default: icon-star
+    color:
+        label: Color
+        type: colorpicker
+        span: right
+        availableColors: ['#2563eb', '#16a34a', '#dc2626', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#475569']
+    is_active:
+        label: Visible en el dashboard
+        type: switch
+        default: true

@@ -1,0 +1,11 @@
+title: Mis atajos
+list: $/aero/shortcuts/models/item/columns.yaml
+modelClass: Aero\Shortcuts\Models\Item
+recordUrl: aero/shortcuts/items/update/:id
+noRecordsMessage: Aún no tienes atajos.
+recordsPerPage: 30
+showSorting: false
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

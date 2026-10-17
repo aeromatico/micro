@@ -1,0 +1,6 @@
+columns:
+    sort_order: {label: '#', type: number, sortable: true}
+    label: {label: Nombre, searchable: true, sortable: true}
+    kind: {label: Tipo, type: selectable, options: {list: Lista, form: Formulario, url: URL}}
+    target: {label: Destino, type: text, valueFrom: href, searchable: false}
+    is_active: {label: Visible, type: switch}

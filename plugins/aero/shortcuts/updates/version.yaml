@@ -1,0 +1,3 @@
+1.0.0:
+    - "Atajos del dashboard: tabla de botones por tenant (formulario, lista o URL personalizada)."
+    - create_items_table.php

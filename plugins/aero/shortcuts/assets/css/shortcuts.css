@@ -1,0 +1,10 @@
+.aero-sc { display: flex; flex-wrap: nowrap; gap: 10px; overflow-x: auto; padding: 4px 2px 8px; width: 100%; }
+.aero-sc-item { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; min-width: 130px; padding: 10px 14px; border-radius: 10px; background: #fff; border: 1px solid #e5e7eb; color: #1f2937; text-decoration: none; cursor: grab; user-select: none; transition: box-shadow .15s, transform .15s; }
+.aero-sc-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.12); text-decoration: none; color: #111827; }
+.aero-sc-icon { width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: var(--sc-color, #475569); color: #fff; font-size: 15px; }
+.aero-sc-label { font-weight: 600; font-size: 13px; white-space: nowrap; }
+.aero-sc-ext { font-size: 10px; opacity: .5; }
+.aero-sc-item.is-dragging { opacity: .4; transform: scale(.97); }
+.aero-sc-item.is-over { outline: 2px dashed #2563eb; outline-offset: 2px; }
+.aero-sc-add { cursor: pointer; background: transparent; border-style: dashed; color: #6b7280; }
+.aero-sc-add .aero-sc-icon { background: #9ca3af; }
