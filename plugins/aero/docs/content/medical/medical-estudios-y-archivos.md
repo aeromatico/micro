@@ -22,4 +22,4 @@ Archivos del paciente (PDF, imágenes PNG/JPG/WebP, Word y texto, hasta 20 MB) l
 
 Al quitar un archivo, los resultados numéricos anotados con él se conservan. Los analitos se editan en `Historia clínica → Analitos`.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

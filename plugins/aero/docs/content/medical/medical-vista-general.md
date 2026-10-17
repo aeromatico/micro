@@ -35,4 +35,4 @@ Historia clínica electrónica para consultorios (personas) y veterinarias (anim
 > [!NOTE]
 > El módulo no trae cifras clínicas de fábrica: los rangos alto/bajo, los esquemas de vacunación, los intervalos de desparasitación y los cuestionarios los define el negocio. El catálogo CIE-10 viene de la edición en español de la OPS/OMS. La lista LINAME (Bolivia) aún no está cargada: la receta usa los medicamentos del negocio o texto libre.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

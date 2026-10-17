@@ -18,7 +18,10 @@ Límites con los que la [hoja de seguimiento](medical-hoja-de-seguimiento) marca
 | Medición | Un signo vital del modo o un [analito](medical-estudios-y-archivos) del negocio. |
 | Límite bajo / alto | Se marca ▼ si el valor es menor al bajo y ▲ si es mayor al alto. Basta uno de los dos. |
 
-> [!IMPORTANT]
-> El sistema **no trae rangos de fábrica**: los define el negocio (un veterinario para cada especie, un médico para personas). Mientras no haya un rango, no se marca nada en rojo.
+> [!TIP]
+> En modo humano hay un botón **Cargar rangos de referencia para adultos (borrador)**: agrega los que falten (presión, FC, FR, temperatura, saturación, IMC, glucosa, HbA1c, colesterol y triglicéridos) sin cambiar los suyos. Son un borrador sin revisión médica: confírmelos con un médico. Al editar uno, pasa a ser suyo.
 
-**Versión documentada:** 1.10.1
+> [!IMPORTANT]
+> Para animales el sistema **no trae rangos**: los define el negocio (un veterinario para cada especie, un médico para personas). Mientras no haya un rango, no se marca nada en rojo.
+
+**Versión documentada:** 1.12.0

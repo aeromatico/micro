@@ -24,4 +24,4 @@ En la ficha: sucursal, servicio, profesional (opcional), fecha y hora, y motivo.
 > [!NOTE]
 > El motivo de la reserva lo ve recepción: debe ser breve y sin datos clínicos sensibles.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

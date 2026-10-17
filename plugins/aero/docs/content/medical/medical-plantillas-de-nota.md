@@ -24,4 +24,4 @@ Vienen por defecto:
 > [!TIP]
 > Elija con cuál se abre cada tipo de nota en [Configuración](medical-configuracion). Cada nota guarda una copia de la plantilla con que se abrió.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

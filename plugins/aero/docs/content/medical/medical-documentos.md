@@ -25,4 +25,4 @@ Texto con variables entre llaves dobles: `{{paciente}}`, `{{documento}}`, `{{eda
 
 Cada documento generado queda en la ficha del paciente.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

@@ -23,4 +23,4 @@ Roles listos: *Historia clínica: Administrador*, *Recepcionista* y *Profesional
 
 Registra quién abrió, creó, editó, eliminó, firmó, imprimió, descargó, importó o exportó, y cuándo. Guarda **solo los nombres de los campos** cambiados, nunca los valores clínicos. No se puede editar ni borrar.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

@@ -21,4 +21,4 @@ Se responden dentro de la nota ([Consultas](medical-consultas)): todas las pregu
 > [!IMPORTANT]
 > El módulo no trae cuestionarios clínicos de fábrica: el negocio carga los que usa.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

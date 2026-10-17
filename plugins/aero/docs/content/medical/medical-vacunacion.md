@@ -24,4 +24,4 @@ Nombre, especie (animal; vacío = todas), refuerzo periódico (días) y las **do
 
 Cada día a las 09:00 se avisa al cliente o tutor (WhatsApp o correo, por Aero.Notify) de las dosis próximas, **una vez por dosis** y solo si no se aplicó una posterior. Se activa en [Configuración](medical-configuracion) (apagado por defecto). En personas el mensaje no nombra la vacuna.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

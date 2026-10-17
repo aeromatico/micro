@@ -21,4 +21,4 @@ Se elige del **catálogo de exámenes** (editable: hemograma, glucosa, hemoglobi
 > [!NOTE]
 > Receta y órdenes se bloquean al firmar la nota y se imprimen desde la nota firmada (**Imprimir receta**, **Imprimir órdenes**).
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

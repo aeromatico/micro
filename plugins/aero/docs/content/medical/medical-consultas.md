@@ -36,4 +36,4 @@ Notas clínicas del paciente. Hay dos tipos: **Consulta** y **Control**.
 
 **Mi firma:** `Historia clínica → Mi firma` (título, matrícula, especialidad, imagen de firma y de sello; se guardan cifradas).
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

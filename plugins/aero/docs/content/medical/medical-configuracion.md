@@ -27,4 +27,4 @@ Define el modo del negocio, las plantillas con las que se abre cada nota y los a
 > [!WARNING]
 > Cambiar el modo **no borra nada**: cada paciente conserva el modo con que se creó (y sus campos). Solo cambian los textos y campos para los pacientes nuevos. Las plantillas ya creadas no se vuelven a sembrar: edítelas a mano.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

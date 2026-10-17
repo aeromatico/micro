@@ -25,4 +25,4 @@ En la ficha: elija el analito (editable en **Analitos**) o escriba otro, el valo
 
 Alergias siempre visibles, medicación y antecedentes, próximas reservas, notas, [vacunación](medical-vacunacion), [archivos](medical-estudios-y-archivos), [documentos](medical-documentos), agendar un control y exportar los datos del paciente.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

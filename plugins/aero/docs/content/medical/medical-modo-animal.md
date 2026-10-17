@@ -25,4 +25,4 @@ Servicio, fecha, notas (cifradas), **fotos antes y después** (hasta 10 por lado
 > [!NOTE]
 > Peluquería la opera recepción o quien atienda ese servicio: esas personas ven solo las fotos de peluquería, no el resto de los archivos clínicos.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

@@ -24,4 +24,4 @@ Los datos del paciente y del negocio son **siempre del negocio**. La exportació
 > [!WARNING]
 > El ZIP contiene datos de salud sin cifrar: guárdelo en un lugar seguro. Cada exportación queda en la bitácora.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

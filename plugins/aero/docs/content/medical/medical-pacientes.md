@@ -29,4 +29,4 @@ Fichas de pacientes del negocio. En modo humano el paciente es la persona; en mo
 
 La ficha del paciente (para personal clínico) reúne alergias, hoja de seguimiento, notas, vacunas, archivos y documentos en una pantalla: ver [Hoja de seguimiento](medical-hoja-de-seguimiento).
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

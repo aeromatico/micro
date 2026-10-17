@@ -18,4 +18,4 @@ Se agregan dentro de la nota. Cada uno es **principal o secundario** (solo uno p
 > [!NOTE]
 > El nombre guardado de un código CIE-10 sale del catálogo oficial, no de lo que se escriba. Algunos códigos de 4 caracteres de los grupos con subdivisión común (por ejemplo E11.9) están compuestos a partir de ese texto; ver `data/README.md` del módulo.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0

@@ -20,4 +20,4 @@ Se llenan dentro de la nota, en la sección de signos vitales de la plantilla.
 - Al firmar la nota se bloquean.
 - En animales, el último peso firmado pasa a la ficha del paciente.
 
-**Versión documentada:** 1.10.1
+**Versión documentada:** 1.12.0
