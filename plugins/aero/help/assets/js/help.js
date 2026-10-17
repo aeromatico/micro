@@ -18,6 +18,8 @@
         help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>',
         close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
         plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+        bug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',
+        ticket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v12" stroke-dasharray="2 2"/></svg>',
         send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>'
     };
 
@@ -236,8 +238,51 @@
 
     function apply(res) {
         session = res.session;
+        if (res.channels) { setChannels(res.channels); }
         el.input.placeholder = res.hint || 'Escribe tu duda…';
         return render(res.blocks || []);
+    }
+
+    /* ---------- reporte / ticket rápido (barra superior) ---------- */
+
+    var channels = [];
+
+    function setChannels(list) {
+        channels = list || [];
+        if (el.quick) { el.quick.style.display = channels.length ? '' : 'none'; }
+        if (el.qReport) { el.qReport.style.display = channels.indexOf('report') > -1 ? '' : 'none'; }
+        if (el.qTicket) { el.qTicket.style.display = channels.indexOf('ticket') > -1 ? '' : 'none'; }
+    }
+
+    function quickForm(via) {
+        var isTicket = via === 'ticket';
+        var text = h('textarea', { placeholder: isTicket ? 'Describe lo que necesitas…' : 'Cuéntanos qué pasó y qué esperabas que pasara…', maxlength: '1500', 'aria-label': 'Descripción' });
+        var kind = h('select', { 'aria-label': 'Tipo' }, [h('option', { value: 'bug', text: 'Algo no funciona' }), h('option', { value: 'help', text: 'Necesito ayuda' })]);
+        var prio = h('select', { 'aria-label': 'Prioridad' }, [h('option', { value: 'low', text: 'Baja' }), h('option', { value: 'normal', text: 'Normal', selected: '' }), h('option', { value: 'high', text: 'Alta' }), h('option', { value: 'urgent', text: 'Urgente' })]);
+        prio.value = 'normal';
+        var msg = h('div', { 'class': 'ahp-err' });
+        var go = h('button', { type: 'button', 'class': 'ahp-btn primary', text: isTicket ? 'Abrir ticket' : 'Enviar reporte' });
+        var cancel = h('button', { type: 'button', 'class': 'ahp-btn', text: 'Cancelar' });
+        var box = h('div', { 'class': 'ahp-qf' }, [
+            h('strong', { text: isTicket ? 'Abrir un ticket' : 'Reportar una incidencia' }),
+            h('small', { text: 'Incluimos la pantalla donde estás' + (session ? ' y esta conversación' : '') + '.' }),
+            isTicket ? h('label', {}, [h('span', { text: 'Prioridad' }), prio]) : h('label', {}, [h('span', { text: 'Tipo' }), kind]),
+            text, msg, h('div', { 'class': 'ahp-esc-o' }, [go, cancel])
+        ]);
+        cancel.addEventListener('click', function () { box.remove(); });
+        go.addEventListener('click', function () {
+            msg.textContent = '';
+            go.disabled = true;
+            call('onQuick', { session: session || '', via: via, message: text.value.trim(), kind: kind.value, priority: prio.value, url: location.href, area: guessArea() }).then(function (res) {
+                box.replaceChildren(h('strong', { text: res.label + ' enviado' }),
+                    h('small', { text: 'Ya lo tiene el equipo. Te respondemos en pocos minutos.' }),
+                    h('div', { 'class': 'ahp-esc-o' }, [linkBtn('Ver ' + res.label.toLowerCase(), res.url, true), chatBtn(res.chat)]));
+                scroll();
+            }).catch(function (e) { msg.textContent = e.message; go.disabled = false; });
+        });
+        el.feed.appendChild(box);
+        scroll();
+        text.focus();
     }
 
     /* ---------- acciones ---------- */
@@ -299,10 +344,15 @@
         var fresh = h('button', { type: 'button', 'class': 'ahp-icon', 'aria-label': 'Nueva conversación', title: 'Nueva conversación', html: ICON.plus });
         var x = h('button', { type: 'button', 'class': 'ahp-icon', 'aria-label': 'Cerrar', title: 'Cerrar', html: ICON.close });
         var head = h('div', { 'class': 'ahp-head' }, [h('strong', { html: 'Ayuda<small>Guías, documentación y soporte</small>' }), fresh, x]);
+        el.qReport = h('button', { type: 'button', 'class': 'ahp-q', html: ICON.bug + '<span>Reportar incidencia</span>' });
+        el.qTicket = h('button', { type: 'button', 'class': 'ahp-q', html: ICON.ticket + '<span>Abrir ticket</span>' });
+        el.quick = h('div', { 'class': 'ahp-quick', style: 'display:none' }, [el.qReport, el.qTicket]);
+        el.qReport.addEventListener('click', function () { if (!el.feed.querySelector('.ahp-qf')) { quickForm('report'); } });
+        el.qTicket.addEventListener('click', function () { if (!el.feed.querySelector('.ahp-qf')) { quickForm('ticket'); } });
         var foot = h('div', { 'class': 'ahp-foot' }, [el.input, el.send]);
 
         el.panel = h('aside', { 'class': 'ahp', role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Ayuda' }, [
-            head, el.feed, foot, h('div', { 'class': 'ahp-note', text: 'Las respuestas salen de la documentación oficial.' })
+            head, el.quick, el.feed, foot, h('div', { 'class': 'ahp-note', text: 'Las respuestas salen de la documentación oficial.' })
         ]);
 
         x.addEventListener('click', close);

@@ -184,6 +184,20 @@ class HelpTest extends PluginTestCase
         $this->assertNotNull(Engine::find($session->id));
     }
 
+    public function testQuickReportNeedsAvailableChannelAndEnoughText(): void
+    {
+        $this->expectException(\ApplicationException::class);
+
+        \Aero\Help\Classes\Escalation::quick('inexistente', 'algo no funciona en esta pantalla');
+    }
+
+    public function testChannelsComeWithTheFirstTurn(): void
+    {
+        $res = (new Engine($this->makeSession(1)))->respond('choose', 'menu');
+
+        $this->assertArrayHasKey('channels', $res);
+    }
+
     protected function backendUser(string $login): \Backend\Models\User
     {
         return \Backend\Models\User::create([

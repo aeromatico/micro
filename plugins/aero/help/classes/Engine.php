@@ -142,6 +142,7 @@ class Engine
             'session' => $this->session->id,
             'status'  => $this->session->status,
             'hint'    => $hint,
+            'channels' => array_column(Escalation::available(), 'via'),
             'blocks'  => $blocks,
         ];
     }

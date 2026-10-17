@@ -36,40 +36,13 @@ class Escalation
         }
 
         $summary = self::summary($session, trim($note));
-        $context = ['userAgent' => request()->userAgent(), 'title' => 'Ayuda guiada (sesión #' . $session->id . ')'];
-
-        if ($via === 'report') {
-            $post = \Aero\Community\Classes\Reporter::create([
-                'type'    => 'help',
-                'message' => $summary,
-                'area'    => $session->area,
-                'url'     => $session->url,
-                'context' => $context,
-            ]);
-            $result = [
-                'ref'   => 'post:' . $post->id,
-                'label' => 'Reporte #' . $post->id,
-                'url'   => \Backend::url('aero/community/posts/update/' . $post->id),
-                'chat'  => class_exists(\Aero\Community\Classes\ChatBridge::class) ? \Aero\Community\Classes\ChatBridge::forPost($post) : null,
-            ];
-        } else {
-            $department = \Aero\Community\Classes\TicketBridge::departments()[0]['id'] ?? null;
-            $ticket = \Aero\Community\Classes\TicketBridge::create([
-                'subject'       => self::subject($session, $note),
-                'description'   => $summary,
-                'department_id' => $department,
-                'priority'      => 'normal',
-                'url'           => $session->url,
-                'area'          => $session->area,
-                'context'       => $context,
-            ]);
-            $result = [
-                'ref'   => 'ticket:' . ($ticket->id),
-                'label' => 'Ticket #' . ($ticket->number ?? $ticket->id),
-                'url'   => \Backend::url('aero/crm/support/view/' . $ticket->id),
-                'chat'  => null,
-            ];
-        }
+        $result = self::submit($via, [
+            'message' => $summary,
+            'subject' => self::subject($session, $note),
+            'url'     => $session->url,
+            'area'    => $session->area,
+            'title'   => 'Ayuda guiada (sesión #' . $session->id . ')',
+        ]);
 
         $session->status = 'escalated';
         $session->escalated_via = $via;
@@ -79,6 +52,81 @@ class Escalation
         \Event::fire('aero.help.escalated', [$session, $via]);
 
         return $result;
+    }
+
+    /**
+     * Reporte o ticket directo desde la barra superior del panel, sin pasar por
+     * la conversación. Si hay una sesión abierta y es de quien envía, se enlaza.
+     */
+    public static function quick(string $via, string $message, array $opts = [], ?Session $session = null): array
+    {
+        if (!in_array($via, array_column(self::available(), 'via'), true)) {
+            throw new ApplicationException('Ese canal no está disponible.');
+        }
+        $message = trim($message);
+        if (mb_strlen($message) < 5) {
+            throw new ApplicationException('Cuéntanos un poco más (mínimo 5 caracteres).');
+        }
+
+        $result = self::submit($via, [
+            'message'  => $message,
+            'subject'  => mb_substr('Ayuda: ' . preg_replace('/\s+/', ' ', $message), 0, 120),
+            'url'      => $opts['url'] ?? ($session->url ?? null),
+            'area'     => $opts['area'] ?? ($session->area ?? null),
+            'type'     => $opts['type'] ?? 'bug',
+            'priority' => $opts['priority'] ?? 'normal',
+            'title'    => 'Ayuda guiada (reporte directo)',
+        ]);
+
+        if ($session && $session->status !== 'escalated') {
+            $session->status = 'escalated';
+            $session->escalated_via = $via;
+            $session->escalated_ref = $result['ref'];
+            $session->save();
+        }
+        \Event::fire('aero.help.escalated', [$session, $via]);
+
+        return $result;
+    }
+
+    /** Crea el reporte de Community o el ticket de CRM y devuelve cómo verlo. */
+    protected static function submit(string $via, array $d): array
+    {
+        $context = ['userAgent' => request()->userAgent(), 'title' => $d['title'] ?? 'Ayuda guiada'];
+
+        if ($via === 'report') {
+            $post = \Aero\Community\Classes\Reporter::create([
+                'type'    => $d['type'] ?? 'help',
+                'message' => $d['message'],
+                'area'    => $d['area'] ?? null,
+                'url'     => $d['url'] ?? null,
+                'context' => $context,
+            ]);
+
+            return [
+                'ref'   => 'post:' . $post->id,
+                'label' => 'Reporte #' . $post->id,
+                'url'   => \Backend::url('aero/community/posts/update/' . $post->id),
+                'chat'  => class_exists(\Aero\Community\Classes\ChatBridge::class) ? \Aero\Community\Classes\ChatBridge::forPost($post) : null,
+            ];
+        }
+
+        $ticket = \Aero\Community\Classes\TicketBridge::create([
+            'subject'       => $d['subject'],
+            'description'   => $d['message'],
+            'department_id' => \Aero\Community\Classes\TicketBridge::departments()[0]['id'] ?? null,
+            'priority'      => $d['priority'] ?? 'normal',
+            'url'           => $d['url'] ?? null,
+            'area'          => $d['area'] ?? null,
+            'context'       => $context,
+        ]);
+
+        return [
+            'ref'   => 'ticket:' . $ticket->id,
+            'label' => 'Ticket #' . ltrim((string) ($ticket->number ?? $ticket->id), '#'),
+            'url'   => \Backend::url('aero/crm/support/view/' . $ticket->id),
+            'chat'  => null,
+        ];
     }
 
     protected static function subject(Session $session, string $note): string

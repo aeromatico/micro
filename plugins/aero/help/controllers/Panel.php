@@ -45,6 +45,23 @@ class Panel extends Controller
         return ['ok' => true] + $result;
     }
 
+    /** Reporte o ticket rápido desde la barra superior del panel. */
+    public function onQuick(): array
+    {
+        $this->throttle('quick', 20);
+
+        $session = ((int) post('session')) ? Engine::find((int) post('session'))?->session() : null;
+        $via = post('via') === 'ticket' ? 'ticket' : 'report';
+        $result = Escalation::quick($via, (string) post('message'), [
+            'url'      => mb_substr((string) post('url'), 0, 1000),
+            'area'     => mb_substr((string) post('area'), 0, 150),
+            'type'     => post('kind') === 'help' ? 'help' : 'bug',
+            'priority' => (string) post('priority'),
+        ], $session);
+
+        return ['ok' => true] + $result;
+    }
+
     public function index(): \Illuminate\Http\Response
     {
         return response('', 204);

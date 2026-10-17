@@ -15,7 +15,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    public const ASSET_VERSION = '1.0.0';
+    public const ASSET_VERSION = '1.2.1';
 
     public function pluginDetails(): array
     {
