@@ -16,7 +16,7 @@ class Plugin extends PluginBase
     public function pluginDetails(): array
     {
         return [
-            'name'        => 'Oficina',
+            'name'        => 'Reservas',
             'description' => 'Reservas de citas y servicios para cualquier negocio: sucursales, profesionales, agenda y portal público.',
             'author'      => 'Aero',
             'icon'        => 'icon-calendar',
@@ -79,24 +79,24 @@ class Plugin extends PluginBase
     {
         return [
             'aero.office.use' => [
-                'tab'   => 'Oficina',
+                'tab'   => 'Reservas',
                 'label' => 'Administrar el negocio: sucursales, servicios, profesionales, horarios, clientes y reservas',
             ],
             'aero.office.settings' => [
-                'tab'   => 'Oficina',
+                'tab'   => 'Reservas',
                 'label' => 'Configuración general del negocio y portal público (propietario)',
             ],
             'aero.office.reception' => [
-                'tab'   => 'Oficina',
+                'tab'   => 'Reservas',
                 'label' => 'Recepción: clientes, citas y agenda',
             ],
             'aero.office.professional' => [
-                'tab'   => 'Oficina',
+                'tab'   => 'Reservas',
                 'label' => 'Profesional: consultar sus propias reservas y atenciones',
             ],
             'aero.office.superadmin' => [
-                'tab'   => 'Oficina',
-                'label' => 'Administrar Oficina: datos de todos los negocios',
+                'tab'   => 'Reservas',
+                'label' => 'Administrar Reservas: datos de todos los negocios',
             ],
         ];
     }

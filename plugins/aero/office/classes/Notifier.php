@@ -4,7 +4,7 @@ use Aero\Office\Models\Booking;
 use Aero\Office\Models\OfficeSettings;
 
 /**
- * Único punto por el que Oficina avisa de lo que pasa con una reserva: dispara
+ * Único punto por el que Reservas avisa de lo que pasa con una reserva: dispara
  * eventos office.booking.* en Aero.Notify (gateway), que entrega por WhatsApp
  * (Aero.Hello) o correo según las reglas. Integración blanda y NUNCA lanza:
  * un fallo de aviso no puede romper una reserva.

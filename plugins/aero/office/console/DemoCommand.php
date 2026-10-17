@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 /** office:demo {tenant} [--fresh] — datos de demostración de un consultorio médico en UN tenant. */
 class DemoCommand extends Command
 {
-    protected $signature = 'office:demo {tenant : id del tenant} {--fresh : borra antes lo de Oficina de ESE tenant}
+    protected $signature = 'office:demo {tenant : id del tenant} {--fresh : borra antes lo de Reservas de ESE tenant}
         {--more= : agrega N reservas (y clientes, profesionales y servicios extra) sobre lo que ya hay}';
 
     protected $description = 'Carga un consultorio de demostración (sucursales, servicios, doctores, clientes y reservas).';
@@ -41,7 +41,7 @@ class DemoCommand extends Command
 
         $has = Branch::where('tenant_id', $tid)->exists() || Booking::where('tenant_id', $tid)->exists();
         if ($has && !$this->option('fresh')) {
-            $this->error('El tenant ya tiene datos de Oficina. Usa --fresh para reemplazarlos (solo los de Oficina de ese tenant).');
+            $this->error('El tenant ya tiene datos de Reservas. Usa --fresh para reemplazarlos (solo los de Reservas de ese tenant).');
 
             return self::FAILURE;
         }
