@@ -1,0 +1,48 @@
+{% if __SELF__.rgpd %}
+{% set c = __SELF__.rgpd %}
+<style>{% verbatim %}
+#aero-rgpd{--rg-bg:#fff;--rg-fg:#111827;--rg-mut:#4b5563;--rg-bd:#d1d5db;--rg-pri:#111827;--rg-pri-fg:#fff;position:fixed;z-index:2147483000;font:12px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--rg-fg)}
+:root.dark #aero-rgpd{--rg-bg:#16161d;--rg-fg:#f3f4f6;--rg-mut:#9ca3af;--rg-bd:#33333f;--rg-pri:#f3f4f6;--rg-pri-fg:#111827}
+#aero-rgpd[hidden]{display:none}
+#aero-rgpd.rg-bottom{left:0;right:0;bottom:0}
+#aero-rgpd.rg-bottom-left{left:12px;bottom:12px;max-width:340px}
+#aero-rgpd.rg-bottom-right{right:12px;bottom:12px;max-width:340px}
+#aero-rgpd.rg-center{inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);padding:12px}
+#aero-rgpd .rg-box{background:var(--rg-bg);border:1px solid var(--rg-bd);padding:8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+#aero-rgpd.rg-bottom .rg-box{padding-right:76px;border-width:1px 0 0;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between}
+#aero-rgpd:not(.rg-bottom) .rg-box{border-radius:10px;max-width:340px}
+#aero-rgpd .rg-txt{flex:1 1 320px}
+#aero-rgpd h2{display:inline;margin:0 4px 0 0;font-size:12px;font-weight:700}
+#aero-rgpd p{display:inline;margin:0;color:var(--rg-mut)}
+#aero-rgpd a{color:inherit;text-decoration:underline}
+#aero-rgpd .rg-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+#aero-rgpd.rg-bottom .rg-btns{margin-top:0}
+#aero-rgpd button{font:inherit;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid var(--rg-pri);background:transparent;color:var(--rg-fg)}
+#aero-rgpd button.rg-primary{background:var(--rg-pri);color:var(--rg-pri-fg)}
+#aero-rgpd .rg-opts{margin:6px 0 0;display:flex;flex-wrap:wrap;gap:4px 14px;flex-basis:100%}
+#aero-rgpd.rg-bottom .rg-opts{flex-basis:auto;margin:0}
+#aero-rgpd .rg-opts[hidden]{display:none}
+#aero-rgpd .rg-opts label{display:flex;gap:4px;align-items:center;color:var(--rg-fg)}
+#aero-rgpd .rg-opts input{margin:0}
+:root.dark @media (max-width:480px){#aero-rgpd.rg-bottom-left,#aero-rgpd.rg-bottom-right{left:6px;right:6px;max-width:none}}
+{% endverbatim %}</style>
+<div id="aero-rgpd" class="rg-{{ c.position }}" hidden role="dialog" aria-live="polite" aria-labelledby="aero-rgpd-t"
+     data-version="{{ c.version }}" data-analytics="{{ c.use_analytics ? 1 : 0 }}" data-marketing="{{ c.use_marketing ? 1 : 0 }}" data-log="{{ c.keep_log ? 1 : 0 }}">
+    <div class="rg-box">
+        <div class="rg-txt">
+            <h2 id="aero-rgpd-t">{{ c.textTitle }}</h2><p>{{ c.textMessage }}{% if c.policy_url %} <a href="{{ c.policy_url }}" target="_blank" rel="noopener">Más información</a>{% endif %}</p>
+        </div>
+        <div class="rg-opts" hidden>
+            <label><input type="checkbox" checked disabled> <span title="Imprescindibles; siempre activas">Necesarias</span></label>
+            {% if c.use_analytics %}<label><input type="checkbox" data-rg="a"> <span title="Medir y mejorar el uso del sitio">Análisis</span></label>{% endif %}
+            {% if c.use_marketing %}<label><input type="checkbox" data-rg="m"> <span title="Publicidad y medición de campañas">Marketing</span></label>{% endif %}
+        </div>
+        <div class="rg-btns">
+            <button type="button" data-rg-act="reject">{{ c.textReject }}</button>
+            {% if c.use_analytics or c.use_marketing %}<button type="button" data-rg-act="customize">{{ c.textCustomize }}</button>{% endif %}
+            <button type="button" data-rg-act="accept" class="rg-primary">{{ c.textAccept }}</button>
+        </div>
+    </div>
+</div>
+<script src="{{ __SELF__.jsUrl }}" defer></script>
+{% endif %}

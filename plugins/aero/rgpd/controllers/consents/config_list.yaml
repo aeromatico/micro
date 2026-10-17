@@ -1,0 +1,9 @@
+title: Consentimientos
+list: $/aero/rgpd/models/consent/columns.yaml
+modelClass: Aero\Rgpd\Models\Consent
+noRecordsMessage: Aún no hay consentimientos registrados.
+recordsPerPage: 50
+showSorting: true
+toolbar:
+    search:
+        prompt: Buscar por id de visitante

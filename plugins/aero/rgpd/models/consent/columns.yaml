@@ -1,0 +1,7 @@
+columns:
+    created_at: {label: Fecha, type: datetime, sortable: true}
+    scope_label: {label: Alcance, type: text, searchable: false}
+    consent_id: {label: Visitante, type: text, searchable: true}
+    analytics: {label: Análisis, type: switch}
+    marketing: {label: Marketing, type: switch}
+    config_version: {label: Versión, type: number}

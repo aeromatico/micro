@@ -1,0 +1,6 @@
+columns:
+    scope_label: {label: Alcance, type: text, searchable: false}
+    is_enabled: {label: Activo, type: switch}
+    position: {label: Posición, type: text}
+    version: {label: Versión, type: number}
+    updated_at: {label: Actualizado, type: datetime}

@@ -1,0 +1,49 @@
+fields:
+    is_enabled:
+        label: Mostrar aviso de cookies
+        type: switch
+        comment: 'Apagado: el sitio no muestra aviso ni registra consentimientos.'
+    position:
+        label: Posición
+        type: dropdown
+        span: left
+    policy_url:
+        label: Enlace a la política de privacidad/cookies
+        span: right
+        comment: 'Ruta (/privacidad) o URL completa. Recomendado por RGPD.'
+    title:
+        label: Título
+        placeholder: Usamos cookies
+    message:
+        label: Mensaje
+        type: textarea
+        size: small
+        placeholder: 'Déjalo vacío para usar el texto estándar.'
+    accept_label:
+        label: Botón aceptar
+        span: left
+        placeholder: Aceptar todo
+    reject_label:
+        label: Botón rechazar
+        span: right
+        placeholder: Rechazar
+    customize_label:
+        label: Botón personalizar
+        placeholder: Personalizar
+    use_analytics:
+        label: Ofrecer categoría «Análisis»
+        type: switch
+        span: left
+    use_marketing:
+        label: Ofrecer categoría «Marketing»
+        type: switch
+        span: right
+    keep_log:
+        label: Guardar registro de consentimientos
+        type: switch
+        comment: 'Guarda una prueba anónima (id aleatorio, IP con hash). Recomendado.'
+    version:
+        label: Versión del aviso
+        span: left
+        disabled: true
+        comment: 'Sube sola al cambiar textos o categorías y vuelve a pedir consentimiento.'

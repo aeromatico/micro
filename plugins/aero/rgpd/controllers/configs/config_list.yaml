@@ -1,0 +1,7 @@
+title: Aviso de cookies
+list: $/aero/rgpd/models/config/columns.yaml
+modelClass: Aero\Rgpd\Models\Config
+recordUrl: aero/rgpd/configs/update/:id
+noRecordsMessage: Sin configuraciones.
+recordsPerPage: 30
+showSorting: false

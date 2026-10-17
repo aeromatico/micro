@@ -1,0 +1,5 @@
+1.0.0:
+    - "Aviso de cookies RGPD: configuración por alcance (plataforma/tenant) y registro de consentimientos."
+    - create_configs_table.php
+    - create_consents_table.php
+    - seed_platform_config.php

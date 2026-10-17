@@ -1,0 +1,7 @@
+name: Aviso de cookies
+form: $/aero/rgpd/models/config/fields.yaml
+modelClass: Aero\Rgpd\Models\Config
+defaultRedirect: aero/rgpd/configs
+update:
+    redirect: aero/rgpd/configs/update/:id
+    redirectClose: aero/rgpd/configs
