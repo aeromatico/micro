@@ -35,6 +35,18 @@ Como **datos y configuración**, no como dos plugins ni `if` repartidos:
   a una ficha hasta que una persona la confirma. PDF e imágenes solo se asocian por el nombre del archivo.
 - **Exportación:** ZIP con JSON descifrado y los archivos originales, por paciente y del negocio (propietario). Quedan en la bitácora.
 
+## Fase 6: arranque, cobros y API
+- **Rangos de referencia para adultos** (botón en «Rangos alto/bajo», solo modo humano, nunca automático, nunca pisa rangos existentes): borrador **sin revisión médica**.
+  Fuentes: OMS y ESC/ESH (hipertensión desde 140/90; hipotensión por debajo de 90/60), OMS (IMC 18,5–24,9), ADA/OMS (glucosa en ayunas 70–99 mg/dL; HbA1c por debajo de 5,7 %),
+  ATP III (colesterol total por debajo de 200 y triglicéridos por debajo de 150 mg/dL), valores habituales del adulto en reposo (FC 60–100, FR 12–20, T 36,0–37,5 °C, SpO2 ≥ 95 %).
+  No incluye niños, embarazo ni valores que dependen del sexo o del laboratorio (hemoglobina, creatinina). Al editar uno, pasa a ser «del negocio». Para animales no se carga nada.
+- **Plantillas sugeridas** (control de paciente crónico, chequeo preventivo; variantes para animal): solo estructura de secciones.
+- **Lista inicial de medicina general:** 39 códigos CIE-10 (títulos del catálogo cargado), sin revisión médica; no fija ninguno.
+- **Cobros:** efectivo/transferencia/otro quedan cobrados; QR con Aero.Pay (`QrIssuer`, origen `medical`, descripción genérica «Atención #n») conciliado por `aero.pay.qrStatusChanged`.
+  Eventos `aero.medical.chargePaid/chargeVoided` con solo ids; Aero.Finance los asienta («Atención #n», sin concepto ni diagnóstico) si el negocio lo permite.
+  El QR no se probó contra un banco real.
+- **API/MCP:** `GET /api/v1/medical/patients[/{id}]` (scope `medical.patients.read`, solo datos administrativos, requiere la key del negocio) y recursos MCP de pacientes y cobros (sin concepto). Nada clínico.
+
 ## Seguridad
 - Texto clínico cifrado en la BD (`encrypted`). Firma y sello cifrados en la BD (nginx publica `storage/`, ni el disco «protegido» es privado).
 - Nota firmada = inmutable (modelo + huella SHA-256 con contenido, signos vitales, diagnósticos, receta, órdenes y cuestionarios). Cambios = adendas.
