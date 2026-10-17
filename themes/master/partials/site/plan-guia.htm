@@ -1,0 +1,132 @@
+{# Guía interactiva del Plan de 30 días: un plan YA lleno de una tienda de barrio (ejemplo ficticio).
+   Refleja las preguntas reales de Aero.Plan (paso 1 con preguntas clave del rubro «Comercio o tienda»). #}
+{% set guia = [
+    {'n': 1, 'nombre': 'Conocernos', 'consejo': 'Cuenta tu negocio tal como es, sin ordenarlo ni embellecerlo. Lo desordenado es justo lo que vamos a resolver.', 'campos': [
+        {'l': 'Nombre de tu negocio', 'v': 'Tienda Don Mateo'},
+        {'l': 'Rubro', 'v': 'Comercio o tienda'},
+        {'l': '¿En qué momento estás?', 'v': 'Ya opero y quiero ordenar mi trabajo'},
+        {'l': '¿Con qué trabajas hoy?', 'lista': ['WhatsApp', 'Cuaderno o papel']},
+        {'l': '¿Qué te hace perder más tiempo o dinero hoy?', 'v': 'Anoto los pedidos en un cuaderno y por WhatsApp. A veces se me pasan y no sé qué me falta en el almacén.'},
+        {'l': '¿Qué debería poder hacer tu sistema el día del lanzamiento?', 'v': 'Que mis clientes pidan por WhatsApp o desde un sitio, que yo cobre con QR y que vea mis ventas del día.'},
+        {'l': '¿Cuántos productos manejas y llevas inventario?', 'v': 'Unos 300 productos. No llevo inventario, solo lo que recuerdo.', 'clave': 1},
+        {'l': '¿Cómo cobras hoy: efectivo, QR o transferencia?', 'v': 'Efectivo y transferencias. Me gustaría cobrar con QR.', 'clave': 1},
+        {'l': '¿Vendes también por WhatsApp o redes sociales?', 'v': 'Sí, el 70% de mis pedidos llegan por WhatsApp.', 'clave': 1},
+        {'l': 'Contacto principal y horario preferido', 'v': 'Mateo Quispe, de 14:00 a 18:00 por WhatsApp'}
+    ], 'mensajes': [
+        {'de': 'equipo', 'texto': 'Hola Mateo, gracias por contarnos tan claro cómo operas. Ya tenemos lo que necesitamos para diseñar el plan. Aprobamos este paso.'}
+    ]},
+    {'n': 2, 'nombre': 'Diseñar el plan', 'consejo': 'No pidas todo a la vez. Marca qué es imprescindible para abrir y qué puede esperar: una primera versión chica y funcionando vale más que una grande sin terminar.', 'campos': [
+        {'l': '¿Qué módulos te interesan?', 'lista': ['Tienda en línea', 'Mensajes por WhatsApp', 'Cobros con QR', 'CRM y clientes']},
+        {'l': '¿Cuántas personas lo usarán?', 'v': '2 a 5 personas'},
+        {'l': '¿Qué es imprescindible para el lanzamiento y qué puede esperar?', 'v': 'Imprescindible: catálogo con precios, pedidos por WhatsApp y cobro con QR. Puede esperar: automatizaciones y asistentes de IA.'},
+        {'l': 'Alcance propuesto por Clouds', 'equipo': 1, 'v': 'Primera versión: 1) tienda en línea con tu catálogo, 2) pedidos y mensajes por WhatsApp, 3) cobros con QR, 4) lista de clientes. Queda para después: automatizaciones, IA y reservas.'},
+        {'l': 'Acepto el alcance propuesto', 'check': 1}
+    ], 'mensajes': [
+        {'de': 'equipo', 'texto': 'Dejamos el alcance escrito arriba. Si algo no te cuadra, dínoslo aquí antes de aceptarlo.'},
+        {'de': 'dueno', 'texto': 'Me parece bien, lo acepto.'}
+    ]},
+    {'n': 3, 'nombre': 'Construir y conectar', 'consejo': 'Un enlace a una carpeta compartida basta. Nunca nos mandes contraseñas: te daremos un acceso seguro para conectar tus cuentas.', 'campos': [
+        {'l': 'Logo, colores y textos de tu marca', 'v': 'Enlace a una carpeta compartida con el logo y fotos de la tienda', 'enlace': 1},
+        {'l': 'Catálogo de productos o servicios', 'v': 'Planilla con 300 productos: nombre, precio y foto', 'enlace': 1},
+        {'l': 'Número de WhatsApp y cuenta para cobros con QR', 'v': 'WhatsApp de la tienda y cuenta del Banco Unión (solo el número y el banco)'},
+        {'l': 'Dominio propio, si ya tienes uno', 'v': 'tiendadonmateo.com.bo'},
+        {'l': 'Avance de la construcción', 'equipo': 1, 'avance': [['Plataforma configurada', 'Listo'], ['Sitio o tienda armados', 'Listo'], ['Canales conectados', 'Listo'], ['Desarrollo a medida', 'No hizo falta']]}
+    ], 'mensajes': [
+        {'de': 'equipo', 'texto': 'Recibimos tu catálogo. Cargamos los 300 productos y conectamos tu WhatsApp y el cobro con QR.'}
+    ]},
+    {'n': 4, 'nombre': 'Probar con tu equipo', 'consejo': 'Usa el sistema como lo harías un día normal y anota todo lo que te incomode, aunque parezca pequeño.', 'campos': [
+        {'l': 'Lista de pruebas', 'lista': ['Hice un pedido o reserva de prueba de punta a punta', 'Probé un cobro con QR', 'Una persona de mi equipo usó el panel', 'Revisé los textos y mensajes automáticos'], 'checks': 1},
+        {'l': 'Lo que no funcionó o cambiarías', 'v': 'El botón de pagar no se veía bien en mi celular. Quisiera que el catálogo muestre primero lo más vendido.'}
+    ], 'mensajes': [
+        {'de': 'equipo', 'texto': 'Ajustamos el botón de pagar para celulares y ordenamos el catálogo por lo más vendido. Revísalo y cuéntanos.'},
+        {'de': 'dueno', 'texto': 'Ahora sí se ve bien. Todo listo de mi parte.'}
+    ]},
+    {'n': 5, 'nombre': 'Lanzar y acompañar', 'consejo': 'Anota quién hará qué. Así cada persona de tu equipo sabe desde el primer día qué le toca.', 'campos': [
+        {'l': 'Personas que usarán Market y qué hará cada una', 'v': 'Mateo administra todo, Rosa atiende los pedidos por WhatsApp y Luis prepara y entrega.'},
+        {'l': 'Fecha en que quieres lanzar', 'v': '15 de noviembre'},
+        {'l': 'Antes de abrir', 'lista': ['Mi equipo conoce el sistema y tiene su acceso', 'Mis clientes ya pueden contactarme por los canales conectados', 'Sé a quién escribir si necesito ayuda'], 'checks': 1}
+    ], 'mensajes': [
+        {'de': 'equipo', 'texto': 'Aprobado. Tu tienda está en marcha y te acompañamos esta primera semana. Cualquier duda, escríbenos aquí.'}
+    ]}
+] %}
+
+<section id="guia" class="mb-20 scroll-mt-14" x-data="{ paso: 1 }" aria-labelledby="guia-titulo">
+    <span class="text-xs tracking-wide text-accent uppercase font-bold">Guía interactiva</span>
+    <h2 id="guia-titulo" class="text-2xl font-bold mt-2">Así se ve un plan bien llenado</h2>
+    <p class="text-ink-dim mt-2 max-w-3xl leading-relaxed">Recorre el plan de <span class="text-ink font-semibold">Tienda Don Mateo</span>, una tienda de barrio de ejemplo. No necesitas respuestas perfectas: basta con ser claro y concreto. Cada paso muestra lo que respondió el dueño, lo que escribió nuestro equipo y un consejo.</p>
+
+    <div class="mt-8 grid md:grid-cols-[230px_minmax(0,1fr)] gap-6 items-start">
+        <div class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible" role="tablist" aria-label="Pasos del ejemplo">
+            {% for g in guia %}
+            <button type="button" role="tab" @click="paso = {{ g.n }}" :aria-selected="paso === {{ g.n }}"
+                :class="paso === {{ g.n }} ? 'border-accent bg-canvas-elev' : 'border-edge'"
+                class="flex gap-3 items-start text-left w-full min-w-[170px] md:min-w-0 p-3 border rounded-xl transition-colors">
+                <span class="shrink-0 w-7 h-7 rounded-full grid place-items-center text-xs font-bold bg-accent text-accent-fg">✓</span>
+                <span><span class="block font-display font-semibold text-sm">{{ g.nombre }}</span><span class="block text-xs text-ink-dim">Aprobado</span></span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="min-w-0">
+            {% for g in guia %}
+            <article x-show="paso === {{ g.n }}" x-cloak class="p-6 bg-canvas-elev border border-edge rounded-2xl flex flex-col gap-5" role="tabpanel">
+                <header class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <span class="text-xs tracking-wide text-accent uppercase font-bold">Paso {{ g.n }} de 5</span>
+                        <h3 class="font-display font-semibold text-xl mt-1">{{ g.nombre }}</h3>
+                    </div>
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full border border-accent text-accent">Aprobado</span>
+                </header>
+
+                <div class="p-3.5 border border-edge rounded-xl text-sm text-ink-dim leading-relaxed"><span class="text-ink font-semibold">Consejo: </span>{{ g.consejo }}</div>
+
+                <dl class="flex flex-col gap-4">
+                    {% for c in g.campos %}
+                    <div class="{{ c.equipo ? 'border border-dashed border-edge rounded-xl p-4' : '' }} flex flex-col gap-1.5">
+                        {% if c.equipo %}<span class="text-[11px] tracking-wide uppercase font-bold text-ink-dim">Lo redacta nuestro equipo</span>{% endif %}
+                        <dt class="text-sm font-semibold">{{ c.l }}{% if c.clave %} <span class="ml-1 text-[11px] font-normal text-accent">pregunta clave de tu rubro</span>{% endif %}</dt>
+                        <dd class="text-sm text-ink-dim leading-relaxed">
+                            {% if c.lista %}
+                                <ul class="flex flex-wrap gap-2 mt-1">
+                                    {% for i in c.lista %}<li class="px-3 py-1.5 border border-edge rounded-lg text-ink">{% if c.checks %}<span class="text-accent mr-1">✓</span>{% endif %}{{ i }}</li>{% endfor %}
+                                </ul>
+                            {% elseif c.check %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 border border-edge rounded-lg text-ink"><span class="text-accent">✓</span> Aceptado</span>
+                            {% elseif c.avance %}
+                                <ul class="flex flex-col mt-1">
+                                    {% for a in c.avance %}<li class="flex justify-between gap-3 py-2 border-t border-edge first:border-t-0"><span class="text-ink">{{ a[0] }}</span><span class="text-xs font-bold {{ a[1] == 'Listo' ? 'text-accent' : 'text-ink-dim' }}">{{ a[1] }}</span></li>{% endfor %}
+                                </ul>
+                            {% else %}
+                                {{ c.v }}{% if c.enlace %} <span class="text-xs">(enlace de ejemplo)</span>{% endif %}
+                            {% endif %}
+                        </dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+
+                <div class="border-t border-edge pt-4">
+                    <h4 class="font-display font-semibold text-sm mb-3">Conversación del paso</h4>
+                    <div class="flex flex-col gap-2">
+                        {% for m in g.mensajes %}
+                        <div class="max-w-[92%] sm:max-w-[80%] px-3.5 py-2.5 rounded-xl border text-sm {{ m.de == 'equipo' ? 'self-end border-accent/50' : 'self-start border-edge' }}">
+                            <span class="block text-[11px] text-ink-dim mb-0.5">{{ m.de == 'equipo' ? 'Equipo Clouds' : 'Mateo' }}</span>{{ m.texto }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <footer class="flex justify-between gap-3 pt-1">
+                    <button type="button" x-show="paso > 1" @click="paso--" class="text-sm font-semibold text-ink-dim hover:text-ink">← Paso anterior</button>
+                    <span x-show="paso === 1"></span>
+                    {% if g.n < 5 %}
+                        <button type="button" @click="paso++" class="text-sm font-semibold text-accent hover:underline">Siguiente paso →</button>
+                    {% else %}
+                        <a href="/contacto" class="text-sm font-semibold text-accent hover:underline">Quiero mi plan →</a>
+                    {% endif %}
+                </footer>
+            </article>
+            {% endfor %}
+            <p class="text-xs text-ink-dim mt-3">Ejemplo ficticio con fines ilustrativos. En tu plan, tus respuestas y la conversación son privadas.</p>
+        </div>
+    </div>
+</section>

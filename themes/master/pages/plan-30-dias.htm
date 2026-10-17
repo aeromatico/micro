@@ -1,0 +1,114 @@
+url = "/plan-30-dias"
+layout = "base"
+title = "Plan de 30 días — Market by Clouds"
+description = "Un camino de 5 etapas para llevar tu negocio a un sistema funcional en 30 días, construido junto a ti sobre la base probada de Market."
+==
+{% set etapas = [
+    {'n': '01', 'titulo': 'Conocernos', 'nosotros': 'Escuchamos cómo operas hoy: tus clientes, tu equipo, tus herramientas y dónde se te pierde tiempo o dinero.', 'tu': 'Nos cuentas el negocio tal como es, con tus hojas de cálculo, chats y procesos reales.', 'resultado': 'Un diagnóstico claro y el objetivo de tu primera versión.'},
+    {'n': '02', 'titulo': 'Diseñar el plan', 'nosotros': 'Traducimos tu operación a módulos de Market y definimos qué entra en la primera versión y qué queda para después.', 'tu': 'Tomas las decisiones de negocio que solo tú puedes tomar y apruebas el alcance.', 'resultado': 'Un plan acordado: alcance, prioridades y fechas.'},
+    {'n': '03', 'titulo': 'Construir y conectar', 'nosotros': 'Configuramos la plataforma, conectamos tus canales (sitio, tienda, WhatsApp, cobros) y desarrollamos a medida lo que falte.', 'tu': 'Respondes dudas y compartes contenido, catálogos y accesos a tiempo.', 'resultado': 'Tu flujo funcionando de extremo a extremo.'},
+    {'n': '04', 'titulo': 'Probar con tu equipo', 'nosotros': 'Cargamos datos reales, corregimos y ajustamos con lo que vean tus operadores y administradores.', 'tu': 'Pruebas el sistema como lo usarías a diario y nos das feedback concreto.', 'resultado': 'Un sistema pulido con casos reales de tu negocio.'},
+    {'n': '05', 'titulo': 'Lanzar y acompañar', 'nosotros': 'Dejamos todo listo para usar, tu equipo conoce y dispone de Market. Te acompañamos en los primeros pasos operativos.', 'tu': 'Pones el sistema en marcha con tus clientes.', 'resultado': 'Primera versión en producción y un camino de mejora continua.'}
+] %}
+
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">Plan de 30 días</span>
+    </nav>
+
+    <header class="max-w-3xl mb-16">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Nuestro compromiso de éxito mutuo</span>
+        <h1 class="text-4xl font-bold text-pretty mt-2">Tu sistema funcionando en 30 días o mucho menos</h1>
+        <p class="text-lg text-ink-dim mt-3 text-pretty">Un sistema no es un producto de estantería: es un camino que recorremos juntos. Más que una garantía técnica, asumimos un compromiso de esfuerzo y colaboración activa para llevar tu visión a una primera versión funcional en 30 días, sin importar el rubro de tu negocio. Cada negocio es distinto: vamos lo más rápido posible, y 30 días es el límite, no la meta.</p>
+    </header>
+
+    <section class="mb-20" aria-labelledby="etapas">
+        <h2 id="etapas" class="text-2xl font-bold">5 etapas, de la idea a la operación</h2>
+        <p class="text-ink-dim mt-1 mb-8 max-w-2xl">El mismo recorrido sirve para una tienda, una clínica, un gimnasio, una escuela o una empresa de servicios: cambia lo que construimos, no cómo trabajamos.</p>
+
+        <ol class="flex flex-col gap-4">
+            {% for e in etapas %}
+            <li class="p-6 bg-canvas-elev border border-edge rounded-2xl grid md:grid-cols-[170px_1fr] gap-x-8 gap-y-3">
+                <div>
+                    <div class="font-display font-bold text-3xl text-accent">{{ e.n }}</div>
+                </div>
+                <div>
+                    <h3 class="font-display font-semibold text-xl">{{ e.titulo }}</h3>
+                    <div class="grid sm:grid-cols-2 gap-x-8 gap-y-3 mt-3 text-sm leading-relaxed">
+                        <p><span class="block text-xs font-bold uppercase tracking-wide text-ink">Nosotros</span><span class="text-ink-dim">{{ e.nosotros }}</span></p>
+                        <p><span class="block text-xs font-bold uppercase tracking-wide text-ink">Tú</span><span class="text-ink-dim">{{ e.tu }}</span></p>
+                    </div>
+                    <p class="text-sm mt-4 pt-3 border-t border-edge"><span class="text-accent font-bold">Resultado: </span><span class="text-ink-dim">{{ e.resultado }}</span></p>
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    {% partial 'site/plan-guia' %}
+
+    <section class="mb-20 max-w-3xl">
+        <h2 class="text-2xl font-bold">Nuestro compromiso: nos esforzamos por hacer que funcione</h2>
+        <p class="text-ink-dim mt-3 leading-relaxed">Nos responsabilizamos del criterio de producto y de la ejecución técnica.</p>
+        <ul class="mt-5 flex flex-col gap-4 text-ink-dim leading-relaxed">
+            <li><span class="text-ink font-semibold">Velocidad sin sacrificar estabilidad.</span> No inventamos la rueda: partimos de Market, una plataforma con módulos ya probados (sitios, tienda, CRM, mensajería, cobros con QR, automatizaciones, agentes de IA). Tu sistema nace robusto y lo que haga falta se desarrolla a medida encima.</li>
+            <li><span class="text-ink font-semibold">Conectamos tu operación, no solo pantallas.</span> El flujo funciona de extremo a extremo —clientes, operadores y administradores— para que la tecnología resuelva tu día a día.</li>
+            <li><span class="text-ink font-semibold">Te acompañamos en el despliegue.</span> No te dejamos solo con un código: dejamos el sistema listo para usar y guiamos a tu equipo en sus primeros pasos. Después, Market sigue evolucionando <a href="/dev" class="text-accent hover:underline">a la vista de todos</a>.</li>
+        </ul>
+    </section>
+
+    <section class="mb-20">
+        <h2 class="text-2xl font-bold">Tu rol: para quién es y qué necesitamos de ti</h2>
+        <p class="text-ink-dim mt-3 max-w-3xl leading-relaxed">No necesitas darnos especificaciones técnicas ni saber qué funciones pedir. Tú aportas el conocimiento del negocio; nosotros lo convertimos en decisiones de producto y tecnología.</p>
+        <div class="grid md:grid-cols-2 gap-4 mt-6">
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-bold text-accent">01</div>
+                <h3 class="font-display font-semibold text-lg mt-1">Emprendedores con una oportunidad clara</h3>
+                <p class="text-sm text-ink-dim mt-2 leading-relaxed">Conoces el problema, a tu cliente y cómo monetizarlo. Tu parte es darnos esa claridad y tomar las decisiones que solo tú puedes tomar; nosotros somos el socio tecnológico que traduce tu visión en operación.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-bold text-accent">02</div>
+                <h3 class="font-display font-semibold text-lg mt-1">Empresas en crecimiento</h3>
+                <p class="text-sm text-ink-dim mt-2 leading-relaxed">Ya ejecutas tu proceso, pero hoy lo coordinas con hojas de cálculo, WhatsApp o herramientas desconectadas. Tu parte es mostrarnos cómo operas hoy; nosotros centralizamos, automatizamos y ordenamos tu trabajo en un sistema profesional.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-20">
+        <h2 class="text-2xl font-bold">Un pacto de colaboración</h2>
+        <p class="text-ink-dim mt-3 max-w-3xl leading-relaxed">Este proyecto es un puente donde cada parte aporta su mayor fortaleza.</p>
+        <div class="mt-6 border border-edge rounded-2xl overflow-hidden">
+            <div class="grid grid-cols-2 bg-canvas-elev text-sm font-bold">
+                <div class="p-4">Lo que nosotros ponemos</div>
+                <div class="p-4 border-l border-edge">Lo que tú traes</div>
+            </div>
+            {% for r in [['Criterio de producto y arquitectura', 'Visión comercial y estrategia'], ['Ejecución técnica y desarrollo ágil', 'Conocimiento del problema y del cliente'], ['Integración de sistemas y bases probadas', 'Validación y feedback oportuno']] %}
+            <div class="grid grid-cols-2 text-sm text-ink-dim border-t border-edge">
+                <div class="p-4">{{ r[0] }}</div>
+                <div class="p-4 border-l border-edge">{{ r[1] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="mb-20 max-w-3xl">
+        <h2 class="text-2xl font-bold">Lo que conviene saber</h2>
+        <p class="text-ink-dim mt-3 leading-relaxed">Preferimos ser claros desde el inicio. Para que los 30 días funcionen:</p>
+        <ul class="mt-4 flex flex-col gap-3 text-ink-dim leading-relaxed list-disc pl-6">
+            <li>En 30 días entregamos una <span class="text-ink font-semibold">primera versión funcional</span> con el alcance que acordemos en la etapa 2; lo demás se planifica como siguientes etapas.</li>
+            <li>El ritmo depende también de ti: respuestas, contenidos y accesos a tiempo evitan retrasos.</li>
+            <li>Algunas integraciones dependen de terceros (aprobaciones de WhatsApp, bancos o entes tributarios) con tiempos propios que no controlamos; lo anticipamos desde el inicio.</li>
+            <li>Si lo que necesitas no existe aún en Market, lo evaluamos contigo y proponemos una solución a la medida.</li>
+        </ul>
+    </section>
+
+    <section class="p-8 sm:p-10 bg-canvas-elev border border-edge rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="max-w-xl">
+            <h2 class="text-2xl font-bold">Hagamos que funcione juntos</h2>
+            <p class="text-ink-dim mt-2">Cuéntanos tu negocio y armamos el plan de tus primeros 30 días.</p>
+        </div>
+        <a href="/contacto" class="shrink-0 inline-flex items-center justify-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Empezar la conversación →</a>
+    </section>
+</div>

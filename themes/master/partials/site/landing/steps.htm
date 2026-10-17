@@ -1,26 +1,27 @@
-{# Steps #}
-<section id="como-funciona" class="scroll-mt-14">
+{# Plan de 30 días: introducción; el detalle vive en /plan-30-dias #}
+<section id="plan-30-dias" class="scroll-mt-14">
     <div class="max-w-6xl mx-auto px-6 sm:px-10 py-24">
-        <div class="max-w-[600px] mb-14">
-            <span class="text-xs tracking-wide text-accent uppercase font-bold">¡Te resuelve la vida!</span>
-            <h2 class="text-3xl sm:text-4xl font-bold mt-3">Empieza a cobrar en minutos</h2>
+        <div class="max-w-[640px] mb-12">
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Plan de 30 días</span>
+            <h2 class="text-3xl sm:text-4xl font-bold mt-3 text-pretty">Tu sistema funcionando en 30 días o mucho menos</h2>
+            <p class="text-ink-dim mt-4 leading-relaxed">Un sistema no es un producto de estantería: es un camino que recorremos juntos. Partimos de la base probada de Market y la adaptamos a tu operación, sea cual sea tu rubro. Vamos lo más rápido que tu negocio permita: 30 días es el límite, no la meta.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div class="flex flex-col gap-4">
-                <span class="font-display text-5xl font-bold text-edge">01</span>
-                <h3 class="text-lg font-bold">Eliges tu configuración</h3>
-                <p class="text-sm text-ink-dim">Activas solo los módulos que tu negocio necesita: sitio, tienda, CRM, pagos, chatbots,mensajería para WhatsApp, etc. o todo junto.</p>
-            </div>
-            <div class="flex flex-col gap-4">
-                <span class="font-display text-5xl font-bold text-edge">02</span>
-                <h3 class="text-lg font-bold">La IA arma tu sitio</h3>
-                <p class="text-sm text-ink-dim">Cuéntale al agente a qué te dedicas y generará un hermoso sitio con tu marca y tu contenido. También puedes subir tu código o usar WordPress.</p>
-            </div>
-            <div class="flex flex-col gap-4">
-                <span class="font-display text-5xl font-bold text-edge">03</span>
-                <h3 class="text-lg font-bold">Empiezas a vender y cobrar</h3>
-                <p class="text-sm text-ink-dim">Activa tu tienda (o tienda para WhatsApp o Woocommerce) y genera pedidos, clientes y cobros QR dinámicos desde el primer día.</p>
-            </div>
-        </div>
+        <ol class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for s in [['01','Conocernos','Escuchamos cómo operas hoy y dónde se te va el tiempo.'],['02','Diseñar el plan','Traducimos tu operación a módulos de Market y acordamos el alcance.'],['03','Construir y conectar','Configuramos, conectamos tus canales y desarrollamos lo que falte.'],['04','Probar con tu equipo','Usamos datos reales y ajustamos con lo que ves en el día a día.'],['05','Lanzar y acompañar','Dejamos todo listo para usar, tu equipo conoce y dispone de Market. Te acompañamos en los primeros pasos operativos.']] %}
+            <li class="flex gap-5 p-5 bg-canvas-elev border border-edge rounded-2xl">
+                <span class="font-display text-3xl font-bold text-edge shrink-0">{{ s[0] }}</span>
+                <div>
+                    <h3 class="font-bold leading-snug">{{ s[1] }}</h3>
+                    <p class="text-sm text-ink-dim mt-1">{{ s[2] }}</p>
+                </div>
+            </li>
+            {% endfor %}
+            <li class="flex">
+                <a href="/plan-30-dias" class="group flex-1 flex flex-col justify-center gap-1 p-5 bg-accent text-accent-fg rounded-2xl hover:-translate-y-px transition-transform">
+                    <span class="font-display font-bold text-lg">Conoce el plan completo →</span>
+                    <span class="text-sm opacity-80">Qué hacemos nosotros, qué haces tú y qué esperar en cada etapa.</span>
+                </a>
+            </li>
+        </ol>
     </div>
 </section>
