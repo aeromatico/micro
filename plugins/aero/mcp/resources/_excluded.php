@@ -60,7 +60,6 @@ return [
     \Aero\Help\Models\SearchLog::class => 'búsquedas de ayuda de cada persona, uso interno para mejorar el contenido',
     \Aero\Rgpd\Models\Config::class => 'configuración legal del aviso de cookies (la gestiona el propio tenant en el panel)',
     \Aero\Rgpd\Models\Consent::class => 'prueba de consentimiento de visitantes (datos personales seudonimizados)',
-    \Aero\Medical\Models\Patient::class => 'datos de salud (cifrados): no se exponen por MCP',
     \Aero\Medical\Models\ClinicSettings::class => 'configuración',
     \Aero\Medical\Models\AuditLog::class => 'bitácora de accesos a datos de salud',
     \Aero\Medical\Models\Consultation::class => 'notas clínicas (cifradas): datos de salud',
@@ -90,4 +89,7 @@ return [
     \Aero\Medical\Models\MedicalDocument::class => 'documentos clínicos emitidos (cifrados): datos de salud',
     \Aero\Medical\Models\Deworming::class => 'desparasitaciones: datos de salud',
     \Aero\Medical\Models\GroomingVisit::class => 'visitas de peluquería (notas cifradas, fotos cifradas)',
+    \Aero\Plan\Models\Plan::class => 'plan guiado con el equipo de la plataforma: se gestiona solo desde su pantalla (los superadmins aprueban)',
+    \Aero\Plan\Models\Step::class => 'respuestas del dueño y estado de aprobación del plan guiado',
+    \Aero\Plan\Models\Message::class => 'conversación privada del plan guiado con el equipo',
 ];
