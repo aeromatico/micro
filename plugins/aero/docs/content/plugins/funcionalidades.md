@@ -245,3 +245,19 @@ descripción comercial general.
 | Sugerencias | Ideas con voto y estado visible | Respuesta en pocos minutos; prioriza lo que beneficia a la mayoría | Pedir mejoras para tu rubro |
 | Soporte rápido | Botón en todo el panel: reporte con URL, área y captura, ticket opcional y chat con el equipo tras reportar | Respuesta en pocos minutos; corrige y optimiza mientras da soporte | Reportar un error en el acto |
 
+
+## Historia clínica
+
+**Qué es:** Historia clínica electrónica para consultorios (personas) y veterinarias (animales), con firma inmutable, receta, órdenes, hoja de seguimiento, vacunas, archivos cifrados y conexión con Reservas.
+**Versión documentada:** 1.10.1
+
+| Funcionalidad | Descripción breve | Cualidades de impacto | Casos de uso |
+|---------------|-------------------|-----------------------|--------------|
+| Modo humano o animal | El negocio elige su modo; cambian textos, campos y módulos | Un solo sistema para consultorio y veterinaria | Clínica médica, veterinaria con tutores y varios animales |
+| Consulta y control | Notas con plantilla editable, autoguardado, signos vitales e IMC | Se escribe sin botón Guardar; lo anotado la vez anterior a la vista | Consulta general, control de paciente crónico |
+| Firma inmutable | La nota firmada no se modifica; los cambios son adendas con autor y hora | Respaldo ante reclamos: código de integridad e impresión con firma y sello | Historia clínica con trazabilidad |
+| Diagnóstico, receta y órdenes | CIE-10 (personas) o catálogo propio (animales), receta, órdenes e impresión firmada | Menos escritura repetida con Frecuentes y catálogos del negocio | Receta de un tratamiento, orden de laboratorio |
+| Hoja de seguimiento | Una columna por visita con mediciones, laboratorio y valores fuera de rango en rojo | Ver la evolución del paciente crónico de un vistazo | Diabetes, hipertensión |
+| Vacunas y desparasitaciones | Esquema del negocio, calendario, próxima dosis y aviso al cliente o tutor | Menos olvidos de refuerzos; aviso opcional por WhatsApp o correo | Refuerzo anual, recordatorio de desparasitación |
+| Reservas conectadas | «Iniciar consulta» desde la reserva y agendar el control desde la ficha | La reserva pasa a atendida al firmar | Agenda del día del profesional |
+| Archivos, documentos e importación | Laboratorio e imágenes cifrados, certificados con variables, historias anteriores con revisión | Los datos son siempre del negocio y se exportan completos | Certificado médico, pasar historias del sistema anterior |
