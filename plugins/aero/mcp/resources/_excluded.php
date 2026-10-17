@@ -56,4 +56,6 @@ return [
     \Aero\Sites\Models\AiGeneration::class => 'prompts y trazas de generación',
     \Aero\Workflows\Models\Revision::class => 'grafo completo (pendiente: lectura resumida)',
     \Aero\Docs\Models\Guide::class => 'HTML de guías (pendiente)',
+    \Aero\Help\Models\Session::class => 'conversaciones privadas de ayuda de cada persona (historial y respuestas)',
+    \Aero\Help\Models\SearchLog::class => 'búsquedas de ayuda de cada persona, uso interno para mejorar el contenido',
 ];
