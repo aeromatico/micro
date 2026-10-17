@@ -106,6 +106,11 @@ class Services extends ComponentBase
     {
         $groups = \Aero\Services\Classes\PublicMenu::groups();
 
+        // El megamenú no lista los rubros (tienen su propio acceso); el índice /plugins sí.
+        if ($this->property('mode') === 'menu') {
+            $groups = array_values(array_filter($groups, fn ($g) => ($g['slug'] ?? null) !== 'rubros'));
+        }
+
         // Íconos Lucide como SVG en línea (este theme no carga la librería JS).
         foreach ($groups as &$group) {
             foreach ($group['items'] as &$item) {
