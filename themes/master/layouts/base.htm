@@ -2,6 +2,8 @@ description = "Layout base — dark-first (con toggle claro/oscuro), Alpine.js"
 
 [services menuServices]
 mode = "menu"
+
+[rgpdBanner]
 ==
 <?php
 
@@ -106,13 +108,16 @@ function onStart()
 
     {% placeholder head %}
 
+    {# RGPD (aero/rgpd): con el aviso activo, el Pixel espera el consentimiento
+       de marketing (type=text/plain lo activa rgpd.js); sin aviso, como siempre. #}
+    {% set pixelType = rgpdBanner.rgpd ? 'text/plain' : 'text/javascript' %}
     {% if metaPixelId %}
     {# Meta Pixel — base code + PageView. Los eventos de conversión
        (Lead, StartTrial, Purchase, CompleteRegistration) se disparan desde
        signup.js/regalar con el MISMO event_id que ya mandó el servidor por
        la Conversions API (ver Aero\Sites\Classes\Meta\ConversionsApiClient),
        para que Meta deduplique en vez de contar el evento dos veces. #}
-    <script>
+    <script type="{{ pixelType }}"{% if rgpdBanner.rgpd %} data-rgpd="marketing"{% endif %}>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
         n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
@@ -129,8 +134,8 @@ function onStart()
             } catch (e) {}
         };
     </script>
-    <noscript><img height="1" width="1" style="display:none" alt=""
-        src="https://www.facebook.com/tr?id={{ metaPixelId }}&ev=PageView&noscript=1" /></noscript>
+    {% if not rgpdBanner.rgpd %}<noscript><img height="1" width="1" style="display:none" alt=""
+        src="https://www.facebook.com/tr?id={{ metaPixelId }}&ev=PageView&noscript=1" /></noscript>{% endif %}
     {% endif %}
 
     {% framework extras %}
@@ -144,6 +149,8 @@ function onStart()
     </main>
 
     {% partial 'site/footer' %}
+
+    {% component 'rgpdBanner' %}
 
     {# Livechat de soporte (aero/livechat) — fase 1, plataforma. Inbox "Soporte plataforma". #}
     <script src="https://market.com.bo/plugins/aero/livechat/assets/js/widget.js?v=1791994185" charset="utf-8" data-livechat-key="24cec4b9-43e5-4381-834c-5b5b8e0430d2" data-livechat-base="https://panel.market.com.bo" async></script>
