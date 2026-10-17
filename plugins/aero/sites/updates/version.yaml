@@ -447,3 +447,7 @@
 1.77.0:
     - "Sitio público: modo de color por defecto configurable por tenant (automático según el dispositivo, oscuro o claro); antes era siempre oscuro."
     - add_color_mode_to_tenants.php
+
+1.78.0:
+    - "El rol tenant_admin recibe aero.help.use (Ayuda guiada: panel de ayuda contextual del botón flotante)."
+    - grant_help_to_tenant_admin.php
