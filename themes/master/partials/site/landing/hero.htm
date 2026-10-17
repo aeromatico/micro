@@ -10,7 +10,7 @@
         <p class="text-lg text-ink-dim max-w-[520px]">Sitio web, tienda online, CRM, cobros QR, WhatsApp y mucho más — conectados entre sí y potenciados con IA. Sin plugins sueltos, sin integraciones rotas.</p>
         <div class="flex items-center gap-3.5 flex-wrap pt-2">
             <a href="#precios" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Planes y precios</a>
-            <a href="#omnichat" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-6 py-3.5 rounded-lg border border-edge hover:bg-canvas-elev2 hover:border-ink-dim transition-colors">Prueba el OmniChat</a>
+            <a href="/demo" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-6 py-3.5 rounded-lg border border-edge hover:bg-canvas-elev2 hover:border-ink-dim transition-colors">Demo</a>
         </div>
         <p class="flex items-center gap-1.5 text-xs text-ink-dim pt-1">
             <svg class="w-3.5 h-3.5 text-accent shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
@@ -47,7 +47,7 @@
 </div>
 
 {# Caja única centrada: referencia MCP + "Aprende con tu IA favorita" (mismo bloque que /docs) #}
-<div class="w-full max-w-4xl mx-auto px-6 sm:px-10 pb-10">
+<div class="w-full max-w-5xl mx-auto px-6 sm:px-10 pb-10">
     <div class="rounded-2xl border border-edge bg-canvas-elev grid md:grid-cols-[1.25fr_1fr] md:divide-x divide-y md:divide-y-0 divide-edge"
          x-data="{ ok: false, cmd: 'claude mcp add --transport http market https://market.com.bo/mcp --header &quot;Authorization: Bearer $MARKET_MCP_KEY&quot;',
                    copy() { navigator.clipboard && navigator.clipboard.writeText(this.cmd).then(() => { this.ok = true; setTimeout(() => this.ok = false, 1800) }) } }">
@@ -63,7 +63,7 @@
                 <code class="flex-1 min-w-0 truncate text-[12px] text-ink-dim font-mono"><span class="text-accent">$</span> claude mcp add --transport http market https://market.com.bo/mcp</code>
                 <button type="button" @click="copy()" class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-edge hover:border-accent hover:text-accent transition-colors" :aria-label="ok ? 'Copiado' : 'Copiar comando'" x-text="ok ? 'Copiado ✓' : 'Copiar'">Copiar</button>
             </div>
-            <p class="text-[11px] text-ink-dim mt-2">Claude, Codex, Cursor, Antigravity y OpenCode. Crea tu key en el panel → API &amp; MCP.</p>
+            <p class="text-[11px] text-ink-dim mt-2">Claude, Codex, Cursor, Antigravity y OpenCode. Crea tu key en el panel.</p>
         </div>
         <div class="p-4 sm:p-5 min-w-0 flex flex-col justify-center gap-2.5">
             {% partial 'docs/ai-learn' embedded=true %}
