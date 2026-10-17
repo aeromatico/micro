@@ -1,0 +1,11 @@
+columns:
+    title:
+        label: Flujo
+        searchable: true
+    plugin:
+        label: Plugin
+    version:
+        label: Versión
+    is_published:
+        label: Publicado
+        type: switch

@@ -1,0 +1,10 @@
+name: Flujo guiado
+form: $/aero/help/models/flow/fields.yaml
+modelClass: Aero\Help\Models\Flow
+defaultRedirect: aero/help/flows
+create:
+    redirect: aero/help/flows/update/:id
+    redirectClose: aero/help/flows
+update:
+    redirect: aero/help/flows
+    redirectClose: aero/help/flows

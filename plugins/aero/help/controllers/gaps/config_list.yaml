@@ -1,0 +1,13 @@
+title: Búsquedas
+list: $/aero/help/models/searchlog/columns.yaml
+modelClass: Aero\Help\Models\SearchLog
+noRecordsMessage: Todavía no hay búsquedas.
+recordsPerPage: 50
+showSorting: true
+defaultSort:
+    column: created_at
+    direction: desc
+filter: $/aero/help/models/searchlog/config_filter.yaml
+toolbar:
+    search:
+        prompt: Buscar

@@ -1,0 +1,56 @@
+fields:
+    title:
+        label: Título
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: title
+            type: slug
+    summary:
+        label: Resumen
+        type: textarea
+        size: tiny
+        comment: Una o dos frases que ve la persona al abrir el tema.
+    keywords:
+        label: Palabras clave
+        type: textarea
+        size: tiny
+        comment: Sinónimos y formas de preguntar, separadas por espacios (cuenta banco bnb cobrar…). Alimentan la búsqueda.
+    plugin:
+        label: Plugin
+        span: left
+        comment: Código sin vendor (pay, shop…). Se usa para mostrar el video del servicio.
+    sort_order:
+        label: Orden
+        type: number
+        span: right
+        default: 0
+    is_published:
+        label: Publicado
+        type: switch
+        default: true
+    screens:
+        label: Pantallas donde se sugiere
+        type: repeater
+        prompt: Agregar pantalla
+        form:
+            fields:
+                pattern:
+                    label: Patrón plugin/controlador/acción
+                    placeholder: pay/bankaccounts/*
+                    comment: "Admite comodines. Ejemplos: pay/*, pay/bankaccounts/create"
+    flow_id:
+        label: Flujo guiado
+        type: dropdown
+        span: left
+    article_id:
+        label: Artículo de documentación
+        type: dropdown
+        span: right
+    guide_id:
+        label: Guía interactiva
+        type: dropdown
+        span: left

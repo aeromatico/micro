@@ -1,0 +1,17 @@
+columns:
+    query:
+        label: Búsqueda
+        searchable: true
+    results:
+        label: Resultados
+        type: number
+        sortable: true
+    area:
+        label: Pantalla
+        searchable: true
+    tenant_id:
+        label: Negocio
+    created_at:
+        label: Fecha
+        type: datetime
+        sortable: true

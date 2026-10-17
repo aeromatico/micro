@@ -1,0 +1,12 @@
+columns:
+    title:
+        label: Tema
+        searchable: true
+    plugin:
+        label: Plugin
+    is_published:
+        label: Publicado
+        type: switch
+    sort_order:
+        label: Orden
+        sortable: true

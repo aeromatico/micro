@@ -1,0 +1,10 @@
+name: Tema de ayuda
+form: $/aero/help/models/topic/fields.yaml
+modelClass: Aero\Help\Models\Topic
+defaultRedirect: aero/help/topics
+create:
+    redirect: aero/help/topics/update/:id
+    redirectClose: aero/help/topics
+update:
+    redirect: aero/help/topics
+    redirectClose: aero/help/topics

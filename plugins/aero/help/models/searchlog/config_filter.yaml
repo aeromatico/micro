@@ -1,0 +1,7 @@
+scopes:
+    results:
+        label: Solo sin resultados
+        type: switch
+        conditions:
+            - results > 0
+            - results = 0

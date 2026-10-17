@@ -1,0 +1,114 @@
+fields:
+    title:
+        label: Título
+        span: left
+        required: true
+    slug:
+        label: Slug
+        span: right
+        preset:
+            field: title
+            type: slug
+    plugin:
+        label: Plugin
+        type: dropdown
+        span: left
+        comment: Se usa para el paso de video (el servicio que vende ese plugin).
+    is_published:
+        label: Publicado
+        type: switch
+        span: right
+        default: true
+    intro:
+        label: Introducción
+        type: textarea
+        size: tiny
+        comment: Texto inicial opcional. Admite **negrita**.
+    steps:
+        label: Pasos
+        type: repeater
+        prompt: Agregar paso
+        titleFrom: key
+        comment: El flujo empieza en el primer paso. Cada paso salta al siguiente indicado (o a donde manda la opción elegida). Usa {{clave}} para insertar una respuesta anterior.
+        form:
+            fields:
+                key:
+                    label: Clave
+                    span: left
+                    placeholder: banco
+                    comment: Minúsculas, números y guion bajo. Debe ser única.
+                type:
+                    label: Tipo
+                    type: dropdown
+                    span: right
+                    options:
+                        message: Mensaje
+                        choice: Pregunta con botones
+                        ask: Pregunta abierta
+                        guide: Guía interactiva
+                        doc: Artículo de documentación
+                        video: Video del servicio
+                        link: Enlace o pantalla
+                        done: Final (¿se resolvió?)
+                title:
+                    label: Título del paso
+                    span: left
+                    comment: Solo se muestra si el paso está numerado.
+                numbered:
+                    label: Numerar el paso
+                    type: switch
+                    span: right
+                body:
+                    label: Texto
+                    type: textarea
+                    size: small
+                    comment: Admite **negrita** y [enlaces](https://…).
+                ref:
+                    label: Referencia
+                    comment: "Guía o artículo: el slug. Video: el código de plugin (opcional). Enlace: backend:aero/pay/bankaccounts, /ruta o https://…"
+                    trigger:
+                        action: show
+                        field: type
+                        condition: value[guide][doc][video][link]
+                label:
+                    label: Texto del botón de enlace
+                    trigger:
+                        action: show
+                        field: type
+                        condition: value[link]
+                save_as:
+                    label: Guardar la respuesta como
+                    comment: Nombre para usarla después como {{nombre}}.
+                    trigger:
+                        action: show
+                        field: type
+                        condition: value[choice][ask]
+                placeholder:
+                    label: Texto de ayuda del campo de escritura
+                    trigger:
+                        action: show
+                        field: type
+                        condition: value[ask]
+                options:
+                    label: Opciones
+                    type: repeater
+                    prompt: Agregar opción
+                    titleFrom: label
+                    trigger:
+                        action: show
+                        field: type
+                        condition: value[choice]
+                    form:
+                        fields:
+                            label:
+                                label: Texto del botón
+                                span: left
+                            value:
+                                label: Valor
+                                span: right
+                            next:
+                                label: Salta al paso
+                                comment: Clave del paso. Vacío = el «siguiente» del paso.
+                next:
+                    label: Siguiente paso
+                    comment: Clave del paso que sigue. Vacío = termina.

@@ -1,0 +1,10 @@
+title: Flujos guiados
+list: $/aero/help/models/flow/columns.yaml
+modelClass: Aero\Help\Models\Flow
+recordUrl: aero/help/flows/update/:id
+noRecordsMessage: No hay flujos.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

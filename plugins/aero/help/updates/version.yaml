@@ -1,0 +1,4 @@
+1.0.0:
+    - "Ayuda guiada: temas por pantalla, flujos paso a paso, búsqueda en docs y guías, sesiones y registro de búsquedas sin respuesta."
+    - create_help_tables.php
+    - seed_help_pay_bank_account_flow.php

@@ -1,0 +1,10 @@
+title: Temas de ayuda
+list: $/aero/help/models/topic/columns.yaml
+modelClass: Aero\Help\Models\Topic
+recordUrl: aero/help/topics/update/:id
+noRecordsMessage: No hay temas.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
