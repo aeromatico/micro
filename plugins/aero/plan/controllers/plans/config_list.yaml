@@ -1,0 +1,12 @@
+title: Planes de los tenants
+list: $/aero/plan/models/plan/columns.yaml
+modelClass: Aero\Plan\Models\Plan
+recordUrl: aero/plan/plans/review/:id
+noRecordsMessage: Ningún tenant ha empezado su plan todavía.
+recordsPerPage: 50
+defaultSort:
+    column: updated_at
+    direction: desc
+showSetup: false
+toolbar:
+    buttons: false

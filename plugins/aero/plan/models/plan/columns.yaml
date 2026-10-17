@@ -1,0 +1,8 @@
+columns:
+    tenant_name: {label: Tenant, sortable: false}
+    status_label: {label: Estado, sortable: false}
+    day: {label: Día, sortable: false}
+    approved_count: {label: Pasos aprobados, sortable: false}
+    current_step: {label: Paso actual, sortable: false}
+    started_at: {label: Inicio, type: date}
+    updated_at: {label: Última actividad, type: datetime}
