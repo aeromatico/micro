@@ -1,0 +1,121 @@
+url = "/contacto"
+layout = "base"
+title = "Contacto — Market"
+description = "Escríbenos por WhatsApp, correo o con el formulario. Te respondemos lo antes posible."
+==
+<?php
+use Illuminate\Support\Facades\RateLimiter;
+
+function onSend()
+{
+    $data = post();
+
+    // Honeypot: un bot rellena el campo oculto; respondemos "ok" sin enviar nada.
+    if (!empty($data['website'])) {
+        return;
+    }
+
+    $validator = Validator::make($data, [
+        'name' => 'required|string|max:120',
+        'email' => 'required|email|max:160',
+        'message' => 'required|string|min:10|max:4000',
+    ], [
+        'name.required' => 'Escribe tu nombre.',
+        'email.required' => 'Escribe tu correo.',
+        'email.email' => 'El correo no parece válido.',
+        'message.required' => 'Escribe tu mensaje.',
+        'message.min' => 'Cuéntanos un poco más (mínimo 10 caracteres).',
+    ]);
+    if ($validator->fails()) {
+        throw new ValidationException($validator);
+    }
+
+    $key = 'contact-form:' . request()->ip();
+    if (RateLimiter::tooManyAttempts($key, 3)) {
+        throw new ApplicationException('Ya recibimos tus mensajes. Intenta de nuevo en unos minutos.');
+    }
+    RateLimiter::hit($key, 600);
+
+    $body = "Nombre: {$data['name']}\nCorreo: {$data['email']}\n"
+        . (!empty($data['phone']) ? "Teléfono: {$data['phone']}\n" : '')
+        . "\n{$data['message']}\n\n— Enviado desde el formulario de contacto de market.com.bo";
+
+    Mail::raw($body, function ($m) use ($data) {
+        $m->to('soporte@market.com.bo')
+            ->replyTo($data['email'], $data['name'])
+            ->subject('Contacto web: ' . mb_substr($data['name'], 0, 60));
+    });
+}
+?>
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">Contacto</span>
+    </nav>
+
+    <header class="max-w-2xl mb-10">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Hablemos</span>
+        <h1 class="text-4xl font-bold text-pretty mt-2">Contacto</h1>
+        <p class="text-lg text-ink-dim mt-3 text-pretty">¿Dudas, soporte o una idea para tu negocio? Escríbenos por el canal que prefieras.</p>
+    </header>
+
+    <div class="grid lg:grid-cols-[1fr_1.4fr] gap-8 items-start">
+        <div class="flex flex-col gap-4">
+            <a href="https://wa.me/59175669697" target="_blank" rel="noopener" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                <div class="text-xs text-ink-dim">WhatsApp</div>
+                <div class="font-display font-semibold text-lg mt-1 group-hover:text-accent transition-colors">+591 75669697</div>
+            </a>
+            <a href="mailto:soporte@market.com.bo" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                <div class="text-xs text-ink-dim">Correo de soporte</div>
+                <div class="font-display font-semibold text-lg mt-1 group-hover:text-accent transition-colors break-all">soporte@market.com.bo</div>
+            </a>
+            <p class="text-sm text-ink-dim">Para propuestas de transformación de sistemas, mira también <a href="/nosotros#contacto" class="text-accent hover:underline">Nosotros</a>.</p>
+        </div>
+
+        <div class="p-6 sm:p-8 bg-canvas-elev border border-edge rounded-2xl">
+            <div id="contact-ok" class="hidden" role="status">
+                <h2 class="font-display font-bold text-xl">¡Mensaje enviado!</h2>
+                <p class="text-ink-dim mt-2">Gracias por escribirnos. Te responderemos al correo que indicaste lo antes posible.</p>
+            </div>
+
+            <form id="contact-form" class="flex flex-col gap-4"
+                data-request="onSend"
+                data-request-validate
+                data-request-success="document.getElementById('contact-form').classList.add('hidden'); document.getElementById('contact-ok').classList.remove('hidden')">
+                <h2 class="font-display font-bold text-xl">Envíanos un mensaje</h2>
+
+                {# honeypot: oculto para personas #}
+                <div class="hidden" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+
+                <label class="flex flex-col gap-1.5 text-sm">
+                    <span class="font-semibold">Nombre</span>
+                    <input type="text" name="name" required maxlength="120" autocomplete="name" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                    <span data-validate-for="name" class="text-xs text-red-400"></span>
+                </label>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <label class="flex flex-col gap-1.5 text-sm">
+                        <span class="font-semibold">Correo</span>
+                        <input type="email" name="email" required maxlength="160" autocomplete="email" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                        <span data-validate-for="email" class="text-xs text-red-400"></span>
+                    </label>
+                    <label class="flex flex-col gap-1.5 text-sm">
+                        <span class="font-semibold">Teléfono <span class="font-normal text-ink-dim">(opcional)</span></span>
+                        <input type="tel" name="phone" maxlength="30" autocomplete="tel" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                    </label>
+                </div>
+                <label class="flex flex-col gap-1.5 text-sm">
+                    <span class="font-semibold">Mensaje</span>
+                    <textarea name="message" required rows="5" maxlength="4000" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent"></textarea>
+                    <span data-validate-for="message" class="text-xs text-red-400"></span>
+                </label>
+
+                <div data-validate-error class="text-sm text-red-400" style="display:none"></div>
+
+                <button type="submit" class="self-start inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3 rounded-lg hover:-translate-y-px transition-transform data-request-loading:opacity-50">Enviar mensaje</button>
+                <p class="text-xs text-ink-dim">Al escribirnos aceptas nuestra <a href="/privacy" class="underline underline-offset-2 hover:text-ink">Política de privacidad</a>.</p>
+            </form>
+        </div>
+    </div>
+</div>

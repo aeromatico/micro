@@ -22,17 +22,20 @@
             <a href="/guias" class="text-sm text-ink-dim hover:text-ink transition-colors">Guías interactivas</a>
         </div>
         <div class="flex flex-col gap-2.5">
-            <span class="text-sm font-bold">Compañía</span>
-            <a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Nosotros</a>
-            <a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Contacto</a>
+            <span class="text-sm font-bold">Market</span>
+            <a href="/nosotros" class="text-sm text-ink-dim hover:text-ink transition-colors">Nosotros</a>
+            <a href="/contacto" class="text-sm text-ink-dim hover:text-ink transition-colors">Contacto</a>
             <a href="/dev" class="text-sm text-ink-dim hover:text-ink transition-colors">Versión</a>
         </div>
         <div class="flex flex-col gap-2.5">
             <span class="text-sm font-bold">Legal</span>
-            <a href="#" class="text-sm text-ink-dim hover:text-ink transition-colors">Términos</a>
+            <a href="/terms" class="text-sm text-ink-dim hover:text-ink transition-colors">Términos</a>
             <a href="/privacy" class="text-sm text-ink-dim hover:text-ink transition-colors">Privacidad</a>
             {% if rgpdBanner.rgpd %}<a href="#" data-rgpd-open class="text-sm text-ink-dim hover:text-ink transition-colors">Cookies</a>{% endif %}
         </div>
     </div>
-    <p class="max-w-6xl mx-auto px-6 sm:px-10 pb-8 text-xs text-ink-dim">© {{ 'now' | date('Y') }} Market. Todos los derechos reservados.</p>
+    <div class="max-w-6xl mx-auto px-6 sm:px-10 pb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-xs text-ink-dim">
+        <p>© {{ 'now' | date('Y') }} Market. Todos los derechos reservados.</p>
+        <a href="/dev" class="hover:text-ink transition-colors">Hecho en Bolivia con <span role="img" aria-label="amor">❤️</span></a>
+    </div>
 </footer>

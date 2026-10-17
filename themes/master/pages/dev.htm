@@ -82,10 +82,10 @@ function onStart()
         }
     }">
         <h2 class="text-2xl font-bold">Bitácora de mejoras</h2>
-        <p class="text-ink-dim mt-1 mb-5 max-w-2xl">Novedades, correcciones y mejoras de rendimiento, de la más reciente a la más antigua.</p>
+        <p class="text-ink-dim mt-1 mb-5 max-w-2xl">Novedades, mejoras, correcciones y optimizaciones, de la más reciente a la más antigua.</p>
 
         <div class="flex flex-wrap gap-2 mb-8">
-            {% for f in [['todos','Todo'],['feat','Novedades'],['fix','Correcciones'],['perf','Rendimiento']] %}
+            {% for f in [['todos','Todo'],['feat','Novedades'],['improve','Mejoras'],['fix','Correcciones'],['perf','Rendimiento']] %}
                 <button type="button" @click="tipo = '{{ f[0] }}'; max = 40"
                     :class="tipo === '{{ f[0] }}' ? 'border-accent text-ink' : 'text-ink-dim'"
                     class="px-3.5 py-1.5 rounded-full border border-edge text-sm hover:text-ink transition-colors">{{ f[1] }}</button>
@@ -99,7 +99,7 @@ function onStart()
                     <template x-for="e in g.items" :key="e.hash">
                         <li class="flex gap-3 py-2.5 border-t border-edge text-sm">
                             <span class="shrink-0 w-12 text-ink-dim tabular-nums" x-text="e.date.slice(8) + '/' + e.date.slice(5, 7)"></span>
-                            <span class="shrink-0 w-24 text-xs font-bold" :class="e.type === 'fix' ? 'text-ink-dim' : 'text-accent'" x-text="e.label"></span>
+                            <span class="shrink-0 w-24 text-xs font-bold" :class="e.type === 'feat' ? 'text-accent' : 'text-ink-dim'" x-text="e.label"></span>
                             <span class="min-w-0">
                                 <span class="font-semibold" x-show="e.scope" x-text="e.scope + ' · '"></span><span class="text-ink-dim" x-text="e.text"></span>
                             </span>
@@ -113,4 +113,6 @@ function onStart()
             <button type="button" @click="max += 40" class="px-4 py-2 rounded-full border border-edge text-sm font-semibold hover:border-accent transition-colors">Ver más</button>
         </div>
     </section>
+
+    <p class="mt-16 pt-8 border-t border-edge text-center font-display font-semibold text-lg">Hecho en Bolivia con <span role="img" aria-label="amor">❤️</span></p>
 </div>
