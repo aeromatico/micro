@@ -77,14 +77,28 @@ class ShopSettings extends Model
     public function getRcLayoutAttribute() { return array_key_exists($this->restaurant()['layout'], self::MENU_LAYOUTS) ? $this->restaurant()['layout'] : 'lista'; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
 
+    /** El modo Marketplace solo se activa con la compra (no cancelada) del servicio «marketplace» de Aero.Services. */
+    public static function marketplacePurchasedBy(int $tenantId): bool
+    {
+        if (!class_exists(\Aero\Services\Models\ServicePurchase::class)) {
+            return false;
+        }
+
+        return \Aero\Services\Models\ServicePurchase::forTenant($tenantId)
+            ->where('status', '!=', \Aero\Services\Models\ServicePurchase::CANCELLED)
+            ->whereHas('service', fn ($q) => $q->where('slug', 'marketplace'))
+            ->exists();
+    }
+
     public function isMarketplaceStore(): bool
     {
-        return $this->store_mode === 'marketplace';
+        return $this->store_mode === 'marketplace' && static::marketplacePurchasedBy((int) $this->tenant_id);
     }
 
     public static function isMarketplaceForTenant(int $tenantId): bool
     {
-        return static::where('tenant_id', $tenantId)->value('store_mode') === 'marketplace';
+        return static::where('tenant_id', $tenantId)->value('store_mode') === 'marketplace'
+            && static::marketplacePurchasedBy($tenantId);
     }
 
     public function isRestaurantStore(): bool

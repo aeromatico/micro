@@ -48,6 +48,10 @@ class ShopSettings extends Controller
         $settings = ShopSettingsModel::firstOrCreate(['tenant_id' => $tenant->id]);
         $data     = post('ShopSettings', []);
 
+        if (($data['store_mode'] ?? '') === 'marketplace' && !ShopSettingsModel::marketplacePurchasedBy((int) $tenant->id)) {
+            throw new \ApplicationException('Marketplace requiere contratar el servicio «Marketplace» (4 monedas de oro al mes) en el App Store.');
+        }
+
         $settings->fill([
             'is_enabled'                  => (bool) ($data['is_enabled'] ?? false),
             'branches_enabled'            => (bool) ($data['branches_enabled'] ?? false),
@@ -262,11 +266,18 @@ class ShopSettings extends Controller
 
     protected function makeSettingsWidget(ShopSettingsModel $model, int $tenantId): Form
     {
+        $marketplaceOk     = ShopSettingsModel::marketplacePurchasedBy($tenantId);
         $config            = new \stdClass;
         $config->model     = $model;
         $config->arrayName = 'ShopSettings';
         $config->alias     = 'shopSettingsForm';
         $config->fields    = [
+            'is_enabled' => [
+                'label'   => 'Activar tienda',
+                'type'    => 'switch',
+                'span'    => 'full',
+                'default' => false,
+            ],
             'store_mode' => [
                 'label'   => 'Tipo de tienda',
                 'type'    => 'balloon-selector',
@@ -277,7 +288,7 @@ class ShopSettings extends Controller
                     'restaurant' => 'Restaurante',
                     'marketplace' => 'Marketplace',
                 ],
-                'comment' => 'La tienda para WhatsApp simplifica el checkout: solo pide el celular del cliente y envía el pedido al chat. Restaurante agrega extras por plato, tipo de pedido (local, recoger, delivery), mesas por QR y horarios. Marketplace convierte a miembros de tu equipo en comerciantes: cada uno vende sus productos, cobra en su cuenta y ve su balance.',
+                'comment' => ($marketplaceOk ? '' : 'Marketplace requiere contratar el servicio «Marketplace» (4 monedas de oro al mes) en el App Store. ') . 'La tienda para WhatsApp simplifica el checkout: solo pide el celular del cliente y envía el pedido al chat. Restaurante agrega extras por plato, tipo de pedido (local, recoger, delivery), mesas por QR y horarios. Marketplace convierte a miembros de tu equipo en comerciantes: cada uno vende sus productos, cobra en su cuenta y ve su balance.',
             ],
             'whatsapp_mode' => [
                 'label'   => 'Envío del pedido',
@@ -427,12 +438,6 @@ class ShopSettings extends Controller
                 'form'    => [
                     'fields' => $this->branchFormFields(),
                 ],
-            ],
-            'is_enabled' => [
-                'label'   => 'Tienda activada',
-                'type'    => 'switch',
-                'span'    => 'left',
-                'default' => false,
             ],
             'base_currency_id' => [
                 'label'       => 'Moneda base',

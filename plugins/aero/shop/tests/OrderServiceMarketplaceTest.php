@@ -28,10 +28,25 @@ class OrderServiceMarketplaceTest extends ShopTestCase
         return (new OrderService())->create($tenant, $items, ['first_name' => 'Ana', 'email' => 'ana@test.bo']);
     }
 
+    protected function buyMarketplaceService(int $tenant): void
+    {
+        $schema = \Illuminate\Support\Facades\Schema::class;
+        if (!$schema::hasTable('aero_services_services')) {
+            $schema::create('aero_services_services', function ($t) { $t->increments('id'); $t->string('slug'); });
+            $schema::create('aero_services_purchases', function ($t) {
+                $t->increments('id'); $t->unsignedInteger('tenant_id'); $t->unsignedInteger('service_id');
+                $t->string('status')->default('pending'); $t->timestamps();
+            });
+        }
+        $sid = DB::table('aero_services_services')->insertGetId(['slug' => 'marketplace']);
+        DB::table('aero_services_purchases')->insert(['tenant_id' => $tenant, 'service_id' => $sid, 'status' => 'fulfilled']);
+    }
+
     public function setUp(): void
     {
         parent::setUp();
         $this->openStore(1, ['store_mode' => 'marketplace']);
+        $this->buyMarketplaceService(1);
         $a = $this->seller(1, 10, 'percent', 10);
         $b = $this->seller(1, 11, 'fixed', 5);
         $this->ids = [
