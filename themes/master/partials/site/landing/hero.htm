@@ -1,6 +1,7 @@
 {# Hero #}
-<section class="max-w-6xl mx-auto px-6 sm:px-10 pt-14 pb-24 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-14 items-center">
-    <div class="flex flex-col gap-6">
+<section class="flex flex-col" style="min-height:calc(100vh - 112px);min-height:calc(100svh - 112px)">
+<div class="flex-1 w-full max-w-6xl mx-auto px-6 sm:px-10 pt-10 pb-12 grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr] gap-10 md:gap-14 items-center">
+    <div class="flex flex-col gap-5">
         <div class="inline-flex items-center gap-2 w-fit px-3 py-1.5 border border-edge rounded-full">
             <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
             <span class="text-xs tracking-wide text-ink-dim uppercase">Un proyecto serio y escalable</span>
@@ -43,4 +44,30 @@
             <div class="mbp-foot"></div>
         </div>
     </div>
+</div>
+
+{# Caja única centrada: referencia MCP + "Aprende con tu IA favorita" (mismo bloque que /docs) #}
+<div class="w-full max-w-4xl mx-auto px-6 sm:px-10 pb-10">
+    <div class="rounded-2xl border border-edge bg-canvas-elev grid md:grid-cols-[1.25fr_1fr] md:divide-x divide-y md:divide-y-0 divide-edge"
+         x-data="{ ok: false, cmd: 'claude mcp add --transport http market https://market.com.bo/mcp --header &quot;Authorization: Bearer $MARKET_MCP_KEY&quot;',
+                   copy() { navigator.clipboard && navigator.clipboard.writeText(this.cmd).then(() => { this.ok = true; setTimeout(() => this.ok = false, 1800) }) } }">
+        <div class="p-4 sm:p-5 min-w-0">
+            <div class="flex items-center justify-between gap-3 mb-2.5">
+                <span class="inline-flex items-center gap-2 text-xs font-bold">
+                    <span class="px-1.5 py-0.5 rounded bg-accent text-accent-fg text-[10px] tracking-wide">MCP</span>
+                    Conecta tu IA a Market
+                </span>
+                <a href="/docs/mcp" class="text-xs text-ink-dim hover:text-ink underline decoration-edge underline-offset-4 shrink-0">Guía completa →</a>
+            </div>
+            <div class="flex items-center gap-2 rounded-lg bg-canvas border border-edge pl-3 pr-1.5 py-1.5">
+                <code class="flex-1 min-w-0 truncate text-[12px] text-ink-dim font-mono"><span class="text-accent">$</span> claude mcp add --transport http market https://market.com.bo/mcp</code>
+                <button type="button" @click="copy()" class="shrink-0 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-edge hover:border-accent hover:text-accent transition-colors" :aria-label="ok ? 'Copiado' : 'Copiar comando'" x-text="ok ? 'Copiado ✓' : 'Copiar'">Copiar</button>
+            </div>
+            <p class="text-[11px] text-ink-dim mt-2">Claude, Codex, Cursor, Antigravity y OpenCode. Crea tu key en el panel → API &amp; MCP.</p>
+        </div>
+        <div class="p-4 sm:p-5 min-w-0 flex flex-col justify-center gap-2.5">
+            {% partial 'docs/ai-learn' embedded=true %}
+        </div>
+    </div>
+</div>
 </section>
