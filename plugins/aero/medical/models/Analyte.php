@@ -15,7 +15,7 @@ class Analyte extends Model
 
     public $casts = ['is_active' => 'boolean'];
 
-    public $rules = ['name' => 'required|string|max:255'];
+    public $rules = ['name' => 'required|string|max:255', 'unit' => 'nullable|string|max:32'];
 
     /** Nombres y unidades de uso corriente; ningún valor de referencia. El negocio los edita. */
     public const DEFAULTS = [

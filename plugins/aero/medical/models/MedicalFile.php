@@ -15,14 +15,25 @@ class MedicalFile extends Model
 
     public $fillable = [
         'tenant_id', 'patient_id', 'consultation_id', 'kind', 'title', 'original_name', 'mime', 'size', 'storage_name', 'sha256',
-        'taken_on', 'notes', 'import_id', 'match_status', 'suggested_patient_id', 'suggestion_reason', 'uploaded_by',
+        'taken_on', 'notes', 'import_id', 'match_status', 'suggested_patient_id', 'suggestion_reason', 'uploaded_by', 'grooming_id',
     ];
 
     public $casts = ['title' => 'encrypted', 'original_name' => 'encrypted', 'notes' => 'encrypted', 'taken_on' => 'date'];
 
     public $belongsTo = ['patient' => [Patient::class, 'key' => 'patient_id']];
 
-    public const KINDS = ['lab' => 'Laboratorio', 'imaging' => 'Imagen diagnóstica', 'history' => 'Historia anterior', 'other' => 'Otro'];
+    public const KINDS = [
+        'lab' => 'Laboratorio', 'imaging' => 'Imagen diagnóstica', 'history' => 'Historia anterior', 'other' => 'Otro',
+        'grooming_before' => 'Foto antes (peluquería)', 'grooming_after' => 'Foto después (peluquería)',
+    ];
+
+    /** Los tipos que son del expediente clínico (las fotos de peluquería no). */
+    public const CLINICAL_KINDS = ['lab', 'imaging', 'history', 'other'];
+
+    public function isGroomingPhoto(): bool
+    {
+        return in_array($this->kind, ['grooming_before', 'grooming_after'], true);
+    }
 
     public function getKindLabelAttribute(): string
     {

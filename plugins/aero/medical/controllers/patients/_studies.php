@@ -4,7 +4,7 @@ use Aero\Medical\Models\MedicalFile;
 
 Analyte::ensureDefaults((int) $p->tenant_id);
 $analytes = Analyte::forTenant((int) $p->tenant_id)->where('is_active', true)->orderBy('sort')->orderBy('name')->get();
-$files = MedicalFile::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->orderByDesc('taken_on')->orderByDesc('id')->limit(50)->get();
+$files = MedicalFile::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->whereIn('kind', MedicalFile::CLINICAL_KINDS)->orderByDesc('taken_on')->orderByDesc('id')->limit(50)->get();
 $notes = \Aero\Medical\Models\Consultation::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->orderByDesc('consulted_at')->limit(30)->get();
 ?>
 <?php if (!count($files)): ?><p class="text-muted" style="font-size:13px">Sin archivos.</p><?php else: ?>

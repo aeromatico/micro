@@ -52,6 +52,38 @@ class Notifier
         }
     }
 
+    public static function dewormingDue(\Aero\Medical\Models\Deworming $d): bool
+    {
+        if (self::$muted || !self::available()) {
+            return false;
+        }
+
+        try {
+            $p = $d->patient;
+            $customer = $p?->customer;
+            if (!$p || !$customer || (!$customer->phone && !$customer->email)) {
+                return false;
+            }
+
+            \Aero\Notify\Classes\Notify::fire('medical.deworming.due', [
+                'customer_name' => $customer->name,
+                'patient_name'  => $p->name,
+                'due_date'      => $d->next_due_on->locale('es')->translatedFormat('l d/m'),
+                'business_name' => self::businessName((int) $d->tenant_id),
+            ], [
+                'tenant_id' => (int) $d->tenant_id,
+                'actor'     => ['name' => $customer->name, 'email' => $customer->email, 'phone' => $customer->phone],
+                'dedup_key' => "medical:deworming:{$d->id}:" . $d->next_due_on->toDateString(),
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            \Log::error('Aero.Medical: no se pudo avisar la desparasitación ' . $d->id . ': ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
     protected static function businessName(int $tenantId): string
     {
         if (class_exists(\Aero\Office\Models\OfficeSettings::class) && ($n = \Aero\Office\Models\OfficeSettings::where('tenant_id', $tenantId)->value('business_name'))) {

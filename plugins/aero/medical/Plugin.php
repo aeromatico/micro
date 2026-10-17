@@ -84,11 +84,21 @@ class Plugin extends PluginBase
         $clinical = ['aero.medical.professional', 'aero.medical.superadmin'];
         $catalog = ['aero.medical.professional', 'aero.medical.settings', 'aero.medical.superadmin'];
         $owner = ['aero.medical.settings', 'aero.medical.superadmin'];
+        $grooming = ['aero.medical.professional', 'aero.medical.reception', 'aero.medical.use', 'aero.medical.settings', 'aero.medical.superadmin'];
         $item = fn (string $label, string $icon, string $path, array $p) => [
             'label' => $label, 'icon' => $icon, 'url' => Backend::url('aero/medical/' . $path), 'permissions' => $p,
         ];
 
-        return [
+        // Peluquería y spa existe solo en modo animal (un negocio sin modo elegido o humano no lo ve).
+        $animal = true;
+        try {
+            $tenantId = \Aero\Medical\Classes\CurrentTenant::id();
+            $animal = !$tenantId || \Aero\Medical\Classes\CurrentTenant::isAdmin() || \Aero\Medical\Classes\Mode::forTenant($tenantId) === \Aero\Medical\Classes\Mode::ANIMAL;
+        } catch (\Throwable $e) {
+            // sin contexto de panel (consola, pruebas): se declara el ítem
+        }
+
+        $menu = [
             'medical' => [
                 'label'       => 'Historia clínica',
                 'url'         => Backend::url('aero/medical/patients'),
@@ -117,5 +127,13 @@ class Plugin extends PluginBase
                 ],
             ],
         ];
+
+        if ($animal) {
+            $menu['medical']['sideMenu'] = array_slice($menu['medical']['sideMenu'], 0, 4, true)
+                + ['groomings' => $item('Peluquería y spa', 'icon-tags', 'groomings', $grooming)]
+                + array_slice($menu['medical']['sideMenu'], 4, null, true);
+        }
+
+        return $menu;
     }
 }

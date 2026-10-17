@@ -2,6 +2,7 @@
 
 use Aero\Medical\Classes\Audit;
 use Aero\Medical\Classes\CurrentTenant;
+use Aero\Medical\Classes\FileAccess;
 use Aero\Medical\Classes\MedicalException;
 use Aero\Medical\Classes\ScopesToTenant;
 use Aero\Medical\Models\MedicalFile;
@@ -16,7 +17,8 @@ class Files extends Controller
 {
     use ScopesToTenant;
 
-    public $requiredPermissions = ['aero.medical.professional', 'aero.medical.superadmin'];
+    /** Entrar al controller no basta: FileAccess decide archivo por archivo (el expediente es clínico; las fotos de peluquería, no). */
+    public $requiredPermissions = ['aero.medical.professional', 'aero.medical.reception', 'aero.medical.use', 'aero.medical.settings', 'aero.medical.superadmin'];
 
     public function __construct()
     {
@@ -28,7 +30,10 @@ class Files extends Controller
     {
         $f = $this->scopeToTenant(MedicalFile::whereKey((int) $id))->firstOrFail();
 
-        // Un archivo de importación sin asociar solo lo ve quien revisa la importación (no está en ninguna ficha).
+        if (!FileAccess::canRead(\BackendAuth::getUser(), $f)) {
+            return \Response::make('Sin permiso para ver este archivo.', 403);
+        }
+
         try {
             $data = $f->contents();
         } catch (MedicalException $e) {

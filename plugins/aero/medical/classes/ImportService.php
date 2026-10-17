@@ -38,12 +38,18 @@ class ImportService
             }
 
             [$suggested, $reason] = $this->suggest($patients, $stored['original_name'], $this->text($file->getRealPath(), $stored['mime']));
-            MedicalFile::create([
-                'tenant_id' => $tenantId, 'patient_id' => null, 'kind' => 'history', 'original_name' => $stored['original_name'], 'mime' => $stored['mime'],
-                'size' => $stored['size'], 'storage_name' => $stored['storage_name'], 'sha256' => $stored['sha256'], 'import_id' => $batch->id,
-                'match_status' => $suggested ? 'suggested' : 'pending', 'suggested_patient_id' => $suggested, 'suggestion_reason' => $reason, 'uploaded_by' => $user->id,
-            ]);
-            $ok++;
+            try {
+                MedicalFile::create([
+                    'tenant_id' => $tenantId, 'patient_id' => null, 'kind' => 'history', 'original_name' => $stored['original_name'], 'mime' => $stored['mime'],
+                    'size' => $stored['size'], 'storage_name' => $stored['storage_name'], 'sha256' => $stored['sha256'], 'import_id' => $batch->id,
+                    'match_status' => $suggested ? 'suggested' : 'pending', 'suggested_patient_id' => $suggested, 'suggestion_reason' => $reason, 'uploaded_by' => $user->id,
+                ]);
+                $ok++;
+            } catch (\Throwable $e) {
+                PrivateFiles::forget($tenantId, $stored['storage_name']);
+                $errors[] = $file->getClientOriginalName() . ': no se pudo guardar.';
+                \Log::error('Aero.Medical: importación de archivo fallida: ' . $e->getMessage());
+            }
         }
 
         $batch->total = $ok;

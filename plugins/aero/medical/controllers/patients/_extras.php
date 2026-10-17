@@ -1,6 +1,10 @@
 <?php /** @var \Aero\Medical\Models\Patient $p */ ?>
 <style>.mf-more summary{cursor:pointer;font-weight:600;margin:0 0 8px}.mf-more{margin-bottom:12px}.mf-badge{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;background:rgba(128,128,128,.25)}.mf-badge.over{background:#e53935;color:#fff}</style>
 <div class="mf-card mf-more"><details open><summary>Vacunación</summary><div id="mf-vaccines"><?= $this->makePartial('vaccines', ['p' => $p]) ?></div></details></div>
+<?php if ($p->kind === 'animal'): ?>
+<div class="mf-card mf-more"><details open><summary>Desparasitaciones</summary><div id="mf-dewormings"><?= $this->makePartial('dewormings', ['p' => $p]) ?></div></details></div>
+<div class="mf-card mf-more"><details><summary>Peluquería y spa</summary><div id="mf-grooming"><?= $this->makePartial('grooming', ['p' => $p]) ?></div></details></div>
+<?php endif ?>
 <div class="mf-card mf-more"><details><summary>Agendar un control</summary><div id="mf-book"><?= $this->makePartial('book', ['p' => $p]) ?></div></details></div>
 <div class="mf-card mf-more"><details open><summary>Imágenes, laboratorio y archivos</summary><div id="mf-studies"><?= $this->makePartial('studies', ['p' => $p]) ?></div></details></div>
 <div class="mf-card mf-more"><details open><summary>Documentos</summary><div id="mf-documents"><?= $this->makePartial('documents', ['p' => $p]) ?></div></details></div>

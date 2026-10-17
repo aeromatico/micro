@@ -88,4 +88,6 @@ return [
     \Aero\Medical\Models\Vaccination::class => 'vacunas aplicadas: datos de salud',
     \Aero\Medical\Models\DocumentTemplate::class => 'formatos de documentos del negocio (configuración)',
     \Aero\Medical\Models\MedicalDocument::class => 'documentos clínicos emitidos (cifrados): datos de salud',
+    \Aero\Medical\Models\Deworming::class => 'desparasitaciones: datos de salud',
+    \Aero\Medical\Models\GroomingVisit::class => 'visitas de peluquería (notas cifradas, fotos cifradas)',
 ];

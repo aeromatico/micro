@@ -38,6 +38,7 @@ class DefaultTemplates
         'hello.campaign.finished' => ['Campaña finalizada', 'La campaña «{{ campaign_name }}» terminó: {{ sent_count }} enviados, {{ failed_count }} fallidos.'],
         'hello.message.received' => ['Mensaje de {{ contact_name }}', '{{ preview }}'],
         'medical.vaccine.due' => ['Vacuna próxima', 'Hola {{ customer_name }}, {{ patient_name }} tiene {{ vaccine_text }} programada para el {{ due_date }}.{% if business_name %} Escríbenos a {{ business_name }} para agendar.{% endif %}'],
+        'medical.deworming.due' => ['Desparasitación próxima', 'Hola {{ customer_name }}, {{ patient_name }} tiene una desparasitación programada para el {{ due_date }}.{% if business_name %} Escríbenos a {{ business_name }} para agendar.{% endif %}'],
         'notify.delivery.failed_burst' => ['Fallos de entrega', '{{ failed_count }} entregas fallaron por {{ channel }} en {{ window }}.'],
         'pay.billing.run_completed' => ['Facturación completada', 'Se generaron {{ charges_count }} cargos ({{ total_amount }}). Errores: {{ errors_count ?: 0 }}.'],
         'pay.charge.created' => ['Nuevo cargo', 'Se generó un cargo de {{ amount }} {{ currency }} ({{ period_start }} – {{ period_end }}). Vence: {{ due_date }}.'],

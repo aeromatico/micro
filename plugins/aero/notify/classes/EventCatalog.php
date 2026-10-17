@@ -640,11 +640,24 @@ class EventCatalog
             'due_date' => 'martes 13/10', 'business_name' => 'Veterinaria Patitas', 'tenant_name' => 'Demo',
         ];
 
+        $dewormVars = [
+            'customer_name' => ['type' => 'string', 'required' => true,  'label' => 'Tutor'],
+            'patient_name'  => ['type' => 'string', 'required' => true,  'label' => 'Animal'],
+            'due_date'      => ['type' => 'string', 'required' => true,  'label' => 'Fecha de la desparasitación'],
+            'business_name' => ['type' => 'string', 'required' => false, 'label' => 'Negocio'],
+        ];
+
         return [[
             'code' => 'medical.vaccine.due', 'source_plugin' => 'Aero.Medical', 'category' => 'health', 'name' => 'Vacuna próxima',
             'description' => 'Recordatorio al cliente o tutor de una dosis de vacuna que se acerca (se activa por negocio; apagado por defecto).',
             'priority' => 3, 'default_audiences' => ['actor'], 'default_channels' => ['whatsapp', 'email'],
             'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ], [
+            'code' => 'medical.deworming.due', 'source_plugin' => 'Aero.Medical', 'category' => 'health', 'name' => 'Desparasitación próxima',
+            'description' => 'Recordatorio al tutor de una desparasitación que se acerca (se activa por negocio; apagado por defecto).',
+            'priority' => 3, 'default_audiences' => ['actor'], 'default_channels' => ['whatsapp', 'email'],
+            'variables_schema' => $dewormVars + self::TENANT_VARS,
+            'sample_context' => ['customer_name' => 'María Quispe', 'patient_name' => 'Firulais', 'due_date' => 'martes 13/10', 'business_name' => 'Veterinaria Patitas', 'tenant_name' => 'Demo'],
         ]];
     }
 

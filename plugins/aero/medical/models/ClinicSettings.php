@@ -14,16 +14,17 @@ class ClinicSettings extends Model
 
     public $table = 'aero_medical_settings';
 
-    public $fillable = ['tenant_id', 'mode', 'enabled', 'consultation_template_id', 'control_template_id', 'vaccine_reminders', 'reminder_days_before'];
+    public $fillable = ['tenant_id', 'mode', 'enabled', 'consultation_template_id', 'control_template_id', 'vaccine_reminders', 'reminder_days_before', 'deworming_reminders', 'deworming_interval_days'];
 
     /** Casilla del formulario, no es columna. */
     public $purgeable = ['confirm_mode_change'];
 
-    public $casts = ['vaccine_reminders' => 'boolean'];
+    public $casts = ['vaccine_reminders' => 'boolean', 'deworming_reminders' => 'boolean'];
 
     public $rules = [
         'mode'                 => 'nullable|in:human,animal',
         'reminder_days_before' => 'nullable|integer|min:1|max:60',
+        'deworming_interval_days' => 'nullable|integer|min:1|max:730',
     ];
 
     public static function forTenant(?int $tenantId): self

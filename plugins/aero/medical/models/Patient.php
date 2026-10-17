@@ -48,6 +48,13 @@ class Patient extends Model
     public $rules = [
         'name'       => 'required|string|max:255',
         'sex'        => 'nullable|in:male,female,unknown',
+        'document'   => 'nullable|string|max:64',
+        'approx_age' => 'nullable|string|max:32',
+        'blood_type' => 'nullable|string|max:8',
+        'species'    => 'nullable|string|max:32',
+        'breed'      => 'nullable|string|max:64',
+        'color_marks' => 'nullable|string|max:255',
+        'microchip'  => 'nullable|string|max:64',
         'weight_kg'  => 'nullable|numeric|min:0|max:9999',
         'birth_date' => 'nullable|date|before_or_equal:today',
     ];

@@ -23,6 +23,7 @@ class DiagnosisCatalog extends Model
 
     public $rules = [
         'label' => 'required|string|max:500',
+        'code'  => 'nullable|string|max:16',
     ];
 
     public function getSourceOptions(): array

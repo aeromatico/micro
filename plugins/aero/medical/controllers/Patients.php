@@ -174,6 +174,25 @@ class Patients extends Controller
         return \Backend::redirect('aero/medical/documents/update/' . $doc->id);
     }
 
+    public function update_onApplyDeworming($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        $this->orFail(fn () => app(\Aero\Medical\Classes\DewormingService::class)->apply($p, [
+            'product' => post('product'), 'kind' => post('kind'), 'dose' => post('dose'), 'applied_on' => post('applied_on'),
+            'next_due_on' => post('next_due_on'), 'lot' => post('lot'), 'notes' => post('notes'),
+        ], \BackendAuth::getUser()));
+
+        return ['#mf-dewormings' => $this->makePartial('dewormings', ['p' => $p])];
+    }
+
+    public function update_onDeleteDeworming($recordId = null)
+    {
+        $p = $this->clinicalPatient($recordId);
+        \Aero\Medical\Models\Deworming::where('tenant_id', $p->tenant_id)->where('patient_id', $p->id)->findOrFail((int) post('deworming_id'))->delete();
+
+        return ['#mf-dewormings' => $this->makePartial('dewormings', ['p' => $p])];
+    }
+
     public function update_onBookControl($recordId = null)
     {
         $p = $this->clinicalPatient($recordId);

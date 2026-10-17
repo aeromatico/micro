@@ -186,3 +186,7 @@
 1.5.10:
     - "Aviso de vacuna próxima (medical.vaccine.due) para Historia clínica, con su regla y plantilla por defecto."
     - seed_medical_events.php
+
+1.5.11:
+    - "Aviso de desparasitación próxima (medical.deworming.due) para Historia clínica, con su regla y plantilla por defecto."
+    - seed_medical_deworming_event.php

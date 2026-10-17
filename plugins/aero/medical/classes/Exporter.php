@@ -6,6 +6,8 @@ use Aero\Medical\Models\AuditLog;
 use Aero\Medical\Models\Consultation;
 use Aero\Medical\Models\Diagnosis;
 use Aero\Medical\Models\DiagnosisCatalog;
+use Aero\Medical\Models\Deworming;
+use Aero\Medical\Models\GroomingVisit;
 use Aero\Medical\Models\DocumentTemplate;
 use Aero\Medical\Models\ExamCatalog;
 use Aero\Medical\Models\LabResult;
@@ -110,13 +112,15 @@ class Exporter
             })->all(),
             'vacunas' => Vaccination::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('applied_on')->get()->map(fn ($v) => static::model($v, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
             'laboratorio' => LabResult::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('measured_on')->get()->map(fn ($l) => static::model($l, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
+            'desparasitaciones' => Deworming::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('applied_on')->get()->map(fn ($d) => static::model($d, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
+            'peluqueria' => GroomingVisit::withTrashed()->where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('visited_on')->get()->map(fn ($g) => static::model($g, ['tenant_id', 'patient_id', 'created_at', 'updated_at']) + ['eliminada' => (bool) $g->deleted_at])->all(),
             'documentos' => MedicalDocument::withTrashed()->where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('id')->get()->map(fn ($d) => [
                 'tipo' => $d->kind, 'titulo' => $d->title, 'estado' => $d->status, 'emitido' => $d->issued_at?->toIso8601String(), 'profesional' => $d->professional_name, 'texto' => $d->body, 'huella' => $d->content_hash,
             ])->all(),
         ];
 
         $files = MedicalFile::withTrashed()->where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('id')->get();
-        $data['archivos'] = $files->map(fn ($f) => ['id' => $f->id, 'tipo' => $f->kind, 'titulo' => $f->title, 'nombre_original' => $f->original_name, 'mime' => $f->mime, 'fecha' => $f->taken_on?->toDateString(), 'notas' => $f->notes, 'sha256' => $f->sha256, 'eliminado' => (bool) $f->deleted_at])->all();
+        $data['archivos'] = $files->map(fn ($f) => ['id' => $f->id, 'tipo' => $f->kind, 'titulo' => $f->title, 'nombre_original' => $f->original_name, 'mime' => $f->mime, 'visita_peluqueria' => $f->grooming_id, 'fecha' => $f->taken_on?->toDateString(), 'notas' => $f->notes, 'sha256' => $f->sha256, 'eliminado' => (bool) $f->deleted_at])->all();
 
         $zip->addFromString($dir . 'paciente.json', static::json($data));
         foreach ($files as $f) {

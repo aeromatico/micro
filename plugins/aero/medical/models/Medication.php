@@ -15,7 +15,7 @@ class Medication extends Model
 
     public $casts = ['is_active' => 'boolean'];
 
-    public $rules = ['name' => 'required|string|max:255'];
+    public $rules = ['name' => 'required|string|max:255', 'form' => 'nullable|string|max:255', 'concentration' => 'nullable|string|max:255', 'notes' => 'nullable|string|max:255'];
 
     public static function search(int $tenantId, string $q, int $limit = 15)
     {

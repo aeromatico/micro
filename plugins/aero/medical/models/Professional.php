@@ -21,6 +21,9 @@ class Professional extends Model
 
     public $rules = [
         'display_name' => 'required|string|max:255',
+        'title'        => 'nullable|string|max:32',
+        'license'      => 'nullable|string|max:64',
+        'specialty'    => 'nullable|string|max:128',
     ];
 
     /** Imágenes cifradas en la BD (data URI): nunca archivos ni URL. */

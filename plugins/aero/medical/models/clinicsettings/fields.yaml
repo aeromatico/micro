@@ -36,6 +36,16 @@ fields:
     type: number
     default: 7
     span: right
+  deworming_reminders:
+    label: Avisar al tutor las desparasitaciones próximas (animal)
+    type: switch
+    span: left
+    comment: Apagado por defecto. Usa los mismos días de anticipación que las vacunas.
+  deworming_interval_days:
+    label: Intervalo habitual entre desparasitaciones (días)
+    type: number
+    span: right
+    comment: Opcional. Si lo indica, la próxima desparasitación se calcula sola; vacío = se indica a mano. El sistema no trae intervalos de fábrica.
   enabled:
     label: Módulo activo
     type: switch
