@@ -41,6 +41,7 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 ## Reglas de código October (fallan en silencio si se ignoran)
 - Subcarpetas de plugin **siempre en minúsculas** (`classes/`, `models/`, `controllers/`, `jobs/`).
 - `version.yaml`: cada versión = lista YAML `[línea de changelog, archivo.php, ...]`; un string plano no corre migraciones.
+  Esa línea es pública (bitácora en /dev): una sola idea por versión, sin nombres internos de proveedores; si es una corrección empieza con «Corrige…», «Arregla…», «Evita…» o incluye «ya no…» (así se clasifica como Corrección; una mejora a algo existente usa «ahora…»/«antes…»).
 - Permisos: `$user->hasAccess()`, nunca `hasPermission()` (ignora superadmin).
 - Pantalla para tenants ⇒ además `registerPermissions` + menú, una migración `grant_*_to_tenant_admin.php` en `aero/sites/updates` (con `class_exists`). Sin ella el tenant ve "denegado".
 - Datos de tenant: columna `tenant_id`; resolver con `Aero\Sites\Traits\ResolvesCurrentTenant`; los controllers filtran por tenant y **fallan cerrado**.
