@@ -32,6 +32,26 @@ class SmokeTest extends PluginTestCase
         $this->assertSame([], $p->metadataProblems());
     }
 
+    public function testImporterCreatesDraftWhenNothingRendered(): void
+    {
+        $root = sys_get_temp_dir() . '/producer-test-' . uniqid();
+        \Aero\Producer\Classes\Importer::$sourceRootOverride = $root;
+        $dir = $root . '/zz-prueba-importer';
+        mkdir($dir, 0775, true);
+        file_put_contents($dir . '/video.json', json_encode(['titulo' => 'Prueba<br>x', 'scenes' => [['text' => 'Hola.']]]));
+
+        try {
+            $p = \Aero\Producer\Classes\Importer::import('zz-prueba-importer');
+            $this->assertSame('designed', $p->status);
+            $this->assertSame('Hola.', $p->script);
+        } finally {
+            \Aero\Producer\Classes\Importer::$sourceRootOverride = null;
+            @unlink($dir . '/video.json');
+            @rmdir($dir);
+            @rmdir($root);
+        }
+    }
+
     public function testImporterRejectsPathLikeSlugs(): void
     {
         $this->assertNull(\Aero\Producer\Classes\Importer::import('../etc'));

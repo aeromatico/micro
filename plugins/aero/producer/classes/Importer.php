@@ -9,9 +9,12 @@ use Aero\Producer\Models\Project;
  */
 class Importer
 {
+    /** Solo para pruebas: otra carpeta de proyectos. */
+    public static ?string $sourceRootOverride = null;
+
     public static function sourceRoot(): string
     {
-        return base_path('videos');
+        return self::$sourceRootOverride ?: base_path('videos');
     }
 
     public static function mediaRoot(): string
@@ -50,6 +53,7 @@ class Importer
         }
 
         $project = Project::whereNull('tenant_id')->where('slug', $slug)->first() ?: new Project(['tenant_id' => null, 'slug' => $slug]);
+        $project->status = $project->status ?: 'draft';
         $project->name = $project->name ?: trim(strip_tags(str_replace('<br>', ' ', (string) ($video['titulo'] ?? $slug))));
         $project->kind = 'video';
         $project->voice_id = $project->voice_id ?: ($video['voice'] ?? null);
