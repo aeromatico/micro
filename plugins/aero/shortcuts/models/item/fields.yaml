@@ -13,6 +13,7 @@ fields:
         type: dropdown
         span: full
         emptyOption: '-- Elegir --'
+        showSearch: true
         comment: 'Lista: abre la pantalla. Formulario: abre «Nuevo» de esa pantalla.'
         trigger:
             action: show

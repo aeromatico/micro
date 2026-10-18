@@ -70,12 +70,18 @@ class Item extends Model
                 continue;
             }
             $group = __($info->mainMenuItem->label);
+            $plugin = ucfirst(strtolower(substr(strrchr('.' . $info->mainMenuItem->owner, '.'), 1)));
+            if ($plugin !== '' && stripos($group, $plugin) === false) {
+                $group .= " ({$plugin})";
+            }
             foreach ($info->subMenuItems as $sub) {
                 if (!$sub->url) {
                     continue;
                 }
                 $path = trim(str_starts_with($sub->url, $base) ? substr($sub->url, strlen($base)) : $sub->url, '/');
-                $options[$path] = $group . ' › ' . __($sub->label);
+                // Varios menús pueden apuntar a la misma pantalla: se listan todos, no se pisan.
+                $label = $group . ' › ' . __($sub->label);
+                $options[$path] = isset($options[$path]) ? $options[$path] . ' · ' . $label : $label;
             }
         }
         asort($options);

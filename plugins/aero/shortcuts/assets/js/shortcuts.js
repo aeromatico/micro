@@ -5,6 +5,13 @@
     function row(el) { return el && el.closest ? el.closest('[data-aero-sc]') : null; }
     function item(el) { return el && el.closest ? el.closest('.aero-sc-item[data-id]') : null; }
 
+    // En modo edición el widget cancela los clics (preventDefault en burbuja); en captura
+    // los cortamos antes para que los enlaces del widget naveguen igual.
+    document.addEventListener('click', function (e) {
+        var a = e.target && e.target.closest ? e.target.closest('[data-aero-sc] a[href]') : null;
+        if (a) e.stopPropagation();
+    }, true);
+
     document.addEventListener('dragstart', function (e) {
         var it = item(e.target);
         if (!it) return;

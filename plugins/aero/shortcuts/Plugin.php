@@ -12,7 +12,7 @@ use System\Classes\PluginBase;
  */
 class Plugin extends PluginBase
 {
-    const ASSET_VERSION = '3';
+    const ASSET_VERSION = '4';
 
     public function pluginDetails(): array
     {
