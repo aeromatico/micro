@@ -3,7 +3,7 @@
 use October\Rain\Database\Updates\Migration;
 
 /**
- * El Plan de 30 días (Aero.Plan) es acompañamiento de bienvenida: entra en
+ * El Plan de 7 días (Aero.Plan) es acompañamiento de bienvenida: entra en
  * todos los planes que restringen plugins (null = todos, no hace falta).
  * Idempotente.
  */
