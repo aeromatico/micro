@@ -248,6 +248,7 @@ def build_prompt(name, tipo, voice, background, tema, service_id, note, refs):
         parts.append(f"Instrucciones del usuario (prioridad alta): {note}")
     parts += [
         t["brief"],
+        "Ejecuta tú mismo el build, check-video y los fotogramas del paso 5 (usa `cd videos/<nombre> && NO_TTS=1 python3 build.py`, un comando por llamada) y corrige lo que falle; no me lo dejes pendiente.",
         "Respeta los criterios aprobados del skill market-video (marca Market, sin «micro», carátula, subtítulos, sin whoosh, 9:16 real, ≤ 65 s).",
         "Toda afirmación sobre otro producto (por ejemplo WhatsApp Business) debe ser conservadora y verificable; si no estás seguro, no la incluyas.",
         "Al terminar responde en español con: guion final por escena, duración estimada, caracteres que gastará la voz real y qué falta (voz, render, publicar).",
@@ -297,7 +298,7 @@ def run_claude(prompt):
     env.setdefault("HOME", "/root")
     allowed = ["Read", "Write", "Edit", "Glob", "Grep", "Bash(python3:*)", "Bash(NO_TTS=1 python3:*)", "Bash(MUSIC=0 NO_TTS=1 python3:*)",
                "Bash(npx:*)", "Bash(ffmpeg:*)", "Bash(ffprobe:*)", "Bash(ls:*)", "Bash(cat:*)", "Bash(grep:*)", "Bash(sed:*)", "Bash(mkdir:*)",
-               "Bash(cp:*)", "Bash(rm:*)", f"Bash({SKILL}/scripts/check-video:*)", "Bash(.claude/skills/market-video/scripts/check-video:*)"]
+               "Bash(cp:*)", "Bash(rm:*)", "Bash(cd:*)", "Bash(pwd)", "Bash(wc:*)", f"Bash({SKILL}/scripts/check-video:*)", "Bash(.claude/skills/market-video/scripts/check-video:*)"]
     cmd = [CLAUDE, "-p", prompt, "--model", CFG["model"], "--max-turns", str(CFG["max_turns"]),
            "--max-budget-usd", str(CFG["max_budget_usd"]), "--permission-mode", "dontAsk",
            "--setting-sources", "project", "--allowedTools", ",".join(allowed), "--no-session-persistence"]
