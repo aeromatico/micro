@@ -1,4 +1,4 @@
-/* Plan de 30 días (backend). Colores neutros que funcionan en tema claro y oscuro. */
+/* Plan de 7 días (backend). Colores neutros que funcionan en tema claro y oscuro. */
 .aplan { --ap-line: rgba(128,128,128,.32); --ap-soft: rgba(128,128,128,.10); --ap-accent: #8a9314; --ap-info: #3d7be0; --ap-ok: #2e9b5f; --ap-warn: #c88a00; --ap-bad: #d64545; max-width: 1100px; margin: 0 auto; padding: 8px 0 40px; }
 .aplan h2, .aplan h3 { margin: 0; }
 .aplan-eyebrow { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--ap-accent); }

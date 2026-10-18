@@ -4,7 +4,7 @@ use Backend;
 use System\Classes\PluginBase;
 
 /**
- * Plan de 30 días: acompañamiento guiado en 5 pasos. El dueño del tenant
+ * Plan de 7 días: acompañamiento guiado en 5 pasos. El dueño del tenant
  * completa las solicitudes de cada paso, el equipo de la plataforma
  * (superadmins) responde y aprueba, y recién entonces se abre el siguiente.
  * Es opcional: el dueño puede dejarlo (pausa) y seguir por su cuenta.
@@ -28,11 +28,11 @@ class Plugin extends PluginBase
     {
         return [
             'aero.plan.use' => [
-                'tab'   => 'Plan de 30 días',
-                'label' => 'Usar el Plan de 30 días: completar los pasos, escribir al equipo y pausar su plan',
+                'tab'   => 'Plan de 7 días',
+                'label' => 'Usar el Plan de 7 días: completar los pasos, escribir al equipo y pausar su plan',
             ],
             'aero.plan.superadmin' => [
-                'tab'   => 'Plan de 30 días',
+                'tab'   => 'Plan de 7 días',
                 'label' => 'Administrar planes: revisar, responder y aprobar los pasos de todos los tenants',
             ],
         ];
@@ -42,7 +42,7 @@ class Plugin extends PluginBase
     {
         return [
             'plan' => [
-                'label'       => 'Plan de 30 días',
+                'label'       => 'Plan de 7 días',
                 'url'         => Backend::url('aero/plan/plan'),
                 'icon'        => 'icon-list-alt',
                 'iconSvg'     => null,

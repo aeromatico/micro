@@ -1,4 +1,4 @@
-/* Plan de 30 días: autoguardado del dueño y repintado al cambiar el rubro. */
+/* Plan de 7 días: autoguardado del dueño y repintado al cambiar el rubro. */
 (function () {
     var timer = null;
 

@@ -32,7 +32,7 @@ class Plan extends Controller
             return Backend::redirect('aero/plan/plans');
         }
 
-        $this->pageTitle = 'Plan de 30 días';
+        $this->pageTitle = 'Plan de 7 días';
     }
 
     protected function planRole(): string

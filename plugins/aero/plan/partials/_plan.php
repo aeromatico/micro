@@ -11,10 +11,10 @@ $def = Stages::find($view);
     <?php else: ?>
         <div class="aplan-intro">
             <span class="aplan-eyebrow">Opcional</span>
-            <h2>Tu sistema funcionando en 30 días o mucho menos</h2>
-            <p>El Plan de 30 días es un camino de 5 pasos que recorremos juntos: tú nos cuentas cómo opera tu negocio, nosotros lo traducimos a Market, y en cada paso revisamos y aprobamos antes de avanzar. Puedes guardar tu avance y seguir otro día.</p>
+            <h2>Tu sistema funcionando en 7 días</h2>
+            <p>El Plan de 7 días es un camino de 5 pasos que recorremos juntos: tú nos cuentas cómo opera tu negocio, nosotros lo traducimos a Market, y en cada paso revisamos y aprobamos antes de avanzar. Puedes guardar tu avance y seguir otro día.</p>
             <p>No estás obligado a usarlo. Si prefieres hacerlo todo por tu cuenta, puedes dejarlo cuando quieras sin perder nada.</p>
-            <button type="button" class="btn btn-primary" data-request="onStart" data-request-loading="#plan-root">Empezar el plan de 30 días</button>
+            <button type="button" class="btn btn-primary" data-request="onStart" data-request-loading="#plan-root">Empezar el plan de 7 días</button>
         </div>
     <?php endif ?>
 <?php return; endif ?>
@@ -35,7 +35,7 @@ $approved = $plan->approved_count;
         <input type="hidden" name="plan_id" value="<?= $plan->id ?>">
 
         <div class="aplan-day">
-            <span><strong>Día <?= $plan->day ?> de 30</strong> · <?= $plan->status === 'paused' ? 'contador detenido mientras el plan está en pausa' : 'referencia, no una obligación' ?><?= $isTeam ? ' · ' . e($plan->tenant_name) : '' ?></span>
+            <span><strong>Día <?= $plan->day ?> de 7</strong> · <?= $plan->status === 'paused' ? 'contador detenido mientras el plan está en pausa' : 'referencia, no una obligación' ?><?= $isTeam ? ' · ' . e($plan->tenant_name) : '' ?></span>
             <div class="aplan-meter"><i style="width: <?= $approved * 20 ?>%"></i></div>
             <span><?= $approved ?> de 5 pasos aprobados</span>
         </div>
@@ -44,7 +44,7 @@ $approved = $plan->approved_count;
             <div class="aplan-note warn">
                 <b>Plan en pausa.</b>
                 <?= $isTeam ? 'El dueño decidió seguir por su cuenta' : 'Elegiste seguir por tu cuenta' ?><?= $plan->paused_at ? ' el ' . $plan->paused_at->format('d/m H:i') : '' ?><?= $plan->leave_reason ? ' · ' . e($plan->leave_reason) : '' ?>.
-                El avance está guardado y el contador de 30 días se detuvo.
+                El avance está guardado y el contador de 7 días se detuvo.
                 <?php if (!$isTeam): ?>
                     <div><button type="button" class="btn btn-primary" data-request="onResume">Retomar el plan</button></div>
                 <?php endif ?>

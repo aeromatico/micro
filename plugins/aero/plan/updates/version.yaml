@@ -1,3 +1,6 @@
 1.0.0:
     - "Primera versión: plan guiado de 5 pasos con solicitudes, conversación, aprobación del equipo, guardado de avance y pausa."
     - create_plan_tables.php
+
+1.0.1:
+    - "El Plan ahora dura 7 días para el montaje y el cambio de hábitos; los resultados se miden durante los 30 días siguientes."
