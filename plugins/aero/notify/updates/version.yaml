@@ -194,3 +194,7 @@
 1.5.12:
     - "Avisos del Plan de 30 días (Aero.Plan): paso enviado, mensajes, pausa y retoma hacia los superadmin; paso aprobado, cambios pedidos, mensajes y plan completado hacia el dueño, con sus reglas y plantillas por defecto."
     - seed_plan_events.php
+
+1.5.13:
+    - "Los avisos del Plan de 7 días ahora usan el nuevo nombre del plan en eventos y plantillas ya creados."
+    - rename_plan_events_to_7_days.php

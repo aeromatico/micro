@@ -737,7 +737,7 @@ class EventCatalog
     }
 
     /**
-     * Plan de 30 días (Aero.Plan): el dueño avisa a los superadmin de lo que
+     * Plan de 7 días (Aero.Plan): el dueño avisa a los superadmin de lo que
      * envía, escribe, pausa o retoma; el equipo avisa al dueño de lo que
      * aprueba, pide o responde. WhatsApp entrega solo si hay canal configurado.
      */
@@ -764,14 +764,14 @@ class EventCatalog
         ];
 
         return [
-            $mk('plan.step.submitted', 'Un paso del plan espera revisión', 'Un tenant envió un paso de su Plan de 30 días: hay que revisarlo y aprobarlo o pedir cambios.', ['superadmin'], 2),
-            $mk('plan.message.from_client', 'Mensaje de un tenant en su plan', 'Un tenant escribió en la conversación de un paso de su Plan de 30 días.', ['superadmin']),
+            $mk('plan.step.submitted', 'Un paso del plan espera revisión', 'Un tenant envió un paso de su Plan de 7 días: hay que revisarlo y aprobarlo o pedir cambios.', ['superadmin'], 2),
+            $mk('plan.message.from_client', 'Mensaje de un tenant en su plan', 'Un tenant escribió en la conversación de un paso de su Plan de 7 días.', ['superadmin']),
             $mk('plan.paused', 'Un tenant dejó su plan', 'Un tenant decidió seguir por su cuenta: el plan queda en pausa y el contador se detiene.', ['superadmin']),
-            $mk('plan.resumed', 'Un tenant retomó su plan', 'Un tenant retomó su Plan de 30 días tras una pausa.', ['superadmin']),
-            $mk('plan.step.approved', 'Aprobamos un paso de tu plan', 'El equipo aprobó un paso del Plan de 30 días y se abrió el siguiente.', ['tenant_admin']),
-            $mk('plan.changes.requested', 'Pedimos ajustes en tu plan', 'El equipo pidió cambios en un paso del Plan de 30 días.', ['tenant_admin'], 2),
-            $mk('plan.message.from_team', 'Nuevo mensaje en tu plan', 'El equipo escribió en la conversación de un paso de tu Plan de 30 días.', ['tenant_admin']),
-            $mk('plan.completed', '¡Plan de 30 días completado!', 'Se aprobó el último paso del Plan de 30 días.', ['tenant_admin']),
+            $mk('plan.resumed', 'Un tenant retomó su plan', 'Un tenant retomó su Plan de 7 días tras una pausa.', ['superadmin']),
+            $mk('plan.step.approved', 'Aprobamos un paso de tu plan', 'El equipo aprobó un paso del Plan de 7 días y se abrió el siguiente.', ['tenant_admin']),
+            $mk('plan.changes.requested', 'Pedimos ajustes en tu plan', 'El equipo pidió cambios en un paso del Plan de 7 días.', ['tenant_admin'], 2),
+            $mk('plan.message.from_team', 'Nuevo mensaje en tu plan', 'El equipo escribió en la conversación de un paso de tu Plan de 7 días.', ['tenant_admin']),
+            $mk('plan.completed', '¡Plan de 7 días completado!', 'Se aprobó el último paso del Plan de 7 días.', ['tenant_admin']),
         ];
     }
 
