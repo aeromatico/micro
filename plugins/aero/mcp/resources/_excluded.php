@@ -10,6 +10,8 @@
  */
 return [
     // credenciales y tokens
+    \Aero\Producer\Models\Credential::class => 'credenciales (api_key_enc)',
+    \Aero\Producer\Models\Project::class => 'proyectos de video de la plataforma (guion y archivos internos); sin pantalla de tenant aún',
     \Aero\Youtube\Models\Credential::class => 'credenciales (api_key_enc)',
     \Aero\Youtube\Models\Upload::class => 'cola de subidas de la plataforma (biblioteca de medios propia, solo superadmin)',
     \Aero\School\Models\Settings::class => 'configuración del colegio (cuenta de cobro y plantillas)',
