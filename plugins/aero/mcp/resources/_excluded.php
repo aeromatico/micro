@@ -10,6 +10,8 @@
  */
 return [
     // credenciales y tokens
+    \Aero\Youtube\Models\Credential::class => 'credenciales (api_key_enc)',
+    \Aero\Youtube\Models\Upload::class => 'cola de subidas de la plataforma (biblioteca de medios propia, solo superadmin)',
     \Aero\School\Models\Settings::class => 'configuración del colegio (cuenta de cobro y plantillas)',
     \Aero\Hello\Models\ApiKey::class => 'credenciales (key_hash/key_encrypted)',
     \Aero\Hello\Models\Profile::class => 'credenciales de proveedor (zernio/wapi/voice api keys)',
