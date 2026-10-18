@@ -7,7 +7,7 @@ storage/app/media/audio-backgrounds), prepara videos/<nombre>/ y lanza una sesi�
 correspondiente (market-video para los explicativos). La voz real (gasta caracteres) y el render van aparte.
 
   video-cli                         asistente interactivo (tipo → tema → voz → fondo → Claude diseña)
-  video-cli new [name] [--tipo T] [--voz id|texto] [--fondo archivo|ninguno] [--servicio ID] [--nota "…"] [--si]
+  video-cli new [name] [--tipo T] [--voz id|texto] [--fondo archivo|ninguno] [--servicio ID] [--ref archivo]… [--nota "…"] [--si]
   video-cli voices [--json]         voces de tu biblioteca de ElevenLabs
   video-cli bg list                 fondos disponibles en audio-backgrounds
   video-cli list                    videos en videos/ y su estado
@@ -224,30 +224,69 @@ def scaffold(name, voice, background, tipo):
     elif background:
         # siempre a mp3 estéreo 44.1k/160k: build.py espera assets/fondo.mp3 y los .wav pesan 10–27 MB
         subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", str(background), "-vn", "-ac", "2", "-ar", "44100", "-b:a", "160k", str(fondo)])
+        shutil.copyfile(fondo, dest / ".fondo-elegido.mp3")
     return dest
 
 
-def build_prompt(name, tipo, voice, background, tema, service_id, note):
+def build_prompt(name, tipo, voice, background, tema, service_id, note, refs):
     t = TYPES[tipo]
     bg = ("sin fondo musical (video.json ya tiene music_vol 0; usa MUSIC=0 al construir)" if background == "none"
-          else f"assets/fondo.mp3 ya copiado desde audio-backgrounds/{background.name}" if background
+          else f"assets/fondo.mp3 YA está copiado desde audio-backgrounds/{background.name}: NO lo reemplaces" if background
           else "el fondo.mp3 por defecto del skill")
     parts = [
-        f"Vas a crear el video «{name}» en videos/{name}/ (ya existe el scaffold del skill market-video).",
+        f"Vas a crear el video «{name}» en videos/{name}/ (ya existe el scaffold del skill market-video; el brief completo está en videos/{name}/BRIEF.md).",
         f"Tipo: {t['label']}.",
-        f"Tema / lo que debe explicar: {tema}",
-        f"Voz elegida: {voice.get('name')} (id {voice['voice_id']}, ya en video.json). Fondo: {bg}.",
+        f"TEMA OBLIGATORIO (el guion entero debe tratar de esto y de nada más): {tema}",
+        "No copies ni adaptes el guion de otros videos de videos/*; úsalos solo como referencia de elementos visuales (personaje, chat, tarjetas).",
+        f"Voz elegida: {voice.get('name')} (id {voice['voice_id']}, ya está en video.json: NO la cambies). Fondo: {bg}. No cambies music_vol salvo que se te pida.",
     ]
+    if refs:
+        parts.append("Archivos de referencia que DEBES leer antes de escribir el guion (son la fuente de verdad de las afirmaciones): " + ", ".join(refs))
     if service_id:
         parts.append(f"Se publicará en la página del servicio {service_id} (revisa en el código qué hace realmente su plugin antes de escribir el guion).")
     if note:
-        parts.append(f"Instrucciones del usuario: {note}")
+        parts.append(f"Instrucciones del usuario (prioridad alta): {note}")
     parts += [
         t["brief"],
         "Respeta los criterios aprobados del skill market-video (marca Market, sin «micro», carátula, subtítulos, sin whoosh, 9:16 real, ≤ 65 s).",
+        "Toda afirmación sobre otro producto (por ejemplo WhatsApp Business) debe ser conservadora y verificable; si no estás seguro, no la incluyas.",
         "Al terminar responde en español con: guion final por escena, duración estimada, caracteres que gastará la voz real y qué falta (voz, render, publicar).",
     ]
     return "\n".join(parts)
+
+
+def write_brief(dest, tipo, voice, background, tema, service_id, note, refs):
+    bg = "ninguno" if background == "none" else background.name if background else "por defecto del skill"
+    lines = [f"# Brief: {dest.name}", "", f"- Tipo: {TYPES[tipo]['label']}", f"- Tema: {tema}", f"- Voz: {voice.get('name')} ({voice['voice_id']})",
+             f"- Fondo: {bg}", f"- Servicio: {service_id or '—'}", f"- Referencias: {', '.join(refs) or '—'}", f"- Instrucciones: {note or '—'}", ""]
+    (dest / "BRIEF.md").write_text("\n".join(lines))
+
+
+def enforce(dest, voice, background):
+    """Garantiza lo que la persona eligió, aunque Claude lo haya tocado. Devuelve avisos."""
+    warns = []
+    cfgp = dest / "video.json"
+    try:
+        cfg = json.loads(cfgp.read_text())
+    except (OSError, ValueError):
+        return ["video.json ilegible"]
+    if cfg.get("voice") != voice["voice_id"]:
+        warns.append(f"Claude cambió la voz ({cfg.get('voice')}); restaurada a {voice.get('name')}")
+        cfg["voice"] = voice["voice_id"]
+    if isinstance(background, Path):
+        fondo = dest / "assets/fondo.mp3"
+        ref = dest / ".fondo-elegido.mp3"
+        # se compara contra la conversión original guardada al crear el scaffold
+        if ref.exists() and (not fondo.exists() or fondo.stat().st_size != ref.stat().st_size):
+            shutil.copyfile(ref, fondo)
+            warns.append("Claude cambió el fondo; restaurado el elegido")
+    if background == "none" and cfg.get("music_vol") != 0:
+        cfg["music_vol"] = 0
+        warns.append("el video debía ir sin fondo; music_vol=0")
+    cfgp.write_text(json.dumps(cfg, ensure_ascii=False, indent=2) + "\n")
+    chars = sum(len(x["text"]) for x in cfg.get("scenes", []))
+    warns.append(f"info: {len(cfg.get('scenes', []))} escenas, ~{chars} caracteres de voz")
+    return warns
 
 
 def run_claude(prompt):
@@ -397,16 +436,26 @@ def create(args, interactive):
     else:
         background = choose_background(st)
 
+    refs = list(args.ref or [])
+    if interactive and not refs:
+        refs = [x.strip() for x in ask("Archivos de referencia para Claude, separados por coma (opcional)").split(",") if x.strip()]
+    missing = [r for r in refs if not (ROOT / r).exists()]
+    if missing:
+        sys.exit("No existen: " + ", ".join(missing))
     note = args.nota or (ask("Instrucciones extra para Claude (opcional)") if interactive else "")
     bg_txt = "ninguno" if background == "none" else background.name if background else "por defecto del skill"
-    print(f"\nResumen\n  tipo:   {tipo}\n  nombre: videos/{name}\n  tema:   {tema}\n  voz:    {voice.get('name')}\n  fondo:  {bg_txt}\n  servicio: {service_id or '—'}\n  nota:   {note or '—'}")
+    print(f"\nResumen\n  tipo:   {tipo}\n  nombre: videos/{name}\n  tema:   {tema}\n  voz:    {voice.get('name')}\n  fondo:  {bg_txt}\n  servicio: {service_id or '—'}\n  nota:   {note or '—'}\n  refs:   {', '.join(refs) or '—'}")
     print("Claude diseña guion y escenas SIN gastar voz; la voz real, el render y la publicación son pasos aparte.")
     if not args.si and not yn("¿Continuar?", True):
         return 0
 
     save_state({**st, "voice_id": voice["voice_id"], "background": background.name if isinstance(background, Path) else st.get("background")})
-    scaffold(name, voice, background, tipo)
-    rc = run_claude(build_prompt(name, tipo, voice, background, tema, service_id, note))
+    dest = scaffold(name, voice, background, tipo)
+    write_brief(dest, tipo, voice, background, tema, service_id, note, refs)
+    rc = run_claude(build_prompt(name, tipo, voice, background, tema, service_id, note, refs))
+    print("\nVerificación de lo elegido:")
+    for w in enforce(dest, voice, background):
+        print("  -", w)
     print(f"\n{'Listo' if rc == 0 else 'Terminó con errores'}: videos/{name}")
     print(f"Siguiente:\n  revisar fotogramas →  cd videos/{name} && npx --yes {HYPERFRAMES} snapshot --at 4,12,25 -o /tmp/snap --no-end\n"
           f"  video-cli tweak {name} \"…\"   (cambios)\n  video-cli voice {name}             (voz real)\n  video-cli render {name}\n  video-cli publish {name} v1 {service_id or '<servicio_id>'} \"Título\"")
@@ -424,6 +473,7 @@ def main():
     n.add_argument("--fondo")
     n.add_argument("--servicio")
     n.add_argument("--nota")
+    n.add_argument("--ref", action="append", help="archivo de referencia (ruta desde la raíz del repo); repetible")
     n.add_argument("--si", action="store_true", help="sin confirmación final")
     v = sub.add_parser("voices", aliases=["voces"]); v.add_argument("--json", action="store_true")
     bg = sub.add_parser("bg", aliases=["fondos"]); bg.add_argument("action", nargs="?", default="list", choices=["list"])
