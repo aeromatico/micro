@@ -22,8 +22,17 @@ fields:
     url:
         label: URL
         span: full
-        placeholder: 'https://...'
-        comment: 'Se abre en una pestaña nueva.'
+        placeholder: 'https://...  o  /backend/aero/hello/compose'
+        comment: 'Dirección completa (https://…) o ruta relativa que empiece con /'
+        trigger:
+            action: show
+            field: kind
+            condition: value[url]
+    new_tab:
+        label: Abrir en pestaña nueva
+        type: switch
+        span: full
+        default: true
         trigger:
             action: show
             field: kind

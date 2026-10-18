@@ -1,3 +1,7 @@
 1.0.0:
     - "Atajos del dashboard: tabla de botones por tenant (formulario, lista o URL personalizada)."
     - create_items_table.php
+
+1.1.0:
+    - "Las URL personalizadas ahora tienen un interruptor para abrirse en pestaña nueva o en la misma."
+    - add_new_tab_to_items.php

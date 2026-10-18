@@ -40,5 +40,24 @@ class SmokeTest extends PluginTestCase
         $f = new \Aero\Shortcuts\Models\Item(['kind' => 'form', 'target' => 'aero/sms/templates']);
         $this->assertStringEndsWith('aero/sms/templates/create', $f->href);
     }
-}
 
+    public function testUrlValidationAcceptsRelativePaths(): void
+    {
+        $ok = ['https://example.com/a', '/backend/aero/hello/compose', '/backend/aero/hello/compose/'];
+        $bad = ['//evil.com', 'javascript:alert(1)', 'backend/x', 'ftp://x'];
+
+        foreach ($ok as $url) {
+            $i = new \Aero\Shortcuts\Models\Item(['label' => 'x', 'kind' => 'url', 'url' => $url]);
+            $this->assertTrue($i->validate(), "Debería aceptar {$url}");
+        }
+        foreach ($bad as $url) {
+            $i = new \Aero\Shortcuts\Models\Item(['label' => 'x', 'kind' => 'url', 'url' => $url]);
+            try {
+                $i->validate();
+                $this->fail("Debería rechazar {$url}");
+            } catch (\October\Rain\Database\ModelException) {
+                $this->addToAssertionCount(1);
+            }
+        }
+    }
+}

@@ -10,12 +10,6 @@
             <a class="aero-sc-edit" draggable="false" href="<?= e($manageUrl . '/update/' . $item->id) ?>" title="Editar este botón"><i class="icon-pencil"></i></a>
         </div>
     <?php endforeach ?>
-    <a class="aero-sc-item aero-sc-add" draggable="false" href="<?= e($items->isEmpty() ? $manageUrl : $createUrl) ?>">
-        <span class="aero-sc-icon"><i class="icon-plus"></i></span>
-        <span class="aero-sc-label"><?= $items->isEmpty() ? 'Crear atajos' : 'Añadir botón' ?></span>
-    </a>
-    <a class="aero-sc-item aero-sc-add" draggable="false" href="<?= e($manageUrl) ?>">
-        <span class="aero-sc-icon"><i class="icon-cog"></i></span>
-        <span class="aero-sc-label">Administrar</span>
-    </a>
+    <a class="aero-sc-mini" draggable="false" href="<?= e($items->isEmpty() ? $manageUrl : $createUrl) ?>" title="Añadir botón"><i class="icon-plus"></i></a>
+    <a class="aero-sc-mini" draggable="false" href="<?= e($manageUrl) ?>" title="Administrar atajos"><i class="icon-cog"></i></a>
 </div>

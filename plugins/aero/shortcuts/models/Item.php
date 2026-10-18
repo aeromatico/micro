@@ -10,19 +10,20 @@ class Item extends Model
 
     public $table = 'aero_shortcuts_items';
 
-    public $fillable = ['tenant_id', 'label', 'kind', 'target', 'url', 'icon', 'color', 'sort_order', 'is_active'];
+    public $fillable = ['tenant_id', 'label', 'kind', 'target', 'url', 'new_tab', 'icon', 'color', 'sort_order', 'is_active'];
 
     public $rules = [
         'label' => 'required|max:60',
         'kind'  => 'required|in:list,form,url',
     ];
 
-    protected $casts = ['is_active' => 'boolean'];
+    protected $casts = ['is_active' => 'boolean', 'new_tab' => 'boolean'];
 
     public function beforeValidate(): void
     {
         if ($this->kind === 'url') {
-            $this->rules['url'] = ['required', 'url', 'regex:/^https?:\/\//i'];
+            // https://... o una ruta relativa al sitio (/backend/aero/hello/compose); nunca //host ni javascript:
+            $this->rules['url'] = ['required', 'max:500', 'regex:/^(https?:\/\/\S+|\/(?!\/)\S*)$/i'];
         } else {
             $this->rules['target'] = 'required';
         }
@@ -52,7 +53,7 @@ class Item extends Model
 
     public function getOpensNewTabAttribute(): bool
     {
-        return $this->kind === 'url';
+        return $this->kind === 'url' && ($this->new_tab ?? true);
     }
 
     public function getKindOptions(): array
