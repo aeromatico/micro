@@ -250,6 +250,7 @@ def build_prompt(name, tipo, voice, background, tema, service_id, note, refs):
         t["brief"],
         "Ejecuta tú mismo el build, check-video y los fotogramas del paso 5 (usa `cd videos/<nombre> && NO_TTS=1 python3 build.py`, un comando por llamada) y corrige lo que falle; no me lo dejes pendiente.",
         "Respeta los criterios aprobados del skill market-video (marca Market, sin «micro», carátula, subtítulos, sin whoosh, 9:16 real, ≤ 65 s).",
+        "Reglas aprendidas: (1) NUNCA locutes dominios ni URLs en los textos de las escenas (la voz los atropella): el texto hablado termina en «…de Market.» y el dominio va solo en pantalla. (2) Dimensiona globos y tarjetas para que quepa el cuerpo entero de los personajes (#bot mide 90 px bajo el centro por la escala) y las píldoras para que el texto quepa con margen; verifica con fotogramas en 16:9 y 9:16. (3) Si un agente de IA es el orquestador, nómbralo «agente orquestador» (masculino) y sin nombre propio.",
         "Toda afirmación sobre otro producto (por ejemplo WhatsApp Business) debe ser conservadora y verificable; si no estás seguro, no la incluyas.",
         "Al terminar responde en español con: guion final por escena, duración estimada, caracteres que gastará la voz real y qué falta (voz, render, publicar).",
     ]
