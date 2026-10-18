@@ -1,0 +1,7 @@
+1.0.0:
+    - "Productor de video: proyectos con guion, voz, versiones y datos listos para redes (título, descripción, etiquetas, categoría), e importación de videos ya creados."
+    - create_projects_table.php
+
+1.1.0:
+    - "Llaves de proveedores (ElevenLabs para la voz) guardadas cifradas, con prueba de conexión y lista de voces."
+    - create_credentials_table.php

@@ -1,0 +1,10 @@
+name: Proyecto
+form: $/aero/producer/models/project/fields.yaml
+modelClass: Aero\Producer\Models\Project
+defaultRedirect: aero/producer/projects
+create:
+    redirect: aero/producer/projects/update/:id
+    redirectClose: aero/producer/projects
+update:
+    redirect: aero/producer/projects
+    redirectClose: aero/producer/projects

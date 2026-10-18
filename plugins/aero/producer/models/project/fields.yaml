@@ -1,0 +1,20 @@
+fields:
+    name: {label: Nombre, span: left}
+    slug: {label: Código, span: right, preset: {field: name, type: slug}, comment: "Nombre de la carpeta y de los archivos."}
+    status: {label: Estado, type: dropdown, span: left}
+    voice_id: {label: Voz (ElevenLabs)}
+tabs:
+    fields:
+        topic: {label: Tema, type: textarea, size: small, tab: Proyecto, comment: "Qué explica el video, a quién y qué problema resuelve."}
+        script: {label: Guion, type: textarea, size: giant, tab: Proyecto, comment: "Una escena por párrafo. Es lo que se locuta."}
+        background: {label: Fondo musical, tab: Proyecto, span: left}
+        service_id: {label: Servicio (id), tab: Proyecto, span: right, comment: "Página /plugin/… donde se muestra."}
+        source_dir: {label: Carpeta, tab: Proyecto, disabled: true}
+        outputs_summary: {label: Archivos en Medios, type: textarea, tab: Proyecto, disabled: true, size: small}
+        metadata[title]: {label: Título, tab: Redes, comment: "Máximo 100 caracteres."}
+        metadata[description]: {label: Descripción, type: textarea, size: large, tab: Redes, comment: "Con capítulos (00:00) si es posible."}
+        metadata[tags]: {label: Etiquetas, tab: Redes, comment: "Separadas por comas, máx. 500 caracteres."}
+        metadata[category_id]: {label: Categoría de YouTube, type: dropdown, tab: Redes, span: left, options: getCategoryOptions}
+        metadata[language]: {label: Idioma, tab: Redes, span: right, default: es}
+        metadata[hashtags]: {label: Hashtags, tab: Redes}
+        metadata[social_text]: {label: Texto corto para otras redes, type: textarea, size: small, tab: Redes}

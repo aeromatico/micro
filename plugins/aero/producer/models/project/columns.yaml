@@ -1,0 +1,6 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    slug: {label: Código, searchable: true}
+    status_label: {label: Estado, sortable: false}
+    ready: {label: YouTube, sortable: false}
+    updated_at: {label: Actualizado, type: datetime}

@@ -1,0 +1,10 @@
+title: Proyectos
+list: $/aero/producer/models/project/columns.yaml
+modelClass: Aero\Producer\Models\Project
+recordUrl: aero/producer/projects/update/:id
+noRecordsMessage: Aún no hay proyectos. Importa los videos de video-cli.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar
