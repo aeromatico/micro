@@ -473,3 +473,7 @@
 1.83.0:
     - "Aero.Plan (Plan de 30 días) entra en todos los planes que restringen plugins."
     - add_plan_to_all_plans.php
+
+1.84.0:
+    - "El rol tenant_admin recibe aero.youtube.use (llaves de API propias y explorador de YouTube)."
+    - grant_youtube_to_tenant_admin.php
