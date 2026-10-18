@@ -79,9 +79,13 @@ class Item extends Model
                     continue;
                 }
                 $path = trim(str_starts_with($sub->url, $base) ? substr($sub->url, strlen($base)) : $sub->url, '/');
-                // Varios menús pueden apuntar a la misma pantalla: se listan todos, no se pisan.
+                // Varios menús pueden apuntar a la misma pantalla: gana el del plugin dueño
+                // de la ruta (aero/shop/... → Shop), no el que la enlaza desde otro lado.
                 $label = $group . ' › ' . __($sub->label);
-                $options[$path] = isset($options[$path]) ? $options[$path] . ' · ' . $label : $label;
+                $isOwner = strtolower($info->mainMenuItem->owner) === 'aero.' . (explode('/', $path)[1] ?? '');
+                if (!isset($options[$path]) || $isOwner) {
+                    $options[$path] = $label;
+                }
             }
         }
         asort($options);
