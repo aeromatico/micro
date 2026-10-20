@@ -477,3 +477,6 @@
 1.84.0:
     - "El rol tenant_admin recibe aero.youtube.use (llaves de API propias y explorador de YouTube)."
     - grant_youtube_to_tenant_admin.php
+
+1.85.0:
+    - "Arregla que la Ayuda guiada diera error en cuentas de planes que no incluyen ese módulo: ahora siempre está disponible."
