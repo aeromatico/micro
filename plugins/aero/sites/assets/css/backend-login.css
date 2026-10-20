@@ -215,3 +215,36 @@ html, body.outer {
                 #0b0b18 !important;
     background-attachment: fixed !important;
 }
+
+/* ============ Escala oliva (base #B5BA49) ============ */
+body.outer {
+    --ol-100: #eef0c4; --ol-300: #d3d783; --ol-400: #c4c95c; --ol-500: #b5ba49;
+    --ol-600: #979c32; --ol-800: #4a4d15; --ol-900: #25270a; --ol-950: #12130a;
+    --lg-brand: var(--ol-500);
+    --lg-brand-dark: var(--ol-400);
+}
+html, body.outer {
+    background: radial-gradient(70% 60% at 18% 8%, var(--ol-800) 0%, transparent 70%),
+                radial-gradient(60% 50% at 85% 92%, var(--ol-900) 0%, transparent 70%),
+                var(--ol-950) !important;
+    background-attachment: fixed !important;
+}
+body.outer .login-button,
+body.outer .btn-primary {
+    background: var(--ol-500);
+    color: var(--ol-950);
+    box-shadow: 0 8px 22px -8px rgba(181, 186, 73, .7);
+}
+body.outer .login-button:hover,
+body.outer .btn-primary:hover { background: var(--ol-400); }
+body.outer .form-control:focus {
+    border-color: var(--ol-500);
+    box-shadow: 0 0 0 4px rgba(181, 186, 73, .25);
+}
+body.outer .form-check-input:checked { background-color: var(--ol-500); border-color: var(--ol-500); }
+body.outer .forgot-password a { color: var(--ol-300) !important; opacity: 1; }
+body.outer .outer-form-cell {
+    background: linear-gradient(145deg, rgba(238, 240, 196, .20), rgba(255, 255, 255, .07));
+    border-color: rgba(211, 215, 131, .35);
+}
+body.outer form ~ div[style*="text-align:center"] .btn:hover { border-color: var(--ol-300); }
