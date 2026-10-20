@@ -14,25 +14,38 @@ body.outer {
     background: #fff;
 }
 
-/* -- Columna del formulario ------------------------------------------------ */
+/* -- Caja central sobre el video ----------------------------------------- */
+body.outer { background: #000; }
+body.outer #layout-canvas > .d-flex {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    z-index: 2;
+}
 body.outer .outer-form-cell {
-    width: min(100%, 520px);
-    flex: 0 0 min(100%, 520px);
-    background: #fff;
+    width: min(100%, 440px);
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, .94);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .65);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px;
+    padding: 40px 36px;
 }
-body.outer .outer-form-container { width: 100%; max-width: 380px; padding: 0; }
+body.outer .outer-form-container { width: 100%; max-width: none; padding: 0; }
 
 body.outer .outer-form-container h1 {
-    margin: 0 0 40px;
+    margin: 0 0 28px;
     font-size: 0;            /* oculta el nombre en texto: queda el logo */
     line-height: 0;
-    text-align: left;
+    text-align: center;
 }
-body.outer .outer-form-container h1 img { max-width: 150px !important; height: auto; display: block; }
+body.outer .outer-form-container h1 img { max-width: 150px !important; height: auto; display: block; margin: 0 auto; }
 
 body.outer .outer-form-container h2 {
     font-family: inherit;
@@ -40,12 +53,13 @@ body.outer .outer-form-container h2 {
     font-weight: 700;
     letter-spacing: -.02em;
     color: var(--lg-ink);
-    text-align: left;
+    text-align: center;
     margin: 0 0 6px;
 }
 body.outer .outer-form-container h2::after { display: none; content: none; }
 body.outer .outer-form-container > p {
-    margin: 0 0 28px;
+    text-align: center;
+    margin: 0 0 24px;
     color: var(--lg-dim);
     font-size: 15px;
 }
@@ -121,30 +135,18 @@ body.outer form ~ div[style*="text-align:center"] .btn {
 }
 body.outer form ~ div[style*="text-align:center"] .btn:hover { background: #f8fafc; border-color: #cbd5e1; }
 
-/* -- Panel de marca (derecha) --------------------------------------------- */
-body.outer .outer-theme-cell {
-    position: relative;
-    overflow: hidden;
-    background-color: #1e1b4b !important;
-    background-image:
-        radial-gradient(60% 50% at 80% 10%, rgba(129, 140, 248, .55), transparent 70%),
-        radial-gradient(50% 45% at 10% 90%, rgba(56, 189, 248, .35), transparent 70%),
-        linear-gradient(135deg, #312e81 0%, #1e1b4b 100%) !important;
+/* -- Video de fondo (YouTube) + capa negra al 50% ------------------------ */
+body.outer .outer-theme-cell { display: none !important; }
+.lg-video { position: fixed; inset: 0; z-index: 0; overflow: hidden; background: #000; pointer-events: none; }
+.lg-video iframe {
+    position: absolute; top: 50%; left: 50%; border: 0;
+    width: max(100vw, 177.78vh); height: max(56.25vw, 100vh);
+    transform: translate(-50%, -50%);
 }
-body.outer .outer-theme-cell img,
-body.outer .outer-theme-cell .gradient-background { display: none; }
-body.outer .outer-theme-cell::before,
-body.outer .outer-theme-cell::after {
-    content: ""; position: absolute; border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, .12);
-}
-body.outer .outer-theme-cell::before { width: 720px; height: 720px; right: -220px; bottom: -260px; }
-body.outer .outer-theme-cell::after  { width: 440px; height: 440px; right: -60px;  bottom: -120px; background: rgba(255, 255, 255, .04); }
+.lg-video::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .5); }
 
-/* -- Móvil: solo el formulario -------------------------------------------- */
-@media (max-width: 860px) {
-    body.outer .outer-theme-cell { display: none; }
-    body.outer .outer-form-cell { width: 100%; flex-basis: 100%; padding: 24px; }
+@media (max-width: 480px) {
+    body.outer .outer-form-cell { padding: 32px 24px; border-radius: 20px; }
 }
 
 /* Ajustes de ritmo y enlaces */
@@ -152,3 +154,9 @@ body.outer .form-group { margin-bottom: 14px; }
 body.outer .form-check { margin: 4px 0 16px; }
 body.outer .forgot-password a { color: var(--lg-brand) !important; text-decoration: none !important; }
 body.outer form ~ div[style*="text-align:center"] .btn { display: block; width: 100%; box-shadow: none; }
+
+/* Caja a la altura de su contenido y logo más pegado al título */
+body.outer .outer-form-cell { align-self: center; height: auto; }
+body.outer .outer-form-container h1 { margin-bottom: 8px; }
+body.outer .outer-form-container h2 { margin-top: 0; font-size: 24px; }
+body.outer .outer-form-container > p { margin-bottom: 20px; }

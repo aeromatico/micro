@@ -349,7 +349,16 @@ class Plugin extends PluginBase
 
             $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/' . $file) . '?v=' . filemtime($cssPath);
 
-            return '<link rel="stylesheet" href="' . $assetUrl . '">';
+            $tags = '<link rel="stylesheet" href="' . $assetUrl . '">';
+
+            // Video de fondo del login (YouTube, mudo, en bucle).
+            if ($context === 'auth') {
+                $id = 'ogpw_9oJl58';
+                $src = "https://www.youtube-nocookie.com/embed/{$id}?autoplay=1&mute=1&loop=1&playlist={$id}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1";
+                $tags .= '<script>document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.className="lg-video";d.setAttribute("aria-hidden","true");d.innerHTML=\'<iframe src="' . $src . '" allow="autoplay; encrypted-media" tabindex="-1" title=""></iframe>\';document.body.prepend(d)})</script>';
+            }
+
+            return $tags;
         });
     }
 
