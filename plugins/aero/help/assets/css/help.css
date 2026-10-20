@@ -2,14 +2,17 @@
 :root{--ahp-bg:#fff;--ahp-fg:#111827;--ahp-sub:#6b7280;--ahp-line:#e5e7eb;--ahp-line2:#d1d5db;--ahp-soft:#fafafa;--ahp-mute:#f3f4f6;--ahp-accent:#1f2937;--ahp-on:#fff;--ahp-link:#1d4ed8;--ahp-scheme:light;--ahp-err:#b91c1c}
 /* El backend de October marca el modo en <html data-bs-theme>, y en «automático» lo actualiza según el sistema. */
 :root[data-bs-theme=dark]{--ahp-bg:#1b1f27;--ahp-fg:#e5e7eb;--ahp-sub:#9ca3af;--ahp-line:#2f3642;--ahp-line2:#3b4350;--ahp-soft:#222733;--ahp-mute:#272d3a;--ahp-accent:#e5e7eb;--ahp-on:#111827;--ahp-link:#7cb2ff;--ahp-scheme:dark;--ahp-err:#f87171}
-.ahp-fab{position:fixed;right:18px;bottom:72px;z-index:1200;display:flex;align-items:center;gap:8px;padding:10px 14px;border:0;border-radius:999px;background:var(--ahp-accent);color:var(--ahp-on);font:500 13px/1 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);cursor:pointer}
-.ahp-fab svg{width:16px;height:16px}
+.ahp-fab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:1200;display:flex;align-items:center;justify-content:center;width:34px;height:52px;padding:0;border:0;border-radius:12px 0 0 12px;background:var(--ahp-accent);color:var(--ahp-on);box-shadow:-3px 4px 14px rgba(0,0,0,.28);cursor:pointer;opacity:.92;transition:width .15s,opacity .15s,background .15s}
+.ahp-fab:hover,.ahp-fab:focus-visible{opacity:1;width:42px}
+.ahp-fab svg{width:20px;height:20px}
+.ahp-fab span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ahp-scrim{position:fixed;inset:0;z-index:1290;background:rgba(15,23,42,.35);opacity:0;pointer-events:none;visibility:hidden;transition:opacity .2s,visibility 0s .2s}
 .ahp-scrim.on{opacity:1;pointer-events:auto;visibility:visible;transition:opacity .2s}
 .ahp{position:fixed;top:0;right:0;bottom:0;z-index:1300;width:min(440px,100vw);display:flex;flex-direction:column;background:var(--ahp-bg);color:var(--ahp-fg);color-scheme:var(--ahp-scheme);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:-12px 0 40px rgba(0,0,0,.22);transform:translateX(100%);visibility:hidden;pointer-events:none;transition:transform .22s ease,visibility 0s .22s}
 .ahp.on{transform:none;visibility:visible;pointer-events:auto;transition:transform .22s ease}
 .ahp *{box-sizing:border-box}
 .ahp-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--ahp-line)}
+.ahp-av{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;font:600 16px/1 system-ui,sans-serif}
 .ahp-head strong{font-size:15px;flex:1}
 .ahp-head small{display:block;font-weight:400;font-size:12px;color:var(--ahp-sub)}
 .ahp-icon{border:0;background:none;color:var(--ahp-sub);cursor:pointer;border-radius:8px;padding:6px;line-height:0}
@@ -75,5 +78,4 @@
 .ahp-send[disabled]{opacity:.4;cursor:default}
 .ahp-send svg{width:18px;height:18px}
 .ahp-note{font-size:11.5px;color:var(--ahp-sub);text-align:center;padding:0 12px 8px}
-.ahp-chat-on .ahp-fab{bottom:146px}
 @media (prefers-reduced-motion:reduce){.ahp,.ahp-msg.b,.ahp-chips,.ahp-card{animation:none;transition:none}}

@@ -343,7 +343,7 @@
 
         var fresh = h('button', { type: 'button', 'class': 'ahp-icon', 'aria-label': 'Nueva conversación', title: 'Nueva conversación', html: ICON.plus });
         var x = h('button', { type: 'button', 'class': 'ahp-icon', 'aria-label': 'Cerrar', title: 'Cerrar', html: ICON.close });
-        var head = h('div', { 'class': 'ahp-head' }, [h('strong', { html: 'Ayuda<small>Guías, documentación y soporte</small>' }), fresh, x]);
+        var head = h('div', { 'class': 'ahp-head' }, [h('span', { 'class': 'ahp-av', 'aria-hidden': 'true', text: 'M' }), h('strong', { html: 'Mia<small>Tu asistente de ayuda · guías, documentación y soporte</small>' }), fresh, x]);
         el.qReport = h('button', { type: 'button', 'class': 'ahp-q', html: ICON.bug + '<span>Reportar incidencia</span>' });
         el.qTicket = h('button', { type: 'button', 'class': 'ahp-q', html: ICON.ticket + '<span>Abrir ticket</span>' });
         el.quick = h('div', { 'class': 'ahp-quick', style: 'display:none' }, [el.qReport, el.qTicket]);
@@ -351,8 +351,8 @@
         el.qTicket.addEventListener('click', function () { if (!el.feed.querySelector('.ahp-qf')) { quickForm('ticket'); } });
         var foot = h('div', { 'class': 'ahp-foot' }, [el.input, el.send]);
 
-        el.panel = h('aside', { 'class': 'ahp', role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Ayuda' }, [
-            head, el.quick, el.feed, foot, h('div', { 'class': 'ahp-note', text: 'Las respuestas salen de la documentación oficial.' })
+        el.panel = h('aside', { 'class': 'ahp', role: 'dialog', 'aria-modal': 'false', 'aria-label': 'Mia, asistente de ayuda' }, [
+            head, el.quick, el.feed, foot, h('div', { 'class': 'ahp-note', text: 'Mia responde con la documentación oficial de Market.' })
         ]);
 
         x.addEventListener('click', close);
@@ -389,7 +389,7 @@
     // Sin el botón de Soporte rápido de Community, la ayuda trae el suyo.
     window.addEventListener('load', function () {
         if (document.querySelector('.aco-fab')) { return; }
-        var fab = h('button', { type: 'button', 'class': 'ahp-fab', 'aria-label': 'Ayuda', html: ICON.help + '<span>Ayuda</span>' });
+        var fab = h('button', { type: 'button', 'class': 'ahp-fab', 'aria-label': 'Ayuda', title: 'Ayuda', html: ICON.help + '<span>Ayuda</span>' });
         fab.addEventListener('click', function () { open(); });
         document.body.appendChild(fab);
     });

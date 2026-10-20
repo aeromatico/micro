@@ -198,6 +198,15 @@ class HelpTest extends PluginTestCase
         $this->assertArrayHasKey('channels', $res);
     }
 
+    public function testPlansNeverBlockTheHelpPanel(): void
+    {
+        if (!class_exists(\Aero\Sites\Models\Plan::class)) {
+            $this->markTestSkipped('Aero.Sites no está presente.');
+        }
+
+        $this->assertContains('Aero.Help', \Aero\Sites\Models\Plan::ALWAYS_ALLOWED);
+    }
+
     protected function backendUser(string $login): \Backend\Models\User
     {
         return \Backend\Models\User::create([

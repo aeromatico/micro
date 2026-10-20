@@ -143,9 +143,9 @@ class Escalation
             $lines[] = $note;
             $lines[] = '';
         }
-        $lines[] = '— Conversación previa con la ayuda guiada —';
+        $lines[] = '— Conversación previa con Mia (ayuda guiada) —';
         foreach ((array) $session->transcript as $row) {
-            $lines[] = ($row['r'] === 'u' ? 'Persona: ' : 'Ayuda: ') . $row['t'];
+            $lines[] = ($row['r'] === 'u' ? 'Persona: ' : 'Mia: ') . $row['t'];
         }
         if ($session->flow_id) {
             $lines[] = '';

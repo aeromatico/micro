@@ -7,6 +7,17 @@
  */
 class Cards
 {
+    /**
+     * Las páginas públicas (documentación, guías, servicios) viven en el dominio
+     * público de Market, no en el del panel, que sirve el sitio de los tenants.
+     * El iframe de la guía sí se queda en el dominio actual: su CSP solo permite
+     * incrustarlo desde el mismo origen.
+     */
+    public static function publicUrl(string $path): string
+    {
+        return rtrim((string) config('aero.services.public_url', 'https://market.com.bo'), '/') . '/' . ltrim($path, '/');
+    }
+
     public static function doc(int $id): ?array
     {
         if (!Integrations::docs()) {
@@ -15,7 +26,7 @@ class Cards
 
         $a = \Aero\Docs\Models\Article::platform()->published()->find($id);
 
-        return $a ? ['type' => 'doc', 'title' => $a->title, 'summary' => $a->excerpt, 'url' => $a->url, 'minutes' => $a->reading_minutes] : null;
+        return $a ? ['type' => 'doc', 'title' => $a->title, 'summary' => $a->excerpt, 'url' => self::publicUrl('documentacion/' . $a->slug), 'minutes' => $a->reading_minutes] : null;
     }
 
     public static function docBySlug(string $slug): ?array
@@ -36,7 +47,7 @@ class Cards
 
         $g = \Aero\Docs\Models\Guide::platform()->published()->find($id);
 
-        return $g ? ['type' => 'guide', 'title' => $g->title, 'summary' => 'Guía interactiva: practica el formulario paso a paso.', 'url' => $g->url, 'embed' => $g->embed_url] : null;
+        return $g ? ['type' => 'guide', 'title' => $g->title, 'summary' => 'Guía interactiva: practica el formulario paso a paso.', 'url' => self::publicUrl('guias/' . $g->slug), 'embed' => $g->embed_url] : null;
     }
 
     public static function guideBySlug(string $slug): ?array
@@ -71,11 +82,11 @@ class Cards
         if (!empty($video['use_media']) && !empty($video['media'])) {
             $poster = !empty($video['poster']) ? \Media\Classes\MediaLibrary::url($video['poster']) : null;
 
-            return ['type' => 'video', 'title' => $title, 'provider' => 'file', 'src' => \Media\Classes\MediaLibrary::url($video['media']), 'poster' => $poster, 'more' => url('plugin/' . $service->slug)];
+            return ['type' => 'video', 'title' => $title, 'provider' => 'file', 'src' => \Media\Classes\MediaLibrary::url($video['media']), 'poster' => $poster, 'more' => self::publicUrl('plugin/' . $service->slug)];
         }
 
         if (!empty($video['youtube']) && preg_match('~(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})~', (string) $video['youtube'], $m)) {
-            return ['type' => 'video', 'title' => $title, 'provider' => 'youtube', 'src' => 'https://www.youtube-nocookie.com/embed/' . $m[1], 'poster' => null, 'more' => url('plugin/' . $service->slug)];
+            return ['type' => 'video', 'title' => $title, 'provider' => 'youtube', 'src' => 'https://www.youtube-nocookie.com/embed/' . $m[1], 'poster' => null, 'more' => self::publicUrl('plugin/' . $service->slug)];
         }
 
         return null;

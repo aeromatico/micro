@@ -57,7 +57,7 @@ class Engine
         $screen = ScreenContext::parse((string) $this->session->url);
         $name = trim((string) BackendAuth::getUser()?->first_name);
 
-        $this->text(($name !== '' ? "Hola, {$name}. " : 'Hola. ') . 'Soy la ayuda de Market. Dime qué quieres lograr, o elige una opción.');
+        $this->text(($name !== '' ? "Hola, {$name}. " : 'Hola. ') . 'Soy Mia, tu asistente de Market. Dime qué quieres lograr, o elige una opción.');
         $this->menu($screen);
 
         return $this->finish();
