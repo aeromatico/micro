@@ -336,16 +336,18 @@ class Plugin extends PluginBase
     protected function bootBackendCompactUi(): void
     {
         Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
-            if ($context !== 'default') {
+            // Login (layout auth): rediseño propio; el resto del backend, el compacto.
+            $file = $context === 'auth' ? 'backend-login.css' : ($context === 'default' ? 'backend-compact.css' : null);
+            if ($file === null) {
                 return '';
             }
 
-            $cssPath = plugins_path('aero/sites/assets/css/backend-compact.css');
+            $cssPath = plugins_path('aero/sites/assets/css/' . $file);
             if (!file_exists($cssPath)) {
                 return '';
             }
 
-            $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/backend-compact.css') . '?v=' . filemtime($cssPath);
+            $assetUrl = \Url::asset('/plugins/aero/sites/assets/css/' . $file) . '?v=' . filemtime($cssPath);
 
             return '<link rel="stylesheet" href="' . $assetUrl . '">';
         });
