@@ -207,3 +207,11 @@ body.outer form ~ div[style*="text-align:center"] .btn:hover { background: rgba(
 }
 .lg-video { opacity: 0; transition: opacity 1.2s ease; }
 .lg-video.is-playing { opacity: 1; }
+
+/* Antes de que cargue el video: fondo oscuro con degradado (nunca blanco) */
+html, body.outer {
+    background: radial-gradient(70% 60% at 20% 10%, #3b3a8f 0%, transparent 70%),
+                radial-gradient(60% 50% at 85% 90%, #0e5a7a 0%, transparent 70%),
+                #0b0b18 !important;
+    background-attachment: fixed !important;
+}
