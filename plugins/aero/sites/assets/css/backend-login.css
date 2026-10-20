@@ -196,3 +196,14 @@ body.outer form ~ div[style*="text-align:center"] .btn {
     color: #fff;
 }
 body.outer form ~ div[style*="text-align:center"] .btn:hover { background: rgba(255, 255, 255, .24); border-color: rgba(255, 255, 255, .5); }
+
+/* Video limpio: sin interfaz de YouTube. Se amplía el cuadro para recortar las
+   barras de título (arriba) y de controles/marca (abajo), y solo se ve cuando
+   ya está reproduciendo (evita miniatura, título y botón de play). */
+.lg-video iframe, .lg-video #lg-yt {
+    position: absolute; top: 50%; left: 50%; border: 0; pointer-events: none;
+    width: max(100vw, 177.78vh); height: max(56.25vw, 100vh);
+    transform: translate(-50%, -50%) scale(1.45);
+}
+.lg-video { opacity: 0; transition: opacity 1.2s ease; }
+.lg-video.is-playing { opacity: 1; }

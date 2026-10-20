@@ -351,11 +351,18 @@ class Plugin extends PluginBase
 
             $tags = '<link rel="stylesheet" href="' . $assetUrl . '">';
 
-            // Video de fondo del login (YouTube, mudo, en bucle).
+            // Video de fondo del login (YouTube vía IFrame API): mudo, en bucle, sin
+            // interfaz de YouTube; se muestra solo cuando ya reproduce.
             if ($context === 'auth') {
-                $id = 'ogpw_9oJl58';
-                $src = "https://www.youtube-nocookie.com/embed/{$id}?autoplay=1&mute=1&loop=1&playlist={$id}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1";
-                $tags .= '<script>document.addEventListener("DOMContentLoaded",function(){var d=document.createElement("div");d.className="lg-video";d.setAttribute("aria-hidden","true");d.innerHTML=\'<iframe src="' . $src . '" allow="autoplay; encrypted-media" tabindex="-1" title=""></iframe>\';document.body.prepend(d)})</script>';
+                $tags .= '<script src="https://www.youtube.com/iframe_api" async></script>'
+                    . '<script>(function(){var ID="ogpw_9oJl58",box;'
+                    . 'document.addEventListener("DOMContentLoaded",function(){box=document.createElement("div");box.className="lg-video";box.setAttribute("aria-hidden","true");box.innerHTML="<div id=\\"lg-yt\\"></div>";document.body.prepend(box)});'
+                    . 'window.onYouTubeIframeAPIReady=function(){var go=function(){if(!box)return setTimeout(go,50);'
+                    . 'new YT.Player("lg-yt",{videoId:ID,host:"https://www.youtube-nocookie.com",'
+                    . 'playerVars:{autoplay:1,mute:1,controls:0,disablekb:1,fs:0,rel:0,modestbranding:1,iv_load_policy:3,cc_load_policy:0,playsinline:1,loop:1,playlist:ID,enablejsapi:1,origin:location.origin},'
+                    . 'events:{onReady:function(e){e.target.mute();e.target.playVideo()},'
+                    . 'onStateChange:function(e){if(e.data===1)box.classList.add("is-playing");else if(e.data===2||e.data===0||e.data===-1){e.target.playVideo()}}}})};go()}'
+                    . '})()</script>';
             }
 
             return $tags;
