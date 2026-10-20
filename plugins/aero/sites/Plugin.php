@@ -355,7 +355,7 @@ class Plugin extends PluginBase
             // interfaz de YouTube; se muestra solo cuando ya reproduce.
             if ($context === 'auth') {
                 $tags .= '<script src="https://www.youtube.com/iframe_api" async></script>'
-                    . '<script>(function(){var ID="ogpw_9oJl58",box;'
+                    . '<script>(function(){var IDS=["ogpw_9oJl58","xDgkLihHmdc","V871IYGsa-s"],ID=IDS[Math.floor(Math.random()*IDS.length)],box;'
                     . 'document.addEventListener("DOMContentLoaded",function(){box=document.createElement("div");box.className="lg-video";box.setAttribute("aria-hidden","true");box.innerHTML="<div id=\\"lg-yt\\"></div>";document.body.prepend(box)});'
                     . 'window.onYouTubeIframeAPIReady=function(){var go=function(){if(!box)return setTimeout(go,50);'
                     . 'new YT.Player("lg-yt",{videoId:ID,host:"https://www.youtube-nocookie.com",'
