@@ -160,3 +160,39 @@ body.outer .outer-form-cell { align-self: center; height: auto; }
 body.outer .outer-form-container h1 { margin-bottom: 8px; }
 body.outer .outer-form-container h2 { margin-top: 0; font-size: 24px; }
 body.outer .outer-form-container > p { margin-bottom: 20px; }
+
+/* ============================ Efecto glass ================================ */
+body.outer {
+    --lg-ink: #fff;
+    --lg-dim: rgba(255, 255, 255, .72);
+    --lg-line: rgba(255, 255, 255, .25);
+}
+body.outer .outer-form-cell {
+    background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08));
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, .3);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+/* El logo es oscuro: lo pasamos a blanco sobre el vidrio */
+body.outer .outer-form-container h1 img { filter: brightness(0) invert(1); }
+body.outer .form-control {
+    background: rgba(255, 255, 255, .12);
+    border-color: rgba(255, 255, 255, .28);
+    color: #fff;
+}
+body.outer .form-control::placeholder { color: rgba(255, 255, 255, .5); }
+body.outer .form-control:focus { background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .7); box-shadow: 0 0 0 4px rgba(255, 255, 255, .15); }
+body.outer .form-control:-webkit-autofill {
+    -webkit-text-fill-color: #fff;
+    transition: background-color 9999s ease-in-out 0s;
+}
+body.outer .form-check-input { background-color: rgba(255, 255, 255, .15); border-color: rgba(255, 255, 255, .4); }
+body.outer .forgot-password a { color: #fff !important; opacity: .85; }
+body.outer .forgot-password a:hover { opacity: 1; text-decoration: underline !important; }
+body.outer form ~ div[style*="text-align:center"] .btn {
+    background: rgba(255, 255, 255, .14);
+    border-color: rgba(255, 255, 255, .3);
+    color: #fff;
+}
+body.outer form ~ div[style*="text-align:center"] .btn:hover { background: rgba(255, 255, 255, .24); border-color: rgba(255, 255, 255, .5); }
