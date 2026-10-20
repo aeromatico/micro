@@ -23,7 +23,7 @@ class OauthFlow
             return self::fail('El acceso con ' . $provider->label() . ' está desactivado.');
         }
         if ($purpose === 'connect' && !BackendAuth::check()) {
-            return redirect(Backend::url('auth/signin'));
+            return redirect(Backend::url('backend/auth/signin'));
         }
         if (!$provider->isConfigured()) {
             return self::fail('Faltan las credenciales de ' . $provider->label() . ' en el servidor.');
@@ -40,7 +40,7 @@ class OauthFlow
             'purpose'  => $purpose,
             'verifier' => $verifier,
             'user_id'  => $purpose === 'connect' ? BackendAuth::getUser()->id : null,
-            'return'   => Oauth::safeReturn($request->query('return'), Backend::url('')),
+            'return'   => Oauth::safeReturn($request->query('return'), Backend::url('dashboard')),
         ]);
 
         $challenge = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
@@ -64,7 +64,7 @@ class OauthFlow
             return self::fail('La sesión de acceso expiró o no es válida. Inténtalo otra vez.');
         }
 
-        $back = $pending['purpose'] === 'connect' ? $pending['return'] : Backend::url('auth/signin');
+        $back = $pending['purpose'] === 'connect' ? $pending['return'] : Backend::url('backend/auth/signin');
 
         if ($request->query('error') || !$request->query('code')) {
             return self::fail('Se canceló el acceso con ' . $provider->label() . '.', $back);
@@ -106,7 +106,7 @@ class OauthFlow
         BackendAuth::login($user, true);
         AccessLog::add($user);
 
-        return redirect()->intended(Backend::url(''));
+        return redirect()->intended(Backend::url('dashboard'));
     }
 
     protected static function finishConnect(ProviderInterface $provider, array $pending, array $token, array $profile)
@@ -158,6 +158,6 @@ class OauthFlow
     {
         \Flash::error($message);
 
-        return redirect($to ?: Backend::url('auth/signin'));
+        return redirect($to ?: Backend::url('backend/auth/signin'));
     }
 }

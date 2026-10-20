@@ -1,3 +1,5 @@
 1.0.0:
     - "Acceso con proveedores externos (Google): identidades vinculadas a usuarios del backend, tokens cifrados, permisos incrementales por plugin."
     - create_identities_table.php
+1.0.1:
+    - "Corrige la redirección del acceso con Google: ahora entra directo al panel y, si falla, vuelve a la pantalla de acceso correcta en vez de una página 404."
