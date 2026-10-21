@@ -1,0 +1,236 @@
+url = "/partners"
+layout = "base"
+title = "Partners — Market"
+description = "Market es una plataforma boliviana, joven y en construcción. Buscamos gente que aporte —dinero, infraestructura, difusión, marca o talento— para llegar a más negocios."
+==
+<?php
+use Illuminate\Support\Facades\RateLimiter;
+
+function onSend()
+{
+    $data = post();
+
+    // Honeypot: un bot rellena el campo oculto; respondemos "ok" sin enviar nada.
+    if (!empty($data['website'])) {
+        return;
+    }
+
+    $tipos = [
+        'capital' => 'Capital o inversión',
+        'infraestructura' => 'Infraestructura / servidores',
+        'difusion' => 'Publicidad y difusión',
+        'marca' => 'Nombre y marca',
+        'talento' => 'Quiero trabajar en Market',
+        'estrategico' => 'Alianza estratégica',
+        'representacion' => 'Representación en mi ciudad',
+        'pais' => 'Market en otro país',
+        'otro' => 'Otra propuesta',
+    ];
+
+    $validator = Validator::make($data, [
+        'name' => 'required|string|max:120',
+        'email' => 'required|email|max:160',
+        'type' => 'required|in:' . implode(',', array_keys($tipos)),
+        'company' => 'nullable|string|max:160',
+        'country' => 'nullable|string|max:80',
+        'message' => 'required|string|min:20|max:4000',
+    ], [
+        'name.required' => 'Escribe tu nombre.',
+        'email.required' => 'Escribe tu correo.',
+        'email.email' => 'El correo no parece válido.',
+        'type.required' => 'Elige qué te interesa.',
+        'type.in' => 'Elige una de las opciones.',
+        'message.required' => 'Cuéntanos tu propuesta.',
+        'message.min' => 'Cuéntanos un poco más (mínimo 20 caracteres).',
+    ]);
+    if ($validator->fails()) {
+        throw new ValidationException($validator);
+    }
+
+    $key = 'partners-form:' . request()->ip();
+    if (RateLimiter::tooManyAttempts($key, 3)) {
+        throw new ApplicationException('Ya recibimos tus mensajes. Intenta de nuevo en unos minutos.');
+    }
+    RateLimiter::hit($key, 600);
+
+    $body = "Interés: {$tipos[$data['type']]}\n"
+        . "Nombre: {$data['name']}\nCorreo: {$data['email']}\n"
+        . (!empty($data['company']) ? "Empresa / fondo: {$data['company']}\n" : '')
+        . (!empty($data['country']) ? "País / ciudad: {$data['country']}\n" : '')
+        . (!empty($data['phone']) ? "Teléfono: {$data['phone']}\n" : '')
+        . "\n{$data['message']}\n\n— Enviado desde /partners de market.com.bo";
+
+    Mail::raw($body, function ($m) use ($data, $tipos) {
+        $m->to('master@clouds.com.bo')
+            ->replyTo($data['email'], $data['name'])
+            ->subject('Partners [' . $tipos[$data['type']] . ']: ' . mb_substr($data['name'], 0, 60));
+    });
+}
+?>
+==
+<div class="max-w-6xl mx-auto px-6 sm:px-10 py-10">
+    <nav class="text-sm text-ink-dim mb-6" aria-label="Migas">
+        <a href="/" class="hover:text-ink">Inicio</a>
+        <span class="mx-2">/</span>
+        <span class="text-ink" aria-current="page">Partners</span>
+    </nav>
+
+    <header class="max-w-3xl mb-16">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Partners</span>
+        <h1 class="text-4xl font-bold text-pretty mt-2">Somos pequeños, vamos en serio y queremos que sirva</h1>
+        <p class="text-lg text-ink-dim mt-3 text-pretty">No inventamos nada. Intentamos hacer bien, y para Bolivia, algo que muchos ya deberían haber resuelto: que un negocio pueda tener su sitio, su tienda, sus cobros y su atención a clientes en un mismo lugar, sin trámites interminables ni diez herramientas sueltas. Lo construye Clouds, que lleva 25 años en la nube.</p>
+        <p class="font-display font-bold text-xl text-accent mt-6">El que puede con poco, puede con mucho.</p>
+        <div class="flex flex-wrap gap-3 mt-6">
+            <a href="#hablemos" class="inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3.5 rounded-lg hover:-translate-y-px transition-transform">Quiero aportar</a>
+            <a href="/dev" class="inline-flex items-center border border-edge font-bold text-sm px-6 py-3.5 rounded-lg hover:border-accent transition-colors">Ver lo que ya está hecho</a>
+        </div>
+    </header>
+
+    <section class="mb-20 max-w-3xl">
+        <h2 class="text-2xl font-bold">Dónde estamos, sin adornos</h2>
+        <div class="mt-4 flex flex-col gap-4 text-ink-dim leading-relaxed">
+            <p><span class="text-ink font-semibold">Es un prototipo, y ya funciona.</span> Estamos probando la idea en un mercado pequeño, el boliviano. Hay más de veinte módulos andando, con cuentas aisladas por negocio y permisos por equipo, y una bitácora pública donde puedes ver cada avance, día a día.</p>
+            <p><span class="text-ink font-semibold">Somos pocos y estamos al principio.</span> No tenemos las espaldas de una multinacional ni pretendemos tenerlas. Tenemos oficio, ganas y una idea clara de lo que un negocio boliviano necesita de verdad. Si se puede con poco, se podrá con mucho.</p>
+            <p><span class="text-ink font-semibold">Bolivia es terreno por trabajar.</span> Aquí falta mucho por hacer fácil: cobrar, facturar, vender por WhatsApp, ordenar un negocio. Queremos que el camino sea corto para quien emprende, y nos alegrará ver que funciona.</p>
+        </div>
+    </section>
+
+    <section class="mb-20" aria-label="Qué buscamos">
+        <h2 class="text-2xl font-bold">Buscamos gente que aporte</h2>
+        <p class="text-ink-dim mt-2 max-w-2xl">Aportar no es solo dinero. Hay cosas que nos frenan y que alguien puede ayudarnos a resolver. Si ves la tuya aquí, escríbenos.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Infraestructura</div>
+                <p class="text-sm text-ink-dim mt-2">Servidores, almacenamiento, redes, créditos de nube. Crecer cuesta, y esto es lo que más rápido se transforma en capacidad para más negocios.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Publicidad y difusión</div>
+                <p class="text-sm text-ink-dim mt-2">Medios, comunidades, espacios, contactos. Hoy hacemos mucho y nos conocen poco. Que nos encuentren quienes lo necesitan.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Nombre y marca</div>
+                <p class="text-sm text-ink-dim mt-2">Un nombre fuerte, una identidad cuidada y gente que sepa contarla. Lo que somos merece verse tan bien como funciona.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Talento</div>
+                <p class="text-sm text-ink-dim mt-2">Personas buenas que entiendan esta idea y quieran hacerla crecer: producto, desarrollo, soporte, ventas. Si lo que decimos aquí te resuena, quizá seas tú.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Capital</div>
+                <p class="text-sm text-ink-dim mt-2">Queremos inversionistas, pero el dinero no va primero: antes queremos que esto funcione. Nos interesa quien entiende el camino y suma más que un cheque: criterio, contactos y paciencia.</p>
+            </div>
+            <div class="p-6 bg-canvas-elev border border-edge rounded-2xl">
+                <div class="font-display font-semibold text-lg">Alianzas y representación</div>
+                <p class="text-sm text-ink-dim mt-2">Empresas que sirvan a negocios como los nuestros, y personas que conozcan su ciudad y quieran llevar Market a los comercios de ahí.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-20 max-w-3xl">
+        <h2 class="text-2xl font-bold">Primero Bolivia. Después, si toca, otros países</h2>
+        <div class="mt-4 flex flex-col gap-4 text-ink-dim leading-relaxed">
+            <p>Nuestro foco hoy es que funcione bien aquí. La plataforma está pensada para poder adaptarse a otro mercado, con su dominio, su identidad y sus particularidades de pagos y facturación, pero eso viene después de hacer bien lo de casa.</p>
+            <p>Si eres de otro país y la idea te convence, cuéntanos. Lo hablamos con calma y sin prisa.</p>
+        </div>
+    </section>
+
+    <section class="mb-20 max-w-3xl">
+        <h2 class="text-2xl font-bold">Cómo trabajamos</h2>
+        <div class="mt-4 flex flex-col gap-4 text-ink-dim leading-relaxed">
+            <p><span class="text-ink font-semibold">Con humildad y con orgullo.</span> Sabemos lo que nos falta y lo decimos. También sabemos lo que hemos construido, y no nos da vergüenza mostrarlo.</p>
+            <p><span class="text-ink font-semibold">Con honestidad.</span> No prometemos lo que no tenemos. Si algo no está listo, lo decimos; si una propuesta no encaja, también.</p>
+            <p><span class="text-ink font-semibold">A largo plazo.</span> Esto se desarrolla de forma permanente. Buscamos gente que quiera construirlo con nosotros, no una oportunidad de temporada.</p>
+        </div>
+    </section>
+
+    <section class="mb-20" id="hablemos">
+        <div class="max-w-3xl">
+            <span class="text-xs tracking-wide text-accent uppercase font-bold">Escríbenos</span>
+            <h2 class="text-2xl font-bold mt-2">Cuéntanos quién eres y qué puedes aportar</h2>
+            <p class="text-ink-dim mt-3 leading-relaxed">Cada propuesta la lee una persona del equipo. Si encaja, te respondemos para conversar.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-[1fr_1.4fr] gap-8 items-start mt-6">
+            <div class="flex flex-col gap-4">
+                <a href="https://wa.me/59175669697" target="_blank" rel="noopener" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                    <div class="text-xs text-ink-dim">WhatsApp</div>
+                    <div class="font-display font-semibold text-lg mt-1 group-hover:text-accent transition-colors">+591 75669697</div>
+                </a>
+                <a href="mailto:master@clouds.com.bo" class="group p-5 bg-canvas-elev border border-edge rounded-2xl hover:border-accent hover:-translate-y-px transition">
+                    <div class="text-xs text-ink-dim">Correo</div>
+                    <div class="font-display font-semibold text-lg mt-1 group-hover:text-accent transition-colors break-all">master@clouds.com.bo</div>
+                </a>
+            </div>
+
+            <div class="p-6 sm:p-8 bg-canvas-elev border border-edge rounded-2xl">
+                <div id="partners-ok" class="hidden" role="status">
+                    <h2 class="font-display font-bold text-xl">¡Gracias, lo recibimos!</h2>
+                    <p class="text-ink-dim mt-2">Lo leeremos con atención y, si encaja, te escribimos al correo que indicaste.</p>
+                </div>
+
+                <form id="partners-form" class="flex flex-col gap-4"
+                    data-request="onSend"
+                    data-request-validate
+                    data-request-success="document.getElementById('partners-form').classList.add('hidden'); document.getElementById('partners-ok').classList.remove('hidden')">
+                    <h2 class="font-display font-bold text-xl">Tu aporte</h2>
+
+                    {# honeypot: oculto para personas #}
+                    <div class="hidden" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+
+                    <label class="flex flex-col gap-1.5 text-sm">
+                        <span class="font-semibold">Qué te interesa</span>
+                        <select name="type" required class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                            <option value="" disabled selected>Elige una opción</option>
+                            <option value="capital">Capital o inversión</option>
+                            <option value="infraestructura">Infraestructura o servidores</option>
+                            <option value="difusion">Publicidad y difusión</option>
+                            <option value="marca">Nombre y marca</option>
+                            <option value="talento">Quiero trabajar en Market</option>
+                            <option value="estrategico">Alianza estratégica</option>
+                            <option value="representacion">Representar a Market en mi ciudad</option>
+                            <option value="pais">Market en otro país</option>
+                            <option value="otro">Otra propuesta</option>
+                        </select>
+                        <span data-validate-for="type" class="text-xs text-red-400"></span>
+                    </label>
+                    <label class="flex flex-col gap-1.5 text-sm">
+                        <span class="font-semibold">Nombre</span>
+                        <input type="text" name="name" required maxlength="120" autocomplete="name" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                        <span data-validate-for="name" class="text-xs text-red-400"></span>
+                    </label>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <label class="flex flex-col gap-1.5 text-sm">
+                            <span class="font-semibold">Correo</span>
+                            <input type="email" name="email" required maxlength="160" autocomplete="email" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                            <span data-validate-for="email" class="text-xs text-red-400"></span>
+                        </label>
+                        <label class="flex flex-col gap-1.5 text-sm">
+                            <span class="font-semibold">Teléfono <span class="font-normal text-ink-dim">(opcional)</span></span>
+                            <input type="tel" name="phone" maxlength="30" autocomplete="tel" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                        </label>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <label class="flex flex-col gap-1.5 text-sm">
+                            <span class="font-semibold">Empresa o fondo <span class="font-normal text-ink-dim">(opcional)</span></span>
+                            <input type="text" name="company" maxlength="160" autocomplete="organization" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                        </label>
+                        <label class="flex flex-col gap-1.5 text-sm">
+                            <span class="font-semibold">País y ciudad <span class="font-normal text-ink-dim">(opcional)</span></span>
+                            <input type="text" name="country" maxlength="80" class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent">
+                        </label>
+                    </div>
+                    <label class="flex flex-col gap-1.5 text-sm">
+                        <span class="font-semibold">Cuéntanos</span>
+                        <textarea name="message" required rows="6" maxlength="4000" placeholder="Quién eres, qué puedes aportar y qué esperas de Market." class="bg-canvas border border-edge rounded-lg px-3.5 py-2.5 text-ink focus:outline-none focus:border-accent"></textarea>
+                        <span data-validate-for="message" class="text-xs text-red-400"></span>
+                    </label>
+
+                    <div data-validate-error class="text-sm text-red-400" style="display:none"></div>
+
+                    <button type="submit" class="self-start inline-flex items-center bg-accent text-accent-fg font-bold text-sm px-6 py-3 rounded-lg hover:-translate-y-px transition-transform data-request-loading:opacity-50">Enviar</button>
+                    <p class="text-xs text-ink-dim">Al escribirnos aceptas nuestra <a href="/privacy" class="underline underline-offset-2 hover:text-ink">Política de privacidad</a>.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
