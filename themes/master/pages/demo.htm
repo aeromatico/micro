@@ -119,7 +119,7 @@ window.demoVideos = window.demoVideos || function (items) {
             <p class="text-base text-ink-dim mt-3 text-pretty">Elige uno de la lista. Si tiene versión vertical, también la ves tal como saldría en el celular.</p>
         </div>
 
-        <div class="grid lg:grid-cols-[minmax(0,1fr)_20rem] gap-6 lg:gap-8 items-start">
+        <div class="grid lg:grid-cols-[minmax(0,1fr)_20rem] gap-6 lg:gap-8 items-start lg:items-stretch">
             {# Reproductor #}
             <div>
                 <div class="group relative mx-auto w-full transition-[max-width] duration-300" :class="vertical ? 'max-w-[20rem] sm:max-w-[22rem]' : 'max-w-none'">
@@ -184,7 +184,8 @@ window.demoVideos = window.demoVideos || function (items) {
             </div>
 
             {# Lista de reproducción #}
-            <ul class="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 snap-x" role="tablist" aria-label="Videos disponibles">
+            <div class="lg:relative min-h-0">
+            <ul class="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto lg:absolute lg:inset-0 pb-2 lg:pb-0 lg:pr-1 snap-x" role="tablist" aria-label="Videos disponibles">
                 <template x-for="(it, n) in items" :key="n">
                     <li class="snap-start shrink-0 w-64 lg:w-auto">
                         <button type="button" role="tab" @click="select(n)" :aria-selected="n === i"
@@ -204,6 +205,7 @@ window.demoVideos = window.demoVideos || function (items) {
                     </li>
                 </template>
             </ul>
+            </div>
         </div>
     </div>
 </section>
