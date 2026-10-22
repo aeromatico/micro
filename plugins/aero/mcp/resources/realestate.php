@@ -53,4 +53,14 @@ return [
         'fields' => 'id,code,property_id,client_id,lead_id,agent_id,starts_at,ends_at,status,source,cancel_reason,created_at',
         'search' => 'code', 'filters' => 'status,property_id,client_id,agent_id', 'order' => ['starts_at', 'desc'],
     ],
+    'realestate_agreements' => [
+        'plugin' => 'Aero.Realestate', 'label' => 'contratos de arras, alquiler y anticrético (sin el texto)', 'model' => \Aero\Realestate\Models\Agreement::class,
+        'fields' => 'id,code,type,title,property_id,offer_id,owner_id,client_id,agent_id,contract_id,amount,total_price,currency,deposit,term_months,start_date,end_date,status,signed_on,template_reviewed,created_at',
+        'search' => 'code,title', 'filters' => 'type,status,property_id,client_id,owner_id,agent_id', 'order' => ['id', 'desc'],
+    ],
+    'realestate_documents' => [
+        'plugin' => 'Aero.Realestate', 'label' => 'documentos del archivo (metadatos, sin el archivo)', 'model' => \Aero\Realestate\Models\Document::class,
+        'fields' => 'id,property_id,owner_id,client_id,agreement_id,type,name,number,issued_on,expires_on,status,verified_at,created_at',
+        'search' => 'name,number', 'filters' => 'type,status,property_id,owner_id,client_id,agreement_id',
+    ],
 ];

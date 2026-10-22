@@ -18,6 +18,13 @@ return [
     \Aero\Realestate\Models\RealestateSettings::class => 'configuración del tenant',
     \Aero\Realestate\Models\Interaction::class => 'historial de conversaciones con clientes (texto libre privado)',
 
+    \Aero\Realestate\Models\Favorite::class => 'favoritos de usuarios del portal (datos personales de navegación)',
+    \Aero\Realestate\Models\SavedSearch::class => 'búsquedas guardadas: correo, teléfono y token de baja de visitantes',
+    \Aero\Realestate\Models\Change::class => 'registro interno de cambios para alertas',
+
+    \Aero\Realestate\Models\AgreementTemplate::class => 'plantillas de contrato: texto legal de la inmobiliaria, mezcladas con los modelos base globales',
+    \Aero\Realestate\Models\AgreementEvent::class => 'historial interno de contratos',
+
     // credenciales y tokens
     \Aero\Producer\Models\Credential::class => 'credenciales (api_key_enc)',
     \Aero\Producer\Models\Project::class => 'proyectos de video de la plataforma (guion y archivos internos); sin pantalla de tenant aún',
