@@ -484,3 +484,7 @@
 1.86.0:
     - "El rol tenant_admin recibe aero.realestate.use (propiedades, ofertas, clientes, propietarios y agentes de la inmobiliaria)."
     - grant_realestate_to_tenant_admin.php
+
+1.87.0:
+    - "El plan PRO ahora incluye el módulo Inmobiliaria (propiedades, ofertas, clientes y anticréticos)."
+    - add_realestate_to_pro_plan.php
