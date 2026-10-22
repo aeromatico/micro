@@ -1,0 +1,31 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  type:
+    label: Nivel
+    type: dropdown
+    span: left
+    required: true
+  parent_id:
+    label: Pertenece a
+    type: dropdown
+    span: right
+    emptyOption: — Departamento (raíz) —
+  name:
+    label: Nombre
+    required: true
+  lat:
+    label: Latitud
+    span: left
+    type: number
+    step: any
+  lng:
+    label: Longitud
+    span: right
+    type: number
+    step: any

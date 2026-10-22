@@ -1,0 +1,10 @@
+name: Agente
+form: $/aero/realestate/models/agent/fields.yaml
+modelClass: Aero\Realestate\Models\Agent
+defaultRedirect: aero/realestate/agents
+create:
+  redirect: aero/realestate/agents
+  redirectClose: aero/realestate/agents
+update:
+  redirect: aero/realestate/agents
+  redirectClose: aero/realestate/agents

@@ -1,0 +1,6 @@
+columns:
+  business_name:
+    label: Nombre
+    searchable: true
+  visit_minutes:
+    label: Visita (min)

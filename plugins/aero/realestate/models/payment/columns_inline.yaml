@@ -1,0 +1,20 @@
+columns:
+  paid_on:
+    label: Fecha
+    type: date
+    sortable: true
+  type:
+    label: Movimiento
+    type: selectable
+    options: getTypeOptions
+  amount:
+    label: Monto
+    type: number
+  currency:
+    label: Moneda
+  method:
+    label: Medio
+    type: selectable
+    options: getMethodOptions
+  reference:
+    label: Referencia

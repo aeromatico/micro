@@ -1,0 +1,15 @@
+{% set s = __SELF__.settings %}
+<header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+        <a href="/inmuebles" class="text-3xl font-extrabold tracking-tight text-ink">{{ s.portal_title ?: (s.business_name ?: __SELF__.tenant.name) }}</a>
+        {% if s.portal_description and __SELF__.mode == 'list' %}<p class="mt-1 max-w-2xl text-sm text-ink-muted">{{ s.portal_description }}</p>{% endif %}
+    </div>
+    <nav class="flex items-center gap-2 text-sm font-semibold">
+        <a href="/inmuebles/favoritos" class="inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-alt px-4 py-2 text-ink hover:opacity-80">
+            <svg class="h-4 w-4 text-red-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.7 8.3 2.6 4.5 6.3 4.5c2 0 3.5 1 4.5 2.6l1.2 1.8 1.2-1.8c1-1.6 2.5-2.6 4.5-2.6 3.7 0 5.6 3.8 3.9 7.3C19.500 16.400 12 21 12 21z"/></svg>
+            Favoritos
+        </a>
+        <a x-data="{ n: reFav.cmp().length }" @re-cmp.window="n = reFav.cmp().length" x-show="n > 1" x-cloak :href="reFav.cmpUrl()" class="rounded-full bg-brand-primary px-4 py-2 text-white hover:opacity-90">Comparar (<span x-text="n"></span>)</a>
+    </nav>
+</header>
+{% partial 'help/auth-flash' %}

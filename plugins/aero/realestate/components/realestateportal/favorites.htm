@@ -1,0 +1,10 @@
+<script>
+(function () { var u = new URL(location.href), ids = reFav.favs(); if (!u.searchParams.get('ids') && ids.length) { u.searchParams.set('ids', ids.join(',')); location.replace(u.toString()); } })();
+</script>
+<h1 class="mb-6 text-2xl font-extrabold text-ink">Mis favoritos</h1>
+{% if __SELF__.items|length %}
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{% for p in __SELF__.items %}{% partial '@card' p=p %}{% endfor %}</div>
+<p class="mt-6 text-sm text-ink-muted">{% if not __SELF__.user %}Tus favoritos están guardados en este navegador. <a href="/cuenta" class="font-semibold text-brand-primary">Inicia sesión</a> para llevarlos a todos tus dispositivos y recibir avisos de cambios de precio.{% else %}Te avisaremos si cambia el precio o la disponibilidad de alguna.{% endif %}</p>
+{% else %}
+<p class="rounded-brand border border-surface-border bg-surface-alt p-10 text-center text-sm text-ink-muted">Aún no guardaste propiedades. Toca el corazón en cualquier tarjeta para guardarla. <a href="/inmuebles" class="font-semibold text-brand-primary">Ver propiedades</a></p>
+{% endif %}

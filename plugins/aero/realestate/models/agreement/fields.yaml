@@ -1,0 +1,162 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  type:
+    label: Tipo de contrato
+    type: dropdown
+    span: left
+    required: true
+    default: rent
+  template_id:
+    label: Plantilla
+    type: dropdown
+    span: right
+    required: true
+    dependsOn: type
+    emptyOption: — Elegir —
+  title:
+    label: Título
+    span: full
+    comment: Vacío = se arma con el tipo y la propiedad.
+  property_id:
+    label: Propiedad
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  offer_id:
+    label: Oferta (opcional)
+    type: dropdown
+    span: right
+    dependsOn: property_id
+    emptyOption: — Ninguna —
+    comment: Al elegirla se toman monto, moneda, plazo y garantía.
+  client_id:
+    label: Cliente (comprador / inquilino / anticresista)
+    type: dropdown
+    span: left
+    emptyOption: — Elegir —
+  owner_id:
+    label: Propietario
+    type: dropdown
+    span: right
+    emptyOption: — El de la propiedad —
+  agent_id:
+    label: Agente
+    type: dropdown
+    span: left
+    emptyOption: — El de la propiedad —
+  contract_id:
+    label: Contrato de anticrético vinculado
+    type: dropdown
+    span: right
+    dependsOn: property_id
+    emptyOption: — Ninguno —
+    trigger:
+      action: show
+      field: type
+      condition: value[anticretico]
+  amount:
+    label: Monto (arras, alquiler mensual o capital)
+    type: number
+    step: any
+    span: left
+  currency:
+    label: Moneda
+    type: dropdown
+    span: right
+    default: USD
+  total_price:
+    label: Precio total del inmueble
+    type: number
+    step: any
+    span: left
+    trigger:
+      action: show
+      field: type
+      condition: value[arras]
+  deposit:
+    label: Garantía
+    type: number
+    step: any
+    span: left
+    trigger:
+      action: show
+      field: type
+      condition: value[rent]
+  term_months:
+    label: Plazo (meses)
+    type: number
+    span: right
+    trigger:
+      action: hide
+      field: type
+      condition: value[arras]
+  start_date:
+    label: Inicio
+    type: datepicker
+    mode: date
+    span: left
+    trigger:
+      action: hide
+      field: type
+      condition: value[arras]
+  end_date:
+    label: Vencimiento (o plazo para formalizar las arras)
+    type: datepicker
+    mode: date
+    span: right
+  status:
+    label: Estado
+    type: dropdown
+    span: left
+    readOnly: true
+    context: update
+tabs:
+  fields:
+    variables[place]:
+      label: Lugar de firma
+      tab: Datos del contrato
+      span: left
+      comment: Vacío = ciudad de la propiedad.
+    variables[folio_real]:
+      label: Folio real / matrícula
+      tab: Datos del contrato
+      span: right
+    variables[extra_clauses]:
+      label: Cláusulas adicionales
+      type: textarea
+      size: large
+      tab: Datos del contrato
+      comment: Se agregan al final, antes de las firmas.
+    body:
+      label: Texto
+      type: richeditor
+      size: giant
+      tab: Texto
+      context: update
+      toolbarButtons: paragraphFormat|bold|italic|underline|align|formatOL|formatUL|insertTable|undo|redo|html
+      comment: Editable mientras el contrato esté en borrador o revisión. «Regenerar» vuelve a rellenarlo desde la plantilla.
+    signed_file:
+      label: Copia firmada (escaneo)
+      type: fileupload
+      mode: file
+      tab: Firmado
+      context: update
+    documents:
+      label: Documentos
+      type: partial
+      path: field_documents
+      context: update
+      tab: Documentos
+    events:
+      label: Historial
+      type: partial
+      path: field_history
+      context: update
+      tab: Historial

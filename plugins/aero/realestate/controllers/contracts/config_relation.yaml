@@ -1,0 +1,16 @@
+payments:
+  label: Movimiento
+  view:
+    list: $/aero/realestate/models/payment/columns_inline.yaml
+    toolbarButtons: create|delete
+    showCheckboxes: true
+  manage:
+    form: $/aero/realestate/models/payment/fields_inline.yaml
+documents:
+  label: Documento
+  view:
+    list: $/aero/realestate/models/contractdocument/columns_inline.yaml
+    toolbarButtons: create|delete
+    showCheckboxes: true
+  manage:
+    form: $/aero/realestate/models/contractdocument/fields_inline.yaml

@@ -1,0 +1,11 @@
+title: Anticréticos
+list: $/aero/realestate/models/contract/columns.yaml
+modelClass: Aero\Realestate\Models\Contract
+recordUrl: aero/realestate/contracts/update/:id
+noRecordsMessage: No hay contratos de anticrético.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

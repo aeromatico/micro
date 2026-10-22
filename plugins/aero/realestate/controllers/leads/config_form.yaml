@@ -1,0 +1,10 @@
+name: Oportunidad
+form: $/aero/realestate/models/lead/fields.yaml
+modelClass: Aero\Realestate\Models\Lead
+defaultRedirect: aero/realestate/leads
+create:
+  redirect: aero/realestate/leads/update/:id
+  redirectClose: aero/realestate/leads
+update:
+  redirect: aero/realestate/leads/update/:id
+  redirectClose: aero/realestate/leads

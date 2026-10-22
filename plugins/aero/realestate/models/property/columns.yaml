@@ -1,0 +1,41 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+    sortable: true
+  title:
+    label: Propiedad
+    searchable: true
+    sortable: true
+  type:
+    label: Tipo
+    type: selectable
+    options: getTypeOptions
+  city:
+    label: Ciudad
+    searchable: true
+    sortable: true
+  zone:
+    label: Zona
+    searchable: true
+  map:
+    label: Mapa
+    type: partial
+    path: $/aero/realestate/models/property/_col_map.php
+    sortable: false
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true
+  is_published:
+    label: Publicada
+    type: switch
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  offers_count:
+    label: Ofertas
+    type: number
+    relationCount: offers

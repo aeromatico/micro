@@ -1,0 +1,18 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      pending: Pendiente
+      approved: Aprobada
+      paid: Pagada
+      cancelled: Anulada
+  modality:
+    label: Modalidad
+    type: dropdown
+    conditions: modality = :value
+    options:
+      sale: Venta
+      rent: Alquiler
+      anticretico: Anticrético

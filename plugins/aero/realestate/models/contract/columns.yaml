@@ -1,0 +1,36 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+    sortable: true
+  property:
+    label: Propiedad
+    relation: property
+    select: title
+    searchable: true
+  client:
+    label: Anticresista
+    relation: client
+    select: name
+    searchable: true
+  owner:
+    label: Propietario
+    relation: owner
+    select: name
+  capital:
+    label: Capital
+    type: number
+    sortable: true
+  currency:
+    label: Moneda
+  end_date:
+    label: Vence
+    type: date
+    sortable: true
+  status_label:
+    label: Estado
+    valueFrom: status_label
+  return_status:
+    label: Devolución
+    type: selectable
+    options: getReturnStatusOptions

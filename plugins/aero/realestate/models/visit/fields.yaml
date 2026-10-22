@@ -1,0 +1,47 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  property_id:
+    label: Propiedad
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  client_id:
+    label: Cliente
+    type: dropdown
+    span: right
+    required: true
+    emptyOption: — Elegir —
+  starts_at:
+    label: Fecha y hora
+    type: datepicker
+    mode: datetime
+    span: left
+    required: true
+  agent_id:
+    label: Agente
+    type: dropdown
+    span: right
+    emptyOption: — El de la propiedad —
+  lead_id:
+    label: Oportunidad
+    type: dropdown
+    span: left
+    emptyOption: — Ninguna —
+    dependsOn: client_id
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    readOnly: true
+    context: update
+  notes:
+    label: Notas
+    type: textarea
+    size: small

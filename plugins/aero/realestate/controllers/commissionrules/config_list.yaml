@@ -1,0 +1,11 @@
+title: Reglas de comisión
+list: $/aero/realestate/models/commissionrule/columns.yaml
+modelClass: Aero\Realestate\Models\CommissionRule
+recordUrl: aero/realestate/commissionrules/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

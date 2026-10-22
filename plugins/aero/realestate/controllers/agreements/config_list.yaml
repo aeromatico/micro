@@ -1,0 +1,12 @@
+title: Contratos
+list: $/aero/realestate/models/agreement/columns.yaml
+modelClass: Aero\Realestate\Models\Agreement
+recordUrl: aero/realestate/agreements/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/realestate/models/agreement/filters.yaml

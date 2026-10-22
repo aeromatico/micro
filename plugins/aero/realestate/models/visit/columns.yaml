@@ -1,0 +1,28 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+    sortable: true
+  starts_at:
+    label: Fecha
+    type: datetime
+    sortable: true
+  property:
+    label: Propiedad
+    relation: property
+    select: title
+    searchable: true
+  client:
+    label: Cliente
+    relation: client
+    select: name
+    searchable: true
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true

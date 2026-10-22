@@ -1,0 +1,11 @@
+title: Propietarios
+list: $/aero/realestate/models/owner/columns.yaml
+modelClass: Aero\Realestate\Models\Owner
+recordUrl: aero/realestate/owners/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

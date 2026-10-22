@@ -1,0 +1,10 @@
+name: Configuración
+form: $/aero/realestate/models/realestatesettings/fields.yaml
+modelClass: Aero\Realestate\Models\RealestateSettings
+defaultRedirect: aero/realestate/settings
+create:
+  redirect: aero/realestate/settings/update/:id
+  redirectClose: aero/realestate/settings
+update:
+  redirect: aero/realestate/settings/update/:id
+  redirectClose: aero/realestate/settings

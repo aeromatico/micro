@@ -1,0 +1,12 @@
+columns:
+  name:
+    label: Característica
+    searchable: true
+    sortable: true
+  category:
+    label: Categoría
+    searchable: true
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

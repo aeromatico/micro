@@ -1,0 +1,25 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  category:
+    label: Categoría
+    span: right
+    type: dropdown
+    emptyOption: —
+    options:
+      exterior: Exterior
+      interior: Interior
+      servicios: Servicios
+      seguridad: Seguridad
+      edificio: Edificio
+  icon:
+    label: Ícono (opcional)

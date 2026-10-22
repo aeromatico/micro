@@ -1,0 +1,10 @@
+name: Contrato
+form: $/aero/realestate/models/agreement/fields.yaml
+modelClass: Aero\Realestate\Models\Agreement
+defaultRedirect: aero/realestate/agreements
+create:
+  redirect: aero/realestate/agreements/update/:id
+  redirectClose: aero/realestate/agreements
+update:
+  redirect: aero/realestate/agreements/update/:id
+  redirectClose: aero/realestate/agreements

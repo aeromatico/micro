@@ -1,0 +1,20 @@
+scopes:
+  stage:
+    label: Etapa
+    type: dropdown
+    conditions: stage = :value
+    options:
+      new: Nuevo contacto
+      contacted: Contactado
+      visit_scheduled: Visita programada
+      negotiation: Negociación
+      closed_won: Operación cerrada
+      closed_lost: Perdido
+  modality:
+    label: Modalidad
+    type: dropdown
+    conditions: modality = :value
+    options:
+      sale: Venta
+      rent: Alquiler
+      anticretico: Anticrético

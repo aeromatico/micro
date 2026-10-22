@@ -1,0 +1,11 @@
+title: Características
+list: $/aero/realestate/models/feature/columns.yaml
+modelClass: Aero\Realestate\Models\Feature
+recordUrl: aero/realestate/features/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,10 @@
+name: Comisión
+form: $/aero/realestate/models/commission/fields.yaml
+modelClass: Aero\Realestate\Models\Commission
+defaultRedirect: aero/realestate/commissions
+create:
+  redirect: aero/realestate/commissions/update/:id
+  redirectClose: aero/realestate/commissions
+update:
+  redirect: aero/realestate/commissions/update/:id
+  redirectClose: aero/realestate/commissions

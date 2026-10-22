@@ -1,0 +1,30 @@
+fields:
+  type:
+    label: Documento
+    type: dropdown
+    span: left
+    required: true
+  number:
+    label: N.º / fecha de registro
+    span: right
+  issued_on:
+    label: Fecha de emisión
+    type: datepicker
+    mode: date
+    span: left
+  status:
+    label: Verificación administrativa
+    type: dropdown
+    span: right
+    permissions:
+    - aero.realestate.use
+    - aero.realestate.superadmin
+    comment: Solo la administración verifica.
+  file:
+    label: Archivo
+    type: fileupload
+    mode: file
+  notes:
+    label: Observaciones
+    type: textarea
+    size: small

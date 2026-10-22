@@ -1,0 +1,10 @@
+name: Regla de comisión
+form: $/aero/realestate/models/commissionrule/fields.yaml
+modelClass: Aero\Realestate\Models\CommissionRule
+defaultRedirect: aero/realestate/commissionrules
+create:
+  redirect: aero/realestate/commissionrules/update/:id
+  redirectClose: aero/realestate/commissionrules
+update:
+  redirect: aero/realestate/commissionrules/update/:id
+  redirectClose: aero/realestate/commissionrules

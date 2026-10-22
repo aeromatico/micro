@@ -1,0 +1,17 @@
+columns:
+  type:
+    label: Documento
+    type: selectable
+    options: getTypeOptions
+  number:
+    label: N.º
+  issued_on:
+    label: Emisión
+    type: date
+  status:
+    label: Verificación
+    type: selectable
+    options: getStatusOptions
+  verified_at:
+    label: Verificado
+    type: datetime

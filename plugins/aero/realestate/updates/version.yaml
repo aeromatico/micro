@@ -1,0 +1,38 @@
+1.0.0:
+    - "Primera versión: catálogo inmobiliario con propiedades, ofertas independientes de venta, alquiler y anticrético, ubicaciones de Bolivia, características, propietarios, agentes y clientes vinculados a RainLab.User."
+    - create_realestate_tables.php
+    - seed_locations.php
+
+1.0.1:
+    - "Incluye un catálogo inicial de características comunes (piscina, jardín, ascensor, seguridad…)."
+    - seed_features.php
+
+1.1.0:
+    - "Módulo de anticrético: contratos con capital, plazo y vencimiento, entregas y devoluciones con comprobante, renovaciones, documentos con verificación, historial y panel de seguimiento."
+    - create_anticretico_tables.php
+
+1.2.0:
+    - "CRM inmobiliario: leads con etapas y seguimiento, historial de contactos, agenda de visitas con recordatorios por WhatsApp, cierre de operaciones y comisiones por modalidad."
+    - create_crm_tables.php
+
+1.3.0:
+    - "Portal público de inmuebles: buscador con filtros (incluidos capital y plazo de anticrético), tarjetas y mapa, comparador, favoritos, ficha con visitas y contacto por WhatsApp, y alertas de nuevas propiedades y cambios de precio."
+    - create_portal_tables.php
+
+1.4.0:
+    - "Contratos y documentación: plantillas editables de arras, alquiler y anticrético con revisión legal, borradores con exportación a PDF, historial y renovaciones, alertas de vencimiento de alquileres y archivo documental de propiedades, propietarios y clientes con verificación."
+    - create_agreements_tables.php
+    - seed_agreement_templates.php
+
+1.4.1:
+    - "Configuración: nuevo interruptor para los avisos a la administración (vencimientos, consultas y documentos); además ya no avisa a la administración de un seguimiento vencido cuando los avisos a agentes están apagados."
+    - add_notify_admins_to_settings.php
+
+1.5.0:
+    - "Resumen con indicadores y gráficos (catálogo por modalidad y estado, conversión, visitas, días en el mercado, comisiones, capital de anticréticos y vencimientos, demanda por ciudad, zona y tipo) y reportes de productividad por agente con exportación a CSV."
+
+1.5.1:
+    - "Propiedades: ahora tienen un mapa para marcar la ubicación exacta; las reglas de comisión explican «meses de alquiler» en lugar de «cánones»; y el Embudo y el Resumen ahora usan los colores del tema del panel (claro y oscuro)."
+
+1.5.2:
+    - "La lista de Propiedades ahora tiene una columna «Mapa» con un enlace que abre la ubicación de cada propiedad."

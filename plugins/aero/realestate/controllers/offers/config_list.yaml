@@ -1,0 +1,11 @@
+title: Ofertas
+list: $/aero/realestate/models/offer/columns.yaml
+modelClass: Aero\Realestate\Models\Offer
+recordUrl: aero/realestate/offers/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

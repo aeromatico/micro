@@ -1,0 +1,12 @@
+title: Documentos
+list: $/aero/realestate/models/document/columns.yaml
+modelClass: Aero\Realestate\Models\Document
+recordUrl: aero/realestate/documents/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/realestate/models/document/filters.yaml

@@ -1,0 +1,10 @@
+name: Cliente
+form: $/aero/realestate/models/client/fields.yaml
+modelClass: Aero\Realestate\Models\Client
+defaultRedirect: aero/realestate/clients
+create:
+  redirect: aero/realestate/clients
+  redirectClose: aero/realestate/clients
+update:
+  redirect: aero/realestate/clients
+  redirectClose: aero/realestate/clients

@@ -1,0 +1,35 @@
+columns:
+  created_at:
+    label: Fecha
+    type: date
+    sortable: true
+  property:
+    label: Propiedad
+    relation: property
+    select: title
+    searchable: true
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  modality:
+    label: Modalidad
+    type: selectable
+    options: getModalityOptions
+  base_amount:
+    label: Base
+    type: number
+  currency:
+    label: Moneda
+  commission_amount:
+    label: Comisión
+    type: number
+    sortable: true
+  agent_amount:
+    label: Agente
+    type: number
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true

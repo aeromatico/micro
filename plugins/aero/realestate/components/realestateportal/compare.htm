@@ -1,0 +1,32 @@
+<script>
+(function () { var u = new URL(location.href), ids = reFav.cmp(); if (!u.searchParams.get('ids') && ids.length) { u.searchParams.set('ids', ids.join(',')); location.replace(u.toString()); } })();
+</script>
+{% set items = __SELF__.items %}
+<h1 class="mb-6 text-2xl font-extrabold text-ink">Comparar propiedades</h1>
+{% if items|length < 2 %}
+<p class="rounded-brand border border-surface-border bg-surface-alt p-10 text-center text-sm text-ink-muted">Marca «Comparar» en al menos dos propiedades. <a href="/inmuebles" class="font-semibold text-brand-primary">Ver propiedades</a></p>
+{% else %}
+<div class="overflow-x-auto rounded-brand border border-surface-border bg-surface-alt">
+<table class="w-full min-w-[40rem] text-left text-sm">
+    <caption class="sr-only">Comparación de propiedades</caption>
+    <thead><tr><th scope="col" class="w-40 p-3"></th>
+        {% for p in items %}<th scope="col" class="p-3 align-top">
+            {% if p.photos.first %}<img src="{{ p.photos.first.getThumb(400, 260, {mode: 'crop'}) }}" alt="" class="mb-2 w-full rounded" loading="lazy">{% endif %}
+            <a href="/inmueble/{{ p.slug }}" class="font-bold text-ink hover:text-brand-primary">{{ p.title }}</a>
+            <button type="button" class="ml-1 text-xs text-red-600" @click="reFav.toggleCmp({{ p.id }}); location.href = reFav.cmpUrl()" aria-label="Quitar {{ p.title }} de la comparación">Quitar</button></th>{% endfor %}</tr></thead>
+    <tbody class="divide-y divide-surface-border text-ink">
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Ofertas</th>{% for p in items %}<td class="p-3">{% for o in p.offers %}<div><strong>{{ o.label }}</strong> <span class="text-xs text-ink-muted">{{ o.modality_name }}</span></div>{% endfor %}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Tipo</th>{% for p in items %}<td class="p-3">{{ p.type_name }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Ubicación</th>{% for p in items %}<td class="p-3">{{ [p.zone, p.city]|filter(v => v)|join(', ') ?: '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Terreno</th>{% for p in items %}<td class="p-3">{{ p.land_area ? p.land_area|number_format(0, ',', '.') ~ ' m²' : '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Construido</th>{% for p in items %}<td class="p-3">{{ p.built_area ? p.built_area|number_format(0, ',', '.') ~ ' m²' : '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Habitaciones</th>{% for p in items %}<td class="p-3">{{ p.bedrooms ?? '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Baños</th>{% for p in items %}<td class="p-3">{{ p.bathrooms ?? '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Garajes</th>{% for p in items %}<td class="p-3">{{ p.garages ?? '—' }}</td>{% endfor %}</tr>
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">Antigüedad</th>{% for p in items %}<td class="p-3">{{ p.age_years is not null ? (p.age_years == 0 ? 'A estrenar' : p.age_years ~ ' años') : '—' }}</td>{% endfor %}</tr>
+        {% for name in __SELF__.facets.features %}
+        <tr><th scope="row" class="p-3 font-semibold text-ink-muted">{{ name }}</th>{% for p in items %}<td class="p-3">{{ name in p.features.pluck('name').all ? '✓' : '—' }}</td>{% endfor %}</tr>
+        {% endfor %}
+    </tbody>
+</table></div>
+{% endif %}

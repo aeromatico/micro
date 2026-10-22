@@ -1,0 +1,24 @@
+columns:
+  name:
+    label: Cliente
+    searchable: true
+    sortable: true
+  phone:
+    label: Teléfono
+    searchable: true
+  email:
+    label: Correo
+    searchable: true
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  budget_max:
+    label: Presupuesto máx.
+    type: number
+  currency:
+    label: Moneda
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

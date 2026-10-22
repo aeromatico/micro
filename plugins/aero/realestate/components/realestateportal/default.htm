@@ -1,0 +1,46 @@
+{% set s = __SELF__.settings %}
+{% set tid = __SELF__.tenant.id %}
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    {% partial '@header' %}
+
+    {% if __SELF__.mode == 'detail' %}{% partial '@detail' %}
+    {% elseif __SELF__.mode == 'favorites' %}{% partial '@favorites' %}
+    {% elseif __SELF__.mode == 'compare' %}{% partial '@compare' %}
+    {% elseif __SELF__.mode == 'alert' %}{% partial '@alert' %}
+    {% else %}{% partial '@list' %}{% endif %}
+</div>
+
+{# Favoritos y comparador en el navegador; con sesión, los favoritos también se guardan en la cuenta. #}
+<script>
+window.reFav = (function () {
+    var auth = {{ __SELF__.user ? 'true' : 'false' }};
+    var FK = 're_fav_{{ tid }}', CK = 're_cmp_{{ tid }}', MAX = {{ __SELF__.compareMax }};
+    function read(k) { try { var v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v.map(Number).filter(Boolean) : []; } catch (e) { return []; } }
+    function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    var api = {
+        auth: auth, max: MAX,
+        favs: function () { return read(FK); }, has: function (id) { return read(FK).indexOf(+id) > -1; },
+        toggle: function (id) {
+            id = +id; var l = read(FK), i = l.indexOf(id), on = i < 0;
+            on ? l.push(id) : l.splice(i, 1); write(FK, l);
+            if (auth && window.oc) { oc.ajax('{{ __SELF__ }}::onFavorite', { data: { id: id, on: on ? 1 : 0 } }); }
+            return on;
+        },
+        cmp: function () { return read(CK); }, inCmp: function (id) { return read(CK).indexOf(+id) > -1; },
+        toggleCmp: function (id) {
+            id = +id; var l = read(CK), i = l.indexOf(id);
+            if (i > -1) { l.splice(i, 1); } else if (l.length < MAX) { l.push(id); } else { alert('Puedes comparar hasta ' + MAX + ' propiedades.'); return false; }
+            write(CK, l); window.dispatchEvent(new CustomEvent('re-cmp')); return i < 0;
+        },
+        cmpUrl: function () { return '/inmuebles/comparar?ids=' + read(CK).join(','); },
+        // Con sesión: sube lo guardado en el navegador una vez por sesión.
+        sync: function () {
+            if (!auth || !window.oc || sessionStorage.getItem('re_synced_' + FK)) return;
+            sessionStorage.setItem('re_synced_' + FK, '1');
+            oc.ajax('{{ __SELF__ }}::onSyncFavorites', { data: { ids: read(FK) } });
+        }
+    };
+    document.addEventListener('DOMContentLoaded', api.sync);
+    return api;
+})();
+</script>

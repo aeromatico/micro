@@ -1,0 +1,19 @@
+columns:
+  modality:
+    label: Modalidad
+    type: selectable
+    options: getModalityOptions
+    sortable: true
+  amount:
+    label: Monto
+    type: number
+    sortable: true
+  currency:
+    label: Moneda
+  term_months:
+    label: Plazo (meses)
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true

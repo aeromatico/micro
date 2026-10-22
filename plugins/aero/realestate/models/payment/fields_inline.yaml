@@ -1,0 +1,34 @@
+fields:
+  type:
+    label: Tipo
+    type: dropdown
+    span: left
+    required: true
+    default: delivery
+  amount:
+    label: Monto
+    type: number
+    step: any
+    span: right
+    required: true
+  paid_on:
+    label: Fecha
+    type: datepicker
+    mode: date
+    span: left
+    required: true
+  method:
+    label: Medio
+    type: dropdown
+    span: right
+    emptyOption: —
+  reference:
+    label: Referencia (n.º de recibo, transferencia…)
+  receipt:
+    label: Comprobante
+    type: fileupload
+    mode: file
+  notes:
+    label: Observaciones
+    type: textarea
+    size: small

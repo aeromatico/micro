@@ -1,0 +1,12 @@
+title: Plantillas de contrato
+list: $/aero/realestate/models/agreementtemplate/columns.yaml
+modelClass: Aero\Realestate\Models\AgreementTemplate
+recordUrl: aero/realestate/templates/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/realestate/models/agreementtemplate/filters.yaml

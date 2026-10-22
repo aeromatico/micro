@@ -1,0 +1,25 @@
+columns:
+  name:
+    label: Plantilla
+    searchable: true
+    sortable: true
+  type:
+    label: Tipo
+    type: selectable
+    options: getTypeOptions
+    sortable: true
+  version:
+    label: Versión
+  legal_status:
+    label: Revisión legal
+    type: selectable
+    options: getLegalStatusOptions
+    sortable: true
+  reviewed_by_name:
+    label: Revisó
+  scope_name:
+    label: Ámbito
+    valueFrom: scope_name
+  is_active:
+    label: Activa
+    type: switch

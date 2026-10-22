@@ -1,0 +1,42 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  modality:
+    label: Modalidad
+    type: dropdown
+    span: left
+    required: true
+  agent_id:
+    label: Solo para el agente
+    type: dropdown
+    span: right
+    emptyOption: — Regla general de la modalidad —
+  basis:
+    label: Cómo se calcula
+    comment: '% del monto: un porcentaje del precio de venta, del alquiler mensual o del capital. Meses de alquiler: la comisión es N veces el alquiler mensual (1 = un mes completo, 0,5 = medio mes) y solo aplica al alquiler. Monto fijo: una suma única.'
+    commentHtml: false
+    type: dropdown
+    span: left
+  value:
+    label: Valor
+    type: number
+    step: any
+    span: right
+    required: true
+    comment: 'Según lo elegido arriba: el porcentaje (p. ej. 3), el número de meses de alquiler (p. ej. 1) o el monto fijo.'
+  agent_share_percent:
+    label: '% de la comisión para el agente'
+    type: number
+    step: any
+    span: left
+    default: 50
+  is_active:
+    label: Activa
+    type: switch
+    span: right
+    default: true

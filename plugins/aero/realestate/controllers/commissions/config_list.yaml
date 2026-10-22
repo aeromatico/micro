@@ -1,0 +1,12 @@
+title: Comisiones
+list: $/aero/realestate/models/commission/columns.yaml
+modelClass: Aero\Realestate\Models\Commission
+recordUrl: aero/realestate/commissions/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/realestate/models/commission/filters.yaml

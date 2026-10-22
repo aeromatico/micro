@@ -1,0 +1,10 @@
+name: Documento
+form: $/aero/realestate/models/document/fields.yaml
+modelClass: Aero\Realestate\Models\Document
+defaultRedirect: aero/realestate/documents
+create:
+  redirect: aero/realestate/documents/update/:id
+  redirectClose: aero/realestate/documents
+update:
+  redirect: aero/realestate/documents/update/:id
+  redirectClose: aero/realestate/documents

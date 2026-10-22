@@ -1,0 +1,125 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  property_id:
+    label: Propiedad
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  offer_id:
+    label: Oferta de anticrético
+    type: dropdown
+    span: right
+    emptyOption: — Sin oferta —
+    comment: Opcional. Al activar el contrato la oferta se cierra.
+  client_id:
+    label: Anticresista (quien entrega el capital)
+    type: dropdown
+    span: left
+    required: true
+    emptyOption: — Elegir —
+  owner_id:
+    label: Propietario
+    type: dropdown
+    span: right
+    emptyOption: — El de la propiedad —
+  agent_id:
+    label: Agente responsable
+    type: dropdown
+    span: left
+    emptyOption: — El de la propiedad —
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    readOnly: true
+    context: update
+  capital:
+    label: Capital pactado
+    type: number
+    step: any
+    span: left
+    required: true
+  currency:
+    label: Moneda
+    type: dropdown
+    span: right
+    default: USD
+  term_months:
+    label: Plazo (meses)
+    type: number
+    span: left
+    required: true
+    default: 24
+  start_date:
+    label: Fecha de inicio
+    type: datepicker
+    mode: date
+    span: right
+    comment: Se fija al activar; puede ajustarse antes.
+  end_date:
+    label: Vencimiento
+    type: datepicker
+    mode: date
+    span: left
+    comment: Se calcula del inicio y el plazo.
+  return_status:
+    label: Devolución del capital
+    type: dropdown
+    span: right
+    readOnly: true
+    context: update
+  delivered_amount:
+    label: Capital entregado
+    type: number
+    span: left
+    readOnly: true
+    context: update
+  returned_amount:
+    label: Capital devuelto
+    type: number
+    span: right
+    readOnly: true
+    context: update
+tabs:
+  fields:
+    conditions:
+      label: Condiciones económicas y contractuales
+      type: textarea
+      size: large
+      tab: Condiciones
+    return_conditions:
+      label: Condiciones de devolución del capital
+      type: textarea
+      size: large
+      tab: Condiciones
+      comment: Plazo y forma de restitución, qué pasa al vencer, descuentos pactados.
+    notes:
+      label: Notas internas
+      type: textarea
+      size: small
+      tab: Condiciones
+    payments:
+      label: Entregas y devoluciones
+      type: partial
+      path: field_payments
+      context: update
+      tab: Movimientos
+    documents:
+      label: Documentos
+      type: partial
+      path: field_documents
+      context: update
+      tab: Documentos
+    events:
+      label: Historial
+      type: partial
+      path: field_history
+      context: update
+      tab: Historial

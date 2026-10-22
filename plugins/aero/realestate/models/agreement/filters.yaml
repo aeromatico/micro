@@ -1,0 +1,20 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    conditions: status = :value
+    options:
+      draft: Borrador
+      in_review: En revisión
+      approved: Aprobado
+      signed: Firmado
+      finished: Finalizado
+      cancelled: Cancelado
+  type:
+    label: Tipo
+    type: dropdown
+    conditions: type = :value
+    options:
+      arras: Arras
+      rent: Alquiler
+      anticretico: Anticrético

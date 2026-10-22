@@ -1,0 +1,68 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  type:
+    label: Tipo de documento
+    type: dropdown
+    span: left
+    required: true
+  name:
+    label: Nombre / descripción
+    span: right
+    required: true
+  property_id:
+    label: Propiedad
+    type: dropdown
+    span: left
+    emptyOption: —
+  owner_id:
+    label: Propietario
+    type: dropdown
+    span: right
+    emptyOption: —
+  client_id:
+    label: Cliente
+    type: dropdown
+    span: left
+    emptyOption: —
+  agreement_id:
+    label: Contrato
+    type: dropdown
+    span: right
+    emptyOption: —
+  number:
+    label: N.º / referencia
+    span: left
+  issued_on:
+    label: Emisión
+    type: datepicker
+    mode: date
+    span: left
+  expires_on:
+    label: Vence (si aplica)
+    type: datepicker
+    mode: date
+    span: right
+    comment: Se avisa a la administración 30 días antes.
+  file:
+    label: Archivo (privado)
+    type: fileupload
+    mode: file
+    comment: Solo se descarga desde el panel, con permiso. No tiene enlace público.
+  status:
+    label: Verificación administrativa
+    type: dropdown
+    span: left
+    permissions:
+    - aero.realestate.use
+    - aero.realestate.superadmin
+    comment: Solo la administración verifica.
+  notes:
+    label: Observaciones
+    type: textarea
+    size: small

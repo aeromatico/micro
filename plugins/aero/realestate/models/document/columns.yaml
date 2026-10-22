@@ -1,0 +1,26 @@
+columns:
+  name:
+    label: Documento
+    searchable: true
+    sortable: true
+  type:
+    label: Tipo
+    type: selectable
+    options: getTypeOptions
+    sortable: true
+  subject:
+    label: Pertenece a
+    valueFrom: subject
+  expires_on:
+    label: Vence
+    type: date
+    sortable: true
+  status:
+    label: Verificación
+    type: selectable
+    options: getStatusOptions
+    sortable: true
+  created_at:
+    label: Subido
+    type: date
+    sortable: true

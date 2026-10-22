@@ -1,0 +1,45 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  type:
+    label: Tipo de contrato
+    type: dropdown
+    span: left
+    required: true
+  name:
+    label: Nombre
+    span: right
+    required: true
+  is_active:
+    label: Activa (se ofrece al generar contratos)
+    type: switch
+    default: true
+  legal_status:
+    label: Revisión legal
+    type: dropdown
+    span: left
+    readOnly: true
+    context: update
+  version:
+    label: Versión del texto
+    type: number
+    span: right
+    readOnly: true
+    context: update
+  body:
+    label: Texto del contrato
+    type: richeditor
+    size: giant
+    toolbarButtons: paragraphFormat|bold|italic|underline|align|formatOL|formatUL|insertTable|undo|redo|html
+    comment: Usa variables entre llaves dobles, p. ej. {{ owner.name }}. Ver la lista en el recuadro superior. Cambiar el texto devuelve la plantilla a «sin revisión legal».
+  legal_notes:
+    label: Notas de la revisión legal
+    type: textarea
+    size: small
+    readOnly: true
+    context: update

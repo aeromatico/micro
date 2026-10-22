@@ -1,0 +1,8 @@
+{% if slots %}
+<div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Horarios disponibles">
+    {% for t in slots %}
+    <label class="cursor-pointer"><input type="radio" name="visit_at" value="{{ date }} {{ t }}" class="peer sr-only">
+        <span class="inline-block rounded-brand border border-surface-border bg-surface px-3 py-1.5 text-sm text-ink peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-white">{{ t }}</span></label>
+    {% endfor %}
+</div>
+{% else %}<p class="text-sm text-ink-muted">No hay horarios libres ese día. Prueba con otra fecha.</p>{% endif %}

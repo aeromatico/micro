@@ -1,0 +1,41 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  document:
+    label: Documento (CI/NIT)
+    span: right
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo
+    span: right
+  address:
+    label: Dirección
+  civil_status:
+    label: Estado civil
+    span: left
+  nationality:
+    label: Nacionalidad
+    span: right
+  notes:
+    label: Observaciones
+    type: textarea
+    size: small
+tabs:
+  fields:
+    docs:
+      label: Documentos y contratos
+      type: partial
+      path: field_docs
+      context: update
+      tab: Documentos

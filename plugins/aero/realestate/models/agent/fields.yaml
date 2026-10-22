@@ -1,0 +1,45 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  document:
+    label: Documento
+    span: right
+  phone:
+    label: Teléfono
+    span: left
+  whatsapp:
+    label: WhatsApp
+    span: right
+  email:
+    label: Correo
+    span: left
+  license:
+    label: N.º de licencia
+    span: right
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+  photo:
+    label: Foto
+    type: fileupload
+    mode: image
+    imageWidth: 150
+    imageHeight: 150
+  bio:
+    label: Presentación
+    type: textarea
+    size: small
+  notes:
+    label: Notas internas
+    type: textarea
+    size: small

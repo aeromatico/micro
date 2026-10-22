@@ -1,0 +1,25 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  status:
+    label: Estado
+    type: dropdown
+    span: left
+  paid_on:
+    label: Pagada el
+    type: datepicker
+    mode: date
+    span: right
+    trigger:
+      action: show
+      field: status
+      condition: value[paid]
+  notes:
+    label: Notas
+    type: textarea
+    size: small

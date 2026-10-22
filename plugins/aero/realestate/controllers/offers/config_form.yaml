@@ -1,0 +1,10 @@
+name: Oferta
+form: $/aero/realestate/models/offer/fields.yaml
+modelClass: Aero\Realestate\Models\Offer
+defaultRedirect: aero/realestate/offers
+create:
+  redirect: aero/realestate/offers
+  redirectClose: aero/realestate/offers
+update:
+  redirect: aero/realestate/offers
+  redirectClose: aero/realestate/offers

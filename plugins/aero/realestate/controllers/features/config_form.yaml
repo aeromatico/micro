@@ -1,0 +1,10 @@
+name: Característica
+form: $/aero/realestate/models/feature/fields.yaml
+modelClass: Aero\Realestate\Models\Feature
+defaultRedirect: aero/realestate/features
+create:
+  redirect: aero/realestate/features
+  redirectClose: aero/realestate/features
+update:
+  redirect: aero/realestate/features
+  redirectClose: aero/realestate/features

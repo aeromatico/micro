@@ -1,0 +1,35 @@
+columns:
+  code:
+    label: Código
+    searchable: true
+    sortable: true
+  type:
+    label: Tipo
+    type: selectable
+    options: getTypeOptions
+    sortable: true
+  title:
+    label: Contrato
+    searchable: true
+  client:
+    label: Cliente
+    relation: client
+    select: name
+    searchable: true
+  amount:
+    label: Monto
+    type: number
+  currency:
+    label: Moneda
+  end_date:
+    label: Vence
+    type: date
+    sortable: true
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true
+  template_reviewed:
+    label: Plantilla revisada
+    type: switch

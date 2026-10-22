@@ -1,0 +1,10 @@
+name: Ubicación
+form: $/aero/realestate/models/location/fields.yaml
+modelClass: Aero\Realestate\Models\Location
+defaultRedirect: aero/realestate/locations
+create:
+  redirect: aero/realestate/locations
+  redirectClose: aero/realestate/locations
+update:
+  redirect: aero/realestate/locations
+  redirectClose: aero/realestate/locations

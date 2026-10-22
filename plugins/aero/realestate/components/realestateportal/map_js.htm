@@ -1,0 +1,24 @@
+{# Mapa con Leaflet + OpenStreetMap, cargado solo cuando se pide la vista de mapa. #}
+<script>
+window.reMap = function (id, pts) {
+    var el = document.getElementById(id);
+    if (!el || el.dataset.ready) return;
+    function draw() {
+        el.dataset.ready = '1';
+        var map = L.map(id, { scrollWheelZoom: false });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+        var b = [];
+        pts.forEach(function (p) {
+            var pop = document.createElement('div');
+            if (p.img) { var im = document.createElement('img'); im.src = p.img; im.style.cssText = 'width:200px;border-radius:6px;margin-bottom:4px'; pop.appendChild(im); }
+            var a = document.createElement('a'); a.href = p.url; a.textContent = p.title; a.style.fontWeight = '600'; pop.appendChild(a);
+            if (p.price) { var d = document.createElement('div'); d.textContent = p.price; pop.appendChild(d); }
+            L.marker([p.lat, p.lng]).addTo(map).bindPopup(pop); b.push([p.lat, p.lng]);
+        });
+        b.length > 1 ? map.fitBounds(b, { padding: [30, 30] }) : map.setView(b[0], 15);
+    }
+    if (window.L) { return draw(); }
+    var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; document.head.appendChild(css);
+    var js = document.createElement('script'); js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; js.onload = draw; document.head.appendChild(js);
+};
+</script>

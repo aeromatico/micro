@@ -1,0 +1,9 @@
+scopes:
+  type:
+    label: Tipo
+    type: dropdown
+    conditions: type = :value
+    options:
+      arras: Arras
+      rent: Alquiler
+      anticretico: Anticrético

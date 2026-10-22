@@ -1,0 +1,12 @@
+title: Visitas
+list: $/aero/realestate/models/visit/columns.yaml
+modelClass: Aero\Realestate\Models\Visit
+recordUrl: aero/realestate/visits/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: $/aero/realestate/models/visit/filters.yaml

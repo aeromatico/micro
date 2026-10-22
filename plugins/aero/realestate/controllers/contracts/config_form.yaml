@@ -1,0 +1,10 @@
+name: Contrato de anticrético
+form: $/aero/realestate/models/contract/fields.yaml
+modelClass: Aero\Realestate\Models\Contract
+defaultRedirect: aero/realestate/contracts
+create:
+  redirect: aero/realestate/contracts/update/:id
+  redirectClose: aero/realestate/contracts
+update:
+  redirect: aero/realestate/contracts/update/:id
+  redirectClose: aero/realestate/contracts

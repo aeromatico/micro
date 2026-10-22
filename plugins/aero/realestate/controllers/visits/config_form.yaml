@@ -1,0 +1,10 @@
+name: Visita
+form: $/aero/realestate/models/visit/fields.yaml
+modelClass: Aero\Realestate\Models\Visit
+defaultRedirect: aero/realestate/visits
+create:
+  redirect: aero/realestate/visits/update/:id
+  redirectClose: aero/realestate/visits
+update:
+  redirect: aero/realestate/visits/update/:id
+  redirectClose: aero/realestate/visits

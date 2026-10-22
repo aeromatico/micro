@@ -1,0 +1,113 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  business_name:
+    label: Nombre en los avisos
+    comment: Vacío = nombre de la cuenta.
+    tab: General
+  visit_minutes:
+    label: Duración de una visita (minutos)
+    type: number
+    span: left
+    default: 45
+    tab: General
+  reminder_hours:
+    label: Recordar la visita (horas antes)
+    type: number
+    span: right
+    default: 24
+    comment: 0 = sin recordatorio.
+    tab: General
+  followup_days:
+    label: Días hasta el próximo seguimiento
+    type: number
+    span: left
+    default: 3
+    tab: General
+  notify_clients:
+    label: Avisar a los clientes por WhatsApp/correo
+    type: switch
+    span: left
+    default: true
+    tab: General
+  notify_agents:
+    label: Avisar a los agentes
+    type: switch
+    span: right
+    default: true
+    tab: General
+  notify_admins:
+    label: Avisar a la administración
+    type: switch
+    span: left
+    default: true
+    tab: General
+    comment: Vencimientos, consultas del portal y documentos pendientes.
+  public_enabled:
+    label: Publicar el portal /inmuebles
+    type: switch
+    tab: Portal
+    comment: Muestra el buscador, las fichas, favoritos y comparador en el sitio de la inmobiliaria.
+  portal_title:
+    label: Título del portal
+    tab: Portal
+    span: left
+  whatsapp:
+    label: WhatsApp de la inmobiliaria
+    tab: Portal
+    span: right
+    comment: Se usa cuando la propiedad no tiene agente.
+  portal_description:
+    label: Descripción
+    type: textarea
+    size: small
+    tab: Portal
+  phone:
+    label: Teléfono
+    tab: Portal
+    span: left
+  email:
+    label: Correo
+    tab: Portal
+    span: right
+  address:
+    label: Dirección
+    tab: Portal
+  visit_days:
+    label: Días de visita
+    type: checkboxlist
+    tab: Visitas
+    default:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+  visit_start_time:
+    label: Desde (HH:MM)
+    tab: Visitas
+    span: left
+    default: 09:00
+  visit_end_time:
+    label: Hasta (HH:MM)
+    tab: Visitas
+    span: right
+    default: '18:00'
+  visit_notice_hours:
+    label: Anticipación mínima (horas)
+    type: number
+    tab: Visitas
+    span: left
+    default: 4
+  visit_advance_days:
+    label: Se puede agendar hasta (días)
+    type: number
+    tab: Visitas
+    span: right
+    default: 30

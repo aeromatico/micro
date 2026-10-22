@@ -1,0 +1,15 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+    sortable: true
+  type:
+    label: Nivel
+    type: selectable
+    options: getTypeOptions
+  path:
+    label: Ruta
+    valueFrom: path
+  scope_name:
+    label: Ámbito
+    valueFrom: scope_name

@@ -1,0 +1,133 @@
+{% set r = __SELF__.result %}
+{% set f = __SELF__.filters %}
+{% set fac = __SELF__.facets %}
+{% set inp = 'w-full rounded-brand border border-surface-border bg-surface px-3 py-2 text-sm text-ink' %}
+{% set modalities = {sale: 'Comprar', rent: 'Alquilar', anticretico: 'Anticrético'} %}
+
+<div x-data="{ modality: '{{ f.modality }}', view: 'cards', more: {{ (f.area_min or f.bedrooms or f.bathrooms or f.garages or f.features) ? 'true' : 'false' }} }">
+
+    {# Modalidad #}
+    <div class="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Modalidad">
+        <a href="{{ __SELF__.queryUrl({modality: null, page: null}) }}" class="rounded-full px-5 py-2 text-sm font-semibold {{ not f.modality ? 'bg-brand-primary text-white' : 'border border-surface-border bg-surface-alt text-ink hover:opacity-80' }}">Todas</a>
+        {% for k, v in modalities %}
+        <a href="{{ __SELF__.queryUrl({modality: k, page: null, price_min: null, price_max: null}) }}" class="rounded-full px-5 py-2 text-sm font-semibold {{ f.modality == k ? 'bg-brand-primary text-white' : 'border border-surface-border bg-surface-alt text-ink hover:opacity-80' }}">{{ v }}</a>
+        {% endfor %}
+    </div>
+
+    {# Buscador #}
+    <form method="get" action="/inmuebles" class="rounded-brand border border-surface-border bg-surface-alt p-4 shadow-sm">
+        {% if f.modality %}<input type="hidden" name="modality" value="{{ f.modality }}">{% endif %}
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <input type="search" name="q" value="{{ f.q }}" placeholder="Zona, barrio, dirección o código" class="{{ inp }} lg:col-span-2" aria-label="Buscar">
+            <select name="type" class="{{ inp }}" aria-label="Tipo"><option value="">Todos los tipos</option>
+                {% for k, v in {house: 'Casa', apartment: 'Departamento', land: 'Terreno', office: 'Oficina', shop: 'Local comercial', other: 'Otro'} %}<option value="{{ k }}" {{ f.type == k ? 'selected' }}>{{ v }}</option>{% endfor %}
+            </select>
+            <select name="city" class="{{ inp }}" aria-label="Ciudad"><option value="">Todas las ciudades</option>{% for c in fac.cities %}<option {{ f.city == c ? 'selected' }}>{{ c }}</option>{% endfor %}</select>
+            <select name="zone" class="{{ inp }}" aria-label="Zona"><option value="">Todas las zonas</option>{% for z in fac.zones %}<option {{ f.zone == z ? 'selected' }}>{{ z }}</option>{% endfor %}</select>
+
+            {# Precio / alquiler mensual #}
+            <template x-if="modality !== 'anticretico'"><div class="grid grid-cols-2 gap-3 lg:col-span-2">
+                <input type="number" min="0" name="price_min" value="{{ f.price_min }}" placeholder="Precio desde" class="{{ inp }}" aria-label="Precio desde">
+                <input type="number" min="0" name="price_max" value="{{ f.price_max }}" placeholder="Precio hasta" class="{{ inp }}" aria-label="Precio hasta">
+            </div></template>
+            {# Anticrético: capital y plazo #}
+            <template x-if="modality === 'anticretico'"><div class="grid grid-cols-2 gap-3 sm:col-span-2 lg:col-span-2 lg:grid-cols-4">
+                <input type="number" min="0" name="capital_min" value="{{ f.capital_min }}" placeholder="Capital desde" class="{{ inp }}" aria-label="Capital desde">
+                <input type="number" min="0" name="capital_max" value="{{ f.capital_max }}" placeholder="Capital hasta" class="{{ inp }}" aria-label="Capital hasta">
+                <input type="number" min="1" name="term_min" value="{{ f.term_min }}" placeholder="Plazo mín. (meses)" class="{{ inp }}" aria-label="Plazo mínimo en meses">
+                <input type="number" min="1" name="term_max" value="{{ f.term_max }}" placeholder="Plazo máx. (meses)" class="{{ inp }}" aria-label="Plazo máximo en meses">
+            </div></template>
+            <select name="currency" class="{{ inp }}" aria-label="Moneda"><option value="">BOB y USD</option><option value="BOB" {{ f.currency == 'BOB' ? 'selected' }}>Bolivianos (BOB)</option><option value="USD" {{ f.currency == 'USD' ? 'selected' }}>Dólares (USD)</option></select>
+        </div>
+
+        <div x-show="more" x-cloak class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <input type="number" min="0" name="area_min" value="{{ f.area_min }}" placeholder="Superficie mín. (m²)" class="{{ inp }}" aria-label="Superficie mínima">
+            <input type="number" min="0" name="bedrooms" value="{{ f.bedrooms }}" placeholder="Habitaciones (mín.)" class="{{ inp }}" aria-label="Habitaciones">
+            <input type="number" min="0" name="bathrooms" value="{{ f.bathrooms }}" placeholder="Baños (mín.)" class="{{ inp }}" aria-label="Baños">
+            <input type="number" min="0" name="garages" value="{{ f.garages }}" placeholder="Garajes (mín.)" class="{{ inp }}" aria-label="Garajes">
+            {% if fac.features %}
+            <fieldset class="col-span-2 sm:col-span-4"><legend class="mb-1 text-xs font-semibold text-ink-muted">Características</legend>
+                <div class="flex flex-wrap gap-x-4 gap-y-1">{% for ft in fac.features %}
+                    <label class="flex items-center gap-1.5 text-sm text-ink"><input type="checkbox" name="features[]" value="{{ ft.id }}" {{ ft.id in f.features ? 'checked' }}> {{ ft.name }}</label>
+                {% endfor %}</div>
+            </fieldset>{% endif %}
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <button type="button" class="text-sm font-semibold text-brand-primary" @click="more = !more" x-text="more ? 'Menos filtros' : 'Más filtros'"></button>
+            <div class="flex gap-2">
+                {% if f %}<a href="/inmuebles" class="rounded-brand border border-surface-border px-4 py-2 text-sm font-semibold text-ink hover:opacity-80">Limpiar</a>{% endif %}
+                <button type="submit" class="rounded-brand bg-brand-primary px-6 py-2 text-sm font-semibold text-white hover:opacity-90">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+    {% if not f %}
+        {% if __SELF__.recommended|length %}
+        <section class="mt-10" aria-labelledby="re-reco"><h2 id="re-reco" class="mb-4 text-xl font-bold text-ink">Recomendadas para ti</h2>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">{% for p in __SELF__.recommended %}{% partial '@card' p=p %}{% endfor %}</div></section>
+        {% endif %}
+        {% if __SELF__.featured|length %}
+        <section class="mt-10" aria-labelledby="re-feat"><h2 id="re-feat" class="mb-4 text-xl font-bold text-ink">Propiedades destacadas</h2>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{% for p in __SELF__.featured %}{% partial '@card' p=p %}{% endfor %}</div></section>
+        {% endif %}
+    {% endif %}
+
+    {# Resultados #}
+    <section class="mt-10" aria-labelledby="re-res">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 id="re-res" class="text-xl font-bold text-ink">{{ f ? 'Resultados' : 'Todas las propiedades' }} <span class="text-sm font-normal text-ink-muted">({{ r.total }})</span></h2>
+            <div class="flex items-center gap-2">
+                <select class="{{ inp }} !w-auto" onchange="location.href=this.value" aria-label="Ordenar">
+                    {% for k, v in {recent: 'Más recientes', price_asc: 'Menor precio', price_desc: 'Mayor precio', area_desc: 'Mayor superficie'} %}
+                    <option value="{{ __SELF__.queryUrl({sort: (k == 'recent' ? null : k), page: null}) }}" {{ (f.sort ?: 'recent') == k ? 'selected' }}>{{ v }}</option>{% endfor %}
+                </select>
+                <div class="inline-flex overflow-hidden rounded-brand border border-surface-border" role="group" aria-label="Vista">
+                    <button type="button" @click="view = 'cards'" :class="view == 'cards' ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink'" class="px-3 py-2 text-sm font-semibold">Tarjetas</button>
+                    <button type="button" @click="view = 'map'; $nextTick(() => reMap('re-map', {{ __SELF__.markers|json_encode|raw }}))" :class="view == 'map' ? 'bg-brand-primary text-white' : 'bg-surface-alt text-ink'" class="px-3 py-2 text-sm font-semibold">Mapa</button>
+                </div>
+            </div>
+        </div>
+
+        {% if not r.items %}
+            <p class="rounded-brand border border-surface-border bg-surface-alt p-10 text-center text-sm text-ink-muted">No encontramos propiedades con esos filtros. Prueba ampliar la búsqueda o guarda una alerta y te avisamos cuando aparezcan.</p>
+        {% else %}
+        <div x-show="view == 'cards'" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {% for p in r.items %}{% partial '@card' p=p %}{% endfor %}
+        </div>
+        <div x-show="view == 'map'" x-cloak>
+            {% if __SELF__.markers %}<div id="re-map" class="h-[32rem] w-full overflow-hidden rounded-brand border border-surface-border" role="application" aria-label="Mapa de propiedades"></div>
+            {% else %}<p class="rounded-brand border border-surface-border bg-surface-alt p-8 text-center text-sm text-ink-muted">Estas propiedades aún no tienen ubicación en el mapa.</p>{% endif %}
+        </div>
+
+        {% if r.pages > 1 %}
+        <nav class="mt-8 flex items-center justify-center gap-2 text-sm font-semibold" aria-label="Paginación">
+            {% if r.page > 1 %}<a href="{{ __SELF__.queryUrl({page: r.page - 1}) }}" class="rounded-brand border border-surface-border px-4 py-2 text-ink hover:opacity-80">← Anterior</a>{% endif %}
+            <span class="px-3 text-ink-muted">Página {{ r.page }} de {{ r.pages }}</span>
+            {% if r.page < r.pages %}<a href="{{ __SELF__.queryUrl({page: r.page + 1}) }}" class="rounded-brand border border-surface-border px-4 py-2 text-ink hover:opacity-80">Siguiente →</a>{% endif %}
+        </nav>
+        {% endif %}
+        {% endif %}
+    </section>
+
+    {# Alertas #}
+    {% if f %}
+    <section class="mt-10 rounded-brand border border-surface-border bg-surface-alt p-6" aria-labelledby="re-alert">
+        <div id="re-alert-box">
+            <h2 id="re-alert" class="text-lg font-bold text-ink">Avísame cuando haya algo nuevo</h2>
+            <p class="mt-1 text-sm text-ink-muted">Guardamos esta búsqueda y te escribimos cuando publiquemos propiedades que la cumplan.</p>
+            <form class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3" data-request="{{ __SELF__ }}::onSaveSearch" data-request-flash data-attach-loading>
+                <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+                <input type="hidden" name="criteria" value="{{ f|url_encode }}">
+                {% if __SELF__.user %}<p class="text-sm text-ink sm:col-span-2 self-center">Te avisaremos a <strong>{{ __SELF__.user.email }}</strong>.</p>
+                {% else %}
+                <input type="email" name="email" placeholder="Tu correo" class="{{ inp }}" aria-label="Correo">
+                <input type="tel" name="phone" placeholder="Tu WhatsApp (opcional)" class="{{ inp }}" aria-label="WhatsApp">{% endif %}
+                <button type="submit" class="rounded-brand bg-brand-primary px-5 py-2 text-sm font-semibold text-white hover:opacity-90">Guardar alerta</button>
+            </form>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+{% if __SELF__.markers %}{% partial '@map_js' %}{% endif %}

@@ -1,0 +1,44 @@
+fields:
+  modality:
+    label: Modalidad
+    type: dropdown
+    span: left
+    required: true
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    default: available
+  amount:
+    label: Monto (precio de venta / alquiler mensual / capital de anticrético)
+    type: number
+    step: any
+    span: left
+    required: true
+  currency:
+    label: Moneda
+    type: dropdown
+    span: right
+    default: USD
+  term_months:
+    label: Plazo (meses)
+    type: number
+    span: left
+    trigger:
+      action: hide
+      field: modality
+      condition: value[sale]
+  deposit:
+    label: Garantía
+    type: number
+    step: any
+    span: right
+    trigger:
+      action: show
+      field: modality
+      condition: value[rent]
+  conditions:
+    label: Condiciones
+    type: textarea
+    size: small
+    comment: 'Anticrético: condiciones de restitución del capital. Alquiler: reajustes, servicios incluidos.'

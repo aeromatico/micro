@@ -1,0 +1,21 @@
+columns:
+  name:
+    label: Agente
+    searchable: true
+    sortable: true
+  phone:
+    label: Teléfono
+    searchable: true
+  email:
+    label: Correo
+    searchable: true
+  license:
+    label: Licencia
+  is_active:
+    label: Activo
+    type: switch
+    sortable: true
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

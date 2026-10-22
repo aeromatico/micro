@@ -1,0 +1,8 @@
+offers:
+  label: Oferta
+  view:
+    list: $/aero/realestate/models/offer/columns_inline.yaml
+    toolbarButtons: create|delete
+    showCheckboxes: true
+  manage:
+    form: $/aero/realestate/models/offer/fields_inline.yaml

@@ -1,0 +1,11 @@
+title: Ubicaciones
+list: $/aero/realestate/models/location/columns.yaml
+modelClass: Aero\Realestate\Models\Location
+recordUrl: aero/realestate/locations/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

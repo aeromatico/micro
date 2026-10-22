@@ -1,0 +1,22 @@
+scopes:
+  status:
+    label: Verificación
+    type: dropdown
+    conditions: status = :value
+    options:
+      pending: Pendiente de revisión
+      verified: Verificado
+      rejected: Observado
+  type:
+    label: Tipo
+    type: dropdown
+    conditions: type = :value
+    options:
+      id_card: Documento de identidad
+      title_deed: Folio real / título
+      tax: Impuestos
+      utility: Servicios básicos
+      plan: Planos
+      power_of_attorney: Poder
+      contract: Contrato firmado
+      other: Otro

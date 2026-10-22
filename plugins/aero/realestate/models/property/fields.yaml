@@ -1,0 +1,150 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  title:
+    label: Título
+    required: true
+  type:
+    label: Tipo
+    type: dropdown
+    span: left
+    required: true
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    default: available
+  is_published:
+    label: Publicada en el portal
+    type: switch
+    span: left
+  is_featured:
+    label: Destacada
+    type: switch
+    span: right
+  description:
+    label: Descripción
+    type: textarea
+    size: large
+tabs:
+  fields:
+    location_id:
+      label: Ciudad / zona / barrio
+      type: dropdown
+      tab: Ubicación
+      emptyOption: — Elegir —
+      comment: Agrega zonas y barrios en Ubicaciones.
+    address:
+      label: Dirección
+      tab: Ubicación
+    lat:
+      label: Latitud
+      type: number
+      step: any
+      span: left
+      tab: Ubicación
+    lng:
+      label: Longitud
+      type: number
+      step: any
+      span: right
+      tab: Ubicación
+    map:
+      label: Ubicación en el mapa
+      type: partial
+      path: field_map
+      tab: Ubicación
+      comment: 'Toca el mapa o arrastra el pin: guarda la latitud y la longitud de arriba. Es lo que se muestra en el portal.'
+    land_area:
+      label: Superficie del terreno (m²)
+      type: number
+      step: any
+      span: left
+      tab: Detalle
+    built_area:
+      label: Superficie construida (m²)
+      type: number
+      step: any
+      span: right
+      tab: Detalle
+    bedrooms:
+      label: Habitaciones
+      type: number
+      span: left
+      tab: Detalle
+    bathrooms:
+      label: Baños
+      type: number
+      span: right
+      tab: Detalle
+    garages:
+      label: Garajes
+      type: number
+      span: left
+      tab: Detalle
+    floors:
+      label: Pisos
+      type: number
+      span: right
+      tab: Detalle
+    age_years:
+      label: Antigüedad (años)
+      type: number
+      span: left
+      tab: Detalle
+    features:
+      label: Características
+      type: relation
+      nameFrom: name
+      tab: Detalle
+    photos:
+      label: Fotografías
+      type: fileupload
+      mode: image
+      imageWidth: 200
+      imageHeight: 150
+      tab: Medios
+    video_url:
+      label: Video (YouTube / Vimeo)
+      tab: Medios
+    plans:
+      label: Planos
+      type: fileupload
+      mode: image
+      imageWidth: 200
+      imageHeight: 150
+      tab: Medios
+    owner_id:
+      label: Propietario
+      type: dropdown
+      span: left
+      emptyOption: — Sin asignar —
+      tab: Gestión
+    agent_id:
+      label: Agente responsable
+      type: dropdown
+      span: right
+      emptyOption: — Sin asignar —
+      tab: Gestión
+    code:
+      label: Código
+      span: left
+      tab: Gestión
+      readOnly: true
+    offers:
+      label: Ofertas (venta, alquiler, anticrético)
+      type: partial
+      path: field_offers
+      context: update
+      tab: Ofertas
+    docs:
+      label: Documentos y contratos
+      type: partial
+      path: field_docs
+      context: update
+      tab: Documentos

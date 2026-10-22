@@ -1,0 +1,23 @@
+columns:
+  modality:
+    label: Modalidad
+    type: selectable
+    options: getModalityOptions
+    sortable: true
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  basis:
+    label: Cálculo
+    type: selectable
+    options: getBasisOptions
+  value:
+    label: Valor
+    type: number
+  agent_share_percent:
+    label: '% agente'
+    type: number
+  is_active:
+    label: Activa
+    type: switch

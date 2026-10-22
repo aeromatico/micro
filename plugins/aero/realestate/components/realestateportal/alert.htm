@@ -1,0 +1,11 @@
+{% set sr = __SELF__.search %}
+<div class="mx-auto max-w-lg rounded-brand border border-surface-border bg-surface-alt p-8 text-center">
+    <h1 class="text-xl font-extrabold text-ink">Alerta de búsqueda</h1>
+    <p class="mt-2 text-sm text-ink-muted">«{{ sr.name }}»</p>
+    <div id="re-unsub" class="mt-6">
+        {% if sr.is_active %}
+        <button type="button" class="rounded-brand bg-brand-primary px-6 py-3 text-sm font-semibold text-white hover:opacity-90" data-request="{{ __SELF__ }}::onUnsubscribe" data-request-data="token: '{{ sr.token }}'" data-request-flash>Dejar de recibir estos avisos</button>
+        {% else %}<p class="text-sm text-ink-muted">Esta alerta ya está desactivada.</p>{% endif %}
+    </div>
+    <p class="mt-6"><a href="/inmuebles" class="text-sm font-semibold text-brand-primary">Ver propiedades</a></p>
+</div>

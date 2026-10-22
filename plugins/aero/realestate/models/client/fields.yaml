@@ -1,0 +1,86 @@
+fields:
+  tenant_id:
+    label: Inmobiliaria (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.realestate.superadmin
+    emptyOption: — Elegir —
+  name:
+    label: Nombre
+    span: left
+    required: true
+  document:
+    label: Documento
+    span: right
+  phone:
+    label: Teléfono
+    span: left
+  email:
+    label: Correo
+    span: right
+  interests:
+    label: Le interesa
+    type: checkboxlist
+    span: left
+  agent_id:
+    label: Agente asignado
+    type: dropdown
+    span: right
+    emptyOption: — Sin asignar —
+  budget_min:
+    label: Presupuesto mínimo
+    type: number
+    span: left
+    step: any
+  budget_max:
+    label: Presupuesto máximo
+    type: number
+    span: right
+    step: any
+  currency:
+    label: Moneda
+    type: dropdown
+    span: left
+    options:
+      USD: USD (dólares)
+      BOB: BOB (bolivianos)
+    default: USD
+  source:
+    label: Origen
+    type: dropdown
+    span: right
+    emptyOption: —
+    options:
+      portal: Portal
+      whatsapp: WhatsApp
+      referido: Referido
+      redes: Redes sociales
+      otro: Otro
+  address:
+    label: Domicilio
+    span: full
+  civil_status:
+    label: Estado civil
+    span: left
+  nationality:
+    label: Nacionalidad
+    span: right
+  notes:
+    label: Observaciones
+    type: textarea
+    size: small
+tabs:
+  fields:
+    history:
+      label: Actividad
+      type: partial
+      path: field_history
+      context: update
+      tab: Actividad
+    docs:
+      label: Documentos y contratos
+      type: partial
+      path: field_docs
+      context: update
+      tab: Documentos

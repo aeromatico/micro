@@ -1,0 +1,10 @@
+name: Plantilla
+form: $/aero/realestate/models/agreementtemplate/fields.yaml
+modelClass: Aero\Realestate\Models\AgreementTemplate
+defaultRedirect: aero/realestate/templates
+create:
+  redirect: aero/realestate/templates/update/:id
+  redirectClose: aero/realestate/templates
+update:
+  redirect: aero/realestate/templates/update/:id
+  redirectClose: aero/realestate/templates

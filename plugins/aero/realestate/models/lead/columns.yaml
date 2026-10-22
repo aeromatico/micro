@@ -1,0 +1,32 @@
+columns:
+  client:
+    label: Cliente
+    relation: client
+    select: name
+    searchable: true
+  property:
+    label: Propiedad
+    relation: property
+    select: title
+    searchable: true
+  modality:
+    label: Modalidad
+    type: selectable
+    options: getModalityOptions
+  stage:
+    label: Etapa
+    type: selectable
+    options: getStageOptions
+    sortable: true
+  agent:
+    label: Agente
+    relation: agent
+    select: name
+  next_follow_up_at:
+    label: Seguimiento
+    type: datetime
+    sortable: true
+  created_at:
+    label: Alta
+    type: date
+    sortable: true

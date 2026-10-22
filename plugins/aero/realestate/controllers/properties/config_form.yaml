@@ -1,0 +1,10 @@
+name: Propiedad
+form: $/aero/realestate/models/property/fields.yaml
+modelClass: Aero\Realestate\Models\Property
+defaultRedirect: aero/realestate/properties
+create:
+  redirect: aero/realestate/properties
+  redirectClose: aero/realestate/properties
+update:
+  redirect: aero/realestate/properties
+  redirectClose: aero/realestate/properties

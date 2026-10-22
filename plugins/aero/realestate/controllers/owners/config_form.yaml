@@ -1,0 +1,10 @@
+name: Propietario
+form: $/aero/realestate/models/owner/fields.yaml
+modelClass: Aero\Realestate\Models\Owner
+defaultRedirect: aero/realestate/owners
+create:
+  redirect: aero/realestate/owners
+  redirectClose: aero/realestate/owners
+update:
+  redirect: aero/realestate/owners
+  redirectClose: aero/realestate/owners
