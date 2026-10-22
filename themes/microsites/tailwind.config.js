@@ -11,6 +11,7 @@ module.exports = {
         '../../plugins/aero/docs/components/**/*.htm',
         '../../plugins/aero/gym/components/**/*.htm',
         '../../plugins/aero/office/components/**/*.htm',
+        '../../plugins/aero/realestate/components/**/*.htm',
     ],
     theme: {
         extend: {

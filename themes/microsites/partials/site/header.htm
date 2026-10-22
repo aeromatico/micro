@@ -64,6 +64,12 @@
                 Reservas
             </a>
             {% endif %}
+            {% if realestate_public() %}
+            <a href="/inmuebles"
+               class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
+                Inmuebles
+            </a>
+            {% endif %}
             {% if sitesSeo.isShopEnabled %}
             <a href="/tienda"
                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
@@ -171,6 +177,13 @@
            @click="$store.nav.close()"
            class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
             Reservas
+        </a>
+        {% endif %}
+        {% if realestate_public() %}
+        <a href="/inmuebles"
+           @click="$store.nav.close()"
+           class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
+            Inmuebles
         </a>
         {% endif %}
         {% if sitesSeo.isShopEnabled %}
