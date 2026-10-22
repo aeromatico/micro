@@ -25,6 +25,7 @@ class EventCatalog
             static::crm(),
             static::shop(),
             static::office(),
+            static::realestate(),
             static::medical(),
             static::community(),
             static::support(),
@@ -623,6 +624,120 @@ class EventCatalog
             $mk('office.booking.rescheduled', 'Reserva reprogramada por el negocio', 'El negocio movió o reasignó la cita: se avisa al cliente.', ['actor'], ['whatsapp', 'email']),
             $mk('office.booking.rescheduled_by_customer', 'Reserva reprogramada por el cliente', 'El cliente movió su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
             $mk('office.booking.reminder', 'Recordatorio de cita', 'Recordatorio al cliente antes de su cita (horas configurables por negocio).', ['actor'], ['whatsapp', 'email'], 4),
+        ];
+    }
+
+    /** Aero.Realestate: vencimiento de contratos de anticrético. Los dispara Aero\Realestate\Classes\Notifier. */
+    protected static function realestate(): array
+    {
+        $vars = [
+            'code'              => ['type' => 'string', 'required' => true,  'label' => 'Código del contrato'],
+            'recipient_name'    => ['type' => 'string', 'required' => false, 'label' => 'Destinatario'],
+            'recipient_role'    => ['type' => 'string', 'required' => false, 'label' => 'Rol (anticresista, propietario, agente)'],
+            'property_title'    => ['type' => 'string', 'required' => true,  'label' => 'Propiedad'],
+            'property_address'  => ['type' => 'string', 'required' => false, 'label' => 'Dirección'],
+            'capital'           => ['type' => 'string', 'required' => true,  'label' => 'Capital (monto y moneda)'],
+            'end_date'          => ['type' => 'string', 'required' => true,  'label' => 'Fecha de vencimiento'],
+            'days_left'         => ['type' => 'string', 'required' => true,  'label' => 'Días restantes'],
+            'owner_name'        => ['type' => 'string', 'required' => false, 'label' => 'Propietario'],
+            'client_name'       => ['type' => 'string', 'required' => false, 'label' => 'Anticresista'],
+            'agent_name'        => ['type' => 'string', 'required' => false, 'label' => 'Agente'],
+            'business_name'     => ['type' => 'string', 'required' => false, 'label' => 'Inmobiliaria'],
+            'missing'           => ['type' => 'string', 'required' => false, 'label' => 'Documentos pendientes'],
+            'url'               => ['type' => 'string', 'required' => false, 'label' => 'Enlace al contrato'],
+        ];
+        $sample = [
+            'code' => 'ANT-00012', 'recipient_name' => 'Luis Pérez', 'recipient_role' => 'anticresista',
+            'property_title' => 'Departamento en Equipetrol', 'property_address' => 'Av. San Martín 120',
+            'capital' => '25.000 USD', 'end_date' => '15/12/2026', 'days_left' => '30',
+            'owner_name' => 'Ana Rojas', 'client_name' => 'Luis Pérez', 'agent_name' => 'Carlos Vaca',
+            'business_name' => 'Inmobiliaria Demo', 'missing' => 'Escritura pública, Derechos Reales',
+            'url' => 'https://ejemplo.bo/backend/aero/realestate/contracts/update/12', 'tenant_name' => 'Demo',
+        ];
+        $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 3, ?array $own = null) => [
+            'code' => $code, 'source_plugin' => 'Aero.Realestate', 'category' => 'realestate', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => ($own[0] ?? $vars) + self::TENANT_VARS, 'sample_context' => $own[1] ?? $sample,
+        ];
+
+        $visitVars = [
+            'code' => ['type' => 'string', 'required' => true, 'label' => 'Código de la visita'],
+            'client_name' => ['type' => 'string', 'required' => false, 'label' => 'Interesado'],
+            'client_phone' => ['type' => 'string', 'required' => false, 'label' => 'Teléfono del interesado'],
+            'agent_name' => ['type' => 'string', 'required' => false, 'label' => 'Agente'],
+            'agent_phone' => ['type' => 'string', 'required' => false, 'label' => 'Teléfono del agente'],
+            'recipient_name' => ['type' => 'string', 'required' => false, 'label' => 'Destinatario'],
+            'recipient_role' => ['type' => 'string', 'required' => false, 'label' => 'Rol (cliente, agente)'],
+            'property_title' => ['type' => 'string', 'required' => true, 'label' => 'Propiedad'],
+            'property_address' => ['type' => 'string', 'required' => false, 'label' => 'Dirección'],
+            'map_url' => ['type' => 'string', 'required' => false, 'label' => 'Enlace al mapa'],
+            'starts_at' => ['type' => 'string', 'required' => true, 'label' => 'Fecha y hora'],
+            'business_name' => ['type' => 'string', 'required' => false, 'label' => 'Inmobiliaria'],
+            'reason' => ['type' => 'string', 'required' => false, 'label' => 'Motivo'],
+            'url' => ['type' => 'string', 'required' => false, 'label' => 'Enlace en el panel'],
+        ];
+        $visitSample = [
+            'code' => 'VIS-00031', 'client_name' => 'Luis Pérez', 'client_phone' => '70000000', 'agent_name' => 'Carlos Vaca', 'agent_phone' => '71111111',
+            'recipient_name' => 'Luis Pérez', 'recipient_role' => 'cliente', 'property_title' => 'Casa en Equipetrol', 'property_address' => 'Av. San Martín 120',
+            'map_url' => 'https://maps.google.com/?q=-17.76,-63.19', 'starts_at' => 'sábado 24/10 a las 10:00', 'business_name' => 'Inmobiliaria Demo', 'reason' => '',
+            'url' => 'https://ejemplo.bo/backend/aero/realestate/visits/update/31', 'tenant_name' => 'Demo',
+        ];
+        $visit = fn ($mk, $code, $name, $desc, $aud, $ch, $prio = 3) => $mk($code, $name, $desc, $aud, $ch, $prio, [$visitVars, $visitSample]);
+        $lead = [[
+            'client_name' => ['type' => 'string', 'required' => true, 'label' => 'Cliente'],
+            'client_phone' => ['type' => 'string', 'required' => false, 'label' => 'Teléfono del cliente'],
+            'property_title' => ['type' => 'string', 'required' => false, 'label' => 'Propiedad'],
+            'stage' => ['type' => 'string', 'required' => false, 'label' => 'Etapa'],
+            'due' => ['type' => 'string', 'required' => false, 'label' => 'Seguimiento previsto'],
+            'agent_name' => ['type' => 'string', 'required' => false, 'label' => 'Agente'],
+            'recipient_name' => ['type' => 'string', 'required' => false, 'label' => 'Destinatario'],
+            'url' => ['type' => 'string', 'required' => false, 'label' => 'Enlace en el panel'],
+        ], [
+            'client_name' => 'Luis Pérez', 'client_phone' => '70000000', 'property_title' => 'Casa en Equipetrol', 'stage' => 'Negociación',
+            'due' => '23/10/2026 09:00', 'agent_name' => 'Carlos Vaca', 'recipient_name' => 'Carlos Vaca', 'url' => 'https://ejemplo.bo/backend/aero/realestate/leads/update/5', 'tenant_name' => 'Demo',
+        ]];
+
+        $str = fn (string $label, bool $req = false) => ['type' => 'string', 'required' => $req, 'label' => $label];
+        $inquiry = [[
+            'client_name' => $str('Interesado', true), 'client_phone' => $str('Teléfono'), 'client_email' => $str('Correo'), 'property_title' => $str('Propiedad'),
+            'message' => $str('Mensaje'), 'visit_at' => $str('Visita pedida'), 'agent_name' => $str('Agente'), 'recipient_name' => $str('Destinatario'), 'url' => $str('Enlace en el panel'),
+        ], [
+            'client_name' => 'Luis Pérez', 'client_phone' => '70000000', 'client_email' => 'luis@ejemplo.bo', 'property_title' => 'Casa en Equipetrol',
+            'message' => 'Me interesa, ¿se puede ver el sábado?', 'visit_at' => 'sábado 24/10 a las 10:00', 'agent_name' => 'Carlos Vaca', 'recipient_name' => 'Carlos Vaca',
+            'url' => 'https://ejemplo.bo/backend/aero/realestate/leads/update/5', 'tenant_name' => 'Demo',
+        ]];
+        $alertNew = [[
+            'search_name' => $str('Búsqueda', true), 'count' => $str('Cantidad', true), 'list' => $str('Lista de propiedades', true), 'recipient_name' => $str('Destinatario'),
+            'business_name' => $str('Inmobiliaria'), 'unsubscribe_url' => $str('Enlace para darse de baja'),
+        ], [
+            'search_name' => 'Departamentos en Equipetrol', 'count' => '2', 'list' => "• Depto Equipetrol — USD 90.000 https://ejemplo.bo/inmueble/depto-1\n• Depto Sirari — USD 85.000 https://ejemplo.bo/inmueble/depto-2",
+            'recipient_name' => 'Luis', 'business_name' => 'Inmobiliaria Demo', 'unsubscribe_url' => 'https://ejemplo.bo/inmuebles/alerta/abc', 'tenant_name' => 'Demo',
+        ]];
+        $alertChange = [[
+            'recipient_name' => $str('Destinatario'), 'property_title' => $str('Propiedad', true), 'old_value' => $str('Antes', true), 'new_value' => $str('Ahora', true),
+            'url' => $str('Enlace a la propiedad'), 'business_name' => $str('Inmobiliaria'),
+        ], [
+            'recipient_name' => 'Luis', 'property_title' => 'Casa en Equipetrol', 'old_value' => '95.000 USD', 'new_value' => '89.000 USD',
+            'url' => 'https://ejemplo.bo/inmueble/casa-1', 'business_name' => 'Inmobiliaria Demo', 'tenant_name' => 'Demo',
+        ]];
+
+        return [
+            $mk('realestate.anticretico.expiring', 'Anticrético próximo a vencer', 'Recordatorio al anticresista, al propietario y al agente cuando el contrato está por vencer (60, 30, 7 días y el día del vencimiento).', ['actor'], ['whatsapp', 'email'], 2),
+            $mk('realestate.anticretico.expiring_admin', 'Anticrético próximo a vencer (administración)', 'Aviso interno a la inmobiliaria con el contrato que se acerca a su vencimiento.', ['tenant_admin'], ['inapp', 'push', 'email'], 2),
+            // Visitas a propiedades (cliente y agente reciben el mismo evento con recipient_role distinto) y seguimiento comercial.
+            $visit($mk, 'realestate.visit.requested', 'Visita solicitada', 'Un interesado pidió una visita desde el portal: la inmobiliaria debe confirmarla.', ['tenant_admin'], ['inapp', 'push', 'email']),
+            $visit($mk, 'realestate.visit.confirmed', 'Visita confirmada', 'La visita quedó confirmada: se avisa al interesado y al agente asignado.', ['actor'], ['whatsapp', 'email']),
+            $visit($mk, 'realestate.visit.rescheduled', 'Visita reprogramada', 'La visita cambió de fecha u hora: se avisa al interesado y al agente.', ['actor'], ['whatsapp', 'email']),
+            $visit($mk, 'realestate.visit.cancelled', 'Visita cancelada', 'La visita fue cancelada: se avisa al interesado y al agente.', ['actor'], ['whatsapp', 'email']),
+            $visit($mk, 'realestate.visit.reminder', 'Recordatorio de visita', 'Recordatorio al interesado y al agente antes de la visita (horas configurables).', ['actor'], ['whatsapp', 'email'], 2),
+            $mk('realestate.lead.follow_up', 'Seguimiento comercial pendiente', 'Al agente: venció la fecha de seguimiento de un cliente interesado.', ['actor'], ['whatsapp', 'inapp'], 3, $lead),
+            $mk('realestate.lead.follow_up_unassigned', 'Seguimiento pendiente sin agente', 'A la inmobiliaria: venció un seguimiento de un cliente sin agente asignado.', ['tenant_admin'], ['inapp', 'email'], 3, $lead),
+            $mk('realestate.inquiry.received', 'Consulta recibida desde el portal', 'Un visitante escribió por una propiedad desde el portal público.', ['tenant_admin'], ['inapp', 'push', 'email'], 2, $inquiry),
+            $mk('realestate.inquiry.assigned', 'Consulta asignada al agente', 'Al agente responsable: un visitante escribió por su propiedad (con la visita pedida, si la hay).', ['actor'], ['whatsapp', 'inapp'], 2, $inquiry),
+            $mk('realestate.alert.new_properties', 'Nuevas propiedades para tu búsqueda', 'Al visitante que guardó una búsqueda: entraron propiedades que cumplen sus criterios.', ['actor'], ['whatsapp', 'email'], 3, $alertNew),
+            $mk('realestate.alert.price_changed', 'Cambió el precio de una propiedad guardada', 'Al usuario que guardó la propiedad en favoritos: cambió su precio, canon o capital.', ['actor'], ['whatsapp', 'email'], 3, $alertChange),
+            $mk('realestate.alert.availability_changed', 'Cambió la disponibilidad de una propiedad guardada', 'Al usuario que guardó la propiedad en favoritos: pasó a vendida, alquilada, reservada o volvió a estar disponible.', ['actor'], ['whatsapp', 'email'], 3, $alertChange),
+            $mk('realestate.anticretico.documents_pending', 'Documentos de anticrético pendientes', 'Contrato vigente sin escritura pública o inscripción en Derechos Reales verificadas.', ['tenant_admin'], ['inapp', 'email']),
         ];
     }
 

@@ -198,3 +198,15 @@
 1.5.13:
     - "Los avisos del Plan de 7 días ahora usan el nuevo nombre del plan en eventos y plantillas ya creados."
     - rename_plan_events_to_7_days.php
+
+1.5.14:
+    - "Avisos de vencimiento de anticréticos y de documentos pendientes (Aero.Realestate) con sus reglas y plantillas por defecto."
+    - seed_realestate_events.php
+
+1.5.15:
+    - "Avisos de visitas a propiedades (solicitud, confirmación, reprogramación, cancelación y recordatorio) y de seguimiento comercial pendiente para Aero.Realestate, con sus reglas y plantillas por defecto."
+    - seed_realestate_visit_events.php
+
+1.5.16:
+    - "Avisos del portal de inmuebles (consulta recibida, nuevas propiedades para una búsqueda guardada, cambio de precio y de disponibilidad) para Aero.Realestate, con sus reglas y plantillas por defecto."
+    - seed_realestate_portal_events.php
