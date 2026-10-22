@@ -480,3 +480,7 @@
 
 1.85.0:
     - "Arregla que la Ayuda guiada diera error en cuentas de planes que no incluyen ese módulo: ahora siempre está disponible."
+
+1.86.0:
+    - "El rol tenant_admin recibe aero.realestate.use (propiedades, ofertas, clientes, propietarios y agentes de la inmobiliaria)."
+    - grant_realestate_to_tenant_admin.php
