@@ -9,6 +9,15 @@
  * la plataforma, o "pendiente" (a revisar cuando se necesite).
  */
 return [
+    // catálogos mixtos (global + propio): el motor MCP filtra por tenant y ocultaría el catálogo global
+    \Aero\Realestate\Models\Location::class => 'ubicaciones: catálogo global de Bolivia (tenant_id null) mezclado con las propias',
+    \Aero\Realestate\Models\Feature::class => 'características: catálogo global mezclado con las propias',
+
+    \Aero\Realestate\Models\Commission::class => 'comisiones: datos financieros de la inmobiliaria, solo administración en el panel',
+    \Aero\Realestate\Models\CommissionRule::class => 'reglas de comisión: condiciones comerciales internas',
+    \Aero\Realestate\Models\RealestateSettings::class => 'configuración del tenant',
+    \Aero\Realestate\Models\Interaction::class => 'historial de conversaciones con clientes (texto libre privado)',
+
     // credenciales y tokens
     \Aero\Producer\Models\Credential::class => 'credenciales (api_key_enc)',
     \Aero\Producer\Models\Project::class => 'proyectos de video de la plataforma (guion y archivos internos); sin pantalla de tenant aún',
