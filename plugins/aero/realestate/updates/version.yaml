@@ -36,3 +36,6 @@
 
 1.5.2:
     - "La lista de Propiedades ahora tiene una columna «Mapa» con un enlace que abre la ubicación de cada propiedad."
+
+1.5.3:
+    - "El Embudo ahora permite arrastrar las oportunidades de una etapa a otra."
