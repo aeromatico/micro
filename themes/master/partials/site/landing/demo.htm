@@ -235,7 +235,7 @@ window.demoVideos = window.demoVideos || function (items) {
             <input type="search" x-model="q" placeholder="Buscar guía…" aria-label="Buscar guía" class="ml-auto w-full sm:w-56 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-accent">
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div x-ref="glist" x-effect="g; q; $refs.glist.scrollTop = 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[26rem] overflow-y-auto overscroll-contain pr-1 content-start">
             <template x-for="x in list" :key="x.url">
                 <button type="button" @click="show(x)" class="group flex items-start gap-3 text-left p-4 rounded-xl border border-edge bg-canvas-elev hover:border-accent transition-colors">
                     <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent/15 text-accent">
