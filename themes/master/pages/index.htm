@@ -89,6 +89,8 @@ function onStart()
 
 {% partial 'site/landing/steps' %}
 
+{% partial 'site/landing/demo' %}
+
 {% partial 'site/landing/configuracion' %}
 
 {% partial 'site/landing/plugins' items=pluginServices %}
@@ -97,11 +99,7 @@ function onStart()
 
 {% partial 'site/landing/payments' %}
 
-{% partial 'site/landing/omnichat' %}
-
 {% partial 'site/landing/whatsapp-comparison' %}
-
-{% partial 'site/landing/spotlight' %}
 
 {% if collection %}
     {% partial 'site/_services_collection' collection=collection id='coleccion-rubro' %}
