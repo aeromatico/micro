@@ -721,6 +721,24 @@ class EventCatalog
             'url' => 'https://ejemplo.bo/inmueble/casa-1', 'business_name' => 'Inmobiliaria Demo', 'tenant_name' => 'Demo',
         ]];
 
+        $rental = [[
+            'code' => $str('Código del contrato', true), 'recipient_name' => $str('Destinatario'), 'recipient_role' => $str('Rol (inquilino, propietario, agente)'),
+            'property_title' => $str('Propiedad', true), 'property_address' => $str('Dirección'), 'amount' => $str('Canon mensual'), 'end_date' => $str('Vencimiento', true),
+            'days_left' => $str('Días restantes', true), 'owner_name' => $str('Propietario'), 'client_name' => $str('Inquilino'), 'agent_name' => $str('Agente'),
+            'business_name' => $str('Inmobiliaria'), 'url' => $str('Enlace al contrato'),
+        ], [
+            'code' => 'CTR-00007', 'recipient_name' => 'Luis Pérez', 'recipient_role' => 'inquilino', 'property_title' => 'Departamento en Sopocachi', 'property_address' => 'Calle 20 de Octubre 100',
+            'amount' => '450,00 USD', 'end_date' => '31/12/2026', 'days_left' => '30', 'owner_name' => 'Ana Rojas', 'client_name' => 'Luis Pérez', 'agent_name' => 'Carlos Vaca',
+            'business_name' => 'Inmobiliaria Demo', 'url' => 'https://ejemplo.bo/backend/aero/realestate/agreements/update/7', 'tenant_name' => 'Demo',
+        ]];
+        $docs = [[
+            'count' => $str('Cantidad'), 'list' => $str('Lista de documentos'), 'document_name' => $str('Documento'), 'subject' => $str('Pertenece a'),
+            'expires_on' => $str('Vence el'), 'url' => $str('Enlace al archivo'),
+        ], [
+            'count' => '3', 'list' => "• Folio real — Propiedad: Casa Equipetrol\n• Cédula — Cliente: Luis Pérez", 'document_name' => 'Poder notariado', 'subject' => 'Propietario: Ana Rojas',
+            'expires_on' => '15/11/2026', 'url' => 'https://ejemplo.bo/backend/aero/realestate/documents', 'tenant_name' => 'Demo',
+        ]];
+
         return [
             $mk('realestate.anticretico.expiring', 'Anticrético próximo a vencer', 'Recordatorio al anticresista, al propietario y al agente cuando el contrato está por vencer (60, 30, 7 días y el día del vencimiento).', ['actor'], ['whatsapp', 'email'], 2),
             $mk('realestate.anticretico.expiring_admin', 'Anticrético próximo a vencer (administración)', 'Aviso interno a la inmobiliaria con el contrato que se acerca a su vencimiento.', ['tenant_admin'], ['inapp', 'push', 'email'], 2),
@@ -737,6 +755,10 @@ class EventCatalog
             $mk('realestate.alert.new_properties', 'Nuevas propiedades para tu búsqueda', 'Al visitante que guardó una búsqueda: entraron propiedades que cumplen sus criterios.', ['actor'], ['whatsapp', 'email'], 3, $alertNew),
             $mk('realestate.alert.price_changed', 'Cambió el precio de una propiedad guardada', 'Al usuario que guardó la propiedad en favoritos: cambió su precio, canon o capital.', ['actor'], ['whatsapp', 'email'], 3, $alertChange),
             $mk('realestate.alert.availability_changed', 'Cambió la disponibilidad de una propiedad guardada', 'Al usuario que guardó la propiedad en favoritos: pasó a vendida, alquilada, reservada o volvió a estar disponible.', ['actor'], ['whatsapp', 'email'], 3, $alertChange),
+            $mk('realestate.rental.expiring', 'Alquiler próximo a vencer', 'Recordatorio al inquilino, al propietario y al agente cuando el contrato de alquiler está por vencer (60, 30, 7 días y el día del vencimiento).', ['actor'], ['whatsapp', 'email'], 2, $rental),
+            $mk('realestate.rental.expiring_admin', 'Alquiler próximo a vencer (administración)', 'Aviso interno a la inmobiliaria con el alquiler que se acerca a su vencimiento.', ['tenant_admin'], ['inapp', 'push', 'email'], 2, $rental),
+            $mk('realestate.documents.review_pending', 'Documentos pendientes de revisión', 'Resumen semanal para la administración: documentos subidos que aún no fueron verificados.', ['tenant_admin'], ['inapp', 'email'], 3, $docs),
+            $mk('realestate.document.expiring', 'Documento por vencer', 'Un documento del archivo (poder, certificado, etc.) vence pronto.', ['tenant_admin'], ['inapp', 'email'], 3, $docs),
             $mk('realestate.anticretico.documents_pending', 'Documentos de anticrético pendientes', 'Contrato vigente sin escritura pública o inscripción en Derechos Reales verificadas.', ['tenant_admin'], ['inapp', 'email']),
         ];
     }

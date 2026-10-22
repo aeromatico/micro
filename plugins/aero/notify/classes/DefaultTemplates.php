@@ -84,6 +84,12 @@ class DefaultTemplates
 Para dejar de recibir estos avisos: {{ unsubscribe_url }}{% endif %}'],
         'realestate.alert.price_changed' => ['Cambió el precio de «{{ property_title }}»', 'Hola {{ recipient_name }}, «{{ property_title }}», que guardaste, pasó de {{ old_value }} a {{ new_value }}.{% if url %} Míralo aquí: {{ url }}{% endif %}'],
         'realestate.alert.availability_changed' => ['Cambió la disponibilidad de «{{ property_title }}»', 'Hola {{ recipient_name }}, «{{ property_title }}», que guardaste, cambió de «{{ old_value }}» a «{{ new_value }}».{% if url %} {{ url }}{% endif %}'],
+        'realestate.rental.expiring' => ['Tu alquiler {{ code }} está por vencer', 'Hola {{ recipient_name }}, el contrato de alquiler {{ code }} de «{{ property_title }}» (canon {{ amount }}) vence el {{ end_date }}{% if days_left > 0 %} (faltan {{ days_left }} días){% else %} (vence hoy o ya venció){% endif %}. Coordina la renovación o la devolución del inmueble con {{ business_name }}.'],
+        'realestate.rental.expiring_admin' => ['Alquiler {{ code }} por vencer', 'El alquiler {{ code }} de «{{ property_title }}» ({{ client_name }} / {{ owner_name }}, canon {{ amount }}) vence el {{ end_date }}{% if days_left > 0 %} (faltan {{ days_left }} días){% else %} (vence hoy o ya venció){% endif %}. {{ url }}'],
+        'realestate.documents.review_pending' => ['{{ count }} documento(s) por revisar', 'Hay {{ count }} documento(s) pendientes de verificación:
+{{ list }}
+{{ url }}'],
+        'realestate.document.expiring' => ['Documento por vencer: {{ document_name }}', 'El documento «{{ document_name }}» ({{ subject }}) vence el {{ expires_on }}. {{ url }}'],
         'shop.cart.abandoned' => ['Dejaste algo en tu carrito', 'Hola {{ customer_name }}, tu carrito sigue esperándote. {{ cart_url }}'],
         'shop.customer.registered' => ['Bienvenido', 'Hola {{ customer_name }}, tu cuenta en {{ tenant_name }} está lista.'],
         'shop.order.cancelled' => ['Pedido {{ order_number }} cancelado', 'El pedido {{ order_number }} de {{ customer_name }} ({{ total }} {{ currency }}) fue cancelado. {{ reason }}'],

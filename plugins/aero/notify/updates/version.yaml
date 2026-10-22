@@ -210,3 +210,7 @@
 1.5.16:
     - "Avisos del portal de inmuebles (consulta recibida, nuevas propiedades para una búsqueda guardada, cambio de precio y de disponibilidad) para Aero.Realestate, con sus reglas y plantillas por defecto."
     - seed_realestate_portal_events.php
+
+1.5.17:
+    - "Avisos de vencimiento de alquileres y de documentos del archivo (por revisar y por vencer) para Aero.Realestate, con sus reglas y plantillas por defecto."
+    - seed_realestate_agreement_events.php
