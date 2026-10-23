@@ -214,3 +214,7 @@
 1.5.17:
     - "Avisos de vencimiento de alquileres y de documentos del archivo (por revisar y por vencer) para Aero.Realestate, con sus reglas y plantillas por defecto."
     - seed_realestate_agreement_events.php
+
+1.5.18:
+    - "Avisos internos de Aero.Church: nuevo visitante y nueva petición de oración (sin su contenido), con su regla y plantilla por defecto."
+    - seed_church_events.php

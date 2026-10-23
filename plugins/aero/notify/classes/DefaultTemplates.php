@@ -47,6 +47,8 @@ class DefaultTemplates
         'hello.message.received' => ['Mensaje de {{ contact_name }}', '{{ preview }}'],
         'medical.vaccine.due' => ['Vacuna próxima', 'Hola {{ customer_name }}, {{ patient_name }} tiene {{ vaccine_text }} programada para el {{ due_date }}.{% if business_name %} Escríbenos a {{ business_name }} para agendar.{% endif %}'],
         'medical.deworming.due' => ['Desparasitación próxima', 'Hola {{ customer_name }}, {{ patient_name }} tiene una desparasitación programada para el {{ due_date }}.{% if business_name %} Escríbenos a {{ business_name }} para agendar.{% endif %}'],
+        'church.visit.registered' => ['Nuevo visitante', '{{ visit_name }} se registró como visitante{% if source %} ({{ source }}){% endif %}. Asigna quién lo contacta: {{ url }}'],
+        'church.prayer.requested' => ['Nueva petición de oración', 'Llegó una petición de oración{% if wants_contact == "sí" %} y pide contacto pastoral{% endif %}. Léela en el panel (solo con permisos pastorales): {{ url }}'],
         'notify.delivery.failed_burst' => ['Fallos de entrega', '{{ failed_count }} entregas fallaron por {{ channel }} en {{ window }}.'],
         'pay.billing.run_completed' => ['Facturación completada', 'Se generaron {{ charges_count }} cargos ({{ total_amount }}). Errores: {{ errors_count ?: 0 }}.'],
         'pay.charge.created' => ['Nuevo cargo', 'Se generó un cargo de {{ amount }} {{ currency }} ({{ period_start }} – {{ period_end }}). Vence: {{ due_date }}.'],

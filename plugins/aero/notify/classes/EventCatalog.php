@@ -27,6 +27,7 @@ class EventCatalog
             static::office(),
             static::realestate(),
             static::medical(),
+            static::church(),
             static::community(),
             static::support(),
             static::plan(),
@@ -761,6 +762,34 @@ class EventCatalog
             $mk('realestate.document.expiring', 'Documento por vencer', 'Un documento del archivo (poder, certificado, etc.) vence pronto.', ['tenant_admin'], ['inapp', 'email'], 3, $docs),
             $mk('realestate.anticretico.documents_pending', 'Documentos de anticrético pendientes', 'Contrato vigente sin escritura pública o inscripción en Derechos Reales verificadas.', ['tenant_admin'], ['inapp', 'email']),
         ];
+    }
+
+    /** Aero.Church: avisos internos a la administración de la iglesia. Nunca llevan el contenido de una petición de oración. */
+    protected static function church(): array
+    {
+        $visit = [
+            'visit_name' => ['type' => 'string', 'required' => true,  'label' => 'Nombre del visitante'],
+            'source'     => ['type' => 'string', 'required' => false, 'label' => 'Origen (formulario QR, manual, API)'],
+            'url'        => ['type' => 'string', 'required' => false, 'label' => 'Enlace al visitante en el panel'],
+        ];
+        $prayer = [
+            'wants_contact' => ['type' => 'string', 'required' => false, 'label' => 'Si pide contacto pastoral (sí/no)'],
+            'url'           => ['type' => 'string', 'required' => false, 'label' => 'Enlace a la petición en el panel'],
+        ];
+
+        return [[
+            'code' => 'church.visit.registered', 'source_plugin' => 'Aero.Church', 'category' => 'support', 'name' => 'Nuevo visitante',
+            'description' => 'Alguien se registró como visitante (formulario de bienvenida o API): hay que asignar quién lo contacta.',
+            'priority' => 2, 'default_audiences' => ['tenant_admin'], 'default_channels' => ['inapp', 'push', 'email'],
+            'variables_schema' => $visit + self::TENANT_VARS,
+            'sample_context' => ['visit_name' => 'María López', 'source' => 'formulario QR', 'url' => 'https://panel.market.com.bo/backend/aero/church/visits', 'tenant_name' => 'Iglesia Demo'],
+        ], [
+            'code' => 'church.prayer.requested', 'source_plugin' => 'Aero.Church', 'category' => 'support', 'name' => 'Nueva petición de oración',
+            'description' => 'Llegó una petición de oración desde el sitio. El aviso no incluye su contenido: se lee en el panel con los permisos pastorales.',
+            'priority' => 2, 'default_audiences' => ['tenant_admin'], 'default_channels' => ['inapp', 'email'],
+            'variables_schema' => $prayer + self::TENANT_VARS,
+            'sample_context' => ['wants_contact' => 'sí', 'url' => 'https://panel.market.com.bo/backend/aero/church/prayers', 'tenant_name' => 'Iglesia Demo'],
+        ]];
     }
 
     /** Aero.Medical: avisos al cliente (persona o tutor). Los dispara Aero\Medical\Classes\Notifier; nunca llevan contenido de notas clínicas. */
