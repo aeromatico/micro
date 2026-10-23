@@ -12,6 +12,10 @@ class Resource extends Model
 
     public $table = 'aero_church_resources';
 
+    public static $audited = true;
+    public static $auditLabel = 'recurso';
+    public static $auditType = 'resource';
+
     public $attributes = ['kind' => 'study', 'visibility' => 'members', 'is_published' => false];
 
     public $fillable = ['tenant_id', 'sermon_id', 'title', 'description', 'kind', 'visibility', 'is_published'];

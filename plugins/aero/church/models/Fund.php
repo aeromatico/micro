@@ -12,6 +12,10 @@ class Fund extends Model
 
     public $table = 'aero_church_funds';
 
+    public static $audited = true;
+    public static $auditLabel = 'concepto de aporte';
+    public static $auditType = 'fund';
+
     public $attributes = ['kind' => 'offering', 'is_active' => true];
 
     public $fillable = ['tenant_id', 'name', 'kind', 'goal_amount', 'starts_on', 'ends_on', 'is_active'];

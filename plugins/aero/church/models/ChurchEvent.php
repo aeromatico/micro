@@ -14,6 +14,10 @@ class ChurchEvent extends Model
 
     public $table = 'aero_church_events';
 
+    public static $audited = true;
+    public static $auditLabel = 'evento';
+    public static $auditType = 'event';
+
     public $attributes = ['type' => 'service', 'status' => 'scheduled', 'registration_open' => true, 'is_public' => false];
 
     public $fillable = [

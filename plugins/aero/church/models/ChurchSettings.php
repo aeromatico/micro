@@ -10,6 +10,10 @@ class ChurchSettings extends Model
 
     public $table = 'aero_church_settings';
 
+    public static $audited = true;
+    public static $auditLabel = 'configuración';
+    public static $auditType = 'settings';
+
     public $attributes = ['currency' => 'BOB', 'receipt_prefix' => 'R'];
 
     public $fillable = [

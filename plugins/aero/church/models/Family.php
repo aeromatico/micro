@@ -10,6 +10,10 @@ class Family extends Model
 
     public $table = 'aero_church_families';
 
+    public static $audited = true;
+    public static $auditLabel = 'familia';
+    public static $auditType = 'family';
+
     public $fillable = ['tenant_id', 'name', 'address', 'notes'];
 
     public $rules = [

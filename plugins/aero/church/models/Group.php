@@ -19,6 +19,10 @@ class Group extends Model
 
     public $table = 'aero_church_groups';
 
+    public static $audited = true;
+    public static $auditLabel = 'grupo';
+    public static $auditType = 'group';
+
     public $attributes = ['type' => 'ministry', 'is_active' => true];
 
     public $fillable = [

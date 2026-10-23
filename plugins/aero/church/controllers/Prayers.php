@@ -40,6 +40,17 @@ class Prayers extends Controller
         return $this->asExtension('FormController')->create($context);
     }
 
+    /** Abrir una petición queda en el historial: es información confidencial. */
+    public function update($recordId = null, $context = null)
+    {
+        $result = $this->asExtension('FormController')->update($recordId, $context);
+        if ($recordId && ($p = Prayer::managed()->find((int) $recordId))) {
+            \Aero\Church\Classes\Audit::record('viewed', 'prayer', (int) $p->id, "Petición de oración #{$p->id} consultada", (int) $p->tenant_id);
+        }
+
+        return $result;
+    }
+
     public function update_onAddNote($recordId = null)
     {
         $prayer = Prayer::managed()->findOrFail((int) $recordId);

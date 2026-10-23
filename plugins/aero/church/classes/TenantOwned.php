@@ -17,6 +17,13 @@ trait TenantOwned
             }
         });
 
+        // Auditoría: los modelos que declaran `public static $audited = true` dejan huella de alta, cambio y baja.
+        if (property_exists(static::class, 'audited') && static::$audited) {
+            static::created(fn ($m) => \Aero\Church\Classes\Audit::model('created', $m));
+            static::updated(fn ($m) => \Aero\Church\Classes\Audit::model('updated', $m));
+            static::deleted(fn ($m) => \Aero\Church\Classes\Audit::model('deleted', $m));
+        }
+
         static::creating(function ($model) {
             if (empty($model->tenant_id) && !CurrentTenant::isAdmin() && \BackendAuth::getUser()) {
                 $model->tenant_id = CurrentTenant::id();

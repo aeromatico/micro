@@ -71,6 +71,7 @@ class AnnouncementService
         ])->saveQuietly();
 
         \Event::fire('aero.church.announcementSent', [$a]);
+        Audit::record('sent', 'announcement', (int) $a->id, "Comunicado #{$a->id} enviado a {$r['recipients']->count()} personas", (int) $a->tenant_id);
     }
 
     public function render(string $body, string $name): string

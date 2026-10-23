@@ -1,0 +1,12 @@
+title: Auditoría
+list: $/aero/church/models/auditlog/columns.yaml
+modelClass: Aero\Church\Models\AuditLog
+noRecordsMessage: Aún no hay operaciones registradas.
+recordsPerPage: 50
+showSetup: false
+defaultSort:
+  column: created_at
+  direction: desc
+toolbar:
+  search:
+    prompt: Buscar

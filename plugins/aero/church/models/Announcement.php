@@ -13,6 +13,11 @@ class Announcement extends Model
 
     public $table = 'aero_church_announcements';
 
+    public static $audited = true;
+    public static $auditLabel = 'comunicado';
+    public static $auditType = 'announcement';
+    public static $auditQuiet = ['status', 'recipients_count', 'sent_count', 'failed_count', 'skipped_count', 'sent_at'];
+
     public $attributes = ['kind' => 'announcement', 'status' => 'draft'];
 
     public $fillable = ['tenant_id', 'title', 'body', 'kind', 'audience'];

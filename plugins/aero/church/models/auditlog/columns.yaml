@@ -1,0 +1,6 @@
+columns:
+  created_at: {label: Fecha, type: datetime, sortable: true}
+  user_label: {label: Usuario, searchable: true}
+  action: {label: Operación, type: selectable, options: {created: Alta, updated: Cambio, deleted: Eliminación, viewed: Consulta, exported: Exportación, sent: Envío, confirmed: Confirmación, cancelled: Anulación}, sortable: true}
+  summary: {label: Detalle, searchable: true}
+  ip: {label: IP}

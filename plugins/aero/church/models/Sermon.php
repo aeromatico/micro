@@ -12,6 +12,10 @@ class Sermon extends Model
 
     public $table = 'aero_church_sermons';
 
+    public static $audited = true;
+    public static $auditLabel = 'predicación';
+    public static $auditType = 'sermon';
+
     public $attributes = ['visibility' => 'public', 'is_published' => false];
 
     public $fillable = [

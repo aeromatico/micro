@@ -19,6 +19,11 @@ class Contribution extends Model
 
     public $table = 'aero_church_contributions';
 
+    public static $audited = true;
+    public static $auditLabel = 'aporte';
+    public static $auditType = 'contribution';
+    public static $auditQuiet = ['status', 'confirmed_at', 'receipt_number', 'payment_reference'];
+
     public $attributes = ['method' => 'cash', 'currency' => 'BOB', 'is_anonymous' => false];
 
     public $fillable = [
@@ -132,6 +137,7 @@ class Contribution extends Model
         $this->confirmed_at = now();
         $this->save();
         \Event::fire('aero.church.contributionConfirmed', [$this]);
+        \Aero\Church\Classes\Audit::record('confirmed', 'contribution', (int) $this->id, "Aporte #{$this->id} confirmado", (int) $this->tenant_id);
 
         return true;
     }
@@ -147,6 +153,7 @@ class Contribution extends Model
         if ($wasConfirmed) {
             \Event::fire('aero.church.contributionCancelled', [$this]);
         }
+        \Aero\Church\Classes\Audit::record('cancelled', 'contribution', (int) $this->id, "Aporte #{$this->id} anulado", (int) $this->tenant_id);
 
         return true;
     }

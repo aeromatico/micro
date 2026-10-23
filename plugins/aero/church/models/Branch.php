@@ -10,6 +10,10 @@ class Branch extends Model
 
     public $table = 'aero_church_branches';
 
+    public static $audited = true;
+    public static $auditLabel = 'sede';
+    public static $auditType = 'branch';
+
     public $fillable = ['tenant_id', 'name', 'city', 'address', 'phone', 'is_main', 'is_active'];
 
     public $rules = [

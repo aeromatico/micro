@@ -130,6 +130,7 @@ class ContributionService
             $s->receipt_counter++;
             $s->save();
 
+            Audit::record('updated', 'contribution', (int) $c->id, "Comprobante emitido para el aporte #{$c->id}", (int) $c->tenant_id, ['receipt_number']);
             $c->receipt_number = $s->receipt_prefix . '-' . str_pad((string) $s->receipt_counter, 6, '0', STR_PAD_LEFT);
             $c->save();
 

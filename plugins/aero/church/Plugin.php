@@ -25,7 +25,59 @@ class Plugin extends PluginBase
             require __DIR__ . '/routes.php';
         });
 
+        // API REST y webhooks de Aero.Api: solo si está instalado; nunca es una dependencia dura.
+        if (class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
+            \Event::listen('aero.api.registerScopes', fn () => ['church' => ['label' => 'Iglesia', 'scopes' => \Aero\Church\Classes\Api\Scopes::all()]]);
+
+            \Event::listen('aero.api.registerEndpoints', fn () => ['church' => [
+                'label' => 'Iglesia',
+                'endpoints' => [
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/church/members', 'scope' => \Aero\Church\Classes\Api\Scopes::MEMBERS_READ,
+                        'summary' => 'Lista de miembros (datos básicos). El contacto solo de adultos que aceptaron mensajes.',
+                        'query' => [
+                            ['name' => 'q', 'type' => 'string', 'help' => 'Nombre o apellido.'],
+                            ['name' => 'status', 'type' => 'string', 'help' => 'visitor, new, active o inactive.'],
+                            ['name' => 'branch_id', 'type' => 'integer'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 50, 'help' => 'Máx. 200.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/church/members/{id}', 'scope' => \Aero\Church\Classes\Api\Scopes::MEMBERS_READ,
+                        'summary' => 'Detalle básico de un miembro.',
+                        'path_params' => [['name' => 'id', 'type' => 'integer', 'required' => true, 'help' => 'Id del miembro.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/church/events', 'scope' => \Aero\Church\Classes\Api\Scopes::EVENTS_READ,
+                        'summary' => 'Eventos de la iglesia con cupo e inscritos.',
+                        'query' => [
+                            ['name' => 'upcoming', 'type' => 'boolean', 'help' => 'Solo próximos y programados.'],
+                            ['name' => 'public', 'type' => 'boolean', 'help' => 'Solo los mostrados en el sitio público.'],
+                            ['name' => 'per_page', 'type' => 'integer', 'default' => 50, 'help' => 'Máx. 200.'],
+                        ],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/church/events/{id}', 'scope' => \Aero\Church\Classes\Api\Scopes::EVENTS_READ,
+                        'summary' => 'Detalle de un evento.',
+                        'path_params' => [['name' => 'id', 'type' => 'integer', 'required' => true, 'help' => 'Id del evento.']],
+                    ],
+                    [
+                        'method' => 'GET', 'path' => '/api/v1/church/visits', 'scope' => \Aero\Church\Classes\Api\Scopes::VISITS_READ,
+                        'summary' => 'Visitantes y su estado de seguimiento (sin datos de contacto).',
+                        'query' => [['name' => 'status', 'type' => 'string', 'help' => 'new, contacted, invited, integrated o closed.'], ['name' => 'per_page', 'type' => 'integer', 'default' => 50]],
+                    ],
+                    [
+                        'method' => 'POST', 'path' => '/api/v1/church/visits', 'scope' => \Aero\Church\Classes\Api\Scopes::VISITS_WRITE,
+                        'summary' => 'Registra un visitante desde un formulario o chatbot externo (exige consent_data y un teléfono o correo).',
+                        'body_example' => "{\n    \"name\": \"María López\",\n    \"phone\": \"+59170000000\",\n    \"interest\": \"Quiero conocer el grupo de jóvenes\",\n    \"consent_data\": true,\n    \"consent_messages\": true\n}",
+                    ],
+                ],
+            ]]);
+        }
+
         // Conciliación de aportes por QR. Integración blanda: sin Pay, el evento no existe.
+        \Event::listen('aero.church.visitRegistered', fn ($v) => \Aero\Church\Classes\Notifier::visitRegistered($v));
+        \Event::listen('aero.church.prayerRequested', fn ($p) => \Aero\Church\Classes\Notifier::prayerRequested($p));
         \Event::listen('aero.church.eventChanged', fn ($event, $changed) => app(\Aero\Church\Classes\EventChanges::class)->handle($event, $changed));
         \Event::listen('aero.pay.qrStatusChanged', fn ($qr) => app(\Aero\Church\Classes\ContributionService::class)->onQrStatusChanged($qr));
     }
@@ -96,9 +148,9 @@ class Plugin extends PluginBase
 
         // Cada rol aterriza en la primera pantalla a la que sí tiene acceso.
         $user = \BackendAuth::getUser();
-        $landing = 'groups';
-        if ($user && !$user->hasAnyAccess($withLeader)) {
-            $landing = 'contributions';
+        $landing = 'dashboard';
+        if ($user && !$user->hasAnyAccess($care)) {
+            $landing = $user->hasAnyAccess($withLeader) ? 'groups' : 'contributions';
         }
         $item = fn (string $label, string $icon, string $path, array $p) => [
             'label' => $label, 'icon' => $icon, 'url' => Backend::url('aero/church/' . $path), 'permissions' => $p,
@@ -113,6 +165,8 @@ class Plugin extends PluginBase
                 'permissions' => $top,
                 'order'       => 532,
                 'sideMenu'    => [
+                    'dashboard' => $item('Resumen', 'icon-bar-chart', 'dashboard', $care),
+                    'reports'  => $item('Reportes', 'icon-table', 'reports', array_merge($care, ['aero.church.treasury'])),
                     'members'  => $item('Miembros', 'icon-users', 'members', $all),
                     'families' => $item('Familias', 'icon-home', 'families', $all),
                     'events'   => $item('Eventos', 'icon-bullhorn', 'events', $all),
@@ -128,6 +182,7 @@ class Plugin extends PluginBase
                     'visits'   => $item('Visitantes', 'icon-user-plus', 'visits', $care),
                     'prayers'  => $item('Oración', 'icon-heart', 'prayers', $prayers),
                     'announcements' => $item('Comunicados', 'icon-comments', 'announcements', $care),
+                    'auditlog' => $item('Auditoría', 'icon-history', 'auditlog', ['aero.church.use', 'aero.church.pastor', 'aero.church.superadmin']),
                     'givingsettings' => $item('Configuración', 'icon-cog', 'givingsettings', $money),
                     'branches' => $item('Sedes', 'icon-map-marker', 'branches', $manage),
                 ],

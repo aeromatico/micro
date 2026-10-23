@@ -12,6 +12,10 @@ class Visit extends Model
 
     public $table = 'aero_church_visits';
 
+    public static $audited = true;
+    public static $auditLabel = 'visitante';
+    public static $auditType = 'visit';
+
     public $attributes = ['status' => 'new', 'source' => 'manual', 'consent_messages' => false, 'consent_data' => false];
 
     public $fillable = [

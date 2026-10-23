@@ -11,6 +11,10 @@ class Post extends Model
 
     public $table = 'aero_church_posts';
 
+    public static $audited = true;
+    public static $auditLabel = 'noticia';
+    public static $auditType = 'post';
+
     public $attributes = ['kind' => 'news', 'visibility' => 'public', 'is_published' => false, 'is_pinned' => false];
 
     public $fillable = ['tenant_id', 'title', 'body', 'kind', 'visibility', 'is_published', 'is_pinned', 'published_at'];

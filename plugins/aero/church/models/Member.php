@@ -29,6 +29,10 @@ class Member extends Model
 
     public $table = 'aero_church_members';
 
+    public static $audited = true;
+    public static $auditLabel = 'miembro';
+    public static $auditType = 'member';
+
     public $fillable = [
         'tenant_id', 'branch_id', 'family_id', 'guardian_id', 'first_name', 'last_name', 'document', 'gender',
         'civil_status', 'birth_date', 'marriage_date', 'phone', 'email', 'address', 'status', 'family_role',

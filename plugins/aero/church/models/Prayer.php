@@ -16,6 +16,10 @@ class Prayer extends Model
 
     public $table = 'aero_church_prayers';
 
+    public static $audited = true;
+    public static $auditLabel = 'petición de oración';
+    public static $auditType = 'prayer';
+
     public $attributes = ['status' => 'open', 'is_private' => true, 'source' => 'manual', 'wants_contact' => false];
 
     public $fillable = [

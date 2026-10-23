@@ -26,3 +26,7 @@
 1.5.0:
     - "Sitio público y contenido: biblioteca de predicaciones con series, recursos descargables y noticias, transmisión en vivo y eventos abiertos al público, con visibilidad pública o solo para miembros."
     - create_church_content.php
+
+1.6.0:
+    - "Registro de auditoría: historial de operaciones administrativas (altas, cambios, anulaciones, envíos, exportaciones y consultas de peticiones de oración) sin guardar datos sensibles."
+    - create_church_audit.php
