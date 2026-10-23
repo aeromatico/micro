@@ -5,3 +5,11 @@
     - "Agente de hojas: lectura y corrección de celdas con deshacer (antes→después), agregar filas, crear hojas, mapeos y ejecuciones con prueba previa y confirmación, y fuentes por defecto (productos, colecciones, contactos)."
     - create_edits_table.php
     - seed_default_sources.php
+
+1.2.0:
+    - "Los pacientes del consultorio ahora se pueden importar y exportar con Google Sheets (solo datos administrativos, sin contenido clínico)."
+    - seed_medical_sources.php
+
+1.3.0:
+    - "Socios del gimnasio, inmuebles, propietarios y clientes de la inmobiliaria ahora se pueden importar y exportar con Google Sheets."
+    - seed_vertical_sources.php
