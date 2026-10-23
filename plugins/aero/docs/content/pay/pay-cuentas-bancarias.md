@@ -13,7 +13,7 @@ distinto y define cómo se generan y confirman los pagos.
 | Campo | Reglas | Para qué sirve |
 |-------|--------|----------------|
 | **Etiqueta** | requerido | Nombre para identificarla (ej. *Cuenta principal BNB*). |
-| **Banco** | requerido | Proveedor: BNB, Banco Económico, Correo, PayPal o NOWPayments. |
+| **Banco** | requerido | Proveedor: BNB, Banco Económico, Correo, PayPal, NOWPayments o uno de los cinco QR de Red Enlace (ATC). |
 | **Entorno** | requerido | `Sandbox / Certificación` o `Producción`. |
 | **Estado** | — | `Activa` o `Inactiva`. Solo las activas se pueden usar para generar QR. |
 | **Credenciales (JSON)** | — | Llaves propias de cada proveedor (abajo). |
@@ -31,11 +31,35 @@ distinto y define cómo se generan y confirman los pagos.
 | **PayPal** | `client_id`, `client_secret`, `mode` (`sandbox`/`live`), `webhook_id`. |
 | **NOWPayments** | `api_key`, `ipn_secret`. |
 | **Correo** | Usa los campos del formulario, no el JSON (excepto *Patrón manual*). |
+| **Red Enlace (los 5 QR)** | `client_id`, `client_secret`, `base_url` (ambiente que te asigna ATC); `id_establecimiento` y `nombre_establecimiento` (datos del comercio registrados en ATC); opcional `webhook_header` (por defecto `x-api-key`) y `webhook_secret`. |
 
 > [!NOTE]
 > `webhook_secret` (opcional) valida el webhook de pago **entrante**. El
 > `branchCode` de Banco Económico no va aquí: es por transacción (ver
 > [Sucursales](pay-sucursales)).
+
+### Si el proveedor es Red Enlace (ATC)
+
+Bolivia Pay integra a **Red Enlace (ATC)** como partner oficial para cobrar con
+cinco tipos de QR. Eliges el que necesitas en **Banco** y el flujo es el mismo de
+siempre (*Cuentas → Nueva cuenta*).
+
+| Proveedor | Para qué sirve | Vigencia del QR |
+|-----------|----------------|-----------------|
+| **QR Simple** | Cobro QR estándar. Es el único que permite anular el QR. | 30 s a 1 h |
+| **QR PIX** | Cobro a clientes de Brasil. | 30 s a casi 24 h |
+| **QR MLD / BCB** | Cobro por QR MLD del BCB. | 30 s a 1 h |
+| **QR Activos Virtuales** | Cobro en USDT/USDC (vía Koibanx). | 30 s a 90 s |
+| **QR Binance** | Cobro con Binance Pay. | 30 s a 5 min |
+
+- Los cinco usan la misma autenticación OAuth 2.0 (client credentials); el sistema
+  obtiene y renueva el token solo.
+- Estos QR duran poco: aunque pidas un vencimiento largo, se ajusta al máximo que
+  permite cada producto.
+
+> [!TIP]
+> Usa **Probar conexión** tras guardar las credenciales para confirmar que ATC las acepta.
+> Empieza en **Sandbox** y pasa a **Producción** cuando ATC te entregue el ambiente real.
 
 ### Si el proveedor es "Correo (sin API de banco)"
 
@@ -79,3 +103,5 @@ para **registrar un pago manual** (ver [Transacciones](pay-transacciones)).
 > [!CAUTION]
 > Las credenciales se guardan **cifradas**. Si editas el JSON, revisa no borrar
 > claves existentes: el formulario reemplaza el contenido completo.
+
+**Versión documentada:** 1.28.0

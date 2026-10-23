@@ -37,7 +37,7 @@ transacciones están aislados de los de otros negocios.
 
 | Tipo | Cuándo usarlo |
 |------|---------------|
-| **QR dinámico** | Un QR por transacción, con monto fijo. Bancos con API (BNB, Económico). |
+| **QR dinámico** | Un QR por transacción, con monto fijo. Bancos con API (BNB, Económico) y los cinco QR de Red Enlace (ATC): QR Simple, QR PIX, QR MLD/BCB, Activos Virtuales y Binance. |
 | **QR estático** | El QR fijo de tu comercio: se coloca y los pagos se detectan por correo. |
 | **Pasarela** | PayPal y NOWPayments: el cliente paga en el sitio del proveedor y vuelve. |
 | **Manual** | Registrar a mano una transferencia que no se detectó automáticamente. |
