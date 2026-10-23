@@ -36,3 +36,8 @@ fields:
     span: right
     default: true
     comment: Asienta cada cobro registrado en Historia clínica. El asiento no lleva datos clínicos (solo «Atención #n» y el cliente).
+  post_church:
+    label: Aportes de la iglesia (diezmos, ofrendas y donaciones)
+    type: switch
+    span: left
+    default: true

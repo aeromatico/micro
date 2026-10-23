@@ -19,6 +19,10 @@ class Listeners
         \Event::listen('aero.medical.chargePaid', fn ($p) => self::safely(fn () => self::medicalPaid($p)));
         \Event::listen('aero.medical.chargeVoided', fn ($p) => self::safely(fn () => self::voidBySource('medical_charge', $p['charge_id'] ?? 0, $p['tenant_id'] ?? 0, 'Cobro anulado')));
 
+        // Aportes de la iglesia (diezmos, ofrendas, donaciones). Solo ids y montos; nada pastoral.
+        \Event::listen('aero.church.contributionConfirmed', fn ($c) => self::safely(fn () => self::churchConfirmed($c)));
+        \Event::listen('aero.church.contributionCancelled', fn ($c) => self::safely(fn () => self::voidBySource('church_contribution', $c->id, $c->tenant_id, 'Aporte anulado')));
+
         self::registerPortalSources();
     }
 
@@ -160,6 +164,33 @@ class Listeners
             'description'         => 'Membresía ' . ($name ?: '#' . $m->id),
             'counterparty'        => $m->member?->name,
         ], ['type' => 'gym_membership', 'id' => $m->id]);
+    }
+
+    protected static function churchConfirmed($c): void
+    {
+        $tenantId = (int) $c->tenant_id;
+        if (!FinanceSettings::allows($tenantId, 'church') || (float) $c->amount <= 0 || self::exists($tenantId, 'church_contribution', $c->id)) {
+            return;
+        }
+
+        AccountSeeder::ensure($tenantId);
+        $kind = $c->fund?->kind;
+        $category = match ($kind) {
+            'tithe'    => 'tithes',
+            'offering' => 'offerings',
+            default    => 'donations',
+        };
+
+        app(MovementService::class)->record($tenantId, [
+            'kind'                => 'income',
+            'date'                => ($c->date ?: now())->toDateString(),
+            'amount'              => round((float) $c->amount, 2),
+            'currency'            => $c->currency ?: 'BOB',
+            'category_account_id' => AccountSeeder::system($tenantId, $category)->id,
+            'cash_account_id'     => AccountSeeder::system($tenantId, $c->method === 'cash' ? 'cash' : 'bank')->id,
+            'description'         => ($c->fund?->name ?: 'Aporte') . ' #' . $c->id,
+            'counterparty'        => $c->is_anonymous ? 'Anónimo' : ($c->member?->full_name ?: $c->donor_name),
+        ], ['type' => 'church_contribution', 'id' => $c->id]);
     }
 
     protected static function medicalPaid($payload): void

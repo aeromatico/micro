@@ -17,3 +17,7 @@
 1.4.0:
     - "Finanzas registra de forma automática los cobros de la atención clínica (Historia clínica), sin datos clínicos en el asiento."
     - add_medical_switch_to_settings.php
+
+1.5.0:
+    - "Finanzas registra de forma automática los aportes de la iglesia (diezmos, ofrendas y donaciones) con cuentas propias, sin datos pastorales en el asiento."
+    - add_church_switch_to_settings.php

@@ -9,9 +9,9 @@ class FinanceSettings extends Model
 
     public $table = 'aero_finance_settings';
 
-    public $fillable = ['tenant_id', 'enabled', 'auto_post', 'post_shop', 'post_gym', 'post_portal', 'post_medical'];
+    public $fillable = ['tenant_id', 'enabled', 'auto_post', 'post_shop', 'post_gym', 'post_portal', 'post_medical', 'post_church'];
 
-    protected $casts = ['enabled' => 'boolean', 'auto_post' => 'boolean', 'post_shop' => 'boolean', 'post_gym' => 'boolean', 'post_portal' => 'boolean', 'post_medical' => 'boolean'];
+    protected $casts = ['enabled' => 'boolean', 'auto_post' => 'boolean', 'post_shop' => 'boolean', 'post_gym' => 'boolean', 'post_portal' => 'boolean', 'post_medical' => 'boolean', 'post_church' => 'boolean'];
 
     public static function forTenant(?int $tenantId): self
     {
