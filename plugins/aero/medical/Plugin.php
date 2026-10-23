@@ -31,6 +31,9 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // Aero.Sheets (si está) puede ofrecer los pacientes como fuente de importación; solo anuncia, no depende.
+        \Event::listen('aero.sheets.registerModels', fn () => [['model' => \Aero\Medical\Models\Patient::class, 'label' => 'Pacientes del consultorio']]);
+
         // API de pacientes (solo datos administrativos): únicamente si Aero.Api está instalado.
         if (class_exists(\Aero\Api\Classes\EndpointRegistry::class)) {
             $this->app['router']->group([], function () {
