@@ -112,4 +112,16 @@ return [
     \Aero\Plan\Models\Plan::class => 'plan guiado con el equipo de la plataforma: se gestiona solo desde su pantalla (los superadmins aprueban)',
     \Aero\Plan\Models\Step::class => 'respuestas del dueño y estado de aprobación del plan guiado',
     \Aero\Plan\Models\Message::class => 'conversación privada del plan guiado con el equipo',
+    // Aero.Church: datos sensibles (personas, dinero, oración, mensajes) — solo en el panel, con sus permisos
+    \Aero\Church\Models\Contribution::class => 'aportes: dinero y aportantes (privacidad financiera); solo tesorería en el panel',
+    \Aero\Church\Models\Prayer::class => 'peticiones de oración: información confidencial pastoral',
+    \Aero\Church\Models\PrayerNote::class => 'notas de acompañamiento pastoral: confidenciales',
+    \Aero\Church\Models\Announcement::class => 'comunicados por WhatsApp: texto y destinatarios; se envían desde el panel',
+    \Aero\Church\Models\AnnouncementRecipient::class => 'destinatarios de comunicados: teléfonos de personas',
+    \Aero\Church\Models\VisitContact::class => 'bitácora de contactos a visitantes (texto libre privado)',
+    \Aero\Church\Models\ChurchSettings::class => 'configuración del tenant (cuenta bancaria, plantillas)',
+    \Aero\Church\Models\EventRegistration::class => 'inscripciones: llevan el token del QR personal y datos de invitados',
+    \Aero\Church\Models\Attendance::class => 'asistencia individual (quién fue a qué): dato personal; solo agregados en reportes',
+    \Aero\Church\Models\GroupMember::class => 'pertenencia a grupos: se consulta desde el panel de cada grupo',
+    \Aero\Church\Models\AuditLog::class => 'registro de auditoría: solo lectura en el panel para dirección',
 ];
