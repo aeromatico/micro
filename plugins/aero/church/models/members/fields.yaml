@@ -14,18 +14,18 @@ tabs:
   fields:
     document: {label: Documento (CI), span: left, tab: Datos}
     gender: {label: Género, type: dropdown, span: right, emptyOption: —, tab: Datos}
-    birth_date: {label: Fecha de nacimiento, type: datepicker, mode: date, span: left, tab: Datos}
+    birth_date: {label: Fecha de nacimiento, type: datepicker, mode: date, minDate: '1900-01-01', maxDate: now, yearRange: 110, span: left, tab: Datos}
     civil_status: {label: Estado civil, type: dropdown, span: right, emptyOption: —, tab: Datos}
-    marriage_date: {label: Aniversario de matrimonio, type: datepicker, mode: date, span: left, tab: Datos}
+    marriage_date: {label: Aniversario de matrimonio, type: datepicker, mode: date, minDate: '1900-01-01', maxDate: now, yearRange: 110, span: left, tab: Datos}
     phone: {label: Teléfono (WhatsApp), span: left, tab: Datos}
     email: {label: Correo, span: right, tab: Datos}
     address: {label: Dirección, tab: Datos}
     family_id: {label: Familia, type: dropdown, span: left, emptyOption: — Sin familia —, tab: Familia}
     family_role: {label: Rol en la familia, type: dropdown, span: right, emptyOption: —, tab: Familia}
     guardian_id: {label: Tutor (si es menor), type: dropdown, emptyOption: — Sin tutor —, comment: Recomendado para menores de 18 años., tab: Familia}
-    joined_at: {label: Miembro desde, type: datepicker, mode: date, span: left, tab: Iglesia}
+    joined_at: {label: Miembro desde, type: datepicker, mode: date, minDate: '1900-01-01', maxDate: now, yearRange: 110, span: left, tab: Iglesia}
     baptized: {label: Bautizado, type: switch, span: left, tab: Iglesia}
-    baptism_date: {label: Fecha de bautismo, type: datepicker, mode: date, span: right, tab: Iglesia, trigger: {action: show, field: baptized, condition: checked}}
+    baptism_date: {label: Fecha de bautismo, type: datepicker, mode: date, minDate: '1900-01-01', maxDate: now, yearRange: 110, span: right, tab: Iglesia, trigger: {action: show, field: baptized, condition: checked}}
     consent_messages: {label: Acepta recibir mensajes (WhatsApp), type: switch, span: left, tab: Privacidad}
     consent_data: {label: Autoriza el tratamiento de sus datos, type: switch, span: right, tab: Privacidad}
     notes: {label: Observaciones, type: textarea, size: small, tab: Privacidad}
