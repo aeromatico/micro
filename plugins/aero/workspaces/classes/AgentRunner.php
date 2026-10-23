@@ -43,7 +43,7 @@ class AgentRunner
     protected static ?int $actingUserId = null;
 
     /** Herramientas que cambian cosas: tras ejecutarlas, lo que se leyó antes en el turno ya no vale. */
-    protected const MUTATING = '/(save|publish|set|create|status|undo|run|write|append|update|revert|draft|hire|dismiss|cancel|submit|delegate)/';
+    protected const MUTATING = '/(save|publish|set|create|generate|status|undo|run|write|append|update|revert|draft|hire|dismiss|cancel|submit|delegate)/';
 
     /** ¿Tiene este agente herramientas reales (por sus skills)? */
     public static function isLive(Staff $staff): bool
@@ -85,7 +85,7 @@ class AgentRunner
             }
         }
 
-        return WebTools::tools() + $announced + $public;
+        return WebTools::tools() + ImageTools::tools() + $announced + $public;
     }
 
     /** Herramientas del agente (+ lectura de skills) en formato del registro. */

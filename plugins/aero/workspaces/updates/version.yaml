@@ -66,3 +66,7 @@
 1.20.0:
     - "Violeta ahora también ayuda a poner en marcha gimnasios, inmobiliarias, tiendas y el CRM: pregunta el tipo de negocio y propone llenar los datos juntos, importar con Google Sheets o cargar datos de ejemplo ficticios."
     - seed_onboarding_skills.php
+
+1.21.0:
+    - "Paola ahora genera y busca imágenes: foto real gratis o imagen creada con IA a 4 monedas de bronce por imagen, con aviso del precio antes de generar, reembolso si falla y asignación desde la orquestadora."
+    - seed_image_studio.php

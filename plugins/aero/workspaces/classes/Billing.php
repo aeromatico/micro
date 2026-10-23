@@ -22,11 +22,13 @@ class Billing
 {
     public const TASK = 'encargo';
     public const TURN = 'chat_turn';
+    public const IMAGE = 'imagen';
 
     /** Catálogo cerrado de tipos de tarea que el sistema sabe cobrar. */
     public const TYPES = [
         self::TASK => 'Encargo a la Oficina',
         self::TURN => 'Mensaje de chat (turno real)',
+        self::IMAGE => 'Imagen generada con IA (por imagen)',
     ];
 
     /** ¿Se cobra de verdad? Cobro encendido y Aero.Credits presente. */
