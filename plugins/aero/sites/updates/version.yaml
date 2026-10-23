@@ -492,3 +492,7 @@
 1.88.0:
     - "El rol tenant_admin recibe aero.church.use (sedes, miembros y familias de la iglesia)."
     - grant_church_to_tenant_admin.php
+
+1.89.0:
+    - "El plan PRO ahora incluye el módulo Iglesia (miembros, familias, grupos, reuniones y eventos con inscripción)."
+    - add_church_to_pro_plan.php
