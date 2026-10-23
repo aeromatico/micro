@@ -117,7 +117,7 @@ window.demoVideos = window.demoVideos || function (items) {
         <div class="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_20rem] gap-6 lg:gap-8 items-start lg:items-stretch">
             {# Reproductor #}
             <div class="min-w-0">
-                <div class="group relative mx-auto w-full transition-[max-width] duration-300" :class="vertical ? 'max-w-[20rem] sm:max-w-[22rem]' : 'max-w-none'">
+                <div class="group relative mx-auto w-full transition-[max-width] duration-300" :class="vertical ? 'max-w-[min(15rem,62svh*9/16)] sm:max-w-[22rem]' : 'max-w-none'">
                     <div class="pointer-events-none absolute -inset-4 -z-10 rounded-[2.5rem] opacity-25 transition-opacity duration-500 group-hover:opacity-40"
                          style="background:radial-gradient(60% 70% at 50% 50%, var(--color-accent), transparent 75%);filter:blur(60px)"></div>
                     <div class="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-canvas-elev ring-1 ring-white/10 shadow-[0_40px_90px_-40px_rgba(0,0,0,.7)]"
@@ -133,7 +133,7 @@ window.demoVideos = window.demoVideos || function (items) {
                                 </template>
                                 <template x-if="src.src">
                                     <video x-ref="vid" preload="metadata" playsinline :controls="play" :poster="poster || null"
-                                           class="absolute inset-0 h-full w-full bg-canvas-elev object-cover"
+                                           class="absolute inset-0 h-full w-full bg-canvas-elev object-contain"
                                            @ended="play = false; $refs.vid.currentTime = 0">
                                         <source :src="src.src + (poster ? '' : '#t=0.1')" :type="src.mime">
                                     </video>
@@ -146,7 +146,7 @@ window.demoVideos = window.demoVideos || function (items) {
                                 :aria-label="'Reproducir el video: ' + cur.title">
                             <template x-if="src.youtube">
                                 <img :src="poster || ('https://i.ytimg.com/vi/' + src.youtube + '/maxresdefault.jpg')" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"
-                                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
+                                     class="absolute inset-0 h-full w-full object-contain bg-canvas-elev transition-transform duration-700 group-hover:scale-[1.03]">
                             </template>
                             <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10"></span>
                             <span class="absolute inset-0 grid place-items-center">
@@ -182,11 +182,11 @@ window.demoVideos = window.demoVideos || function (items) {
             <div class="lg:relative min-h-0 min-w-0">
             <ul class="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible lg:overflow-y-auto lg:absolute lg:inset-0 pb-2 lg:pb-0 lg:pr-1 snap-x" role="tablist" aria-label="Videos disponibles">
                 <template x-for="(it, n) in items" :key="n">
-                    <li class="snap-start shrink-0 w-64 lg:w-auto">
+                    <li class="snap-start shrink-0 w-52 sm:w-64 lg:w-auto">
                         <button type="button" role="tab" @click="select(n)" :aria-selected="n === i"
                                 :class="n === i ? 'border-accent bg-canvas-elev' : 'border-edge hover:border-accent/60'"
-                                class="flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-colors">
-                            <span class="relative block h-14 w-24 shrink-0 overflow-hidden rounded-lg bg-canvas-elev2">
+                                class="flex w-full items-center gap-2.5 sm:gap-3 rounded-xl border p-2 sm:p-2.5 text-left transition-colors">
+                            <span class="relative block h-10 w-16 sm:h-14 sm:w-24 shrink-0 overflow-hidden rounded-lg bg-canvas-elev2">
                                 <img x-show="thumb(it)" :src="thumb(it)" alt="" loading="lazy" class="h-full w-full object-cover">
                                 <span class="absolute inset-0 grid place-items-center bg-black/30">
                                     <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
@@ -194,7 +194,7 @@ window.demoVideos = window.demoVideos || function (items) {
                             </span>
                             <span class="min-w-0">
                                 <span class="block text-[11px] font-semibold uppercase tracking-wider text-accent truncate" x-text="it.service"></span>
-                                <span class="block text-sm font-semibold leading-snug" x-text="it.title"></span>
+                                <span class="block text-xs sm:text-sm font-semibold leading-snug line-clamp-2" x-text="it.title"></span>
                             </span>
                         </button>
                     </li>
