@@ -1,0 +1,6 @@
+columns:
+  name: {label: Serie, searchable: true, sortable: true}
+  sermons_count:
+    label: Predicaciones
+    select: "(select count(*) from aero_church_sermons s where s.series_id = aero_church_series.id)"
+  created_at: {label: Alta, type: date, sortable: true}

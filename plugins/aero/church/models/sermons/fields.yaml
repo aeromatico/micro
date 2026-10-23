@@ -1,0 +1,18 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Título, span: left, required: true}
+  preached_on: {label: Fecha, type: datepicker, mode: date, span: right}
+  preacher: {label: Predicador, span: left}
+  series_id: {label: Serie, type: dropdown, span: right, emptyOption: — Sin serie —}
+  topic: {label: Tema, span: left}
+  visibility: {label: Visibilidad, type: dropdown, span: right}
+  media_url: {label: Enlace del video, comment: "YouTube, Facebook o Vimeo (https://…)."}
+  audio_url: {label: Enlace del audio, comment: "Opcional (https://…)."}
+  summary: {label: Resumen, type: textarea, size: large}
+  is_published: {label: Publicada, type: switch}

@@ -1,0 +1,8 @@
+columns:
+  created_at: {label: Creado, type: datetime, sortable: true}
+  title: {label: Título, searchable: true, sortable: true}
+  kind: {label: Tipo, type: selectable, options: {announcement: Comunicado, reminder: Recordatorio, schedule_change: Cambio o cancelación, birthday: Cumpleaños}}
+  status: {label: Estado, type: selectable, options: {draft: Borrador, sending: Enviando, sent: Enviado}, sortable: true}
+  sent_count: {label: Enviados}
+  failed_count: {label: Fallidos}
+  skipped_count: {label: Sin consentimiento}

@@ -1,0 +1,28 @@
+1.0.0:
+    - "Primera versión: iglesias con sedes, familias y miembros (visitantes, nuevos, activos e inactivos), consentimientos de comunicación, protección de menores y roles de pastor, secretaría, tesorería, líder y miembro."
+    - create_church_tables.php
+    - create_church_roles.php
+
+1.1.0:
+    - "Ministerios, células y grupos: líderes y responsables, integrantes con rol, reuniones programadas y registro de asistencia por reunión, con acceso limitado a los grupos de cada líder."
+    - create_church_groups.php
+
+1.2.0:
+    - "Calendario de eventos: cultos, reuniones, retiros y conferencias con inscripción, cupos con lista de espera, QR personal para controlar la asistencia, llegada manual y recordatorios por WhatsApp."
+    - create_church_events.php
+
+1.2.1:
+    - "Arregla que los roles de pastor, secretaría, tesorería y líder no pudieran entrar al panel; además corrige las pantallas de edición de grupos, reuniones y eventos."
+    - fix_church_roles_backend_access.php
+
+1.3.0:
+    - "Diezmos, ofrendas y donaciones: conceptos y campañas con meta, aportes en efectivo, transferencia o QR de Pay, aportes anónimos, confirmación automática del pago, comprobante en PDF bajo demanda, resumen por periodo y registro en Finanzas."
+    - create_church_giving.php
+
+1.4.0:
+    - "Visitantes y oración: formulario de bienvenida con QR, seguimiento de nuevos asistentes con responsable y contactos, peticiones de oración privadas con acompañamiento, y comunicados por WhatsApp segmentados con historial, cumpleaños y aviso de cambios en eventos."
+    - create_church_care.php
+
+1.5.0:
+    - "Sitio público y contenido: biblioteca de predicaciones con series, recursos descargables y noticias, transmisión en vivo y eventos abiertos al público, con visibilidad pública o solo para miembros."
+    - create_church_content.php

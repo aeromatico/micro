@@ -1,0 +1,10 @@
+name: Announcement
+form: $/aero/church/models/announcements/fields.yaml
+modelClass: Aero\Church\Models\Announcement
+defaultRedirect: aero/church/announcements
+create:
+  redirect: aero/church/announcements
+  redirectClose: aero/church/announcements
+update:
+  redirect: aero/church/announcements
+  redirectClose: aero/church/announcements

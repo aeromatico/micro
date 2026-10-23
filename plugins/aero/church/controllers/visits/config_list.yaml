@@ -1,0 +1,11 @@
+title: Visitantes
+list: $/aero/church/models/visits/columns.yaml
+modelClass: Aero\Church\Models\Visit
+recordUrl: aero/church/visits/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,14 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  name: {label: Nombre, span: left, required: true}
+  city: {label: Ciudad, span: right}
+  address: {label: Dirección}
+  phone: {label: Teléfono, span: left}
+  is_main: {label: Sede principal, type: switch, span: left}
+  is_active: {label: Activa, type: switch, span: right, default: true}

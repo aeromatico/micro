@@ -1,0 +1,15 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Título, span: left, required: true}
+  kind: {label: Tipo, type: dropdown, span: right}
+  sermon_id: {label: Predicación relacionada, type: dropdown, span: left, emptyOption: — Ninguna —}
+  visibility: {label: Visibilidad, type: dropdown, span: right}
+  file: {label: Archivo, type: fileupload, mode: file, fileTypes: "pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,mp3", maxFilesize: 20, comment: "Máximo 20 MB. Se sirve solo por el sitio, respetando la visibilidad."}
+  description: {label: Descripción, type: textarea, size: small}
+  is_published: {label: Publicado, type: switch}

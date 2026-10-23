@@ -1,0 +1,10 @@
+columns:
+  name: {label: Concepto, searchable: true, sortable: true}
+  kind: {label: Tipo, type: selectable, options: {tithe: Diezmo, offering: Ofrenda, donation: Donación, campaign: Campaña}}
+  goal_amount: {label: Meta, type: number}
+  raised:
+    label: Recaudado
+    select: "(select coalesce(sum(c.amount),0) from aero_church_contributions c where c.fund_id = aero_church_funds.id and c.status = 'confirmed')"
+    type: number
+  ends_on: {label: Hasta, type: date}
+  is_active: {label: Activo, type: switch}

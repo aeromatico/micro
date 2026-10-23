@@ -1,0 +1,17 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  request: {label: Petición, type: textarea, size: large, required: true}
+  name: {label: Nombre, span: left}
+  phone: {label: Teléfono, span: right}
+  member_id: {label: Miembro, type: dropdown, span: left, emptyOption: — Ninguno —}
+  status: {label: Estado, type: dropdown, span: right}
+  assigned_user_id: {label: Responsable asignado, type: dropdown, span: left, emptyOption: — Sin asignar —, comment: Solo ve la petición quien tenga permiso pastoral o sea el responsable., permissions: [aero.church.use, aero.church.pastor, aero.church.superadmin]}
+  branch_id: {label: Sede, type: dropdown, span: right, emptyOption: — Sin sede —}
+  is_private: {label: Petición privada, type: switch, span: left, default: true}
+  wants_contact: {label: Pide contacto pastoral, type: switch, span: right}

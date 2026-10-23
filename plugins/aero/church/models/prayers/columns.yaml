@@ -1,0 +1,6 @@
+columns:
+  created_at: {label: Fecha, type: date, sortable: true}
+  name: {label: Nombre, searchable: true}
+  status: {label: Estado, type: selectable, options: {open: Abierta, in_prayer: En oración, answered: Respondida, closed: Cerrada}, sortable: true}
+  is_private: {label: Privada, type: switch}
+  wants_contact: {label: Pide contacto, type: switch}

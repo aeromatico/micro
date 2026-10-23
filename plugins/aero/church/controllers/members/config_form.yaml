@@ -1,0 +1,10 @@
+name: Member
+form: $/aero/church/models/members/fields.yaml
+modelClass: Aero\Church\Models\Member
+defaultRedirect: aero/church/members
+create:
+  redirect: aero/church/members
+  redirectClose: aero/church/members
+update:
+  redirect: aero/church/members
+  redirectClose: aero/church/members

@@ -1,0 +1,10 @@
+columns:
+  meeting_date: {label: Fecha, type: date, sortable: true}
+  group:
+    label: Grupo
+    relation: group
+    select: name
+  title: {label: Título, searchable: true}
+  present_count:
+    label: Presentes
+    select: "(select count(*) from aero_church_attendances a where a.meeting_id = aero_church_meetings.id and a.present = 1)"

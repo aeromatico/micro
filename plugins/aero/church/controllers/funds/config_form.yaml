@@ -1,0 +1,10 @@
+name: Fund
+form: $/aero/church/models/funds/fields.yaml
+modelClass: Aero\Church\Models\Fund
+defaultRedirect: aero/church/funds
+create:
+  redirect: aero/church/funds
+  redirectClose: aero/church/funds
+update:
+  redirect: aero/church/funds
+  redirectClose: aero/church/funds

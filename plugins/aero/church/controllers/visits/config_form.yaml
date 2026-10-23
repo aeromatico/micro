@@ -1,0 +1,10 @@
+name: Visit
+form: $/aero/church/models/visits/fields.yaml
+modelClass: Aero\Church\Models\Visit
+defaultRedirect: aero/church/visits
+create:
+  redirect: aero/church/visits
+  redirectClose: aero/church/visits
+update:
+  redirect: aero/church/visits
+  redirectClose: aero/church/visits

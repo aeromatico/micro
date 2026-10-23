@@ -1,0 +1,10 @@
+name: ChurchSettings
+form: $/aero/church/models/churchsettings/fields.yaml
+modelClass: Aero\Church\Models\ChurchSettings
+defaultRedirect: aero/church/givingsettings
+create:
+  redirect: aero/church/givingsettings
+  redirectClose: aero/church/givingsettings
+update:
+  redirect: aero/church/givingsettings
+  redirectClose: aero/church/givingsettings

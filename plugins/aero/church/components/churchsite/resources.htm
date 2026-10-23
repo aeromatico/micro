@@ -1,0 +1,16 @@
+{% set site = __SELF__ %}
+<h1 class="text-3xl font-extrabold tracking-tight text-ink">Recursos</h1>
+{% for kind, list in site.resourcesByKind %}
+    <h2 class="mt-8 text-lg font-bold text-ink">{{ kind }}</h2>
+    <ul class="mt-2 space-y-2">
+        {% for r in list %}{% if r.file %}
+            <li class="rounded-brand border border-surface-border bg-surface-alt p-4">
+                <a href="/iglesia/recurso/{{ r.id }}" class="font-semibold text-brand-primary underline">{{ r.title }}</a>{% if r.visibility == 'members' %} <span class="text-xs text-ink-muted">· Solo miembros</span>{% endif %}
+                {% if r.description %}<p class="mt-1 text-sm text-ink-muted">{{ r.description }}</p>{% endif %}
+            </li>
+        {% endif %}{% endfor %}
+    </ul>
+{% else %}
+    <p class="mt-6 text-ink-muted">Aún no hay recursos publicados.</p>
+{% endfor %}
+{% if not site.isMember and site.portalEnabled %}<p class="mt-8 text-sm text-ink-muted">Hay más material disponible para miembros. <a href="/miembro" class="underline">Ingresa a tu cuenta</a>.</p>{% endif %}

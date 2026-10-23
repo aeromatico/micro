@@ -1,0 +1,10 @@
+name: Group
+form: $/aero/church/models/groups/fields.yaml
+modelClass: Aero\Church\Models\Group
+defaultRedirect: aero/church/groups
+create:
+  redirect: aero/church/groups
+  redirectClose: aero/church/groups
+update:
+  redirect: aero/church/groups
+  redirectClose: aero/church/groups

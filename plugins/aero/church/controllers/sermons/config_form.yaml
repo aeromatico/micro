@@ -1,0 +1,10 @@
+name: Sermon
+form: $/aero/church/models/sermons/fields.yaml
+modelClass: Aero\Church\Models\Sermon
+defaultRedirect: aero/church/sermons
+create:
+  redirect: aero/church/sermons
+  redirectClose: aero/church/sermons
+update:
+  redirect: aero/church/sermons
+  redirectClose: aero/church/sermons

@@ -1,0 +1,11 @@
+columns:
+  visit_date: {label: Fecha, type: date, sortable: true}
+  name: {label: Nombre, searchable: true, sortable: true}
+  phone: {label: Teléfono, searchable: true}
+  status: {label: Estado, type: selectable, options: {new: Nuevo, contacted: Contactado, invited: Invitado, integrated: Integrado, closed: Sin continuidad}, sortable: true}
+  responsible:
+    label: Responsable
+    relation: responsible
+    select: first_name
+  next_action_date: {label: Próxima acción, type: date, sortable: true}
+  source: {label: Origen, type: selectable, options: {manual: Manual, qr: Formulario QR}}

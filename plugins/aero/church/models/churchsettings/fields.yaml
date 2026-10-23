@@ -1,0 +1,25 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+tabs:
+  fields:
+    currency: {label: Moneda por defecto, type: dropdown, span: left, tab: Aportes}
+    receipt_prefix: {label: Prefijo de comprobantes, span: right, tab: Aportes, comment: "Los comprobantes se numeran R-000001, R-000002…"}
+    bank_account_id: {label: Cuenta bancaria para QR, type: dropdown, emptyOption: — Sin cuenta (solo efectivo y transferencia) —, tab: Aportes, comment: Cuenta activa de Pagos que emite los QR de los aportes.}
+    welcome_enabled: {label: Formulario de bienvenida público, type: switch, span: left, tab: Visitantes y oración, comment: "Activa la página /bienvenida de tu sitio."}
+    prayer_enabled: {label: Formulario de oración público, type: switch, span: right, tab: Visitantes y oración, comment: "Activa la página /oracion de tu sitio."}
+    welcome_text: {label: Mensaje de bienvenida, type: textarea, size: small, tab: Visitantes y oración}
+    public_links: {label: Enlaces y códigos QR, type: partial, path: field_public_links, context: update, tab: Visitantes y oración}
+    notify_event_changes: {label: Avisar a los inscritos si un evento cambia o se cancela, type: switch, span: left, default: true, tab: Comunicación}
+    birthday_enabled: {label: Felicitar cumpleaños por WhatsApp, type: switch, span: right, tab: Comunicación, comment: Solo a adultos con consentimiento. Apagado por defecto.}
+    birthday_template: {label: Mensaje de cumpleaños, type: textarea, size: small, tab: Comunicación, comment: "Usa {nombre}. Vacío = mensaje por defecto."}
+    site_enabled: {label: Sitio público de la iglesia, type: switch, span: left, tab: Sitio público, comment: "Activa /predicaciones, /noticias, /eventos, /en-vivo y /recursos."}
+    portal_enabled: {label: Portal del miembro, type: switch, span: right, tab: Sitio público, comment: "Activa /miembro (acceso con cuenta)."}
+    live_title: {label: Título de la transmisión, span: left, tab: Sitio público}
+    live_url: {label: Enlace de la transmisión en vivo, span: right, tab: Sitio público, comment: "YouTube o Facebook (https://…)."}
+    live_schedule: {label: Horarios de transmisión, type: textarea, size: small, tab: Sitio público, comment: "Ej.: Domingos 10:00 y 18:00."}

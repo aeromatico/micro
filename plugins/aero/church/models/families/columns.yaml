@@ -1,0 +1,7 @@
+columns:
+  name: {label: Familia, searchable: true, sortable: true}
+  address: {label: Dirección, searchable: true}
+  members_count:
+    label: Integrantes
+    select: "(select count(*) from aero_church_members m where m.family_id = aero_church_families.id and m.deleted_at is null)"
+  created_at: {label: Alta, type: date, sortable: true}

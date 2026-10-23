@@ -1,0 +1,10 @@
+name: Meeting
+form: $/aero/church/models/meetings/fields.yaml
+modelClass: Aero\Church\Models\Meeting
+defaultRedirect: aero/church/meetings
+create:
+  redirect: aero/church/meetings
+  redirectClose: aero/church/meetings
+update:
+  redirect: aero/church/meetings
+  redirectClose: aero/church/meetings

@@ -1,0 +1,7 @@
+fields:
+  group_id: {label: Grupo, type: dropdown, span: left, required: true}
+  meeting_date: {label: Fecha, type: datepicker, mode: date, span: right, required: true}
+  title: {label: Título o tema, span: left}
+  start_time: {label: Hora (HH:MM), span: right}
+  location: {label: Lugar}
+  notes: {label: Notas, type: textarea, size: small}

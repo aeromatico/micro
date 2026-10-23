@@ -1,0 +1,15 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Título, span: left, required: true}
+  kind: {label: Tipo, type: dropdown, span: right}
+  body: {label: Contenido, type: textarea, size: giant}
+  visibility: {label: Visibilidad, type: dropdown, span: left}
+  published_at: {label: Fecha de publicación, type: datepicker, mode: datetime, span: right, comment: Vacío = al publicar.}
+  is_published: {label: Publicada, type: switch, span: left}
+  is_pinned: {label: Fijar arriba, type: switch, span: right}

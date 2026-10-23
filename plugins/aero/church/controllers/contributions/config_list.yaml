@@ -1,0 +1,11 @@
+title: Aportes
+list: $/aero/church/models/contributions/columns.yaml
+modelClass: Aero\Church\Models\Contribution
+recordUrl: aero/church/contributions/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,11 @@
+title: Noticias
+list: $/aero/church/models/posts/columns.yaml
+modelClass: Aero\Church\Models\Post
+recordUrl: aero/church/posts/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

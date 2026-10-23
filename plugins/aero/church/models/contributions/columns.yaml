@@ -1,0 +1,12 @@
+columns:
+  date: {label: Fecha, type: date, sortable: true}
+  fund:
+    label: Concepto
+    relation: fund
+    select: name
+  donor_label: {label: Aportante}
+  amount: {label: Monto, type: number, sortable: true}
+  currency: {label: Mon.}
+  method: {label: Forma de pago, type: selectable, options: {cash: Efectivo, transfer: Transferencia bancaria, qr: QR bancario}}
+  status: {label: Estado, type: selectable, options: {pending: Pendiente, confirmed: Confirmado, cancelled: Anulado}, sortable: true}
+  receipt_number: {label: Comprobante}

@@ -1,0 +1,10 @@
+name: Resource
+form: $/aero/church/models/resources/fields.yaml
+modelClass: Aero\Church\Models\Resource
+defaultRedirect: aero/church/resources
+create:
+  redirect: aero/church/resources
+  redirectClose: aero/church/resources
+update:
+  redirect: aero/church/resources
+  redirectClose: aero/church/resources

@@ -1,0 +1,21 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  name: {label: Nombre, span: left, required: true}
+  status: {label: Estado, type: dropdown, span: right}
+  phone: {label: Teléfono / WhatsApp, span: left}
+  email: {label: Correo, span: right}
+  visit_date: {label: Fecha de visita, type: datepicker, mode: date, span: left, default: now}
+  branch_id: {label: Sede, type: dropdown, span: right, emptyOption: — Sin sede —}
+  responsible_id: {label: Responsable del seguimiento, type: dropdown, span: left, emptyOption: — Sin asignar —}
+  interested_group_id: {label: Grupo de interés, type: dropdown, span: right, emptyOption: — Ninguno —}
+  how_heard: {label: Cómo supo de la iglesia}
+  interest: {label: Interés, type: textarea, size: small}
+  consent_messages: {label: Acepta mensajes por WhatsApp, type: switch, span: left}
+  consent_data: {label: Autoriza el uso de sus datos, type: switch, span: right}
+  notes: {label: Observaciones, type: textarea, size: small}

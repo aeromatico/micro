@@ -1,0 +1,11 @@
+title: Miembros
+list: $/aero/church/models/members/columns.yaml
+modelClass: Aero\Church\Models\Member
+recordUrl: aero/church/members/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

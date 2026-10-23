@@ -1,0 +1,10 @@
+name: Branch
+form: $/aero/church/models/branches/fields.yaml
+modelClass: Aero\Church\Models\Branch
+defaultRedirect: aero/church/branches
+create:
+  redirect: aero/church/branches
+  redirectClose: aero/church/branches
+update:
+  redirect: aero/church/branches
+  redirectClose: aero/church/branches

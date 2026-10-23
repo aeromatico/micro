@@ -1,0 +1,31 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  fund_id: {label: Concepto, type: dropdown, span: left, required: true}
+  branch_id: {label: Sede, type: dropdown, span: right, emptyOption: — Sin sede —}
+  amount: {label: Monto, span: left, required: true}
+  currency: {label: Moneda, type: dropdown, span: right, default: BOB}
+  date: {label: Fecha, type: datepicker, mode: date, span: left, required: true}
+  method: {label: Forma de pago, type: dropdown, span: right, default: cash, comment: Efectivo y transferencia quedan confirmados al guardar; el QR queda pendiente hasta que se pague.}
+  is_anonymous: {label: Aporte anónimo, type: switch, comment: No se guarda quién aportó ni se emite comprobante.}
+  member_id:
+    label: Miembro
+    type: dropdown
+    span: left
+    emptyOption: — Ninguno —
+    trigger: {action: hide, field: is_anonymous, condition: checked}
+  donor_name:
+    label: Aportante externo
+    span: right
+    comment: Solo si no es miembro.
+    trigger: {action: hide, field: is_anonymous, condition: checked}
+  reference:
+    label: Referencia bancaria
+    comment: Número de la transferencia, si aplica.
+    trigger: {action: show, field: method, condition: value[transfer]}
+  notes: {label: Notas, type: textarea, size: small}

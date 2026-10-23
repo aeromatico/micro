@@ -1,0 +1,10 @@
+columns:
+  preached_on: {label: Fecha, type: date, sortable: true}
+  title: {label: Título, searchable: true, sortable: true}
+  preacher: {label: Predicador, searchable: true}
+  series:
+    label: Serie
+    relation: series
+    select: name
+  visibility: {label: Visibilidad, type: selectable, options: {public: Público, members: Solo miembros}}
+  is_published: {label: Publicada, type: switch}

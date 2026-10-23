@@ -1,0 +1,11 @@
+title: Reuniones
+list: $/aero/church/models/meetings/columns.yaml
+modelClass: Aero\Church\Models\Meeting
+recordUrl: aero/church/meetings/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

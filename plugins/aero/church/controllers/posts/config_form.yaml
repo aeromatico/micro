@@ -1,0 +1,10 @@
+name: Post
+form: $/aero/church/models/posts/fields.yaml
+modelClass: Aero\Church\Models\Post
+defaultRedirect: aero/church/posts
+create:
+  redirect: aero/church/posts
+  redirectClose: aero/church/posts
+update:
+  redirect: aero/church/posts
+  redirectClose: aero/church/posts

@@ -1,0 +1,20 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Título (interno), span: left, required: true}
+  kind: {label: Tipo, type: dropdown, span: right}
+  body: {label: Mensaje, type: textarea, size: large, required: true, comment: "Usa {nombre} para saludar por su nombre."}
+  audience[statuses]:
+    label: Quiénes (estado)
+    type: checkboxlist
+    options: getAudienceStatusesOptions
+    span: left
+    comment: Sin marcar = miembros activos y nuevos.
+  audience[branch_id]: {label: Solo de la sede, type: dropdown, options: getAudienceBranchIdOptions, span: right, emptyOption: — Todas —}
+  audience[group_id]: {label: Solo del grupo, type: dropdown, options: getAudienceGroupIdOptions, span: left, emptyOption: — Todos —}
+  audience[event_id]: {label: Solo inscritos al evento, type: dropdown, options: getAudienceEventIdOptions, span: right, emptyOption: — Ninguno —}

@@ -1,0 +1,10 @@
+name: Family
+form: $/aero/church/models/families/fields.yaml
+modelClass: Aero\Church\Models\Family
+defaultRedirect: aero/church/families
+create:
+  redirect: aero/church/families
+  redirectClose: aero/church/families
+update:
+  redirect: aero/church/families
+  redirectClose: aero/church/families

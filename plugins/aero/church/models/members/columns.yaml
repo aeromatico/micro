@@ -1,0 +1,18 @@
+columns:
+  first_name: {label: Nombres, searchable: true, sortable: true}
+  last_name: {label: Apellidos, searchable: true, sortable: true}
+  status:
+    label: Estado
+    type: selectable
+    sortable: true
+    options: {visitor: Visitante, new: Nuevo asistente, active: Miembro activo, inactive: Miembro inactivo}
+  branch:
+    label: Sede
+    relation: branch
+    select: name
+  family:
+    label: Familia
+    relation: family
+    select: name
+  phone: {label: Teléfono, searchable: true}
+  birth_date: {label: Nacimiento, type: date, sortable: true}

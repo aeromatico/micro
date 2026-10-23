@@ -1,0 +1,18 @@
+{% set inp = 'w-full rounded-brand border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-primary' %}
+{% set site = __SELF__ %}
+<div class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+    <nav class="mb-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ink-muted" aria-label="Secciones">
+        <a href="/predicaciones" class="{{ site.mode == 'sermons' ? 'text-brand-primary' }} hover:text-ink">Predicaciones</a>
+        <a href="/noticias" class="{{ site.mode == 'news' ? 'text-brand-primary' }} hover:text-ink">Noticias</a>
+        <a href="/eventos" class="{{ site.mode == 'events' ? 'text-brand-primary' }} hover:text-ink">Eventos</a>
+        <a href="/en-vivo" class="{{ site.mode == 'live' ? 'text-brand-primary' }} hover:text-ink">En vivo</a>
+        <a href="/recursos" class="{{ site.mode == 'resources' ? 'text-brand-primary' }} hover:text-ink">Recursos</a>
+        {% if site.portalEnabled %}<a href="/miembro" class="ml-auto hover:text-ink">{{ site.user ? 'Mi portal' : 'Ingresar' }}</a>{% endif %}
+    </nav>
+
+    {% if site.mode == 'news' %}{% partial '@news' %}
+    {% elseif site.mode == 'live' %}{% partial '@live' %}
+    {% elseif site.mode == 'events' %}{% partial '@events' %}
+    {% elseif site.mode == 'resources' %}{% partial '@resources' %}
+    {% else %}{% partial '@sermons' %}{% endif %}
+</div>

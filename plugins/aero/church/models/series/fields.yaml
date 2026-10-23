@@ -1,0 +1,10 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  name: {label: Nombre, span: left, required: true}
+  description: {label: Descripción, type: textarea, size: small}

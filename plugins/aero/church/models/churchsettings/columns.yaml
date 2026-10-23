@@ -1,0 +1,4 @@
+columns:
+  tenant_id: {label: Iglesia}
+  currency: {label: Moneda}
+  receipt_prefix: {label: Prefijo de comprobante}

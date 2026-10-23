@@ -1,0 +1,11 @@
+title: Recursos
+list: $/aero/church/models/resources/columns.yaml
+modelClass: Aero\Church\Models\Resource
+recordUrl: aero/church/resources/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

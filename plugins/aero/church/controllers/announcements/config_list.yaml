@@ -1,0 +1,11 @@
+title: Comunicados
+list: $/aero/church/models/announcements/columns.yaml
+modelClass: Aero\Church\Models\Announcement
+recordUrl: aero/church/announcements/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

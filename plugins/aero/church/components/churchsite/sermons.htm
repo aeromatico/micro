@@ -1,0 +1,51 @@
+{% set site = __SELF__ %}
+{% if site.item %}
+    {% set s = site.item %}
+    <a href="/predicaciones" class="text-sm text-ink-muted hover:text-ink">← Predicaciones</a>
+    <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-ink">{{ s.title }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ s.preacher }}{% if s.preached_on %} · {{ s.preached_on|date('d/m/Y') }}{% endif %}{% if s.series %} · Serie: {{ s.series.name }}{% endif %}</p>
+    {% if site.membersOnly %}
+        <div class="mt-6 rounded-brand border border-surface-border bg-surface-alt p-6 text-sm text-ink">
+            Esta enseñanza es solo para miembros. {% if site.portalEnabled %}<a href="/miembro" class="font-semibold underline">Ingresa a tu cuenta</a> para verla.{% endif %}
+        </div>
+    {% else %}
+        {% if s.embedSrc %}
+            <div class="mt-6 aspect-video overflow-hidden rounded-brand border border-surface-border">
+                <iframe src="{{ s.embedSrc }}" class="h-full w-full" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="{{ s.title }}"></iframe>
+            </div>
+        {% elseif s.media_url %}
+            <p class="mt-6"><a href="{{ s.media_url }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-primary underline">Ver el video</a></p>
+        {% endif %}
+        {% if s.audio_url %}<p class="mt-3"><a href="{{ s.audio_url }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-primary underline">Escuchar el audio</a></p>{% endif %}
+        {% if s.summary %}<div class="mt-6 max-w-2xl whitespace-pre-line text-ink">{{ s.summary }}</div>{% endif %}
+        {% if site.items|length %}
+            <h2 class="mt-8 text-lg font-bold text-ink">Material de estudio</h2>
+            <ul class="mt-2 space-y-1">{% for r in site.items %}{% if r.file %}<li><a href="/iglesia/recurso/{{ r.id }}" class="text-brand-primary underline">{{ r.title }}</a></li>{% endif %}{% endfor %}</ul>
+        {% endif %}
+    {% endif %}
+{% else %}
+    <h1 class="text-3xl font-extrabold tracking-tight text-ink">Predicaciones</h1>
+    <form method="get" class="mt-5 flex flex-wrap gap-3" role="search">
+        <input type="search" name="q" value="{{ site.filters.q }}" placeholder="Buscar por título, tema o predicador" class="min-w-[16rem] flex-1 rounded-brand border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink" aria-label="Buscar">
+        {% if site.facets.series %}<select name="series" class="rounded-brand border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink" aria-label="Serie"><option value="">Todas las series</option>{% for id, name in site.facets.series %}<option value="{{ id }}" {{ site.filters.series == id ? 'selected' }}>{{ name }}</option>{% endfor %}</select>{% endif %}
+        {% if site.facets.preachers %}<select name="preacher" class="rounded-brand border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink" aria-label="Predicador"><option value="">Todos los predicadores</option>{% for p in site.facets.preachers %}<option value="{{ p }}" {{ site.filters.preacher == p ? 'selected' }}>{{ p }}</option>{% endfor %}</select>{% endif %}
+        <button class="rounded-brand bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90" type="submit">Buscar</button>
+    </form>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {% for s in site.items %}
+            <a href="/predicaciones/{{ s.slug }}" class="block rounded-brand border border-surface-border bg-surface-alt p-5 hover:border-brand-primary">
+                <p class="text-xs text-ink-muted">{% if s.preached_on %}{{ s.preached_on|date('d/m/Y') }}{% endif %}{% if s.visibility == 'members' %} · Solo miembros{% endif %}</p>
+                <h2 class="mt-1 font-bold text-ink">{{ s.title }}</h2>
+                <p class="mt-1 text-sm text-ink-muted">{{ s.preacher }}{% if s.series %} · {{ s.series.name }}{% endif %}</p>
+            </a>
+        {% else %}
+            <p class="text-ink-muted">No hay predicaciones publicadas todavía.</p>
+        {% endfor %}
+    </div>
+    {% if site.items.lastPage > 1 %}
+        <div class="mt-8 flex gap-4 text-sm">
+            {% if site.items.currentPage > 1 %}<a class="underline" href="?page={{ site.items.currentPage - 1 }}&q={{ site.filters.q|url_encode }}">← Anteriores</a>{% endif %}
+            {% if site.items.hasMorePages %}<a class="underline" href="?page={{ site.items.currentPage + 1 }}&q={{ site.filters.q|url_encode }}">Siguientes →</a>{% endif %}
+        </div>
+    {% endif %}
+{% endif %}

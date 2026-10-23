@@ -1,0 +1,10 @@
+name: Series
+form: $/aero/church/models/series/fields.yaml
+modelClass: Aero\Church\Models\Series
+defaultRedirect: aero/church/series
+create:
+  redirect: aero/church/series
+  redirectClose: aero/church/series
+update:
+  redirect: aero/church/series
+  redirectClose: aero/church/series

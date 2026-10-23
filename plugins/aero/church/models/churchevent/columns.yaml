@@ -1,0 +1,13 @@
+columns:
+  starts_at: {label: Inicio, type: datetime, sortable: true}
+  title: {label: Evento, searchable: true, sortable: true}
+  type: {label: Tipo, type: selectable, options: {service: Culto, meeting: Reunión, retreat: Retiro, conference: Conferencia, special: Actividad especial}}
+  location: {label: Lugar, searchable: true}
+  registered_count:
+    label: Inscritos
+    select: "(select count(*) from aero_church_event_registrations r where r.event_id = aero_church_events.id and r.status = 'registered')"
+  attended_count:
+    label: Llegaron
+    select: "(select count(*) from aero_church_event_registrations r where r.event_id = aero_church_events.id and r.status = 'registered' and r.checked_in_at is not null)"
+  capacity: {label: Cupo}
+  status: {label: Estado, type: selectable, options: {scheduled: Programado, cancelled: Cancelado}}

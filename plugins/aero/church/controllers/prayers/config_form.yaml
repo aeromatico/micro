@@ -1,0 +1,10 @@
+name: Prayer
+form: $/aero/church/models/prayers/fields.yaml
+modelClass: Aero\Church\Models\Prayer
+defaultRedirect: aero/church/prayers
+create:
+  redirect: aero/church/prayers
+  redirectClose: aero/church/prayers
+update:
+  redirect: aero/church/prayers
+  redirectClose: aero/church/prayers

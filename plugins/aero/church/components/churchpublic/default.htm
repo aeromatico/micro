@@ -1,0 +1,38 @@
+{% set inp = 'w-full rounded-brand border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-brand-primary' %}
+<div class="mx-auto max-w-xl px-4 py-10 sm:px-6">
+    <h1 class="text-3xl font-extrabold tracking-tight text-ink">
+        {% if __SELF__.mode == 'prayer' %}Petición de oración{% else %}¡Bienvenido a {{ __SELF__.churchName }}!{% endif %}
+    </h1>
+    <p class="mt-2 text-ink-muted">
+        {% if __SELF__.mode == 'prayer' %}Cuéntanos por qué quieres que oremos. Lo trataremos con respeto y reserva.
+        {% elseif __SELF__.settings.welcome_text %}{{ __SELF__.settings.welcome_text }}
+        {% else %}Nos alegra que nos visites. Déjanos tus datos para saludarte y acompañarte.{% endif %}
+    </p>
+
+    <div id="church-form" class="mt-6 rounded-brand border border-surface-border bg-surface-alt p-5">
+    {% if __SELF__.mode == 'prayer' %}
+        <form class="flex flex-col gap-3" data-request="{{ __SELF__ }}::onSubmitPrayer" data-request-flash data-attach-loading>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+            <input type="text" name="name" maxlength="120" placeholder="Tu nombre (opcional)" class="{{ inp }}" aria-label="Nombre" autocomplete="name">
+            <textarea name="request" rows="5" required maxlength="2000" placeholder="¿Por qué podemos orar?" class="{{ inp }}" aria-label="Petición"></textarea>
+            <input type="tel" name="phone" placeholder="Teléfono / WhatsApp (solo si quieres que te contactemos)" class="{{ inp }}" aria-label="Teléfono" autocomplete="tel">
+            <label class="flex items-start gap-2 text-sm text-ink"><input type="checkbox" name="is_private" value="1" checked class="mt-1"> Mantener mi petición privada (solo la verá el equipo pastoral)</label>
+            <label class="flex items-start gap-2 text-sm text-ink"><input type="checkbox" name="wants_contact" value="1" class="mt-1"> Quiero que me contacte un pastor</label>
+            <label class="flex items-start gap-2 text-sm text-ink"><input type="checkbox" name="consent_data" value="1" required class="mt-1"> Autorizo que se guarde mi petición y mis datos para acompañarme</label>
+            <button type="submit" class="rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90">Enviar petición</button>
+        </form>
+    {% else %}
+        <form class="flex flex-col gap-3" data-request="{{ __SELF__ }}::onSubmitWelcome" data-request-flash data-attach-loading>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+            <input type="text" name="name" required maxlength="120" placeholder="Tu nombre" class="{{ inp }}" aria-label="Nombre" autocomplete="name">
+            <input type="tel" name="phone" placeholder="Teléfono / WhatsApp" class="{{ inp }}" aria-label="Teléfono" autocomplete="tel">
+            <input type="email" name="email" placeholder="Correo (opcional)" class="{{ inp }}" aria-label="Correo" autocomplete="email">
+            <input type="text" name="how_heard" maxlength="200" placeholder="¿Cómo supiste de nosotros?" class="{{ inp }}" aria-label="Cómo supiste de nosotros">
+            <textarea name="interest" rows="3" maxlength="1000" placeholder="¿Qué te gustaría conocer? (ministerios, grupos, reuniones…)" class="{{ inp }}" aria-label="Interés"></textarea>
+            <label class="flex items-start gap-2 text-sm text-ink"><input type="checkbox" name="consent_messages" value="1" class="mt-1"> Acepto recibir mensajes por WhatsApp de la iglesia</label>
+            <label class="flex items-start gap-2 text-sm text-ink"><input type="checkbox" name="consent_data" value="1" required class="mt-1"> Autorizo que se guarden mis datos para contactarme</label>
+            <button type="submit" class="rounded-brand bg-brand-primary px-5 py-3 text-sm font-semibold text-white hover:opacity-90">Enviar</button>
+        </form>
+    {% endif %}
+    </div>
+</div>

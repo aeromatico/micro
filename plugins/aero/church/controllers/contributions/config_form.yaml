@@ -1,0 +1,10 @@
+name: Contribution
+form: $/aero/church/models/contributions/fields.yaml
+modelClass: Aero\Church\Models\Contribution
+defaultRedirect: aero/church/contributions
+create:
+  redirect: aero/church/contributions
+  redirectClose: aero/church/contributions
+update:
+  redirect: aero/church/contributions
+  redirectClose: aero/church/contributions

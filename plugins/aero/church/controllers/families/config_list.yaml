@@ -1,0 +1,11 @@
+title: Familias
+list: $/aero/church/models/families/columns.yaml
+modelClass: Aero\Church\Models\Family
+recordUrl: aero/church/families/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

@@ -1,0 +1,16 @@
+{% set site = __SELF__ %}
+<h1 class="text-3xl font-extrabold tracking-tight text-ink">{{ site.settings.live_title ?: 'Transmisión en vivo' }}</h1>
+{% if site.settings.live_schedule %}<p class="mt-2 whitespace-pre-line text-ink-muted">{{ site.settings.live_schedule }}</p>{% endif %}
+{% if site.liveSrc %}
+    <div class="mt-6 aspect-video overflow-hidden rounded-brand border border-surface-border">
+        <iframe src="{{ site.liveSrc }}" class="h-full w-full" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="Transmisión en vivo"></iframe>
+    </div>
+{% elseif site.settings.live_url %}
+    <p class="mt-6"><a href="{{ site.settings.live_url }}" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-primary underline">Ver la transmisión</a></p>
+{% else %}
+    <p class="mt-6 text-ink-muted">Por ahora no hay una transmisión configurada.</p>
+{% endif %}
+{% if site.items|length %}
+    <h2 class="mt-10 text-lg font-bold text-ink">Próximos eventos</h2>
+    <ul class="mt-2 space-y-1 text-sm">{% for e in site.items %}<li><a class="text-brand-primary underline" href="/eventos/{{ e.id }}">{{ e.title }}</a> — {{ e.starts_at|date('d/m H:i') }}</li>{% endfor %}</ul>
+{% endif %}

@@ -1,0 +1,11 @@
+title: Eventos
+list: $/aero/church/models/churchevent/columns.yaml
+modelClass: Aero\Church\Models\ChurchEvent
+recordUrl: aero/church/events/update/:id
+noRecordsMessage: No hay eventos.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

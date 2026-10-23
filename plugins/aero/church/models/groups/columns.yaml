@@ -1,0 +1,14 @@
+columns:
+  name: {label: Grupo, searchable: true, sortable: true}
+  type: {label: Tipo, type: selectable, options: {ministry: Ministerio, cell: Célula, youth: Jóvenes, children: Niños, other: Otro}}
+  leader:
+    label: Líder
+    relation: leader
+    select: first_name
+  members_count:
+    label: Integrantes
+    select: "(select count(*) from aero_church_group_members gm where gm.group_id = aero_church_groups.id and gm.left_at is null)"
+  meetings_count:
+    label: Reuniones
+    select: "(select count(*) from aero_church_meetings m where m.group_id = aero_church_groups.id)"
+  is_active: {label: Activo, type: switch}

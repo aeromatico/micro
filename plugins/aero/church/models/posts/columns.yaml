@@ -1,0 +1,7 @@
+columns:
+  published_at: {label: Fecha, type: datetime, sortable: true}
+  title: {label: Título, searchable: true, sortable: true}
+  kind: {label: Tipo, type: selectable, options: {news: Noticia, notice: Comunicado}}
+  visibility: {label: Visibilidad, type: selectable, options: {public: Público, members: Solo miembros}}
+  is_pinned: {label: Fijada, type: switch}
+  is_published: {label: Publicada, type: switch}

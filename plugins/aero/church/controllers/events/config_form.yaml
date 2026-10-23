@@ -1,0 +1,10 @@
+name: Evento
+form: $/aero/church/models/churchevent/fields.yaml
+modelClass: Aero\Church\Models\ChurchEvent
+defaultRedirect: aero/church/events
+create:
+  redirect: aero/church/events
+  redirectClose: aero/church/events
+update:
+  redirect: aero/church/events
+  redirectClose: aero/church/events

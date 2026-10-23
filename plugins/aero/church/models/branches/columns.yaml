@@ -1,0 +1,6 @@
+columns:
+  name: {label: Sede, searchable: true, sortable: true}
+  city: {label: Ciudad, searchable: true}
+  phone: {label: Teléfono}
+  is_main: {label: Principal, type: switch}
+  is_active: {label: Activa, type: switch}

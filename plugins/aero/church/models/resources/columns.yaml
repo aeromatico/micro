@@ -1,0 +1,6 @@
+columns:
+  title: {label: Recurso, searchable: true, sortable: true}
+  kind: {label: Tipo, type: selectable, options: {study: Estudio bíblico, group_guide: Guía para grupos, ministry: Recurso de ministerio}}
+  visibility: {label: Visibilidad, type: selectable, options: {public: Público, members: Solo miembros}}
+  is_published: {label: Publicado, type: switch}
+  created_at: {label: Alta, type: date, sortable: true}

@@ -1,0 +1,23 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  name: {label: Nombre, span: left, required: true}
+  type: {label: Tipo, type: dropdown, span: right, default: ministry}
+  leader_id: {label: Líder (miembro), type: dropdown, span: left, emptyOption: — Sin líder —}
+  branch_id: {label: Sede, type: dropdown, span: right, emptyOption: — Todas —}
+  backend_user_id:
+    label: Responsable en el panel
+    type: dropdown
+    emptyOption: — Ninguno —
+    comment: Este usuario (rol de líder) verá y administrará solo este grupo.
+    permissions: [aero.church.use, aero.church.pastor, aero.church.secretary, aero.church.superadmin]
+  meeting_day: {label: Día de reunión, type: dropdown, span: left, emptyOption: —}
+  meeting_time: {label: Hora (HH:MM), span: right}
+  location: {label: Lugar}
+  description: {label: Descripción, type: textarea, size: small}
+  is_active: {label: Activo, type: switch, default: true}

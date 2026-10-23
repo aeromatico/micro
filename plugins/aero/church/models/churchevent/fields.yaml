@@ -1,0 +1,22 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Título, span: left, required: true}
+  type: {label: Tipo, type: dropdown, span: right}
+  starts_at: {label: Inicio, type: datepicker, mode: datetime, span: left, required: true}
+  ends_at: {label: Fin, type: datepicker, mode: datetime, span: right}
+  location: {label: Lugar, span: left}
+  branch_id: {label: Sede, type: dropdown, span: right, emptyOption: — Todas —}
+  group_id: {label: Ministerio organizador, type: dropdown, span: left, emptyOption: — Ninguno —}
+  responsible_id: {label: Responsable, type: dropdown, span: right, emptyOption: — Sin responsable —}
+  capacity: {label: Cupo máximo, span: left, comment: Vacío = sin límite. Al llenarse las inscripciones pasan a lista de espera.}
+  reminder_hours: {label: Recordatorio (horas antes), span: right, comment: Vacío = sin recordatorio. Solo a quien aceptó recibir mensajes.}
+  is_public: {label: Mostrar en el sitio público, type: switch, span: right, comment: Aparece en /eventos y admite inscripción desde la web.}
+  registration_open: {label: Inscripciones abiertas, type: switch, span: left, default: true}
+  status: {label: Estado, type: dropdown, span: right}
+  description: {label: Descripción, type: textarea, size: small}
