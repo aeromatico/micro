@@ -1,0 +1,14 @@
+url = "/predicaciones/:slug?"
+layout = "base"
+title = "Predicaciones"
+description = "Predicaciones"
+
+[session]
+
+[authentication]
+
+[churchSite]
+mode = "sermons"
+slug = "{{ :slug }}"
+==
+{% component 'churchSite' %}

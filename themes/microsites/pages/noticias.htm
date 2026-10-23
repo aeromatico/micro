@@ -1,0 +1,14 @@
+url = "/noticias/:slug?"
+layout = "base"
+title = "Noticias"
+description = "Noticias"
+
+[session]
+
+[authentication]
+
+[churchSite]
+mode = "news"
+slug = "{{ :slug }}"
+==
+{% component 'churchSite' %}

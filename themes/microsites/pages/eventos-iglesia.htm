@@ -1,0 +1,14 @@
+url = "/eventos/:slug?"
+layout = "base"
+title = "Eventos"
+description = "Eventos"
+
+[session]
+
+[authentication]
+
+[churchSite]
+mode = "events"
+slug = "{{ :slug }}"
+==
+{% component 'churchSite' %}

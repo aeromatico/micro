@@ -9,6 +9,7 @@ module.exports = {
         '../../plugins/aero/shop/components/**/*.htm',
         '../../plugins/aero/crm/components/**/*.htm',
         '../../plugins/aero/docs/components/**/*.htm',
+        '../../plugins/aero/church/components/**/*.htm',
         '../../plugins/aero/gym/components/**/*.htm',
         '../../plugins/aero/office/components/**/*.htm',
         '../../plugins/aero/realestate/components/**/*.htm',
