@@ -5,11 +5,18 @@ use Aero\Church\Models\AuditLog;
 /** Escribe en el historial de auditoría. NUNCA lanza: un fallo de auditoría no puede romper la operación. */
 class Audit
 {
+    /** Los sembradores de demostración lo activan para no llenar el historial con altas masivas. */
+    public static bool $muted = false;
+
     /** Campos que no se anotan ni como nombre (ruido). */
     protected const IGNORE = ['updated_at', 'created_at', 'deleted_at', 'tenant_id'];
 
     public static function record(string $action, ?string $type, ?int $id, string $summary, ?int $tenantId = null, array $fields = []): void
     {
+        if (self::$muted) {
+            return;
+        }
+
         try {
             $user = \BackendAuth::getUser();
             $label = $user ? trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: $user->login : null;

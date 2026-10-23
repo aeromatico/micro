@@ -85,6 +85,7 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('church:remind-events', \Aero\Church\Console\RemindEvents::class);
+        $this->registerConsoleCommand('church:demo', \Aero\Church\Console\DemoCommand::class);
         $this->registerConsoleCommand('church:birthdays', \Aero\Church\Console\SendBirthdays::class);
         $this->registerConsoleCommand('church:sync-contributions', \Aero\Church\Console\SyncContributions::class);
     }
