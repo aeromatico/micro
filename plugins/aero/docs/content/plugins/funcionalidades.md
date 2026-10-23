@@ -261,3 +261,19 @@ descripción comercial general.
 | Vacunas y desparasitaciones | Esquema del negocio, calendario, próxima dosis y aviso al cliente o tutor | Menos olvidos de refuerzos; aviso opcional por WhatsApp o correo | Refuerzo anual, recordatorio de desparasitación |
 | Reservas conectadas | «Iniciar consulta» desde la reserva y agendar el control desde la ficha | La reserva pasa a atendida al firmar | Agenda del día del profesional |
 | Archivos, documentos e importación | Laboratorio e imágenes cifrados, certificados con variables, historias anteriores con revisión | Los datos son siempre del negocio y se exportan completos | Certificado médico, pasar historias del sistema anterior |
+
+## Iglesia
+
+**Funcionalidad:** gestión integral de iglesias y congregaciones: miembros y familias, ministerios y células, eventos con inscripción y asistencia por QR, diezmos y ofrendas con QR bancario, seguimiento de visitantes, peticiones de oración, comunicados por WhatsApp, sitio público y portal del miembro.
+
+**Descripción breve:** un solo sistema para que pastores, secretaría, tesorería y líderes trabajen cada uno con lo suyo, con varias sedes y la información de cada iglesia separada.
+
+**Cualidades de impacto:**
+- Cada rol ve solo lo que le corresponde: el pastor ve cifras sin nombres, tesorería ve los aportes, el líder solo su grupo.
+- Los aportes por QR se confirman solos y pasan a la contabilidad.
+- Protección de menores y de las peticiones de oración, con consentimiento y registro de auditoría.
+- Reportes y resumen exportables a Excel y PDF.
+
+**Casos de uso:** iglesias con una o varias sedes que necesitan ordenar su membresía, recibir diezmos y ofrendas por QR, dar seguimiento a quienes las visitan y mantener informada a la congregación.
+
+**Versión documentada:** 1.6.0
