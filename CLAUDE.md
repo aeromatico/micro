@@ -55,5 +55,10 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 - Antes de crear un plugin, comprobar si la función cabe en uno existente (`ls plugins/aero`).
 - Terminar una tarea = **verificado**: migración corrida, ruta/pantalla probada con un usuario del rol correcto, no solo "el código existe".
 
+## Memoria y continuidad
+- Índice: `~/.claude/projects/-www-wwwroot-micro-clouds-com-bo/memory/MEMORY.md` (se carga solo; ≤120 líneas; verificar con `bin/memory-lint`). Gotchas de código van en `.claude/skills/aero-plugin/references/gotchas.md`, no en memoria.
+- Un `project_{plugin}_plugin.md` = **estado actual** (versión, qué hay, trampas, pendiente), ≤5 KB. Al cerrar una fase se **sobrescribe**; el historial es `git log`. Resuelto/obsoleto → `memory/archive/`.
+- Hooks `session-handoff.sh`: al iniciar/compactar inyectan `.claude/HANDOFF.md` (notas escritas por ti) + foto automática del repo. Antes de cerrar o si el contexto va largo, sobrescribe `.claude/HANDOFF.md` con: qué se hacía, qué sigue, trampas. Verifica con `git log` antes de confiar.
+
 ## Skills útiles
 `/aero-plugin` · `/docs-plugin` · `/form-guide` · `/service-offer` · `/pines` · `/october-*` (piezas sueltas: crud, model, api, job, event, mail…).
