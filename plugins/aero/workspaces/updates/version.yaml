@@ -58,3 +58,11 @@
 1.18.0:
     - "Contratos de referencia por agente (aleatorios de 3 a 30, editables) que se suman a los contratos reales en el Mercado."
     - add_base_contracts_to_staff.php
+
+1.19.0:
+    - "Violeta ahora ayuda a poner en marcha un consultorio: pregunta el tipo (médico, veterinaria, psicología, nutrición, odontología, enfermería), y propone llenar los datos juntos, importar pacientes con Google Sheets o cargar datos de ejemplo ficticios."
+    - seed_consultorio_onboarding.php
+
+1.20.0:
+    - "Violeta ahora también ayuda a poner en marcha gimnasios, inmobiliarias, tiendas y el CRM: pregunta el tipo de negocio y propone llenar los datos juntos, importar con Google Sheets o cargar datos de ejemplo ficticios."
+    - seed_onboarding_skills.php
