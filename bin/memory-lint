@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""
+memory-lint — higiene de la memoria persistente de Claude (solo lectura).
+
+  bin/memory-lint [--quiet]     exit 1 si hay ERRORES; los AVISOS no fallan
+
+Errores: enlace del índice a archivo inexistente, archivo sin entrada en el índice,
+         frontmatter inválido, [[enlace]] sin archivo, índice > 120 líneas.
+Avisos:  línea del índice > 260 caracteres, project_* > 5 KB, entrada indexada cuya
+         descripción dice OBSOLETO/RESUELTO (→ memory/archive/), nombres duplicados.
+"""
+import re, sys, os, glob
+
+MEM = os.path.expanduser('/root/.claude/projects/-www-wwwroot-micro-clouds-com-bo/memory')
+MAX_LINES, MAX_LINE, MAX_KB = 120, 260, 5
+quiet = '--quiet' in sys.argv
+errs, warns = [], []
+
+idx = open(f'{MEM}/MEMORY.md', encoding='utf-8').read().splitlines()
+if len(idx) > MAX_LINES: errs.append(f'MEMORY.md tiene {len(idx)} líneas (máx. {MAX_LINES})')
+for n, l in enumerate(idx, 1):
+    if len(l) > MAX_LINE: warns.append(f'MEMORY.md:{n} mide {len(l)} caracteres (máx. {MAX_LINE})')
+
+linked = set(re.findall(r'\(([A-Za-z0-9_\-]+\.md)\)', '\n'.join(idx)))
+files = {os.path.basename(p) for p in glob.glob(f'{MEM}/*.md')} - {'MEMORY.md'}
+for f in sorted(linked - files): errs.append(f'índice → {f} no existe')
+for f in sorted(files - linked): errs.append(f'{f} no está en el índice (indexar o mover a archive/)')
+
+names, slugs = {}, set()
+for f in sorted(files):
+    t = open(f'{MEM}/{f}', encoding='utf-8').read()
+    m = re.match(r'---\n(.*?)\n---\n', t, re.S)
+    if not m: errs.append(f'{f}: sin frontmatter'); continue
+    fm = m.group(1)
+    nm = re.search(r'^name:\s*(.+)$', fm, re.M); ds = re.search(r'^description:\s*(.+)$', fm, re.M)
+    ty = re.search(r'^\s*type:\s*(user|feedback|project|reference)\s*$', fm, re.M)
+    if not (nm and ds and ty): errs.append(f'{f}: frontmatter incompleto (name/description/type)')
+    if nm:
+        k = nm.group(1).strip().strip('"').replace('-', '_')
+        if k in names: warns.append(f'{f}: name duplicado con {names[k]}')
+        names[k] = f
+    slugs.add(f[:-3].replace('-', '_'))
+    if f.startswith('project_') and len(t.encode()) > MAX_KB * 1024:
+        warns.append(f'{f}: {len(t.encode())//1024} KB (máx. {MAX_KB}); condensar a estado actual')
+    if ds and re.search(r'\b(OBSOLETO|RESUELTO)\b', ds.group(1)) and f in linked:
+        warns.append(f'{f}: dice OBSOLETO/RESUELTO pero sigue indexado → memory/archive/')
+slugs |= set(names)
+for f in sorted(files):
+    for l in set(re.findall(r'\[\[([^\]]+)\]\]', open(f'{MEM}/{f}', encoding='utf-8').read())):
+        if l.replace('-', '_') not in slugs: errs.append(f'{f}: [[{l}]] no tiene archivo')
+
+if not quiet or errs or warns:
+    for e in errs: print('ERROR ', e)
+    for w in warns: print('AVISO ', w)
+    print(f'memoria: {len(files)} archivos, índice {len(idx)} líneas, {len(errs)} errores, {len(warns)} avisos')
+sys.exit(1 if errs else 0)
