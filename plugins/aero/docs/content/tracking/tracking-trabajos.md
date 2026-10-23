@@ -29,7 +29,7 @@ Las paradas son los puntos del recorrido. Agrega una por fila:
 | **Tipo** | — | Recojo, Entrega o Servicio. |
 | **Nombre** | — | Nombre del punto. |
 | **Dirección** | — | Dirección textual. |
-| **Latitud** / **Longitud** | — | Coordenadas del punto en el mapa. |
+| **Ubicación exacta** | — | Selector de mapa (OpenStreetMap o satélite, sin llaves): detecta tu posición por GPS, deja arrastrar el pin y guarda latitud, longitud y precisión. |
 | **Contacto** / **Teléfono** | — | Persona a contactar en la parada. |
 | **Notas** | — | Indicaciones para esa parada. |
 

@@ -64,7 +64,7 @@ textarea{resize:vertical;min-height:120px}.err{border-color:var(--err)!important
 <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
 <ol class="steps" id="gSteps"></ol></aside>
 <main class="formcol"><div class="card">
-<div class="ctx">context: create · «Veces usada» es context: update y solo aparece tras guardar</div>
+<div class="ctx">context: create · «Veces usada» es context: update y solo aparece tras guardar · los campos de cada tipo aparecen según «Tipo de mensaje» (trigger)</div>
 <div class="panel" id="panel"></div>
 <div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button><span class="spacer"></span><label class="chk"><input type="checkbox" id="chkTech"> Mostrar reglas técnicas (trigger)</label></div>
 </div></main></div>
@@ -78,29 +78,47 @@ var F=[
 {id:'title',l:'Título',t:'text',r:1,x:'Catálogo de productos',h:'Nombre interno para reconocerla en la lista.',s:'Título',b:'Nombre interno, solo para reconocer la respuesta en la lista. Máximo 255 caracteres.',tip:'No lo ve el cliente.'},
 {id:'shortcut',l:'Atajo',t:'text',r:1,ph:'catalogo',x:'catalogo',h:'Se invoca escribiendo /atajo (ej. /catalogo). Minúsculas, sin espacios.',s:'Atajo',b:'Lo que escribirás en el chat precedido de «/» para insertar el mensaje. Máximo 40 caracteres.',tip:'Solo minúsculas, números, guion y guion bajo. Sin «/» ni espacios, o dará error.'},
 {id:'area',l:'Área',t:'select',o:{general:'General',ventas:'Ventas',soporte:'Soporte',cobranzas:'Cobranzas',postventa:'Postventa'},d:'general',x:'ventas',s:'Área',b:'Agrupa la respuesta por departamento de uso.',tip:'Por defecto es General.'},
+{id:'kind',l:'Tipo de mensaje',t:'select',w:'f',o:{text:'Texto',buttons:'Botones de respuesta (Cloud API)',list:'Menú desplegable (Cloud API)',cta_url:'Botón de enlace (Cloud API)',location_request:'Pedir ubicación (Cloud API)',voice_call:'Botón de llamada (Cloud API)',location:'Ubicación (WhatsApp Web)',contact:'Contacto (WhatsApp Web)',poll:'Encuesta (WhatsApp Web)'},d:'text',x:'buttons',h:'Texto simple, o un mensaje con botones/menú/ubicación. Si la cuenta que envía no admite el tipo (p. ej. botones en WhatsApp Web), se envía el texto de respaldo con las opciones escritas.',s:'Tipo de mensaje',b:'Elige cómo se envía: texto simple o un mensaje estructurado (botones, menú, enlace, pedir ubicación, llamada, ubicación, contacto o encuesta). Al cambiarlo aparecen los campos propios de ese tipo.',tip:'Si la cuenta no admite el tipo, se envía el texto de respaldo con las opciones escritas.'},
 {id:'sort_order',l:'Orden',t:'number',d:'10',x:'10',h:'Menor va primero al listar (por defecto 10).',s:'Orden',b:'Número entero mayor o igual a 0 que ordena la lista.',tip:'Con valores iguales no hay orden garantizado.'},
 {id:'uses_count',l:'Veces usada',t:'number',u:1,dis:1,d:'0',h:'Sube cada vez que se invoca desde el chat.',s:null},
 {id:'is_active',l:'Activa',t:'switch',d:1,x:1,s:'Activa',b:'Solo las respuestas activas se pueden invocar.',tip:'Apágala en lugar de borrarla si quieres conservarla.'},
 {id:'accounts',l:'Cuentas Hello',t:'checks',w:'f',o:{a1:'WhatsApp +591 700 00000 (ejemplo)',a2:'Instagram @mitienda (ejemplo)'},x:['a1'],h:'Opcional. Sin marcar ninguna, la respuesta aparece en todas las cuentas; si marcas algunas, solo en las conversaciones de esas cuentas.',s:'Cuentas Hello',b:'Limita la respuesta a ciertas cuentas conectadas.',tip:'Sin ninguna marcada, vale para todas.'},
-{id:'body',l:'Mensaje',t:'textarea',r:1,w:'f',x:'Hola 👋 aquí tienes nuestro catálogo: https://mitienda.example/catalogo',s:'Mensaje',b:'El texto que se enviará al invocar el atajo. Obligatorio.',tip:'Revisa que el texto esté completo antes de guardar: se envía tal cual.'}
+{id:'buttons',l:'Botones (1 a 3, máx. 20 caracteres)',t:'textarea',w:'f',k:['buttons'],x:'Ver catálogo\nHablar con un asesor',h:'Una por línea. En el formulario real se agregan con «Agregar botón» (máximo 3).',s:'Botones',b:'Textos de los botones de respuesta, de 1 a 3.',tip:'Cada botón admite hasta 20 caracteres.'},
+{id:'list_button',l:'Texto del botón del menú',t:'text',w:'f',k:['list'],x:'Ver opciones',s:'Botón del menú',b:'Texto del botón que abre el menú desplegable.',tip:'Mantenlo corto.'},
+{id:'list_section',l:'Título de la sección (opcional)',t:'text',w:'f',k:['list'],x:'Planes',s:'Sección del menú',b:'Título de la sección del menú. Es opcional.',tip:'Puedes dejarlo vacío.'},
+{id:'list_rows',l:'Opciones del menú (hasta 10)',t:'textarea',w:'f',k:['list'],x:'Plan básico\nPlan pro',h:'Una por línea. En el formulario real se agregan con «Agregar opción» (título y descripción opcional).',s:'Opciones del menú',b:'Opciones del menú, hasta 10.',tip:'El título de cada opción admite hasta 24 caracteres.'},
+{id:'cta_text',l:'Texto del botón de enlace',t:'text',w:'f',k:['cta_url'],x:'Abrir catálogo',s:'Texto del botón de enlace',b:'Texto del botón que lleva al enlace.',tip:'Que diga a dónde lleva.'},
+{id:'cta_url',l:'Enlace (https://…)',t:'text',w:'f',k:['cta_url'],x:'https://mitienda.example/catalogo',s:'Enlace',b:'Dirección a la que lleva el botón.',tip:'Empieza con https://.'},
+{id:'call_text',l:'Texto del botón de llamada (opcional)',t:'text',w:'f',k:['voice_call'],x:'Llamar ahora',s:'Botón de llamada',b:'Texto del botón de llamada. Es opcional.',tip:'Puedes dejarlo vacío.'},
+{id:'location',l:'Coordenadas "lat, lng" o enlace de Google Maps',t:'text',w:'f',k:['location'],x:'-16.5000, -68.1500',s:'Ubicación',b:'Ubicación que se envía.',tip:'Usa coordenadas separadas por coma o un enlace de Google Maps.'},
+{id:'location_name',l:'Nombre del lugar (opcional)',t:'text',w:'f',k:['location'],x:'Sucursal Centro',s:'Nombre del lugar',b:'Nombre que acompaña la ubicación. Es opcional.',tip:'Puedes dejarlo vacío.'},
+{id:'contact_name',l:'Nombre del contacto a compartir',t:'text',w:'f',k:['contact'],x:'Ana Ejemplo',s:'Nombre del contacto',b:'Nombre del contacto que se comparte.',tip:'Junto al teléfono forma la tarjeta de contacto.'},
+{id:'contact_phone',l:'Teléfono del contacto',t:'text',w:'f',k:['contact'],x:'+591 700 00000',s:'Teléfono del contacto',b:'Teléfono del contacto que se comparte.',tip:'Con código de país.'},
+{id:'poll_name',l:'Pregunta de la encuesta',t:'text',w:'f',k:['poll'],x:'¿Qué plan te interesa?',s:'Pregunta de la encuesta',b:'Pregunta que se envía como encuesta.',tip:'Escríbela completa.'},
+{id:'poll_options',l:'Opciones (2 a 12)',t:'textarea',w:'f',k:['poll'],x:'Básico\nPro',h:'Una por línea. En el formulario real se agregan con «Agregar opción».',s:'Opciones de la encuesta',b:'Opciones de respuesta, de 2 a 12.',tip:'Necesitas al menos 2.'},
+{id:'body',l:'Mensaje (texto principal)',t:'textarea',r:1,rb:1,w:'f',x:'Hola 👋 aquí tienes nuestro catálogo: https://mitienda.example/catalogo',s:'Mensaje',b:'El texto que se enviará al invocar el atajo. Obligatorio, salvo en Ubicación, Contacto y Encuesta; en botones y menú es el texto principal.',tip:'Revisa que el texto esté completo antes de guardar: se envía tal cual.'},
+{id:'template_name',l:'Plantilla de WhatsApp (nombre)',t:'text',ph:'market_que_es',x:'market_catalogo',h:'Opcional. Nombre exacto de la plantilla ya aprobada en Meta, sin variables y con este mismo texto. Se usa cuando pasaron más de 24 h del último mensaje del contacto; conserva los saltos de línea.',s:'Plantilla de WhatsApp',b:'Nombre de una plantilla aprobada en Meta con este mismo texto. Con la ventana de 24 h cerrada se envía esa plantilla en lugar del texto genérico.',tip:'Solo minúsculas, números y guion bajo. Sin variables.'},
+{id:'template_language',l:'Idioma de la plantilla',t:'text',ph:'es',d:'es',x:'es',s:'Idioma de la plantilla',b:'Código de idioma de la plantilla (por defecto es).',tip:'Máximo 10 caracteres.'},
+{id:'template_category',l:'Categoría de la plantilla',t:'select',o:{'':'—',utility:'Utility (utilidad)',marketing:'Marketing'},x:'utility',h:'Informativa (la define Meta al aprobarla).',s:'Categoría de la plantilla',b:'Utility o Marketing, tal como Meta aprobó la plantilla.',tip:'Es informativa: la define Meta.'}
 ];
 var S={mode:'create',step:0,steps:[]};
 function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function val(id){var e=$('#'+id);if(!e)return'';if(e.getAttribute('data-kind')==='checks')return $$('input:checked',e).map(function(i){return i.value}).join(',');if(e.type==='checkbox')return e.checked?'1':'';return(e.value||'').trim()}
-function vis(f){return!f.u||S.mode==='update'}
+function vis(f){return(!f.u||S.mode==='update')&&(!f.k||f.k.indexOf(val('kind'))>=0)}
+function showF(){$$('#panel .field').forEach(function(d){var f=F.filter(function(z){return z.id===d.getAttribute('data-f')})[0];d.hidden=!vis(f)})}
 function build(){var p=$('#panel');F.forEach(function(f){var d=mk('div','field'+(f.w==='f'?' full':''));d.setAttribute('data-f',f.id);var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));d.appendChild(l);var c;
- if(f.t==='select'){c=mk('select');Object.keys(f.o).forEach(function(k){var o=mk('option',0,f.o[k]);o.value=k;c.appendChild(o)});c.value=f.d}
+ if(f.t==='select'){c=mk('select');Object.keys(f.o).forEach(function(k){var o=mk('option',0,f.o[k]);o.value=k;c.appendChild(o)});c.value=f.d||''}
  else if(f.t==='switch'){var w=mk('div','sw');c=mk('input');c.type='checkbox';c.checked=!!f.d;w.appendChild(c);w.appendChild(mk('span',0,'Activado'));d.appendChild(w)}
  else if(f.t==='checks'){c=mk('div','chks');c.setAttribute('data-kind','checks');Object.keys(f.o).forEach(function(k){var lb=mk('label'),i=mk('input');i.type='checkbox';i.value=k;i.addEventListener('change',refresh);lb.appendChild(i);lb.appendChild(mk('span',0,f.o[k]));c.appendChild(lb)})}
  else if(f.t==='textarea'){c=mk('textarea')}else{c=mk('input');c.type=f.t;c.autocomplete='off';if(f.ph)c.placeholder=f.ph;if(f.d)c.value=f.d;if(f.dis)c.disabled=true}
- c.id=f.id;if(f.t!=='switch')d.appendChild(c);if(f.h)d.appendChild(mk('div','help',f.h));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);d.hidden=!vis(f);p.appendChild(d)});
+ c.id=f.id;if(f.t!=='switch')d.appendChild(c);if(f.h)d.appendChild(mk('div','help',f.h));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);p.appendChild(d)});showF();
  $$('#panel input,#panel textarea,#panel select').forEach(function(el){el.addEventListener('input',onCh);el.addEventListener('change',onCh);el.addEventListener('focus',function(){var b=el.closest('.field'),i=idxOf(b.getAttribute('data-f'));if(i>=0&&i!==S.step)go(i,false)})})}
 function onCh(e){if(e.target.classList.contains('err')){e.target.classList.remove('err');$('.errmsg',e.target.closest('.field')).hidden=true}refresh()}
 function exTxt(f){if(f.t==='checks')return f.x.map(function(k){return f.o[k]}).join(', ');if(f.t==='switch')return'Activada';return f.o?f.o[f.x]:String(f.x)}
-function steps(){var s=[];F.forEach(function(f){if(!f.s)return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return f.t==='switch'||f.d&&f.t==='select'||!!val(f.id)&&f.t!=='number'||f.id==='sort_order'},fill:function(){var e=$('#'+f.id);if(f.t==='switch')e.checked=!!f.x;else if(f.t==='checks')$$('input',e).forEach(function(i){i.checked=f.x.indexOf(i.value)>=0});else e.value=f.x;refresh()}})});
+function steps(){var s=[];F.forEach(function(f){if(!f.s||!vis(f))return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return f.t==='switch'||f.d&&f.t==='select'||!!val(f.id)&&f.t!=='number'||f.id==='sort_order'},fill:function(){var e=$('#'+f.id);if(f.t==='switch')e.checked=!!f.x;else if(f.t==='checks')$$('input',e).forEach(function(i){i.checked=f.x.indexOf(i.value)>=0});else e.value=f.x;refresh()}})});
  s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece «Veces usada».',tip:'«Crear y cerrar» te devuelve a la lista; «Crear» te deja editando el registro.',done:function(){return S.mode==='update'},fill:function(){save(false)}});return s}
 function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
-function refresh(){S.steps=steps();S.step=Math.min(S.step,S.steps.length-1);render()}
+function refresh(){var cur=S.steps[S.step]&&S.steps[S.step].id;showF();S.steps=steps();var i=idxOf(cur);S.step=i>=0?i:Math.min(S.step,S.steps.length-1);render()}
 function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textContent='Paso '+(S.step+1)+' de '+n+(c.opt&&c.id!=='save'?' · opcional':c.req?' · obligatorio':'');$('#gTitle').textContent=c.title;
  var b=$('#gBody');b.innerHTML='';b.appendChild(mk('p',0,c.body));if(c.ex){var w=mk('div');w.appendChild(mk('div','g-sub','Ejemplo'));w.appendChild(mk('div','example',c.ex));b.appendChild(w)}
  if(c.tip){var t=mk('div','note');t.appendChild(mk('b',0,'Ojo. '));t.appendChild(document.createTextNode(c.tip));b.appendChild(t)}
@@ -111,12 +129,13 @@ function render(){var c=S.steps[S.step],n=S.steps.length;$('#gEyebrow').textCont
 function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c=S.steps[S.step];if(sc!==false&&c.f)$('[data-f="'+c.f.id+'"]').scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 function err(id,m){var d=$('[data-f="'+id+'"]');var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input,textarea,select',d);if(c)c.classList.add('err')}
 function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[];
- F.forEach(function(f){if(f.r&&!val(f.id))errs.push([f.id,'El campo '+f.l+' es obligatorio.'])});
+ F.forEach(function(f){if(f.rb&&['location','contact','poll'].indexOf(val('kind'))>=0)return;if(f.r&&!val(f.id))errs.push([f.id,'El campo '+f.l+' es obligatorio.'])});
  var sc=val('shortcut');if(sc&&!/^[a-z0-9_-]+$/.test(sc))errs.push(['shortcut','El atajo solo admite minúsculas, números, guion y guion bajo (sin "/" ni espacios).']);else if(sc.length>40)errs.push(['shortcut','El atajo no puede superar 40 caracteres.']);
+ var tn=val('template_name');if(tn&&!/^[a-z0-9_]+$/.test(tn))errs.push(['template_name','La plantilla solo admite minúsculas, números y guion bajo.']);
  var so=val('sort_order');if(so!==''&&!/^\d+$/.test(so))errs.push(['sort_order','Orden debe ser un entero mayor o igual a 0.']);
  errs.sort(function(a,b){return idxOf(a[0])-idxOf(b[0])});
  if(errs.length){errs.forEach(function(e){err(e[0],e[1])});go(idxOf(errs[0][0]));flash('No se pudo crear: '+errs[0][1],true);return}
- S.mode='update';$$('#panel .field').forEach(function(d){var f=F.filter(function(z){return z.id===d.getAttribute('data-f')})[0];d.hidden=!vis(f)});
+ S.mode='update';showF();
  $('#h1').textContent=CFG.edit;$('#crumb').textContent='/backend/aero/crm/'+CFG.path+'/update/7 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
  flash(close?CFG.noun+'. En la app real vuelves a la lista.':CFG.noun+'. Ahora estás en la pantalla de edición.');refresh()}
 var ft;function flash(m,e){var f=$('#flash');f.textContent=m;f.className=e?'err':'';f.hidden=false;clearTimeout(ft);ft=setTimeout(function(){f.hidden=true},4200)}

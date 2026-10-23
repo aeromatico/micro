@@ -13,8 +13,10 @@ ticket pertenece a un **departamento** y se asigna a una persona.
 | Campo | Reglas | Para qué sirve |
 |-------|--------|----------------|
 | **Asunto** | requerido | Resumen del ticket. |
-| **Departamento** | requerido | Área que lo atiende. |
-| **Asignado a** | — | Solo integrantes del departamento elegido. |
+| **Enviar a un tenant** | opcional | Déjalo en «Ninguno» para un ticket de tu propio CRM. Elige un tenant para abrir un ticket de soporte de la plataforma dirigido a uno de sus administradores. |
+| **Administrador del tenant** | requerido si eliges un tenant | Aparecen los administradores del tenant elegido; verá y responderá desde Soporte. |
+| **Departamento** | requerido | Área que lo atiende (con tenant de destino, los de la plataforma). |
+| **Asignado a** | requerido | Integrantes del departamento elegido; si no tiene, cualquier administrador del ámbito. |
 | **Prioridad** | — | Baja, Normal, Alta o Urgente. |
 | **Estado** | — | Abierto, En espera, Resuelto o Cerrado. |
 | **Descripción** | — | Detalle del problema. |
@@ -64,4 +66,8 @@ páginas responden 404.
 
 > [!NOTE]
 > Los tickets que abre un tenant a la plataforma (mesa de ayuda de la plataforma)
-> se llevan aparte del CRM propio del tenant.
+> se llevan aparte del CRM propio del tenant. Cada ticket queda vinculado al
+> administrador del tenant que lo abre (o a quien el equipo le abre el ticket en
+> su nombre); sus datos completan el solicitante.
+
+**Versión documentada:** 1.14.0

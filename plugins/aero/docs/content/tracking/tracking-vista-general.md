@@ -23,12 +23,14 @@ Activo (GPS)  ──►  Tracking  ──►  Trabajo con paradas
 |---------|----------------|
 | **Mapa en vivo** | Ver dónde están tus activos activos y sus trabajos abiertos. |
 | **Trabajos** | Crear trabajos con sus paradas y asignarles un activo. |
+| **Seguimiento externo** | Seguir un pedido pegando el enlace público de rastreo de un tercero (hoy PedidosYa). |
 | **Activos** | Registrar vehículos/personas y su URL de ingesta. |
 
 ## Guías de cada función
 
 - [Activos](tracking-activos) — registrar lo que se rastrea y obtener su URL.
 - [Trabajos](tracking-trabajos) — definir el recorrido y las paradas.
+- [Seguimiento externo](tracking-seguimiento-externo) — seguir pedidos de un tercero con su enlace público.
 - [Mapa en vivo](tracking-mapa-en-vivo) — seguir todo en el mapa.
 
 ## Permisos

@@ -33,6 +33,9 @@ Aquí creas y editas un flujo de automatización.
 | Mensaje entrante | `{"keyword":"precio","account_id":1,"interactive_id":"ver_precios_1"}` (todos opcionales; `keyword` admite varias palabras separadas por coma, sin distinguir mayúsculas ni acentos; `interactive_id` dispara solo si el cliente tocó ese botón u opción y admite una lista) |
 | Webhook | `{"secret":"clave-larga"}` (obligatorio) |
 
+> [!NOTE]
+> **Convivencia con el chatbot:** si un workflow publicado tiene un disparador de mensaje **específico** (con `keyword` o `interactive_id`) que atiende el mensaje, el chatbot no responde encima. Un disparador sin esos filtros («todo mensaje») no cuenta y no silencia al chatbot. Para botones y menús, usa el `interactive_id` exacto del botón u opción; `keyword` es para texto escrito.
+
 > [!IMPORTANT]
 > Un evento solo dispara tu workflow si pertenece a tu cuenta. Los eventos sin cuenta identificable se ignoran.
 
@@ -75,4 +78,4 @@ En la lista de workflows:
 > [!TIP]
 > El editor avisa si falta el disparador, hay nodos sueltos o hay un ciclo.
 
-**Versión documentada:** 1.6.1
+**Versión documentada:** 1.6.2

@@ -1,0 +1,223 @@
+<!doctype html>
+<!--guide {"title":"Nuevo activo","article":"tracking-activos","sort":10} -->
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guía: Nuevo activo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#eceff2;--surface:#fff;--surface-2:#f5f7f9;--ink:#1d2933;--ink-2:#55636f;--line:#d5dce2;--accent:#1f6f8b;--accent-ink:#fff;--accent-soft:#dcecf2;--hint:#b4620a;--hint-soft:#fdf0dc;--ok:#1e7a4c;--ok-soft:#dff2e8;--err:#b3261e;--err-soft:#fbe4e2;--font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--g-surface:#dcecf2;--g-surface-2:#cbe1ea;--g-line:#a9c9d6;--g-ink:#10303c;--g-ink-2:#3a5c6b;--g-accent:#1a6480;--g-accent-ink:#fff;--g-accent-soft:#f4fafc}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12181d;--surface:#1a232a;--surface-2:#212c34;--ink:#e6ecf0;--ink-2:#93a3af;--line:#2f3d47;--accent:#5fb4d0;--accent-ink:#0c1a21;--accent-soft:#1b3541;--hint:#f0a94e;--hint-soft:#3a2a12;--ok:#62c592;--ok-soft:#17342a;--err:#f28b82;--err-soft:#3b1d1b;--g-surface:#143443;--g-surface-2:#1c4658;--g-line:#2d5a70;--g-ink:#e8f3f8;--g-ink-2:#a3c2d1;--g-accent:#7cc4de;--g-accent-ink:#08222d;--g-accent-soft:#25566f;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:20px 48px;margin:0}
+.wrap{max-width:1760px;margin-inline:auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "guide" "form"}
+@media(min-width:940px){.wrap{grid-template-columns:360px minmax(0,1fr);grid-template-areas:"head head" "guide form";align-items:start}}
+header{grid-area:head;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between}
+h1{font-size:20px;font-weight:600;margin:0}
+.crumb{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);overflow-wrap:anywhere}
+.badge{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:3px;background:var(--hint-soft);color:var(--hint)}
+.guide{grid-area:guide;background:var(--g-surface);border:1px solid var(--g-line);border-radius:6px;min-width:0;color:var(--g-ink);--surface-2:var(--g-surface-2);--line:var(--g-line);--ink:var(--g-ink);--ink-2:var(--g-ink-2);--accent:var(--g-accent);--accent-ink:var(--g-accent-ink);--accent-soft:var(--g-accent-soft)}
+@media(min-width:940px){.guide{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.g-head{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.g-eyebrow{font-size:15px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.g-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.g-nav .btn{min-height:44px;padding:10px 14px;font-size:15px;font-weight:600;border-radius:6px;border:2px solid var(--accent)}
+.g-nav #gPrev{background:var(--accent-soft);color:var(--accent)}.g-nav #gNext{background:var(--accent);color:var(--accent-ink)}
+.g-nav .btn:disabled{opacity:.4;cursor:not-allowed}
+.g-title{font-size:16px;font-weight:600;margin:14px 0 0}
+.progress{height:4px;background:var(--surface-2);border-radius:2px;margin-top:10px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.g-body{padding:14px 16px;display:grid;gap:12px}.g-body p{margin:0}
+.g-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin-bottom:2px}
+.note{padding:10px 12px;border-radius:4px;background:var(--hint-soft);color:#1d2933}.note b{color:var(--hint)}
+.example{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:8px 10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.g-actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:4px}.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.btn.ghost{border-color:transparent;color:var(--accent);background:transparent;padding-inline:6px}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.steps button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.steps{list-style:none;margin:0;padding:8px;border-top:1px solid var(--line);display:grid;gap:2px}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;background:transparent;border:0;border-radius:4px;padding:6px 8px;color:var(--ink-2)}
+.steps button:hover{background:var(--surface-2)}.steps button[aria-current="step"]{background:var(--accent-soft);color:var(--ink);font-weight:500}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:600}
+.steps .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.formcol{grid-area:form;min-width:0;display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;min-width:0}
+.ctx{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);padding:8px 16px 0}
+.panel{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px;align-items:start}
+@media(max-width:640px){.panel{grid-template-columns:minmax(0,1fr)}}
+.field{min-width:0;padding:6px;margin:-6px;border-radius:6px;transition:box-shadow .15s,background .15s}.field.full{grid-column:1/-1}
+.field.is-guided{box-shadow:0 0 0 2px var(--hint);background:var(--hint-soft)}
+.field[hidden]{display:none!important}
+label.lbl{display:block;font-weight:600;font-size:13px;margin-bottom:4px}.req{color:var(--err);margin-left:2px}
+input[type=text],input[type=datetime-local],select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:7px 9px}
+textarea{resize:vertical;min-height:70px}
+input.err,select.err,textarea.err{border-color:var(--err)}
+.help{font-size:12px;color:var(--ink-2);margin-top:4px;overflow-wrap:anywhere}.errmsg{font-size:12px;color:var(--err);margin-top:4px}
+.chk{display:inline-flex;gap:6px;align-items:center;color:var(--ink-2);font-size:12px}
+.upd{grid-column:1/-1;border:1px dashed var(--line);border-radius:6px;padding:12px 14px;display:grid;gap:8px}.upd h4{margin:0;font-size:13px}
+.ro{font-family:var(--font-mono);font-size:12px}
+.locked{color:var(--ink-2);font-size:12px;padding:10px 12px;background:var(--surface-2);border:1px dashed var(--line);border-radius:4px;grid-column:1/-1}
+.stop{grid-column:1/-1;border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;background:var(--surface-2)}
+.stop h5{grid-column:1/-1;margin:0;font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2);border-radius:0 0 6px 6px;align-items:center}
+.toolbar .spacer{flex:1}
+.sample{font-size:11px;color:var(--ink-2);font-style:italic}
+#flash{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:4px;background:var(--ink);color:var(--bg);box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:10}
+#flash.err{background:var(--err);color:#fff}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="wrap">
+  <header><div><h1 id="h1">Nuevo activo</h1><div class="crumb" id="crumb">/backend/aero/tracking/assets/create · Guía de capacitación</div></div><span class="badge">Demo: no guarda nada real</span></header>
+  <aside class="guide" aria-label="Guía paso a paso">
+    <div class="g-head"><div class="g-eyebrow" id="gEyebrow"></div>
+      <div class="g-nav"><button class="btn" id="gPrev" type="button">← Anterior</button><button class="btn primary" id="gNext" type="button">Siguiente →</button></div>
+      <h2 class="g-title" id="gTitle"></h2><div class="progress"><i id="gBar"></i></div></div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-actions"><button class="btn ghost" id="gFill" type="button">Rellenar ejemplo</button></div>
+    <ol class="steps" id="gSteps"></ol>
+  </aside>
+  <main class="formcol"><div class="card">
+    <div class="ctx" id="ctxLine">context: create · los campos con context: update no se muestran</div>
+    <div class="panel" id="panel"></div>
+    <div class="toolbar"><button class="btn primary" type="button" id="btnSave">Crear</button><button class="btn" type="button" id="btnSaveClose">Crear y cerrar</button><button class="btn" type="button" id="btnReset">Reiniciar demo</button></div>
+  </div></main>
+</div>
+<div id="flash" hidden role="status"></div>
+<script>
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function mk(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+
+  // Campos tomados de plugins/aero/tracking/models/asset/fields.yaml (los de tenant: se omite tenant_id, solo superadmin)
+  var FIELDS = [
+    { id: 'name', label: 'Nombre', type: 'text', req: true, max: 191, ex: 'Moto 1',
+      title: 'Nombra el activo', body: 'Es lo que se rastrea: un vehículo, una persona o cualquier dispositivo con GPS. Así lo verás en el mapa y al asignar trabajos.',
+      tip: 'Usa un nombre que tu equipo reconozca de un vistazo, como «Moto 1» o «Camión Santa Cruz».' },
+    { id: 'type', label: 'Tipo', type: 'text', req: true, def: 'vehicle', ex: 'motorcycle', help: 'Libre: motorcycle, truck, bus, person...',
+      title: 'Indica el tipo', body: 'Texto libre. Por defecto viene «vehicle». Sirve para distinguir motos, camiones, buses o personas.',
+      tip: 'No es una lista cerrada: escribe el tipo que te sirva, pero sé consistente.' },
+    { id: 'code', label: 'Placa / código', type: 'text', ex: '1234-ABC', opt: true,
+      title: 'Placa o código (opcional)', body: 'Identificador corto: la placa o un número interno.', tip: 'Ayuda a no confundir dos activos con nombres parecidos.' },
+    { id: 'is_active', label: 'Activo', type: 'switch', def: true, ex: true, opt: true,
+      title: 'Estado del activo', body: 'Solo los activos vigentes aparecen en el mapa en vivo. Desactívalo cuando ya no lo uses.',
+      tip: 'Desactivar no borra su historial; solo lo saca del mapa.' }
+  ];
+  var state = { step: 0, mode: 'create' };
+  var steps = [];
+
+  function val(id) { var e = $('#' + id); return e ? (e.type === 'checkbox' ? (e.checked ? '1' : '') : (e.value || '').trim()) : ''; }
+  function setv(id, v) { var e = $('#' + id); if (!e) return; if (e.type === 'checkbox') e.checked = !!v; else e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); e.dispatchEvent(new Event('change', { bubbles: true })); }
+
+  function buildForm() {
+    var p = $('#panel'); p.innerHTML = '';
+    FIELDS.forEach(function (f) {
+      var box = mk('div', 'field' + (f.full ? ' full' : '')); box.setAttribute('data-f', f.id);
+      if (f.type === 'switch') {
+        var l = mk('label', 'chk'); var c = mk('input'); c.type = 'checkbox'; c.id = f.id; c.checked = !!f.def; l.appendChild(c); l.appendChild(document.createTextNode(' ' + f.label)); box.appendChild(l);
+      } else {
+        var lb = mk('label', 'lbl', f.label); lb.htmlFor = f.id; if (f.req) lb.appendChild(mk('span', 'req', '*')); box.appendChild(lb);
+        var c2 = mk('input'); c2.type = 'text'; c2.id = f.id; c2.autocomplete = 'off'; if (f.def) c2.value = f.def; box.appendChild(c2);
+      }
+      if (f.help) box.appendChild(mk('div', 'help', f.help));
+      var em = mk('div', 'errmsg'); em.hidden = true; box.appendChild(em);
+      p.appendChild(box);
+    });
+    p.appendChild(mk('div', 'locked', 'Al crear no aparece «URL para OwnTracks»: el campo es context: update. Guarda para verlo.')).id = 'lockUrl';
+    var u = mk('div', 'upd'); u.id = 'updBox'; u.hidden = true; u.setAttribute('data-f', 'ingest_url');
+    u.appendChild(mk('h4', null, 'URL para OwnTracks'));
+    var inp = mk('input', 'ro'); inp.type = 'text'; inp.readOnly = true; inp.id = 'ingest_url'; inp.value = 'https://tu-dominio/…/ruta-secreta-generada-por-el-sistema (ejemplo)'; u.appendChild(inp);
+    u.appendChild(mk('div', 'help', 'En OwnTracks: Ajustes → Conexión → Modo HTTP → pegar esta URL. Es secreta: quien la tenga puede enviar posiciones de este activo.'));
+    p.appendChild(u);
+    $$('#panel input').forEach(function (el) {
+      el.addEventListener('input', function () { clearErr(el); refresh(); });
+      el.addEventListener('change', refresh);
+      el.addEventListener('focus', function () { var b = el.closest('[data-f]'); if (!b) return; var i = steps.map(function (s) { return s.f && s.f.id; }).indexOf(b.getAttribute('data-f')); if (i >= 0 && i !== state.step) go(i, false); });
+    });
+  }
+  function clearErr(el) { el.classList.remove('err'); var m = $('.errmsg', el.closest('.field') || document); if (m) m.hidden = true; }
+
+  function buildSteps() {
+    var s = FIELDS.map(function (f) {
+      return { id: f.id, f: f, title: f.title, body: f.body, tip: f.tip, ex: f.type === 'switch' ? 'Activo' : f.ex, req: f.req, opt: f.opt,
+        fill: function () { setv(f.id, f.ex); }, done: function () { return f.type === 'switch' ? true : (f.req ? val(f.id).length > 0 : true); } };
+    });
+    s.push({ id: 'save', title: 'Guardar y copiar la URL', last: true,
+      body: 'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece la URL para OwnTracks.',
+      tip: 'La URL es secreta. No la compartas ni la pegues en lugares públicos.', fill: function () { save(); }, done: function () { return state.mode === 'update'; } });
+    if (state.mode === 'update') {
+      s.push({ id: 'owntracks', f: { id: 'ingest_url' }, title: 'Configurar OwnTracks', opt: true,
+        body: 'En la app OwnTracks: Ajustes → Conexión → Modo HTTP → pega la URL del activo. En cuanto envíe una posición, el activo pasa a «En línea».',
+        tip: 'Si lleva más de 5 minutos sin enviar, el estado cambia a «Sin señal».', ex: 'Estados: En línea · Sin señal · Inactivo', fill: null, done: function () { return false; } });
+    }
+    return s;
+  }
+
+  function render() {
+    var cur = steps[state.step];
+    $('#gEyebrow').textContent = 'Paso ' + (state.step + 1) + ' de ' + steps.length + (cur.opt ? ' · opcional' : cur.req ? ' · obligatorio' : '');
+    $('#gTitle').textContent = cur.title;
+    var b = $('#gBody'); b.innerHTML = ''; b.appendChild(mk('p', null, cur.body));
+    if (cur.ex) { var w = mk('div'); w.appendChild(mk('div', 'g-sub', 'Ejemplo')); w.appendChild(mk('div', 'example', cur.ex)); b.appendChild(w); }
+    if (cur.tip) { var n = mk('div', 'note'); n.appendChild(mk('b', null, 'Ojo. ')); n.appendChild(document.createTextNode(cur.tip)); b.appendChild(n); }
+    var ok = steps.filter(function (x) { return x.done(); }).length;
+    $('#gBar').style.width = Math.round(100 * ok / steps.length) + '%';
+    $('#gPrev').disabled = state.step === 0; $('#gNext').disabled = state.step === steps.length - 1;
+    $('#gFill').hidden = !cur.fill || (cur.id === 'save' && state.mode === 'update');
+    $('#gFill').textContent = cur.id === 'save' ? 'Crear con los datos actuales' : 'Rellenar ejemplo';
+    var ol = $('#gSteps'); ol.innerHTML = '';
+    steps.forEach(function (s, i) {
+      var li = mk('li'), bt = mk('button'); bt.type = 'button';
+      var d = s.done(); if (i === state.step) bt.setAttribute('aria-current', 'step'); if (d) bt.className = 'done';
+      bt.appendChild(mk('span', 'dot', d ? '✓' : String(i + 1))); bt.appendChild(mk('span', null, s.title));
+      bt.onclick = function () { go(i); }; li.appendChild(bt); ol.appendChild(li);
+    });
+    $$('.field,.upd').forEach(function (f) { f.classList.remove('is-guided'); });
+    if (cur.f) { var el = $('[data-f="' + cur.f.id + '"]'); if (el && !el.hidden) el.classList.add('is-guided'); }
+  }
+  function go(i, scroll) {
+    state.step = Math.max(0, Math.min(steps.length - 1, i)); render();
+    if (scroll !== false) { var c = steps[state.step].f; var el = c && $('[data-f="' + c.id + '"]'); if (el && !el.hidden) el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  }
+  function refresh() { var id = steps[state.step].id; steps = buildSteps(); var i = steps.map(function (s) { return s.id; }).indexOf(id); state.step = i >= 0 ? i : 0; render(); }
+
+  function showErr(id, msg) { var b = $('[data-f="' + id + '"]'); if (!b) return; var m = $('.errmsg', b), i = $('input', b); if (m) { m.hidden = !msg; m.textContent = msg || ''; } if (i && i.type === 'text') i.classList.toggle('err', !!msg); }
+  function validate() {
+    var errs = [];
+    FIELDS.forEach(function (f) {
+      showErr(f.id, '');
+      if (f.type === 'switch') return;
+      var v = val(f.id);
+      if (f.req && !v) errs.push([f.id, 'El campo ' + f.label + ' es obligatorio.']);
+      else if (f.max && v.length > f.max) errs.push([f.id, f.label + ' no puede superar ' + f.max + ' caracteres.']);
+    });
+    return errs;
+  }
+  function save() {
+    var errs = validate();
+    if (errs.length) {
+      errs.forEach(function (e) { showErr(e[0], e[1]); });
+      var i = steps.map(function (s) { return s.id; }).indexOf(errs[0][0]); if (i >= 0) go(i);
+      flash('No se pudo crear: ' + errs[0][1], true); return;
+    }
+    state.mode = 'update';
+    $('#h1').textContent = 'Editar activo'; $('#crumb').textContent = '/backend/aero/tracking/assets/update/7 · Guía de capacitación';
+    $('#btnSave').textContent = 'Guardar'; $('#btnSaveClose').textContent = 'Guardar y cerrar';
+    $('#lockUrl').hidden = true; $('#updBox').hidden = false; $('#ctxLine').textContent = 'context: update · aparece la URL para OwnTracks';
+    steps = buildSteps(); state.step = steps.length - 1; render();
+    flash('Activo creado. Ahora estás en la pantalla de edición.');
+  }
+  var ft;
+  function flash(m, isErr) { var f = $('#flash'); f.textContent = m; f.className = isErr ? 'err' : ''; f.hidden = false; clearTimeout(ft); ft = setTimeout(function () { f.hidden = true; }, 4200); }
+
+  $('#gPrev').onclick = function () { go(state.step - 1); };
+  $('#gNext').onclick = function () { go(state.step + 1); };
+  $('#gFill').onclick = function () { var s = steps[state.step]; if (s.fill) s.fill(); if (s.id !== 'save') refresh(); };
+  $('#btnSave').onclick = save; $('#btnSaveClose').onclick = save;
+  $('#btnReset').onclick = function () { location.reload(); };
+  buildForm(); steps = buildSteps(); render();
+})();
+</script>
+</body></html>

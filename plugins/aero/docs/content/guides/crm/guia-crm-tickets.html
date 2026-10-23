@@ -78,12 +78,14 @@ textarea{resize:vertical;min-height:100px}.err{border-color:var(--err)!important
 var $=function(s,r){return(r||document).querySelector(s)},$$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
 var CFG={edit:'Editar ticket',path:'tickets',noun:'Ticket creado'};
 var DEPS={'':'— elegí —',d1:'Soporte técnico (ejemplo)',d2:'Ventas (ejemplo)'};
-var MEMBERS={d1:{'':'Sin asignar',u1:'Ana (ejemplo)',u2:'Luis (ejemplo)'},d2:{'':'Sin asignar',u3:'Rosa (ejemplo)'}};
+var MEMBERS={d1:{'':'— elegí —',u1:'Ana (ejemplo)',u2:'Luis (ejemplo)'},d2:{'':'— elegí —',u3:'Rosa (ejemplo)'}};
 // Fiel a models/ticket/fields.yaml. Las opciones de estado y prioridad vienen de Ticket::statusOptions()/priorityOptions().
 var F=[
 {id:'subject',l:'Asunto',t:'text',tab:'General',w:'f',r:1,x:'No puedo ingresar a mi cuenta',s:'Asunto',b:'Resumen del problema en una línea. Máximo 255 caracteres.',tip:'Es obligatorio; que sea claro para quien lo atienda.'},
+{id:'origin_tenant_id',l:'Enviar a un tenant',t:'select',tab:'General',o:function(){return{'':'Ninguno (ticket de mi propio CRM)',t1:'Mi negocio (ejemplo)'}},x:'',h:'Elegí un tenant para abrir un ticket de soporte de la plataforma dirigido a uno de sus admins.',s:'Enviar a un tenant',b:'Déjalo en «Ninguno» para un ticket de tu propio CRM. Elige un tenant solo si abres un ticket de soporte de la plataforma dirigido a uno de sus administradores.',tip:'Si eliges un tenant, el administrador del tenant pasa a ser obligatorio y los departamentos son los de la plataforma.'},
+{id:'requester_user_id',l:'Administrador del tenant',t:'select',tab:'General',o:function(){return val('origin_tenant_id')?{'':'— elegí —',a1:'Ana Admin (ejemplo)',a2:'Luis Admin (ejemplo)'}:{'':'— primero elegí el tenant —'}},x:'a1',h:'Primero elegí «Enviar a un tenant»; aquí aparecen sus admins. Verá y responderá desde Soporte.',s:'Administrador del tenant',b:'Administrador del tenant elegido a quien va dirigido el ticket; verá y responderá desde Soporte. El solicitante se completa con sus datos.',tip:'Solo se puede elegir después de elegir el tenant.',dep:'origin_tenant_id'},
 {id:'department_id',l:'Departamento',t:'select',tab:'General',r:1,o:function(){return DEPS},x:'d1',s:'Departamento',b:'Quién atiende el ticket. Solo se pueden elegir departamentos activos.',tip:'Obligatorio. Si ves «Elegí el departamento», falta este paso.'},
-{id:'assigned_to',l:'Asignado a',t:'select',tab:'General',o:function(){return MEMBERS[val('department_id')]||{'':'Sin asignar'}},x:'u1',h:'Solo integrantes del departamento.',s:'Asignado a',b:'Persona que atenderá el ticket. La lista depende del departamento elegido.',tip:'Elige primero el departamento; si lo cambias, la lista se reinicia.'},
+{id:'assigned_to',l:'Asignado a',t:'select',tab:'General',r:1,o:function(){return MEMBERS[val('department_id')]||{'':'— elegí —'}},x:'u1',h:'Integrantes del departamento; si no tiene, cualquier admin del ámbito.',s:'Asignado a',b:'Persona que atenderá el ticket. La lista depende del departamento elegido.',tip:'Elige primero el departamento; si lo cambias, la lista se reinicia.'},
 {id:'priority',l:'Prioridad',t:'select',tab:'General',o:function(){return{low:'Baja',normal:'Normal',high:'Alta',urgent:'Urgente'}},d:'normal',x:'high',s:'Prioridad',b:'Urgencia del ticket (por defecto Normal).',tip:'Reserva «Urgente» para lo que bloquea al cliente.'},
 {id:'status',l:'Estado',t:'select',tab:'General',o:function(){return{open:'Abierto',pending:'En espera',resolved:'Resuelto',closed:'Cerrado'}},d:'open',x:'open',s:'Estado',b:'En qué punto está el ticket. Resuelto o Cerrado registran la fecha de cierre.',tip:'Al crear, deja «Abierto».'},
 {id:'description',l:'Descripción',t:'textarea',tab:'General',w:'f',x:'Al ingresar me dice «contraseña incorrecta» aunque la cambié ayer.',s:'Descripción',b:'Detalle del problema o solicitud.',tip:'Incluye qué esperaba el cliente y qué ocurrió.'},
@@ -95,6 +97,7 @@ var F=[
 {id:'new_reply',l:'Nueva respuesta',t:'textarea',tab:'Respuestas',w:'f',x:'Hola María, ya restablecimos tu acceso. Prueba de nuevo.',s:'Nueva respuesta',b:'Escribe aquí la respuesta al solicitante; se agrega a la conversación al guardar.',tip:'Marca «Nota interna» si no debe verla el solicitante.'},
 {id:'reply_internal',l:'Nota interna (el solicitante no la ve)',t:'switch',tab:'Respuestas',w:'f',x:0,s:'Nota interna',b:'Activa esta casilla para que la respuesta quede solo para tu equipo.',tip:'Si la dejas desmarcada, el solicitante podrá ver la respuesta.'}
 ];
+var FB={};F.forEach(function(f){FB[f.id]=f});
 var S={mode:'create',step:0,steps:[],tab:'General'};
 function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
 function val(id){var e=$('#'+id);if(!e)return'';if(e.type==='checkbox')return e.checked?'1':'';return(e.value||'').trim()}
@@ -105,17 +108,17 @@ function build(){var host=$('#panels'),tabs={};F.forEach(function(f){var pn=tabs
  var d=mk('div','field'+(f.w==='f'?' full':''));d.setAttribute('data-f',f.id);
  if(f.t==='note'){d.className='lock';d.appendChild(document.createTextNode(f.h));pn.appendChild(d);d.hidden=true;return}
  var c;if(f.t==='switch'){var w=mk('div','sw');c=mk('input');c.type='checkbox';w.appendChild(c);w.appendChild(mk('span',0,f.l));d.appendChild(w)}
- else{var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));if(f.id==='assigned_to')l.appendChild(mk('span','trig','dependsOn: department_id'));d.appendChild(l);
+ else{var l=mk('label','lbl',f.l);l.htmlFor=f.id;if(f.r)l.appendChild(mk('span','req','*'));if(f.id==='assigned_to')l.appendChild(mk('span','trig','dependsOn: department_id'));if(f.dep)l.appendChild(mk('span','trig','dependsOn: '+f.dep));d.appendChild(l);
   if(f.t==='select')c=mk('select');else if(f.t==='textarea')c=mk('textarea');else{c=mk('input');c.type='text';c.autocomplete='off'}d.appendChild(c)}
  c.id=f.id;if(f.h)d.appendChild(mk('div','help',f.h));var m=mk('div','errmsg');m.hidden=true;d.appendChild(m);pn.appendChild(d)});
  F.forEach(function(f){if(f.t==='select')fillSel(f)});
  $$('#panels input,#panels select,#panels textarea').forEach(function(el){el.addEventListener('input',onCh);el.addEventListener('change',onCh);el.addEventListener('focus',function(){var b=el.closest('.field'),i=idxOf(b&&b.getAttribute('data-f'));if(i>=0&&i!==S.step)go(i,false)})})}
-function onCh(e){if(e.target.id==='department_id')fillSel(F[2]);if(e.target.classList.contains('err')){e.target.classList.remove('err');var m=$('.errmsg',e.target.closest('.field'));if(m)m.hidden=true}refresh()}
+function onCh(e){if(e.target.id==='department_id')fillSel(FB.assigned_to);if(e.target.id==='origin_tenant_id')fillSel(FB.requester_user_id);if(e.target.classList.contains('err')){e.target.classList.remove('err');var m=$('.errmsg',e.target.closest('.field'));if(m)m.hidden=true}refresh()}
 function tabList(){var t=[];F.forEach(function(f){if(vis(f)&&t.indexOf(f.tab)<0)t.push(f.tab)});return t}
 function showTabs(){var b=$('#tabs');b.innerHTML='';tabList().forEach(function(n){var x=mk('button','tab',n);x.type='button';x.setAttribute('role','tab');x.setAttribute('aria-selected',String(n===S.tab));x.onclick=function(){S.tab=n;showTabs()};b.appendChild(x)});
  $$('#panels .panel').forEach(function(p){p.hidden=p.getAttribute('data-tab')!==S.tab});$$('#panels .lock').forEach(function(d){d.hidden=S.mode!=='update'})}
 function exTxt(f){if(f.t==='switch')return'Marcada';var o=f.o&&opts(f);return o?(o[f.x]||String(f.x)):f.x}
-function steps(){var s=[];F.forEach(function(f){if(!f.s)return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return f.t==='switch'||(f.d?true:!!val(f.id))},fill:function(){var e=$('#'+f.id);if(f.t==='switch'){e.checked=!!f.x}else{if(f.id==='assigned_to'&&!val('department_id')){$('#department_id').value='d1';fillSel(F[2])}e.value=f.x}refresh()}})});
+function steps(){var s=[];F.forEach(function(f){if(!f.s)return;s.push({id:f.id,f:f,title:f.s,body:f.b,tip:f.tip,ex:exTxt(f),req:f.r,opt:!f.r,done:function(){return f.t==='switch'||(f.d?true:!!val(f.id))},fill:function(){var e=$('#'+f.id);if(f.t==='switch'){e.checked=!!f.x}else{if(f.id==='assigned_to'&&!val('department_id')){$('#department_id').value='d1';fillSel(FB.assigned_to)}if(f.id==='requester_user_id'&&!val('origin_tenant_id')){$('#origin_tenant_id').value='t1';fillSel(FB.requester_user_id)}e.value=f.x}refresh()}})});
  s.push({id:'save',title:'Guardar',body:'Pulsa Crear. La demo valida los campos obligatorios y te lleva a la pantalla de edición, donde aparece la conversación.',tip:'«Crear y cerrar» te devuelve a la lista; «Crear» te deja editando el registro.',done:function(){return S.mode==='update'},fill:function(){save(false)}});return s}
 function idxOf(id){for(var i=0;i<S.steps.length;i++)if(S.steps[i].id===id)return i;return-1}
 function refresh(){var cur=S.steps[S.step]&&S.steps[S.step].id;S.steps=steps();var i=idxOf(cur);S.step=i>=0?i:Math.min(S.step,S.steps.length-1);render()}
@@ -130,7 +133,9 @@ function go(i,sc){S.step=Math.max(0,Math.min(S.steps.length-1,i));render();var c
 function err(id,m){var d=$('[data-f="'+id+'"]');var e=$('.errmsg',d);e.hidden=false;e.textContent=m;var c=$('input,select,textarea',d);if(c)c.classList.add('err')}
 function save(close){$$('.errmsg').forEach(function(e){e.hidden=true});$$('.err').forEach(function(e){e.classList.remove('err')});var errs=[];
  if(!val('subject'))errs.push(['subject','El campo Asunto es obligatorio.']);else if(val('subject').length>255)errs.push(['subject','Asunto no puede superar 255 caracteres.']);
+ if(val('origin_tenant_id')){if(!val('requester_user_id'))errs.push(['requester_user_id','Elegí el administrador del tenant.'])}
  if(!val('department_id'))errs.push(['department_id','Elegí el departamento.']);
+ if(!val('assigned_to'))errs.push(['assigned_to','Asigná el ticket a un responsable.']);
  var em=val('requester_email');if(em&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em))errs.push(['requester_email','Correo debe ser una dirección válida.']);
  if(errs.length){errs.forEach(function(e){err(e[0],e[1])});go(idxOf(errs[0][0]));flash('No se pudo crear: '+errs[0][1],true);return}
  S.mode='update';$('#h1').textContent=CFG.edit;$('#crumb').textContent='/backend/aero/crm/'+CFG.path+'/update/7 · Guía de capacitación';$('#btnSave').textContent='Guardar';$('#btnSaveClose').textContent='Guardar y cerrar';
