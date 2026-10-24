@@ -27,6 +27,7 @@ return [
 
     // credenciales y tokens
     \Aero\Producer\Models\Credential::class => 'credenciales (api_key_enc)',
+    \Aero\Producer\Models\Order::class => 'pedidos de video: guion e imagen de personas; se gestionan en el panel con cobro en créditos',
     \Aero\Producer\Models\Project::class => 'proyectos de video de la plataforma (guion y archivos internos); sin pantalla de tenant aún',
     \Aero\Youtube\Models\Credential::class => 'credenciales (api_key_enc)',
     \Aero\Youtube\Models\Upload::class => 'cola de subidas de la plataforma (biblioteca de medios propia, solo superadmin)',
