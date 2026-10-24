@@ -109,8 +109,9 @@ description = "Clouds: un equipo con 25 años de experiencia en la nube, desarro
                     {% for r in rows %}
                     <tr class="border-b border-edge last:border-0">
                         <th scope="row" class="sticky left-0 z-10 bg-canvas-elev text-left font-medium px-4 py-3">{{ r[0] }}</th>
+                        {% set vals = r[1]|split('') %}
                         {% for i in 0..4 %}
-                        {% set v = r[1][i] %}
+                        {% set v = vals[i] %}
                         <td class="px-3 py-3 text-center {{ i == 0 ? 'bg-canvas-elev2' : '' }}"><span class="{{ cls[v] }}" aria-label="{{ lbl[v] }}" title="{{ lbl[v] }}">{{ sym[v] }}</span></td>
                         {% endfor %}
                     </tr>
