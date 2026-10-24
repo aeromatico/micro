@@ -1,6 +1,7 @@
 <?php namespace Aero\Credits\Controllers;
 
 use Aero\Credits\Classes\Credits;
+use Aero\Credits\Classes\CreditUsage;
 use Aero\Credits\Classes\Money;
 use Aero\Credits\Classes\Recharges;
 use Aero\Credits\Models\CreditPurchase;
@@ -68,6 +69,8 @@ class Wallet extends Controller
         $this->vars['feePercent'] = Settings::exchangeFeePercent();
         $this->vars['ttlMinutes'] = Settings::purchaseTtlMinutes();
         $this->vars['kindLabels'] = self::KIND_LABELS;
+        $this->vars['usage'] = CreditUsage::summary($tenantId, 30);
+        $this->vars['tariffs'] = CreditUsage::tariffs();
         $this->vars['movements'] = CreditTransaction::with('creditType')->where('tenant_id', $tenantId)
             ->orderByDesc('id')->limit(100)->get();
     }
@@ -81,6 +84,16 @@ class Wallet extends Controller
         }
 
         return $tenantId;
+    }
+
+    /** Refresca «¿A dónde van?» con otro período (7/30/90 días). */
+    public function onUsage(): array
+    {
+        $days = in_array((int) post('days'), [7, 30, 90], true) ? (int) post('days') : 30;
+
+        return ['#wl-usage' => $this->makePartial('usage', [
+            'usage' => CreditUsage::summary($this->tenantIdOrFail(), $days),
+        ])];
     }
 
     // ---- Recarga ----

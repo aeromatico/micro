@@ -76,3 +76,11 @@
 1.17.0:
     - "API de Trials para sistemas asociados: POST /api/v1/credits/trials emite (idempotente por ref) un cupón Trial de un solo uso para un cliente externo y GET /api/v1/credits/trials/{ref} consulta su estado. Scope credits.trials.issue, solo keys de la plataforma. El cliente canjea el cupón en /comprar?promo= y elige sus propios datos; el plan y los días los fija Créditos → Ajustes de invitaciones."
     - add_partner_ref_to_coupons.php
+
+1.18.0:
+    - "Tarifario de créditos: cada acción tiene categoría, nombre claro y unidad, y la billetera suma las pestañas «¿A dónde van?» (consumo por función) y «Tarifas» (qué cuesta cada función)."
+    - add_public_fields_to_credit_actions.php
+
+1.18.1:
+    - "Corrige el tarifario de créditos: ya no se publica ninguna función por defecto (solo las que tienen nombre público), las tarifas en Bs se muestran en Bs y la billetera calcula el consumo con menos consultas."
+    - publish_credit_tariff_defaults.php

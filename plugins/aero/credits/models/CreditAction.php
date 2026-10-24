@@ -16,6 +16,7 @@ class CreditAction extends Model
 
     public $fillable = [
         'code', 'label', 'plugin', 'credit_type_id', 'default_cost', 'is_active',
+        'category', 'public_label', 'public_description', 'unit', 'is_public',
     ];
 
     public $rules = [
@@ -28,11 +29,13 @@ class CreditAction extends Model
     public $attributes = [
         'default_cost' => 1,
         'is_active'    => true,
+        'is_public'    => false,
     ];
 
     protected $casts = [
         'default_cost' => 'integer',
         'is_active'    => 'boolean',
+        'is_public'    => 'boolean',
     ];
 
     public $belongsTo = [

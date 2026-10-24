@@ -7,6 +7,10 @@ columns:
         searchable: true
     plugin:
         label: aero.credits::lang.action.plugin
+    category:
+        label: Categoría
+    unit:
+        label: Unidad
     creditType[label]:
         label: aero.credits::lang.action.credit_type
         relation: creditType

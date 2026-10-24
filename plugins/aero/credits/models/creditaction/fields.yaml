@@ -30,3 +30,40 @@ fields:
         label: aero.credits::lang.action.is_active
         type: switch
         span: right
+
+    category:
+        label: Categoría (para el tenant)
+        type: dropdown
+        span: left
+        options:
+            Mensajería: Mensajería
+            Inteligencia artificial: Inteligencia artificial
+            Datos externos: Datos externos
+            API: API
+            Automatización: Automatización
+            Pagos: Pagos
+            Servicios: Servicios
+            Video: Video
+            Otros: Otros
+
+    unit:
+        label: Unidad de cobro
+        type: text
+        span: right
+        placeholder: por mensaje, por llamada…
+
+    public_label:
+        label: Nombre público
+        type: text
+        comment: Como lo ve el tenant. Vacío = usa la etiqueta de arriba. No incluyas nombres de proveedores.
+        span: left
+
+    is_public:
+        label: Mostrar en el tarifario
+        type: switch
+        span: right
+
+    public_description:
+        label: Descripción pública
+        type: textarea
+        size: tiny

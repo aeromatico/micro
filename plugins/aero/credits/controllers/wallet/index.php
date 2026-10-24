@@ -72,6 +72,8 @@ $price = fn ($units) => \Aero\Credits\Classes\Money::price((int) $units);
         <button type="button" class="on" data-tab="recharge">Recargar</button>
         <button type="button" data-tab="buy">Usar mi saldo en Bs</button>
         <button type="button" data-tab="exchange">Intercambiar</button>
+        <button type="button" data-tab="usage">¿A dónde van?</button>
+        <button type="button" data-tab="tariffs">Tarifas</button>
         <button type="button" data-tab="history">Movimientos</button>
     </div>
 
@@ -186,6 +188,40 @@ $price = fn ($units) => \Aero\Credits\Classes\Money::price((int) $units);
         <button type="button" class="btn btn-primary" id="ex-go" disabled>Intercambiar</button>
     </div>
 
+    <!-- ¿A DÓNDE VAN? -->
+    <div data-pane="usage" hidden>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+            <label class="wl-note" for="wl-days">Período</label>
+            <select id="wl-days" name="days" class="form-control custom-select" style="width:auto"
+                data-request="onUsage" data-track-input>
+                <option value="7">Últimos 7 días</option>
+                <option value="30" selected>Últimos 30 días</option>
+                <option value="90">Últimos 90 días</option>
+            </select>
+        </div>
+        <div id="wl-usage"><?= $this->makePartial('usage', ['usage' => $usage]) ?></div>
+    </div>
+
+    <!-- TARIFAS -->
+    <div data-pane="tariffs" hidden>
+        <p class="wl-note" style="margin-bottom:12px">Lo que cuesta cada función de la plataforma. Solo se cobra cuando la usas; si una acción falla, te devolvemos el crédito.</p>
+        <?php foreach ($tariffs as $cat => $rows): ?>
+            <h4 style="margin:18px 0 6px"><?= e($cat) ?></h4>
+            <table class="wl-table">
+                <tbody>
+                <?php foreach ($rows as $r): ?>
+                    <tr>
+                        <td><?= e($r['label']) ?><?php if ($r['description']): ?><div class="wl-note"><?= e($r['description']) ?></div><?php endif ?></td>
+                        <td class="wl-note"><?= e($r['unit']) ?></td>
+                        <td style="text-align:right;white-space:nowrap"><strong><?= $r['is_money'] ? 'Bs ' . \Aero\Credits\Classes\Money::format($r['cost'], 2, 'ceil') : $fmt($r['cost']) ?></strong> <span class="wl-dot" style="background:<?= e($r['color']) ?>"></span> <?= e($r['type_label']) ?></td>
+                    </tr>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+        <?php endforeach ?>
+        <?php if (!$tariffs): ?><p class="wl-note">Aún no hay tarifas publicadas.</p><?php endif ?>
+    </div>
+
     <!-- MOVIMIENTOS -->
     <div data-pane="history" hidden>
         <table class="wl-table">
@@ -199,7 +235,8 @@ $price = fn ($units) => \Aero\Credits\Classes\Money::price((int) $units);
                     <?php $isMoney = (bool) ($m->creditType->is_money ?? false); ?>
                     <td style="text-align:right;white-space:nowrap" class="<?= $m->delta >= 0 ? 'wl-pos' : 'wl-neg' ?>"><?= ($m->delta > 0 ? '+' : ($m->delta < 0 ? '−' : '')) . ($isMoney ? 'Bs ' . $bs($m->delta, $m->delta < 0 ? 'ceil' : 'floor') : $fmt(abs($m->delta))) ?></td>
                     <td style="text-align:right;white-space:nowrap"><?= $isMoney ? 'Bs ' . $bs($m->balance_after) : $fmt($m->balance_after) ?></td>
-                    <td class="wl-note"><?= e($m->reason) ?></td>
+                    <?php $fn = \Aero\Credits\Classes\CreditUsage::describe($m->action_code); ?>
+                    <td class="wl-note"><?= $m->action_code ? '<strong>' . e($fn['label']) . '</strong> · ' : '' ?><?= e($m->reason) ?></td>
                 </tr>
             <?php endforeach ?>
             <?php if ($movements->isEmpty()): ?><tr><td colspan="6" class="wl-note">Aún no hay movimientos.</td></tr><?php endif ?>
