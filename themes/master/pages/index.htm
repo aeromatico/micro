@@ -89,7 +89,7 @@ function onStart()
 
 {% partial 'site/landing/steps' %}
 
-{% partial 'site/landing/demo' %}
+{% partial 'site/landing/demo' hideOmnichat=true %}
 
 {% partial 'site/landing/configuracion' %}
 
@@ -99,11 +99,20 @@ function onStart()
 
 {% partial 'site/landing/payments' %}
 
+<div class="border-t border-edge">
+    {% partial 'site/landing/omnichat' %}
+</div>
+
 {% partial 'site/landing/whatsapp-comparison' %}
 
 {% if collection %}
     {% partial 'site/_services_collection' collection=collection id='coleccion-rubro' %}
 {% endif %}
+
+{# Diseño con IA + editor visual, antes de WordPress #}
+<div class="border-t border-edge">
+    {% partial 'site/landing/spotlight' %}
+</div>
 
 {% partial 'site/landing/wordpress-woocommerce' %}
 

@@ -207,9 +207,11 @@ window.demoVideos = window.demoVideos || function (items) {
 {% endif %}
 
 {# ───── 2 · OmniChat ───── #}
+{% if not hideOmnichat %}
 <div class="border-t border-edge">
     {% partial 'site/landing/omnichat' %}
 </div>
+{% endif %}
 
 {# ───── 3 · Guías interactivas ───── #}
 {% if demoGuides|length %}
@@ -270,9 +272,4 @@ window.demoVideos = window.demoVideos || function (items) {
     </div>
 </section>
 {% endif %}
-
-{# ───── 4 · Editor con IA ───── #}
-<div class="border-t border-edge">
-    {% partial 'site/landing/spotlight' %}
-</div>
 </div>
