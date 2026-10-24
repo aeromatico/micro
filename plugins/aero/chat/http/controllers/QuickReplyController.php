@@ -19,7 +19,7 @@ class QuickReplyController extends Controller
 
         $rows = QuickReply::inScope($this->tenantId($request))->active()
             ->forAccount((int) $request->query('account_id') ?: null)
-            ->orderBy('sort_order')->orderBy('shortcut')
+            ->orderByDesc('uses_count')->orderBy('sort_order')->orderBy('shortcut')
             ->get(['id', 'shortcut', 'title', 'area', 'kind', 'config', 'body', 'sort_order', 'uses_count']);
 
         return response()->json(['data' => $rows->map(function ($r) use ($account) {
