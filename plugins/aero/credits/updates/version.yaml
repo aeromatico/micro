@@ -84,3 +84,7 @@
 1.18.1:
     - "Corrige el tarifario de créditos: ya no se publica ninguna función por defecto (solo las que tienen nombre público), las tarifas en Bs se muestran en Bs y la billetera calcula el consumo con menos consultas."
     - publish_credit_tariff_defaults.php
+
+1.19.0:
+    - "Auditoría de cobros para el superadmin (Créditos → Auditoría de cobros): consumo por plugin, funciones sin catálogo o sin tarifa pública y cobros que fallaron. Los cobros fallidos de API, Hub, Chatbots y Workflows ahora quedan registrados en vez de perderse, y todo cobro nuevo guarda su plugin de origen."
+    - create_credit_charge_failures_table.php

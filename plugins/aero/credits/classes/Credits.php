@@ -186,7 +186,7 @@ class Credits
             return DB::transaction(function () use ($tenantId, $type, $amount, $actionCode, $context, $key) {
                 $tx = static::post($tenantId, $type, -$amount, 'charge', [
                     'action_code'        => $actionCode,
-                    'source_plugin'      => $context['source_plugin'] ?? null,
+                    'source_plugin'      => $context['source_plugin'] ?? CreditUsage::pluginFor($actionCode),
                     'reason'             => $context['reason'] ?? $actionCode,
                     'meta'               => $context,
                     'idempotency_key'    => $key,
@@ -229,6 +229,27 @@ class Credits
             }
 
             throw $e;
+        }
+    }
+
+    /**
+     * Deja constancia de un cobro que el llamador decidió no propagar (saldo
+     * agotado en carrera, acción sin catálogo). Nunca lanza: es solo auditoría.
+     */
+    public static function recordFailure(?int $tenantId, string $actionCode, string $reason, array $context = []): void
+    {
+        try {
+            \Aero\Credits\Models\CreditChargeFailure::create([
+                'tenant_id'     => $tenantId,
+                'action_code'   => $actionCode,
+                'source_plugin' => $context['source_plugin'] ?? CreditUsage::pluginFor($actionCode),
+                'reason'        => mb_substr($reason, 0, 500),
+                'context'       => $context ?: null,
+                'created_at'    => now(),
+            ]);
+        }
+        catch (Throwable $e) {
+            \Log::warning('Aero.Credits: no se pudo registrar el cobro fallido: ' . $e->getMessage());
         }
     }
 

@@ -400,6 +400,12 @@ HTML;
                         'url'         => Backend::url('aero/credits/summary'),
                         'permissions' => ['aero.credits.superadmin'],
                     ],
+                    'audit' => [
+                        'label'       => 'Auditoría de cobros',
+                        'icon'        => 'icon-search',
+                        'url'         => Backend::url('aero/credits/audit'),
+                        'permissions' => ['aero.credits.superadmin'],
+                    ],
                     'creditaccounts' => [
                         'label'       => 'aero.credits::lang.menu.creditaccounts',
                         'icon'        => 'icon-university',

@@ -29,6 +29,14 @@ class CreditUsage
         'producer'   => 'Video',
     ];
 
+    /** Prefijo del código → plugin de origen cuando el cobro no lo declara. */
+    public const PLUGINS = [
+        'hello' => 'Aero.Hello', 'chat' => 'Aero.Chat', 'sms' => 'Aero.Sms', 'aifields' => 'Aero.AiFields',
+        'chatbots' => 'Aero.Chatbots', 'hub' => 'Aero.Hub', 'api' => 'Aero.Api', 'workflows' => 'Aero.Workflows',
+        'connector' => 'Aero.Connector', 'pay' => 'Aero.Pay', 'services' => 'Aero.Services',
+        'workspaces' => 'Aero.Workspaces', 'producer' => 'Aero.Producer',
+    ];
+
     /** Código exacto o prefijo → unidad de cobro. */
     public const UNITS = [
         'hello.message_send' => 'por mensaje',
@@ -74,6 +82,11 @@ class CreditUsage
     public static function categoryFor(string $code): string
     {
         return self::CATEGORIES[strstr($code, '.', true) ?: $code] ?? 'Otros';
+    }
+
+    public static function pluginFor(string $code): ?string
+    {
+        return self::PLUGINS[strstr($code, '.', true) ?: $code] ?? null;
     }
 
     public static function unitFor(string $code): string
