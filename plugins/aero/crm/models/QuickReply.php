@@ -140,17 +140,7 @@ class QuickReply extends Model
             return $plain;
         }
 
-        $c = $sub((array) $this->config);
-        $titles = fn ($rows) => array_map(fn ($r) => is_array($r) ? ($r['title'] ?? '') : $r, (array) $rows);
-        $rows = (array) ($c['list_rows'] ?? []);
-
-        $input = array_merge($c, [
-            'ix_body'           => $body,
-            'buttons'           => $titles($c['buttons'] ?? []),
-            'list_rows'         => $titles($rows),
-            'list_descriptions' => array_map(fn ($r) => is_array($r) ? ($r['description'] ?? '') : '', $rows),
-            'poll_options'      => $titles($c['poll_options'] ?? []),
-        ]);
+        $input = $this->structuredInput($body, $sub((array) $this->config));
 
         try {
             $built = \Aero\Hello\Classes\StructuredMessage::build($kind, $input);
@@ -171,6 +161,36 @@ class QuickReply extends Model
         }
 
         return ['body' => $built['fallback'] ?? $built['body'], 'type' => null, 'payload' => null];
+    }
+
+    /** Entrada para StructuredMessage::build a partir del cuerpo y la configuración. */
+    protected function structuredInput(string $body, array $c): array
+    {
+        $titles = fn ($rows) => array_map(fn ($r) => is_array($r) ? ($r['title'] ?? '') : $r, (array) $rows);
+        $rows = (array) ($c['list_rows'] ?? []);
+
+        return array_merge($c, [
+            'ix_body'           => $body,
+            'buttons'           => $titles($c['buttons'] ?? []),
+            'list_rows'         => $titles($rows),
+            'list_descriptions' => array_map(fn ($r) => is_array($r) ? ($r['description'] ?? '') : '', $rows),
+            'poll_options'      => $titles($c['poll_options'] ?? []),
+        ]);
+    }
+
+    /** Evita guardar un mensaje estructurado que luego se enviaría como texto por exceder los límites de WhatsApp. */
+    public function beforeSave(): void
+    {
+        $kind = $this->kind ?: 'text';
+        if ($kind === 'text' || !class_exists(\Aero\Hello\Classes\StructuredMessage::class)) {
+            return;
+        }
+
+        try {
+            \Aero\Hello\Classes\StructuredMessage::build($kind, $this->structuredInput((string) $this->body, (array) $this->config));
+        } catch (\InvalidArgumentException $e) {
+            throw new \October\Rain\Exception\ValidationException(['config' => $e->getMessage()]);
+        }
     }
 
     public function getAreaOptions(): array
