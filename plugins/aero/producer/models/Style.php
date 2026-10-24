@@ -9,7 +9,7 @@ class Style extends Model
 
     public $table = 'aero_producer_styles';
 
-    public $fillable = ['kind', 'slug', 'name', 'description', 'preview_url', 'max_seconds', 'credit_cost', 'is_active', 'sort_order'];
+    public $fillable = ['kind', 'slug', 'name', 'description', 'preview_url', 'max_seconds', 'credit_cost', 'is_active', 'sort_order', 'motion_prompt'];
 
     public $rules = [
         'kind'        => 'required|in:presenter,explainer',

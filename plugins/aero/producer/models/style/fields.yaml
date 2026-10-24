@@ -8,3 +8,4 @@ fields:
     max_seconds: {label: Duración máxima (segundos), type: number, span: left, default: 30}
     credit_cost: {label: Costo en créditos por video, type: number, span: right, default: 0}
     sort_order: {label: Orden en la galería, type: number, span: left, default: 0}
+    motion_prompt: {label: Movimiento del presentador (en inglés), type: textarea, size: small, comment: "Solo para presentador. Cómo se mueve: camina, gesticula, mira a cámara. El resultado es mejor en inglés."}

@@ -60,6 +60,11 @@ class Credential extends Model
         return $key ? substr($key, 0, 4) . '…' . substr($key, -3) : '—';
     }
 
+    public function getProviderOptions(): array
+    {
+        return ['elevenlabs' => 'ElevenLabs (voz)', 'heygen' => 'HeyGen (presentador)'];
+    }
+
     public function getScopeLabelAttribute(): string
     {
         return $this->tenant_id ? 'Propia' : 'Plataforma';

@@ -9,3 +9,7 @@
 1.2.0:
     - "Catálogo de estilos de video y de voces curadas, y pedidos de video para los tenants (presentador y explicativo)."
     - create_styles_voices_orders.php
+
+1.3.0:
+    - "Los pedidos de presentador se producen con voz y animación en la nube, desde el panel del administrador, y el video queda en Medios."
+    - add_production_columns.php

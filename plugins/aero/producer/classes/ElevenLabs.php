@@ -37,6 +37,21 @@ class ElevenLabs
         ])->all();
     }
 
+    /** Locución en mp3 (binario) de un texto con la voz indicada. */
+    public function speak(string $voiceId, string $text): string
+    {
+        $response = Http::timeout(120)->withOptions(['force_ip_resolve' => 'v4'])->withHeaders(['xi-api-key' => $this->key])
+            ->post(self::BASE . '/v1/text-to-speech/' . $voiceId . '?output_format=mp3_44100_128', [
+                'text' => $text, 'model_id' => 'eleven_multilingual_v2',
+            ]);
+
+        if ($response->failed()) {
+            throw new RuntimeException($response->json('detail.message') ?? ('ElevenLabs respondió ' . $response->status() . '.'));
+        }
+
+        return $response->body();
+    }
+
     public function test(): int
     {
         return count($this->voices(1));

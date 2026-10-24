@@ -2,6 +2,8 @@
 
 use Aero\Producer\Classes\CurrentTenant;
 use Aero\Producer\Classes\ScopesToTenant;
+use Aero\Producer\Classes\Production;
+use Aero\Producer\Jobs\ProduceOrder;
 use Aero\Producer\Models\Order;
 use Aero\Producer\Models\Style;
 use ApplicationException;
@@ -55,6 +57,27 @@ class Orders extends Controller
                 $form->removeField($field);
             }
         }
+    }
+
+    /**
+     * Solo el administrador lanza la producción: cada video cuesta dinero real a la
+     * plataforma y el cobro al tenant aún no está activo.
+     */
+    public function update_onProduce($recordId = null)
+    {
+        if (!CurrentTenant::isAdmin()) {
+            throw new ApplicationException('Solo el administrador puede producir pedidos.');
+        }
+
+        $order = Order::findOrFail($recordId);
+        if (!Production::canProduce($order) && !($order->provider_ref && $order->status === 'failed')) {
+            throw new ApplicationException('Este pedido no se puede producir ahora (¿es explicativo, o ya está en producción?).');
+        }
+
+        ProduceOrder::dispatch($order);
+        Flash::success('Producción iniciada. El video aparece aquí en unos minutos.');
+
+        return \Backend::redirect('aero/producer/orders/update/' . $order->id);
     }
 
     public function listExtendColumns($list): void

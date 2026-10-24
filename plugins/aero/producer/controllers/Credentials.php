@@ -28,7 +28,7 @@ class Credentials extends Controller
     public function formBeforeCreate($model): void
     {
         $model->tenant_id = null;
-        $model->provider = 'elevenlabs';
+        $model->provider = $model->provider ?: 'elevenlabs';
     }
 
     /** Gasta 1 unidad de cuota y guarda el resultado en la llave. */
@@ -41,8 +41,14 @@ class Credentials extends Controller
             if (!$key) {
                 throw new \RuntimeException('La llave está vacía.');
             }
-            $n = (new ElevenLabs($key))->test();
-            $credential->forceFill(['last_status' => 'ok', 'last_message' => 'La llave funciona (ElevenLabs responde).', 'last_checked_at' => now()])->save();
+            if ($credential->provider === 'heygen') {
+                $balance = (new \Aero\Producer\Classes\HeyGen($key))->balance();
+                $message = 'La llave funciona (HeyGen responde). Saldo: US$' . number_format($balance, 2) . '.';
+            } else {
+                (new ElevenLabs($key))->test();
+                $message = 'La llave funciona (ElevenLabs responde).';
+            }
+            $credential->forceFill(['last_status' => 'ok', 'last_message' => $message, 'last_checked_at' => now()])->save();
             Flash::success('La llave funciona.');
         } catch (\Throwable $e) {
             $credential->forceFill(['last_status' => 'error', 'last_message' => mb_substr($e->getMessage(), 0, 400), 'last_checked_at' => now()])->save();
