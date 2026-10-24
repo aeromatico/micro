@@ -10,13 +10,29 @@
 <div class="max-w-6xl mx-auto px-6 sm:px-10 pb-20">{% partial 'site/gateways-rotator' %}</div>    
 
     {# Protagonista: red Enlace #}
-    <div class="border border-accent rounded-3xl p-7 sm:p-10 bg-canvas">
+    <div class="border border-accent rounded-3xl p-7 sm:p-10 bg-canvas" x-data="{
+        open: false, tipo: null,
+        tipos: [
+            {id: 'nit', label: 'Persona Natural con NIT', reqs: ['Carnet de identidad vigente', 'NIT o Certificado de Inscripción (Régimen simplificado o general)', 'Cuenta bancaria en el banco de tu preferencia']},
+            {id: 'sin', label: 'Persona Natural sin NIT', reqs: ['Carnet de identidad vigente', 'Cuenta bancaria en el banco de tu preferencia'],
+             excepcion: [
+                ['Comerciantes minoristas', 'Compra y venta de mercaderías o prestación de servicios en mercados públicos, ferias, kioskos, pequeñas tiendas (tiendas de barrio) y puestos en vía pública.'],
+                ['Vivanderos', 'Venta de comidas (food trucks), bebidas y alimentos en kioskos y pequeños locales.'],
+                ['Artesanos', 'Quienes ejercen un arte u oficio manual por cuenta propia, en su taller o a domicilio, con remuneración de terceros en calidad de clientes.'],
+                ['Transporte público de menor escala', 'Propietarios de hasta dos (2) vehículos de transporte público urbano, interprovincial y/o de carga en un mismo distrito. No incluye flotas de transporte internacional o interdepartamental de pasajeros, ni empresas de transporte urbano (radio taxis y similares) que tributan según Ley Nº 843.']
+             ]},
+            {id: 'jur', label: 'Persona Jurídica con o sin NIT', reqs: ['NIT o Certificado de Inscripción (si no cuentas con NIT, puedes omitirlo)', 'Carnet de identidad vigente del representante legal', 'Cuenta bancaria en el banco de tu preferencia', 'Testimonio de constitución', 'Poder del representante legal'],
+             nota: 'SEPREC no es requisito de afiliación, pero Red Enlace revisa legalmente el documento y el aceptante debe tenerlo al día.'}
+        ],
+        get sel() { return this.tipos.find(t => t.id === this.tipo) },
+        get wa() { return this.sel ? 'https://wa.me/591721451400?text=' + encodeURIComponent('Hola, vengo por recomendación de Market.com.bo. Tengo un negocio (' + this.sel.label + ') y quiero solicitar acceso a OpenHub para automatizar mis pagos.') : '#' }
+    }" @keydown.escape.window="open = false">
         <div class="flex items-start justify-between gap-4 flex-wrap">
             <div>
                 <h3 class="text-xl font-bold">Red Enlace</h3>
                 <p class="text-sm text-ink-dim mt-1 max-w-[460px]">Aplica en línea y conecta tus cuentas bancarias directamente con nuestro partner <b>ATC-Red Enlace</b> (Administradora de Tarjetas de Crédito S.A.) y usa Market para automatizar tus procesos comerciales.</p>
             </div>
-            <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Se conecta desde tu cuenta</span>
+            <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Partner</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
@@ -43,6 +59,44 @@
             <li>Aviso a tu sistema por webhook</li>
             <li>Todo en el mismo panel y la misma conciliación</li>
         </ul>
+
+        <div class="mt-8">
+            <button type="button" @click="open = true" class="inline-flex items-center bg-accent text-canvas font-bold text-sm px-6 py-3.5 rounded-lg hover:opacity-90 transition-opacity">Solicitar acceso a Red Enlace</button>
+        </div>
+
+        <div x-show="open" x-cloak x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" @click.self="open = false">
+            <div role="dialog" aria-modal="true" aria-labelledby="re-modal-title" class="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-canvas border border-edge rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <div class="flex items-start justify-between gap-4">
+                    <h3 id="re-modal-title" class="text-lg font-bold">¿Qué tipo de comerciante eres?</h3>
+                    <button type="button" @click="open = false" aria-label="Cerrar" class="text-ink-dim hover:text-ink text-2xl leading-none">&times;</button>
+                </div>
+
+                <div class="flex flex-col gap-2 mt-5">
+                    <template x-for="t in tipos" :key="t.id">
+                        <button type="button" @click="tipo = t.id" :class="tipo === t.id ? 'border-accent text-ink' : 'border-edge text-ink-dim hover:border-ink-dim'" class="text-left text-sm font-semibold px-4 py-3 border rounded-xl transition-colors" x-text="t.label"></button>
+                    </template>
+                </div>
+
+                <template x-if="sel">
+                    <div class="mt-6">
+                        <h4 class="text-sm font-bold">Requisitos</h4>
+                        <ul class="mt-2 flex flex-col gap-1.5 text-sm text-ink-dim list-disc pl-5">
+                            <template x-for="r in sel.reqs" :key="r"><li x-text="r"></li></template>
+                        </ul>
+                        <template x-if="sel.excepcion">
+                            <div class="mt-5">
+                                <h4 class="text-sm font-bold">Excepción de NIT para estos rubros</h4>
+                                <ul class="mt-2 flex flex-col gap-2 text-[13px] text-ink-dim">
+                                    <template x-for="e in sel.excepcion" :key="e[0]"><li><strong class="text-ink" x-text="e[0] + ':'"></strong> <span x-text="e[1]"></span></li></template>
+                                </ul>
+                            </div>
+                        </template>
+                        <p x-show="sel.nota" class="mt-4 text-[13px] text-ink-dim" x-text="'* ' + sel.nota"></p>
+                        <a :href="wa" target="_blank" rel="noopener" class="mt-6 inline-flex items-center justify-center w-full bg-accent text-canvas font-bold text-sm px-6 py-3.5 rounded-lg hover:opacity-90 transition-opacity">Continuar por WhatsApp</a>
+                    </div>
+                </template>
+            </div>
+        </div>
     </div>
 
     {# Secundarios #}
