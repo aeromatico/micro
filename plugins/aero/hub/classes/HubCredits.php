@@ -73,6 +73,7 @@ class HubCredits
         }
         catch (\Throwable $e) {
             \Log::warning("Aero.Hub: fallo cobrando overage de {$endpoint->code}: " . $e->getMessage());
+            \Aero\Credits\Classes\Credits::recordFailure($tenantId, $endpoint->actionCode() . '.overage', $e->getMessage(), ['source_plugin' => 'Aero.Hub']);
         }
     }
 
