@@ -543,6 +543,7 @@ class ChatbotEngine
         catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             // Sin saldo: la respuesta de IA ya se generó y se manda igual,
             // no le negamos la respuesta al contacto final por esto.
+            \Aero\Credits\Classes\Credits::recordFailure($bot->tenant_id, 'chatbots.ai_reply', $e->getMessage(), ['source_plugin' => 'Aero.Chatbots', 'bot_id' => $bot->id]);
         }
     }
 
