@@ -1,10 +1,13 @@
 {# Pagos (Bolivia Pay) — red de cobro Red Enlace como protagonista; API bancaria y alternativos en segundo plano, ver docs/pay #}
 <section id="pagos" class="max-w-6xl mx-auto px-6 sm:px-10 py-24 scroll-mt-14">
     <div class="max-w-[640px] mb-12">
-        <span class="text-xs tracking-wide text-accent uppercase font-bold">Pagos</span>
-        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Cobra desde Bolivia y desde el mundo, confirmado solo.</h2>
-        <p class="text-base text-ink-dim mt-3">Bolivia Pay se conecta a la red Enlace: un mismo cobro en bolivianos que tus clientes pagan con su banco, con Binance, con cripto o desde Brasil. Tú recibes en BOB y tu sistema se entera al instante.</p>
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Todas las Apis bancarias, una sola plataforma, un solo api</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Cobra en toda Bolivia y el mundo</h2>
+        <p class="text-base text-ink-dim mt-3">Bolivia Pay te permite recibir pagos globales de forma segura y directamente en tus cuentas bancarias. Recibe pagos QR, con USDT/USDSC, pagos desde Brasil a través de PIX o a través de Binance. Además puedes conectar cuentas Paypal o Stripe. </p>
     </div>
+
+
+<div class="max-w-6xl mx-auto px-6 sm:px-10 pb-20">{% partial 'site/gateways-rotator' %}</div>    
 
     {# Protagonista: red Enlace #}
     <div class="border border-accent rounded-3xl p-7 sm:p-10 bg-canvas">
