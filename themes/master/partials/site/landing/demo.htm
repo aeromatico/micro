@@ -229,12 +229,29 @@ window.demoVideos = window.demoVideos || function (items) {
             <p class="text-base text-ink-dim mt-3 text-pretty">Réplicas de los formularios reales con un guía al lado. Rellena, equivócate y aprende sin tocar datos de verdad. Se abren aquí mismo.</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 mb-6">
-            <button type="button" @click="g = 'all'" :class="g === 'all' ? 'border-accent text-ink bg-canvas-elev' : 'border-edge text-ink-dim hover:text-ink'" class="px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors">Todas <span class="text-ink-dim tabular-nums">{{ demoGuides|length }}</span></button>
+        <div class="flex justify-end mb-3">
+            <input type="search" x-model="q" placeholder="Buscar guía…" aria-label="Buscar guía" class="w-full sm:w-56 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-accent">
+        </div>
+
+        {# Filtros en una sola fila: arrastrables (mouse y táctil) con degradados en los extremos #}
+        <div class="relative mb-6"
+             x-data="{ l: false, r: true, drag: false, moved: false, sx: 0, sl: 0,
+                       upd() { const e = this.$refs.chips; this.l = e.scrollLeft > 4; this.r = e.scrollLeft + e.clientWidth < e.scrollWidth - 4; } }"
+             x-init="$nextTick(() => upd())" @resize.window="upd()">
+            <div x-ref="chips" @scroll.passive="upd()"
+                 @pointerdown="if ($event.pointerType === 'mouse') { drag = true; moved = false; sx = $event.clientX; sl = $refs.chips.scrollLeft; }"
+                 @pointermove="if (drag) { const d = $event.clientX - sx; if (Math.abs(d) > 4) moved = true; $refs.chips.scrollLeft = sl - d; }"
+                 @pointerup.window="drag = false" @pointercancel.window="drag = false"
+                 @click.capture="if (moved) { $event.stopPropagation(); $event.preventDefault(); moved = false; }"
+                 :class="drag ? 'cursor-grabbing select-none' : 'cursor-grab'"
+                 class="flex items-center gap-2 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <button type="button" @click="g = 'all'" :class="g === 'all' ? 'border-accent text-ink bg-canvas-elev' : 'border-edge text-ink-dim hover:text-ink'" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors">Todas <span class="text-ink-dim tabular-nums">{{ demoGuides|length }}</span></button>
             {% for name, count in demoGuideGroups %}
-            <button type="button" @click="g = {{ name|json_encode|e('html_attr') }}" :class="g === {{ name|json_encode|e('html_attr') }} ? 'border-accent text-ink bg-canvas-elev' : 'border-edge text-ink-dim hover:text-ink'" class="px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors">{{ name }} <span class="text-ink-dim tabular-nums">{{ count }}</span></button>
+            <button type="button" @click="g = {{ name|json_encode|e('html_attr') }}" :class="g === {{ name|json_encode|e('html_attr') }} ? 'border-accent text-ink bg-canvas-elev' : 'border-edge text-ink-dim hover:text-ink'" class="shrink-0 px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors">{{ name }} <span class="text-ink-dim tabular-nums">{{ count }}</span></button>
             {% endfor %}
-            <input type="search" x-model="q" placeholder="Buscar guía…" aria-label="Buscar guía" class="ml-auto w-full sm:w-56 rounded-lg border border-edge bg-canvas px-3 py-1.5 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-accent">
+            </div>
+            <div x-show="l" x-cloak aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-canvas to-transparent"></div>
+            <div x-show="r" x-cloak aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-canvas to-transparent"></div>
         </div>
 
         <div x-ref="glist" x-effect="g; q; $refs.glist.scrollTop = 0" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[26rem] overflow-y-auto overscroll-contain pr-1 content-start">
