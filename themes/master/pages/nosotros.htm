@@ -65,6 +65,62 @@ description = "Clouds: un equipo con 25 años de experiencia en la nube, desarro
         </div>
     </section>
 
+    <section class="mb-20" id="comparativa" aria-labelledby="cmp-title">
+        <h2 id="cmp-title" class="text-2xl font-bold">Market vs otras plataformas</h2>
+        <p class="text-ink-dim mt-3 max-w-2xl">Comparamos lo que cada plataforma ofrece hoy frente a Tienda Ya, PagosYa, Kusillo.tech y Marketflix Media. <span class="whitespace-nowrap">Desliza la tabla para ver todas.</span></p>
+        {% set rows = [
+        ['Tienda online / E-commerce', 'yynpy'],
+        ['Catálogo de productos', 'yyppy'],
+        ['Pagos QR', 'yyyyy'],
+        ['Punto de venta (POS)', 'ynypy'],
+        ['Inventarios', 'yyypy'],
+        ['CRM comercial', 'ynppy'],
+        ['Gestión de pedidos', 'yyypy'],
+        ['Integración con WhatsApp', 'yynny'],
+        ['Atención multiagente (OmniChat)', 'ynnnn'],
+        ['Chatbots con inteligencia artificial', 'ynnnn'],
+        ['IA conectada a datos del negocio', 'ynnnn'],
+        ['Automatizaciones y Workflows visuales', 'ynppp'],
+        ['Integración MCP para asistentes IA', 'ynnnn'],
+        ['APIs e integraciones externas', 'yppyp'],
+        ['Integración con Google Sheets', 'ynnnn'],
+        ['Integración con WooCommerce', 'ynnnn'],
+        ['Plataforma modular', 'yppyp'],
+        ['Operación como backend API', 'ynnpn'],
+        ['Gestión financiera y cobranzas', 'ypypp'],
+        ['Gestión de clientes', 'ypppy'],
+        ['Sistemas especializados por rubro', 'ynpyp']
+    ] %}
+        {% set cols = ['Market', 'Tienda Ya', 'PagosYa', 'Kusillo.tech', 'Marketflix Media'] %}
+        {% set sym = {y: '✓', p: '~', n: '✕'} %}
+        {% set cls = {y: 'text-accent font-bold', p: 'text-ink-dim', n: 'text-ink-dim/50'} %}
+        {% set lbl = {y: 'Sí', p: 'Parcial', n: 'No'} %}
+        <div class="mt-8 overflow-x-auto rounded-2xl border border-edge bg-canvas-elev">
+            <table class="w-full min-w-[640px] border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-edge">
+                        <th scope="col" class="sticky left-0 z-10 bg-canvas-elev text-left font-semibold px-4 py-3 min-w-[170px]">Característica</th>
+                        {% for c in cols %}
+                        <th scope="col" class="px-3 py-3 text-center font-semibold whitespace-nowrap {{ loop.first ? 'text-accent bg-canvas-elev2' : 'text-ink-dim' }}">{{ c }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                    <tr class="border-b border-edge last:border-0">
+                        <th scope="row" class="sticky left-0 z-10 bg-canvas-elev text-left font-medium px-4 py-3">{{ r[0] }}</th>
+                        {% for i in 0..4 %}
+                        {% set v = r[1][i] %}
+                        <td class="px-3 py-3 text-center {{ i == 0 ? 'bg-canvas-elev2' : '' }}"><span class="{{ cls[v] }}" aria-label="{{ lbl[v] }}" title="{{ lbl[v] }}">{{ sym[v] }}</span></td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xs text-ink-dim mt-3">✓ Sí · ~ Parcial · ✕ No. Comparación basada en la información pública de cada plataforma.</p>
+    </section>
+
     <section class="mb-20 max-w-3xl">
         <h2 class="text-2xl font-bold">Hacia dónde vamos</h2>
         <div class="mt-4 flex flex-col gap-4 text-ink-dim leading-relaxed">
