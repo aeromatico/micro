@@ -271,6 +271,7 @@ class WorkflowRunner
         try {
             \Aero\Credits\Classes\Credits::charge($run->tenant_id, static::CREDIT_ACTION, [
                 'idempotency_key' => 'workflows.run.' . $run->id,
+                'source_plugin'   => 'Aero.Workflows',
             ]);
         }
         catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
@@ -278,6 +279,7 @@ class WorkflowRunner
         }
         catch (\RuntimeException $e) {
             // La acción aún no existe en el catálogo: no bloquear la ejecución.
+            \Aero\Credits\Classes\Credits::recordFailure($run->tenant_id, static::CREDIT_ACTION, $e->getMessage(), ['source_plugin' => 'Aero.Workflows', 'run_id' => $run->id]);
         }
     }
 
