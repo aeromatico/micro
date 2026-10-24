@@ -1,88 +1,69 @@
-{# Pagos (Bolivia Pay) — dos formas de verificación de QR bancario + PayPal/cripto, ver docs/pay #}
+{# Pagos (Bolivia Pay) — red de cobro Red Enlace como protagonista; API bancaria y alternativos en segundo plano, ver docs/pay #}
 <section id="pagos" class="max-w-6xl mx-auto px-6 sm:px-10 py-24 scroll-mt-14">
     <div class="max-w-[640px] mb-12">
         <span class="text-xs tracking-wide text-accent uppercase font-bold">Pagos</span>
-        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Cobra con QR bancario, confirmado solo.</h2>
-        <p class="text-base text-ink-dim mt-3">Bolivia Pay genera el QR, confirma el pago y avisa a tu sistema — sin que tengas que revisar el banco a mano. Hay dos formas de verificar el cobro, según lo que tu banco te habilite.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-3">Cobra desde Bolivia y desde el mundo, confirmado solo.</h2>
+        <p class="text-base text-ink-dim mt-3">Bolivia Pay se conecta a la red Enlace: un mismo cobro en bolivianos que tus clientes pagan con su banco, con Binance, con cripto o desde Brasil. Tú recibes en BOB y tu sistema se entera al instante.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {# Verificación por API bancaria #}
-        <div class="flex flex-col gap-6 p-7 border border-edge rounded-2xl bg-canvas">
+    {# Protagonista: red Enlace #}
+    <div class="border border-accent rounded-3xl p-7 sm:p-10 bg-canvas">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+                <h3 class="text-xl font-bold">Red Enlace</h3>
+                <p class="text-sm text-ink-dim mt-1 max-w-[460px]">Una sola conexión, varias formas de pagar. Sin integrar banco por banco.</p>
+            </div>
+            <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Se conecta desde tu cuenta</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <div class="flex flex-col gap-2 p-5 border border-edge rounded-2xl">
+                <h4 class="text-sm font-bold">QR Simple y QR MLD</h4>
+                <p class="text-[13px] text-ink-dim">El QR interbancario: paga cualquier cliente desde la app de su banco boliviano.</p>
+            </div>
+            <div class="flex flex-col gap-2 p-5 border border-edge rounded-2xl">
+                <h4 class="text-sm font-bold">Binance Pay</h4>
+                <p class="text-[13px] text-ink-dim">El cliente paga en USDT desde Binance y tú recibes bolivianos.</p>
+            </div>
+            <div class="flex flex-col gap-2 p-5 border border-edge rounded-2xl">
+                <h4 class="text-sm font-bold">Activos virtuales</h4>
+                <p class="text-[13px] text-ink-dim">USDT, USDC y más: cobras en cripto sin custodiar ni convertir a mano.</p>
+            </div>
+            <div class="flex flex-col gap-2 p-5 border border-edge rounded-2xl">
+                <h4 class="text-sm font-bold">PIX (Brasil)</h4>
+                <p class="text-[13px] text-ink-dim">Clientes brasileños pagan con PIX en reales; tú recibes en BOB.</p>
+            </div>
+        </div>
+
+        <ul class="flex flex-col sm:flex-row sm:flex-wrap gap-x-8 gap-y-2 mt-8 text-sm text-ink-dim">
+            <li>Confirmación automática del pago</li>
+            <li>Aviso a tu sistema por webhook</li>
+            <li>Todo en el mismo panel y la misma conciliación</li>
+        </ul>
+    </div>
+
+    {# Secundarios #}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+        <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl">
             <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h3 class="text-lg font-bold">API bancaria oficial</h3>
-                    <p class="text-[13px] text-ink-dim mt-1">Conexión directa con el banco, la más robusta.</p>
-                </div>
+                <h3 class="text-base font-bold">API bancaria directa</h3>
                 <span class="shrink-0 text-[11px] font-bold text-ink-dim border border-edge px-3 py-1 rounded-full whitespace-nowrap">Requiere trámite</span>
             </div>
-
-            <dl class="flex flex-col divide-y divide-edge">
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Bancos disponibles hoy</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Económico, BISA, BNB, BCP, BMSC</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Cómo se activa</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Solicitas el acceso API a tu banco y lo conectas en tu cuenta</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Confirmación</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Automática, directo del banco</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">¿Otro banco?</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Sumamos cualquier API bancaria adicional</dd>
-                </div>
-            </dl>
+            <p class="text-[13px] text-ink-dim">Si prefieres conexión directa con tu banco: Económico, BISA, BNB, BCP y BMSC. Solicitas el acceso API a tu banco y lo conectas en tu cuenta. ¿Otro banco? Sumamos cualquier API adicional.</p>
         </div>
-
-        {# Métodos alternativos inmediatos #}
-        <div class="flex flex-col gap-6 p-7 border border-accent rounded-2xl bg-canvas">
+        <div class="flex flex-col gap-3 p-6 border border-edge rounded-2xl">
             <div class="flex items-start justify-between gap-4">
-                <div>
-                    <h3 class="text-lg font-bold">Métodos alternativos</h3>
-                    <p class="text-[13px] text-ink-dim mt-1">Para empezar a cobrar hoy mismo, sin esperar al banco.</p>
-                </div>
-                <span class="shrink-0 text-[11px] font-bold text-accent border border-accent px-3 py-1 rounded-full whitespace-nowrap">Disponible ya</span>
+                <h3 class="text-base font-bold">Métodos alternativos</h3>
+                <span class="shrink-0 text-[11px] font-bold text-ink-dim border border-edge px-3 py-1 rounded-full whitespace-nowrap">Sin trámite</span>
             </div>
-
-            <dl class="flex flex-col divide-y divide-edge">
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Bancos compatibles</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Casi cualquier banco boliviano</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Cómo se activa</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Sin trámite con el banco — se configura desde tu cuenta</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Confirmación</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Automática, apenas llega el aviso del banco</dd>
-                </div>
-                <div class="flex items-start justify-between gap-4 py-3.5">
-                    <dt class="text-sm text-ink-dim">Requisito</dt>
-                    <dd class="text-sm font-semibold text-ink text-right">Ninguno — empiezas a cobrar de inmediato</dd>
-                </div>
-            </dl>
+            <p class="text-[13px] text-ink-dim">Para empezar hoy con casi cualquier banco boliviano: se configura desde tu cuenta y confirma apenas llega el aviso del banco. Útil como respaldo o mientras se habilita tu conexión.</p>
         </div>
     </div>
 
-    {# PayPal + cripto, aparte a propósito #}
-    <div class="border border-edge rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-8 justify-between mt-10">
-        <div class="flex items-center gap-5">
-            <div class="hidden sm:flex w-12 h-12 rounded-xl bg-canvas-elev2 items-center justify-center shrink-0">
-                <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><circle cx="7" cy="14.5" r="1"/></svg>
-            </div>
-            <div class="flex flex-col gap-1.5">
-                <h3 class="text-lg font-bold">¿Cobras también del exterior?</h3>
-                <p class="text-sm text-ink-dim max-w-[440px]">Además del QR boliviano, aceptas <strong class="text-ink font-semibold">PayPal</strong> y stablecoins (<strong class="text-ink font-semibold">USDT/USDC</strong>) desde el mismo panel — ideal para clientes que pagan en dólares.</p>
-            </div>
-        </div>
-        <a href="/docs/categoria/pay-funciones" class="inline-flex items-center bg-transparent text-ink font-semibold text-sm px-5 py-3 rounded-lg border border-edge hover:bg-canvas-elev2 transition-colors shrink-0">Ver todas las funciones</a>
-    </div>
+    <p class="text-sm text-ink-dim mt-6">También aceptas <strong class="text-ink font-semibold">PayPal</strong> y stablecoins desde el mismo panel, para clientes que pagan en dólares.</p>
 
     <p class="text-sm text-ink-dim mt-6 flex flex-col sm:flex-row sm:flex-wrap items-center sm:items-start gap-x-6 gap-y-2 text-center sm:text-left">
+        <a href="/docs/categoria/pay-funciones" class="text-ink font-semibold underline decoration-edge hover:decoration-ink underline-offset-4">Ver todas las funciones →</a>
         <a href="https://market.com.bo/docs/pay-vista-general" target="_blank" rel="noopener" class="text-ink font-semibold underline decoration-edge hover:decoration-ink underline-offset-4">Vista general de pagos →</a>
         <a href="https://market.com.bo/docs/pay-generar-qr" target="_blank" rel="noopener" class="text-ink font-semibold underline decoration-edge hover:decoration-ink underline-offset-4">Generar un QR →</a>
         <a href="https://market.com.bo/docs/pay-configuracion" target="_blank" rel="noopener" class="text-ink font-semibold underline decoration-edge hover:decoration-ink underline-offset-4">Configuración →</a>
