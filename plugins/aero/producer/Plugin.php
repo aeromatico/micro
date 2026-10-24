@@ -24,9 +24,13 @@ class Plugin extends PluginBase
     public function registerPermissions(): array
     {
         return [
+            'aero.producer.use' => [
+                'tab'   => 'Productor',
+                'label' => 'Pedir videos con los estilos de la plataforma y ver los suyos',
+            ],
             'aero.producer.superadmin' => [
                 'tab'   => 'Productor',
-                'label' => 'Administrar el Productor: proyectos de video de la plataforma',
+                'label' => 'Administrar el Productor: proyectos, estilos, voces y pedidos de todos los tenants',
             ],
         ];
     }
@@ -34,17 +38,22 @@ class Plugin extends PluginBase
     public function registerNavigation(): array
     {
         $admin = ['aero.producer.superadmin'];
+        $tenant = ['aero.producer.use', 'aero.producer.superadmin'];
 
         return [
             'producer' => [
                 'label'       => 'Productor',
-                'url'         => Backend::url('aero/producer/projects'),
+                'url'         => Backend::url('aero/producer/studio'),
                 'icon'        => 'icon-plug',
                 'iconSvg'     => null,
-                'permissions' => $admin,
+                'permissions' => $tenant,
                 'order'       => 528,
                 'sideMenu'    => [
-                    'projects' => ['label' => 'Proyectos', 'icon' => 'icon-plug', 'url' => Backend::url('aero/producer/projects'), 'permissions' => $admin],
+                    'studio'      => ['label' => 'Nuevo video', 'icon' => 'icon-plug', 'url' => Backend::url('aero/producer/studio'), 'permissions' => $tenant],
+                    'orders'      => ['label' => 'Mis videos', 'icon' => 'icon-list', 'url' => Backend::url('aero/producer/orders'), 'permissions' => $tenant],
+                    'projects'    => ['label' => 'Proyectos', 'icon' => 'icon-plug', 'url' => Backend::url('aero/producer/projects'), 'permissions' => $admin],
+                    'styles'      => ['label' => 'Estilos', 'icon' => 'icon-list', 'url' => Backend::url('aero/producer/styles'), 'permissions' => $admin],
+                    'voices'      => ['label' => 'Voces', 'icon' => 'icon-list', 'url' => Backend::url('aero/producer/voices'), 'permissions' => $admin],
                     'credentials' => ['label' => 'Llaves de proveedores', 'icon' => 'icon-key', 'url' => Backend::url('aero/producer/credentials'), 'permissions' => $admin],
                 ],
             ],

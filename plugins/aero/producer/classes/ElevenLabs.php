@@ -33,6 +33,7 @@ class ElevenLabs
 
         return collect($response->json('voices', []))->map(fn ($v) => [
             'id' => $v['voice_id'], 'name' => $v['name'], 'category' => $v['category'] ?? null,
+            'gender' => $v['labels']['gender'] ?? null, 'preview_url' => $v['preview_url'] ?? null,
         ])->all();
     }
 

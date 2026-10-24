@@ -1,0 +1,8 @@
+columns:
+    name: {label: Título, searchable: true}
+    style_name: {label: Estilo, relation: style, select: name, sortable: false}
+    status_label: {label: Estado, sortable: false}
+    credits_quote: {label: Créditos}
+    tenant_name: {label: Tenant, sortable: false}
+    requested_at: {label: Enviado, type: datetime}
+    created_at: {label: Creado, type: datetime, invisible: true}

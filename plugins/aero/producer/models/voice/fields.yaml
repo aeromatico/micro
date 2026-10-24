@@ -1,0 +1,9 @@
+fields:
+    name: {label: Nombre que ve el tenant, span: left}
+    provider: {label: Proveedor, type: dropdown, span: right}
+    voice_id: {label: ID de la voz, span: left}
+    gender: {label: Género, type: dropdown, span: right, emptyOption: —}
+    language: {label: Idioma, span: left, default: es}
+    sort_order: {label: Orden, type: number, span: right, default: 0}
+    preview_url: {label: Audio de muestra (URL), comment: "Lo oye el tenant antes de elegir."}
+    is_active: {label: Visible para los tenants, type: switch, default: false}

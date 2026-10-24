@@ -1,0 +1,10 @@
+fields:
+    name: {label: Nombre, span: left}
+    slug: {label: Código, span: right, preset: {field: name, type: slug}}
+    kind: {label: Tipo, type: dropdown, span: left, comment: "Presentador = imagen + voz. Explicativo = guion y tema que producimos nosotros."}
+    is_active: {label: Visible para los tenants, type: switch, span: right, default: true}
+    description: {label: Descripción para el tenant, type: textarea, size: small}
+    preview_url: {label: Video de muestra, comment: "Ruta de Medios o URL de un video corto que muestre el resultado."}
+    max_seconds: {label: Duración máxima (segundos), type: number, span: left, default: 30}
+    credit_cost: {label: Costo en créditos por video, type: number, span: right, default: 0}
+    sort_order: {label: Orden en la galería, type: number, span: left, default: 0}

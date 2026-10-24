@@ -1,0 +1,10 @@
+name: Estilo
+form: $/aero/producer/models/style/fields.yaml
+modelClass: Aero\Producer\Models\Style
+defaultRedirect: aero/producer/styles
+create:
+    redirect: aero/producer/styles/update/:id
+    redirectClose: aero/producer/styles
+update:
+    redirect: aero/producer/styles
+    redirectClose: aero/producer/styles

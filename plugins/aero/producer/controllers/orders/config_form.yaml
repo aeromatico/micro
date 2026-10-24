@@ -1,0 +1,10 @@
+name: Video
+form: $/aero/producer/models/order/fields.yaml
+modelClass: Aero\Producer\Models\Order
+defaultRedirect: aero/producer/orders
+create:
+    redirect: aero/producer/orders/update/:id
+    redirectClose: aero/producer/orders
+update:
+    redirect: aero/producer/orders/update/:id
+    redirectClose: aero/producer/orders

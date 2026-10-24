@@ -1,0 +1,10 @@
+title: Estilos
+list: $/aero/producer/models/style/columns.yaml
+modelClass: Aero\Producer\Models\Style
+recordUrl: aero/producer/styles/update/:id
+noRecordsMessage: Aún no hay estilos.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

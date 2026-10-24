@@ -1,0 +1,10 @@
+name: Voz
+form: $/aero/producer/models/voice/fields.yaml
+modelClass: Aero\Producer\Models\Voice
+defaultRedirect: aero/producer/voices
+create:
+    redirect: aero/producer/voices/update/:id
+    redirectClose: aero/producer/voices
+update:
+    redirect: aero/producer/voices
+    redirectClose: aero/producer/voices

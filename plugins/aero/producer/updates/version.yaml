@@ -5,3 +5,7 @@
 1.1.0:
     - "Llaves de proveedores (ElevenLabs para la voz) guardadas cifradas, con prueba de conexión y lista de voces."
     - create_credentials_table.php
+
+1.2.0:
+    - "Catálogo de estilos de video y de voces curadas, y pedidos de video para los tenants (presentador y explicativo)."
+    - create_styles_voices_orders.php

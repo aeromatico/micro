@@ -1,0 +1,22 @@
+fields:
+    style_id: {type: hidden}
+    style_summary: {type: partial, path: style_summary}
+    name: {label: Título del video, comment: "Solo para ti: así lo encuentras en la lista."}
+    script: {label: Guion, type: textarea, size: large, comment: "Lo que se dice, tal cual. Sin dominios ni direcciones: la voz los lee mal."}
+    script_counter: {type: partial, path: script_counter}
+    voice_id: {label: Voz, type: dropdown, span: left, emptyOption: — Elige una voz —}
+    aspect_ratio: {label: Formato, type: dropdown, span: right, default: '9:16'}
+    resolution: {label: Calidad, type: dropdown, span: left, default: 720p}
+    image:
+        label: Imagen del presentador
+        type: fileupload
+        mode: image
+        imageWidth: 160
+        imageHeight: 220
+        fileTypes: jpg,jpeg,png,webp
+        comment: "Persona de frente, vertical, buena luz y fondo de calle. Usa solo imágenes con permiso de la persona."
+    extras[topic]: {label: Tema del video, type: textarea, size: small, comment: "Qué quieres explicar, a quién y qué problema resuelve."}
+    extras[background]: {label: Música de fondo, type: dropdown, emptyOption: — Sin música —}
+    status: {label: Estado, type: dropdown, span: left}
+    output_url: {label: Video terminado (URL), span: right}
+    error_message: {label: Motivo del fallo, type: textarea, size: small}

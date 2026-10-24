@@ -1,0 +1,10 @@
+title: Voces
+list: $/aero/producer/models/voice/columns.yaml
+modelClass: Aero\Producer\Models\Voice
+recordUrl: aero/producer/voices/update/:id
+noRecordsMessage: Aún no hay voces. Impórtalas de ElevenLabs y activa las que quieras ofrecer.
+recordsPerPage: 30
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

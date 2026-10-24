@@ -1,0 +1,13 @@
+title: Mis videos
+list: $/aero/producer/models/order/columns.yaml
+modelClass: Aero\Producer\Models\Order
+recordUrl: aero/producer/orders/update/:id
+noRecordsMessage: Aún no has pedido ningún video. Empieza en «Nuevo video».
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

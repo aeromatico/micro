@@ -1,0 +1,7 @@
+columns:
+    name: {label: Nombre, searchable: true}
+    provider: {label: Proveedor}
+    gender: {label: Género}
+    language: {label: Idioma}
+    is_active: {label: Activa, type: switch}
+    sort_order: {label: Orden}
