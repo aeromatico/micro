@@ -9,7 +9,7 @@ class Style extends Model
 
     public $table = 'aero_producer_styles';
 
-    public $fillable = ['kind', 'slug', 'name', 'description', 'preview_url', 'max_seconds', 'credit_cost', 'is_active', 'sort_order', 'motion_prompt'];
+    public $fillable = ['kind', 'slug', 'name', 'description', 'preview_url', 'max_seconds', 'credit_cost', 'is_active', 'sort_order', 'motion_prompt', 'credit_type'];
 
     public $rules = [
         'kind'        => 'required|in:presenter,explainer',
@@ -34,6 +34,15 @@ class Style extends Model
     public function getKindOptions(): array
     {
         return self::kinds();
+    }
+
+    public function getCreditTypeOptions(): array
+    {
+        if (!class_exists(\Aero\Credits\Models\CreditType::class)) {
+            return ['plata' => 'Monedas de plata'];
+        }
+
+        return \Aero\Credits\Models\CreditType::where('code', '!=', 'bs')->orderBy('sort_order')->pluck('name', 'code')->all();
     }
 
     public function getKindLabelAttribute(): string

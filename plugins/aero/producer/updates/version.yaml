@@ -13,3 +13,7 @@
 1.3.0:
     - "Los pedidos de presentador se producen con voz y animación en la nube, desde el panel del administrador, y el video queda en Medios."
     - add_production_columns.php
+
+1.4.0:
+    - "Los pedidos de video ahora se cobran en créditos al enviarlos, con el costo de cada estilo a la vista, y los créditos se devuelven solos si el video falla o se rechaza."
+    - add_credit_billing.php

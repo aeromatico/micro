@@ -2,6 +2,7 @@ columns:
     name: {label: Nombre, searchable: true}
     kind_label: {label: Tipo, sortable: false}
     max_seconds: {label: Máx. segundos}
-    credit_cost: {label: Créditos}
+    credit_cost: {label: Costo}
+    credit_type: {label: Moneda}
     is_active: {label: Activo, type: switch}
     sort_order: {label: Orden}

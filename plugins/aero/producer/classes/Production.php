@@ -96,6 +96,7 @@ class Production
         $order->forceFill(['status' => 'failed', 'error_message' => mb_substr($message, 0, 400)]);
         $clearRef && $order->provider_ref = null;
         $order->save();
+        Billing::refund($order, 'Pedido de video no producido: ' . mb_substr($message, 0, 120));
         \Event::fire('aero.producer.orderFailed', [$order]);
     }
 }

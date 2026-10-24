@@ -6,10 +6,18 @@
         <div class="header"><h3><?= e($style->name) ?> <small style="font-weight:400">· <?= e($style->kind_label) ?></small></h3></div>
         <div class="content">
             <p><?= e($style->description) ?></p>
+            <?php $quote = \Aero\Producer\Classes\Billing::quote($style, \Aero\Producer\Classes\CurrentTenant::id()) ?>
             <p>Hasta <strong><?= (int) $style->max_seconds ?> s</strong> ·
-                <strong><?= $style->credit_cost > 0 ? (int) $style->credit_cost . ' créditos' : 'sin costo' ?></strong> por video</p>
+                <strong><?= $quote ? $quote['cost'] . ' ' . e(mb_strtolower($quote['type'])) : 'sin costo' ?></strong> por video
+                <?php if ($quote && $quote['balance'] !== null): ?>
+                    · tu saldo: <strong class="<?= $quote['balance'] < $quote['cost'] ? 'text-danger' : '' ?>"><?= (int) $quote['balance'] ?></strong>
+                <?php endif ?>
+            </p>
+            <?php if ($quote): ?>
+                <p class="help-block">Se cobra al enviar. Si el video no se puede producir, los créditos vuelven solos.</p>
+            <?php endif ?>
             <?php if ($formModel->exists): ?>
-                <p>Estado: <strong><?= e($formModel->status_label) ?></strong></p>
+                <p>Estado: <strong><?= e($formModel->status_label) ?></strong><?= $formModel->refunded_at ? ' · créditos devueltos' : '' ?></p>
             <?php endif ?>
         </div>
     </div>
