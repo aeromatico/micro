@@ -56,3 +56,6 @@
     - add_ai_include_rules_to_bots_table.php
 1.6.1:
     - "El bot no contesta un mensaje que ya atiende un workflow publicado con keyword o interactive_id (una sola respuesta al cliente)."
+1.7.0:
+    - "Las reglas ahora pueden vincularse a una respuesta rápida del CRM en lugar de escribir su propio texto; si es un menú o botones, se envía como tal."
+    - add_quick_reply_to_rules_table.php

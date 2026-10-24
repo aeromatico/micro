@@ -83,8 +83,21 @@ class ChatbotEngine
                 ->first(fn ($rule) => $rule->matches($message->body))
             : null;
 
+        $structured = null;
+
         if ($rule) {
             $responseText = $rule->response_text;
+
+            // Regla vinculada a una respuesta rápida: se resuelve para la cuenta del bot
+            // (botones/menú nativos si la cuenta los admite; si no, el texto de respaldo).
+            if ($rule->quick_reply_id && ($quick = $rule->quick_reply) && $quick->is_active) {
+                $contact = \Aero\Hello\Models\Contact::find($message->contact_id);
+                $name = trim((string) $contact?->name);
+                $out = $quick->resolve($bot->account, ['nombre' => $name, 'name' => $name]);
+                $responseText = $out['body'];
+                $structured = $out['payload'] ? $out : null;
+                $quick->newQuery()->whereKey($quick->id)->increment('uses_count');
+            }
         }
         elseif ($isAiMode) {
             // En modo IA no hay fallback al mensaje estático: si la IA falla
@@ -101,7 +114,7 @@ class ChatbotEngine
             return;
         }
 
-        $outbound = static::sendAsBot($bot, $message, $responseText);
+        $outbound = static::sendAsBot($bot, $message, $responseText, $structured);
 
         Log::create([
             'bot_id'               => $bot->id,
@@ -547,12 +560,17 @@ class ChatbotEngine
         }
     }
 
-    protected static function sendAsBot(Bot $bot, Message $inbound, string $responseText): ?Message
+    protected static function sendAsBot(Bot $bot, Message $inbound, string $responseText, ?array $structured = null): ?Message
     {
+        $options = ['account_id' => $bot->account_id];
+        if ($structured) {
+            $options += ['type' => $structured['type'], 'provider_payload' => $structured['payload']];
+        }
+
         return static::withoutHandoff(fn () => Hello::sendToContact(
             \Aero\Hello\Models\Contact::find($inbound->contact_id),
             $responseText,
-            ['account_id' => $bot->account_id]
+            $options
         ));
     }
 

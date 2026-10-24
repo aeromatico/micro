@@ -14,7 +14,7 @@ class Rule extends Model
     public $table = 'aero_chatbots_rules';
 
     public $fillable = [
-        'bot_id', 'trigger_keywords', 'response_text', 'priority', 'is_active',
+        'bot_id', 'trigger_keywords', 'quick_reply_id', 'response_text', 'priority', 'is_active',
     ];
 
     // 'array' cast serializa a JSON antes de validar, así que la regla
@@ -24,12 +24,39 @@ class Rule extends Model
 
     public $rules = [
         'trigger_keywords' => 'required',
-        'response_text'    => 'required',
+        'response_text'    => 'required_without:quick_reply_id',
     ];
 
     public $belongsTo = [
         'bot' => [Bot::class],
     ];
+
+    public function getQuickReplyAttribute()
+    {
+        return $this->quick_reply_id && class_exists(\Aero\Crm\Models\QuickReply::class)
+            ? \Aero\Crm\Models\QuickReply::find($this->quick_reply_id)
+            : null;
+    }
+
+    /** Respuestas rápidas del cliente (o de la plataforma si no hay tenant) para elegir en el formulario. */
+    public function getQuickReplyIdOptions(): array
+    {
+        if (!class_exists(\Aero\Crm\Models\QuickReply::class)) {
+            return [];
+        }
+
+        return \Aero\Crm\Models\QuickReply::inScope(\Aero\Crm\Classes\TenantUsers::currentTenantId())
+            ->active()->orderBy('shortcut')->get()
+            ->mapWithKeys(fn ($q) => [$q->id => '/' . $q->shortcut . ' — ' . $q->title])->all();
+    }
+
+    /** Texto para listas y registros: el de la respuesta vinculada, o el propio. */
+    public function getReplyPreviewAttribute(): string
+    {
+        $q = $this->quick_reply;
+
+        return $q ? '↗ /' . $q->shortcut . ' — ' . $q->title : (string) $this->response_text;
+    }
 
     public function scopeActive($query)
     {

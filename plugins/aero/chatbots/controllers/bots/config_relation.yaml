@@ -28,10 +28,19 @@ rules:
                 span: full
                 required: true
                 comment: "El bot responde si el mensaje entrante contiene cualquiera de estas palabras (sin distinguir mayúsculas)."
+            quick_reply_id:
+                label: Respuesta rápida
+                type: dropdown
+                span: full
+                emptyOption: — Escribir una respuesta propia —
+                comment: "Vincula una respuesta de CRM → Respuestas rápidas (texto, botones o menú). Si eliges una, no hace falta escribir el texto de abajo."
             response_text:
-                label: Respuesta
+                label: Respuesta propia
                 type: textarea
                 size: small
                 span: full
-                required: true
+                trigger:
+                    action: show
+                    field: quick_reply_id
+                    condition: value[]
                 comment: "WhatsApp solo soporta *negrita*, _cursiva_, ~tachado~ y `monoespaciado` — títulos, listas y enlaces con formato Markdown no se ven como tal, llegan con los símbolos literales. Para emojis, usá el atajo del sistema: Win+. en Windows, Cmd+Ctrl+Space en Mac."
