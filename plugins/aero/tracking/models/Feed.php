@@ -41,7 +41,7 @@ class Feed extends Model
     public const PHASES = [
         'queued'     => 'En cola',
         'confirmed'  => 'Confirmado',
-        'at_origin'  => 'Repartidor en el comercio',
+        'preparing'  => 'El comercio lo está preparando',
         'on_the_way' => 'En camino',
         'delivered'  => 'Entregado',
         'cancelled'  => 'Cancelado',

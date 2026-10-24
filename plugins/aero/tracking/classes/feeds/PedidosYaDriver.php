@@ -57,12 +57,14 @@ class PedidosYaDriver implements FeedDriver
 
         $t = $tracking->json();
         $s = [
-            'phase'       => $this->phase((array) data_get($t, 'state', [])),
+            'phase'       => $this->phase((array) data_get($t, 'state', []), (array) data_get($t, 'progress.orderTrackingRevampV2.orderState.orderProgress.stepState', [])),
             'external_id' => (string) data_get($t, 'orderId', ''),
             'title'       => trim(data_get($t, 'orderDetails.vendorName', '') . ' · ' . data_get($t, 'orderDetails.productsLabel', ''), ' ·'),
             'eta_text'    => data_get($t, 'progress.orderTrackingRevampV2.eta.value'),
             'delay_label' => data_get($t, 'progress.orderTrackingRevampV2.eta.title.label'),
             'message'     => data_get($t, 'progress.orderTrackingRevampV2.orderState.message'),
+            'note'        => data_get($t, 'progress.orderTrackingDetailsRevampV2.messages.0.text'),
+            'has_rider'   => false,
             'lat' => null, 'lng' => null, 'position_at' => null,
             'origin' => null, 'destination' => null, 'interval' => 10,
         ];
@@ -75,6 +77,7 @@ class PedidosYaDriver implements FeedDriver
             $s['lng'] = data_get($l, 'rider.last_location.longitude');
             $ts = data_get($l, 'rider.last_location.timestamp');
             $s['position_at'] = $ts ? Carbon::parse($ts) : null;
+            $s['has_rider'] = is_numeric($s['lat']) && is_numeric($s['lng']);
             $s['origin'] = $this->point(data_get($l, 'waypoints.origin'));
             $s['destination'] = $this->point(data_get($l, 'waypoints.destination'));
             $s['interval'] = max(5, (int) (data_get($l, 'peya_config.update_rate_millis', 10000) / 1000));
@@ -84,18 +87,34 @@ class PedidosYaDriver implements FeedDriver
     }
 
     /**
-     * pickedUp y nearOriginOrAfter son semánticas inferidas de un pedido real;
-     * delivered/cancelled son explícitas.
+     * La fase sale de los pasos de progreso (stepState) que pinta la propia web:
+     * [ok, en curso, pendiente] = el comercio prepara; [ok, ok, en curso] = en camino.
+     * Las banderas pickedUp/nearOriginOrAfter NO son fiables: nearOriginOrAfter
+     * llega en true con el pedido recién confirmado y sin repartidor.
      */
-    protected function phase(array $st): string
+    protected function phase(array $st, array $steps): string
     {
+        if (!empty($st['cancelled'])) {
+            return 'cancelled';
+        }
+        if (!empty($st['delivered'])) {
+            return 'delivered';
+        }
+
+        $steps = array_values($steps);
+        if (count($steps) >= 3) {
+            if (in_array($steps[2], ['inProgress', 'complete'], true)) {
+                return 'on_the_way';
+            }
+            if ($steps[1] === 'inProgress') {
+                return 'preparing';
+            }
+        }
+
         return match (true) {
-            !empty($st['cancelled'])        => 'cancelled',
-            !empty($st['delivered'])        => 'delivered',
-            !empty($st['pickedUp'])         => 'on_the_way',
-            !empty($st['nearOriginOrAfter']) => 'at_origin',
-            !empty($st['confirmed'])        => 'confirmed',
-            default                         => 'queued',
+            !empty($st['pickedUp'])  => 'on_the_way',
+            !empty($st['confirmed']) => 'confirmed',
+            default                 => 'queued',
         };
     }
 

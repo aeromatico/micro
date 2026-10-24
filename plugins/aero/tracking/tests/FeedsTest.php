@@ -23,8 +23,14 @@ class FeedsTest extends PluginTestCase
     protected function fakePeya(string $phase = 'on_the_way', float $lat = -17.3965, ?string $ts = null): void
     {
         $this->resetHttp();
+        $steps = match ($phase) {
+            'preparing', 'confirmed' => ['complete', 'inProgress', 'incomplete'],
+            default => ['complete', 'complete', 'inProgress'],
+        };
+        $rider = $phase !== 'preparing';
+        // nearOriginOrAfter llega en true aun con el pedido recién confirmado: no debe fiarse.
         $state = match ($phase) {
-            'confirmed'  => ['confirmed' => true],
+            'preparing', 'confirmed' => ['confirmed' => true, 'nearOriginOrAfter' => true],
             'on_the_way' => ['confirmed' => true, 'pickedUp' => true, 'nearOriginOrAfter' => true],
             'delivered'  => ['confirmed' => true, 'pickedUp' => true, 'delivered' => true],
             'cancelled'  => ['cancelled' => true],
@@ -36,13 +42,13 @@ class FeedsTest extends PluginTestCase
                 'orderId' => 2314622183, 'state' => $state,
                 'progress' => ['orderTrackingRevampV2' => [
                     'eta' => ['value' => '11:35 - 11:55', 'title' => ['label' => 'A tiempo']],
-                    'orderState' => ['message' => 'En camino'],
+                    'orderState' => ['message' => 'En camino', 'orderProgress' => ['stepState' => $steps]],
                 ]],
                 'orderDetails' => ['vendorName' => 'Market', 'productsLabel' => '8 productos'],
             ]),
             '*/order-location' => Http::response([
                 'waypoints' => ['origin' => ['latitude' => -17.37, 'longitude' => -66.15], 'destination' => ['latitude' => -17.39, 'longitude' => -66.18]],
-                'rider' => ['last_location' => ['latitude' => $lat, 'longitude' => -66.17, 'timestamp' => $ts ?? now()->toIso8601String()]],
+                ] + ($rider ? ['rider' => ['last_location' => ['latitude' => $lat, 'longitude' => -66.17, 'timestamp' => $ts ?? now()->toIso8601String()]]] : []) + [
                 'peya_config' => ['update_rate_millis' => 10000],
             ]),
         ]);
@@ -81,6 +87,25 @@ class FeedsTest extends PluginTestCase
         Queue::assertPushed(\Aero\Tracking\Jobs\PollFeed::class);
         $this->assertNotNull($feed->session_state);
         $this->assertStringNotContainsString('soid=abc', $feed->session_state, 'La cookie debe ir cifrada');
+    }
+
+    public function testPreparingWithoutRiderIsNotMistakenForRiderAtOrigin(): void
+    {
+        Queue::fake();
+        $this->fakePeya('preparing');
+        $feed = FeedService::add(7, self::URL);
+
+        $this->assertSame('preparing', $feed->phase);
+        $this->assertSame('assigned', $feed->job->status);
+        $this->assertSame(0, \Aero\Tracking\Models\Position::where('asset_id', $feed->asset_id)->count());
+
+        $this->fakePeya('on_the_way');
+        FeedService::poll($feed->fresh());
+
+        $types = $feed->events()->pluck('type')->all();
+        $this->assertContains('rider_assigned', $types);
+        $this->assertContains('phase_changed', $types);
+        $this->assertSame('in_progress', $feed->job->fresh()->status);
     }
 
     public function testDeliveredClosesFeedAndJob(): void

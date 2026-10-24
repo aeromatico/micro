@@ -20,6 +20,7 @@ class FeedEvent extends Model
     public const TYPES = [
         'started'       => 'Seguimiento iniciado',
         'phase_changed' => 'Cambió el estado',
+        'rider_assigned' => 'Repartidor asignado',
         'eta_changed'   => 'Cambió la hora estimada',
         'delay_changed' => 'Cambió el aviso de demora',
         'message_changed' => 'Nuevo mensaje',

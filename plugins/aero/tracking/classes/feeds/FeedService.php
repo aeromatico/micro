@@ -173,6 +173,13 @@ class FeedService
         if (($old['message'] ?? null) !== $s['message'] && $s['message'] !== null && $old) {
             self::event($feed, 'message_changed', ['text' => $s['message']]);
         }
+        if (($old['note'] ?? null) !== ($s['note'] ?? null) && !empty($s['note']) && $old) {
+            self::event($feed, 'message_changed', ['text' => $s['note']]);
+        }
+        if (!empty($s['has_rider']) && empty($old['has_rider']) && $old) {
+            self::event($feed, 'rider_assigned', []);
+            Event::fire('aero.tracking.feed.rider_assigned', [$feed]);
+        }
 
         // Posición: solo si es nueva y se movió lo suficiente.
         $moved = false;
@@ -198,7 +205,7 @@ class FeedService
         $feed->poll_seconds = $s['interval'];
         $feed->last_polled_at = now();
         $feed->state = [
-            'title' => $s['title'], 'eta_text' => $s['eta_text'], 'delay_label' => $s['delay_label'], 'message' => $s['message'],
+            'title' => $s['title'], 'eta_text' => $s['eta_text'], 'delay_label' => $s['delay_label'], 'message' => $s['message'], 'note' => $s['note'] ?? null, 'has_rider' => !empty($s['has_rider']),
             // Si no se guardó el punto por no haberse movido, se conserva el anterior como referencia.
             'lat' => $moved || !isset($old['lat']) ? $s['lat'] : $old['lat'],
             'lng' => $moved || !isset($old['lng']) ? $s['lng'] : $old['lng'],
