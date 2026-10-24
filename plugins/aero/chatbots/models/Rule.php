@@ -31,6 +31,12 @@ class Rule extends Model
         'bot' => [Bot::class],
     ];
 
+    /** El desplegable manda '' cuando no se elige nada; la columna es entera y admite NULL. */
+    public function setQuickReplyIdAttribute($value): void
+    {
+        $this->attributes['quick_reply_id'] = $value === '' || $value === null ? null : (int) $value;
+    }
+
     public function getQuickReplyAttribute()
     {
         return $this->quick_reply_id && class_exists(\Aero\Crm\Models\QuickReply::class)
