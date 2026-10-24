@@ -32,7 +32,7 @@ class Billing
 
         return [
             'cost'    => (int) $style->credit_cost,
-            'type'    => $type->name ?? $type->code,
+            'type'    => $type->label ?? $type->code,
             'balance' => $tenantId ? \Aero\Credits\Classes\Credits::balance($tenantId, $type->code) : null,
         ];
     }
@@ -51,6 +51,11 @@ class Billing
             return;
         }
 
+        // Ya cobrado y sin reembolsar: reenviar el formulario no vuelve a cobrar.
+        if ($order->credit_transaction_id && !$order->refunded_at) {
+            return;
+        }
+
         try {
             $tx = \Aero\Credits\Classes\Credits::chargeRaw(
                 (int) $order->tenant_id, $type, (int) $style->credit_cost, self::ACTION,
@@ -59,12 +64,12 @@ class Billing
                     'reason'          => "Video «{$order->name}» ({$style->name})",
                     'order_id'        => $order->id,
                     'style'           => $style->slug,
-                    'idempotency_key' => 'producer.order.' . $order->id . '.' . now()->timestamp,
+                    'idempotency_key' => 'producer.order.' . $order->id . '.after.' . (int) $order->credit_transaction_id,
                 ]
             );
         } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
             throw new ApplicationException(
-                "No tienes créditos suficientes: este video cuesta {$e->required} ({$type->name}) y tu saldo es {$e->available}."
+                "No tienes créditos suficientes: este video cuesta {$e->required} ({$type->label}) y tu saldo es {$e->available}."
             );
         }
 

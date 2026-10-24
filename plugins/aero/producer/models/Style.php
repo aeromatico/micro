@@ -42,7 +42,7 @@ class Style extends Model
             return ['plata' => 'Monedas de plata'];
         }
 
-        return \Aero\Credits\Models\CreditType::where('code', '!=', 'bs')->orderBy('sort_order')->pluck('name', 'code')->all();
+        return \Aero\Credits\Models\CreditType::where('is_money', false)->orderBy('sort_order')->pluck('label', 'code')->all();
     }
 
     public function getKindLabelAttribute(): string

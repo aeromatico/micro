@@ -17,3 +17,6 @@
 1.4.0:
     - "Los pedidos de video ahora se cobran en créditos al enviarlos, con el costo de cada estilo a la vista, y los créditos se devuelven solos si el video falla o se rechaza."
     - add_credit_billing.php
+
+1.4.1:
+    - "Corrige el formulario de estilos de video (la lista de monedas fallaba), muestra el nombre de la moneda en el costo y evita cobrar dos veces un pedido que se vuelve a enviar."
