@@ -283,7 +283,7 @@
             get slashItems() {
                 var m = /^\/([^\s]*)$/.exec(this.draft); if (!m) return [];
                 var t = m[1].toLowerCase();
-                return this.quick.filter(function (q) { return !t || q.shortcut.indexOf(t) === 0 || q.title.toLowerCase().indexOf(t) >= 0; }).slice(0, 8);
+                return this.quick.slice().sort(function (a, b) { return b.uses_count - a.uses_count || a.sort_order - b.sort_order; }).filter(function (q) { return !t || q.shortcut.indexOf(t) === 0 || q.title.toLowerCase().indexOf(t) >= 0; }).slice(0, 8);
             },
             get slashOpen() { return this.slashItems.length > 0; },
             slashKey: function (e) {
