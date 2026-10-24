@@ -1,9 +1,15 @@
 # Bolivia Pay — Vista general
 
 **Bolivia Pay** es la pasarela de pagos de tu sitio. Reúne en un solo panel
-varios medios de cobro: los **QR bancarios bolivianos** (BNB, Banco
-Económico), el **QR estático que tú ya tienes** (confirmado por correo),
-**PayPal** y **NOWPayments** (cripto).
+varios medios de cobro: los cinco QR de **Red Enlace (ATC)**, nuestro partner
+recomendado (QR Simple, QR MLD/BCB, Binance Pay, Activos Virtuales USDT/USDC y
+PIX de Brasil), los **QR bancarios bolivianos** (BNB, Banco Económico), el
+**QR estático que tú ya tienes** (confirmado por correo), **PayPal** y
+**NOWPayments** (cripto).
+
+> [!TIP]
+> ¿Quieres cobrar con Red Enlace? Mira [Red Enlace (ATC)](pay-red-enlace): requisitos de
+> afiliación por tipo de comerciante, cómo conectar la cuenta y cómo se confirma el pago.
 
 Todo funciona por sitio (tenant): tus cuentas, tus sucursales, tus QR y tus
 transacciones están aislados de los de otros negocios.
@@ -22,7 +28,7 @@ transacciones están aislados de los de otros negocios.
 ## Flujo de un cobro con QR dinámico
 
 ```text
-1. Conectas una cuenta de banco (BNB / Banco Económico)
+1. Conectas una cuenta (Red Enlace, BNB, Banco Económico…)
         ▼
 2. Generas un QR por el monto y vencimiento que elijas
         ▼
@@ -44,6 +50,7 @@ transacciones están aislados de los de otros negocios.
 
 ## Guías de cada función
 
+- [Red Enlace (ATC)](pay-red-enlace) — afiliación, requisitos y los cinco QR.
 - [Cuentas bancarias](pay-cuentas-bancarias) — conectar bancos, correo, PayPal y cripto.
 - [Sucursales](pay-sucursales) — identificar cada punto de cobro.
 - [Generar código QR](pay-generar-qr) — emitir un cobro.
@@ -89,4 +96,8 @@ Si usas el plugin **Shopify**, los QR creados para pedidos de tu tienda Shopify 
 | `aero.pay.view_qr` | Generar/ver QR y transacciones |
 | `aero.pay.manage_settings` | Configuración de pagos |
 
-**Versión documentada:** 1.26.0
+## Cobros en cripto con NOWPayments
+
+El aviso de pago de la pasarela ya no se pierde: el cobro solo se marca *Pagado* cuando los fondos están confirmados. Para USDC, USDT o BTC puedes fijar la moneda y red de pago con el dato opcional `pay_currency` de la cuenta (por ejemplo `usdcsol`, `usdcmatic` o `usdctrc20`).
+
+**Versión documentada:** 1.28.0
