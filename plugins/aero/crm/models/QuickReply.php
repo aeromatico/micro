@@ -13,7 +13,7 @@ class QuickReply extends Model
 
     public $table = 'aero_crm_quick_replies';
 
-    public $fillable = ['tenant_id', 'area', 'kind', 'config', 'title', 'shortcut', 'body', 'template_name', 'template_language', 'template_category', 'sort_order', 'is_active'];
+    public $fillable = ['tenant_id', 'area', 'kind', 'config', 'title', 'shortcut', 'body', 'template_name', 'template_language', 'template_category', 'sort_order', 'uses_count', 'is_active'];
 
     public $jsonable = ['config'];
 
@@ -28,6 +28,7 @@ class QuickReply extends Model
         'template_language' => 'nullable|max:10',
         'template_category' => 'nullable|in:utility,marketing',
         'sort_order' => 'nullable|integer|min:0',
+        'uses_count' => 'nullable|integer|min:0',
     ];
 
     public $customMessages = [
@@ -109,6 +110,12 @@ class QuickReply extends Model
     public function getKindOptions(): array
     {
         return static::kindOptions();
+    }
+
+    /** Campo vacío = 0 (la columna no admite NULL). */
+    public function setUsesCountAttribute($value): void
+    {
+        $this->attributes['uses_count'] = max(0, (int) $value);
     }
 
     public function setBodyAttribute($value): void

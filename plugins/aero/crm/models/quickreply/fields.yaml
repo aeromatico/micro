@@ -37,9 +37,8 @@ fields:
         label: Veces usada
         type: number
         span: auto
-        disabled: true
         context: update
-        comment: Sube cada vez que se invoca desde el chat.
+        comment: Sube sola cada vez que se invoca desde el chat; puedes subirla a mano para darle más relevancia en el menú "/".
 
     is_active:
         label: Activa
