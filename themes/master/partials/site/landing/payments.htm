@@ -66,8 +66,9 @@
             <li class="flex items-start gap-2"><span class="text-accent" aria-hidden="true">★</span>Soporte 24/7</li>
         </ul>
 
-        <div class="mt-8">
-            <button type="button" @click="open = true" class="inline-flex items-center bg-accent text-canvas font-bold text-sm px-6 py-3.5 rounded-lg hover:opacity-90 transition-opacity">Solicitar acceso a Red Enlace</button>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+            <button type="button" @click="open = true" class="inline-flex items-center bg-accent text-canvas font-bold text-sm px-6 py-3.5 rounded-lg hover:opacity-90 transition-opacity">Ver requisitos y afiliarme ahora</button>
+            <a href="https://www.redenlace.com.bo/productos-y-servicios/quiero-cobrar-con-tarjeta-en-mi-negocio" target="_blank" rel="noopener" class="inline-flex items-center bg-transparent text-ink-dim font-semibold text-sm px-5 py-3.5 rounded-lg border border-edge hover:text-ink hover:bg-canvas-elev2 transition-colors">Ver en Red Enlace</a>
         </div>
 
         <div x-show="open" x-cloak x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" @click.self="open = false">
