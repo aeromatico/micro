@@ -496,3 +496,7 @@
 1.89.0:
     - "El plan PRO ahora incluye el módulo Iglesia (miembros, familias, grupos, reuniones y eventos con inscripción)."
     - add_church_to_pro_plan.php
+
+1.90.0:
+    - "El rol tenant_admin recibe aero.producer.use (pedir videos con los estilos de la plataforma y ver los suyos)."
+    - grant_producer_to_tenant_admin.php
