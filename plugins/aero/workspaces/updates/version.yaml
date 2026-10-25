@@ -78,3 +78,7 @@
 1.23.0:
     - "Mary se especializa solo en comercio electrónico (nuevo skill de asesoría de tienda y catálogo) y la producción multimedia —guiones, clips, montaje y música— pasa a Gus, con perfil y guía actualizados."
     - seed_multimedia_to_gus.php
+
+1.23.1:
+    - "Ajusta el gráfico de capacidades de Mary (comercio electrónico y restaurantes) y de Gus (producción multimedia) a lo que realmente hacen."
+    - adjust_mary_gus_capabilities.php
