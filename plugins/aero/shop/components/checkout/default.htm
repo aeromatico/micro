@@ -22,9 +22,9 @@
 
     {% set rest = __SELF__.restaurant %}
     <div class="grid lg:grid-cols-[1fr_360px] gap-10"
-         x-data="{ sending: false, gateway: null, type: '{{ __SELF__.defaultType }}', fee: {{ __SELF__.deliveryFee }}, noTypes: {{ __SELF__.orderTypes|length ? 'false' : 'true' }}, subtotal: {{ __SELF__.subtotal }}, symbol: '{{ currency.symbol|e('js') }}' }">
+         x-data="{ sending: false, gateway: null, type: '{{ __SELF__.defaultType }}', fee: {{ __SELF__.deliveryFee }}, noTypes: {{ __SELF__.orderTypes|length ? 'false' : 'true' }}, qrDineIn: {{ __SELF__.qrDineIn ? 'true' : 'false' }}, subtotal: {{ __SELF__.subtotal }}, symbol: '{{ currency.symbol|e('js') }}' }">
 
-        <div>
+        <div x-init="$watch('type', t => { if (t === 'dine_in' && !qrDineIn) { const qr = $el.querySelector('input[data-qr]:checked'); if (qr) $el.querySelector('input[name=payment_gateway_id][value=\'\']').checked = true } })">
             <div id="checkout-error"></div>
 
             <form data-request="shopCheckout::onPlaceOrder"
@@ -166,8 +166,8 @@
                             </div>
                         </label>
                         {% for pg in __SELF__.paymentGateways %}
-                        <label class="flex items-start gap-3 p-4 card cursor-pointer">
-                            <input type="radio" name="payment_gateway_id" value="{{ pg.id }}" class="mt-1 accent-brand-primary">
+                        <label class="flex items-start gap-3 p-4 card cursor-pointer"{% if pg.driver == 'pagos_qr' %} x-show="type !== 'dine_in' || qrDineIn"{% endif %}>
+                            <input type="radio" name="payment_gateway_id" value="{{ pg.id }}" {% if pg.driver == 'pagos_qr' %}data-qr {% endif %}class="mt-1 accent-brand-primary">
                             <div>
                                 {% if pg.driver == 'pagos_qr' %}
                                 <p class="font-semibold text-ink text-sm">Pago QR</p>

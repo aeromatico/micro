@@ -161,3 +161,6 @@
 
 1.10.1:
     - "Mejora el checkout del restaurante: «Comer en local» ya viene marcado, el celular es opcional, se elige entre Efectivo o Pago QR (el QR se confirma solo mientras el cliente espera) y el botón ahora dice «Pedir ahora»."
+
+1.10.2:
+    - "Configuración del restaurante: ahora se puede activar o apagar el cobro con QR para quienes comen en el local y elegir la cuenta de Hello que usa el local para sus avisos y recibos."

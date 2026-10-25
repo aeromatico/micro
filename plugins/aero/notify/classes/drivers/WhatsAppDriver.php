@@ -30,12 +30,19 @@ class WhatsAppDriver implements ChannelDriverInterface
             'media_type' => $context['media_type'] ?? null,
         ], fn ($v) => $v !== null);
 
+        // Cuenta de Hello elegida por quien dispara el aviso (p. ej. el local de un restaurante); solo si es del tenant.
+        $accountId = null;
+        if ($tenantId && !empty($context['hello_account_id'])) {
+            $accountId = \Aero\Hello\Models\Account::forTenant((int) $tenantId)->enabled()->whereKey($context['hello_account_id'])->value('id');
+        }
+
         try {
             if ($tenantId) {
-                $message = \Aero\Hello\Classes\Hello::send($address, $body, [
-                    'platform'  => 'whatsapp',
-                    'tenant_id' => $tenantId,
-                ] + $media);
+                $message = \Aero\Hello\Classes\Hello::send($address, $body, array_filter([
+                    'platform'   => 'whatsapp',
+                    'tenant_id'  => $tenantId,
+                    'account_id' => $accountId,
+                ]) + $media);
 
                 return (string) $message->zernio_message_id;
             }

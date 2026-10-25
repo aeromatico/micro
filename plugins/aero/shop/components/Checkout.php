@@ -29,6 +29,8 @@ class Checkout extends ComponentBase
     public array $orderTypes = [];
     /** Tipo de pedido marcado al abrir el checkout: «Comer en local» si está habilitado, si no el primero. */
     public string $defaultType = '';
+    /** ¿Se ofrece «Pago QR» a quien come en el local? (Configuración de la tienda) */
+    public bool $qrDineIn = true;
     public array $restaurant = [];
     /** Costo de envío de la tienda (0 si el carrito no lleva envío); el restaurante usa su delivery. */
     public float $deliveryFee = 0;
@@ -71,6 +73,7 @@ class Checkout extends ComponentBase
                 }
             }
             $this->defaultType = (string) array_key_first($this->orderTypes);
+            $this->qrDineIn = (bool) ($this->restaurant['qr_dine_in'] ?? true);
             $this->table = session('aero_shop_table_' . $tenant->id);
             // Sin mesa por QR no se ofrece "Comer en local" con mesa fija, pero sigue disponible (el cliente la escribe).
         }
@@ -267,6 +270,11 @@ class Checkout extends ComponentBase
             $gatewayId = PaymentGateway::forTenant($tenant->id)->where('is_active', true)->whereKey($data['payment_gateway_id'])->value('id');
             if (!$gatewayId) {
                 return $this->errorResponse('El método de pago elegido ya no está disponible.');
+            }
+            // En el local el QR puede estar apagado: solo efectivo en caja.
+            if ($type === 'dine_in' && empty($settings->restaurant()['qr_dine_in'])
+                && PaymentGateway::whereKey($gatewayId)->value('driver') === 'pagos_qr') {
+                return $this->errorResponse('En el local el pago es en efectivo, en caja. Elige «Efectivo».');
             }
         }
 

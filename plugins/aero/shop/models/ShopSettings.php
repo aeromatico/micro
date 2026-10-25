@@ -76,6 +76,8 @@ class ShopSettings extends Model
     public function getRcTablesAttribute() { return $this->restaurant()['tables']; }
     public function getRcLayoutAttribute() { return array_key_exists($this->restaurant()['layout'], self::MENU_LAYOUTS) ? $this->restaurant()['layout'] : 'lista'; }
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
+    public function getRcQrDineInAttribute() { return (bool) $this->restaurant()['qr_dine_in']; }
+    public function getRcHelloAccountIdAttribute() { return $this->restaurant()['hello_account_id']; }
 
     /** El modo Marketplace solo se activa con la compra (no cancelada) del servicio «marketplace» de Aero.Services. */
     public static function marketplacePurchasedBy(int $tenantId): bool
@@ -126,6 +128,8 @@ class ShopSettings extends Model
             'busy_extra'       => 10,
             'delivery_extra'   => 15,   // asignar repartidor + trayecto
             'accept_closed'    => false,
+            'qr_dine_in'       => true,  // permite «Pago QR» a quienes comen en el local
+            'hello_account_id' => null,  // cuenta de Hello con la que el local interactúa con sus clientes
             'layout'           => 'lista', // presentación de la carta en /tienda: lista | tarjetas | compacta
         ], (array) $this->restaurant_config);
     }

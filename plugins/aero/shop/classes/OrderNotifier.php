@@ -67,6 +67,12 @@ class OrderNotifier
                 $context['reason'] = $order->cancel_reason;
             }
 
+            // Restaurante: los avisos de WhatsApp salen por la cuenta de Hello elegida para el local.
+            $helloAccountId = \Aero\Shop\Models\ShopSettings::where('tenant_id', $order->tenant_id)->first()?->restaurant()['hello_account_id'] ?? null;
+            if ($helloAccountId) {
+                $context['hello_account_id'] = (int) $helloAccountId;
+            }
+
             \Aero\Notify\Classes\Notify::fire("shop.order.{$event}", $context, [
                 'tenant_id' => (int) $order->tenant_id,
                 'actor'     => [

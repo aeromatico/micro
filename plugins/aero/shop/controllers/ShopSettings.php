@@ -64,7 +64,7 @@ class ShopSettings extends Controller
             'whatsapp_mode'               => in_array($data['whatsapp_mode'] ?? '', ['api', 'market'], true) ? $data['whatsapp_mode'] : 'api',
             'whatsapp_number'             => preg_replace('/\D+/', '', (string) ($data['whatsapp_number'] ?? '')) ?: null,
             'whatsapp_account_id'         => $this->ownedAccountId($tenant->id, $data['whatsapp_account_id'] ?? null),
-            'restaurant_config'           => $this->restaurantConfigFrom($data, !empty($settings->restaurant()['busy'])),
+            'restaurant_config'           => $this->restaurantConfigFrom($data, !empty($settings->restaurant()['busy']), (int) $tenant->id),
             'schedule_mode'               => in_array($data['schedule_mode'] ?? '', ['always_open', 'scheduled', 'online'], true) ? $data['schedule_mode'] : 'always_open',
             'accepting_orders'            => (bool) ($data['accepting_orders'] ?? true),
             'timezone'                    => in_array($data['timezone'] ?? '', \DateTimeZone::listIdentifiers(), true) ? $data['timezone'] : 'America/La_Paz',
@@ -154,7 +154,7 @@ class ShopSettings extends Controller
         return $hours;
     }
 
-    protected function restaurantConfigFrom(array $data, bool $busy = false): array
+    protected function restaurantConfigFrom(array $data, bool $busy = false, int $tenantId = 0): array
     {
         $types = array_values(array_intersect((array) ($data['rc_order_types'] ?? []), array_keys(ShopSettingsModel::ORDER_TYPES)));
 
@@ -170,6 +170,8 @@ class ShopSettings extends Controller
             'lead_minutes'  => min(1440, max(0, (int) ($data['rc_lead_minutes'] ?? 30))),
             'tables'        => min(500, max(0, (int) ($data['rc_tables'] ?? 0))),
             'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
+            'qr_dine_in'    => (bool) ($data['rc_qr_dine_in'] ?? false),
+            'hello_account_id' => $tenantId ? $this->ownedAccountId($tenantId, $data['rc_hello_account_id'] ?? null) : null,
             'layout'        => array_key_exists($data['rc_layout'] ?? '', ShopSettingsModel::MENU_LAYOUTS) ? $data['rc_layout'] : 'lista',
         ];
     }
@@ -387,6 +389,19 @@ class ShopSettings extends Controller
                 'label' => 'Aceptar pedidos fuera de horario', 'type' => 'switch',
                 'comment' => 'Si está activo, el cliente puede programar su pedido; si no, la tienda se bloquea al cerrar.',
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_qr_dine_in' => [
+                'label' => 'Cobros con QR para comensales en el local', 'type' => 'switch', 'default' => true,
+                'comment' => 'Si está activo, quien come en el local puede elegir «Pago QR» al pedir y esperar con su QR. Apagado, en el local solo se paga en efectivo en caja (el QR sigue disponible para recoger y delivery).',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_hello_account_id' => [
+                'label'       => 'Cuenta de Hello del local',
+                'type'        => 'dropdown',
+                'options'     => $this->whatsappAccountOptions($tenantId),
+                'placeholder' => 'Usar la cuenta de WhatsApp por defecto',
+                'comment'     => 'Con esta cuenta de WhatsApp el local avisa a sus clientes (pedido recibido, listo, etc.) y envía recibos desde la caja. Se administran en Hello → Cuentas.',
+                'trigger'     => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'schedule_mode' => [
                 'label'   => 'Horario de la tienda',

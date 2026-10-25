@@ -247,7 +247,10 @@ class PosController extends Controller
             return null;
         }
         try {
-            return \Aero\Hello\Classes\Hello::resolveAccount(['tenant_id' => $tid, 'platform' => 'whatsapp']);
+            // En restaurante, la cuenta elegida en Configuración de la tienda para el local.
+            $accountId = \Aero\Shop\Models\ShopSettings::where('tenant_id', $tid)->first()?->restaurant()['hello_account_id'] ?? null;
+
+            return \Aero\Hello\Classes\Hello::resolveAccount(['tenant_id' => $tid, 'platform' => 'whatsapp'] + ($accountId ? ['account_id' => $accountId] : []));
         } catch (\Throwable $e) {
             return null;
         }

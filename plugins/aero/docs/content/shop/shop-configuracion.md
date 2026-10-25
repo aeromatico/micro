@@ -50,6 +50,8 @@ esté apagada, el menú de catálogo y pedidos no aparece.
 | **Tiempo de reparto (min)** | Se suma solo a pedidos de delivery. |
 | **Anticipación mínima de pedidos programados (min)** | Un pedido programado debe hacerse con al menos este tiempo. |
 | **Aceptar pedidos fuera de horario** | Si está activo, el cliente puede programar su pedido; si no, la tienda se bloquea al cerrar. |
+| **Cobros con QR para comensales en el local** | Si está activo, quien come en el local puede elegir «Pago QR» al pedir. Apagado, en el local solo se paga en efectivo en caja (el QR sigue disponible para recoger y delivery). |
+| **Cuenta de Hello del local** | Cuenta de WhatsApp con la que el local avisa a sus clientes (pedido recibido, listo…) y envía recibos desde la caja. Sin elegir, se usa la cuenta de WhatsApp por defecto. |
 
 Con mesas configuradas aparece el botón **Generar QR de mesas**: genera un QR
 por mesa listo para imprimir (requiere un dominio principal del sitio).
