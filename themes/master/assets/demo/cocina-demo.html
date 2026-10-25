@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cocina — demo para restaurantes</title>
+<style>
+html,body{margin:0;background:#f3f4f6;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.4;color:#111827}
+body{padding:10px}
+button{font-family:inherit}
+a{color:inherit}
+
+.kx { --kx-new:#2563eb; --kx-prep:#d97706; --kx-ready:#16a34a; --kx-late:#dc2626; --kx-ink:#111827; --kx-mute:#6b7280; --kx-line:#e5e7eb; --kx-bg:#f3f4f6; color:var(--kx-ink); }
+.kx-wrap { background:var(--kx-bg); border-radius:12px; padding:14px; }
+.kx:fullscreen .kx-wrap, .kx-wrap:fullscreen { border-radius:0; min-height:100vh; padding:18px; overflow:auto; }
+.kx-bar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:12px; }
+.kx-title { font-size:20px; font-weight:800; margin:0 10px 0 0; }
+.kx-live { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--kx-mute); }
+.kx-dot { width:9px; height:9px; border-radius:50%; background:var(--kx-ready); box-shadow:0 0 0 0 rgba(22,163,74,.6); animation:kx-ping 2s infinite; }
+.kx-live.is-off .kx-dot { background:var(--kx-late); animation:none; }
+.kx-spacer { flex:1; }
+.kx-chip, .kx-btn { border:1px solid var(--kx-line); background:#fff; color:var(--kx-ink); border-radius:999px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; min-height:40px; transition:background .15s, border-color .15s; }
+.kx-chip:hover, .kx-btn:hover { border-color:#9ca3af; }
+.kx-chip b { margin-left:6px; background:#e5e7eb; border-radius:999px; padding:1px 7px; font-size:11px; }
+#kitchen-board[data-filter="all"] .kx-chip[data-f="all"],
+#kitchen-board[data-filter="dine_in"] .kx-chip[data-f="dine_in"],
+#kitchen-board[data-filter="pickup"] .kx-chip[data-f="pickup"],
+#kitchen-board[data-filter="delivery"] .kx-chip[data-f="delivery"] { background:var(--kx-ink); color:#fff; border-color:var(--kx-ink); }
+#kitchen-board[data-filter="all"] .kx-chip[data-f="all"] b,
+#kitchen-board[data-filter="dine_in"] .kx-chip[data-f="dine_in"] b,
+#kitchen-board[data-filter="pickup"] .kx-chip[data-f="pickup"] b,
+#kitchen-board[data-filter="delivery"] .kx-chip[data-f="delivery"] b { background:rgba(255,255,255,.25); }
+#kitchen-board[data-filter="dine_in"] .k-card:not([data-type="dine_in"]),
+#kitchen-board[data-filter="pickup"] .k-card:not([data-type="pickup"]),
+#kitchen-board[data-filter="delivery"] .k-card:not([data-type="delivery"]) { display:none; }
+.kx-toggle { display:inline-flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; user-select:none; }
+.kx-cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); gap:14px; align-items:start; }
+.kx-col { background:rgba(255,255,255,.55); border-radius:12px; padding:10px; min-height:220px; }
+.kx-colhead { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; padding:8px 10px; margin-bottom:10px; border-radius:10px; background:#fff; border-top:4px solid var(--c); font-weight:800; }
+.kx-colhead span.n { background:var(--c); color:#fff; border-radius:999px; padding:2px 11px; font-size:13px; }
+.k-card { --c:var(--kx-new); background:#fff; border-radius:12px; padding:14px; margin-bottom:12px; border:1px solid var(--kx-line); border-left:6px solid var(--c); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+.k-card[data-st="preparing"] { --c:var(--kx-prep); }
+.k-card[data-st="ready"] { --c:var(--kx-ready); }
+.k-card.is-new { animation:kx-flash 1.6s ease-out 2; }
+.k-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.k-num { font-size:20px; font-weight:800; letter-spacing:.2px; }
+.k-timer { font-variant-numeric:tabular-nums; font-weight:800; font-size:15px; padding:4px 10px; border-radius:999px; background:#ecfdf5; color:#047857; }
+.k-timer.warn { background:#fffbeb; color:#b45309; }
+.k-timer.late { background:#fef2f2; color:var(--kx-late); animation:kx-pulse 1.2s infinite; }
+.k-meta { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+.k-pill { display:inline-flex; align-items:center; gap:5px; border-radius:8px; padding:4px 10px; font-size:13px; font-weight:700; background:#eef2ff; color:#3730a3; }
+.k-pill.pickup { background:#f5f3ff; color:#6d28d9; }
+.k-pill.delivery { background:#fff7ed; color:#c2410c; }
+.k-pill.table { background:#111827; color:#fff; font-size:15px; }
+.k-sched { background:#fffbeb; border:1px dashed #f59e0b; color:#92400e; border-radius:8px; padding:6px 10px; font-weight:700; font-size:13px; margin-bottom:8px; }
+.k-cust { font-size:13px; color:var(--kx-mute); }
+.k-cust a { color:inherit; text-decoration:underline dotted; }
+.k-items { list-style:none; margin:10px 0; padding:0; }
+.k-items li { display:grid; grid-template-columns:36px 1fr; gap:10px; padding:9px 0; border-top:1px solid var(--kx-line); }
+.k-qty { width:34px; height:34px; border-radius:9px; background:var(--kx-ink); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; }
+.k-name { font-size:16px; font-weight:700; line-height:1.25; }
+.k-extras { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+.k-extra { background:#f3f4f6; border-radius:6px; padding:2px 8px; font-size:12.5px; font-weight:600; }
+.k-note { margin-top:5px; background:#fef08a; border-radius:6px; padding:4px 8px; font-size:13px; font-weight:700; color:#713f12; }
+.k-onote { background:#fef3c7; border-radius:8px; padding:7px 10px; font-size:13px; font-weight:600; color:#78350f; margin-bottom:10px; }
+.k-actions { display:flex; gap:8px; margin-top:6px; }
+.k-go { flex:1; min-height:48px; border:0; border-radius:10px; font-size:16px; font-weight:800; color:#fff; background:var(--c); cursor:pointer; transition:filter .15s, transform .05s; }
+.k-go:hover { filter:brightness(1.08); }
+.k-go:active { transform:scale(.98); }
+.k-undo { min-height:48px; min-width:52px; padding:0 14px; justify-content:center; border:1px solid #9ca3af; background:#fff; color:var(--kx-ink); border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.k-undo:hover { background:#f3f4f6; border-color:#6b7280; }
+.k-undo:active { transform:scale(.97); }
+.k-empty { text-align:center; color:var(--kx-mute); padding:34px 10px; font-size:14px; }
+.kx .kx-ic { flex:none; vertical-align:-3px; }
+.k-channel { display:flex; flex-wrap:wrap; gap:6px; margin:2px 0 6px; font-size:12px; font-weight:700; }
+.k-src { padding:2px 8px; border-radius:6px; background:#e0e7ff; color:#3730a3; }
+.k-src-pos { background:#dcfce7; color:#166534; }
+.k-waiter { padding:2px 8px; border-radius:6px; background:#f3f4f6; color:#374151; }
+.k-items li.k-round { display:block; padding:6px 0 2px; border-top:2px solid var(--kx-line); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--kx-mute); }
+.k-items li.k-round.is-latest { color:#1d4ed8; }
+.k-empty .kx-ic { display:block; width:34px; height:34px; margin:0 auto 6px; opacity:.4; }
+.kx-chip .kx-ic, .kx-btn .kx-ic, .k-pill .kx-ic, .k-cust .kx-ic, .k-sched .kx-ic, .k-note .kx-ic, .k-onote .kx-ic { margin-right:4px; }
+.k-go .kx-ic { margin-left:4px; }
+.k-undo .kx-ic, .k-step .kx-ic { margin:0; }
+.k-eta-val { line-height:1; }
+.k-eta { display:grid; gap:8px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px; padding:10px 12px; margin:8px 0 10px; }
+.k-eta.k-eta-set { background:#fffbeb; border-color:#fde68a; }
+.k-eta.is-late { background:#fef2f2; border-color:#fecaca; color:var(--kx-late); }
+.k-eta-label { font-size:13px; font-weight:600; display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.k-eta-label small { flex-basis:100%; font-weight:500; color:var(--kx-mute); }
+.k-eta-label small.k-left { flex-basis:auto; font-weight:700; }
+.k-eta-ctl { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
+.k-eta-val { font-size:22px; min-width:84px; text-align:center; font-variant-numeric:tabular-nums; }
+.k-eta-cap { font-size:12px; font-weight:700; color:var(--kx-mute); text-transform:uppercase; letter-spacing:.04em; }
+.k-eta-hint { font-size:12px; color:var(--kx-mute); text-align:center; }
+.k-step { min-height:44px; min-width:44px; padding:0 12px; border:1px solid #93c5fd; background:#fff; color:#1d4ed8; border-radius:999px; font-weight:800; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:4px; transition:background .12s, transform .05s, opacity .12s; }
+.k-step:hover:not(:disabled) { background:#dbeafe; }
+.k-step:active:not(:disabled) { transform:scale(.94); }
+.k-step:disabled { opacity:.35; cursor:not-allowed; }
+.k-eta-set .k-eta-cap { flex-basis:100%; text-align:left; }
+.k-eta-set .k-step.k-plus { flex:1; }
+.k-step.k-reset { border-color:var(--kx-line); color:var(--kx-mute); visibility:hidden; }
+.k-eta.is-adjusted .k-step.k-reset { visibility:visible; }
+.k-step.k-plus { border-color:#fcd34d; color:#92400e; border-radius:10px; }
+.k-step.k-plus:hover:not(:disabled) { background:#fef3c7; }
+.k-eta.is-late .k-step.k-plus { border-color:#fca5a5; color:var(--kx-late); }
+.kx-busy.is-on { background:#fff7ed; border-color:#f97316; color:#c2410c; }
+.kx-done { margin-top:16px; }
+.kx-done h5 { margin:0 0 8px; color:var(--kx-mute); font-size:13px; text-transform:uppercase; letter-spacing:.06em; }
+.kx-done span { display:inline-flex; gap:8px; align-items:center; background:#fff; border:1px solid var(--kx-line); border-radius:999px; padding:5px 12px; margin:0 6px 6px 0; font-size:13px; font-weight:600; }
+.kx-done a { text-decoration:none; }
+@keyframes kx-ping { 70% { box-shadow:0 0 0 8px rgba(22,163,74,0); } 100% { box-shadow:0 0 0 0 rgba(22,163,74,0); } }
+@keyframes kx-flash { 0%,100% { box-shadow:0 1px 3px rgba(0,0,0,.06); } 25% { box-shadow:0 0 0 4px rgba(37,99,235,.55), 0 8px 24px rgba(37,99,235,.35); transform:scale(1.015); } }
+@keyframes kx-pulse { 50% { opacity:.55; } }
+@media (prefers-reduced-motion: reduce) { .kx *, .kx *::before { animation:none !important; transition:none !important; } }
+@media (max-width:640px) { .kx-title { width:100%; } .k-go { min-height:54px; } }
+
+</style>
+</head>
+<body>
+<div class="kx">
+  <div class="kx-wrap" id="kitchen-wrap">
+    <div class="kx-bar">
+      <h3 class="kx-title"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> Cocina</h3>
+      <span class="kx-live" id="kx-live"><i class="kx-dot"></i><span id="kx-updated">En vivo</span></span>
+      <span class="kx-spacer"></span>
+      <label class="kx-toggle"><input type="checkbox" id="kitchen-sound" checked> <svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Sonido</label>
+      <button type="button" class="kx-btn" id="kx-test" title="Probar sonido"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="6 3 20 12 6 21 6 3"/></svg> Probar</button>
+    </div>
+    <div id="kitchen-board" data-filter="all"></div>
+  </div>
+</div>
+<script>/* Demo de la pantalla de Cocina (Tienda → Cocina). Misma interfaz y reglas que el backend,
+   con datos ficticios de «Sabor Andino». El reloj de la demo corre 20 veces más rápido para
+   ver los avisos de retraso sin esperar. Nada se envía a ningún servidor. */
+(function () {
+    var ICONS = {"utensils": "<path d=\"M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2\"/><path d=\"M7 2v20\"/><path d=\"M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7\"/>", "bag": "<path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/>", "bike": "<circle cx=\"18.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"5.5\" cy=\"17.5\" r=\"3.5\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><path d=\"M12 17.5V14l-3-3 4-3 2 3h2\"/>", "inbox": "<path d=\"M22 12h-6l-2 3h-4l-2-3H2\"/><path d=\"M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z\"/>", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/>", "check-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>", "sticky-note": "<path d=\"M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z\"/><path d=\"M15 3v6h6\"/>", "comment": "<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>", "rotate": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/>", "chevron-right": "<path d=\"m9 18 6-6-6-6\"/>", "arrow-left": "<path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/>", "minus": "<path d=\"M5 12h14\"/>", "plus": "<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>", "bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9\"/><path d=\"M10.3 21a1.94 1.94 0 0 0 3.4 0\"/>", "play": "<polygon points=\"6 3 20 12 6 21 6 3\"/>", "maximize": "<path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/>", "check": "<path d=\"M20 6 9 17l-5-5\"/>"};
+    var SPEED = 20, T0 = Date.now();
+    var vnow = function () { return T0 + (Date.now() - T0) * SPEED; };
+    var MIN = 5, MAX = 240;
+    var CFG = { capacity: 3, loadMinutes: 5, busyExtra: 10, deliveryExtra: 10, defaultPrep: 15 };
+    var TYPES = { dine_in: 'Comer en local', pickup: 'Recoger', delivery: 'Delivery' };
+    var TYPE_ICON = { dine_in: 'utensils', pickup: 'bag', delivery: 'bike' };
+    var STATUS = { new: { label: 'Nuevos', next: 'preparing', action: 'Empezar', color: 'var(--kx-new)' }, preparing: { label: 'Preparando', next: 'ready', action: 'Listo', color: 'var(--kx-prep)' }, ready: { label: 'Listos', next: 'delivered', action: 'Entregado', color: 'var(--kx-ready)' } };
+    var PREV = { preparing: 'new', ready: 'preparing', delivered: 'ready' };
+    var EMPTY = { new: ['inbox', 'Sin pedidos nuevos'], preparing: ['flame', 'Nada en preparación'], ready: ['check-circle', 'Nada esperando entrega'] };
+    var SRC = { pos: 'Local (POS)', whatsapp: 'WhatsApp', chat: 'Chat' };
+
+    function ic(n) { return '<svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + (ICONS[n] || ICONS.utensils) + '</svg>'; }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function hm(ms) { return new Date(ms).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }); }
+    function roundUp(m) { return Math.max(5, Math.ceil(m / 5) * 5); }
+
+    var seq = 120, busy = false, known = null, adj = {}, lastStep = 0, filter = 'all', lastTick = 0;
+    var ago = function (min) { return vnow() - min * 60000; };
+    var I = function (qty, name, prep, extra) { return Object.assign({ qty: qty, name: name, prep: prep, round: 1, mods: [], note: '' }, extra || {}); };
+
+    var orders = [
+        { id: 118, number: 'ORD-000118', type: 'dine_in', table: '2', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'preparing', createdAt: ago(11), acceptedAt: ago(10), promisedAt: vnow() + 6 * 60000, scheduled: null, onote: '',
+          items: [I(2, 'Plato del día', 20, { mods: ['Extra picante'], note: 'Uno sin cebolla' }), I(2, 'Limonada', 4)] },
+        { id: 119, number: 'ORD-000119', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Luis Fernández', phone: '70123456' }, status: 'new', createdAt: ago(3), scheduled: null, onote: 'Paso a recoger en 20 minutos.',
+          items: [I(1, 'Sándwich mixto', 12, { mods: ['Queso extra'] }), I(1, 'Jugo natural', 4)] },
+        { id: 120, number: 'ORD-000120', type: 'delivery', table: '', source: 'whatsapp', waiter: '', customer: { name: 'María Quispe', phone: '76543210' }, status: 'new', createdAt: ago(1), scheduled: null, onote: 'Casa verde, segundo piso. Tocar el timbre.',
+          items: [I(6, 'Empanada de queso', 10), I(1, 'Gaseosa 2 L', 2)] },
+        { id: 117, number: 'ORD-000117', type: 'dine_in', table: '5', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'ready', createdAt: ago(16), acceptedAt: ago(15), promisedAt: ago(2), readyAt: ago(1), scheduled: null, onote: '',
+          items: [I(1, 'Ensalada fresca', 8, { mods: ['Aderezo aparte'] }), I(2, 'Café americano', 5)] },
+        { id: 115, number: 'ORD-000115', type: 'dine_in', table: '1', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'delivered', createdAt: ago(40), updatedAt: ago(22), scheduled: null, onote: '', items: [I(2, 'Torta, porción', 3)] },
+        { id: 116, number: 'ORD-000116', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Pedro Rojas', phone: '71234567' }, status: 'delivered', createdAt: ago(35), updatedAt: ago(14), scheduled: null, onote: '', items: [I(1, 'Plato del día', 20)] }
+    ];
+    orders[0].items[0].round = 1; orders[0].items.push(I(1, 'Flan casero', 3, { round: 2 }));
+
+    var TEMPLATES = [
+        function () { return { type: 'dine_in', table: String(1 + Math.floor(Math.random() * 6)), source: 'pos', waiter: 'Carla', customerFn: function () { return { name: 'Cliente de mostrador', phone: '' }; }, onote: '', items: [I(2, 'Sándwich mixto', 12), I(2, 'Jugo natural', 4, { note: 'Sin hielo' })] }; },
+        function () { return { type: 'dine_in', table: String(1 + Math.floor(Math.random() * 6)), source: 'pos', waiter: 'Carla', customerFn: function () { return { name: 'Cliente de mostrador', phone: '' }; }, onote: '', items: [I(1, 'Plato del día', 20, { mods: ['Extra picante'] }), I(1, 'Ensalada fresca', 8), I(2, 'Cappuccino', 5, { mods: ['Grande'] })] }; },
+        function () { return { type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Ana Mamani', phone: '72345678' }, onote: 'Voy en moto, salgo en 15 minutos.', items: [I(4, 'Empanada de queso', 10), I(1, 'Limonada', 4)] }; },
+        function () { return { type: 'delivery', table: '', source: 'whatsapp', waiter: '', customer: { name: 'Jorge Vargas', phone: '78901234' }, onote: 'Edificio Torre Sol, piso 3. Pagan con QR.', items: [I(2, 'Plato del día', 20), I(2, 'Gaseosa 2 L', 2), I(1, 'Brownie', 3)] }; },
+        function () { return { type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Rosa Choque', phone: '73456789' }, scheduled: vnow() + 55 * 60000, onote: 'Pedido programado para el almuerzo.', items: [I(3, 'Plato del día', 20, { note: 'Uno sin ají' }), I(3, 'Jugo natural', 4)] }; }
+    ];
+
+    function eta(o) {
+        var prep = Math.max.apply(null, o.items.map(function (i) { return i.prep || 0; })) || CFG.defaultPrep;
+        var queue = orders.filter(function (x) { return x.id !== o.id && (x.status === 'new' || x.status === 'preparing'); }).length;
+        var load = Math.max(0, queue - CFG.capacity) * CFG.loadMinutes;
+        return roundUp(prep + load + (busy ? CFG.busyExtra : 0) + (o.type === 'delivery' ? CFG.deliveryExtra : 0));
+    }
+    function limitOf(o, st) { return st === 'ready' ? 9999 : Math.max(10, Math.max.apply(null, o.items.map(function (i) { return i.prep || 0; })) || 20); }
+    function etaVal(o) { return Math.min(MAX, Math.max(MIN, eta(o) + (adj[o.id] || 0))); }
+
+    function cardHtml(o, key, col) {
+        var h = '<article class="k-card" data-id="' + o.id + '" data-st="' + key + '" data-type="' + o.type + '">';
+        h += '<div class="k-top"><span class="k-num">' + esc(o.number) + '</span><span class="k-timer" data-ts="' + o.createdAt + '" data-limit="' + limitOf(o, key) + '">…</span></div>';
+        h += '<div class="k-meta"><span class="k-pill ' + o.type + '">' + ic(TYPE_ICON[o.type]) + ' ' + esc(TYPES[o.type]) + '</span>' + (o.table ? '<span class="k-pill table">Mesa ' + esc(o.table) + '</span>' : '') + '</div>';
+        if (o.scheduled) h += '<div class="k-sched">' + ic('clock') + ' Programado para ' + new Date(o.scheduled).toLocaleString('es-BO', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</div>';
+        if (o.source !== 'web' || o.waiter) h += '<div class="k-channel"><span class="k-src k-src-' + o.source + '">' + esc(SRC[o.source] || o.source) + '</span>' + (o.waiter ? '<span class="k-waiter">' + ic('user') + ' ' + esc(o.waiter) + '</span>' : '') + '</div>';
+        h += '<div class="k-cust">' + ic('user') + ' ' + esc(o.customer.name) + (o.customer.phone ? ' · <a href="tel:' + esc(o.customer.phone) + '">' + esc(o.customer.phone) + '</a>' : '') + '</div>';
+        var maxRound = Math.max.apply(null, o.items.map(function (i) { return i.round; })), last = null;
+        h += '<ul class="k-items">';
+        o.items.slice().sort(function (a, b) { return a.round - b.round; }).forEach(function (it) {
+            if (maxRound > 1 && it.round !== last) { last = it.round; h += '<li class="k-round' + (it.round === maxRound ? ' is-latest' : '') + '">Ronda ' + it.round + (it.round === maxRound ? ' · nueva' : '') + '</li>'; }
+            h += '<li><span class="k-qty">' + it.qty + '</span><div><div class="k-name">' + esc(it.name) + '</div>';
+            if (it.mods.length) h += '<div class="k-extras">' + it.mods.map(function (m) { return '<span class="k-extra">+ ' + esc(m) + '</span>'; }).join('') + '</div>';
+            if (it.note) h += '<div class="k-note">' + ic('sticky-note') + ' ' + esc(it.note) + '</div>';
+            h += '</div></li>';
+        });
+        h += '</ul>';
+        if (o.onote) h += '<div class="k-onote">' + ic('comment') + ' ' + esc(o.onote) + '</div>';
+        if (key === 'new') {
+            var sg = eta(o);
+            h += '<div class="k-eta" data-id="' + o.id + '" data-base="' + sg + '"><div class="k-eta-label">' + ic('clock') + ' ' + (o.type === 'delivery' ? 'Llegada al cliente en' : (o.type === 'pickup' ? 'Listo para recoger en' : 'Listo para servir en'));
+            if (o.scheduled) h += '<small>Programado: empezar a las <span class="k-start-at" data-sched="' + o.scheduled + '">…</span></small>';
+            h += '</div><div class="k-eta-ctl"><button type="button" class="k-step" data-step="-5" title="Restar 5 minutos" aria-label="Restar 5 minutos">' + ic('minus') + '</button><strong class="k-eta-val">' + sg + ' min</strong><button type="button" class="k-step" data-step="5" title="Sumar 5 minutos" aria-label="Sumar 5 minutos">' + ic('plus') + '</button><button type="button" class="k-step k-reset" data-reset="1" title="Volver al tiempo sugerido (' + sg + ' min)" aria-label="Volver al tiempo sugerido">' + ic('rotate') + '</button></div><div class="k-eta-hint">Sugerido ' + sg + ' min según el plato y la carga de cocina</div></div>';
+        } else if (key === 'preparing') {
+            var due = o.promisedAt, late = due && due < vnow();
+            h += '<div class="k-eta k-eta-set' + (late ? ' is-late' : '') + '"' + (due ? ' data-due="' + due + '"' : '') + '><div class="k-eta-label">' + ic('clock') + (due ? ' ' + (o.type === 'delivery' ? 'Llegada prometida' : 'Listo a las') + ' <strong>' + hm(due) + '</strong> <small class="k-left">…</small>' : ' Sin hora prometida al cliente') + '</div><div class="k-eta-ctl"><span class="k-eta-cap">Avisar retraso</span>';
+            [5, 10, 15].forEach(function (m) { h += '<button type="button" class="k-step k-plus" title="Retrasar ' + m + ' minutos" data-extend="' + m + '" data-id="' + o.id + '">' + ic('plus') + ' ' + m + ' min</button>'; });
+            h += '</div></div>';
+        }
+        h += '<div class="k-actions">';
+        if (PREV[key]) h += '<button type="button" class="k-undo" title="Regresar este pedido a «' + STATUS[PREV[key]].label + '»" aria-label="Regresar" data-move="' + PREV[key] + '" data-id="' + o.id + '">' + ic('arrow-left') + '</button>';
+        h += '<button type="button" class="k-go' + (key === 'new' ? ' k-start' : '') + '" ' + (key === 'new' ? 'data-start="' + o.id + '"' : 'data-move="' + col.next + '" data-id="' + o.id + '"') + '>' + esc(col.action) + ' ' + ic('chevron-right') + '</button></div></article>';
+        return h;
+    }
+
+    function board() {
+        var el = document.getElementById('kitchen-board');
+        var by = { new: [], preparing: [], ready: [] }, done = [], counts = { all: 0, dine_in: 0, pickup: 0, delivery: 0 };
+        orders.forEach(function (o) {
+            if (by[o.status]) { by[o.status].push(o); counts.all++; counts[o.type]++; } else if (o.status === 'delivered' && o.updatedAt >= vnow() - 3 * 3600000) done.push(o);
+        });
+        done.sort(function (a, b) { return b.updatedAt - a.updatedAt; });
+        var h = '<div class="kx-bar" role="toolbar" aria-label="Filtrar por tipo de pedido"><button type="button" class="kx-chip" data-f="all">Todos <b>' + counts.all + '</b></button>';
+        Object.keys(TYPES).forEach(function (k) { h += '<button type="button" class="kx-chip" data-f="' + k + '">' + ic(TYPE_ICON[k]) + ' ' + esc(TYPES[k]) + ' <b>' + counts[k] + '</b></button>'; });
+        h += '<span class="kx-spacer"></span><button type="button" class="kx-btn kx-busy' + (busy ? ' is-on' : '') + '" data-busy="1" title="Suma minutos al tiempo estimado de los pedidos nuevos" aria-pressed="' + busy + '">' + ic('flame') + ' Modo ocupado' + (busy ? ' activo (+' + CFG.busyExtra + ' min)' : '') + '</button></div><div class="kx-cols">';
+        Object.keys(STATUS).forEach(function (key) {
+            var col = STATUS[key];
+            h += '<section class="kx-col" aria-label="' + col.label + '"><div class="kx-colhead" style="--c:' + col.color + '">' + col.label + ' <span class="n">' + by[key].length + '</span></div>';
+            by[key].forEach(function (o) { h += cardHtml(o, key, col); });
+            if (!by[key].length) h += '<div class="k-empty">' + ic(EMPTY[key][0]) + EMPTY[key][1] + '</div>';
+            h += '</section>';
+        });
+        h += '</div>';
+        if (done.length) {
+            h += '<div class="kx-done"><h5>Entregados (últimas 3 h)</h5>';
+            done.slice(0, 12).forEach(function (o) { h += '<span>' + ic('check') + ' ' + esc(o.number) + (o.table ? ' · Mesa ' + esc(o.table) : '') + ' <a href="#" data-move="ready" data-id="' + o.id + '" title="Reabrir" aria-label="Reabrir">' + ic('rotate') + '</a></span>'; });
+            h += '</div>';
+        }
+        el.innerHTML = h;
+        el.setAttribute('data-filter', filter);
+        var ids = by.new.map(function (o) { return o.id; });
+        if (known !== null) {
+            ids.filter(function (id) { return known.indexOf(id) === -1; }).forEach(function (id) { var c = el.querySelector('.k-card[data-id="' + id + '"]'); if (c) c.classList.add('is-new'); });
+        }
+        known = ids;
+        paintEta(); tick();
+    }
+
+    function paintEta() {
+        document.querySelectorAll('.k-eta[data-base]').forEach(function (box) {
+            var id = box.getAttribute('data-id'), base = parseInt(box.getAttribute('data-base'), 10);
+            adj[id] = Math.min(MAX - base, Math.max(MIN - base, adj[id] || 0));
+            var m = Math.min(MAX, Math.max(MIN, base + adj[id]));
+            box.querySelector('.k-eta-val').textContent = m + ' min';
+            box.classList.toggle('is-adjusted', adj[id] !== 0);
+            box.querySelector('[data-step="-5"]').disabled = m <= MIN;
+            box.querySelector('[data-step="5"]').disabled = m >= MAX;
+            var at = box.querySelector('.k-start-at');
+            if (at) at.textContent = hm(parseInt(at.getAttribute('data-sched'), 10) - m * 60000);
+        });
+    }
+
+    function tick() {
+        var now = vnow();
+        document.querySelectorAll('.k-eta-set[data-due]').forEach(function (box) {
+            var diff = Math.round((parseInt(box.getAttribute('data-due'), 10) - now) / 60000), el = box.querySelector('.k-left');
+            if (el) el.textContent = diff >= 0 ? '· faltan ' + diff + ' min' : '· retrasado ' + Math.abs(diff) + ' min';
+            box.classList.toggle('is-late', diff < 0);
+        });
+        document.querySelectorAll('.k-timer').forEach(function (t) {
+            var m = Math.max(0, Math.floor((now - parseInt(t.getAttribute('data-ts'), 10)) / 60000));
+            t.textContent = m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + (m % 60) + ' min';
+            var limit = parseInt(t.getAttribute('data-limit') || '20', 10);
+            t.classList.toggle('warn', m >= limit * 0.6 && m < limit);
+            t.classList.toggle('late', m >= limit);
+        });
+        var live = document.getElementById('kx-updated'); if (live) live.textContent = 'En vivo · ' + hm(now);
+    }
+
+    function beep() {
+        try {
+            var c = new (window.AudioContext || window.webkitAudioContext)();
+            [880, 1175].forEach(function (f, i) {
+                var o = c.createOscillator(), g = c.createGain();
+                o.connect(g); g.connect(c.destination); o.frequency.value = f; g.gain.value = 0.18;
+                o.start(c.currentTime + i * 0.22); o.stop(c.currentTime + i * 0.22 + 0.18);
+            });
+            setTimeout(function () { c.close(); }, 700);
+        } catch (e) {}
+    }
+
+    function find(id) { return orders.filter(function (o) { return o.id === parseInt(id, 10); })[0]; }
+    function move(o, to, etaMin) {
+        var from = o.status; if (!o || from === to) return;
+        if (to === 'preparing' && from === 'new') { o.acceptedAt = vnow(); o.promisedAt = o.scheduled || vnow() + etaMin * 60000; }
+        if (to === 'new') { o.acceptedAt = null; o.promisedAt = null; }
+        o.status = to; o.updatedAt = vnow();
+        if (to === 'ready') o.readyAt = vnow();
+    }
+
+    function incoming() {
+        var activeNew = orders.filter(function (o) { return o.status === 'new'; }).length;
+        if (activeNew < 5) {
+            var t = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)](); seq += 1;
+            var o = Object.assign({ id: seq, number: 'ORD-000' + seq, status: 'new', createdAt: vnow(), scheduled: null }, t);
+            if (t.customerFn) o.customer = t.customerFn(t.table);
+            orders.push(o); board();
+            if (document.getElementById('kitchen-sound').checked) beep();
+        }
+        setTimeout(incoming, 14000 + Math.random() * 10000);
+    }
+
+    document.addEventListener('click', function (e) {
+        var b = document.getElementById('kitchen-board');
+        var chip = e.target.closest('.kx-chip'); if (chip) { filter = chip.getAttribute('data-f'); b.setAttribute('data-filter', filter); return; }
+        var step = e.target.closest('.k-eta[data-base] .k-step');
+        if (step && !step.disabled) {
+            var box = step.closest('.k-eta'), id = box.getAttribute('data-id');
+            adj[id] = step.hasAttribute('data-reset') ? 0 : (adj[id] || 0) + parseInt(step.getAttribute('data-step'), 10);
+            lastStep = Date.now(); paintEta(); return;
+        }
+        var start = e.target.closest('[data-start]');
+        if (start) { var o = find(start.getAttribute('data-start')); var bx = b.querySelector('.k-eta[data-id="' + o.id + '"]'); move(o, 'preparing', bx ? Math.min(MAX, Math.max(MIN, parseInt(bx.getAttribute('data-base'), 10) + (adj[o.id] || 0))) : eta(o)); delete adj[o.id]; board(); return; }
+        var mv = e.target.closest('[data-move]');
+        if (mv) { e.preventDefault(); move(find(mv.getAttribute('data-id')), mv.getAttribute('data-move'), 0); board(); return; }
+        var ex = e.target.closest('[data-extend]');
+        if (ex) { var p = find(ex.getAttribute('data-id')); p.promisedAt = (p.promisedAt || vnow()) + parseInt(ex.getAttribute('data-extend'), 10) * 60000; board(); return; }
+        if (e.target.closest('[data-busy]')) { busy = !busy; board(); return; }
+        if (e.target.closest('#kx-test')) beep();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        board();
+        setInterval(tick, 1000);
+        setTimeout(incoming, 9000);
+    });
+})();
+</script>
+</body>
+</html>
