@@ -103,6 +103,8 @@ class Item extends Model
             'icon-money' => 'Dinero', 'icon-bar-chart' => 'Gráfico', 'icon-globe' => 'Web', 'icon-cog' => 'Ajustes',
             'icon-book' => 'Libro', 'icon-life-ring' => 'Ayuda', 'icon-bolt' => 'Rayo', 'icon-paper-plane' => 'Enviar',
             'icon-bell' => 'Aviso', 'icon-image' => 'Imagen', 'icon-qrcode' => 'QR', 'icon-bullhorn' => 'Campaña',
+            'icon-pencil' => 'Editar', 'icon-briefcase' => 'Negocios', 'icon-commenting' => 'Mensaje', 'icon-android' => 'Bot',
+            'icon-calculator' => 'Caja / POS',
         ];
 
         return $icons;

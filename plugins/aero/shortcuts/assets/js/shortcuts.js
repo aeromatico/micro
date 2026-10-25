@@ -49,12 +49,14 @@
             method: 'POST',
             credentials: 'same-origin',
             headers: {
-                'X-OCTOBER-REQUEST-HANDLER': 'onReorder',
+                'X-AJAX-HANDLER': 'onReorder',
                 'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': meta ? meta.content : '',
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: body.toString()
-        });
+        }).then(function (res) {
+            if (!res.ok) console.error('aero.shortcuts: no se guardó el orden', res.status);
+        }, function (err) { console.error('aero.shortcuts', err); });
     }, true);
 })();
