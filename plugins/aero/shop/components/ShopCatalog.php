@@ -228,12 +228,18 @@ class ShopCatalog extends ComponentBase
         }
 
         $orders = \Aero\Shop\Models\Order::forTenant($tenant->id)->with('customer');
-        // Basta el número corto («18»): se busca el pedido más reciente que termine en ese número.
-        $order = ctype_digit($number)
-            ? $orders->where('order_number', 'like', '%' . str_pad($number, 6, '0', STR_PAD_LEFT))->orderByDesc('id')->first()
-            : $orders->where('order_number', $number)->first();
-        $orderPhone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($order?->customer?->phone);
-        if (!$order || !$orderPhone || $orderPhone !== $phone) {
+        $samePhone = fn ($o) => ($p = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($o->customer?->phone)) && $p === $phone;
+        if (ctype_digit($number)) {
+            // Número del día («18»): de hoy o de ayer; gana el pedido cuyo celular coincide. Sin número del día
+            // (pedidos anteriores), se busca por el final del número de pedido.
+            $from = \Carbon\Carbon::parse(\Aero\Shop\Classes\DailyNumber::today($tenant->id))->subDay()->toDateString();
+            $order = (clone $orders)->where('daily_number', (int) $number)->where('daily_date', '>=', $from)->orderByDesc('daily_date')->orderByDesc('id')->limit(4)->get()->first($samePhone)
+                ?? (clone $orders)->whereNull('daily_number')->where('order_number', 'like', '%' . str_pad($number, 6, '0', STR_PAD_LEFT))->orderByDesc('id')->limit(4)->get()->first($samePhone);
+        } else {
+            $order = $orders->where('order_number', $number)->first();
+            $order = $order && $samePhone($order) ? $order : null;
+        }
+        if (!$order) {
             return $fail;
         }
 

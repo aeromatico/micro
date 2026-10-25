@@ -19,6 +19,7 @@
           <div class="obody">
             <div class="orow">
               <span class="otype" x-text="o.type_label + (o.table ? ' · Mesa ' + o.table : '')"></span>
+              <span class="ostate wait" x-show="o.older">de ayer</span>
               <span class="ostate" :class="o.paid ? 'ok' : (o.payment.qr_status === 'pending' ? 'wait' : 'due')"
                     x-text="o.paid ? (o.payment.kind === 'qr' ? 'Pagado con QR' : 'Pagado') : (o.payment.qr_status === 'pending' ? 'Esperando QR' : 'Por cobrar en caja')"></span>
             </div>

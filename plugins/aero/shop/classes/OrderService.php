@@ -157,9 +157,13 @@ class OrderService
 
             $commission = $seller ? $seller->commissionFor($subtotal) : 0.0;
 
+            // Restaurante: además del número de pedido, un número del día que se reinicia a diario.
+            [$dailyDate, $dailyNumber] = $restaurant ? DailyNumber::next($tenantId) : [null, null];
+
             $order = Order::create([
                 'tenant_id' => $tenantId, 'customer_id' => $customerModel->id,
                 'order_number' => (new OrderNumberGenerator())->generate($tenantId), 'status' => $status,
+                'daily_number' => $dailyNumber, 'daily_date' => $dailyDate,
                 'currency_id' => $settings->base_currency_id, 'exchange_rate_snapshot' => 1,
                 'subtotal' => $subtotal, 'shipping_total' => $deliveryFee, 'grand_total' => round($subtotal + $deliveryFee, 4), 'payment_gateway_id' => $gateway?->id,
                 'shipping_address_id' => $addressId, 'billing_address_id' => $addressId,

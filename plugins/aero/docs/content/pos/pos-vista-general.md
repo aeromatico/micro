@@ -43,7 +43,7 @@ Al abrir cualquier pantalla del POS, si faltan, se crean: los ajustes (perfil *R
 
 ## Pedidos del local
 
-Cuando los clientes piden desde su mesa (checkout del restaurante), la caja los ve en **Pedidos**, en la barra superior, con un contador de los que faltan por cobrar. Se buscan por su **número corto** (el pedido PED-000018 se dice y se busca como **18**). Desde ahí puedes:
+Cuando los clientes piden desde su mesa (checkout del restaurante), la caja los ve en **Pedidos**, en la barra superior, con un contador de los que faltan por cobrar. Se buscan por su **número del día**: cada pedido recibe un número corto (1, 2, 3…) que vuelve a 1 cada día y que el cliente ve en grande; se dice y se busca como **18**. El número de pedido (PED-000018) no cambia ni se reinicia y sigue siendo el identificador único. Desde ahí puedes:
 
 - **Ver** los platos, extras y notas del pedido.
 - **Verificar pago** de un pedido con QR: la caja consulta al banco y, si ya llegó, lo marca pagado.

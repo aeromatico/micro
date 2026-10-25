@@ -167,3 +167,7 @@
 
 1.10.3:
     - "Pedidos del restaurante: el comensal ve su número corto (PED-000018 se muestra como 18) en la confirmación y al consultar su pedido, y la pantalla de cocina lo muestra grande para llamarlo más rápido."
+
+1.11.0:
+    - "Restaurantes: cada pedido recibe además un número del día (1, 2, 3… y vuelve a 1 cada día) que el comensal ve y se dice en el salón; el número de pedido no cambia ni se reinicia."
+    - add_daily_number_to_orders.php

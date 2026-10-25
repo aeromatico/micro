@@ -23,10 +23,13 @@ class OrdersController extends Controller
         $tid = $request->attributes->get('tenant_id');
         $q = trim((string) $request->query('q'));
 
+        $today = \Aero\Shop\Classes\DailyNumber::today($tid);
+        // Los números del día se repiten cada día: se muestran los de hoy y, solo si siguen sin pagar, los de ayer.
         $orders = Order::forTenant($tid)->whereNotNull('order_type')->where('source', '!=', 'pos')
             ->whereNotIn('status', ['cancelled', 'refunded'])->where('created_at', '>=', now()->subHours(24))
             ->where(fn ($w) => $w->whereNull('paid_at')->orWhereNull('kitchen_status')->orWhere('kitchen_status', '!=', 'delivered'))
-            ->with(['customer', 'payment_gateway'])->orderByRaw('paid_at is null desc')->orderByDesc('id')->limit(80)->get();
+            ->where(fn ($w) => $w->whereNull('daily_date')->orWhere('daily_date', $today)->orWhereNull('paid_at'))
+            ->with(['customer', 'payment_gateway'])->orderByRaw('paid_at is null desc')->orderByRaw('daily_date = ? desc', [$today])->orderByDesc('id')->limit(80)->get();
 
         if ($q !== '') {
             $needle = mb_strtolower(ltrim($q, '#'));
@@ -117,7 +120,7 @@ class OrdersController extends Controller
             'table' => $o->table_label, 'customer' => $o->customer?->full_name, 'phone' => $o->customer?->phone,
             'total' => (float) $o->grand_total, 'paid' => (bool) $o->paid_at, 'status' => $o->status, 'kitchen' => $o->kitchen_status,
             'payment' => ['kind' => $kind, 'label' => $kind === 'cash' ? 'Efectivo en caja' : ($kind === 'qr' ? 'Pago QR' : $o->payment_gateway->name), 'qr_status' => $qrStatus],
-            'by_pos' => Sale::where('order_id', $o->id)->exists(), 'created_at' => $o->created_at?->toIso8601String(),
+            'by_pos' => Sale::where('order_id', $o->id)->exists(), 'older' => $o->daily_date && (string) $o->daily_date !== \Aero\Shop\Classes\DailyNumber::today($o->tenant_id), 'created_at' => $o->created_at?->toIso8601String(),
             // Se puede cobrar en caja si no está pagado y no espera un QR vigente.
             'can_collect' => !$o->paid_at && in_array($o->status, ['pending', 'awaiting_payment'], true) && $qrStatus !== 'pending',
             'items_count' => (int) $o->items->sum('quantity'),

@@ -14,7 +14,7 @@ class Order extends Model
     public const KITCHEN_STATUSES = ['new' => 'Nuevo', 'preparing' => 'Preparando', 'ready' => 'Listo', 'delivered' => 'Entregado'];
 
     public $fillable = [
-        'tenant_id', 'customer_id', 'order_number', 'access_token', 'status', 'currency_id',
+        'tenant_id', 'customer_id', 'order_number', 'daily_number', 'daily_date', 'access_token', 'status', 'currency_id',
         'exchange_rate_snapshot', 'subtotal', 'discount_total', 'shipping_total',
         'tax_total', 'grand_total', 'payment_gateway_id', 'payment_reference',
         'paid_at', 'paid_confirmed_by_backend_user_id', 'fulfilled_at', 'cancelled_at',
@@ -56,9 +56,16 @@ class Order extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
-    /** Número corto para decirlo en voz alta (PED-000018 → «18»): lo que ve el comensal y busca quien atiende. */
+    /**
+     * Número para decirlo en voz alta: el número del día en restaurantes (se reinicia a diario); en pedidos
+     * anteriores a eso, el final del número de pedido (PED-000018 → «18»).
+     */
     public function getShortNumberAttribute(): string
     {
+        if ($this->daily_number) {
+            return (string) $this->daily_number;
+        }
+
         $tail = preg_match('/(\d+)\s*$/', (string) $this->order_number, $m) ? ltrim($m[1], '0') : '';
 
         return $tail === '' ? (string) $this->order_number : $tail;
