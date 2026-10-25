@@ -46,13 +46,20 @@
          :style="full ? { position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 2000, width: 'auto', maxWidth: 'none', margin: 0, borderRadius: 0, border: 0, display: 'flex', flexDirection: 'column' } : { maxWidth: mode === 'mobile' ? '400px' : '100%' }"
          style="margin-left:auto;margin-right:auto;width:100%;transition:max-width .5s ease-in-out"
          class="relative border border-edge rounded-2xl overflow-hidden shadow-2xl bg-canvas-elev">
-        {# Barra delgada para salir (solo en pantalla completa) #}
-        <div x-show="full" class="flex items-center justify-between gap-3 border-b border-edge bg-canvas-elev px-3" style="padding-top:max(4px,env(safe-area-inset-top));padding-bottom:4px;flex:none">
-            <span class="text-xs font-bold text-ink-dim">Demo · {{ iframe_title }}</span>
-            <button type="button" @click="leave()" class="inline-flex items-center gap-1.5 rounded-full border border-edge px-3 py-1.5 text-xs font-bold text-ink hover:border-accent transition-colors">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                Salir
-            </button>
+        {# Barra mínima en pantalla completa: cristal esmerilado, estado en vivo y salida (también con Esc) #}
+        <div x-show="full" x-transition.opacity class="flex" style="flex:none;align-items:center;justify-content:space-between;gap:12px;min-height:40px;padding:max(6px,env(safe-area-inset-top)) 12px 6px 14px;background:color-mix(in srgb,var(--color-canvas-elev) 80%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid color-mix(in srgb,var(--color-edge) 70%,transparent)">
+            <span style="display:inline-flex;align-items:center;gap:9px;min-width:0;font-size:12px;font-weight:600;letter-spacing:.01em;color:var(--color-ink)">
+                <span style="position:relative;display:inline-flex;width:8px;height:8px;flex:none"><span class="animate-ping" style="position:absolute;inset:0;border-radius:9999px;background:var(--color-accent);opacity:.55"></span><span style="position:relative;width:8px;height:8px;border-radius:9999px;background:var(--color-accent)"></span></span>
+                <span style="white-space:nowrap">Demo en vivo</span>
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:var(--color-ink-dim)">{{ iframe_title }}</span>
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:10px;flex:none">
+                <kbd class="hidden sm:inline-flex" style="padding:2px 7px;border-radius:6px;border:1px solid var(--color-edge);background:color-mix(in srgb,var(--color-ink) 6%,transparent);font:600 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--color-ink-dim)">Esc</kbd>
+                <button type="button" @click="leave()" aria-label="Salir de la pantalla completa" style="display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 10px;border:0;border-radius:9999px;background:var(--color-ink);color:var(--color-canvas);font-size:12px;font-weight:700;cursor:pointer">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    Salir
+                </button>
+            </span>
         </div>
         <iframe src="{{ src | theme }}?v={{ ver }}" title="{{ iframe_title }}" loading="lazy" sandbox="allow-scripts" :style="full ? { flex: '1 1 0', height: 'auto', minHeight: 0 } : {}" style="display:block;width:100%;height:min(860px,88vh);min-height:560px;border:0"></iframe>
 

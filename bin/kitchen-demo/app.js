@@ -159,10 +159,7 @@
         board();
     }
 
-    function setTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        var b = document.getElementById('kx-theme'); if (b) b.innerHTML = ic(t === 'dark' ? 'sun' : 'moon');
-    }
+    function setTheme(t) { document.querySelector('.kx').setAttribute('data-theme', t); }
 
     function beep() {
         try {
@@ -215,8 +212,7 @@
         if (e.target.closest('[data-busy]')) { busy = !busy; board(); return; }
         if (e.target.closest('#kx-test')) beep();
         if (e.target.closest('#kx-theme')) {
-            var dark = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            setTheme(dark ? 'light' : 'dark');
+            setTheme(document.querySelector('.kx').getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
     });
 

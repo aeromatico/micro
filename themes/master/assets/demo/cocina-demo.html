@@ -6,8 +6,10 @@
 <meta name="robots" content="noindex">
 <title>Cocina — demo para restaurantes</title>
 <style>
-/* Cocina — demo con la apariencia de la caja (POS): tokens cálidos, claro y oscuro. */
-:root{
+html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+
+/* Pantalla de Cocina — apariencia de la caja (POS): tokens cálidos, claro y oscuro (automático o con el botón). Todo va bajo .kx para no tocar el resto del backend. La demo de la web (bin/kitchen-demo) usa este mismo CSS. */
+.kx{
   --bg:#F8F3EA;--surface:#fff;--surface2:#FCF9F3;--line:#E8DFD0;--ink:#241E17;--muted:#6E6457;
   --accent:#0E7C66;--accent-ink:#fff;--accent-soft:#DDF1EA;--accent-text:#0B6552;
   --header:#0B5E4E;--header-ink:#FFF8EC;--danger:#A32A2A;--danger-soft:#FBE4E1;--warn-soft:#FBEBCB;--warn-ink:#7A4B00;
@@ -15,7 +17,7 @@
   --st-new:#3F66D6;--st-new-soft:#E6ECFB;--st-prep:#C97A00;--st-prep-soft:#FBEBCB;--st-ready:#0E7C66;--st-ready-soft:#DDF1EA;
   --note:#FDEFA8;--note-ink:#6B4A00;--tabletag:#241E17;--tabletag-ink:#FFF8EC;
 }
-:root[data-theme="dark"]{
+.kx[data-theme="dark"]{
   --bg:#14100C;--surface:#1F1A15;--surface2:#262019;--line:#3A3228;--ink:#F5EEE2;--muted:#B3A794;
   --accent:#2BB894;--accent-ink:#06251D;--accent-soft:#16352D;--accent-text:#6FDDBA;
   --header:#0D3A31;--danger:#FF9C93;--danger-soft:#4A2522;--warn-soft:#4A3611;--warn-ink:#F7C873;--shadow:none;
@@ -23,7 +25,7 @@
   --note:#4A3C10;--note-ink:#F7DE8A;--tabletag:#F5EEE2;--tabletag-ink:#14100C;
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
+  .kx:not([data-theme="light"]){
     --bg:#14100C;--surface:#1F1A15;--surface2:#262019;--line:#3A3228;--ink:#F5EEE2;--muted:#B3A794;
     --accent:#2BB894;--accent-ink:#06251D;--accent-soft:#16352D;--accent-text:#6FDDBA;
     --header:#0D3A31;--danger:#FF9C93;--danger-soft:#4A2522;--warn-soft:#4A3611;--warn-ink:#F7C873;--shadow:none;
@@ -31,26 +33,28 @@
     --note:#4A3C10;--note-ink:#F7DE8A;--tabletag:#F5EEE2;--tabletag-ink:#14100C;
   }
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.4}
-button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
-button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
-a{color:inherit}
+.kx,.kx *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.kx{color:var(--ink);font-size:15px;line-height:1.4}
+:where(.kx button){font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.kx button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+:where(.kx a){color:inherit}
 .kx-ic{flex:none;vertical-align:-3px}
 
 /* Barra superior (como la de la caja) */
-.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;background:var(--header);color:var(--header-ink)}
-.top .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
-.top .brand b{width:28px;height:28px;border-radius:9px;background:var(--amber);color:var(--amber-ink);display:flex;align-items:center;justify-content:center;font-weight:800}
+.kx-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px;margin-bottom:14px;background:var(--header);color:var(--header-ink);border-radius:16px}
+.kx-title{margin:0;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--header-ink)}
 .kx-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;opacity:.9}
+.kx-live.is-off .kx-dot{background:var(--amber);animation:none}
 .kx-dot{width:8px;height:8px;border-radius:50%;background:#5BE3B8;box-shadow:0 0 0 0 rgba(91,227,184,.6);animation:kx-ping 2s infinite}
 .kx-spacer{flex:1}
-.top .ibtn{height:40px;min-width:40px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--header-ink);font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.top .ibtn:hover{background:rgba(255,255,255,.12)}
+.kx-head .ibtn{height:40px;min-width:40px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--header-ink);font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.kx-head .ibtn:hover{background:rgba(255,255,255,.12)}
 .kx-toggle{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
 .kx-toggle input{accent-color:var(--amber);width:16px;height:16px}
+.kx[data-theme="dark"] .kx-th-moon,.kx:not([data-theme="dark"]) .kx-th-sun{display:none}
 
-.kx-wrap{padding:14px 16px 24px}
+.kx-wrap{background:var(--bg);border-radius:18px;padding:14px 16px 24px}
+.kx:fullscreen .kx-wrap,.kx-wrap:fullscreen{border-radius:0;min-height:100vh;padding:18px;overflow:auto}
 .kx-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px}
 .kx-chip,.kx-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:22px;padding:0 16px;height:44px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
 .kx-chip b{background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:12px;line-height:20px}
@@ -66,8 +70,8 @@ a{color:inherit}
 .kx-col{background:var(--surface2);border:1px solid var(--line);border-radius:18px;padding:10px;min-height:220px}
 .kx-colhead{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);font-weight:800}
 .kx-colhead .n{background:var(--c);color:#fff;border-radius:999px;padding:1px 11px;font-size:13px}
-:root[data-theme="dark"] .kx-colhead .n{color:#14100C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kx-colhead .n{color:#14100C}}
+.kx[data-theme="dark"] .kx-colhead .n{color:#14100C}
+@media (prefers-color-scheme:dark){.kx:not([data-theme="light"]) .kx-colhead .n{color:#14100C}}
 
 /* Tarjeta de pedido */
 .k-card{--c:var(--st-new);background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
@@ -83,9 +87,9 @@ a{color:inherit}
 .k-pill{display:inline-flex;align-items:center;gap:5px;border-radius:10px;padding:4px 10px;font-size:13px;font-weight:700;background:var(--st-new-soft);color:var(--st-new)}
 .k-pill.pickup{background:#EFE6FB;color:#6B3FB5}
 .k-pill.delivery{background:#FBE4D6;color:#9A4417}
-:root[data-theme="dark"] .k-pill.pickup{background:#2E2A52;color:#B8AEFF}
-:root[data-theme="dark"] .k-pill.delivery{background:#46261A;color:#F5A57C}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .k-pill.pickup{background:#2E2A52;color:#B8AEFF}:root:not([data-theme="light"]) .k-pill.delivery{background:#46261A;color:#F5A57C}}
+.kx[data-theme="dark"] .k-pill.pickup{background:#2E2A52;color:#B8AEFF}
+.kx[data-theme="dark"] .k-pill.delivery{background:#46261A;color:#F5A57C}
+@media (prefers-color-scheme:dark){.kx:not([data-theme="light"]) .k-pill.pickup{background:#2E2A52;color:#B8AEFF}.kx:not([data-theme="light"]) .k-pill.delivery{background:#46261A;color:#F5A57C}}
 .k-pill.table{background:var(--tabletag);color:var(--tabletag-ink);font-size:15px}
 .k-sched{background:var(--warn-soft);border:1px dashed var(--amber);color:var(--warn-ink);border-radius:10px;padding:6px 10px;font-weight:700;font-size:13px;margin-bottom:8px}
 .k-channel{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px;font-size:12px;font-weight:700}
@@ -131,8 +135,8 @@ a{color:inherit}
 /* Acciones */
 .k-actions{display:flex;gap:8px;margin-top:6px}
 .k-go{flex:1;min-height:50px;border:0;border-radius:14px;font-size:16px;font-weight:800;color:#fff;background:var(--c);box-shadow:0 6px 14px rgba(0,0,0,.12)}
-:root[data-theme="dark"] .k-go{color:#14100C;box-shadow:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .k-go{color:#14100C;box-shadow:none}}
+.kx[data-theme="dark"] .k-go{color:#14100C;box-shadow:none}
+@media (prefers-color-scheme:dark){.kx:not([data-theme="light"]) .k-go{color:#14100C;box-shadow:none}}
 .k-go:hover{filter:brightness(1.07)}.k-go:active{transform:scale(.98)}
 .k-undo{min-height:50px;min-width:52px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;display:inline-flex;align-items:center;justify-content:center}
 .k-undo:hover{background:var(--surface2)}
@@ -150,25 +154,28 @@ a{color:inherit}
 @keyframes kx-pulse{50%{opacity:.55}}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 @media (max-width:640px){
-  .top{padding:8px 10px;gap:8px}.top .hide-xs{display:none}
+  .kx-head{padding:8px 10px;gap:8px}.kx-head .hide-xs{display:none}
   .kx-wrap{padding:10px 10px 20px}
   .kx-chip,.kx-btn{height:40px;padding:0 12px;font-size:13px}
   .k-go{min-height:54px}
 }
 
+/* Solo la demo: el tablero ocupa todo el marco */
+.kx{min-height:100vh}
+.kx-wrap{min-height:100vh;border-radius:0}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="brand"><b>M</b><span><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> Cocina</span></div>
-  <span class="kx-live" id="kx-live"><i class="kx-dot"></i><span id="kx-updated">En vivo</span></span>
-  <span class="kx-spacer"></span>
-  <label class="kx-toggle"><input type="checkbox" id="kitchen-sound" checked> <svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span class="hide-xs">Sonido</span></label>
-  <button type="button" class="ibtn" id="kx-test" title="Probar sonido"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="6 3 20 12 6 21 6 3"/></svg> <span class="hide-xs">Probar</span></button>
-  <button type="button" class="ibtn" id="kx-theme" aria-label="Cambiar modo claro u oscuro" title="Modo claro u oscuro"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
-</header>
-<div class="kx">
+<div class="kx" data-theme="light">
   <div class="kx-wrap" id="kitchen-wrap">
+    <div class="kx-bar kx-head">
+      <h3 class="kx-title"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg> Cocina</h3>
+      <span class="kx-live" id="kx-live"><i class="kx-dot"></i><span id="kx-updated">En vivo</span></span>
+      <span class="kx-spacer"></span>
+      <label class="kx-toggle"><input type="checkbox" id="kitchen-sound" checked> <svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> <span class="hide-xs">Sonido</span></label>
+      <button type="button" class="kx-btn ibtn" id="kx-test" title="Probar sonido"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="6 3 20 12 6 21 6 3"/></svg> <span class="hide-xs">Probar</span></button>
+      <button type="button" class="kx-btn ibtn" id="kx-theme" title="Modo claro u oscuro" aria-label="Cambiar entre modo claro y oscuro"><span class="kx-th-moon"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span><span class="kx-th-sun"><svg class="kx-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41m11.32-11.32 1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/></svg></span></button>
+    </div>
     <div id="kitchen-board" data-filter="all"></div>
   </div>
 </div>
@@ -333,10 +340,7 @@ a{color:inherit}
         board();
     }
 
-    function setTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        var b = document.getElementById('kx-theme'); if (b) b.innerHTML = ic(t === 'dark' ? 'sun' : 'moon');
-    }
+    function setTheme(t) { document.querySelector('.kx').setAttribute('data-theme', t); }
 
     function beep() {
         try {
@@ -389,8 +393,7 @@ a{color:inherit}
         if (e.target.closest('[data-busy]')) { busy = !busy; board(); return; }
         if (e.target.closest('#kx-test')) beep();
         if (e.target.closest('#kx-theme')) {
-            var dark = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            setTheme(dark ? 'light' : 'dark');
+            setTheme(document.querySelector('.kx').getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
     });
 
