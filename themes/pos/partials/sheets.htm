@@ -15,7 +15,7 @@
 <div class="scrim" x-show="settingsOpen" x-transition.opacity @click.self="settingsOpen = false">
   <div class="sheet" x-show="settingsOpen">
     <div class="row"><b style="font-size:18px">Ajustes</b><button class="btn sm" style="margin-left:auto" @click="settingsOpen = false">Cerrar</button></div>
-    <div class="row"><div class="grow"><div class="bold">Mostrar miniaturas</div><div class="small muted">Foto en cada producto. Apagado caben más productos.</div></div>
+    <div class="row" x-show="!mobile"><div class="grow"><div class="bold">Mostrar miniaturas</div><div class="small muted">Foto en cada producto. Apagado caben más productos. En celular nunca se muestran.</div></div>
       <button class="switch" :class="prefs.thumbs && 'on'" role="switch" :aria-checked="prefs.thumbs" aria-label="Mostrar miniaturas" @click="prefs.thumbs = !prefs.thumbs; savePrefs()"></button></div>
     <div class="col"><div class="bold">Tema</div>
       <div class="seg"><button :class="prefs.theme === 'auto' && 'on'" @click="setTheme('auto')">Automático</button><button :class="prefs.theme === 'light' && 'on'" @click="setTheme('light')">Claro</button><button :class="prefs.theme === 'dark' && 'on'" @click="setTheme('dark')">Oscuro</button></div></div>

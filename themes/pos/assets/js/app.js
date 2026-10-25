@@ -25,7 +25,7 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        mobile: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
 
         // ---------------------------------------------------------------- arranque
@@ -38,6 +38,10 @@ function posApp() {
             setInterval(function () { if (self.queue.length && navigator.onLine) self.flush(); }, 30000);
             if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
             this.setTheme(this.prefs.theme);
+            // En celular no se muestran fotos: el catálogo debe ser corto para llegar rápido al detalle de la venta.
+            var mq = window.matchMedia('(max-width: 640px)');
+            this.mobile = mq.matches;
+            mq.addEventListener('change', function (e) { self.mobile = e.matches; });
             if (!this.handle) { this.screen = 'gate'; return; }
             this.resolveTenant();
         },
@@ -202,6 +206,7 @@ function posApp() {
             else this.cart.push({ key: key, product_id: p.id, variant_id: v ? v.id : null, name: p.name + (v ? ' · ' + v.label : ''), price: v ? v.price : p.price, qty: 1 });
             this.variantFor = null;
         },
+        showThumbs: function () { return !!this.prefs.thumbs && !this.mobile; },
         qtyOf: function (p) { return this.cart.filter(function (l) { return l.product_id === p.id; }).reduce(function (a, l) { return a + l.qty; }, 0); },
         inc: function (l) { l.qty++; },
         dec: function (l) { l.qty--; if (l.qty <= 0) this.cart = this.cart.filter(function (x) { return x !== l; }); },

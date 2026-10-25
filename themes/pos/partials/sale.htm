@@ -6,7 +6,7 @@
         <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             <input type="search" x-model="q" @keydown.enter.prevent="scan()" placeholder="Buscar o escanear código…" aria-label="Buscar o escanear código" autocomplete="off"></label>
         <div class="row" style="margin-left:auto">
-            <button class="ibtn" @click="calcOpen = !calcOpen" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">Calculadora</button>
+            <button class="ibtn" @click.stop="calcOpen = !calcOpen" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">Calculadora</button>
             <button class="ibtn" @click="toggleDark()" aria-label="Cambiar modo claro u oscuro">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
             <button class="ibtn" @click="settingsOpen = true" aria-label="Ajustes">
@@ -25,10 +25,10 @@
             </div>
             <div class="grid">
                 <template x-for="p in products()" :key="p.id">
-                    <button class="tile" :class="[prefs.thumbs && 'thumb', !p.in_stock && 'out']" :style="'--tc:var(--i' + colorOf(p.collection_id) + ')'" @click="add(p)" :aria-label="'Agregar ' + p.name">
+                    <button class="tile" :class="[showThumbs() && 'thumb', !p.in_stock && 'out']" :style="'--tc:var(--i' + colorOf(p.collection_id) + ')'" @click="add(p)" :aria-label="'Agregar ' + p.name">
                         <span class="ph" :style="'background:var(--t' + colorOf(p.collection_id) + ');color:var(--i' + colorOf(p.collection_id) + ')'">
-                            <template x-if="prefs.thumbs && p.image_url"><img :src="p.image_url" alt="" loading="lazy"></template>
-                            <template x-if="!(prefs.thumbs && p.image_url)"><span x-text="p.name.charAt(0)"></span></template>
+                            <template x-if="showThumbs() && p.image_url"><img :src="p.image_url" alt="" loading="lazy"></template>
+                            <template x-if="!(showThumbs() && p.image_url)"><span x-text="p.name.charAt(0)"></span></template>
                         </span>
                         <span class="col" style="gap:2px"><span class="nm" x-text="p.name"></span>
                             <span class="pr" x-text="p.has_variants ? 'Desde ' + money(p.price) : money(p.price)"></span></span>
@@ -65,8 +65,9 @@
         </aside>
     </main>
 
-    <div class="calc" x-show="calcOpen" x-transition.opacity>
-        <div class="h" x-text="c.hist"></div><div class="d" x-text="c.cur"></div>
+    <div class="calc" x-show="calcOpen" x-transition.opacity @click.outside="calcOpen = false" role="dialog" aria-label="Calculadora">
+        <div class="ch"><span class="h" x-text="c.hist"></span><button class="x" @click="calcOpen = false" aria-label="Cerrar calculadora"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <div class="d" x-text="c.cur"></div>
         <div class="k">
             <template x-for="k in ['C','÷','×','−','7','8','9','+','4','5','6','=','1','2','3','0','.']">
                 <button :class="k === '=' ? 'eq' : (k === '0' ? 'z' : k === 'C' ? 'cl' : ('÷×−+'.indexOf(k) >= 0 ? 'op' : ''))" @click="calcKey(k)" x-text="k"></button>

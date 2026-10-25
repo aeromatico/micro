@@ -109,7 +109,7 @@ input::placeholder{color:var(--muted)}
 .switch{width:52px;height:30px;border-radius:15px;border:0;background:#9A8F80;position:relative;flex:none}.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}.switch.on{background:var(--accent)}.switch.on::after{left:25px}
 .seg{display:flex;gap:6px}.seg button{height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13px}.seg button.on{border:2px solid var(--accent);background:var(--accent-soft)}
 .calc{position:fixed;top:64px;right:14px;width:272px;background:var(--calc);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:25;color:var(--calc-ink)}
-.calc .h{text-align:right;color:var(--calc-muted);font-size:12px;min-height:16px}.calc .d{text-align:right;font-size:34px;font-weight:600;padding:2px 4px 10px;overflow:hidden}
+.calc .ch{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px}.calc .h{flex:1;text-align:right;color:var(--calc-muted);font-size:12px;min-height:16px;order:1}.calc .x{order:2;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.1);color:var(--calc-ink);display:flex;align-items:center;justify-content:center}.calc .x:hover{background:rgba(255,255,255,.2)}.calc .d{text-align:right;font-size:34px;font-weight:600;padding:2px 4px 10px;overflow:hidden}
 .calc .k{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.calc .k button{height:46px;border-radius:12px;border:0;background:#3B3126;color:#FFF8EC;font-size:18px;font-weight:600}.calc .k .op{background:#5A4A36}.calc .k .z{grid-column:span 2}.calc .k .eq{grid-row:span 2;background:var(--amber);color:var(--amber-ink)}.calc .k .cl{background:#7A3A32}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#14181F;color:#fff;padding:10px 16px;border-radius:12px;z-index:50;font-size:14px;max-width:90vw}
 .hide-sm{display:inline}
@@ -121,5 +121,24 @@ input::placeholder{color:var(--muted)}
   .grid{overflow:visible;max-height:none}
   .hide-sm{display:none}
   .calc{left:14px;right:14px;width:auto}
+}
+/* Barras de desplazamiento finas y redondeadas (en celular se ocultan) */
+.grid,.lines,.sheet,.modal{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.grid::-webkit-scrollbar,.lines::-webkit-scrollbar,.sheet::-webkit-scrollbar,.modal::-webkit-scrollbar{width:10px;height:10px}
+.grid::-webkit-scrollbar-track,.lines::-webkit-scrollbar-track,.sheet::-webkit-scrollbar-track,.modal::-webkit-scrollbar-track{background:transparent}
+.grid::-webkit-scrollbar-thumb,.lines::-webkit-scrollbar-thumb,.sheet::-webkit-scrollbar-thumb,.modal::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;border:3px solid transparent;background-clip:content-box}
+.grid::-webkit-scrollbar-thumb:hover,.lines::-webkit-scrollbar-thumb:hover{background:var(--muted);background-clip:content-box;border:3px solid transparent}
+
+/* Celular: sin fotos, 2 columnas y catálogo corto para llegar rápido al detalle de la venta */
+@media (max-width:640px){
+  .sale{gap:8px;padding:8px}
+  .chip{height:38px;padding:0 12px;font-size:13px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(36vh,260px);overflow-y:auto;padding-bottom:2px}
+  .tile{min-height:0;padding:9px 10px;gap:2px;border-radius:12px;justify-content:center}
+  .tile .ph{display:none}
+  .tile .nm{font-size:13px}.tile .pr{font-size:13px}
+  .tile .bd{top:6px;right:6px}
+  .grid,.lines,.sheet,.modal{scrollbar-width:none}
+  .grid::-webkit-scrollbar,.lines::-webkit-scrollbar,.sheet::-webkit-scrollbar,.modal::-webkit-scrollbar{display:none}
 }
 @media print{body *{visibility:hidden}}
