@@ -500,3 +500,6 @@
 1.90.0:
     - "El rol tenant_admin recibe aero.producer.use (pedir videos con los estilos de la plataforma y ver los suyos)."
     - grant_producer_to_tenant_admin.php
+
+1.91.0:
+    - "Las listas del panel ahora se pueden exportar a CSV o PDF eligiendo las columnas (botón Exportar en la barra de la lista)."

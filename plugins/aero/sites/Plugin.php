@@ -67,6 +67,7 @@ class Plugin extends PluginBase
         $this->bootImpersonationBar();
         $this->bootTenantSwitcher();
         $this->bootMenuSearch();
+        \Aero\Sites\Classes\ListExporter::boot();
     }
 
     /**
