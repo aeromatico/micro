@@ -1,3 +1,21 @@
+<!-- Buscar o escanear (celular) -->
+<div class="scrim" x-show="searchOpen" x-transition.opacity @click.self="closeSearch()" style="align-items:flex-start">
+  <div class="sheet" x-show="searchOpen" style="max-width:560px;margin-top:4vh">
+    <div class="row"><b style="font-size:18px">Buscar o escanear</b><button class="btn sm" style="margin-left:auto" @click="closeSearch()">Listo</button></div>
+    <input class="field" id="search-big" type="search" x-model="q" x-ref="searchBig" @keydown.enter.prevent="scan()" placeholder="Nombre o código de barras" autocomplete="off" style="height:60px;font-size:20px;border-radius:16px" aria-label="Buscar o escanear">
+    <div class="col" style="gap:6px">
+      <template x-for="p in searchResults()" :key="p.id">
+        <button class="btn" style="display:flex;justify-content:space-between;align-items:center;height:52px" @click="add(p)">
+          <span class="row" style="gap:8px"><span x-text="p.name"></span><span class="small" style="color:var(--accent-text)" x-show="qtyOf(p) > 0" x-text="'× ' + qtyOf(p)"></span></span>
+          <span class="bold" x-text="money(p.price)"></span>
+        </button>
+      </template>
+      <div class="small muted" x-show="q.trim() && !searchResults().length" style="text-align:center;padding:10px">Sin resultados.</div>
+      <div class="small muted" x-show="!q.trim()" style="text-align:center;padding:6px">Escribe o escanea un código. Toca un producto para agregarlo.</div>
+    </div>
+  </div>
+</div>
+
 <!-- Variantes -->
 <div class="scrim" x-show="variantFor" x-transition.opacity @click.self="variantFor = null">
   <div class="sheet" x-show="variantFor">

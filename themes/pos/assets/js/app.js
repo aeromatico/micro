@@ -10,6 +10,8 @@ function posApp() {
         if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
     };
+    // Búsqueda sin tildes ni mayúsculas: «sand» encuentra «Sándwich».
+    var fold = function (t) { return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); };
     var round2 = function (n) { return Math.round(n * 100) / 100; };
 
     return {
@@ -25,7 +27,7 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        mobile: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        mobile: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
 
         // ---------------------------------------------------------------- arranque
@@ -188,9 +190,9 @@ function posApp() {
         },
         dotOf: function (cid) { return ['#F2A93B', '#17B890', '#E8734A', '#7C6CF0', '#E0558F'][(this.catalog.collections.findIndex(function (c) { return c.id === cid; }) + 5) % 5]; },
         products: function () {
-            var q = this.q.trim().toLowerCase(), cat = this.cat;
+            var q = fold(this.q.trim()), cat = this.cat;
             return this.catalog.products.filter(function (p) {
-                return (!cat || p.collection_id === cat) && (!q || p.name.toLowerCase().indexOf(q) >= 0 || (p.sku && p.sku.toLowerCase().indexOf(q) >= 0));
+                return (!cat || p.collection_id === cat) && (!q || fold(p.name).indexOf(q) >= 0 || (p.sku && fold(p.sku).indexOf(q) >= 0));
             });
         },
         scan: function () {
@@ -205,6 +207,15 @@ function posApp() {
             if (line) line.qty++;
             else this.cart.push({ key: key, product_id: p.id, variant_id: v ? v.id : null, name: p.name + (v ? ' · ' + v.label : ''), price: v ? v.price : p.price, qty: 1 });
             this.variantFor = null;
+        },
+        openSearch: function () {
+            var self = this; this.searchOpen = true;
+            setTimeout(function () { if (self.$refs.searchBig) self.$refs.searchBig.focus(); }, 80);
+        },
+        closeSearch: function () { this.searchOpen = false; this.q = ''; },
+        searchResults: function () {
+            var q = fold(this.q.trim()); if (!q) return [];
+            return this.catalog.products.filter(function (p) { return fold(p.name).indexOf(q) >= 0 || (p.sku && fold(p.sku).indexOf(q) >= 0); }).slice(0, 12);
         },
         showThumbs: function () { return !!this.prefs.thumbs && !this.mobile; },
         qtyOf: function (p) { return this.cart.filter(function (l) { return l.product_id === p.id; }).reduce(function (a, l) { return a + l.qty; }, 0); },
@@ -388,6 +399,6 @@ function posApp() {
                 (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
             this.setTheme(dark ? 'light' : 'dark');
         },
-        closeAll: function () { this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) { this.payOpen = false; this.stopQr(); } }
+        closeAll: function () { if (this.searchOpen) this.closeSearch(); this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) { this.payOpen = false; this.stopQr(); } }
     };
 }

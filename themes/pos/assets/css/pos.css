@@ -112,7 +112,7 @@ input::placeholder{color:var(--muted)}
 .calc .ch{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px}.calc .h{flex:1;text-align:right;color:var(--calc-muted);font-size:12px;min-height:16px;order:1}.calc .x{order:2;width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.1);color:var(--calc-ink);display:flex;align-items:center;justify-content:center}.calc .x:hover{background:rgba(255,255,255,.2)}.calc .d{text-align:right;font-size:34px;font-weight:600;padding:2px 4px 10px;overflow:hidden}
 .calc .k{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.calc .k button{height:46px;border-radius:12px;border:0;background:#3B3126;color:#FFF8EC;font-size:18px;font-weight:600}.calc .k .op{background:#5A4A36}.calc .k .z{grid-column:span 2}.calc .k .eq{grid-row:span 2;background:var(--amber);color:var(--amber-ink)}.calc .k .cl{background:#7A3A32}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#14181F;color:#fff;padding:10px 16px;border-radius:12px;z-index:50;font-size:14px;max-width:90vw}
-.hide-sm{display:inline}
+.hide-sm{display:inline}.hide-xs{display:inline}.only-xs{display:none}
 
 @media (max-width:820px){
   .sale{flex-direction:column;overflow-y:auto}
@@ -136,7 +136,18 @@ input::placeholder{color:var(--muted)}
   .lines{min-height:0}
   .empty{min-height:0}
   .chip{height:38px;padding:0 12px;font-size:13px}
-  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(36vh,260px);overflow-y:auto;padding-bottom:2px}
+  /* Barra superior en una sola fila: marca + iconos */
+  .top{flex-wrap:nowrap;gap:8px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top))}
+  .top .row{gap:6px}
+  .search-desk,.hide-xs{display:none!important}
+  .only-xs{display:inline-flex}
+  .ibtn{padding:0}
+  /* Catálogo corto: más alto para «Venta actual» */
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(27vh,200px);overflow-y:auto;padding-bottom:2px}
+  /* Cobrar más pequeño */
+  .tot{padding:8px 12px;gap:4px}
+  .tot .sum span:last-child{font-size:24px}
+  .ticket .btn.big{height:46px;font-size:16px;border-radius:12px;box-shadow:none;margin-top:2px}
   .tile{min-height:0;padding:9px 10px;gap:2px;border-radius:12px;justify-content:center}
   .tile .ph{display:none}
   .tile .nm{font-size:13px}.tile .pr{font-size:13px}

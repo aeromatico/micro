@@ -3,15 +3,19 @@
     <header class="top">
         <div class="brand"><b>M</b><span class="hide-sm">Market POS</span></div>
         <span class="small hide-sm" style="opacity:.85" x-text="'Hola, ' + me.user.name.split(' ')[0] + ' · ' + (terminal() ? terminal().name : '')"></span>
-        <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <label class="search search-desk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             <input type="search" x-model="q" @keydown.enter.prevent="scan()" placeholder="Buscar o escanear código…" aria-label="Buscar o escanear código" autocomplete="off"></label>
         <div class="row" style="margin-left:auto">
-            <button class="ibtn" @click.stop="calcOpen = !calcOpen" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">Calculadora</button>
+            <button class="ibtn only-xs" @click.stop="openSearch()" aria-label="Buscar o escanear">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+            <button class="ibtn" @click.stop="calcOpen = !calcOpen" aria-label="Calculadora" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+                <span class="hide-xs">Calculadora</span></button>
             <button class="ibtn" @click="toggleDark()" aria-label="Cambiar modo claro u oscuro">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
             <button class="ibtn" @click="settingsOpen = true" aria-label="Ajustes">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
-            <span class="small row"><i class="dot" :class="(!online || queue.length) && 'off'"></i><span x-text="!online ? 'Sin conexión' : (queue.length ? queue.length + ' por enviar' : 'En línea')"></span></span>
+            <span class="small row"><i class="dot" :class="(!online || queue.length) && 'off'"></i><span class="hide-xs" x-text="!online ? 'Sin conexión' : (queue.length ? queue.length + ' por enviar' : 'En línea')"></span></span>
         </div>
     </header>
 
