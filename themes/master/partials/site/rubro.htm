@@ -71,6 +71,9 @@
         </div>
     </section>
 
+    {# Video del servicio justo debajo del hero #}
+    {% partial 'site/service-video' service=service %}
+
     {# Demo interactiva de la caja (POS) solo para Restaurantes: bin/pos-demo/build.py #}
     {% if service.slug starts with 'restaurantes' %}
         {% partial 'site/landing/pos-demo' %}
