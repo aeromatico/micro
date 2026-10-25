@@ -1,6 +1,7 @@
 <?php namespace Aero\Credits\ReportWidgets;
 
 use Aero\Credits\Classes\Credits;
+use Aero\Credits\Classes\Money;
 use Aero\Credits\Models\CreditType;
 use Backend\Classes\ReportWidgetBase;
 
@@ -25,10 +26,10 @@ class MyCredits extends ReportWidgetBase
                 $balance = Credits::balance($tenantId, $type->code);
 
                 return [
-                    'label'     => $type->label,
+                    'label'     => preg_replace('/^Monedas\b/u', 'Créditos', (string) $type->label),
                     'color'     => $type->color,
                     'balance'   => $balance,
-                    'usd_value' => Credits::usdValue($balance, $type->code),
+                    'bob_value' => Money::format(Money::units($balance * (float) $type->price_bob)),
                 ];
             })->all();
         }
