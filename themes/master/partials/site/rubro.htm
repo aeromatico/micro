@@ -71,6 +71,11 @@
         </div>
     </section>
 
+    {# Demo interactiva de la caja (POS) solo para Restaurantes: bin/pos-demo/build.py #}
+    {% if service.slug starts with 'restaurantes' %}
+        {% partial 'site/landing/pos-demo' %}
+    {% endif %}
+
     {% if service.features|length %}
     <section aria-labelledby="rubro-incluye">
         <h2 id="rubro-incluye">Qué incluye</h2>

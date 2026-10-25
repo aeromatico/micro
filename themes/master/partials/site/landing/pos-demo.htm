@@ -1,0 +1,52 @@
+{# Demo interactiva — caja para restaurantes (bin/pos-demo/build.py). Se muestra en la ficha del servicio Restaurantes. #}
+<section id="demo-pos" class="max-w-6xl mx-auto px-6 sm:px-10 py-16 scroll-mt-14" aria-labelledby="demo-pos-titulo">
+    <div class="max-w-[640px] mb-10">
+        <span class="text-xs tracking-wide text-accent uppercase font-bold">Pruébala tú mismo</span>
+        <h2 id="demo-pos-titulo" class="text-3xl sm:text-4xl font-bold mt-3">La caja de tu restaurante, lista para cobrar.</h2>
+        <p class="text-base text-ink-dim mt-3">Esta es la caja de <strong>Sabor Andino</strong>, un restaurante ficticio. Elige una mesa, toca los platos, aplica un descuento y cobra en efectivo (con cambio al instante) o con un QR que cierra la venta solo al llegar el pago. Al terminar, manda el recibo por WhatsApp. Funciona en tablet, celular y computadora.</p>
+    </div>
+    <div x-data="{ active: false, mode: 'desktop' }">
+    {# Interruptor escritorio / móvil: en pantallas chicas ya es móvil, así que se oculta #}
+    <div class="hidden sm:flex justify-center mb-5">
+        <div class="inline-flex p-1 rounded-full border border-edge bg-canvas-elev" role="group" aria-label="Tamaño de la demo">
+            <button type="button" @click="mode = 'desktop'" :aria-pressed="mode === 'desktop'"
+                    :class="mode === 'desktop' ? 'bg-accent text-canvas shadow' : 'text-ink-dim hover:text-ink'"
+                    class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                Escritorio
+            </button>
+            <button type="button" @click="mode = 'mobile'" :aria-pressed="mode === 'mobile'"
+                    :class="mode === 'mobile' ? 'bg-accent text-canvas shadow' : 'text-ink-dim hover:text-ink'"
+                    class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+                Móvil
+            </button>
+        </div>
+    </div>
+    {# Ancho por estilo en línea: las clases arbitrarias de Tailwind no están en el build #}
+    <div :style="{ maxWidth: mode === 'mobile' ? '400px' : '100%' }"
+         style="margin-left:auto;margin-right:auto;width:100%;transition:max-width .5s ease-in-out"
+         class="relative border border-edge rounded-2xl overflow-hidden shadow-2xl bg-canvas-elev">
+        <iframe src="{{ 'assets/demo/pos-demo.html' | theme }}?v=2" title="Demo interactiva de la caja para restaurantes" loading="lazy" sandbox="allow-scripts" style="display:block;width:100%;height:min(760px,85vh);min-height:560px;border:0"></iframe>
+
+        {# Capa de invitación: evita que parezca una imagen estática. Se descarta al primer toque. #}
+        <button type="button" x-show="!active" x-transition.opacity.duration.300ms @click="active = true"
+                class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-5 px-6 text-center bg-black/55 cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="Activar la demo interactiva de la caja">
+            <span class="relative flex items-center justify-center w-20 h-20 rounded-full bg-accent text-canvas shadow-2xl transition-transform group-hover:scale-110">
+                <span class="absolute inset-0 rounded-full bg-accent opacity-40 animate-ping"></span>
+                <svg class="relative w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+            </span>
+            <span class="block max-w-md">
+                <span class="block text-xl sm:text-2xl font-bold text-white">DEMO INTERACTIVO</span>
+                <span class="block text-sm sm:text-base text-white/80 mt-2">Toca para probarla. Arma un pedido, elige la mesa y cobra con efectivo o con QR.</span>
+            </span>
+            <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs sm:text-sm font-semibold text-white">
+                <svg class="w-4 h-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5a2 2 0 1 1 4 0v6m0 0V9a2 2 0 1 1 4 0v5a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3 14a2 2 0 0 1 3-2.6l3 2.1"/></svg>
+                Pruébala, no se cobra ni se envía nada de verdad
+            </span>
+        </button>
+    </div>
+    <p class="text-xs text-ink-dim mt-3 text-center">Demo con datos ficticios · sin registro · nada se cobra ni se envía realmente.</p>
+    </div>
+</section>
