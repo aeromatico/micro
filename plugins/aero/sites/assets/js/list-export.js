@@ -28,6 +28,15 @@
         form && form.querySelectorAll('.list-export-columns input[type=checkbox]').forEach(function (c) { c.checked = e.target.checked; });
     });
 
+    document.addEventListener('change', function (e) {
+        if (!e.target.matches || !e.target.matches('input[name=format]')) return;
+        var form = e.target.closest('form');
+        var d = form && form.querySelector('[data-list-export-delim]');
+        if (d) (d.closest('.custom-select, .select2-container') || d).style.display = e.target.value === 'csv' ? '' : 'none';
+        if (d) d.style.display = e.target.value === 'csv' ? '' : 'none';
+        form && form.querySelectorAll('.select2-container').forEach(function (c) { c.style.display = e.target.value === 'csv' ? '' : 'none'; });
+    });
+
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject); else inject();
     new MutationObserver(inject).observe(document.documentElement, { childList: true, subtree: true });
 })();

@@ -16,7 +16,7 @@ use ApplicationException;
 class ListExporter
 {
     const MAX_ROWS = 20000;
-    const ASSET_VERSION = '3';
+    const ASSET_VERSION = '4';
 
     public static function boot(): void
     {

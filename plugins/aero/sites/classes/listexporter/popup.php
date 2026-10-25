@@ -22,7 +22,7 @@
         <div class="list-export-options">
             <label class="list-export-opt"><input type="radio" name="format" value="csv" checked> CSV (Excel)</label>
             <label class="list-export-opt"><input type="radio" name="format" value="pdf"> PDF</label>
-            <select name="delimiter" class="form-control custom-select select-no-search list-export-delim">
+            <select name="delimiter" data-list-export-delim class="form-control custom-select select-no-search list-export-delim">
                 <option value=";">CSV separado por punto y coma (Excel en español)</option>
                 <option value=",">CSV separado por coma</option>
             </select>
