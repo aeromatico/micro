@@ -34,7 +34,6 @@ Ninguna key recibe permisos por defecto: concede lo mínimo necesario.
 > [!WARNING]
 > Una key con permiso de escritura puede modificar datos. Dale expiración corta y revócala si dejas de usarla.
 
-**Versión documentada:** 1.3.0
 
 ## Restaurantes: estar atento al local
 
@@ -55,3 +54,4 @@ Con los módulos **shop** y **pos** activados, la key MCP de un restaurante reci
 > [!NOTE]
 > Estas tools solo leen: no aceptan pedidos, no cobran ni marcan emergencias como atendidas. Esas acciones se hacen desde la cocina o la caja.
 
+**Versión documentada:** 1.4.0
