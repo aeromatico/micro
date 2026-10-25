@@ -17,7 +17,7 @@
         </div>
         {% elseif qrCode and qrCode.status == 'pending' %}
         {% set flow = qrCode.flow|default('qr_dynamic') %}
-        <div x-data="{ checking: false }">
+        <div x-data="{ checking: false }" {% if flow == 'qr_dynamic' %}x-init="const poll = setInterval(() => { if (!$el.isConnected) return clearInterval(poll); if (!document.hidden && !checking && $refs.check) $refs.check.click() }, 5000)"{% endif %}>
             {% if flow == 'redirect' %}
             <p class="text-xs text-ink-muted mb-4">Termina el pago en la ventana de {{ order.payment_gateway.name }} — te traerá de vuelta a esta página automáticamente.</p>
             <a href="{{ qrCode.redirect_url }}"
@@ -43,7 +43,7 @@
                     </a>
                 </div>
             {% endif %}
-            <button type="button"
+            <button type="button" x-ref="check"
                     data-request="shopOrderConfirmation::onCheckPaymentStatus"
                     @ajax-before="checking = true"
                     @ajax-done="checking = false"
@@ -73,6 +73,17 @@
             Una vez realizado el pago, comunícalo al vendedor mencionando el número de pedido
             <strong class="text-ink">{{ order.order_number }}</strong>.
         </p>
+    {% endif %}
+</div>
+{% elseif order.order_type and not order.paid_at %}
+<div class="card p-6 mb-6 text-center">
+    <h2 class="text-sm font-semibold text-ink uppercase tracking-wider mb-3">Cómo pagar</h2>
+    <p class="text-sm font-medium text-ink mb-1">Efectivo</p>
+    {% if order.order_type == 'delivery' %}
+    <p class="text-sm text-ink-muted">Pagas en efectivo cuando recibas tu pedido.</p>
+    {% else %}
+    <p class="text-sm text-ink-muted">Pasa a caja y dicta tu número de pedido para pagar:</p>
+    <p class="text-3xl font-extrabold text-ink tracking-tight mt-3">{{ order.order_number }}</p>
     {% endif %}
 </div>
 {% endif %}

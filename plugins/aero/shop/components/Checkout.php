@@ -27,6 +27,8 @@ class Checkout extends ComponentBase
     public bool $whatsappStore = false;
     public bool $restaurantStore = false;
     public array $orderTypes = [];
+    /** Tipo de pedido marcado al abrir el checkout: «Comer en local» si está habilitado, si no el primero. */
+    public string $defaultType = '';
     public array $restaurant = [];
     /** Costo de envío de la tienda (0 si el carrito no lleva envío); el restaurante usa su delivery. */
     public float $deliveryFee = 0;
@@ -60,7 +62,15 @@ class Checkout extends ComponentBase
         if ($settings?->isRestaurantStore()) {
             $this->restaurantStore = true;
             $this->restaurant = $settings->restaurant();
-            $this->orderTypes = $settings->enabledOrderTypes();
+            // «Comer en local» primero y marcado por defecto: es lo más común en el salón.
+            $types = $settings->enabledOrderTypes();
+            $this->orderTypes = [];
+            foreach (['dine_in', 'pickup', 'delivery'] as $k) {
+                if (isset($types[$k])) {
+                    $this->orderTypes[$k] = $types[$k];
+                }
+            }
+            $this->defaultType = (string) array_key_first($this->orderTypes);
             $this->table = session('aero_shop_table_' . $tenant->id);
             // Sin mesa por QR no se ofrece "Comer en local" con mesa fija, pero sigue disponible (el cliente la escribe).
         }
@@ -217,17 +227,23 @@ class Checkout extends ComponentBase
 
         $validator = Validator::make($data, [
             'first_name' => 'required|min:2|max:100',
-            'phone'      => 'required|max:30',
+            'phone'      => 'nullable|max:30',
             'payment_gateway_id' => 'nullable|exists:aero_shop_payment_gateways,id',
         ], [
             'first_name.required' => 'Dinos tu nombre para llamarte cuando esté listo.',
-            'phone.required'      => 'El teléfono es obligatorio.',
         ]);
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors()->first());
         }
 
-        $phone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($data['phone']) ?: trim($data['phone']);
+        // El celular es opcional (promociones y pedidos más ágiles). Sin él ni correo se crea un cliente
+        // invitado por pedido, para conservar el nombre sin mezclarlo con otros clientes.
+        $rawPhone = trim((string) ($data['phone'] ?? ''));
+        $phone = $rawPhone === '' ? null : (\Aero\Shop\Classes\WhatsappCheckout::normalizePhone($rawPhone) ?: $rawPhone);
+        $email = filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: null;
+        if (!$phone && !$email) {
+            $email = 'invitado-' . strtolower(\Illuminate\Support\Str::random(12)) . '@sin-correo.invalid';
+        }
 
         $shipping = null;
         if ($type === 'delivery') {
@@ -272,7 +288,7 @@ class Checkout extends ComponentBase
                 ], $lines),
                 [
                     'user_id' => $this->currentUserId(), 'first_name' => trim($data['first_name']), 'phone' => $phone,
-                    'email' => filter_var($data['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: null,
+                    'email' => $email,
                 ],
                 $gatewayId,
                 [
