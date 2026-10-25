@@ -135,6 +135,9 @@
     </div>
     {% endif %}
 
+    {# Botón de emergencia: solo pedidos «Comer en local»; avisa a cocina y caja con el número de mesa #}
+    <div id="order-panic">{% partial __SELF__~"::panic" %}</div>
+
     <div class="text-center">
         <a href="/tienda" class="inline-flex items-center gap-2 text-brand-primary hover:opacity-80 font-semibold text-sm transition-opacity">
             Seguir comprando

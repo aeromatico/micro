@@ -27,7 +27,7 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        mobile: false, orders: [], orderPending: 0, alerts: [], newIds: {}, held: null, ordersSeeded: false, ordersOpen: false, ordersQ: '', ordersTab: 'due', orderOpenId: null, orderRef: null, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        mobile: false, orders: [], orderPending: 0, alerts: [], panics: [], knownPanics: null, newIds: {}, held: null, ordersSeeded: false, ordersOpen: false, ordersQ: '', ordersTab: 'due', orderOpenId: null, orderRef: null, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto', orderSound: true }),
 
         // ---------------------------------------------------------------- arranque
@@ -362,6 +362,10 @@ function posApp() {
                 var r = await this.api('GET', '/orders'), self = this, fresh = [];
                 var known = this.orders.map(function (o) { return o.id; });
                 this.orders = r.data.orders; this.orderPending = r.data.pending;
+                // Emergencias de mesa: banda fija arriba hasta que se atiendan; un solo tono suave cuando entra una nueva.
+                var panics = r.data.panics || [], seen = this.knownPanics;
+                if (seen && panics.some(function (p) { return seen.indexOf(p.id) < 0; })) { this.orderBeep(); try { navigator.vibrate && navigator.vibrate([80, 60, 80]); } catch (e) {} }
+                this.panics = panics; this.knownPanics = panics.map(function (p) { return p.id; });
                 // Pedidos nuevos desde la última consulta (la primera carga solo los registra: no avisa de lo que ya había).
                 if (this.ordersSeeded) {
                     fresh = this.orders.filter(function (o) { return known.indexOf(o.id) < 0 && !o.paid && !o.by_pos; });
@@ -375,6 +379,10 @@ function posApp() {
                 this.ordersSeeded = true;
                 document.title = (this.orderPending ? '(' + this.orderPending + ') ' : '') + 'Market POS';
             } catch (e) {}
+        },
+        ackPanic: async function (p) {
+            this.panics = this.panics.filter(function (x) { return x.id !== p.id; });
+            try { await this.api('POST', '/panics/' + p.id + '/ack'); } catch (e) { this.say(e.message); this.loadOrders(); }
         },
         dismissAlert: function (id) { this.alerts = this.alerts.filter(function (a) { return a.id !== id; }); },
         // Del aviso a la consulta: abre el panel lateral con ese pedido a la vista, sin tocar la venta en curso.

@@ -12,6 +12,9 @@ class OrderConfirmation extends ComponentBase
     /** Marketplace: los otros pedidos de la misma compra (uno por comerciante). */
     public $siblings = [];
     public string $timezone = 'America/La_Paz';
+    /** Botón de emergencia: ¿se ofrece en este pedido? y su aviso vigente. */
+    public bool $panicEligible = false;
+    public ?\Aero\Shop\Models\PanicAlert $panic = null;
 
     public function componentDetails(): array
     {
@@ -69,8 +72,15 @@ class OrderConfirmation extends ComponentBase
             : [];
 
         $this->loadQrCode();
+        $this->loadPanic();
 
         return true;
+    }
+
+    protected function loadPanic(): void
+    {
+        $this->panicEligible = $this->order ? \Aero\Shop\Classes\PanicService::eligible($this->order) : false;
+        $this->panic = $this->panicEligible ? \Aero\Shop\Classes\PanicService::current($this->order) : null;
     }
 
     /**
@@ -109,7 +119,20 @@ class OrderConfirmation extends ComponentBase
             return [];
         }
 
-        return ['#order-kitchen' => $this->renderPartial('@kitchenStatus')];
+        return ['#order-kitchen' => $this->renderPartial('@kitchenStatus'), '#order-panic' => $this->renderPartial('@panic')];
+    }
+
+    /** Botón de emergencia: avisa al personal con el número de mesa. Nunca lanza: devuelve el estado a mostrar. */
+    public function onPanic()
+    {
+        if (!$this->loadOrder()) {
+            return [];
+        }
+
+        [$alert, $result] = \Aero\Shop\Classes\PanicService::raise($this->order, request()->ip());
+        $this->loadPanic();
+
+        return ['#order-panic' => $this->renderPartial('@panic', ['panicResult' => $result])];
     }
 
     protected function loadQrCode(): void

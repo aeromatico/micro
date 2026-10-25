@@ -8,6 +8,7 @@ Salida: themes/master/assets/demo/pos-demo.html (se incrusta en un iframe en la 
 Las ilustraciones de los productos están en themes/master/assets/demo/pos/ (se generan con gen-icons.py).
 """
 import pathlib
+import re
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -37,9 +38,14 @@ js = patch(js, "prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', t
 # Al «salir» la demo simplemente se reinicia (no hay inicio de sesión real).
 js = patch(js, "        logoutLocal: function () {\n", "        logoutLocal: function () {\n            location.reload(); return;\n")
 
+# La demo no incluye el botón de emergencia de mesa: se quita su banda de la caja.
+SALE = read(THEME / 'partials/sale.htm')
+SALE_NO_PANIC = re.sub(r'<!-- Emergencias de mesa.*?</div>\s*</template>\s*</div>\s*', '', SALE, count=1, flags=re.S)
+assert SALE_NO_PANIC != SALE, 'no se encontró la banda de emergencias en sale.htm'
+
 page = body_of(read(THEME / 'pages/app.htm'))
 for name in ('gate', 'login', 'shift', 'sale', 'pay', 'sheets'):
-    page = page.replace("{% partial '" + name + "' %}", body_of(read(THEME / f'partials/{name}.htm')))
+    page = page.replace("{% partial '" + name + "' %}", (SALE_NO_PANIC if name == 'sale' else body_of(read(THEME / f'partials/{name}.htm'))))
 
 html = f"""<!DOCTYPE html>
 <html lang="es">

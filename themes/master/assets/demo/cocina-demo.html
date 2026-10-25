@@ -145,6 +145,13 @@ html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,s
 .k-empty .kx-ic{display:block;width:34px;height:34px;margin:0 auto 6px;opacity:.45}
 
 /* Entregados */
+.kx-panics{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.kx-panic{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border-radius:14px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-left-width:6px}
+.kx-panic b{font-size:16px}
+.kx-panic-meta{font-size:12px;opacity:.85;flex:1;min-width:140px}
+.kx-panic-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:kx-panic 2.2s ease-in-out infinite}
+.kx-panic-ack{height:36px!important;padding:0 12px!important;font-size:13px!important}
+@keyframes kx-panic{0%,100%{opacity:1}50%{opacity:.35}}
 .kx-done{margin-top:18px}
 .kx-done h5{margin:0 0 8px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
 .kx-done span{display:inline-flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin:0 6px 6px 0;font-size:13px;font-weight:600}

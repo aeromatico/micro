@@ -22,6 +22,7 @@ Route::prefix('api/v1/pos')->middleware(['api', ForceJson::class])->group(functi
         Route::post('qr', [PosController::class, 'qrIssue'])->middleware('throttle:30,1');
         Route::get('qr/{reference}', [PosController::class, 'qrStatus'])->middleware('throttle:60,1');
         Route::get('orders', [OrdersController::class, 'index']);
+        Route::post('panics/{id}/ack', [OrdersController::class, 'ackPanic'])->whereNumber('id');
         Route::get('orders/{id}', [OrdersController::class, 'show'])->whereNumber('id');
         Route::post('orders/{id}/verify', [OrdersController::class, 'verify'])->whereNumber('id')->middleware('throttle:60,1');
         Route::post('orders/{id}/collect', [OrdersController::class, 'collect'])->whereNumber('id');

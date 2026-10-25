@@ -137,6 +137,13 @@
 .k-empty .kx-ic{display:block;width:34px;height:34px;margin:0 auto 6px;opacity:.45}
 
 /* Entregados */
+.kx-panics{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.kx-panic{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border-radius:14px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-left-width:6px}
+.kx-panic b{font-size:16px}
+.kx-panic-meta{font-size:12px;opacity:.85;flex:1;min-width:140px}
+.kx-panic-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);animation:kx-panic 2.2s ease-in-out infinite}
+.kx-panic-ack{height:36px!important;padding:0 12px!important;font-size:13px!important}
+@keyframes kx-panic{0%,100%{opacity:1}50%{opacity:.35}}
 .kx-done{margin-top:18px}
 .kx-done h5{margin:0 0 8px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
 .kx-done span{display:inline-flex;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;margin:0 6px 6px 0;font-size:13px;font-weight:600}
@@ -179,7 +186,7 @@
     (function () {
         var board = document.getElementById('kitchen-board');
         var wrap = document.getElementById('kitchen-wrap');
-        var known = null, offset = 0, failing = false, adj = {}, lastStep = 0, MIN = 5, MAX = 240;
+        var known = null, knownPanics = null, offset = 0, failing = false, adj = {}, lastStep = 0, MIN = 5, MAX = 240;
 
         function beep() {
             try {
@@ -244,6 +251,11 @@
                 if (fresh.length && document.getElementById('kitchen-sound').checked) beep();
             }
             known = ids;
+            // Emergencia nueva: un solo tono suave (el aviso fijo queda en la banda de arriba hasta que se atienda).
+            var pEl = board.querySelector('[data-panic-ids]'), pIds = [];
+            try { pIds = pEl ? JSON.parse(pEl.getAttribute('data-panic-ids')) : []; } catch (e) {}
+            if (knownPanics !== null && pIds.some(function (id) { return knownPanics.indexOf(id) === -1; }) && document.getElementById('kitchen-sound').checked) beep();
+            knownPanics = pIds;
             paintEta();
             tick();
             document.title = (ids.length ? '(' + ids.length + ') ' : '') + 'Cocina';

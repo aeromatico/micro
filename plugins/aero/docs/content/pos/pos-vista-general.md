@@ -55,3 +55,6 @@ Cuando los clientes piden desde su mesa (checkout del restaurante), la caja los 
 - Al tocar la tarjeta se abre el panel de pedidos **al lado** del catálogo (en pantallas amplias puedes seguir vendiendo mientras lo consultas).
 - Si estabas armando una venta y cobras un pedido, tu venta queda **en espera** y la retomas al terminar o cancelar.
 
+### Emergencias de mesa
+
+Si un comensal usa el botón de emergencia de la página de su pedido, la caja muestra una **franja clara** bajo la barra superior con el número de mesa («Emergencia · Mesa 7») y un botón **Atendida**. Suena un tono suave una sola vez y la franja no tapa la venta ni el cobro. Marcarla como atendida la quita también de la pantalla de cocina.

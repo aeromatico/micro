@@ -12,7 +12,20 @@ foreach ($columns as $col) {
     }
 }
 ?>
-<div data-new-ids="<?= e(json_encode($newIds)) ?>" data-server-ts="<?= time() ?>" hidden></div>
+<div data-new-ids="<?= e(json_encode($newIds)) ?>" data-server-ts="<?= time() ?>" data-panic-ids="<?= e(json_encode($panics->pluck('id')->all())) ?>" hidden></div>
+
+<?php if ($panics->count()): ?>
+    <div class="kx-panics" role="alert" aria-live="polite">
+        <?php foreach ($panics as $pa): ?>
+            <div class="kx-panic">
+                <span class="kx-panic-dot" aria-hidden="true"></span>
+                <b><?= e($pa->label) ?></b>
+                <span class="kx-panic-meta">Emergencia · <?= e($pa->order?->customer?->first_name ?: 'cliente') ?> · pedido #<?= e($pa->order?->short_number) ?> · hace <?= (int) max(0, $pa->created_at->diffInMinutes(now(), true)) ?> min</span>
+                <button type="button" class="kx-btn kx-panic-ack" data-request="onAckPanic" data-request-data="id: <?= (int) $pa->id ?>"><?= \Aero\Shop\Classes\KitchenIcons::svg('check') ?> Atendida</button>
+            </div>
+        <?php endforeach ?>
+    </div>
+<?php endif ?>
 
 <div class="kx-bar" role="toolbar" aria-label="Filtrar por tipo de pedido">
     <button type="button" class="kx-chip" data-f="all">Todos <b><?= $counts['all'] ?></b></button>

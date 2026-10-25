@@ -40,7 +40,19 @@ class OrdersController extends Controller
         return response()->json(['data' => [
             'orders' => $orders->map(fn ($o) => $this->present($o))->all(),
             'pending' => $orders->whereNull('paid_at')->count(),
+            // Avisos de emergencia de las mesas (botón de la página del pedido) que nadie atendió todavía.
+            'panics' => \Aero\Shop\Classes\PanicService::active((int) $tid)->map(fn ($a) => \Aero\Shop\Classes\PanicService::present($a))->all(),
         ]]);
+    }
+
+    /** POST panics/{id}/ack — la caja atendió la emergencia. */
+    public function ackPanic(Request $request, int $id)
+    {
+        $by = $request->attributes->get('pos_user');
+        $name = trim(($by->first_name ?? '') . ' ' . ($by->last_name ?? '')) ?: ($by->login ?? 'caja');
+        \Aero\Shop\Classes\PanicService::acknowledge((int) $request->attributes->get('tenant_id'), $id, 'caja · ' . $name);
+
+        return response()->json(['data' => ['ok' => true]]);
     }
 
     /** GET orders/{id} */

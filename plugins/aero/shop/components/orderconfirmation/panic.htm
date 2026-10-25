@@ -1,0 +1,43 @@
+{% set order = __SELF__.order %}
+{% set panic = __SELF__.panic %}
+{% if __SELF__.panicEligible %}
+<div class="card p-5 mb-6 text-sm">
+    {% if panic and not panic.acknowledged_at %}
+        <p class="font-semibold text-ink">Avisamos al personal</p>
+        <p class="text-ink-muted mt-1">Mantén la calma: ya saben que necesitas ayuda en tu mesa{% if order.table_label %} ({{ order.table_label }}){% endif %} y van en camino.</p>
+    {% elseif panic %}
+        <p class="font-semibold text-ink">El personal ya vio tu aviso</p>
+        <p class="text-ink-muted mt-1">Alguien del equipo fue a atenderte. Si todavía necesitas ayuda, avisa de nuevo en un par de minutos.</p>
+        {% if panicResult == 'wait' %}<p class="text-xs text-ink-muted mt-2">Espera un par de minutos antes de avisar otra vez.</p>{% endif %}
+    {% endif %}
+
+    {% if not panic or panic.acknowledged_at %}
+    <div x-data="{ ask: false, sending: false }">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <p class="font-semibold text-ink">¿Necesitas ayuda urgente?</p>
+                <p class="text-xs text-ink-muted mt-0.5">El botón de emergencia es solo para una emergencia real. Para pedir algo, llama al mesero.</p>
+            </div>
+            <button type="button" @click="ask = true" class="shrink-0 inline-flex items-center gap-2 border border-red-300 text-red-700 hover:bg-red-50 font-semibold rounded-brand px-3 py-2 text-xs">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+                Emergencia
+            </button>
+        </div>
+
+        <div x-show="ask" x-cloak class="fixed inset-0 z-50 flex items-end sm:items-center justify-center" @keydown.escape.window="ask = false" role="dialog" aria-modal="true" aria-label="Confirmar emergencia">
+            <div class="absolute inset-0 bg-black/50" @click="ask = false"></div>
+            <div class="relative bg-surface w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl p-5" x-transition>
+                <h3 class="text-lg font-bold text-ink">¿Es una emergencia?</h3>
+                <p class="text-sm text-ink-muted mt-2">Esto avisará de inmediato al personal con tu número de mesa{% if order.table_label %} (<strong class="text-ink">{{ order.table_label }}</strong>){% endif %}. Úsalo <strong class="text-ink">solo en caso de una emergencia</strong>, por ejemplo un accidente, un malestar o una situación de riesgo.</p>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                    <button type="button" @click="ask = false" class="border border-surface-border text-ink font-semibold py-3 rounded-brand text-sm">No, cancelar</button>
+                    <button type="button" data-request="shopOrderConfirmation::onPanic"
+                            @ajax:setup="sending = true" @ajax:done="ask = false; sending = false" @ajax:fail="sending = false" :disabled="sending"
+                            class="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-semibold py-3 rounded-brand text-sm" x-text="sending ? 'Avisando…' : 'Sí, es una emergencia'">Sí, es una emergencia</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

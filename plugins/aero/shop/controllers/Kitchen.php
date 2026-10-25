@@ -95,6 +95,14 @@ class Kitchen extends Controller
         return $this->onRefresh();
     }
 
+    /** Atender un aviso de emergencia: deja de mostrarse en cocina y en caja. */
+    public function onAckPanic()
+    {
+        \Aero\Shop\Classes\PanicService::acknowledge((int) $this->getCurrentTenantId(), (int) post('id'), 'cocina');
+
+        return $this->onRefresh();
+    }
+
     /** Retraso: cocina avisa que tomará unos minutos más y la hora prometida se corre. */
     public function onExtend()
     {
@@ -151,6 +159,7 @@ class Kitchen extends Controller
             ],
             'done'    => $done,
             'newIds'  => ($active['new'] ?? collect())->pluck('id')->all(),
+            'panics'  => \Aero\Shop\Classes\PanicService::active((int) $tenantId),
             'prevOf'  => ['preparing' => 'new', 'ready' => 'preparing', 'delivered' => 'ready'],
         ];
     }

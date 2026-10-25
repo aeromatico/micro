@@ -24,6 +24,18 @@
         </div>
     </header>
 
+    <!-- Emergencias de mesa: banda fija y discreta; desaparece al marcarla como atendida -->
+    <div class="panics" role="alert" aria-live="polite" x-show="panics.length" x-cloak>
+        <template x-for="p in panics" :key="p.id">
+            <div class="panic-chip">
+                <span class="panic-dot" aria-hidden="true"></span>
+                <b x-text="'Emergencia · ' + p.label"></b>
+                <span class="small" x-text="(p.customer ? p.customer + ' · ' : '') + 'pedido ' + p.short + ' · ' + orderTime(p.at)"></span>
+                <button class="btn sm" @click="ackPanic(p)">Atendida</button>
+            </div>
+        </template>
+    </div>
+
     <main class="sale">
         <section class="catalog">
             <div class="chips">

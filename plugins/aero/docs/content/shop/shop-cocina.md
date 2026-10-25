@@ -49,4 +49,7 @@ Barra superior: **Sonido** (aviso al llegar pedidos nuevos), **Probar**,
 > Cuando el pedido viene de un punto de venta, la tarjeta muestra el origen y
 > agrupa los artículos por **ronda de comanda**.
 
+## Emergencias de mesa
+
+Si un comensal usa el botón de emergencia de la página de su pedido, arriba del tablero aparece una franja con el número de mesa (por ejemplo «Mesa 7») y cuánto hace que avisó, con el botón **Atendida**. Suena una sola vez un tono suave (si el sonido está activo) y la franja se queda hasta que se atiende; no tapa los pedidos.
 **Versión documentada:** 1.11.0
