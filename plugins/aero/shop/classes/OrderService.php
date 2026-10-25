@@ -30,7 +30,7 @@ class OrderService
      * @param array $customer ['first_name','last_name'?,'email'?,'phone'?,'user_id'?] — email o phone obligatorio
      * @param array $options  ['shipping'=>[address_line1,city,country_code,...], 'customer_notes'=>, 'notes'=>,
      *                         'source'=>web|pos|api|..., 'cashier_id'=>, 'walk_in'=>true (venta sin datos de cliente),
-     *                         'allow_internal'=>true (permite «Venta libre» con precio propio), 'tax_id'=>, 'tax_name'=>]
+     *                         'counter'=>true (venta de mostrador, sin envío), 'allow_internal'=>true (permite «Venta libre» con precio propio), 'tax_id'=>, 'tax_name'=>]
      *
      * @throws OrderException|InsufficientStockException
      */
@@ -41,12 +41,13 @@ class OrderService
             throw new OrderException('La tienda no está disponible en este momento.');
         }
 
-        if (!$settings->isRestaurantStore() && !$settings->isOpenNow()) {
+        if (!$settings->isRestaurantStore() && !$settings->isOpenNow() && empty($options['counter'])) {
             throw new OrderException('La tienda está cerrada en este momento.');
         }
 
         $lines = $this->resolveLines($tenantId, $items, !empty($options['allow_internal']));
-        $requiresShipping = collect($lines)->contains(fn ($l) => $l['product']->requires_shipping);
+        // Venta de mostrador (POS): el cliente se lleva el producto, no hay envío que pedir.
+        $requiresShipping = empty($options['counter']) && collect($lines)->contains(fn ($l) => $l['product']->requires_shipping);
 
         $restaurant = $settings->isRestaurantStore() ? $this->resolveRestaurant($settings, $lines, $options) : null;
         // Sucursal elegida en el checkout (el checkout la valida; la API/POS pueden no enviarla).
@@ -116,7 +117,7 @@ class OrderService
     protected function placeOrder(int $tenantId, ShopSettings $settings, array $lines, ?Seller $seller, ?string $orderGroup, array $customer, ?PaymentGateway $gateway, bool $requiresShipping, $shipping, array $options, ?array $restaurant, ?array $branch): Order
     {
         // En marketplace cada pedido lleva envío solo si sus propios productos lo requieren.
-        if ($seller || $orderGroup) {
+        if (($seller || $orderGroup) && empty($options['counter'])) {
             $requiresShipping = collect($lines)->contains(fn ($l) => $l['product']->requires_shipping);
         }
 
@@ -515,7 +516,8 @@ class OrderService
 
         $lead = max(0, (int) ($cfg['lead_minutes'] ?? 30));
         $scheduled = null;
-        if (!$settings->isOpenNow()) {
+        // El mostrador vende aunque el horario de la tienda online esté cerrado.
+        if (!$settings->isOpenNow() && empty($options['counter'])) {
             if (empty($cfg['accept_closed'])) {
                 throw new OrderException('El restaurante está cerrado en este momento.');
             }
