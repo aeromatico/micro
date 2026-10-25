@@ -52,6 +52,7 @@ esté apagada, el menú de catálogo y pedidos no aparece.
 | **Aceptar pedidos fuera de horario** | Si está activo, el cliente puede programar su pedido; si no, la tienda se bloquea al cerrar. |
 | **Cobros con QR para comensales en el local** | Si está activo, quien come en el local puede elegir «Pago QR» al pedir. Apagado, en el local solo se paga en efectivo en caja (el QR sigue disponible para recoger y delivery). |
 | **Cuenta de Hello del local** | Cuenta de WhatsApp con la que el local avisa a sus clientes (pedido recibido, listo…) y envía recibos desde la caja. Sin elegir, se usa la cuenta de WhatsApp por defecto. |
+| **Botón de emergencia para comensales en el local** | Muestra el botón «Emergencia» en la página del pedido de quien come en el local (pide confirmar antes de enviar). Al usarlo, la Cocina y la caja ven una franja con el número de mesa hasta que alguien la marca como «Atendida». Apagado, el botón no aparece; los avisos ya activos se siguen mostrando hasta atenderlos. |
 
 Con mesas configuradas aparece el botón **Generar QR de mesas**: genera un QR
 por mesa listo para imprimir (requiere un dominio principal del sitio).

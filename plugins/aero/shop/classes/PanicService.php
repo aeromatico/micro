@@ -16,7 +16,10 @@ class PanicService
 
     public static function eligible(Order $o): bool
     {
-        return $o->order_type === 'dine_in' && !in_array($o->status, ['cancelled', 'refunded'], true) && $o->created_at && $o->created_at->gte(now()->subHours(8));
+        // El local puede apagar el botón en Configuración de la tienda (por defecto, encendido).
+        $on = \Aero\Shop\Models\ShopSettings::where('tenant_id', $o->tenant_id)->first()?->restaurant()['panic_button'] ?? true;
+
+        return $on && $o->order_type === 'dine_in' && !in_array($o->status, ['cancelled', 'refunded'], true) && $o->created_at && $o->created_at->gte(now()->subHours(8));
     }
 
     /** El aviso vigente de este pedido (sin atender, o atendido hace poco), para mostrarlo al cliente. */

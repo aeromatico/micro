@@ -175,3 +175,6 @@
 1.12.0:
     - "Botón de emergencia en la página del pedido (Comer en local): avisa al personal con el número de mesa; la cocina y la caja lo ven en una franja clara hasta que alguien lo marca como atendido."
     - create_panic_alerts_table.php
+
+1.12.1:
+    - "Configuración del restaurante: ahora el botón de emergencia de la página del pedido se puede activar o apagar para los comensales en el local."

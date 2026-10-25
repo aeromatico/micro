@@ -105,5 +105,5 @@ Registro de cambios de estado, con fecha y nota.
 
 ### Botón de emergencia
 
-En la página del pedido, quien come en el local (**Comer en local**) ve el botón **Emergencia**. Antes de enviar pide confirmar que es una emergencia real. Al confirmar, se avisa al personal con el **número de mesa** (si el pedido no tiene mesa, con el número del pedido y el nombre): la **Cocina** y la **caja** (POS) lo muestran en una franja clara hasta que alguien lo marca como **Atendida**. El cliente ve «Avisamos al personal» y, cuando lo atienden, «El personal ya vio tu aviso». Para evitar abusos, se puede volver a avisar desde el mismo pedido a los 2 minutos y hay un límite por hora.
+En la página del pedido, quien come en el local (**Comer en local**) ve el botón **Emergencia**. Antes de enviar pide confirmar que es una emergencia real. Al confirmar, se avisa al personal con el **número de mesa** (si el pedido no tiene mesa, con el número del pedido y el nombre): la **Cocina** y la **caja** (POS) lo muestran en una franja clara hasta que alguien lo marca como **Atendida**. El cliente ve «Avisamos al personal» y, cuando lo atienden, «El personal ya vio tu aviso». Para evitar abusos, se puede volver a avisar desde el mismo pedido a los 2 minutos y hay un límite por hora. El botón se puede apagar en [Configuración](shop-configuracion).
 **Versión documentada:** 1.11.0

@@ -172,6 +172,7 @@ class ShopSettings extends Controller
             'accept_closed' => (bool) ($data['rc_accept_closed'] ?? false),
             'qr_dine_in'    => (bool) ($data['rc_qr_dine_in'] ?? false),
             'hello_account_id' => $tenantId ? $this->ownedAccountId($tenantId, $data['rc_hello_account_id'] ?? null) : null,
+            'panic_button'  => (bool) ($data['rc_panic_button'] ?? false),
             'layout'        => array_key_exists($data['rc_layout'] ?? '', ShopSettingsModel::MENU_LAYOUTS) ? $data['rc_layout'] : 'lista',
         ];
     }
@@ -393,6 +394,11 @@ class ShopSettings extends Controller
             'rc_qr_dine_in' => [
                 'label' => 'Cobros con QR para comensales en el local', 'type' => 'switch', 'default' => true,
                 'comment' => 'Si está activo, quien come en el local puede elegir «Pago QR» al pedir y esperar con su QR. Apagado, en el local solo se paga en efectivo en caja (el QR sigue disponible para recoger y delivery).',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_panic_button' => [
+                'label' => 'Botón de emergencia para comensales en el local', 'type' => 'switch', 'default' => true,
+                'comment' => 'Muestra el botón «Emergencia» en la página del pedido de quien come en el local (pide confirmar antes de enviar). Al usarlo, la cocina y la caja ven una franja con el número de mesa hasta que alguien la marca como «Atendida». Apagado, el botón no aparece; los avisos que ya estén activos se siguen mostrando hasta atenderlos.',
                 'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
             ],
             'rc_hello_account_id' => [

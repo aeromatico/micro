@@ -78,6 +78,7 @@ class ShopSettings extends Model
     public function getRcAcceptClosedAttribute() { return (bool) $this->restaurant()['accept_closed']; }
     public function getRcQrDineInAttribute() { return (bool) $this->restaurant()['qr_dine_in']; }
     public function getRcHelloAccountIdAttribute() { return $this->restaurant()['hello_account_id']; }
+    public function getRcPanicButtonAttribute() { return (bool) $this->restaurant()['panic_button']; }
 
     /** El modo Marketplace solo se activa con la compra (no cancelada) del servicio «marketplace» de Aero.Services. */
     public static function marketplacePurchasedBy(int $tenantId): bool
@@ -130,6 +131,7 @@ class ShopSettings extends Model
             'accept_closed'    => false,
             'qr_dine_in'       => true,  // permite «Pago QR» a quienes comen en el local
             'hello_account_id' => null,  // cuenta de Hello con la que el local interactúa con sus clientes
+            'panic_button'     => true,  // botón de emergencia en la página del pedido de quien come en el local
             'layout'           => 'lista', // presentación de la carta en /tienda: lista | tarjetas | compacta
         ], (array) $this->restaurant_config);
     }
