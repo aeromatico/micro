@@ -82,3 +82,7 @@
 1.23.1:
     - "Ajusta el gráfico de capacidades de Mary (comercio electrónico y restaurantes) y de Gus (producción multimedia) a lo que realmente hacen."
     - adjust_mary_gus_capabilities.php
+
+1.23.2:
+    - "Completa el perfil de Bruno: etiquetas, guía de uso y gráfico de capacidades, que estaban vacíos, y corrige su nombre en el prompt."
+    - fix_bruno_profile.php
