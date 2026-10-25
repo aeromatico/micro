@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Formulario de redirección que Odoo envía automáticamente al elegir el proveedor -->
+    <template id="redirect_form">
+        <form t-att-action="api_url" method="get">
+            <input type="hidden" name="reference" t-att-value="reference"/>
+            <input type="hidden" name="access_token" t-att-value="access_token"/>
+        </form>
+    </template>
+
+    <!-- Página con el QR -->
+    <template id="pay_page" name="Market Pay: pagar con QR">
+        <t t-call="website.layout">
+            <div id="wrap" class="container py-5 text-center">
+                <h1 class="h3">Escanea el QR para pagar</h1>
+                <p class="text-muted">
+                    Pedido <strong t-out="tx.reference"/> ·
+                    <strong t-out="tx.amount" t-options="{'widget': 'monetary', 'display_currency': tx.currency_id}"/>
+                </p>
+                <img t-if="qr_image" t-attf-src="data:image/png;base64,#{qr_image}"
+                     alt="QR de pago" class="img-fluid my-3" style="max-width: 320px;"/>
+                <p class="text-muted">Abre la app de tu banco, escanea el código y confirma el pago.<br/>
+                    Esta página avanza sola cuando recibamos el pago.</p>
+                <div id="aeropay_poll" t-att-data-reference="tx.reference"
+                     t-att-data-access-token="access_token"
+                     t-att-data-status-url="status_url" t-att-data-done-url="done_url"/>
+                <script type="text/javascript">
+                    (function () {
+                        var el = document.getElementById('aeropay_poll');
+                        function poll() {
+                            fetch(el.dataset.statusUrl, {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({jsonrpc: '2.0', method: 'call', params: {
+                                    reference: el.dataset.reference, access_token: el.dataset.accessToken}}),
+                            }).then(function (r) { return r.json(); }).then(function (res) {
+                                var state = res.result &amp;&amp; res.result.state;
+                                if (state &amp;&amp; state !== 'draft' &amp;&amp; state !== 'pending') {
+                                    window.location = el.dataset.doneUrl;
+                                } else { setTimeout(poll, 4000); }
+                            }).catch(function () { setTimeout(poll, 8000); });
+                        }
+                        setTimeout(poll, 3000);
+                    })();
+                </script>
+            </div>
+        </t>
+    </template>
+</odoo>

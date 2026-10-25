@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_provider_form_aeropay" model="ir.ui.view">
+        <field name="name">Market Pay Provider Form</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <group name="provider_credentials" position="inside">
+                <group invisible="code != 'aeropay'" name="aeropay_credentials">
+                    <field name="aeropay_api_url" required="code == 'aeropay' and state != 'disabled'"/>
+                    <field name="aeropay_api_key" password="True" required="code == 'aeropay' and state != 'disabled'"/>
+                    <field name="aeropay_bank_account_id"/>
+                    <field name="aeropay_webhook_secret" password="True" required="code == 'aeropay' and state != 'disabled'"/>
+                    <field name="aeropay_timeout"/>
+                    <button string="Probar conexión" type="object" name="action_aeropay_test_connection"
+                            class="btn-secondary" colspan="2"/>
+                    <div class="text-muted" colspan="2">
+                        En Aero.Pay, configura en la cuenta el webhook saliente con la URL
+                        <code>https://TU-ODOO/payment/aeropay/webhook</code> y el mismo secreto de arriba.
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>
