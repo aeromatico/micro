@@ -14,9 +14,13 @@ excludeHome = 1
 perPage = "12"
 
 [shopCart]
+
+[shopReviews]
+limit = "6"
 ==
 {% if shopCatalog.restaurantStore %}
     {% partial 'shopCatalog::restaurant' %}
 {% else %}
     {% component 'shopCatalog' %}
 {% endif %}
+{% component 'shopReviews' %}
