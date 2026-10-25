@@ -40,3 +40,11 @@ Al abrir cualquier pantalla del POS, si faltan, se crean: los ajustes (perfil *R
 > La app de venta (`/pos`) es una función PRO que depende del plan contratado.
 
 **Versión documentada:** 1.0.0
+
+## Pedidos del local
+
+Cuando los clientes piden desde su mesa (checkout del restaurante), la caja los ve en **Pedidos**, en la barra superior, con un contador de los que faltan por cobrar. Se buscan por su **número corto** (el pedido PED-000018 se dice y se busca como **18**). Desde ahí puedes:
+
+- **Ver** los platos, extras y notas del pedido.
+- **Verificar pago** de un pedido con QR: la caja consulta al banco y, si ya llegó, lo marca pagado.
+- **Cobrar** un pedido que pasa a pagar en efectivo: se abre el cobro con el total del pedido (cambio, NIT) y la venta queda ligada a ese mismo pedido.

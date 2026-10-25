@@ -164,3 +164,6 @@
 
 1.10.2:
     - "Configuración del restaurante: ahora se puede activar o apagar el cobro con QR para quienes comen en el local y elegir la cuenta de Hello que usa el local para sus avisos y recibos."
+
+1.10.3:
+    - "Pedidos del restaurante: el comensal ve su número corto (PED-000018 se muestra como 18) en la confirmación y al consultar su pedido, y la pantalla de cocina lo muestra grande para llamarlo más rápido."

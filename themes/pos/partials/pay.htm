@@ -27,7 +27,7 @@
     <template x-if="!done">
       <div style="display:contents">
         <div class="l">
-          <div class="row"><b>Cobrar</b><button class="btn sm" style="margin-left:auto" @click="payOpen = false; stopQr()">Volver</button></div>
+          <div class="row"><b x-text="orderRef ? 'Cobrar pedido ' + orderRef.short : 'Cobrar'"></b><button class="btn sm" style="margin-left:auto" @click="payOpen = false; stopQr()">Volver</button></div>
           <div><div class="small muted" x-text="payments.length ? 'Falta cobrar' : 'Total a pagar'"></div><div class="bold" style="font-size:40px;letter-spacing:-1px" x-text="money(remaining())"></div></div>
           <div class="col" style="gap:4px" x-show="payments.length">
             <template x-for="p in payments"><div class="row small" style="justify-content:space-between"><span x-text="p.label"></span><span x-text="money(p.amount)"></span></div></template>

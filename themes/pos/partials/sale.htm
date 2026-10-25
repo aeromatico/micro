@@ -6,6 +6,9 @@
         <label class="search search-desk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             <input type="search" x-model="q" @keydown.enter.prevent="scan()" placeholder="Buscar o escanear código…" aria-label="Buscar o escanear código" autocomplete="off"></label>
         <div class="row" style="margin-left:auto">
+            <button class="ibtn ordbtn" @click.stop="openOrders()" aria-label="Pedidos del local">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+                <span class="hide-xs">Pedidos</span><b class="ibadge" x-show="orderPending > 0" x-text="orderPending" aria-label="Pedidos por cobrar"></b></button>
             <button class="ibtn only-xs" @click.stop="openSearch()" aria-label="Buscar o escanear">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
             <button class="ibtn" @click.stop="calcOpen = !calcOpen" aria-label="Calculadora" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">
@@ -46,27 +49,28 @@
         </section>
 
         <aside class="ticket">
-            <div class="hd"><b>Venta actual</b>
-                <template x-if="me.settings.tables && catalog.tables.length">
+            <div class="hd"><b x-text="orderRef ? 'Pedido ' + orderRef.short + (orderRef.table ? ' · Mesa ' + orderRef.table : '') : 'Venta actual'"></b>
+                <template x-if="!orderRef && me.settings.tables && catalog.tables.length">
                     <select class="sel" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
                 </template>
-                <button class="btn sm danger" :style="(me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()">Vaciar</button>
+                <button class="btn sm danger" :style="(!orderRef && me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()" x-text="orderRef ? 'Cancelar' : 'Vaciar'">Vaciar</button>
             </div>
             <div class="lines">
-                <div class="empty" x-show="!cart.length"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg></i><span>Toca un producto o escanea<br>un código para empezar.</span></div>
-                <template x-for="l in cart" :key="l.key">
+                <div class="empty" x-show="!ticketLines().length"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg></i><span>Toca un producto o escanea<br>un código para empezar.</span></div>
+                <template x-for="l in ticketLines()" :key="l.key">
                     <div class="line">
                         <div class="grow"><div class="bold" style="font-size:14px;line-height:1.3" x-text="l.name"></div><div class="small muted" x-text="money(l.price) + ' c/u'"></div></div>
-                        <div class="qty"><button @click="dec(l)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button @click="inc(l)" aria-label="Agregar uno">+</button></div>
+                        <div class="qty" x-show="!l.ro"><button @click="dec(l)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button @click="inc(l)" aria-label="Agregar uno">+</button></div>
+                        <span class="bold muted" x-show="l.ro" x-text="'× ' + l.qty"></span>
                         <div class="bold" style="min-width:68px;text-align:right" x-text="money(l.price * l.qty)"></div>
                     </div>
                 </template>
             </div>
             <div class="tot">
                 <div class="row small muted" style="justify-content:space-between"><span>Subtotal</span><span x-text="money(subtotal())"></span></div>
-                <div class="row small muted" style="justify-content:space-between"><button class="pillb" :class="discount && 'on'" @click="discount = !discount">Descuento 10%</button><span x-text="discount ? '− ' + money(discountAmt()) : '—'"></span></div>
+                 <div class="row small muted" x-show="!orderRef" style="justify-content:space-between"><button class="pillb" :class="discount && 'on'" @click="discount = !discount">Descuento 10%</button><span x-text="discount ? '− ' + money(discountAmt()) : '—'"></span></div>
                 <div class="sum"><span class="bold">Total</span><span x-text="money(total())"></span></div>
-                <button class="btn primary big" :class="!cart.length && 'off'" @click="openPay()" x-text="'Cobrar ' + money(total())"></button>
+                <button class="btn primary big" :class="!ticketLines().length && 'off'" @click="openPay()" x-text="'Cobrar ' + money(total())"></button>
             </div>
         </aside>
     </main>

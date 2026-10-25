@@ -38,7 +38,7 @@ foreach ($columns as $col) {
         ?>
             <article class="k-card" data-id="<?= $o->id ?>" data-st="<?= $key ?>" data-type="<?= e($o->order_type) ?>">
                 <div class="k-top">
-                    <span class="k-num"><?= e($o->order_number) ?></span>
+                    <span class="k-num">#<?= e($o->short_number) ?> <small><?= e($o->order_number) ?></small></span>
                     <span class="k-timer" data-ts="<?= $o->created_at->timestamp ?>" data-limit="<?= $limit ?>">…</span>
                 </div>
 

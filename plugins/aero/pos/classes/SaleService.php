@@ -81,6 +81,49 @@ class SaleService
         }
     }
 
+    /**
+     * Cobra en la caja un pedido que el cliente hizo en línea (en el local): crea la venta del POS sobre ese
+     * mismo pedido, registra los pagos y lo marca pagado. Idempotente por `client_uuid`.
+     *
+     * @throws OrderException
+     */
+    public function collectOrder(int $tenantId, int $userId, ?Shift $shift, \Aero\Shop\Models\Order $order, array $data): Sale
+    {
+        $uuid = $data['client_uuid'] ?? null;
+        if ($uuid && ($existing = Sale::forTenant($tenantId)->where('client_uuid', $uuid)->first())) {
+            return $existing;
+        }
+        if ($order->tenant_id !== $tenantId) {
+            throw new OrderException('Pedido no encontrado.');
+        }
+        if ($order->paid_at || Sale::where('order_id', $order->id)->exists()) {
+            throw new OrderException('Este pedido ya está pagado.');
+        }
+        if (!in_array($order->status, ['pending', 'awaiting_payment'], true)) {
+            throw new OrderException('Este pedido no se puede cobrar en su estado actual.');
+        }
+
+        $settings = PosSettings::forTenant($tenantId)->first();
+        if (($settings->require_shift ?? true) && (!$shift || !$shift->isOpen())) {
+            throw new OrderException('Abre el turno de caja antes de cobrar.');
+        }
+
+        // Pedido con QR todavía pendiente: primero se verifica (si ya pagó, se marca solo) para no cobrar dos veces.
+        if ($order->payment_gateway?->driver === 'pagos_qr' && class_exists(\Aero\Pay\Models\QrCode::class)) {
+            $qr = \Aero\Pay\Models\QrCode::where('tenant_id', $tenantId)->where('internal_reference', $order->payment_reference)->first();
+            if ($qr && $qr->status === 'pending') {
+                throw new OrderException('Este pedido eligió pagar con QR y aún no se confirma. Usa «Verificar pago» o espera unos segundos.');
+            }
+        }
+
+        $nit = $this->clean($data['nit'] ?? null, 30);
+        $data['table_id'] = null;
+        $data['tax_name'] = $this->clean($data['tax_name'] ?? null, 150);
+
+        // Si el cobro falla el pedido sigue pendiente (es del cliente: no se anula).
+        return $this->settle($tenantId, $userId, $shift, $data, $order, app(OrderService::class), $nit, $uuid);
+    }
+
     protected function settle(int $tenantId, int $userId, ?Shift $shift, array $data, $order, OrderService $orders, ?string $nit, ?string $uuid): Sale
     {
         return Db::transaction(function () use ($tenantId, $userId, $shift, $data, $order, $orders, $nit, $uuid) {

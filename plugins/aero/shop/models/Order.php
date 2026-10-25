@@ -56,6 +56,14 @@ class Order extends Model
         return $query->where('tenant_id', $tenantId);
     }
 
+    /** Número corto para decirlo en voz alta (PED-000018 → «18»): lo que ve el comensal y busca quien atiende. */
+    public function getShortNumberAttribute(): string
+    {
+        $tail = preg_match('/(\d+)\s*$/', (string) $this->order_number, $m) ? ltrim($m[1], '0') : '';
+
+        return $tail === '' ? (string) $this->order_number : $tail;
+    }
+
     public function beforeCreate()
     {
         if (!$this->access_token) {

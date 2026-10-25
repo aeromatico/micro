@@ -82,8 +82,8 @@
     {% if order.order_type == 'delivery' %}
     <p class="text-sm text-ink-muted">Pagas en efectivo cuando recibas tu pedido.</p>
     {% else %}
-    <p class="text-sm text-ink-muted">Pasa a caja y dicta tu número de pedido para pagar:</p>
-    <p class="text-3xl font-extrabold text-ink tracking-tight mt-3">{{ order.order_number }}</p>
+    <p class="text-sm text-ink-muted">Pasa a caja y di tu número de pedido para pagar:</p>
+    <p class="text-5xl font-extrabold text-ink tracking-tight mt-3">{{ order.short_number }}</p>
     {% endif %}
 </div>
 {% endif %}

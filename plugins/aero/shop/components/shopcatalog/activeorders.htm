@@ -13,7 +13,7 @@
             {% endif %}
         </span>
         <span class="flex-1 min-w-0">
-            <span class="block font-semibold text-ink">{{ o.order_number }}</span>
+            <span class="block font-semibold text-ink">Pedido <span class="font-extrabold">{{ o.short_number }}</span></span>
             <span class="block text-sm text-ink-muted truncate">
                 {% if o.kitchen_status == 'delivered' %}
                     Entregado · ¡Buen provecho!

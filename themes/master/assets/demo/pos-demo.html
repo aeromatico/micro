@@ -140,6 +140,31 @@ input::placeholder{color:var(--muted)}
   .hide-sm{display:none}
   .calc{left:14px;right:14px;width:auto}
 }
+/* Pedidos del local (panel lateral) */
+.ordbtn{position:relative}
+.ibadge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--amber);color:var(--amber-ink);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--header)}
+.drawer{width:min(480px,100vw);height:100%;background:var(--bg);display:flex;flex-direction:column;box-shadow:-14px 0 36px rgba(0,0,0,.28)}
+.drawer-in{transition:transform .22s ease-out,opacity .22s}.drawer-from{transform:translateX(24px);opacity:0}.drawer-to{transform:none;opacity:1}
+.dh{padding:14px 16px;padding-top:max(14px,env(safe-area-inset-top));background:var(--surface);border-bottom:1px solid var(--line)}
+.dtools{display:flex;flex-direction:column;gap:10px;padding:12px 16px 4px}
+.obig{height:56px;font-size:20px;border-radius:16px}
+.ocount{display:inline-block;margin-left:6px;min-width:20px;padding:0 6px;line-height:20px;border-radius:10px;background:var(--amber);color:var(--amber-ink);font-size:12px}
+.dlist{flex:1;min-height:0;overflow-y:auto;padding:8px 16px 20px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.ocard{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:16px;padding:12px}
+.ocard.is-paid{border-left-color:var(--accent)}
+.onum{width:64px;height:64px;border-radius:16px;border:0;background:var(--ink);color:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.onum small{font-size:9px;font-weight:700;letter-spacing:.08em;opacity:.7}.onum span{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.obody{min-width:0;display:flex;flex-direction:column;gap:3px}
+.orow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.otype{font-size:12px;font-weight:700;color:var(--muted)}
+.ostate{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.ostate.due{background:var(--warn-soft);color:var(--warn-ink)}.ostate.ok{background:var(--accent-soft);color:var(--accent-text)}.ostate.wait{background:var(--t4);color:var(--i4)}
+.oright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.odetail{grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.oitem{display:flex;gap:10px;align-items:flex-start}
+.oq{width:28px;height:28px;border-radius:8px;background:var(--key);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.onote{font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--warn-soft);color:var(--warn-ink);display:inline-block}
+
 /* Barras de desplazamiento finas y redondeadas (en celular se ocultan) */
 .grid,.lines,.sheet,.modal{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .grid::-webkit-scrollbar,.lines::-webkit-scrollbar,.sheet::-webkit-scrollbar,.modal::-webkit-scrollbar{width:10px;height:10px}
@@ -174,6 +199,9 @@ input::placeholder{color:var(--muted)}
   .tile .ph{display:none}
   .tile .nm{font-size:13px}.tile .pr{font-size:13px}
   .tile .bd{top:6px;right:6px}
+  .ocard{grid-template-columns:auto 1fr;}
+  .oright{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}
+  .drawer{width:100vw}
   .grid,.lines,.sheet,.modal{scrollbar-width:none}
   .grid::-webkit-scrollbar,.lines::-webkit-scrollbar,.sheet::-webkit-scrollbar,.modal::-webkit-scrollbar{display:none}
 }
@@ -239,6 +267,9 @@ input::placeholder{color:var(--muted)}
         <label class="search search-desk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
             <input type="search" x-model="q" @keydown.enter.prevent="scan()" placeholder="Buscar o escanear código…" aria-label="Buscar o escanear código" autocomplete="off"></label>
         <div class="row" style="margin-left:auto">
+            <button class="ibtn ordbtn" @click.stop="openOrders()" aria-label="Pedidos del local">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+                <span class="hide-xs">Pedidos</span><b class="ibadge" x-show="orderPending > 0" x-text="orderPending" aria-label="Pedidos por cobrar"></b></button>
             <button class="ibtn only-xs" @click.stop="openSearch()" aria-label="Buscar o escanear">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
             <button class="ibtn" @click.stop="calcOpen = !calcOpen" aria-label="Calculadora" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">
@@ -279,27 +310,28 @@ input::placeholder{color:var(--muted)}
         </section>
 
         <aside class="ticket">
-            <div class="hd"><b>Venta actual</b>
-                <template x-if="me.settings.tables && catalog.tables.length">
+            <div class="hd"><b x-text="orderRef ? 'Pedido ' + orderRef.short + (orderRef.table ? ' · Mesa ' + orderRef.table : '') : 'Venta actual'"></b>
+                <template x-if="!orderRef && me.settings.tables && catalog.tables.length">
                     <select class="sel" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
                 </template>
-                <button class="btn sm danger" :style="(me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()">Vaciar</button>
+                <button class="btn sm danger" :style="(!orderRef && me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()" x-text="orderRef ? 'Cancelar' : 'Vaciar'">Vaciar</button>
             </div>
             <div class="lines">
-                <div class="empty" x-show="!cart.length"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg></i><span>Toca un producto o escanea<br>un código para empezar.</span></div>
-                <template x-for="l in cart" :key="l.key">
+                <div class="empty" x-show="!ticketLines().length"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg></i><span>Toca un producto o escanea<br>un código para empezar.</span></div>
+                <template x-for="l in ticketLines()" :key="l.key">
                     <div class="line">
                         <div class="grow"><div class="bold" style="font-size:14px;line-height:1.3" x-text="l.name"></div><div class="small muted" x-text="money(l.price) + ' c/u'"></div></div>
-                        <div class="qty"><button @click="dec(l)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button @click="inc(l)" aria-label="Agregar uno">+</button></div>
+                        <div class="qty" x-show="!l.ro"><button @click="dec(l)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button @click="inc(l)" aria-label="Agregar uno">+</button></div>
+                        <span class="bold muted" x-show="l.ro" x-text="'× ' + l.qty"></span>
                         <div class="bold" style="min-width:68px;text-align:right" x-text="money(l.price * l.qty)"></div>
                     </div>
                 </template>
             </div>
             <div class="tot">
                 <div class="row small muted" style="justify-content:space-between"><span>Subtotal</span><span x-text="money(subtotal())"></span></div>
-                <div class="row small muted" style="justify-content:space-between"><button class="pillb" :class="discount && 'on'" @click="discount = !discount">Descuento 10%</button><span x-text="discount ? '− ' + money(discountAmt()) : '—'"></span></div>
+                 <div class="row small muted" x-show="!orderRef" style="justify-content:space-between"><button class="pillb" :class="discount && 'on'" @click="discount = !discount">Descuento 10%</button><span x-text="discount ? '− ' + money(discountAmt()) : '—'"></span></div>
                 <div class="sum"><span class="bold">Total</span><span x-text="money(total())"></span></div>
-                <button class="btn primary big" :class="!cart.length && 'off'" @click="openPay()" x-text="'Cobrar ' + money(total())"></button>
+                <button class="btn primary big" :class="!ticketLines().length && 'off'" @click="openPay()" x-text="'Cobrar ' + money(total())"></button>
             </div>
         </aside>
     </main>
@@ -345,7 +377,7 @@ input::placeholder{color:var(--muted)}
     <template x-if="!done">
       <div style="display:contents">
         <div class="l">
-          <div class="row"><b>Cobrar</b><button class="btn sm" style="margin-left:auto" @click="payOpen = false; stopQr()">Volver</button></div>
+          <div class="row"><b x-text="orderRef ? 'Cobrar pedido ' + orderRef.short : 'Cobrar'"></b><button class="btn sm" style="margin-left:auto" @click="payOpen = false; stopQr()">Volver</button></div>
           <div><div class="small muted" x-text="payments.length ? 'Falta cobrar' : 'Total a pagar'"></div><div class="bold" style="font-size:40px;letter-spacing:-1px" x-text="money(remaining())"></div></div>
           <div class="col" style="gap:4px" x-show="payments.length">
             <template x-for="p in payments"><div class="row small" style="justify-content:space-between"><span x-text="p.label"></span><span x-text="money(p.amount)"></span></div></template>
@@ -394,7 +426,57 @@ input::placeholder{color:var(--muted)}
   </div>
 </div>
 
-    <!-- Confirmar salida (solo si hay una venta en curso) -->
+    <!-- Pedidos del local: consultar, verificar y cobrar -->
+<div class="scrim" x-show="ordersOpen" x-transition.opacity @click.self="closeOrders()" style="justify-content:flex-end;padding:0">
+  <aside class="drawer" x-show="ordersOpen" x-transition:enter="drawer-in" x-transition:enter-start="drawer-from" x-transition:enter-end="drawer-to" role="dialog" aria-label="Pedidos del local">
+    <div class="row dh">
+      <div class="grow"><b style="font-size:18px">Pedidos del local</b><div class="small muted">Los que tus clientes piden desde su mesa</div></div>
+      <button class="btn sm" @click="closeOrders()">Cerrar</button>
+    </div>
+    <div class="dtools">
+      <input class="field obig" type="search" inputmode="numeric" x-ref="ordersQ" x-model="ordersQ" @keydown.enter.prevent="shownOrders().length === 1 && toggleOrder(shownOrders()[0])" placeholder="Buscar por número (ej. 18)" aria-label="Buscar pedido por número" autocomplete="off">
+      <div class="seg">
+        <button :class="ordersTab === 'due' && 'on'" @click="ordersTab = 'due'">Por cobrar <b class="ocount" x-text="orderPending"></b></button>
+        <button :class="ordersTab === 'all' && 'on'" @click="ordersTab = 'all'">Todos</button>
+      </div>
+    </div>
+    <div class="dlist">
+      <template x-for="o in shownOrders()" :key="o.id">
+        <article class="ocard" :class="o.paid ? 'is-paid' : 'is-due'">
+          <button class="onum" @click="toggleOrder(o)" :aria-label="'Ver el pedido ' + o.short" :aria-expanded="orderOpenId === o.id"><small>N.°</small><span x-text="o.short"></span></button>
+          <div class="obody">
+            <div class="orow">
+              <span class="otype" x-text="o.type_label + (o.table ? ' · Mesa ' + o.table : '')"></span>
+              <span class="ostate" :class="o.paid ? 'ok' : (o.payment.qr_status === 'pending' ? 'wait' : 'due')"
+                    x-text="o.paid ? (o.payment.kind === 'qr' ? 'Pagado con QR' : 'Pagado') : (o.payment.qr_status === 'pending' ? 'Esperando QR' : 'Por cobrar en caja')"></span>
+            </div>
+            <div class="bold" x-text="o.customer || 'Cliente'"></div>
+            <div class="small muted" x-text="o.items_count + (o.items_count === 1 ? ' plato' : ' platos') + ' · ' + orderTime(o.created_at) + (o.kitchen ? ' · ' + kitchenLabel(o.kitchen) : '')"></div>
+          </div>
+          <div class="oright">
+            <div class="bold" x-text="money(o.total)"></div>
+            <button class="btn primary sm" x-show="o.can_collect" @click="collectOrder(o)">Cobrar</button>
+            <button class="btn sm" x-show="!o.paid && o.payment.qr_status === 'pending'" @click="verifyOrder(o)">Verificar pago</button>
+          </div>
+          <div class="odetail" x-show="orderOpenId === o.id" x-transition.opacity>
+            <template x-for="(i, ix) in (o.items || [])" :key="ix">
+              <div class="oitem"><span class="oq" x-text="i.quantity"></span>
+                <div class="grow"><div class="bold" x-text="i.name"></div>
+                  <div class="small muted" x-show="i.extras && i.extras.length" x-text="'+ ' + (i.extras || []).join(', ')"></div>
+                  <div class="onote" x-show="i.note" x-text="i.note"></div></div>
+                <span class="small muted" x-text="money(i.total)"></span></div>
+            </template>
+            <div class="onote" x-show="o.notes" x-text="'Cliente: ' + o.notes"></div>
+            <div class="small muted" x-show="o.phone" x-text="'Celular: ' + o.phone"></div>
+          </div>
+        </article>
+      </template>
+      <div class="empty" x-show="!shownOrders().length" style="padding:28px 8px"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></i><span x-text="ordersQ.trim() ? 'No hay un pedido con ese número.' : (ordersTab === 'due' ? 'No hay pedidos por cobrar.' : 'Aún no hay pedidos.')"></span></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Confirmar salida (solo si hay una venta en curso) -->
 <div class="scrim" x-show="logoutAsk" x-transition.opacity @click.self="logoutAsk = false">
   <div class="sheet" x-show="logoutAsk" style="max-width:360px">
     <b style="font-size:18px">¿Salir de la caja?</b>
@@ -521,6 +603,21 @@ input::placeholder{color:var(--muted)}
         methods: [{ id: 1, label: 'Efectivo', kind: 'cash', auto: false }, { id: 2, label: 'QR', kind: 'qr', auto: true }, { id: 3, label: 'Tarjeta', kind: 'card', auto: false }, { id: 4, label: 'Transferencia', kind: 'transfer', auto: false }],
         tables: [1, 2, 3, 4, 5, 6].map(function (n) { return { id: n, name: 'Mesa ' + n }; })
     };
+    // Pedidos que los clientes hicieron desde su mesa (checkout del restaurante).
+    var mins = function (m) { return new Date(Date.now() - m * 60000).toISOString(); };
+    var orders = [
+        { id: 901, short: '18', number: 'PED-000018', type: 'dine_in', type_label: 'En el local', table: '4', customer: 'Marco Quispe', phone: null, status: 'pending', paid: false, kitchen: 'preparing',
+          payment: { kind: 'cash', label: 'Efectivo en caja', qr_status: null }, can_collect: true, by_pos: false, created_at: mins(6),
+          items: [{ name: 'Plato del día', quantity: 2, unit_price: 35, total: 70, extras: ['Extra picante'], note: 'Uno sin cebolla' }, { name: 'Limonada', quantity: 2, unit_price: 12, total: 24, extras: [], note: null }], notes: null },
+        { id: 902, short: '19', number: 'PED-000019', type: 'dine_in', type_label: 'En el local', table: '2', customer: 'Lucía Mamani', phone: '72345678', status: 'pending', paid: false, kitchen: 'new',
+          payment: { kind: 'qr', label: 'Pago QR', qr_status: 'pending' }, can_collect: false, by_pos: false, created_at: mins(2), qrAt: Date.now(),
+          items: [{ name: 'Sándwich mixto', quantity: 1, unit_price: 22, total: 22, extras: ['Queso extra'], note: null }, { name: 'Jugo natural', quantity: 1, unit_price: 14, total: 14, extras: [], note: null }], notes: 'Sin hielo, por favor.' },
+        { id: 903, short: '17', number: 'PED-000017', type: 'pickup', type_label: 'Recoger', table: null, customer: 'Pedro Rojas', phone: '71234567', status: 'paid', paid: true, kitchen: 'ready',
+          payment: { kind: 'qr', label: 'Pago QR', qr_status: null }, can_collect: false, by_pos: false, created_at: mins(14),
+          items: [{ name: 'Empanada de queso', quantity: 4, unit_price: 8, total: 32, extras: [], note: null }], notes: null }
+    ].map(function (o) { o.items_count = o.items.reduce(function (a, i) { return a + i.quantity; }, 0); o.total = o.items.reduce(function (a, i) { return a + i.total; }, 0); o.subtotal = o.total; return o; });
+    var orderOf = function (id) { return orders.filter(function (o) { return o.id === id; })[0]; };
+    var pendingCount = function () { return orders.filter(function (o) { return !o.paid; }).length; };
     var seq = 148, sales = {}, qrs = {};
     var json = function (status, body) { return Promise.resolve(new Response(JSON.stringify(body), { status: status, headers: { 'Content-Type': 'application/json' } })); };
     var wait = function (ms, fn) { return new Promise(function (r) { setTimeout(function () { r(fn()); }, ms); }); };
@@ -541,8 +638,8 @@ input::placeholder{color:var(--muted)}
         return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n * c + ' ' + n * c + '"><rect width="100%" height="100%" fill="#fff"/><g fill="#14181F">' + rects + '</g></svg>');
     }
 
-    function receiptFor(body) {
-        var items = body.items.map(function (i) {
+    function receiptFor(body, existing) {
+        var items = existing ? existing.items.map(function (i) { return { name: i.name, quantity: i.quantity, unit_price: i.unit_price, total: i.total }; }) : body.items.map(function (i) {
             var p = products.filter(function (x) { return x.id === i.product_id; })[0], v = p.variants.filter(function (x) { return x.id === i.variant_id; })[0];
             var unit = v ? v.price : p.price;
             return { name: p.name + (v ? ' · ' + v.label : ''), quantity: i.quantity, unit_price: unit, total: unit * i.quantity };
@@ -566,6 +663,20 @@ input::placeholder{color:var(--muted)}
         if (/^\/tenants\/[^/]+$/.test(path)) return json(200, { data: { handle: 'sabor-andino', name: 'Sabor Andino' } });
         if (path === '/me') return json(200, { data: me });
         if (path === '/catalog') return json(200, { data: catalog });
+        if (path === '/orders') return json(200, { data: { orders: orders.map(function (o) { return Object.assign({}, o, { items: undefined }); }), pending: pendingCount() } });
+        var om = path.match(/^\/orders\/(\d+)(\/(verify|collect))?$/);
+        if (om) {
+            var ord = orderOf(parseInt(om[1], 10));
+            if (!ord) return json(404, { error: 'not_found', message: 'Pedido no encontrado.' });
+            if (om[3] === 'verify') { if (!ord.paid && ord.payment.qr_status === 'pending' && Date.now() - ord.qrAt > 4000) { ord.paid = true; ord.status = 'paid'; ord.payment.qr_status = null; } return wait(500, function () { return new Response(JSON.stringify({ data: { order: ord } }), { status: 200, headers: { 'Content-Type': 'application/json' } }); }); }
+            if (om[3] === 'collect') {
+                if (ord.paid) return json(422, { error: 'rejected', message: 'Este pedido ya está pagado.' });
+                var rc = receiptFor({ items: [], discount_percent: 0, payments: body.payments, nit: body.nit, tax_name: body.tax_name }, ord);
+                rc.number = ord.number; ord.paid = true; ord.status = 'paid'; ord.can_collect = false;
+                return wait(400, function () { return new Response(JSON.stringify({ data: { receipt: rc, order: ord } }), { status: 201, headers: { 'Content-Type': 'application/json' } }); });
+            }
+            return json(200, { data: { order: ord } });
+        }
         if (path === '/shift/open') return json(201, { data: { shift: me.terminals[0].shift } });
         if (path === '/qr' && method === 'POST') {
             var ref = 'demo-' + Math.random().toString(36).slice(2, 10);
@@ -615,7 +726,7 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        mobile: false, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        mobile: false, orders: [], orderPending: 0, ordersOpen: false, ordersQ: '', ordersTab: 'due', orderOpenId: null, orderRef: null, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: { thumbs: true, paper: '', theme: 'auto' },
 
         // ---------------------------------------------------------------- arranque
@@ -673,6 +784,8 @@ function posApp() {
             this.shift = t ? t.shift : null;
             this.screen = (this.shift || !this.me.settings.require_shift) ? 'sale' : 'shift';
             this.flush();
+            this.loadOrders();
+            if (!this.ordersTimer) { var self2 = this; this.ordersTimer = setInterval(function () { self2.loadOrders(); }, 20000); }
         },
 
         // ---------------------------------------------------------------- red
@@ -791,6 +904,7 @@ function posApp() {
             if (hit) { this.add(hit); this.q = ''; }
         },
         add: function (p, v) {
+            if (this.orderRef) { this.say('Estás cobrando el pedido ' + this.orderRef.short + '. Cancela para vender otra cosa.'); return; }
             if (p.has_variants && !v) { this.variantFor = p; return; }
             var key = p.id + ':' + (v ? v.id : 0);
             var line = this.cart.find(function (l) { return l.key === key; });
@@ -811,14 +925,21 @@ function posApp() {
         qtyOf: function (p) { return this.cart.filter(function (l) { return l.product_id === p.id; }).reduce(function (a, l) { return a + l.qty; }, 0); },
         inc: function (l) { l.qty++; },
         dec: function (l) { l.qty--; if (l.qty <= 0) this.cart = this.cart.filter(function (x) { return x !== l; }); },
-        clearCart: function () { this.cart = []; this.discount = false; this.nit = ''; this.razon = ''; },
-        subtotal: function () { return round2(this.cart.reduce(function (a, l) { return a + l.price * l.qty; }, 0)); },
-        discountAmt: function () { return this.discount ? round2(this.subtotal() * 0.1) : 0; },
-        total: function () { return round2(this.subtotal() - this.discountAmt()); },
+        clearCart: function () { this.cart = []; this.discount = false; this.nit = ''; this.razon = ''; this.orderRef = null; },
+        // Líneas del ticket: la venta en curso o, al cobrar un pedido del local, sus platos (solo lectura).
+        ticketLines: function () {
+            if (!this.orderRef) return this.cart;
+            return (this.orderRef.items || []).map(function (i, ix) {
+                return { key: 'o' + ix, name: i.name + (i.extras && i.extras.length ? ' (+ ' + i.extras.join(', ') + ')' : ''), price: i.unit_price, qty: i.quantity, ro: true };
+            });
+        },
+        subtotal: function () { if (this.orderRef) return round2(this.orderRef.subtotal != null ? this.orderRef.subtotal : this.orderRef.total); return round2(this.cart.reduce(function (a, l) { return a + l.price * l.qty; }, 0)); },
+        discountAmt: function () { return (!this.orderRef && this.discount) ? round2(this.subtotal() * 0.1) : 0; },
+        total: function () { if (this.orderRef) return round2(this.orderRef.total); return round2(this.subtotal() - this.discountAmt()); },
 
         // ---------------------------------------------------------------- cobro
         openPay: function () {
-            if (!this.cart.length) return;
+            if (!this.cart.length && !this.orderRef) return;
             this.payments = []; this.recv = ''; this.payError = ''; this.done = null;
             var cash = this.catalog.methods.find(function (m) { return m.kind === 'cash'; }) || this.catalog.methods[0];
             this.methodId = cash ? cash.id : null; this.qr = null; this.stopQr(); this.payOpen = true;
@@ -892,10 +1013,11 @@ function posApp() {
             var body = this.payload(), localTotal = this.total(), localCart = this.cart.slice(), change = this.changeNow();
             var payList = body.payments.slice(), methods = this.catalog.methods;
             try {
-                var r = await this.api('POST', '/sales', body);
+                var r = await this.api('POST', this.orderRef ? '/orders/' + this.orderRef.id + '/collect' : '/sales', body);
                 this.done = r.data.receipt; this.doneLocal = false;
             } catch (e) {
                 if (e.status) { this.payError = e.message; this.saleBusy = false; return; } // el servidor respondió: se corrige
+                if (this.orderRef) { this.payError = 'Para cobrar un pedido del local necesitas conexión.'; this.saleBusy = false; return; }
                 // Sin conexión: se guarda y se envía luego.
                 this.queue.push(body); store.set('aero.pos.queue', this.queue);
                 this.done = {
@@ -909,7 +1031,7 @@ function posApp() {
             }
             this.saleBusy = false;
         },
-        newSale: function () { this.waPhone = '591'; this.waMsg = ''; this.waOk = false; this.stopQr(); this.qr = null; this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); },
+        newSale: function () { this.waPhone = '591'; this.waMsg = ''; this.waOk = false; this.stopQr(); this.qr = null; this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); this.loadOrders(); },
         refreshShift: async function () {
             try { var me = await this.api('GET', '/me'); this.me = me.data; var t = this.terminal(); if (t) this.shift = t.shift; } catch (e) {}
         },
@@ -922,6 +1044,50 @@ function posApp() {
             }
             if (left.length !== this.queue.length) this.say((this.queue.length - left.length) + ' venta(s) enviada(s).');
             this.queue = left; store.set('aero.pos.queue', left);
+        },
+
+        // ---------------------------------------------------------------- pedidos del local
+        loadOrders: async function () {
+            if (!this.token || this.screen !== 'sale' || !navigator.onLine) return;
+            try { var r = await this.api('GET', '/orders'); this.orders = r.data.orders; this.orderPending = r.data.pending; } catch (e) {}
+        },
+        openOrders: function () {
+            var self = this; this.ordersOpen = true; this.calcOpen = false; this.loadOrders();
+            setTimeout(function () { if (self.$refs.ordersQ) self.$refs.ordersQ.focus(); }, 150);
+        },
+        closeOrders: function () { this.ordersOpen = false; this.ordersQ = ''; this.orderOpenId = null; },
+        shownOrders: function () {
+            var q = fold(this.ordersQ.replace('#', '').trim()), tab = this.ordersTab;
+            return this.orders.filter(function (o) {
+                return (tab === 'all' || !o.paid) && (!q || o.short === q.replace(/^0+/, '') || o.short.indexOf(q) === 0 || fold(o.customer).indexOf(q) >= 0 || fold(o.table).indexOf(q) >= 0);
+            });
+        },
+        orderDetail: async function (o) {
+            if (o.items) return o;
+            try { var r = await this.api('GET', '/orders/' + o.id); Object.assign(o, r.data.order); } catch (e) { this.say(e.message); }
+            return o;
+        },
+        toggleOrder: async function (o) {
+            if (this.orderOpenId === o.id) { this.orderOpenId = null; return; }
+            this.orderOpenId = o.id; await this.orderDetail(o);
+        },
+        verifyOrder: async function (o) {
+            try {
+                var r = await this.api('POST', '/orders/' + o.id + '/verify'); Object.assign(o, r.data.order);
+                this.say(o.paid ? 'Pago confirmado: pedido ' + o.short : 'El pago aún no llega.');
+                this.loadOrders();
+            } catch (e) { this.say(e.message); }
+        },
+        collectOrder: async function (o) {
+            if (this.cart.length && !this.orderRef) { this.say('Termina o vacía la venta en curso antes de cobrar un pedido.'); return; }
+            await this.orderDetail(o);
+            this.orderRef = o; this.discount = false; this.nit = ''; this.razon = '';
+            this.closeOrders(); this.openPay();
+        },
+        kitchenLabel: function (k) { return { new: 'cocina: nuevo', preparing: 'en preparación', ready: 'listo en cocina', delivered: 'entregado' }[k] || k; },
+        orderTime: function (iso) {
+            var m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+            return m < 1 ? 'ahora' : (m < 60 ? 'hace ' + m + ' min' : 'hace ' + Math.floor(m / 60) + ' h');
         },
 
         // ---------------------------------------------------------------- recibo
@@ -989,7 +1155,7 @@ function posApp() {
                 (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
             this.setTheme(dark ? 'light' : 'dark');
         },
-        closeAll: function () { if (this.searchOpen) this.closeSearch(); this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) { this.payOpen = false; this.stopQr(); } }
+        closeAll: function () { if (this.ordersOpen) this.closeOrders(); if (this.searchOpen) this.closeSearch(); this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) { this.payOpen = false; this.stopQr(); } }
     };
 }
 </script>

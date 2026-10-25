@@ -1,3 +1,53 @@
+<!-- Pedidos del local: consultar, verificar y cobrar -->
+<div class="scrim" x-show="ordersOpen" x-transition.opacity @click.self="closeOrders()" style="justify-content:flex-end;padding:0">
+  <aside class="drawer" x-show="ordersOpen" x-transition:enter="drawer-in" x-transition:enter-start="drawer-from" x-transition:enter-end="drawer-to" role="dialog" aria-label="Pedidos del local">
+    <div class="row dh">
+      <div class="grow"><b style="font-size:18px">Pedidos del local</b><div class="small muted">Los que tus clientes piden desde su mesa</div></div>
+      <button class="btn sm" @click="closeOrders()">Cerrar</button>
+    </div>
+    <div class="dtools">
+      <input class="field obig" type="search" inputmode="numeric" x-ref="ordersQ" x-model="ordersQ" @keydown.enter.prevent="shownOrders().length === 1 && toggleOrder(shownOrders()[0])" placeholder="Buscar por número (ej. 18)" aria-label="Buscar pedido por número" autocomplete="off">
+      <div class="seg">
+        <button :class="ordersTab === 'due' && 'on'" @click="ordersTab = 'due'">Por cobrar <b class="ocount" x-text="orderPending"></b></button>
+        <button :class="ordersTab === 'all' && 'on'" @click="ordersTab = 'all'">Todos</button>
+      </div>
+    </div>
+    <div class="dlist">
+      <template x-for="o in shownOrders()" :key="o.id">
+        <article class="ocard" :class="o.paid ? 'is-paid' : 'is-due'">
+          <button class="onum" @click="toggleOrder(o)" :aria-label="'Ver el pedido ' + o.short" :aria-expanded="orderOpenId === o.id"><small>N.°</small><span x-text="o.short"></span></button>
+          <div class="obody">
+            <div class="orow">
+              <span class="otype" x-text="o.type_label + (o.table ? ' · Mesa ' + o.table : '')"></span>
+              <span class="ostate" :class="o.paid ? 'ok' : (o.payment.qr_status === 'pending' ? 'wait' : 'due')"
+                    x-text="o.paid ? (o.payment.kind === 'qr' ? 'Pagado con QR' : 'Pagado') : (o.payment.qr_status === 'pending' ? 'Esperando QR' : 'Por cobrar en caja')"></span>
+            </div>
+            <div class="bold" x-text="o.customer || 'Cliente'"></div>
+            <div class="small muted" x-text="o.items_count + (o.items_count === 1 ? ' plato' : ' platos') + ' · ' + orderTime(o.created_at) + (o.kitchen ? ' · ' + kitchenLabel(o.kitchen) : '')"></div>
+          </div>
+          <div class="oright">
+            <div class="bold" x-text="money(o.total)"></div>
+            <button class="btn primary sm" x-show="o.can_collect" @click="collectOrder(o)">Cobrar</button>
+            <button class="btn sm" x-show="!o.paid && o.payment.qr_status === 'pending'" @click="verifyOrder(o)">Verificar pago</button>
+          </div>
+          <div class="odetail" x-show="orderOpenId === o.id" x-transition.opacity>
+            <template x-for="(i, ix) in (o.items || [])" :key="ix">
+              <div class="oitem"><span class="oq" x-text="i.quantity"></span>
+                <div class="grow"><div class="bold" x-text="i.name"></div>
+                  <div class="small muted" x-show="i.extras && i.extras.length" x-text="'+ ' + (i.extras || []).join(', ')"></div>
+                  <div class="onote" x-show="i.note" x-text="i.note"></div></div>
+                <span class="small muted" x-text="money(i.total)"></span></div>
+            </template>
+            <div class="onote" x-show="o.notes" x-text="'Cliente: ' + o.notes"></div>
+            <div class="small muted" x-show="o.phone" x-text="'Celular: ' + o.phone"></div>
+          </div>
+        </article>
+      </template>
+      <div class="empty" x-show="!shownOrders().length" style="padding:28px 8px"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></i><span x-text="ordersQ.trim() ? 'No hay un pedido con ese número.' : (ordersTab === 'due' ? 'No hay pedidos por cobrar.' : 'Aún no hay pedidos.')"></span></div>
+    </div>
+  </aside>
+</div>
+
 <!-- Confirmar salida (solo si hay una venta en curso) -->
 <div class="scrim" x-show="logoutAsk" x-transition.opacity @click.self="logoutAsk = false">
   <div class="sheet" x-show="logoutAsk" style="max-width:360px">

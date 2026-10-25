@@ -4,3 +4,6 @@
     - grant_tenant_admin_permissions.php
 1.1.0:
     - "Agrega la API del punto de venta (acceso con PIN, catálogo, turnos de caja y ventas con NIT) para la app de caja."
+
+1.2.0:
+    - "La caja ahora consulta y cobra los pedidos que los clientes hacen desde el local: se buscan por su número corto, se verifica el pago con QR y se cobra en efectivo sobre el mismo pedido."

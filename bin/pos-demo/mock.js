@@ -33,6 +33,21 @@
         methods: [{ id: 1, label: 'Efectivo', kind: 'cash', auto: false }, { id: 2, label: 'QR', kind: 'qr', auto: true }, { id: 3, label: 'Tarjeta', kind: 'card', auto: false }, { id: 4, label: 'Transferencia', kind: 'transfer', auto: false }],
         tables: [1, 2, 3, 4, 5, 6].map(function (n) { return { id: n, name: 'Mesa ' + n }; })
     };
+    // Pedidos que los clientes hicieron desde su mesa (checkout del restaurante).
+    var mins = function (m) { return new Date(Date.now() - m * 60000).toISOString(); };
+    var orders = [
+        { id: 901, short: '18', number: 'PED-000018', type: 'dine_in', type_label: 'En el local', table: '4', customer: 'Marco Quispe', phone: null, status: 'pending', paid: false, kitchen: 'preparing',
+          payment: { kind: 'cash', label: 'Efectivo en caja', qr_status: null }, can_collect: true, by_pos: false, created_at: mins(6),
+          items: [{ name: 'Plato del día', quantity: 2, unit_price: 35, total: 70, extras: ['Extra picante'], note: 'Uno sin cebolla' }, { name: 'Limonada', quantity: 2, unit_price: 12, total: 24, extras: [], note: null }], notes: null },
+        { id: 902, short: '19', number: 'PED-000019', type: 'dine_in', type_label: 'En el local', table: '2', customer: 'Lucía Mamani', phone: '72345678', status: 'pending', paid: false, kitchen: 'new',
+          payment: { kind: 'qr', label: 'Pago QR', qr_status: 'pending' }, can_collect: false, by_pos: false, created_at: mins(2), qrAt: Date.now(),
+          items: [{ name: 'Sándwich mixto', quantity: 1, unit_price: 22, total: 22, extras: ['Queso extra'], note: null }, { name: 'Jugo natural', quantity: 1, unit_price: 14, total: 14, extras: [], note: null }], notes: 'Sin hielo, por favor.' },
+        { id: 903, short: '17', number: 'PED-000017', type: 'pickup', type_label: 'Recoger', table: null, customer: 'Pedro Rojas', phone: '71234567', status: 'paid', paid: true, kitchen: 'ready',
+          payment: { kind: 'qr', label: 'Pago QR', qr_status: null }, can_collect: false, by_pos: false, created_at: mins(14),
+          items: [{ name: 'Empanada de queso', quantity: 4, unit_price: 8, total: 32, extras: [], note: null }], notes: null }
+    ].map(function (o) { o.items_count = o.items.reduce(function (a, i) { return a + i.quantity; }, 0); o.total = o.items.reduce(function (a, i) { return a + i.total; }, 0); o.subtotal = o.total; return o; });
+    var orderOf = function (id) { return orders.filter(function (o) { return o.id === id; })[0]; };
+    var pendingCount = function () { return orders.filter(function (o) { return !o.paid; }).length; };
     var seq = 148, sales = {}, qrs = {};
     var json = function (status, body) { return Promise.resolve(new Response(JSON.stringify(body), { status: status, headers: { 'Content-Type': 'application/json' } })); };
     var wait = function (ms, fn) { return new Promise(function (r) { setTimeout(function () { r(fn()); }, ms); }); };
@@ -53,8 +68,8 @@
         return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n * c + ' ' + n * c + '"><rect width="100%" height="100%" fill="#fff"/><g fill="#14181F">' + rects + '</g></svg>');
     }
 
-    function receiptFor(body) {
-        var items = body.items.map(function (i) {
+    function receiptFor(body, existing) {
+        var items = existing ? existing.items.map(function (i) { return { name: i.name, quantity: i.quantity, unit_price: i.unit_price, total: i.total }; }) : body.items.map(function (i) {
             var p = products.filter(function (x) { return x.id === i.product_id; })[0], v = p.variants.filter(function (x) { return x.id === i.variant_id; })[0];
             var unit = v ? v.price : p.price;
             return { name: p.name + (v ? ' · ' + v.label : ''), quantity: i.quantity, unit_price: unit, total: unit * i.quantity };
@@ -78,6 +93,20 @@
         if (/^\/tenants\/[^/]+$/.test(path)) return json(200, { data: { handle: 'sabor-andino', name: 'Sabor Andino' } });
         if (path === '/me') return json(200, { data: me });
         if (path === '/catalog') return json(200, { data: catalog });
+        if (path === '/orders') return json(200, { data: { orders: orders.map(function (o) { return Object.assign({}, o, { items: undefined }); }), pending: pendingCount() } });
+        var om = path.match(/^\/orders\/(\d+)(\/(verify|collect))?$/);
+        if (om) {
+            var ord = orderOf(parseInt(om[1], 10));
+            if (!ord) return json(404, { error: 'not_found', message: 'Pedido no encontrado.' });
+            if (om[3] === 'verify') { if (!ord.paid && ord.payment.qr_status === 'pending' && Date.now() - ord.qrAt > 4000) { ord.paid = true; ord.status = 'paid'; ord.payment.qr_status = null; } return wait(500, function () { return new Response(JSON.stringify({ data: { order: ord } }), { status: 200, headers: { 'Content-Type': 'application/json' } }); }); }
+            if (om[3] === 'collect') {
+                if (ord.paid) return json(422, { error: 'rejected', message: 'Este pedido ya está pagado.' });
+                var rc = receiptFor({ items: [], discount_percent: 0, payments: body.payments, nit: body.nit, tax_name: body.tax_name }, ord);
+                rc.number = ord.number; ord.paid = true; ord.status = 'paid'; ord.can_collect = false;
+                return wait(400, function () { return new Response(JSON.stringify({ data: { receipt: rc, order: ord } }), { status: 201, headers: { 'Content-Type': 'application/json' } }); });
+            }
+            return json(200, { data: { order: ord } });
+        }
         if (path === '/shift/open') return json(201, { data: { shift: me.terminals[0].shift } });
         if (path === '/qr' && method === 'POST') {
             var ref = 'demo-' + Math.random().toString(36).slice(2, 10);

@@ -11,7 +11,12 @@
             </svg>
         </div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2">¡Gracias por tu pedido!</h1>
+        {% if order.order_type %}
+        <p class="text-sm text-ink-muted uppercase tracking-wider font-semibold">Tu número de pedido</p>
+        <p class="text-7xl font-extrabold text-ink tracking-tight leading-none mt-2">{{ order.short_number }}</p>
+        {% else %}
         <p class="text-ink-muted">Pedido <span class="font-semibold text-ink">{{ order.order_number }}</span></p>
+        {% endif %}
     </div>
 
     {% if __SELF__.siblings|length %}

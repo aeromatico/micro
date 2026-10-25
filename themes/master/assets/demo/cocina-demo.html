@@ -79,7 +79,8 @@ html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,s
 .k-card[data-st="ready"]{--c:var(--st-ready)}
 .k-card.is-new{animation:kx-flash 1.6s ease-out 2}
 .k-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.k-num{font-size:19px;font-weight:800;letter-spacing:.2px}
+.k-num{font-size:26px;font-weight:800;letter-spacing:.2px;line-height:1}
+.k-num small{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-left:4px}
 .k-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:14px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-text)}
 .k-timer.warn{background:var(--warn-soft);color:var(--warn-ink)}
 .k-timer.late{background:var(--danger-soft);color:var(--danger);animation:kx-pulse 1.2s infinite}
@@ -200,21 +201,21 @@ html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,s
     function hm(ms) { return new Date(ms).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }); }
     function roundUp(m) { return Math.max(5, Math.ceil(m / 5) * 5); }
 
-    var seq = 120, busy = false, known = null, adj = {}, lastStep = 0, filter = 'all', lastTick = 0;
+    var seq = 20, busy = false, known = null, adj = {}, lastStep = 0, filter = 'all', lastTick = 0;
     var ago = function (min) { return vnow() - min * 60000; };
     var I = function (qty, name, prep, extra) { return Object.assign({ qty: qty, name: name, prep: prep, round: 1, mods: [], note: '' }, extra || {}); };
 
     var orders = [
-        { id: 118, number: 'ORD-000118', type: 'dine_in', table: '2', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'preparing', createdAt: ago(11), acceptedAt: ago(10), promisedAt: vnow() + 6 * 60000, scheduled: null, onote: '',
+        { id: 18, number: 'PED-000018', type: 'dine_in', table: '2', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'preparing', createdAt: ago(11), acceptedAt: ago(10), promisedAt: vnow() + 6 * 60000, scheduled: null, onote: '',
           items: [I(2, 'Plato del día', 20, { mods: ['Extra picante'], note: 'Uno sin cebolla' }), I(2, 'Limonada', 4)] },
-        { id: 119, number: 'ORD-000119', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Luis Fernández', phone: '70123456' }, status: 'new', createdAt: ago(3), scheduled: null, onote: 'Paso a recoger en 20 minutos.',
+        { id: 19, number: 'PED-000019', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Luis Fernández', phone: '70123456' }, status: 'new', createdAt: ago(3), scheduled: null, onote: 'Paso a recoger en 20 minutos.',
           items: [I(1, 'Sándwich mixto', 12, { mods: ['Queso extra'] }), I(1, 'Jugo natural', 4)] },
-        { id: 120, number: 'ORD-000120', type: 'delivery', table: '', source: 'whatsapp', waiter: '', customer: { name: 'María Quispe', phone: '76543210' }, status: 'new', createdAt: ago(1), scheduled: null, onote: 'Casa verde, segundo piso. Tocar el timbre.',
+        { id: 20, number: 'PED-000020', type: 'delivery', table: '', source: 'whatsapp', waiter: '', customer: { name: 'María Quispe', phone: '76543210' }, status: 'new', createdAt: ago(1), scheduled: null, onote: 'Casa verde, segundo piso. Tocar el timbre.',
           items: [I(6, 'Empanada de queso', 10), I(1, 'Gaseosa 2 L', 2)] },
-        { id: 117, number: 'ORD-000117', type: 'dine_in', table: '5', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'ready', createdAt: ago(16), acceptedAt: ago(15), promisedAt: ago(2), readyAt: ago(1), scheduled: null, onote: '',
+        { id: 17, number: 'PED-000017', type: 'dine_in', table: '5', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'ready', createdAt: ago(16), acceptedAt: ago(15), promisedAt: ago(2), readyAt: ago(1), scheduled: null, onote: '',
           items: [I(1, 'Ensalada fresca', 8, { mods: ['Aderezo aparte'] }), I(2, 'Café americano', 5)] },
-        { id: 115, number: 'ORD-000115', type: 'dine_in', table: '1', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'delivered', createdAt: ago(40), updatedAt: ago(22), scheduled: null, onote: '', items: [I(2, 'Torta, porción', 3)] },
-        { id: 116, number: 'ORD-000116', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Pedro Rojas', phone: '71234567' }, status: 'delivered', createdAt: ago(35), updatedAt: ago(14), scheduled: null, onote: '', items: [I(1, 'Plato del día', 20)] }
+        { id: 15, number: 'PED-000015', type: 'dine_in', table: '1', source: 'pos', waiter: 'Carla', customer: { name: 'Cliente de mostrador', phone: '' }, status: 'delivered', createdAt: ago(40), updatedAt: ago(22), scheduled: null, onote: '', items: [I(2, 'Torta, porción', 3)] },
+        { id: 16, number: 'PED-000016', type: 'pickup', table: '', source: 'web', waiter: '', customer: { name: 'Pedro Rojas', phone: '71234567' }, status: 'delivered', createdAt: ago(35), updatedAt: ago(14), scheduled: null, onote: '', items: [I(1, 'Plato del día', 20)] }
     ];
     orders[0].items[0].round = 1; orders[0].items.push(I(1, 'Flan casero', 3, { round: 2 }));
 
@@ -237,7 +238,7 @@ html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,s
 
     function cardHtml(o, key, col) {
         var h = '<article class="k-card" data-id="' + o.id + '" data-st="' + key + '" data-type="' + o.type + '">';
-        h += '<div class="k-top"><span class="k-num">' + esc(o.number) + '</span><span class="k-timer" data-ts="' + o.createdAt + '" data-limit="' + limitOf(o, key) + '">…</span></div>';
+        h += '<div class="k-top"><span class="k-num">#' + (String(o.number).match(/(\d+)\s*$/) ? parseInt(String(o.number).match(/(\d+)\s*$/)[1], 10) : esc(o.number)) + ' <small>' + esc(o.number) + '</small></span><span class="k-timer" data-ts="' + o.createdAt + '" data-limit="' + limitOf(o, key) + '">…</span></div>';
         h += '<div class="k-meta"><span class="k-pill ' + o.type + '">' + ic(TYPE_ICON[o.type]) + ' ' + esc(TYPES[o.type]) + '</span>' + (o.table ? '<span class="k-pill table">Mesa ' + esc(o.table) + '</span>' : '') + '</div>';
         if (o.scheduled) h += '<div class="k-sched">' + ic('clock') + ' Programado para ' + new Date(o.scheduled).toLocaleString('es-BO', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</div>';
         if (o.source !== 'web' || o.waiter) h += '<div class="k-channel"><span class="k-src k-src-' + o.source + '">' + esc(SRC[o.source] || o.source) + '</span>' + (o.waiter ? '<span class="k-waiter">' + ic('user') + ' ' + esc(o.waiter) + '</span>' : '') + '</div>';
@@ -371,7 +372,7 @@ html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,s
         if (activeNew < 5) {
             arrived++;
             var t = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)](); seq += 1;
-            var o = Object.assign({ id: seq, number: 'ORD-000' + seq, status: 'new', createdAt: vnow(), scheduled: null }, t);
+            var o = Object.assign({ id: seq, number: 'PED-' + String(seq).padStart(6, '0'), status: 'new', createdAt: vnow(), scheduled: null }, t);
             if (t.customerFn) o.customer = t.customerFn(t.table);
             orders.push(o); board();
             if (document.getElementById('kitchen-sound').checked) beep();

@@ -222,12 +222,16 @@ class ShopCatalog extends ComponentBase
 
         $number = strtoupper(trim((string) post('order_number')));
         $phone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone(post('phone'));
-        $fail = ['#find-order-error' => '<p class="text-sm text-red-500">No encontramos un pedido con esos datos. Revisa el número (ej. PED-000007) y el celular con el que lo hiciste.</p>'];
+        $fail = ['#find-order-error' => '<p class="text-sm text-red-500">No encontramos un pedido con esos datos. Revisa el número (ej. 7) y el celular con el que lo hiciste.</p>'];
         if ($number === '' || !$phone) {
             return $fail;
         }
 
-        $order = \Aero\Shop\Models\Order::forTenant($tenant->id)->where('order_number', $number)->with('customer')->first();
+        $orders = \Aero\Shop\Models\Order::forTenant($tenant->id)->with('customer');
+        // Basta el número corto («18»): se busca el pedido más reciente que termine en ese número.
+        $order = ctype_digit($number)
+            ? $orders->where('order_number', 'like', '%' . str_pad($number, 6, '0', STR_PAD_LEFT))->orderByDesc('id')->first()
+            : $orders->where('order_number', $number)->first();
         $orderPhone = \Aero\Shop\Classes\WhatsappCheckout::normalizePhone($order?->customer?->phone);
         if (!$order || !$orderPhone || $orderPhone !== $phone) {
             return $fail;

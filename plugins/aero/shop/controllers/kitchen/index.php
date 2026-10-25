@@ -71,7 +71,8 @@
 .k-card[data-st="ready"]{--c:var(--st-ready)}
 .k-card.is-new{animation:kx-flash 1.6s ease-out 2}
 .k-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.k-num{font-size:19px;font-weight:800;letter-spacing:.2px}
+.k-num{font-size:26px;font-weight:800;letter-spacing:.2px;line-height:1}
+.k-num small{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em;margin-left:4px}
 .k-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:14px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-text)}
 .k-timer.warn{background:var(--warn-soft);color:var(--warn-ink)}
 .k-timer.late{background:var(--danger-soft);color:var(--danger);animation:kx-pulse 1.2s infinite}
