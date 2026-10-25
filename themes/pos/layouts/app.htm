@@ -1,0 +1,31 @@
+description = "Shell de la PWA de punto de venta"
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Market POS</title>
+    <meta name="theme-color" content="#0b5e4e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="robots" content="noindex">
+    <link rel="manifest" href="/manifest.webmanifest?h={{ this.param.handle }}&v=1">
+    <link rel="icon" type="image/png" href="{{ 'assets/img/favicon.png' | theme }}?v=1">
+    <link rel="apple-touch-icon" href="{{ 'assets/img/pwa-192.png' | theme }}?v=1">
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('aero.pos.theme') || 'auto';
+                if (t !== 'auto') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ 'assets/css/pos.css' | theme }}?v=3">
+    <script defer src="{{ 'assets/js/app.js' | theme }}?v=1"></script>
+    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=11.16.3"></script>
+</head>
+<body>
+{% page %}
+</body>
+</html>

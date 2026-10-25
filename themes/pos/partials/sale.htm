@@ -1,0 +1,77 @@
+<template x-if="screen === 'sale'">
+<div style="display:contents">
+    <header class="top">
+        <div class="brand"><b>M</b><span class="hide-sm">Market POS</span></div>
+        <span class="small hide-sm" style="opacity:.85" x-text="'Hola, ' + me.user.name.split(' ')[0] + ' · ' + (terminal() ? terminal().name : '')"></span>
+        <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="search" x-model="q" @keydown.enter.prevent="scan()" placeholder="Buscar o escanear código…" aria-label="Buscar o escanear código" autocomplete="off"></label>
+        <div class="row" style="margin-left:auto">
+            <button class="ibtn" @click="calcOpen = !calcOpen" :style="calcOpen ? 'background:rgba(255,255,255,.2)' : ''">Calculadora</button>
+            <button class="ibtn" @click="toggleDark()" aria-label="Cambiar modo claro u oscuro">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+            <button class="ibtn" @click="settingsOpen = true" aria-label="Ajustes">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></button>
+            <span class="small row"><i class="dot" :class="(!online || queue.length) && 'off'"></i><span x-text="!online ? 'Sin conexión' : (queue.length ? queue.length + ' por enviar' : 'En línea')"></span></span>
+        </div>
+    </header>
+
+    <main class="sale">
+        <section class="catalog">
+            <div class="chips">
+                <button class="chip" :class="cat === 0 && 'on'" @click="cat = 0">Todos</button>
+                <template x-for="c in collections()" :key="c.id">
+                    <button class="chip" :class="cat === c.id && 'on'" @click="cat = c.id"><i :style="'background:' + (cat === c.id ? 'var(--accent-ink)' : dotOf(c.id))"></i><span x-text="c.name"></span></button>
+                </template>
+            </div>
+            <div class="grid">
+                <template x-for="p in products()" :key="p.id">
+                    <button class="tile" :class="[prefs.thumbs && 'thumb', !p.in_stock && 'out']" :style="'--tc:var(--i' + colorOf(p.collection_id) + ')'" @click="add(p)" :aria-label="'Agregar ' + p.name">
+                        <span class="ph" :style="'background:var(--t' + colorOf(p.collection_id) + ');color:var(--i' + colorOf(p.collection_id) + ')'">
+                            <template x-if="prefs.thumbs && p.image_url"><img :src="p.image_url" alt="" loading="lazy"></template>
+                            <template x-if="!(prefs.thumbs && p.image_url)"><span x-text="p.name.charAt(0)"></span></template>
+                        </span>
+                        <span class="col" style="gap:2px"><span class="nm" x-text="p.name"></span>
+                            <span class="pr" x-text="p.has_variants ? 'Desde ' + money(p.price) : money(p.price)"></span></span>
+                        <span class="bd" x-show="qtyOf(p) > 0" x-text="qtyOf(p)"></span>
+                    </button>
+                </template>
+                <div class="muted" x-show="!products().length" style="grid-column:1/-1;padding:24px;text-align:center">No hay productos para mostrar.</div>
+            </div>
+        </section>
+
+        <aside class="ticket">
+            <div class="hd"><b>Venta actual</b>
+                <template x-if="me.settings.tables && catalog.tables.length">
+                    <select class="pillb" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
+                </template>
+                <button class="btn sm danger" :style="(me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()">Vaciar</button>
+            </div>
+            <div class="lines">
+                <div class="empty" x-show="!cart.length"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 7h12l-1 12H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg></i><span>Toca un producto o escanea<br>un código para empezar.</span></div>
+                <template x-for="l in cart" :key="l.key">
+                    <div class="line">
+                        <div class="grow"><div class="bold" style="font-size:14px;line-height:1.3" x-text="l.name"></div><div class="small muted" x-text="money(l.price) + ' c/u'"></div></div>
+                        <div class="qty"><button @click="dec(l)" aria-label="Quitar uno">−</button><span x-text="l.qty"></span><button @click="inc(l)" aria-label="Agregar uno">+</button></div>
+                        <div class="bold" style="min-width:68px;text-align:right" x-text="money(l.price * l.qty)"></div>
+                    </div>
+                </template>
+            </div>
+            <div class="tot">
+                <div class="row small muted" style="justify-content:space-between"><span>Subtotal</span><span x-text="money(subtotal())"></span></div>
+                <div class="row small muted" style="justify-content:space-between"><button class="pillb" :class="discount && 'on'" @click="discount = !discount">Descuento 10%</button><span x-text="discount ? '− ' + money(discountAmt()) : '—'"></span></div>
+                <div class="sum"><span class="bold">Total</span><span x-text="money(total())"></span></div>
+                <button class="btn primary big" :class="!cart.length && 'off'" @click="openPay()" x-text="'Cobrar ' + money(total())"></button>
+            </div>
+        </aside>
+    </main>
+
+    <div class="calc" x-show="calcOpen" x-transition.opacity>
+        <div class="h" x-text="c.hist"></div><div class="d" x-text="c.cur"></div>
+        <div class="k">
+            <template x-for="k in ['C','÷','×','−','7','8','9','+','4','5','6','=','1','2','3','0','.']">
+                <button :class="k === '=' ? 'eq' : (k === '0' ? 'z' : k === 'C' ? 'cl' : ('÷×−+'.indexOf(k) >= 0 ? 'op' : ''))" @click="calcKey(k)" x-text="k"></button>
+            </template>
+        </div>
+    </div>
+</div>
+</template>

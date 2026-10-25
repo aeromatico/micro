@@ -1,0 +1,61 @@
+<!-- Variantes -->
+<div class="scrim" x-show="variantFor" x-transition.opacity @click.self="variantFor = null">
+  <div class="sheet" x-show="variantFor">
+    <div class="bold" style="font-size:18px" x-text="variantFor && variantFor.name"></div>
+    <template x-if="variantFor"><div class="col">
+      <template x-for="v in variantFor.variants" :key="v.id">
+        <button class="btn" style="display:flex;justify-content:space-between" :class="v.in_stock === false && 'off'" :disabled="v.in_stock === false" @click="add(variantFor, v)"><span x-text="v.label"></span><span x-text="money(v.price)"></span></button>
+      </template>
+    </div></template>
+    <button class="btn" @click="variantFor = null">Cancelar</button>
+  </div>
+</div>
+
+<!-- Ajustes -->
+<div class="scrim" x-show="settingsOpen" x-transition.opacity @click.self="settingsOpen = false">
+  <div class="sheet" x-show="settingsOpen">
+    <div class="row"><b style="font-size:18px">Ajustes</b><button class="btn sm" style="margin-left:auto" @click="settingsOpen = false">Cerrar</button></div>
+    <div class="row"><div class="grow"><div class="bold">Mostrar miniaturas</div><div class="small muted">Foto en cada producto. Apagado caben más productos.</div></div>
+      <button class="switch" :class="prefs.thumbs && 'on'" role="switch" :aria-checked="prefs.thumbs" aria-label="Mostrar miniaturas" @click="prefs.thumbs = !prefs.thumbs; savePrefs()"></button></div>
+    <div class="col"><div class="bold">Tema</div>
+      <div class="seg"><button :class="prefs.theme === 'auto' && 'on'" @click="setTheme('auto')">Automático</button><button :class="prefs.theme === 'light' && 'on'" @click="setTheme('light')">Claro</button><button :class="prefs.theme === 'dark' && 'on'" @click="setTheme('dark')">Oscuro</button></div></div>
+    <div class="col"><div class="bold">Recibo</div>
+      <div class="small muted">Imprime con el diálogo del navegador. Térmica directa (USB o Bluetooth): próximamente.</div>
+      <div class="seg"><button :class="paper() === '58' && 'on'" @click="prefs.paper = '58'; savePrefs()">Papel 58 mm</button><button :class="paper() !== '58' && 'on'" @click="prefs.paper = '80'; savePrefs()">Papel 80 mm</button></div></div>
+    <template x-if="me && me.terminals.length > 1">
+      <div class="col"><div class="bold">Caja</div><div class="seg" style="flex-wrap:wrap"><template x-for="t in me.terminals" :key="t.id"><button :class="terminalId === t.id && 'on'" @click="pickTerminal(t.id)" x-text="t.name"></button></template></div></div>
+    </template>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn" x-show="shift" @click="settingsOpen = false; shiftSheet = true; closeResult = null; closeError = ''">Cerrar turno</button>
+      <button class="btn danger" @click="logout()">Salir</button>
+    </div>
+    <div class="small muted" x-text="(tenant ? tenant.name : '') + ' · ' + (me ? me.user.name : '')"></div>
+  </div>
+</div>
+
+<!-- Cierre de turno -->
+<div class="scrim" x-show="shiftSheet" x-transition.opacity>
+  <div class="sheet" x-show="shiftSheet">
+    <template x-if="!closeResult">
+      <div class="col">
+        <b style="font-size:18px">Cerrar turno</b>
+        <div class="muted small">Cuenta el efectivo que hay en caja. El sistema compara con lo esperado.</div>
+        <div class="err" x-show="closeError" x-text="closeError"></div>
+        <div class="recv"><span class="small muted">Efectivo contado</span><b x-text="money(counted === '' ? 0 : parseFloat(counted))"></b></div>
+        <div class="pad"><template x-for="k in ['1','2','3','4','5','6','7','8','9','.','0','del']"><button @click="keyNum('counted', k)" x-text="k === 'del' ? '⌫' : k"></button></template></div>
+        <button class="btn primary big" :disabled="busy" @click="closeShift()" x-text="busy ? 'Cerrando…' : 'Cerrar turno'"></button>
+        <button class="btn" @click="shiftSheet = false">Cancelar</button>
+      </div>
+    </template>
+    <template x-if="closeResult">
+      <div class="col">
+        <b style="font-size:18px">Turno cerrado</b>
+        <div class="row" style="justify-content:space-between"><span class="muted">Esperado</span><b x-text="money(closeResult.shift.expected_cash)"></b></div>
+        <div class="row" style="justify-content:space-between"><span class="muted">Contado</span><b x-text="money(closeResult.shift.counted_cash)"></b></div>
+        <div class="change" :class="closeResult.shift.difference < 0 && 'short'"><span x-text="closeResult.shift.difference < 0 ? 'Faltante' : (closeResult.shift.difference > 0 ? 'Sobrante' : 'Cuadra')"></span><b x-text="money(Math.abs(closeResult.shift.difference))"></b></div>
+        <div class="row small muted" style="justify-content:space-between"><span x-text="(closeResult.summary.sales_count || 0) + ' ventas'"></span><span x-text="money(closeResult.summary.sales_total || 0)"></span></div>
+        <button class="btn primary big" @click="finishClose()">Listo</button>
+      </div>
+    </template>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+<section class="center" x-show="screen === 'shift'">
+    <div class="card">
+        <div class="bold" style="font-size:20px">Abrir turno de caja</div>
+        <div class="muted" x-text="(me && me.user ? 'Hola, ' + me.user.name + '. ' : '') + 'Cuenta el efectivo con el que empiezas.'"></div>
+        <div class="err" x-show="error" x-text="error"></div>
+        <template x-if="me && me.terminals.length > 1">
+            <div class="seg" style="flex-wrap:wrap">
+                <template x-for="t in me.terminals" :key="t.id"><button :class="terminalId === t.id && 'on'" @click="pickTerminal(t.id)" x-text="t.name"></button></template>
+            </div>
+        </template>
+        <div class="recv"><span class="muted">Efectivo inicial</span><b x-text="money(openingCash === '' ? 0 : parseFloat(openingCash))"></b></div>
+        <div class="pad">
+            <template x-for="k in ['1','2','3','4','5','6','7','8','9','.','0','del']">
+                <button type="button" @click="keyNum('openingCash', k)" x-text="k === 'del' ? '⌫' : k"></button>
+            </template>
+        </div>
+        <button class="btn primary big" @click="openShift()" :disabled="busy || !terminalId" x-text="busy ? 'Abriendo…' : 'Abrir turno'"></button>
+        <button class="btn sm" @click="logout()">Salir</button>
+    </div>
+</section>

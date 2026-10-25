@@ -1,0 +1,10 @@
+<section class="center" x-show="screen === 'gate'">
+    <form class="card" @submit.prevent="goHandle()">
+        <div class="logo">M</div>
+        <div><div class="bold" style="font-size:20px">Market POS</div><div class="muted">Escribe el nombre de tu negocio para entrar.</div></div>
+        <div class="err" x-show="error" x-text="error"></div>
+        <label class="label" for="h">Negocio</label>
+        <input id="h" class="field" x-model="handleInput" placeholder="ej. mi-tienda" autocapitalize="none" autocomplete="off" autofocus>
+        <button class="btn primary big" type="submit">Continuar</button>
+    </form>
+</section>

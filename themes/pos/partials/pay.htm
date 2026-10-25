@@ -1,0 +1,59 @@
+<div class="scrim" x-show="payOpen" x-transition.opacity>
+  <div class="modal" @click.outside="if (!done && !saleBusy) payOpen = false">
+
+    <template x-if="done">
+      <div class="ok">
+        <span class="tick"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span>
+        <div class="bold" style="font-size:22px" x-text="'¡Venta cobrada! ' + money(done.total)"></div>
+        <div class="bold" style="font-size:30px;color:var(--accent-text)" x-show="done.change > 0" x-text="'Cambio ' + money(done.change)"></div>
+        <div class="muted" x-text="'Venta ' + done.number + ' · ' + done.payments.map(function (p) { return p.method; }).join(' + ')"></div>
+        <div class="bold" style="font-size:14px" x-text="done.nit ? 'NIT/CI ' + done.nit + (done.tax_name ? ' · ' + done.tax_name : '') : 'Sin NIT (consumidor final)'"></div>
+        <div class="warn">Factura pendiente: emitirla de forma manual.</div>
+        <div class="warn" x-show="doneLocal">Sin conexión: la venta se enviará sola cuando vuelva la señal.</div>
+        <div class="row" style="flex-wrap:wrap;justify-content:center;margin-top:8px">
+          <button class="btn" @click="printReceipt()">Imprimir</button>
+          <button class="btn primary" @click="newSale()">Nueva venta</button>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="!done">
+      <div style="display:contents">
+        <div class="l">
+          <div class="row"><b>Cobrar</b><button class="btn sm" style="margin-left:auto" @click="payOpen = false">Volver</button></div>
+          <div><div class="small muted" x-text="payments.length ? 'Falta cobrar' : 'Total a pagar'"></div><div class="bold" style="font-size:40px;letter-spacing:-1px" x-text="money(remaining())"></div></div>
+          <div class="col" style="gap:4px" x-show="payments.length">
+            <template x-for="p in payments"><div class="row small" style="justify-content:space-between"><span x-text="p.label"></span><span x-text="money(p.amount)"></span></div></template>
+          </div>
+          <div class="methods"><template x-for="m in catalog.methods" :key="m.id"><button class="method" :class="methodId === m.id && 'on'" @click="methodId = m.id; recv = ''" x-text="m.label"></button></template></div>
+          <div class="col" style="gap:6px;padding-top:10px;border-top:1px solid var(--line)">
+            <label class="label" for="nit">NIT o CI del cliente</label>
+            <input id="nit" class="field" inputmode="numeric" x-model="nit" placeholder="Vacío = sin NIT">
+            <label class="label" for="rz">Nombre o razón social</label>
+            <input id="rz" class="field" x-model="razon" placeholder="Ej. Juan Pérez">
+            <div class="small muted">Por ahora la factura se emite de forma manual. Los datos quedan guardados en la venta.</div>
+          </div>
+        </div>
+        <div class="r">
+          <div class="err" x-show="payError" x-text="payError"></div>
+          <template x-if="isCash()">
+            <div style="display:contents">
+              <div class="recv"><span class="small muted">Recibido</span><b x-text="money(recvNum())"></b></div>
+              <div class="change" :class="shortNow() > 0 && 'short'"><span x-text="shortNow() > 0 ? 'Falta' : 'Cambio'"></span><b x-text="money(shortNow() > 0 ? shortNow() : changeNow())"></b></div>
+              <div class="quick"><template x-for="b in quickBills()"><button @click="recv = String(b.v)" x-text="b.label"></button></template></div>
+              <div class="pad"><template x-for="k in ['1','2','3','4','5','6','7','8','9','.','0','del']"><button @click="keyNum('recv', k)" x-text="k === 'del' ? '⌫' : k" :aria-label="k === 'del' ? 'Borrar' : k"></button></template></div>
+              <button class="btn" x-show="canSplit()" @click="addSplit()">Cobrar esta parte y seguir con otro método</button>
+            </div>
+          </template>
+          <template x-if="!isCash() && method()">
+            <div class="col" style="flex:1;align-items:center;justify-content:center;text-align:center;padding:30px 0">
+              <div class="bold" style="font-size:16px" x-text="method().kind === 'qr' ? 'Cobro con QR' : (method().kind === 'card' ? 'Pasa la tarjeta por el terminal' : 'Cobro con ' + method().label)"></div>
+              <div class="small muted">Cuando el cliente pague, confirma aquí.</div>
+            </div>
+          </template>
+          <button class="btn primary big" style="margin-top:auto" :class="!canConfirm() && 'off'" :disabled="!canConfirm()" @click="confirmPay()" x-text="saleBusy ? 'Cobrando…' : 'Confirmar cobro'"></button>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>

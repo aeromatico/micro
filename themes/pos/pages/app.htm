@@ -1,0 +1,14 @@
+title = "POS"
+url = "/:handle?"
+layout = "app"
+is_hidden = 0
+==
+<div x-data="posApp()" x-init="init()" x-cloak class="app" @keydown.escape.window="closeAll()">
+    {% partial 'gate' %}
+    {% partial 'login' %}
+    {% partial 'shift' %}
+    {% partial 'sale' %}
+    {% partial 'pay' %}
+    {% partial 'sheets' %}
+    <div class="toast" role="status" x-show="toast" x-transition.opacity x-text="toast"></div>
+</div>
