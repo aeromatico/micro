@@ -15,6 +15,10 @@ class OrderConfirmation extends ComponentBase
     /** Botón de emergencia: ¿se ofrece en este pedido? y su aviso vigente. */
     public bool $panicEligible = false;
     public ?\Aero\Shop\Models\PanicAlert $panic = null;
+    /** Opinión del cliente: ¿se pide en este pedido? y la que ya dejó. */
+    public bool $feedbackEligible = false;
+    public ?\Aero\Shop\Models\Feedback $feedback = null;
+    public string $feedbackMode = 'off';
 
     public function componentDetails(): array
     {
@@ -73,6 +77,7 @@ class OrderConfirmation extends ComponentBase
 
         $this->loadQrCode();
         $this->loadPanic();
+        $this->loadFeedback();
 
         return true;
     }
@@ -81,6 +86,65 @@ class OrderConfirmation extends ComponentBase
     {
         $this->panicEligible = $this->order ? \Aero\Shop\Classes\PanicService::eligible($this->order) : false;
         $this->panic = $this->panicEligible ? \Aero\Shop\Classes\PanicService::current($this->order) : null;
+    }
+
+    /** La opinión se pide cuando el pedido ya está listo (cocina) o pagado/entregado, y la tienda la tiene activada. */
+    protected function loadFeedback(): void
+    {
+        $this->feedbackMode = (string) (StorefrontContext::settings()?->feedback_mode ?: 'off');
+        $this->feedback = $this->order ? \Aero\Shop\Models\Feedback::where('order_id', $this->order->id)->first() : null;
+
+        $done = $this->order && !in_array($this->order->status, ['cancelled', 'refunded'], true)
+            && ($this->order->kitchen_status
+                ? in_array($this->order->kitchen_status, ['ready', 'delivered'], true)
+                : in_array($this->order->status, ['paid', 'fulfilled'], true));
+
+        $this->feedbackEligible = $this->feedbackMode !== 'off' && $done;
+    }
+
+    /** Guarda la opinión (una por pedido). La política de la tienda decide si queda interna, pública o pendiente. */
+    public function onFeedback()
+    {
+        if (!$this->loadOrder()) {
+            return [];
+        }
+
+        if ($this->feedbackEligible && !$this->feedback) {
+            $rating = (int) post('rating');
+            if ($rating < 1 || $rating > 5) {
+                throw new \ApplicationException('Elige de 1 a 5 estrellas.');
+            }
+
+            $name = trim((string) post('author_name'));
+            \Aero\Shop\Models\Feedback::create([
+                'tenant_id'   => $this->order->tenant_id,
+                'order_id'    => $this->order->id,
+                'rating'      => $rating,
+                'comment'     => mb_substr(trim((string) post('comment')), 0, 1000) ?: null,
+                'author_name' => mb_substr($name, 0, 60) ?: null,
+                'status'      => \Aero\Shop\Models\Feedback::statusForMode($this->feedbackMode),
+            ]);
+            $this->loadFeedback();
+        }
+
+        return ['#order-feedback' => $this->renderPartial('@feedback')];
+    }
+
+    /** Comida en el local: lo que el negocio quiere mostrar mientras se espera (WiFi e información). */
+    public function waitingInfo(): array
+    {
+        if (!$this->order || !$this->order->order_type || in_array($this->order->kitchen_status, ['delivered'], true)
+            || in_array($this->order->status, ['cancelled', 'refunded'], true)) {
+            return [];
+        }
+
+        $cfg = StorefrontContext::settings()?->restaurant() ?? [];
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', (string) ($cfg['info_text'] ?? '')))));
+        $wifi = $this->order->order_type === 'dine_in' && ($cfg['wifi_password'] ?? '') !== ''
+            ? ['name' => (string) ($cfg['wifi_name'] ?? ''), 'password' => (string) $cfg['wifi_password']]
+            : null;
+
+        return $lines || $wifi ? ['lines' => $lines, 'wifi' => $wifi] : [];
     }
 
     /**
@@ -119,7 +183,11 @@ class OrderConfirmation extends ComponentBase
             return [];
         }
 
-        return ['#order-kitchen' => $this->renderPartial('@kitchenStatus'), '#order-panic' => $this->renderPartial('@panic')];
+        return [
+            '#order-kitchen'  => $this->renderPartial('@kitchenStatus'),
+            '#order-panic'    => $this->renderPartial('@panic'),
+            '#order-feedback' => $this->renderPartial('@feedback'),
+        ];
     }
 
     /** Botón de emergencia: avisa al personal con el número de mesa. Nunca lanza: devuelve el estado a mostrar. */

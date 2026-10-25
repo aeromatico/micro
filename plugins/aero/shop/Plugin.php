@@ -32,6 +32,7 @@ class Plugin extends PluginBase
             \Aero\Shop\Components\Cart::class               => 'shopCart',
             \Aero\Shop\Components\Checkout::class           => 'shopCheckout',
             \Aero\Shop\Components\OrderConfirmation::class  => 'shopOrderConfirmation',
+            \Aero\Shop\Components\ShopReviews::class         => 'shopReviews',
         ];
     }
 
@@ -280,6 +281,12 @@ class Plugin extends PluginBase
                     'label'       => 'aero.shop::lang.menu.customers',
                     'icon'        => 'icon-users',
                     'url'         => Backend::url('aero/shop/customers'),
+                    'permissions' => ['aero.shop.manage_orders'],
+                ],
+                'shop-opiniones' => [
+                    'label'       => 'aero.shop::lang.menu.feedbacks',
+                    'icon'        => 'icon-star',
+                    'url'         => Backend::url('aero/shop/feedbacks'),
                     'permissions' => ['aero.shop.manage_orders'],
                 ],
                 'shop-metodos-pago' => [

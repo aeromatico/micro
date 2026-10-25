@@ -1,0 +1,20 @@
+{% set info = __SELF__.waitingInfo() %}
+{% if info %}
+<div class="card p-5 mb-6 text-sm">
+    {% if info.lines %}
+    <p class="font-semibold text-ink">Mientras esperas</p>
+    <ul class="mt-2 space-y-1.5 text-ink-muted">
+        {% for line in info.lines %}<li>{{ line }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if info.wifi %}
+    <div class="{{ info.lines ? 'mt-4 pt-4 border-t border-surface-border' : '' }} flex items-center gap-3">
+        <svg class="w-5 h-5 text-ink shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg>
+        <div>
+            <p class="font-semibold text-ink">WiFi del local</p>
+            <p class="text-ink-muted">{% if info.wifi.name %}Red: <span class="text-ink font-medium">{{ info.wifi.name }}</span> · {% endif %}Clave: <span class="text-ink font-mono font-semibold select-all">{{ info.wifi.password }}</span></p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}

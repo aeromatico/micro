@@ -1,0 +1,19 @@
+{% if __SELF__.total %}
+<section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10" aria-labelledby="shop-reviews-title">
+    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h2 id="shop-reviews-title" class="text-xl font-bold text-ink">Lo que dicen nuestros clientes</h2>
+        <p class="text-sm text-ink-muted"><span class="text-amber-500 text-lg">★</span> <span class="font-semibold text-ink">{{ __SELF__.average }}</span> · {{ __SELF__.total }} {{ __SELF__.total == 1 ? 'opinión' : 'opiniones' }}</p>
+    </div>
+    <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for r in __SELF__.reviews %}
+        {% if r.comment %}
+        <figure class="card p-4 text-sm">
+            <p class="text-amber-500" aria-label="{{ r.rating }} de 5 estrellas">{{ r.stars }}</p>
+            <blockquote class="mt-2 text-ink">“{{ r.comment }}”</blockquote>
+            <figcaption class="mt-2 text-xs text-ink-muted">{{ r.author_name ?: 'Cliente' }} · {{ r.created_at|date('d/m/Y') }}</figcaption>
+        </figure>
+        {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}

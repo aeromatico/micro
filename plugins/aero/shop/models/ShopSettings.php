@@ -12,10 +12,18 @@ class ShopSettings extends Model
         'tenant_id', 'is_enabled', 'base_currency_id', 'inventory_tracking_enabled', 'branches_enabled', 'branches', 'shipping_fee',
         'guest_checkout_enabled', 'order_number_prefix', 'order_number_sequence',
         'low_stock_threshold', 'store_mode', 'whatsapp_mode', 'whatsapp_number', 'whatsapp_account_id',
-        'restaurant_config', 'schedule_mode', 'schedule_hours', 'accepting_orders', 'timezone',
+        'restaurant_config', 'schedule_mode', 'schedule_hours', 'accepting_orders', 'timezone', 'feedback_mode',
     ];
 
     public $jsonable = ['restaurant_config', 'schedule_hours', 'branches'];
+
+    /** Qué se hace con las opiniones de los clientes sobre su pedido. */
+    public const FEEDBACK_MODES = [
+        'off'       => 'No pedir opiniones',
+        'internal'  => 'Solo para el negocio (análisis interno)',
+        'public'    => 'Públicas: se muestran en la tienda al instante',
+        'moderated' => 'Públicas con tu aprobación',
+    ];
 
     public const ORDER_TYPES = ['delivery' => 'Delivery', 'pickup' => 'Recoger', 'dine_in' => 'Comer en local'];
     /** Presentaciones de la carta del restaurante (las mismas del contenido dinámico «Carta»). */
@@ -79,6 +87,9 @@ class ShopSettings extends Model
     public function getRcQrDineInAttribute() { return (bool) $this->restaurant()['qr_dine_in']; }
     public function getRcHelloAccountIdAttribute() { return $this->restaurant()['hello_account_id']; }
     public function getRcPanicButtonAttribute() { return (bool) $this->restaurant()['panic_button']; }
+    public function getRcWifiNameAttribute() { return $this->restaurant()['wifi_name']; }
+    public function getRcWifiPasswordAttribute() { return $this->restaurant()['wifi_password']; }
+    public function getRcInfoTextAttribute() { return $this->restaurant()['info_text']; }
 
     /** El modo Marketplace solo se activa con la compra (no cancelada) del servicio «marketplace» de Aero.Services. */
     public static function marketplacePurchasedBy(int $tenantId): bool
@@ -132,6 +143,9 @@ class ShopSettings extends Model
             'qr_dine_in'       => true,  // permite «Pago QR» a quienes comen en el local
             'hello_account_id' => null,  // cuenta de Hello con la que el local interactúa con sus clientes
             'panic_button'     => true,  // botón de emergencia en la página del pedido de quien come en el local
+            'wifi_name'        => '',    // red WiFi para quien come en el local (se muestra en la espera del pedido)
+            'wifi_password'    => '',    // vacío = no se muestra; es una clave para clientes, no un secreto
+            'info_text'        => '',    // promociones e información que el local quiere mostrar mientras se espera
             'layout'           => 'lista', // presentación de la carta en /tienda: lista | tarjetas | compacta
         ], (array) $this->restaurant_config);
     }

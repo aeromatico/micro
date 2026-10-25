@@ -1,0 +1,32 @@
+columns:
+    created_at:
+        label: Fecha
+        type: datetime
+        width: 150px
+
+    order:
+        label: Pedido
+        relation: order
+        select: order_number
+        type: text
+        width: 140px
+
+    stars:
+        label: Estrellas
+        type: text
+        sortable: false
+        width: 110px
+
+    comment:
+        label: Comentario
+        type: text
+        limit: 120
+
+    author_name:
+        label: Cliente
+        type: text
+
+    status_label:
+        label: Estado
+        type: text
+        sortable: false

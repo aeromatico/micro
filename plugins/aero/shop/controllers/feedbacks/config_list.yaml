@@ -1,0 +1,23 @@
+title: Opiniones
+list: $/aero/shop/models/feedback/columns.yaml
+modelClass: Aero\Shop\Models\Feedback
+recordUrl: aero/shop/feedbacks/update/:id
+noRecordsMessage: Todavía no hay opiniones. Actívalas en Tienda → Configuración → Opiniones de los clientes.
+recordsPerPage: 20
+showCheckboxes: false
+
+filter:
+    scopes:
+        status:
+            label: Estado
+            type: group
+            conditions: status in (:filtered)
+            options:
+                pending: Pendiente de aprobación
+                approved: Pública
+                internal: Interna
+                hidden: Oculta
+
+defaultSort:
+    column: created_at
+    direction: desc

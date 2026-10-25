@@ -92,6 +92,9 @@
     </div>
     {% endif %}
 
+    {# Espera: WiFi del local y promociones/información que el negocio quiere mostrar #}
+    {% partial __SELF__~"::waiting" %}
+
     <div id="order-payment-status">
         {% partial __SELF__~"::paymentStatus" %}
     </div>
@@ -134,6 +137,9 @@
         {% endif %}
     </div>
     {% endif %}
+
+    {# Opinión del cliente (cuando el pedido está listo y la tienda la pide) #}
+    <div id="order-feedback">{% partial __SELF__~"::feedback" %}</div>
 
     {# Botón de emergencia: solo pedidos «Comer en local»; avisa a cocina y caja con el número de mesa #}
     <div id="order-panic">{% partial __SELF__~"::panic" %}</div>

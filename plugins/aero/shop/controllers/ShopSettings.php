@@ -67,6 +67,7 @@ class ShopSettings extends Controller
             'restaurant_config'           => $this->restaurantConfigFrom($data, !empty($settings->restaurant()['busy']), (int) $tenant->id),
             'schedule_mode'               => in_array($data['schedule_mode'] ?? '', ['always_open', 'scheduled', 'online'], true) ? $data['schedule_mode'] : 'always_open',
             'accepting_orders'            => (bool) ($data['accepting_orders'] ?? true),
+            'feedback_mode'               => array_key_exists($data['feedback_mode'] ?? '', ShopSettingsModel::FEEDBACK_MODES) ? $data['feedback_mode'] : 'off',
             'timezone'                    => in_array($data['timezone'] ?? '', \DateTimeZone::listIdentifiers(), true) ? $data['timezone'] : 'America/La_Paz',
             'schedule_hours'              => $this->scheduleHoursFrom($data),
             'low_stock_threshold'         => is_numeric($data['low_stock_threshold'] ?? '') ? (int) $data['low_stock_threshold'] : null,
@@ -173,6 +174,9 @@ class ShopSettings extends Controller
             'qr_dine_in'    => (bool) ($data['rc_qr_dine_in'] ?? false),
             'hello_account_id' => $tenantId ? $this->ownedAccountId($tenantId, $data['rc_hello_account_id'] ?? null) : null,
             'panic_button'  => (bool) ($data['rc_panic_button'] ?? false),
+            'wifi_name'     => mb_substr(trim((string) ($data['rc_wifi_name'] ?? '')), 0, 60),
+            'wifi_password' => mb_substr(trim((string) ($data['rc_wifi_password'] ?? '')), 0, 80),
+            'info_text'     => mb_substr(trim((string) ($data['rc_info_text'] ?? '')), 0, 800),
             'layout'        => array_key_exists($data['rc_layout'] ?? '', ShopSettingsModel::MENU_LAYOUTS) ? $data['rc_layout'] : 'lista',
         ];
     }
@@ -408,6 +412,28 @@ class ShopSettings extends Controller
                 'placeholder' => 'Usar la cuenta de WhatsApp por defecto',
                 'comment'     => 'Con esta cuenta de WhatsApp el local avisa a sus clientes (pedido recibido, listo, etc.) y envía recibos desde la caja. Se administran en Hello → Cuentas.',
                 'trigger'     => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_wifi_name' => [
+                'label' => 'Red WiFi del local', 'type' => 'text', 'span' => 'left',
+                'comment' => 'Opcional. Se muestra a quien come en el local mientras espera su pedido.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_wifi_password' => [
+                'label' => 'Clave del WiFi', 'type' => 'text', 'span' => 'right',
+                'comment' => 'Es una clave para tus clientes: quien abra la página de su pedido en el local la verá. Vacía = no se muestra.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'rc_info_text' => [
+                'label' => 'Promociones e información de espera', 'type' => 'textarea', 'size' => 'small',
+                'comment' => 'Texto que ven los clientes mientras esperan su pedido (promos, horarios, avisos). Una línea por mensaje.',
+                'trigger' => ['action' => 'show', 'field' => 'store_mode', 'condition' => 'value[restaurant]'],
+            ],
+            'feedback_mode' => [
+                'label'   => 'Opiniones de los clientes',
+                'type'    => 'dropdown',
+                'default' => 'off',
+                'options' => ShopSettingsModel::FEEDBACK_MODES,
+                'comment' => 'Al terminar su pedido el cliente puede dejar estrellas y un comentario. Elige si quedan solo para ti, se publican en la tienda o se publican cuando las apruebas (Tienda → Opiniones).',
             ],
             'schedule_mode' => [
                 'label'   => 'Horario de la tienda',

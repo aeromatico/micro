@@ -9,6 +9,7 @@
         'collections'       => 'Colecciones',
         'orders'            => 'Pedidos',
         'customers'         => 'Clientes',
+        'feedbacks'         => 'Opiniones',
         'kitchen'           => 'Cocina',
         'sellers'           => 'Comerciantes',
         'my_sales'          => 'Mis ventas',

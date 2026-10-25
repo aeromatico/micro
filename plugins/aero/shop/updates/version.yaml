@@ -178,3 +178,11 @@
 
 1.12.1:
     - "Configuración del restaurante: ahora el botón de emergencia de la página del pedido se puede activar o apagar para los comensales en el local."
+
+1.13.0:
+    - "Opiniones de los clientes: al terminar su pedido pueden dejar estrellas y un comentario; tú eliges si quedan solo para ti, se publican en la tienda o se publican cuando las apruebas (Tienda → Opiniones)."
+    - create_feedback_table.php
+    - add_feedback_mode_to_shop_settings.php
+
+1.13.1:
+    - "Restaurantes: ahora puedes mostrar la clave del WiFi y tus promociones o avisos en la página del pedido, mientras el comensal espera."

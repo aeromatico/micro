@@ -1,0 +1,28 @@
+fields:
+    rating:
+        label: Estrellas
+        type: number
+        span: left
+        readOnly: true
+
+    author_name:
+        label: Nombre
+        type: text
+        span: right
+        readOnly: true
+
+    comment:
+        label: Comentario
+        type: textarea
+        size: small
+        readOnly: true
+
+    status:
+        label: Estado
+        type: dropdown
+        options:
+            internal: Interna (solo para el negocio)
+            pending: Pendiente de aprobación
+            approved: Pública (se muestra en la tienda)
+            hidden: Oculta
+        comment: Pública = se muestra en la tienda. Las internas y ocultas solo las ves tú.

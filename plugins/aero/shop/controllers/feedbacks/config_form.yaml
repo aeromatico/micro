@@ -1,0 +1,8 @@
+name: Opinión
+form: $/aero/shop/models/feedback/fields.yaml
+modelClass: Aero\Shop\Models\Feedback
+defaultRedirect: aero/shop/feedbacks
+
+update:
+    title: Opinión
+    redirect: aero/shop/feedbacks
