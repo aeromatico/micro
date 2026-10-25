@@ -158,6 +158,23 @@ input::placeholder{color:var(--muted)}
 .oq{width:28px;height:28px;border-radius:8px;background:var(--key);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
 .onote{font-size:12px;font-weight:600;padding:3px 8px;border-radius:8px;background:var(--warn-soft);color:var(--warn-ink);display:inline-block}
 
+/* Aviso de pedido nuevo: discreto y sin bloquear el cobro */
+.alerts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;z-index:20;pointer-events:none;max-width:min(360px,calc(100vw - 32px))}
+.alert-card{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:16px;padding:8px 8px 8px 10px;box-shadow:0 10px 28px rgba(0,0,0,.22);animation:alert-in .28s ease-out}
+.alert-ic{width:34px;height:34px;border-radius:12px;background:var(--amber);color:var(--amber-ink);display:flex;align-items:center;justify-content:center;flex:none;animation:alert-ring 1.4s ease-in-out 2}
+.alert-main{flex:1;min-width:0;border:0;background:transparent;text-align:left;display:flex;flex-direction:column;line-height:1.25;padding:2px 4px}
+.alert-main b{font-size:14px}.alert-main span{font-size:12px;color:var(--muted)}
+.alert-x{width:32px;height:32px;border-radius:10px;border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1}
+.alert-x:hover{background:var(--surface2)}
+@keyframes alert-in{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@keyframes alert-ring{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(4deg)}}
+.ocard.is-new{box-shadow:0 0 0 2px var(--amber)}
+.ostate.new{background:var(--amber);color:var(--amber-ink)}
+.heldnote{padding:8px 14px;background:var(--warn-soft);color:var(--warn-ink);font-size:12px;font-weight:600;border-bottom:1px solid var(--line)}
+/* En pantallas amplias el panel de pedidos queda al lado: la caja sigue usable mientras se consulta */
+@media (min-width:821px){.scrim.side{background:transparent!important;pointer-events:none}.scrim.side .drawer{pointer-events:auto}}
+@media (prefers-reduced-motion:reduce){.alert-card,.alert-ic{animation:none}}
+
 /* Barras de desplazamiento finas y redondeadas (en celular se ocultan) */
 .grid,.lines,.sheet,.modal{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .grid::-webkit-scrollbar,.lines::-webkit-scrollbar,.sheet::-webkit-scrollbar,.modal::-webkit-scrollbar{width:10px;height:10px}
@@ -193,6 +210,7 @@ input::placeholder{color:var(--muted)}
   .tile .nm{font-size:13px}.tile .pr{font-size:13px}
   .tile .bd{top:6px;right:6px}
   .ocard{grid-template-columns:auto 1fr;}
+  .alerts{top:calc(56px + env(safe-area-inset-top));bottom:auto;left:8px;right:8px;max-width:none}
   .oright{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}
   .drawer{width:100vw}
   .grid,.lines,.sheet,.modal{scrollbar-width:none}

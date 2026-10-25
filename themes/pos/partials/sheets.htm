@@ -1,5 +1,5 @@
 <!-- Pedidos del local: consultar, verificar y cobrar -->
-<div class="scrim" x-show="ordersOpen" x-transition.opacity @click.self="closeOrders()" style="justify-content:flex-end;padding:0">
+<div class="scrim side" x-show="ordersOpen" x-transition.opacity @click.self="closeOrders()" style="justify-content:flex-end;padding:0">
   <aside class="drawer" x-show="ordersOpen" x-transition:enter="drawer-in" x-transition:enter-start="drawer-from" x-transition:enter-end="drawer-to" role="dialog" aria-label="Pedidos del local">
     <div class="row dh">
       <div class="grow"><b style="font-size:18px">Pedidos del local</b><div class="small muted">Los que tus clientes piden desde su mesa</div></div>
@@ -14,12 +14,13 @@
     </div>
     <div class="dlist">
       <template x-for="o in shownOrders()" :key="o.id">
-        <article class="ocard" :class="o.paid ? 'is-paid' : 'is-due'">
+        <article class="ocard" :class="[o.paid ? 'is-paid' : 'is-due', newIds[o.id] && 'is-new']">
           <button class="onum" @click="toggleOrder(o)" :aria-label="'Ver el pedido ' + o.short" :aria-expanded="orderOpenId === o.id"><small>N.°</small><span x-text="o.short"></span></button>
           <div class="obody">
             <div class="orow">
               <span class="otype" x-text="o.type_label + (o.table ? ' · Mesa ' + o.table : '')"></span>
               <span class="ostate wait" x-show="o.older">de ayer</span>
+              <span class="ostate new" x-show="newIds[o.id]">nuevo</span>
               <span class="ostate" :class="o.paid ? 'ok' : (o.payment.qr_status === 'pending' ? 'wait' : 'due')"
                     x-text="o.paid ? (o.payment.kind === 'qr' ? 'Pagado con QR' : 'Pagado') : (o.payment.qr_status === 'pending' ? 'Esperando QR' : 'Por cobrar en caja')"></span>
             </div>
@@ -95,6 +96,8 @@
     <div class="row"><b style="font-size:18px">Ajustes</b><button class="btn sm" style="margin-left:auto" @click="settingsOpen = false">Cerrar</button></div>
     <div class="row" x-show="!mobile"><div class="grow"><div class="bold">Mostrar miniaturas</div><div class="small muted">Foto en cada producto. Apagado caben más productos. En celular nunca se muestran.</div></div>
       <button class="switch" :class="prefs.thumbs && 'on'" role="switch" :aria-checked="prefs.thumbs" aria-label="Mostrar miniaturas" @click="prefs.thumbs = !prefs.thumbs; savePrefs()"></button></div>
+    <div class="row"><div class="grow"><div class="bold">Sonido de pedidos nuevos</div><div class="small muted">Un tono suave cuando un cliente pide desde su mesa. El aviso en pantalla no tapa tu trabajo.</div></div>
+      <button class="switch" :class="prefs.orderSound !== false && 'on'" role="switch" :aria-checked="prefs.orderSound !== false" aria-label="Sonido de pedidos nuevos" @click="prefs.orderSound = prefs.orderSound === false; savePrefs(); if (prefs.orderSound) orderBeep()"></button></div>
     <div class="col"><div class="bold">Tema</div>
       <div class="seg"><button :class="prefs.theme === 'auto' && 'on'" @click="setTheme('auto')">Automático</button><button :class="prefs.theme === 'light' && 'on'" @click="setTheme('light')">Claro</button><button :class="prefs.theme === 'dark' && 'on'" @click="setTheme('dark')">Oscuro</button></div></div>
     <div class="col"><div class="bold">Recibo</div>

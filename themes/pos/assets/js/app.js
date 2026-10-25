@@ -27,8 +27,8 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        mobile: false, orders: [], orderPending: 0, ordersOpen: false, ordersQ: '', ordersTab: 'due', orderOpenId: null, orderRef: null, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
-        prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
+        mobile: false, orders: [], orderPending: 0, alerts: [], newIds: {}, held: null, ordersSeeded: false, ordersOpen: false, ordersQ: '', ordersTab: 'due', orderOpenId: null, orderRef: null, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto', orderSound: true }),
 
         // ---------------------------------------------------------------- arranque
         init: function () {
@@ -86,7 +86,8 @@ function posApp() {
             this.screen = (this.shift || !this.me.settings.require_shift) ? 'sale' : 'shift';
             this.flush();
             this.loadOrders();
-            if (!this.ordersTimer) { var self2 = this; this.ordersTimer = setInterval(function () { self2.loadOrders(); }, 20000); }
+            if (!this.ordersTimer) { var self2 = this; this.ordersTimer = setInterval(function () { self2.loadOrders(); }, 10000);
+                document.addEventListener('visibilitychange', function () { if (!document.hidden) self2.loadOrders(); }); }
         },
 
         // ---------------------------------------------------------------- red
@@ -225,7 +226,15 @@ function posApp() {
         qtyOf: function (p) { return this.cart.filter(function (l) { return l.product_id === p.id; }).reduce(function (a, l) { return a + l.qty; }, 0); },
         inc: function (l) { l.qty++; },
         dec: function (l) { l.qty--; if (l.qty <= 0) this.cart = this.cart.filter(function (x) { return x !== l; }); },
-        clearCart: function () { this.cart = []; this.discount = false; this.nit = ''; this.razon = ''; this.orderRef = null; },
+        restoreHeld: function () {
+            var h = this.held; this.held = null;
+            if (h) { this.cart = h.cart; this.discount = h.discount; this.nit = h.nit; this.razon = h.razon; this.tableId = h.tableId; this.say('Retomaste tu venta en espera.'); }
+        },
+        // Vaciar la venta; si se estaba cobrando un pedido, solo se suelta el pedido y se retoma la venta en espera.
+        clearCart: function () {
+            if (this.orderRef) { this.orderRef = null; this.discount = false; this.nit = ''; this.razon = ''; this.restoreHeld(); return; }
+            this.cart = []; this.discount = false; this.nit = ''; this.razon = ''; this.held = null;
+        },
         // Líneas del ticket: la venta en curso o, al cobrar un pedido del local, sus platos (solo lectura).
         ticketLines: function () {
             if (!this.orderRef) return this.cart;
@@ -349,13 +358,48 @@ function posApp() {
         // ---------------------------------------------------------------- pedidos del local
         loadOrders: async function () {
             if (!this.token || this.screen !== 'sale' || !navigator.onLine) return;
-            try { var r = await this.api('GET', '/orders'); this.orders = r.data.orders; this.orderPending = r.data.pending; } catch (e) {}
+            try {
+                var r = await this.api('GET', '/orders'), self = this, fresh = [];
+                var known = this.orders.map(function (o) { return o.id; });
+                this.orders = r.data.orders; this.orderPending = r.data.pending;
+                // Pedidos nuevos desde la última consulta (la primera carga solo los registra: no avisa de lo que ya había).
+                if (this.ordersSeeded) {
+                    fresh = this.orders.filter(function (o) { return known.indexOf(o.id) < 0 && !o.paid && !o.by_pos; });
+                    fresh.forEach(function (o) {
+                        self.newIds[o.id] = true;
+                        self.alerts = self.alerts.filter(function (a) { return a.id !== o.id; }).concat([{ id: o.id, short: o.short, table: o.table, type_label: o.type_label, total: o.total }]).slice(-3);
+                        setTimeout(function () { self.dismissAlert(o.id); }, 14000);
+                    });
+                    if (fresh.length) { this.orderBeep(); try { navigator.vibrate && navigator.vibrate(120); } catch (e) {} }
+                }
+                this.ordersSeeded = true;
+                document.title = (this.orderPending ? '(' + this.orderPending + ') ' : '') + 'Market POS';
+            } catch (e) {}
+        },
+        dismissAlert: function (id) { this.alerts = this.alerts.filter(function (a) { return a.id !== id; }); },
+        // Del aviso a la consulta: abre el panel lateral con ese pedido a la vista, sin tocar la venta en curso.
+        openAlert: function (a) {
+            var self = this; this.dismissAlert(a.id); this.openOrders();
+            setTimeout(function () { var o = self.orders.filter(function (x) { return x.id === a.id; })[0]; if (o) self.toggleOrder(o); }, 250);
+        },
+        orderBeep: function () {
+            if (this.prefs.orderSound === false) return;
+            try {
+                var c = new (window.AudioContext || window.webkitAudioContext)();
+                [660, 880].forEach(function (f, i) {
+                    var o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination);
+                    o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, c.currentTime + i * 0.18);
+                    g.gain.exponentialRampToValueAtTime(0.12, c.currentTime + i * 0.18 + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + i * 0.18 + 0.2);
+                    o.start(c.currentTime + i * 0.18); o.stop(c.currentTime + i * 0.18 + 0.22);
+                });
+                setTimeout(function () { c.close(); }, 700);
+            } catch (e) {}
         },
         openOrders: function () {
-            var self = this; this.ordersOpen = true; this.calcOpen = false; this.loadOrders();
+            var self = this; this.ordersOpen = true; this.calcOpen = false; this.alerts = []; this.loadOrders();
             setTimeout(function () { if (self.$refs.ordersQ) self.$refs.ordersQ.focus(); }, 150);
         },
-        closeOrders: function () { this.ordersOpen = false; this.ordersQ = ''; this.orderOpenId = null; },
+        closeOrders: function () { this.ordersOpen = false; this.ordersQ = ''; this.orderOpenId = null; this.newIds = {}; },
         shownOrders: function () {
             var q = fold(this.ordersQ.replace('#', '').trim()), tab = this.ordersTab;
             return this.orders.filter(function (o) {
@@ -379,8 +423,12 @@ function posApp() {
             } catch (e) { this.say(e.message); }
         },
         collectOrder: async function (o) {
-            if (this.cart.length && !this.orderRef) { this.say('Termina o vacía la venta en curso antes de cobrar un pedido.'); return; }
             await this.orderDetail(o);
+            // La venta que se estaba armando queda en espera y se retoma al terminar o cancelar el cobro del pedido.
+            if (this.cart.length && !this.orderRef) {
+                this.held = { cart: this.cart, discount: this.discount, nit: this.nit, razon: this.razon, tableId: this.tableId };
+                this.cart = [];
+            }
             this.orderRef = o; this.discount = false; this.nit = ''; this.razon = '';
             this.closeOrders(); this.openPay();
         },

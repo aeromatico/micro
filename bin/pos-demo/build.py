@@ -32,7 +32,7 @@ js = read(THEME / 'assets/js/app.js')
 js = patch(js, "this.handle = (location.pathname.split('/')[1] || '').toLowerCase().replace(/[^a-z0-9-]/g, '');", "this.handle = 'sabor-andino';")
 js = patch(js, "if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});", '')
 js = patch(js, "this.token = store.get('aero.pos.token.' + this.handle, null);", "this.token = 'demo';")
-js = patch(js, "prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),", "prefs: { thumbs: true, paper: '', theme: 'auto' },")
+js = patch(js, "prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto', orderSound: true }),", "prefs: { thumbs: true, paper: '', theme: 'auto', orderSound: true },")
 
 # Al «salir» la demo simplemente se reinicia (no hay inicio de sesión real).
 js = patch(js, "        logoutLocal: function () {\n", "        logoutLocal: function () {\n            location.reload(); return;\n")

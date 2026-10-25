@@ -1,7 +1,7 @@
 /* API simulada del POS para la demo de la web (restaurante ficticio «Sabor Andino»).
    Intercepta fetch('/api/v1/pos/*'): nada sale a ningún servidor. */
 (function () {
-    var IMG = '/themes/master/assets/demo/pos/', V = '?v=1';
+    var T0 = Date.now(), IMG = '/themes/master/assets/demo/pos/', V = '?v=1';
     var P = function (id, name, price, col, img, extra) { return Object.assign({ id: id, name: name, sku: null, price: price, has_variants: false, in_stock: true, stock: null, collection_id: col, image_url: IMG + img + '.svg' + V, variants: [] }, extra || {}); };
     var products = [
         P(1, 'Café americano', 12, 1, 'cafe'),
@@ -93,6 +93,13 @@
         if (/^\/tenants\/[^/]+$/.test(path)) return json(200, { data: { handle: 'sabor-andino', name: 'Sabor Andino' } });
         if (path === '/me') return json(200, { data: me });
         if (path === '/catalog') return json(200, { data: catalog });
+        // Simula un pedido nuevo que entra desde una mesa unos segundos después de abrir la demo.
+        if (path === '/orders' && !orderOf(904) && Date.now() - T0 > 16000) {
+            var n = { id: 904, short: '20', number: 'PED-000020', type: 'dine_in', type_label: 'En el local', table: '5', customer: 'Rosa Choque', phone: null, status: 'pending', paid: false, kitchen: 'new',
+                payment: { kind: 'cash', label: 'Efectivo en caja', qr_status: null }, can_collect: true, by_pos: false, created_at: mins(0),
+                items: [{ name: 'Ensalada fresca', quantity: 1, unit_price: 24, total: 24, extras: ['Aderezo aparte'], note: null }, { name: 'Café americano', quantity: 2, unit_price: 12, total: 24, extras: [], note: null }], notes: null };
+            n.items_count = 3; n.total = 48; n.subtotal = 48; orders.unshift(n);
+        }
         if (path === '/orders') return json(200, { data: { orders: orders.map(function (o) { return Object.assign({}, o, { items: undefined }); }), pending: pendingCount() } });
         var om = path.match(/^\/orders\/(\d+)(\/(verify|collect))?$/);
         if (om) {

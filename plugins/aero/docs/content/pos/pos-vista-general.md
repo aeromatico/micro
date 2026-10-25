@@ -48,3 +48,10 @@ Cuando los clientes piden desde su mesa (checkout del restaurante), la caja los 
 - **Ver** los platos, extras y notas del pedido.
 - **Verificar pago** de un pedido con QR: la caja consulta al banco y, si ya llegó, lo marca pagado.
 - **Cobrar** un pedido que pasa a pagar en efectivo: se abre el cobro con el total del pedido (cambio, NIT) y la venta queda ligada a ese mismo pedido.
+
+### Avisos sin interrumpir la caja
+
+- Cuando entra un pedido nuevo, la caja muestra una **tarjeta pequeña** en una esquina (con el número, la mesa y el total) y suena un **tono suave**. No tapa el ticket ni el cobro y se va sola a los pocos segundos; el contador de **Pedidos** sigue marcando los que faltan. El tono se apaga en **Ajustes**.
+- Al tocar la tarjeta se abre el panel de pedidos **al lado** del catálogo (en pantallas amplias puedes seguir vendiendo mientras lo consultas).
+- Si estabas armando una venta y cobras un pedido, tu venta queda **en espera** y la retomas al terminar o cancelar.
+
