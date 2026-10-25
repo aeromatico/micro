@@ -36,6 +36,32 @@ class Item extends Model
         }
     }
 
+    /** Parámetro del sistema con el tenant cuyos atajos son la plantilla inicial de los demás. */
+    public const TEMPLATE_PARAM = 'aero.shortcuts::template.tenant';
+
+    /**
+     * Copia los atajos de la plantilla a un tenant que aún no tiene ninguno
+     * (altas nuevas y respaldo de existentes). Devuelve cuántos creó.
+     */
+    public static function seedFromTemplate(int $tenantId): int
+    {
+        $template = (int) \System\Models\Parameter::get(self::TEMPLATE_PARAM);
+        if (!$template || $template === $tenantId || static::where('tenant_id', $tenantId)->exists()) {
+            return 0;
+        }
+
+        $created = 0;
+        foreach (static::where('tenant_id', $template)->active()->orderBy('sort_order')->get() as $item) {
+            static::create(array_merge(
+                $item->only(['label', 'kind', 'target', 'url', 'new_tab', 'icon', 'color', 'sort_order', 'is_active']),
+                ['tenant_id' => $tenantId]
+            ));
+            $created++;
+        }
+
+        return $created;
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

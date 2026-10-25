@@ -17,10 +17,22 @@ class Shortcuts extends ReportWidgetBase
     {
         $tenantId = CurrentTenant::id();
 
-        $this->vars['items'] = Item::active()
+        $items = Item::active()
             ->where('tenant_id', $tenantId)
             ->orderBy('sort_order')->orderBy('id')
             ->get();
+
+        // Los atajos heredados de la plantilla pueden apuntar a pantallas que el plan o el
+        // rol de este usuario no incluye: no se muestran botones que acaban en "denegado".
+        $allowed = array_map(fn ($p) => implode('/', array_slice(explode('/', $p), 0, 2)), array_keys((new Item)->getTargetOptions()));
+        $items = $items->filter(function (Item $item) use ($allowed) {
+            if ($item->kind === 'url') {
+                return true;
+            }
+
+            return in_array(implode('/', array_slice(explode('/', trim((string) $item->target, '/')), 0, 2)), $allowed, true);
+        })->values();
+        $this->vars['items'] = $items;
         $this->vars['reorderUrl'] = Backend::url('aero/shortcuts/items');
         $this->vars['manageUrl'] = Backend::url('aero/shortcuts/items');
         $this->vars['createUrl'] = Backend::url('aero/shortcuts/items/create');

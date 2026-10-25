@@ -26,6 +26,19 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // Cada tenant nuevo arranca con los atajos de la plantilla (editables después).
+        if (class_exists(\Aero\Sites\Models\Tenant::class)) {
+            \Aero\Sites\Models\Tenant::extend(function ($model) {
+                $model->bindEvent('model.afterCreate', function () use ($model) {
+                    try {
+                        \Aero\Shortcuts\Models\Item::seedFromTemplate((int) $model->getKey());
+                    } catch (\Throwable $e) {
+                        \Log::warning('aero.shortcuts: no se pudo sembrar la plantilla: ' . $e->getMessage());
+                    }
+                });
+            });
+        }
+
         // El widget se inyecta por AJAX en el dashboard: el JS/CSS debe estar en la página.
         Event::listen('backend.page.beforeDisplay', function ($controller) {
             $user = BackendAuth::getUser();
