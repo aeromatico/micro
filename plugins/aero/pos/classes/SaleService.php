@@ -168,6 +168,35 @@ class SaleService
         ];
     }
 
+    /** Texto del recibo para WhatsApp. */
+    public function receiptText(array $r, string $businessName): string
+    {
+        $m = fn ($n) => $r['currency'] . ' ' . number_format((float) $n, 2, ',', '.');
+        $lines = ['*' . $businessName . '*', 'Recibo ' . $r['number'], ''];
+        foreach ($r['items'] as $i) {
+            $lines[] = $i['quantity'] . ' x ' . $i['name'] . ' — ' . $m($i['total']);
+        }
+        $lines[] = '';
+        if ($r['discount'] > 0) {
+            $lines[] = 'Descuento: -' . $m($r['discount']);
+        }
+        $lines[] = '*Total: ' . $m($r['total']) . '*';
+        foreach ($r['payments'] as $p) {
+            $lines[] = $p['method'] . ': ' . $m($p['tendered'] ?: $p['amount']);
+        }
+        if ($r['change'] > 0) {
+            $lines[] = 'Cambio: ' . $m($r['change']);
+        }
+        if (!empty($r['nit'])) {
+            $lines[] = '';
+            $lines[] = 'NIT/CI: ' . $r['nit'] . (!empty($r['tax_name']) ? ' · ' . $r['tax_name'] : '');
+        }
+        $lines[] = '';
+        $lines[] = '¡Gracias por su compra!';
+
+        return implode("\n", $lines);
+    }
+
     protected function clean(?string $v, int $max): ?string
     {
         $v = trim((string) $v);

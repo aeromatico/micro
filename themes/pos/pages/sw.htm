@@ -8,7 +8,7 @@ function onStart()
 {
     $js = file_get_contents(themes_path('pos/assets/js/') . 'sw.js');
     // Las versiones deben coincidir con las del layout, o el precaché no sirve sin conexión.
-    $ver = ['assets/css/pos.css' => 3, 'assets/js/app.js' => 3, 'assets/js/alpine.min.js' => '11.16.3', 'assets/img/pwa-192.png' => 1];
+    $ver = ['assets/css/pos.css' => 3, 'assets/js/app.js' => 4, 'assets/js/alpine.min.js' => '11.16.3', 'assets/img/pwa-192.png' => 1];
     $assets = array_map(fn ($p, $v) => $this->controller->themeUrl($p) . '?v=' . $v, array_keys($ver), $ver);
     $js = str_replace('__ASSETS__', json_encode($assets, JSON_UNESCAPED_SLASHES), $js);
 

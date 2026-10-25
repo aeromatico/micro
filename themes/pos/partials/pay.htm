@@ -10,6 +10,13 @@
         <div class="bold" style="font-size:14px" x-text="done.nit ? 'NIT/CI ' + done.nit + (done.tax_name ? ' · ' + done.tax_name : '') : 'Sin NIT (consumidor final)'"></div>
         <div class="warn">Factura pendiente: emitirla de forma manual.</div>
         <div class="warn" x-show="doneLocal">Sin conexión: la venta se enviará sola cuando vuelva la señal.</div>
+        <div class="col" style="width:100%;max-width:360px;gap:6px" x-show="me.whatsapp && !doneLocal && done.id">
+          <label class="label" for="wa">Recibo por WhatsApp</label>
+          <div class="row"><input id="wa" class="field" inputmode="tel" x-model="waPhone" placeholder="591 7xxxxxxx" @keydown.enter.prevent="sendWhatsapp()">
+            <button class="btn" :disabled="waBusy" @click="sendWhatsapp()" x-text="waBusy ? 'Enviando…' : 'Enviar'"></button></div>
+          <div class="small" :class="waOk ? 'muted' : ''" :style="waOk ? '' : 'color:var(--danger)'" x-show="waMsg" x-text="waMsg"></div>
+          <div class="small muted">Usa 1 crédito de mensajes.</div>
+        </div>
         <div class="row" style="flex-wrap:wrap;justify-content:center;margin-top:8px">
           <button class="btn" @click="printReceipt()">Imprimir</button>
           <button class="btn primary" @click="newSale()">Nueva venta</button>

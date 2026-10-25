@@ -23,7 +23,7 @@ function posApp() {
         // --- venta
         cat: 0, q: '', cart: [], discount: false, nit: '', razon: '', tableId: '', variantFor: null,
         // --- cobro
-        payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null,
+        payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
         calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
@@ -303,7 +303,7 @@ function posApp() {
             }
             this.saleBusy = false;
         },
-        newSale: function () { this.stopQr(); this.qr = null; this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); },
+        newSale: function () { this.waPhone = '591'; this.waMsg = ''; this.waOk = false; this.stopQr(); this.qr = null; this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); },
         refreshShift: async function () {
             try { var me = await this.api('GET', '/me'); this.me = me.data; var t = this.terminal(); if (t) this.shift = t.shift; } catch (e) {}
         },
@@ -320,6 +320,15 @@ function posApp() {
 
         // ---------------------------------------------------------------- recibo
         paper: function () { return this.prefs.paper || (this.me && this.me.settings.ticket_width) || '80'; },
+        sendWhatsapp: async function () {
+            if (!this.done || !this.done.id || this.waBusy) return;
+            this.waBusy = true; this.waMsg = ''; this.waOk = false;
+            try {
+                await this.api('POST', '/sales/' + this.done.id + '/receipt/whatsapp', { phone: this.waPhone });
+                this.waOk = true; this.waMsg = 'Recibo enviado.';
+            } catch (e) { this.waMsg = e.message; }
+            this.waBusy = false;
+        },
         printReceipt: function () {
             var r = this.done; if (!r) return;
             var w = this.paper() === '58' ? '48mm' : '72mm', self = this;

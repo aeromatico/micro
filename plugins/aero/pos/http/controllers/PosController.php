@@ -39,6 +39,7 @@ class PosController extends Controller
                 'require_shift' => (bool) ($settings->require_shift ?? true),
                 'ticket_header' => $settings->ticket_header ?? null, 'ticket_footer' => $settings->ticket_footer ?? null,
             ],
+            'whatsapp' => $this->whatsappAccount($tid) !== null,
             'terminals' => $terminals->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'shift' => $this->shiftPayload($t->openShift())])->all(),
         ]]);
     }
@@ -203,6 +204,53 @@ class PosController extends Controller
         return $sale
             ? response()->json(['data' => ['receipt' => app(SaleService::class)->receipt($sale)]])
             : $this->json(['error' => 'not_found', 'message' => 'Venta no encontrada.'], 404);
+    }
+
+    /** POST sales/{id}/receipt/whatsapp {phone} — manda el recibo por la cuenta de WhatsApp del negocio (cuesta 1 crédito). */
+    public function receiptWhatsapp(Request $request, int $id)
+    {
+        $data = $request->validate(['phone' => 'required|string|max:32']);
+        $tid = $request->attributes->get('tenant_id');
+        $sale = Sale::forTenant($tid)->find($id);
+        if (!$sale) {
+            return $this->json(['error' => 'not_found', 'message' => 'Venta no encontrada.'], 404);
+        }
+        $account = $this->whatsappAccount($tid);
+        if (!$account) {
+            return $this->json(['error' => 'no_whatsapp', 'message' => 'Este negocio no tiene WhatsApp conectado en Hello.'], 422);
+        }
+        $phone = preg_replace('/\D+/', '', $data['phone']);
+        if (strlen($phone) < 8 || strlen($phone) > 15) {
+            return $this->json(['error' => 'invalid_phone', 'message' => 'Escribe el número con código de país, por ejemplo 591 7xxxxxxx.'], 422);
+        }
+
+        try {
+            $tx = \Aero\Hello\Classes\ApiCredits::charge($tid);
+        } catch (\Aero\Credits\Classes\Exceptions\InsufficientCreditsException $e) {
+            return $this->json(['error' => 'insufficient_credits', 'message' => $e->getMessage()], 402);
+        }
+
+        $svc = app(SaleService::class);
+        try {
+            \Aero\Hello\Classes\MessageComposer::send($account, $phone, $svc->receiptText($svc->receipt($sale), $request->attributes->get('tenant')->name), ['credit_transaction_id' => $tx]);
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'send_failed', 'message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['data' => ['sent' => true]], 202);
+    }
+
+    /** Cuenta de WhatsApp del tenant (la elegida en Hello o la primera habilitada); null si no hay Hello o cuenta. */
+    protected function whatsappAccount(int $tid): ?\Aero\Hello\Models\Account
+    {
+        if (!class_exists(\Aero\Hello\Classes\MessageComposer::class)) {
+            return null;
+        }
+        try {
+            return \Aero\Hello\Classes\Hello::resolveAccount(['tenant_id' => $tid, 'platform' => 'whatsapp']);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     protected function shiftPayload(?Shift $shift): ?array
