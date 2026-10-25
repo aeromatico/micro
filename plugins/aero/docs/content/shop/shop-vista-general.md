@@ -15,6 +15,7 @@ La tienda se **activa por sitio** desde su configuración.
 | **Colecciones** | Agrupaciones y categorías de productos. |
 | **Pedidos** | Compras recibidas y su estado. |
 | **Clientes** | Compradores de la tienda. |
+| **Opiniones** | Estrellas y comentarios de los clientes; decides cuáles se publican en la tienda. |
 | **Métodos de pago** | Cómo se cobra (Bolivia Pay u offline). |
 | **Cocina** | Tablero de pedidos del restaurante (solo en tipo *Restaurante*). |
 | **Inventario** | Movimientos de stock (visible si el inventario está activo). |
@@ -39,6 +40,7 @@ Catálogo  →  Carrito  →  Checkout  →  Pedido (reserva stock)
 - [Pedidos](shop-pedidos) — compras y su estado.
 - [Clientes](shop-clientes) — compradores.
 - [Métodos de pago](shop-metodos-pago) — cobro online u offline.
+- [Opiniones de los clientes](shop-opiniones) — estrellas, comentarios y moderación.
 - [Cocina](shop-cocina) — pantalla de cocina del restaurante.
 - [Comerciantes](shop-comerciantes) — modo Marketplace: comisión, cuenta de cobro y balance.
 - [Inventario](shop-inventario) — movimientos de stock.
@@ -77,4 +79,4 @@ Si el cliente compartió su ubicación en el chat, el pedido la guarda y la dire
 | `aero.shop.manage_payment_gateways` | Métodos de pago |
 | `aero.shop.manage_settings` | Configuración de tienda |
 
-**Versión documentada:** 1.10.0
+**Versión documentada:** 1.13.1

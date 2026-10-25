@@ -106,4 +106,13 @@ Registro de cambios de estado, con fecha y nota.
 ### Botón de emergencia
 
 En la página del pedido, quien come en el local (**Comer en local**) ve el botón **Emergencia**. Antes de enviar pide confirmar que es una emergencia real. Al confirmar, se avisa al personal con el **número de mesa** (si el pedido no tiene mesa, con el número del pedido y el nombre): la **Cocina** y la **caja** (POS) lo muestran en una franja clara hasta que alguien lo marca como **Atendida**. El cliente ve «Avisamos al personal» y, cuando lo atienden, «El personal ya vio tu aviso». Para evitar abusos, se puede volver a avisar desde el mismo pedido a los 2 minutos y hay un límite por hora. El botón se puede apagar en [Configuración](shop-configuracion).
-**Versión documentada:** 1.11.0
+
+### Mientras el cliente espera
+
+En la página del pedido, un recuadro **Mientras esperas** muestra las promociones o avisos que escribiste en [Configuración](shop-configuracion) (una línea por mensaje). Quien pidió **Comer en local** ve además el **WiFi del local** con la red y la clave, si las configuraste. Solo aplica a tiendas de tipo *Restaurante*; desaparece cuando el pedido se entrega, se cancela o se reembolsa.
+
+### Opinión del cliente
+
+Cuando el pedido termina, la misma página pide al cliente estrellas y un comentario, según la política elegida en Configuración. Las opiniones se revisan en [Opiniones de los clientes](shop-opiniones).
+
+**Versión documentada:** 1.13.1

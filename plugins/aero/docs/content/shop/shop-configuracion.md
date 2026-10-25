@@ -54,8 +54,26 @@ esté apagada, el menú de catálogo y pedidos no aparece.
 | **Cuenta de Hello del local** | Cuenta de WhatsApp con la que el local avisa a sus clientes (pedido recibido, listo…) y envía recibos desde la caja. Sin elegir, se usa la cuenta de WhatsApp por defecto. |
 | **Botón de emergencia para comensales en el local** | Muestra el botón «Emergencia» en la página del pedido de quien come en el local (pide confirmar antes de enviar). Al usarlo, la Cocina y la caja ven una franja con el número de mesa hasta que alguien la marca como «Atendida». Apagado, el botón no aparece; los avisos ya activos se siguen mostrando hasta atenderlos. |
 
+| **Red WiFi del local** | Opcional. Nombre de la red que ve quien come en el local mientras espera su pedido. |
+| **Clave del WiFi** | Clave que ve quien abre la página de su pedido en el local. Vacía = no se muestra el WiFi. Es una clave para tus clientes, no pongas aquí datos privados. |
+| **Promociones e información de espera** | Texto que ven los clientes mientras esperan (promos, horarios, avisos). Una línea por mensaje; hasta 800 caracteres. |
+
+> [!NOTE]
+> El WiFi solo se muestra a pedidos de **Comer en local**. Las promociones e información se muestran también en recoger y delivery, mientras el pedido no esté entregado, cancelado o reembolsado.
+
 Con mesas configuradas aparece el botón **Generar QR de mesas**: genera un QR
 por mesa listo para imprimir (requiere un dominio principal del sitio).
+
+## Opiniones de los clientes (todos los tipos)
+
+| Opción | Qué hace |
+|--------|----------|
+| **No pedir opiniones** | Valor por defecto. |
+| **Solo para el negocio (análisis interno)** | Se piden y solo las ves tú. |
+| **Públicas: se muestran en la tienda al instante** | Se publican al enviarse. |
+| **Públicas con tu aprobación** | Quedan pendientes hasta que las apruebes en **Tienda → Opiniones**. |
+
+Más detalle en [Opiniones de los clientes](shop-opiniones).
 
 ## Horario de la tienda (todos los tipos)
 
@@ -97,4 +115,4 @@ Se administran en la misma pantalla:
 > Deja la **compra como invitado** activada para reducir la fricción; puedes
 > vincular al comprador con un cliente después.
 
-**Versión documentada:** 1.11.0
+**Versión documentada:** 1.13.1
