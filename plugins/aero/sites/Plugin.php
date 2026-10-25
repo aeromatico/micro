@@ -39,6 +39,7 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('aero.sites:assign-themes', \Aero\Sites\Console\AssignDesignThemes::class);
         $this->registerConsoleCommand('aero.sites:release-expired-signups', \Aero\Sites\Console\ReleaseExpiredSignups::class);
         $this->registerConsoleCommand('aero.sites:expire-trials', \Aero\Sites\Console\ExpireTrials::class);
+        $this->registerConsoleCommand('aero.sites:publish-dashboard', \Aero\Sites\Console\PublishDashboard::class);
         $this->registerConsoleCommand('aero.sites:refresh-devlog', \Aero\Sites\Console\RefreshDevLog::class);
         $this->registerConsoleCommand('aero.sites:generate-renewals', \Aero\Sites\Console\GenerateRenewals::class);
         $this->registerConsoleCommand('aero.sites:expire-renewals', \Aero\Sites\Console\ExpireRenewals::class);

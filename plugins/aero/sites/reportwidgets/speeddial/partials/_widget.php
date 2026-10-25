@@ -24,6 +24,11 @@
     #<?= $id ?> .sd-sub { font-size: 12px; opacity: .75; padding: 4px 6px 4px 12px; }
     #<?= $id ?> .sd-sub .sd-ico { flex-basis: 16px; width: 16px; height: 16px; font-size: 14px; line-height: 16px; }
     #<?= $id ?> .sd-sub:hover { opacity: 1; }
+    @media (max-width: 640px) {
+        #<?= $id ?> .sd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; grid-auto-rows: 170px; }
+        #<?= $id ?> .sd-main { font-size: 1.05em; padding: 5px; }
+        #<?= $id ?> .sd-main span:last-child, #<?= $id ?> .sd-sub span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
 </style>
 <div class="report-widget" id="<?= $id ?>">
     <h3><?= $title ?></h3>

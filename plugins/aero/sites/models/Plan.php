@@ -70,7 +70,7 @@ class Plan extends Model
      * (Aero.Services) — bloquearlo por plan no tendría sentido: es justamente
      * el lugar donde el tenant paga por más cosas, no una función premium.
      */
-    public const ALWAYS_ALLOWED = ['Aero.Sites', 'Aero.Credits', 'Aero.Docs', 'Aero.Services', 'Aero.Community', 'Aero.Help'];
+    public const ALWAYS_ALLOWED = ['Aero.Sites', 'Aero.Credits', 'Aero.Docs', 'Aero.Services', 'Aero.Community', 'Aero.Help', 'Aero.Shortcuts'];
 
     /** Periodos que este plan ofrece: ['trial' => 0, 'monthly' => 49.0, 'annual' => 490.0]. */
     public function periods(): array
