@@ -34,7 +34,18 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px}
 [x-cloak]{display:none!important}
 button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
-button:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+/* Campos: sin contorno blanco; el foco se marca con el borde de acento y un halo suave del tema */
+input:focus-visible,select:focus-visible{outline:none}
+.field:focus,.sel:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.top .search:focus-within{background:rgba(255,255,255,.22);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin-left:6px;cursor:pointer;background:var(--muted);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center/contain no-repeat}
+.top .search input[type=search]::-webkit-search-cancel-button{background:var(--header-ink)}
+/* Selector de mesa: toma los colores del tema (claro y oscuro) */
+.sel{height:36px;padding:0 30px 0 14px;border-radius:18px;border:1px solid var(--line);background-color:var(--surface);color:var(--ink);font-size:13px;font-weight:600;-webkit-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 17px) 15px,calc(100% - 12px) 15px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.sel option{background:var(--surface);color:var(--ink)}
 input{font:inherit;color:var(--ink)}
 input::placeholder{color:var(--muted)}
 .app{height:100%;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
@@ -270,7 +281,7 @@ input::placeholder{color:var(--muted)}
         <aside class="ticket">
             <div class="hd"><b>Venta actual</b>
                 <template x-if="me.settings.tables && catalog.tables.length">
-                    <select class="pillb" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
+                    <select class="sel" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
                 </template>
                 <button class="btn sm danger" :style="(me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()">Vaciar</button>
             </div>

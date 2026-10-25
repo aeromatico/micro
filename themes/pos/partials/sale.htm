@@ -48,7 +48,7 @@
         <aside class="ticket">
             <div class="hd"><b>Venta actual</b>
                 <template x-if="me.settings.tables && catalog.tables.length">
-                    <select class="pillb" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
+                    <select class="sel" style="margin-left:auto" x-model="tableId" aria-label="Mesa"><option value="">Mostrador</option><template x-for="t in catalog.tables" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select>
                 </template>
                 <button class="btn sm danger" :style="(me.settings.tables && catalog.tables.length) ? '' : 'margin-left:auto'" @click="clearCart()">Vaciar</button>
             </div>
