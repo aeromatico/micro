@@ -18,10 +18,13 @@ Los pedidos se agrupan en columnas que se refrescan solas cada pocos segundos:
 | **Preparando** | Listo |
 | **Listos** | Entregado |
 
-Cada tarjeta muestra número de pedido, tipo (local, recoger, delivery), mesa,
+Cada tarjeta muestra el **número del día** en grande (el que se dice en voz alta; ver [Pedidos](shop-pedidos)) con el número de pedido pequeño, tipo (local, recoger, delivery), mesa,
 hora programada, cliente, artículos con extras y nota de cocina por línea, y un
 cronómetro. Se puede volver un pedido al paso anterior. Los pedidos entregados
 en las últimas 3 horas se listan abajo.
+
+La pantalla tiene modo **claro u oscuro**: sigue al sistema y un botón permite
+cambiarlo; el navegador recuerda la elección.
 
 Barra superior: **Sonido** (aviso al llegar pedidos nuevos), **Probar**,
 **Pantalla completa**, filtros por tipo de pedido y el botón **modo ocupado**.
@@ -46,4 +49,4 @@ Barra superior: **Sonido** (aviso al llegar pedidos nuevos), **Probar**,
 > Cuando el pedido viene de un punto de venta, la tarjeta muestra el origen y
 > agrupa los artículos por **ronda de comanda**.
 
-**Versión documentada:** 1.7.0
+**Versión documentada:** 1.11.0

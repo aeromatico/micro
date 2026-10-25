@@ -96,4 +96,4 @@ Se administran en la misma pantalla:
 > Deja la **compra como invitado** activada para reducir la fricción; puedes
 > vincular al comprador con un cliente después.
 
-**Versión documentada:** 1.10.0
+**Versión documentada:** 1.11.0

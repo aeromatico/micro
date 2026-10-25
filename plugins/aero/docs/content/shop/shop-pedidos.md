@@ -31,6 +31,23 @@ En pedidos de **restaurante** se muestran además (solo lectura):
 | **Mesa** | Solo en *Comer aquí*. |
 | **Programado para** | Fecha y hora si el cliente programó el pedido. |
 
+### Número de pedido y número del día
+
+En restaurantes cada pedido recibe además un **número del día** (1, 2, 3…) que
+vuelve a 1 cada día, según la zona horaria de la tienda. Es el número corto que
+ve el comensal y que se dice en el salón. El **número de pedido** (ej. `PED-000018`)
+no cambia ni se reinicia. En pedidos anteriores sin número del día, el número
+corto es el final del número de pedido (`PED-000018` → `18`). El comensal puede
+usar **Consultar mi pedido** con su número del día y su celular.
+
+### Checkout del restaurante
+
+- **Comer en local** aparece primero y viene marcado.
+- El celular es opcional: sin él se crea un cliente invitado por pedido y se conserva el nombre.
+- Bajo el número de mesa se avisa que, si la mesa no tiene número, lo indique al mesero o en caja.
+- Pago: **Efectivo** (pasa a caja) o **Pago QR** (el comensal espera en la página del pedido y se confirma solo). El Pago QR en el local se puede apagar en [Configuración](shop-configuracion).
+- El botón dice **Pedir ahora**.
+
 Los bloques de **pago** y **dirección de envío** se muestran según el pedido.
 La dirección de envío incluye, si el cliente compartió su ubicación, el enlace
 **Ver ubicación en el mapa** con las coordenadas y su etiqueta. La confirmación
@@ -83,4 +100,7 @@ Registro de cambios de estado, con fecha y nota.
 > Al cambiar de estado se pueden enviar avisos al cliente (pago, envío,
 > cancelación) por el plugin de notificaciones, si están configurados.
 
-**Versión documentada:** 1.10.0
+> [!NOTE]
+> Los pedidos del local también se consultan y cobran desde la caja del punto de venta (ver la documentación de POS).
+
+**Versión documentada:** 1.11.0
