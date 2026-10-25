@@ -7,6 +7,9 @@
  *   sudo -u www /www/server/php/84/bin/php bin/seed-demo-restaurante.php --clean   # borra SOLO lo que creó este script
  *   sudo -u www /www/server/php/84/bin/php bin/seed-demo-restaurante.php --reset   # --clean y vuelve a crear
  *
+ * El cron de `www` lo corre con --reset a las 6, 12 y 18 h (hora de La Paz) para que el demo no envejezca; como cada
+ * pasada borra lo anterior y devuelve el número de pedido, no se acumula nada.
+ *
  * Todo lo sembrado lleva `notes = 'demo-restaurante'` (pedidos) o correo `demo-*@sin-correo.invalid` (clientes, sin
  * celular). Los pedidos se crean como «pos» para que no se dispare ningún aviso real y luego se ajusta su origen.
  */
@@ -42,7 +45,11 @@ $clean = function () use ($tenantId) {
     $cust = Customer::where('tenant_id', $tenantId)->where('email', 'like', 'demo-%@sin-correo.invalid')->pluck('id');
     $left = DB::table('aero_shop_orders')->whereIn('customer_id', $cust)->pluck('customer_id');
     DB::table('aero_shop_customers')->where('tenant_id', $tenantId)->whereIn('id', $cust->diff($left))->delete();
-    echo "Borrados: {$ids->count()} pedidos demo.\n";
+    // Sin acumular: el número de pedido vuelve a donde estaba y se limpia el contador del día.
+    $max = Order::where('tenant_id', $tenantId)->pluck('order_number')->map(fn ($n) => (int) preg_replace('/\D+/', '', (string) $n))->max() ?: 0;
+    DB::table('aero_shop_settings')->where('tenant_id', $tenantId)->update(['order_number_sequence' => $max]);
+    DB::table('aero_shop_daily_counters')->where('tenant_id', $tenantId)->where('day', DailyNumber::today($tenantId))->delete();
+    echo "Borrados: {$ids->count()} pedidos demo (siguiente número de pedido: " . ($max + 1) . ").\n";
 };
 
 if ($arg === '--clean') {
