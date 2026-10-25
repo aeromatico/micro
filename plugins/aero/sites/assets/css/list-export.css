@@ -3,4 +3,3 @@
 .list-export-all{padding-bottom:6px;border-bottom:1px solid rgba(128,128,128,.25)}
 .list-export-options{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
 .list-export-delim{max-width:340px}
-.toolbar-item.toolbar-export a{display:inline-flex;align-items:center;height:100%;padding:0 10px;cursor:pointer;white-space:nowrap}

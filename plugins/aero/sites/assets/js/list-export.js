@@ -1,28 +1,33 @@
-/* Botón «Exportar» en toda barra de herramientas ligada a una lista (ver ListExporter.php). */
-(function ($) {
+/* Botón «Exportar» en toda barra de herramientas ligada a una lista (ver ListExporter.php).
+   JS puro: este script se carga antes que jQuery. El popup lo abre el data-control="popup" estándar. */
+(function () {
     function inject() {
-        $('.toolbar-widget[data-list-linkage]').each(function () {
-            var $bar = $(this).find('.control-toolbar').first();
-            if (!$bar.length || $bar.find('.toolbar-export').length) return;
+        document.querySelectorAll('.toolbar-widget[data-list-linkage]').forEach(function (bar) {
+            var strip = bar.querySelector('.control-toolbar');
+            if (!strip || strip.querySelector('.toolbar-export')) return;
 
-            var listId = $(this).attr('data-list-linkage');
-            var $item = $('<div class="toolbar-item toolbar-export"></div>');
-            var $a = $('<a href="javascript:;" title="Exportar a CSV o PDF"><i class="icon-download"></i>&nbsp;Exportar</a>');
-            $a.on('click', function () {
-                $(this).popup({ handler: 'onListExportLoad', extraData: { list_id: listId } });
-            });
-            $item.append($a);
+            // Dentro del panel de botones (no como item aparte): así la caja de búsqueda sigue a la derecha.
+            var panel = strip.querySelector('.toolbar-primary [data-control="toolbar"]') || strip.querySelector('.toolbar-primary');
+            if (!panel) return;
 
-            var $setup = $bar.find('.toolbar-setup');
-            if ($setup.length) $item.insertBefore($setup); else $bar.append($item);
+            var a = document.createElement('a');
+            a.href = 'javascript:;';
+            a.className = 'btn btn-secondary toolbar-export';
+            a.title = 'Exportar a CSV o PDF';
+            a.setAttribute('data-control', 'popup');
+            a.setAttribute('data-handler', 'onListExportLoad');
+            a.setAttribute('data-extra-data', "list_id: '" + bar.getAttribute('data-list-linkage') + "'");
+            a.innerHTML = '<i class="icon-download"></i> Exportar';
+            panel.appendChild(a);
         });
     }
 
-    $(document).on('change', '[data-list-export-all]', function () {
-        $(this).closest('form').find('.list-export-columns input[type=checkbox]').prop('checked', this.checked);
+    document.addEventListener('change', function (e) {
+        if (!e.target.matches || !e.target.matches('[data-list-export-all]')) return;
+        var form = e.target.closest('form');
+        form && form.querySelectorAll('.list-export-columns input[type=checkbox]').forEach(function (c) { c.checked = e.target.checked; });
     });
 
-    $(document).ready(inject);
-    $(window).on('ajaxUpdateComplete', inject);
-    $(document).on('render', inject);
-})(jQuery);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject); else inject();
+    new MutationObserver(inject).observe(document.documentElement, { childList: true, subtree: true });
+})();
