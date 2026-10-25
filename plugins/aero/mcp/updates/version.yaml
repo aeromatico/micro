@@ -7,3 +7,6 @@
 
 1.3.0:
     - "Keys MCP: pantalla dedicada en el menú «API & MCP» para emitir keys solo con módulos MCP (lectura/escritura), tenant y expiración obligatorios."
+
+1.4.0:
+    - "Tools de restaurante y caja para el asistente: resumen rápido, estado de la cocina, búsqueda de pedidos por su número del día, alertas (emergencias de mesa, pedidos sin aceptar, retrasos y cuentas por cobrar) y lectura de la caja; el servidor además le indica cómo estar atento."

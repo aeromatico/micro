@@ -43,7 +43,7 @@ return [
     ],
     'shop_orders' => [
         'plugin' => 'Aero.Shop', 'label' => 'pedidos de la tienda', 'model' => \Aero\Shop\Models\Order::class,
-        'fields' => 'id,customer_id,order_number,status,subtotal,discount_total,shipping_total,tax_total,grand_total,payment_reference,paid_at,fulfilled_at,cancelled_at,cancel_reason,notes,customer_notes,requires_shipping,order_type,table_label,scheduled_for,kitchen_status,source,branch_name,created_at',
+        'fields' => 'id,customer_id,order_number,daily_number,daily_date,status,subtotal,discount_total,shipping_total,tax_total,grand_total,payment_reference,paid_at,fulfilled_at,cancelled_at,cancel_reason,notes,customer_notes,requires_shipping,order_type,table_label,scheduled_for,kitchen_status,source,branch_name,created_at',
         'search' => 'order_number,payment_reference', 'filters' => 'status,customer_id,order_type,kitchen_status,source',
     ],
     'shop_order_items' => [
@@ -60,5 +60,9 @@ return [
         'plugin' => 'Aero.Shop', 'label' => 'movimientos de stock', 'model' => \Aero\Shop\Models\StockMovement::class,
         'fields' => 'id,product_id,product_variant_id,type,quantity_delta,quantity_after,order_id,note,created_at',
         'filters' => 'product_id,product_variant_id,type,order_id',
+    ],
+    'shop_panic_alerts' => [
+        'plugin' => 'Aero.Shop', 'label' => 'avisos de emergencia de mesa', 'model' => \Aero\Shop\Models\PanicAlert::class,
+        'fields' => 'id,order_id,table_label,label,acknowledged_at,acknowledged_by,created_at', 'filters' => 'order_id,table_label',
     ],
 ];

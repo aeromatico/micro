@@ -43,6 +43,13 @@ class Plugin extends PluginBase
         $this->bootWorkflowsIntegration();
         $this->bootRestApi();
         $this->bootEmbeddedCatalogAjax();
+        $this->bootMcpTools();
+    }
+
+    /** Tools de MCP del restaurante (resumen, cocina, pedidos y alertas); solo se usan si aero/mcp está instalado. */
+    protected function bootMcpTools(): void
+    {
+        Event::listen('aero.mcp.registerTools', fn () => \Aero\Shop\Classes\Mcp\RestaurantTools::definitions());
     }
 
     /**

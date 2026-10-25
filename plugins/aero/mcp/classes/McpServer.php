@@ -81,7 +81,27 @@ class McpServer
             'protocolVersion' => self::PROTOCOL_VERSION,
             'capabilities'    => ['tools' => ['listChanged' => false]],
             'serverInfo'      => ['name' => self::SERVER_NAME, 'version' => self::SERVER_VERSION],
-        ];
+        ] + $this->instructions();
+    }
+
+    /**
+     * Guía para el asistente según las tools que esta key tiene. Con las del restaurante, le indica cómo estar atento:
+     * este servidor responde cuando se le consulta (no envía avisos por su cuenta), así que la atención se logra
+     * consultando `restaurant_alerts` al empezar y de forma periódica.
+     */
+    protected function instructions(): array
+    {
+        $names = array_keys($this->allowedTools());
+        if (!in_array('restaurant_alerts', $names, true)) {
+            return [];
+        }
+
+        $text = "Eres el asistente del restaurante. Para estar atento a todo: al empezar la conversación y cada vez que te pregunten qué pasa, consulta `restaurant_alerts` (la emergencia de una mesa es siempre lo primero que debes decir, con el número de mesa) y usa `restaurant_overview` para un resumen rápido. "
+            . "Para un pedido concreto usa `restaurant_orders` con su número del día (el número corto que ve el cliente, p. ej. 18). La cocina está en `kitchen_board`."
+            . (in_array('pos_overview', $names, true) ? ' La caja está en `pos_overview` (turnos, efectivo y ventas de hoy), `pos_sales_recent` y `pos_pending_orders` (pedidos del local por cobrar).' : '')
+            . ' Si el cliente pide vigilar, vuelve a consultar `restaurant_alerts` con `since` para ver solo lo nuevo. Responde corto y en español; no inventes datos: si una tool devuelve un error, díselo.';
+
+        return ['instructions' => $text];
     }
 
     /** Solo lista las tools que esta key puede ejecutar. */

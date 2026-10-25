@@ -23,6 +23,9 @@ class Plugin extends PluginBase
     {
         $this->bootTenantPurgeCleanup();
 
+        // Tools de MCP para leer la caja; solo se usan si aero/mcp está instalado.
+        Event::listen('aero.mcp.registerTools', fn () => \Aero\Pos\Classes\McpTools::definitions());
+
         // La app de venta es una función PRO seleccionable por plan (Settings → Sites).
         Event::listen('aero.sites.registerProFeatures', function () {
             return ['aero/pos/app' => ['plugin' => 'Aero.Pos', 'label' => 'Punto de venta (app /pos)']];
