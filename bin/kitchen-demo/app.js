@@ -182,16 +182,20 @@
         if (to === 'ready') o.readyAt = vnow();
     }
 
+    // La demo parte con 4 pedidos y recibe solo uno más por visita (sube MAX_INCOMING para que lleguen más).
+    var MAX_INCOMING = 1, arrived = 0;
     function incoming() {
+        if (arrived >= MAX_INCOMING) return;
         var activeNew = orders.filter(function (o) { return o.status === 'new'; }).length;
         if (activeNew < 5) {
+            arrived++;
             var t = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)](); seq += 1;
             var o = Object.assign({ id: seq, number: 'ORD-000' + seq, status: 'new', createdAt: vnow(), scheduled: null }, t);
             if (t.customerFn) o.customer = t.customerFn(t.table);
             orders.push(o); board();
             if (document.getElementById('kitchen-sound').checked) beep();
         }
-        setTimeout(incoming, 14000 + Math.random() * 10000);
+        if (arrived < MAX_INCOMING) setTimeout(incoming, 14000 + Math.random() * 10000);
     }
 
     document.addEventListener('click', function (e) {
@@ -220,6 +224,6 @@
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
         board();
         setInterval(refresh, 8000);
-        setTimeout(incoming, 9000);
+        setTimeout(incoming, 12000);
     });
 })();
