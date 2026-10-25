@@ -50,6 +50,8 @@ class Plugin extends PluginBase
     protected function bootMcpTools(): void
     {
         Event::listen('aero.mcp.registerTools', fn () => \Aero\Shop\Classes\Mcp\RestaurantTools::definitions());
+        // Los agentes de Workspaces (p. ej. Mary) usan las mismas tools de lectura.
+        Event::listen('aero.workspaces.registerAgentTools', fn () => \Aero\Shop\Classes\Mcp\RestaurantTools::definitions());
     }
 
     /**
