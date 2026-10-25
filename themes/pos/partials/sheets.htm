@@ -1,3 +1,12 @@
+<!-- Confirmar salida (solo si hay una venta en curso) -->
+<div class="scrim" x-show="logoutAsk" x-transition.opacity @click.self="logoutAsk = false">
+  <div class="sheet" x-show="logoutAsk" style="max-width:360px">
+    <b style="font-size:18px">¿Salir de la caja?</b>
+    <div class="muted">Tienes una venta en curso. Si sales, se pierde.</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" @click="logoutAsk = false">Cancelar</button><button class="btn danger" @click="logoutAsk = false; logout()">Salir</button></div>
+  </div>
+</div>
+
 <!-- Buscar o escanear (celular) -->
 <div class="scrim" x-show="searchOpen" x-transition.opacity @click.self="closeSearch()" style="align-items:flex-start">
   <div class="sheet" x-show="searchOpen" style="max-width:560px;margin-top:4vh">

@@ -34,6 +34,9 @@ js = patch(js, "if ('serviceWorker' in navigator) navigator.serviceWorker.regist
 js = patch(js, "this.token = store.get('aero.pos.token.' + this.handle, null);", "this.token = 'demo';")
 js = patch(js, "prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),", "prefs: { thumbs: true, paper: '', theme: 'auto' },")
 
+# Al «salir» la demo simplemente se reinicia (no hay inicio de sesión real).
+js = patch(js, "        logoutLocal: function () {\n", "        logoutLocal: function () {\n            location.reload(); return;\n")
+
 page = body_of(read(THEME / 'pages/app.htm'))
 for name in ('gate', 'login', 'shift', 'sale', 'pay', 'sheets'):
     page = page.replace("{% partial '" + name + "' %}", body_of(read(THEME / f'partials/{name}.htm')))

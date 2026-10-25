@@ -27,7 +27,7 @@ function posApp() {
         // --- cobro
         payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null, waPhone: '591', waBusy: false, waMsg: '', waOk: false,
         // --- extras
-        mobile: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
+        mobile: false, logoutAsk: false, searchOpen: false, calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
 
         // ---------------------------------------------------------------- arranque
@@ -127,6 +127,7 @@ function posApp() {
             this.login = store.get('aero.pos.login.' + this.handle, '');
             this.screen = 'login';
         },
+        askLogout: function () { if (this.cart.length) this.logoutAsk = true; else this.logout(); },
         logout: async function () {
             try { await this.api('POST', '/logout'); } catch (e) {}
             this.logoutLocal();
