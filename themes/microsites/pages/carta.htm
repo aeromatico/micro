@@ -1,0 +1,22 @@
+url = "/carta"
+layout = "base"
+description = "Alias de /tienda (en restaurantes se muestra como «Carta»)"
+
+[sitesSeo]
+pageTitle = "Carta"
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+
+[shopCatalog]
+perPage = "12"
+
+[shopCart]
+==
+{% if shopCatalog.restaurantStore %}
+    {% partial 'shopCatalog::restaurant' %}
+{% else %}
+    {% component 'shopCatalog' %}
+{% endif %}

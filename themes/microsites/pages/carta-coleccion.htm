@@ -1,0 +1,19 @@
+url = "/carta/:coleccion"
+layout = "base"
+description = "Alias de /tienda/:coleccion"
+
+[sitesSeo]
+pageTitle = "Carta"
+
+[sitesPageList]
+excludeHome = 1
+
+[sitesContact]
+
+[shopCatalog]
+perPage = "12"
+collectionSlug = "{{ :coleccion }}"
+
+[shopCart]
+==
+{% component 'shopCatalog' %}
