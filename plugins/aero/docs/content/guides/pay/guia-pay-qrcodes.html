@@ -111,7 +111,7 @@ input[type=text],input[type=date],select,textarea{width:100%;font:inherit;color:
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   // Detalle de un QR: todos los campos del formulario están deshabilitados (disabled: true). Datos de ejemplo.
   var F = [
-    { id: 'internal_reference', l: 'Referencia interna', v: 'PED-1042', body: 'Referencia que dio quien pidió el cobro (por ejemplo, el pedido de la tienda). La asigna el sistema y no se edita.', tip: 'Es lo que te permite relacionar el QR con el pedido o la cobranza que lo originó.' },
+    { id: 'internal_reference', l: 'Referencia interna', v: 'PED-1042', body: 'Referencia que dio quien pidió el cobro (por ejemplo, el pedido de la tienda). La asigna el sistema y no se edita.', tip: 'Es lo que te permite relacionar el QR con el pedido o la cobranza que lo originó, también cuando lo creó una tienda externa por API (por ejemplo, el módulo de pago para Odoo 17).' },
     { id: 'external_qr_id', l: 'ID de QR del banco', v: 'QR-8841327', body: 'Identificador que el banco asignó a este QR. Solo lectura.', tip: 'Dáselo al banco o a soporte si necesitas rastrear un cobro.' },
     { id: 'bank_code', l: 'Banco', v: 'bnb', body: 'Cuenta bancaria (proveedor) con la que se generó el QR. Solo lectura.', tip: 'Se elige al generar el QR, no aquí.' },
     { id: 'status', l: 'Estado', v: 'pending', body: 'Estado actual del cobro. Cambia solo cuando el banco avisa del pago, o cuando el QR se anula o vence.', tip: 'Los valores de esta guía son de ejemplo. Un pago registrado a mano se ve en la lista de pagos del QR.' },

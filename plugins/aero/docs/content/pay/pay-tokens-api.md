@@ -49,6 +49,10 @@ al panel.
 
 Se envían con `Authorization: Bearer TU_TOKEN`.
 
+Desde la 1.29.0, `POST /api/v1/pay/qr` acepta además `return_url`, `cancel_url` y
+`payer_email` (opcionales) y devuelve `flow` y `redirect_url`, para integrar tiendas
+externas y proveedores de redirección. Ejemplo: [Módulo de pago para Odoo 17](pay-modulo-odoo).
+
 > [!NOTE]
 > Si el plugin **Aero.Api** está instalado, estos mismos permisos se publican en
 > su gateway y una key suya puede abrir esta área, comportándose igual que un
