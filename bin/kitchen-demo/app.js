@@ -9,7 +9,7 @@
     var CFG = { capacity: 3, loadMinutes: 5, busyExtra: 10, deliveryExtra: 10, defaultPrep: 15 };
     var TYPES = { dine_in: 'Comer en local', pickup: 'Recoger', delivery: 'Delivery' };
     var TYPE_ICON = { dine_in: 'utensils', pickup: 'bag', delivery: 'bike' };
-    var STATUS = { new: { label: 'Nuevos', next: 'preparing', action: 'Empezar', color: 'var(--kx-new)' }, preparing: { label: 'Preparando', next: 'ready', action: 'Listo', color: 'var(--kx-prep)' }, ready: { label: 'Listos', next: 'delivered', action: 'Entregado', color: 'var(--kx-ready)' } };
+    var STATUS = { new: { label: 'Nuevos', next: 'preparing', action: 'Empezar', color: 'var(--st-new)' }, preparing: { label: 'Preparando', next: 'ready', action: 'Listo', color: 'var(--st-prep)' }, ready: { label: 'Listos', next: 'delivered', action: 'Entregado', color: 'var(--st-ready)' } };
     var PREV = { preparing: 'new', ready: 'preparing', delivered: 'ready' };
     var EMPTY = { new: ['inbox', 'Sin pedidos nuevos'], preparing: ['flame', 'Nada en preparación'], ready: ['check-circle', 'Nada esperando entrega'] };
     var SRC = { pos: 'Local (POS)', whatsapp: 'WhatsApp', chat: 'Chat' };
@@ -153,6 +153,17 @@
         var live = document.getElementById('kx-updated'); if (live) live.textContent = 'En vivo · ' + hm(now);
     }
 
+    // Como en la pantalla real: el tablero se refresca solo cada pocos segundos (no hay segundero).
+    function refresh() {
+        if (document.hidden || Date.now() - lastStep < 6000) return;
+        board();
+    }
+
+    function setTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        var b = document.getElementById('kx-theme'); if (b) b.innerHTML = ic(t === 'dark' ? 'sun' : 'moon');
+    }
+
     function beep() {
         try {
             var c = new (window.AudioContext || window.webkitAudioContext)();
@@ -203,11 +214,16 @@
         if (ex) { var p = find(ex.getAttribute('data-id')); p.promisedAt = (p.promisedAt || vnow()) + parseInt(ex.getAttribute('data-extend'), 10) * 60000; board(); return; }
         if (e.target.closest('[data-busy]')) { busy = !busy; board(); return; }
         if (e.target.closest('#kx-test')) beep();
+        if (e.target.closest('#kx-theme')) {
+            var dark = document.documentElement.getAttribute('data-theme') === 'dark' || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            setTheme(dark ? 'light' : 'dark');
+        }
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) setTheme('dark');
         board();
-        setInterval(tick, 1000);
+        setInterval(refresh, 8000);
         setTimeout(incoming, 9000);
     });
 })();
