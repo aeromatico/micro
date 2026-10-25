@@ -131,7 +131,10 @@ input::placeholder{color:var(--muted)}
 
 /* Celular: sin fotos, 2 columnas y catálogo corto para llegar rápido al detalle de la venta */
 @media (max-width:640px){
-  .sale{gap:8px;padding:8px}
+  .sale{gap:8px;padding:8px;overflow:hidden}
+  .ticket{flex:1 1 0;min-height:0}
+  .lines{min-height:0}
+  .empty{min-height:0}
   .chip{height:38px;padding:0 12px;font-size:13px}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(36vh,260px);overflow-y:auto;padding-bottom:2px}
   .tile{min-height:0;padding:9px 10px;gap:2px;border-radius:12px;justify-content:center}
