@@ -60,6 +60,7 @@ fields:
         tab: Cambios pendientes
         type: partial
         path: $/aero/docs/models/article/_pending.htm
+        permissions: aero.docs.guides.review
         span: full
         context: update
 

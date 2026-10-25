@@ -17,7 +17,7 @@ class Guides extends Controller
     public $listConfig = 'config_list.yaml';
     public $formConfig = 'config_form.yaml';
 
-    public $requiredPermissions = ['aero.docs.manage'];
+    public $requiredPermissions = ['aero.docs.guides.review'];
 
     public function __construct()
     {
