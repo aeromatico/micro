@@ -2,3 +2,5 @@
     - "Punto de venta (POS) sobre la tienda: terminales, mesas, métodos de pago, cajeros, turnos de caja con arqueo, ventas y pagos divididos. Administración en el backend."
     - create_pos_tables.php
     - grant_tenant_admin_permissions.php
+1.1.0:
+    - "Agrega la API del punto de venta (acceso con PIN, catálogo, turnos de caja y ventas con NIT) para la app de caja."
