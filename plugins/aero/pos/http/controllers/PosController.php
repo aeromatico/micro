@@ -55,7 +55,7 @@ class PosController extends Controller
             'collections' => Collection::where('tenant_id', $tid)->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(['id', 'name'])->all(),
             'products'    => $products->all(),
             'methods'     => PaymentMethod::forTenant($tid)->where('is_active', true)->orderBy('sort_order')->get()
-                ->map(fn ($m) => ['id' => $m->id, 'label' => $m->label, 'kind' => $m->kind])->all(),
+                ->map(fn ($m) => ['id' => $m->id, 'label' => $m->label, 'kind' => $m->kind, 'auto' => $m->kind === 'qr' && $this->qrBank($tid) !== null])->all(),
             'tables'      => PosTable::forTenant($tid)->get(['id', 'name'])->all(),
         ]]);
     }
@@ -107,6 +107,71 @@ class PosController extends Controller
         }, 201);
     }
 
+    /** POST qr {amount, description?} — emite un QR de cobro por el monto exacto. */
+    public function qrIssue(Request $request)
+    {
+        $data = $request->validate(['amount' => 'required|numeric|min:0.01|max:9999999', 'description' => 'nullable|string|max:100']);
+        $tid = $request->attributes->get('tenant_id');
+        $bank = $this->qrBank($tid);
+        if (!$bank) {
+            return $this->json(['error' => 'no_bank_account', 'message' => 'Este negocio no tiene un banco con QR automático en Pay.'], 422);
+        }
+
+        try {
+            $qr = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
+                bankAccount: $bank, amount: (float) $data['amount'], currency: 'BOB', description: $data['description'] ?? 'Venta en mostrador',
+                externalReference: 'pos-' . $tid . '-' . now()->timestamp . '-' . random_int(100, 999), origin: 'pos',
+                dueDate: now()->addDay()->toDateString(), tenantId: $tid,
+            );
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'qr_failed', 'message' => 'El banco no pudo generar el QR: ' . $e->getMessage()], 422);
+        }
+        if (!$qr->qr_image) {
+            return $this->json(['error' => 'no_image', 'message' => 'El banco no devolvió la imagen del QR.'], 422);
+        }
+
+        return response()->json(['data' => ['qr' => $this->qrPayload($qr)]], 201);
+    }
+
+    /** GET qr/{reference} — estado del QR; consulta al banco si aún está pendiente. */
+    public function qrStatus(Request $request, string $reference)
+    {
+        $qr = \Aero\Pay\Models\QrCode::where('tenant_id', $request->attributes->get('tenant_id'))->where('origin', 'pos')->where('internal_reference', $reference)->first();
+        if (!$qr) {
+            return $this->json(['error' => 'not_found', 'message' => 'QR no encontrado.'], 404);
+        }
+        if ($qr->status === 'pending' && $qr->flow === 'qr_dynamic') {
+            try {
+                app(\Aero\Pay\Classes\QrStatusReconciler::class)->reconcile($qr);
+                $qr->refresh();
+            } catch (\Throwable $e) {
+                // El banco no respondió: se informa pendiente y la app vuelve a preguntar.
+            }
+        }
+
+        return response()->json(['data' => ['qr' => $this->qrPayload($qr)]]);
+    }
+
+    /** Cuenta bancaria con QR dinámico del tenant (la de cobranzas del CRM primero); null si no hay. */
+    protected function qrBank(int $tid): ?\Aero\Pay\Models\BankAccount
+    {
+        if (!class_exists(\Aero\Pay\Classes\QrIssuer::class)) {
+            return null;
+        }
+        $manager = app(\Aero\Pay\Classes\PaymentDriverManager::class);
+
+        return \Aero\Pay\Models\BankAccount::active()->where('tenant_id', $tid)->orderBy('label')->get()
+            ->first(fn ($b) => $manager->flowFor($b->bank_code) === 'qr_dynamic');
+    }
+
+    protected function qrPayload(\Aero\Pay\Models\QrCode $qr): array
+    {
+        return [
+            'reference' => $qr->internal_reference, 'status' => $qr->status, 'amount' => (float) $qr->amount,
+            'image' => $qr->qr_image ? 'data:image/png;base64,' . $qr->qr_image : null,
+        ];
+    }
+
     /** POST sales — crea y cobra una venta. Idempotente por client_uuid. */
     public function sale(Request $request)
     {
@@ -116,7 +181,7 @@ class PosController extends Controller
             'discount_percent' => 'nullable|numeric|min:0|max:100', 'nit' => 'nullable|string|max:30', 'tax_name' => 'nullable|string|max:150',
             'table_id' => 'nullable|integer',
             'payments' => 'required|array|min:1|max:6', 'payments.*.method_id' => 'required|integer', 'payments.*.amount' => 'nullable|numeric|min:0',
-            'payments.*.tendered' => 'nullable|numeric|min:0', 'payments.*.reference' => 'nullable|string|max:120',
+            'payments.*.tendered' => 'nullable|numeric|min:0', 'payments.*.reference' => 'nullable|string|max:120', 'payments.*.qr_reference' => 'nullable|string|max:64',
         ]);
         $tid = $request->attributes->get('tenant_id');
         $shift = !empty($data['shift_id']) ? Shift::forTenant($tid)->find($data['shift_id']) : null;

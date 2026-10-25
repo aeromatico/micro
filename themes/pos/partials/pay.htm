@@ -20,12 +20,12 @@
     <template x-if="!done">
       <div style="display:contents">
         <div class="l">
-          <div class="row"><b>Cobrar</b><button class="btn sm" style="margin-left:auto" @click="payOpen = false">Volver</button></div>
+          <div class="row"><b>Cobrar</b><button class="btn sm" style="margin-left:auto" @click="payOpen = false; stopQr()">Volver</button></div>
           <div><div class="small muted" x-text="payments.length ? 'Falta cobrar' : 'Total a pagar'"></div><div class="bold" style="font-size:40px;letter-spacing:-1px" x-text="money(remaining())"></div></div>
           <div class="col" style="gap:4px" x-show="payments.length">
             <template x-for="p in payments"><div class="row small" style="justify-content:space-between"><span x-text="p.label"></span><span x-text="money(p.amount)"></span></div></template>
           </div>
-          <div class="methods"><template x-for="m in catalog.methods" :key="m.id"><button class="method" :class="methodId === m.id && 'on'" @click="methodId = m.id; recv = ''" x-text="m.label"></button></template></div>
+          <div class="methods"><template x-for="m in catalog.methods" :key="m.id"><button class="method" :class="methodId === m.id && 'on'" @click="pickMethod(m)" x-text="m.label"></button></template></div>
           <div class="col" style="gap:6px;padding-top:10px;border-top:1px solid var(--line)">
             <label class="label" for="nit">NIT o CI del cliente</label>
             <input id="nit" class="field" inputmode="numeric" x-model="nit" placeholder="Vacío = sin NIT">
@@ -45,13 +45,24 @@
               <button class="btn" x-show="canSplit()" @click="addSplit()">Cobrar esta parte y seguir con otro método</button>
             </div>
           </template>
-          <template x-if="!isCash() && method()">
+          <template x-if="isAutoQr()">
+            <div class="col" style="flex:1;align-items:center;justify-content:center;text-align:center;gap:10px">
+              <template x-if="qr && qr.image"><img :src="qr.image" alt="QR de cobro" style="width:240px;height:240px;border-radius:14px;background:#fff;padding:8px;border:1px solid var(--line)"></template>
+              <div class="bold" x-show="qrBusy">Generando QR…</div>
+              <div class="bold" x-show="qr && qr.status === 'pending'"><i class="dot off"></i> Esperando el pago de <span x-text="money(qr ? qr.amount : 0)"></span>…</div>
+              <div class="small muted" x-show="qr && qr.status === 'pending'">El cliente escanea desde su app bancaria. La venta se cierra sola al llegar el pago.</div>
+              <button class="btn sm" x-show="!qr && !qrBusy" @click="startQr()">Generar QR</button>
+              <button class="btn sm" x-show="qr && qr.status === 'pending'" @click="pollQr()">Verificar ahora</button>
+              <button class="btn sm" x-show="payError && qr" @click="startQr()">Generar otro QR</button>
+            </div>
+          </template>
+          <template x-if="!isCash() && !isAutoQr() && method()">
             <div class="col" style="flex:1;align-items:center;justify-content:center;text-align:center;padding:30px 0">
               <div class="bold" style="font-size:16px" x-text="method().kind === 'qr' ? 'Cobro con QR' : (method().kind === 'card' ? 'Pasa la tarjeta por el terminal' : 'Cobro con ' + method().label)"></div>
               <div class="small muted">Cuando el cliente pague, confirma aquí.</div>
             </div>
           </template>
-          <button class="btn primary big" style="margin-top:auto" :class="!canConfirm() && 'off'" :disabled="!canConfirm()" @click="confirmPay()" x-text="saleBusy ? 'Cobrando…' : 'Confirmar cobro'"></button>
+          <button class="btn primary big" style="margin-top:auto" x-show="!isAutoQr()" :class="!canConfirm() && 'off'" :disabled="!canConfirm()" @click="confirmPay()" x-text="saleBusy ? 'Cobrando…' : 'Confirmar cobro'"></button>
         </div>
       </div>
     </template>

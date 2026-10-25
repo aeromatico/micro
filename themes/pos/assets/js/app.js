@@ -23,7 +23,7 @@ function posApp() {
         // --- venta
         cat: 0, q: '', cart: [], discount: false, nit: '', razon: '', tableId: '', variantFor: null,
         // --- cobro
-        payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '',
+        payOpen: false, methodId: null, recv: '', payments: [], done: null, doneLocal: false, saleBusy: false, payError: '', qr: null, qrBusy: false, qrTimer: null,
         // --- extras
         calcOpen: false, c: { acc: null, op: null, cur: '0', fresh: true, hist: '' }, settingsOpen: false,
         prefs: store.get('aero.pos.prefs', { thumbs: false, paper: '', theme: 'auto' }),
@@ -215,8 +215,39 @@ function posApp() {
             if (!this.cart.length) return;
             this.payments = []; this.recv = ''; this.payError = ''; this.done = null;
             var cash = this.catalog.methods.find(function (m) { return m.kind === 'cash'; }) || this.catalog.methods[0];
-            this.methodId = cash ? cash.id : null; this.payOpen = true;
+            this.methodId = cash ? cash.id : null; this.qr = null; this.stopQr(); this.payOpen = true;
         },
+        isAutoQr: function () { var m = this.method(); return !!m && m.kind === 'qr' && !!m.auto; },
+        pickMethod: function (m) {
+            this.methodId = m.id; this.recv = ''; this.payError = '';
+            if (!(m.kind === 'qr' && m.auto)) this.stopQr();
+            else if (!this.qr || this.qr.amount !== this.remaining()) this.startQr();
+            else this.pollQr();
+        },
+        startQr: async function () {
+            this.stopQr(); this.qr = null; this.payError = '';
+            if (!navigator.onLine) { this.payError = 'El cobro con QR necesita conexión.'; return; }
+            this.qrBusy = true;
+            try {
+                var r = await this.api('POST', '/qr', { amount: this.remaining(), description: (this.tenant ? this.tenant.name : 'Venta') + ' · mostrador' });
+                this.qr = r.data.qr; this.pollQr();
+            } catch (e) { this.payError = e.message; }
+            this.qrBusy = false;
+        },
+        pollQr: function () {
+            var self = this; clearInterval(this.qrTimer);
+            var tick = async function () {
+                if (!self.qr || !self.payOpen || self.done) { clearInterval(self.qrTimer); return; }
+                try {
+                    var r = await self.api('GET', '/qr/' + self.qr.reference);
+                    self.qr.status = r.data.qr.status;
+                    if (self.qr.status === 'paid') { clearInterval(self.qrTimer); self.confirmPay(); }
+                    else if (self.qr.status === 'expired' || self.qr.status === 'cancelled') { clearInterval(self.qrTimer); self.payError = 'El QR venció. Genera uno nuevo.'; }
+                } catch (e) { /* sin red: se vuelve a intentar */ }
+            };
+            this.qrTimer = setInterval(tick, 3000); tick();
+        },
+        stopQr: function () { clearInterval(this.qrTimer); this.qrTimer = null; },
         method: function () { var id = this.methodId; return this.catalog.methods.find(function (m) { return m.id === id; }); },
         isCash: function () { var m = this.method(); return !!m && m.kind === 'cash'; },
         paid: function () { return round2(this.payments.reduce(function (a, p) { return a + p.amount; }, 0)); },
@@ -224,7 +255,7 @@ function posApp() {
         recvNum: function () { return this.recv === '' ? 0 : parseFloat(this.recv); },
         changeNow: function () { return this.isCash() ? Math.max(0, round2(this.recvNum() - this.remaining())) : 0; },
         shortNow: function () { return this.isCash() ? Math.max(0, round2(this.remaining() - this.recvNum())) : 0; },
-        canConfirm: function () { return !this.saleBusy && this.method() && (this.isCash() ? this.recvNum() >= this.remaining() - 0.004 : true); },
+        canConfirm: function () { return !this.saleBusy && this.method() && (this.isAutoQr() ? !!this.qr && this.qr.status === 'paid' : this.isCash() ? this.recvNum() >= this.remaining() - 0.004 : true); },
         canSplit: function () { return this.recvNum() > 0 && this.recvNum() < this.remaining() - 0.004; },
         quickBills: function () {
             var r = this.remaining(), out = [{ label: 'Exacto', v: r }];
@@ -241,7 +272,7 @@ function posApp() {
             var m = this.method();
             list.push(this.isCash()
                 ? { method_id: m.id, amount: this.remaining(), tendered: this.recvNum() }
-                : { method_id: m.id, amount: this.remaining() });
+                : (this.isAutoQr() ? { method_id: m.id, amount: this.remaining(), qr_reference: this.qr.reference } : { method_id: m.id, amount: this.remaining() }));
             return {
                 client_uuid: uuid(), shift_id: this.shift ? this.shift.id : null,
                 items: this.cart.map(function (l) { return { product_id: l.product_id, variant_id: l.variant_id, quantity: l.qty }; }),
@@ -272,7 +303,7 @@ function posApp() {
             }
             this.saleBusy = false;
         },
-        newSale: function () { this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); },
+        newSale: function () { this.stopQr(); this.qr = null; this.payOpen = false; this.done = null; this.clearCart(); this.payments = []; this.recv = ''; this.refreshShift(); },
         refreshShift: async function () {
             try { var me = await this.api('GET', '/me'); this.me = me.data; var t = this.terminal(); if (t) this.shift = t.shift; } catch (e) {}
         },
@@ -343,6 +374,6 @@ function posApp() {
                 (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
             this.setTheme(dark ? 'light' : 'dark');
         },
-        closeAll: function () { this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) this.payOpen = false; }
+        closeAll: function () { this.calcOpen = false; this.settingsOpen = false; this.variantFor = null; if (!this.done) { this.payOpen = false; this.stopQr(); } }
     };
 }

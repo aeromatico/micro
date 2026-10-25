@@ -61,14 +61,28 @@ class SaleService
         ]);
 
         $orders = app(OrderService::class);
-        $percent = (float) ($data['discount_percent'] ?? 0);
-        if ($percent > 0) {
-            if ($percent > $discountLimitPercent) {
-                throw new OrderException('Tu límite de descuento es ' . $discountLimitPercent . '%.');
+        try {
+            $percent = (float) ($data['discount_percent'] ?? 0);
+            if ($percent > 0) {
+                if ($percent > $discountLimitPercent) {
+                    throw new OrderException('Tu límite de descuento es ' . $discountLimitPercent . '%.');
+                }
+                $order = $orders->applyDiscount($order, round((float) $order->subtotal * $percent / 100, 4), 'Descuento ' . $percent . '%', $userId);
             }
-            $order = $orders->applyDiscount($order, round((float) $order->subtotal * $percent / 100, 4), 'Descuento ' . $percent . '%', $userId);
-        }
 
+            return $this->settle($tenantId, $userId, $shift, $data, $order, $orders, $nit, $uuid);
+        } catch (\Throwable $e) {
+            // El pedido ya existe: si el cobro falla se anula para no dejar pedidos huérfanos ni stock reservado.
+            try {
+                $orders->cancel($order, 'Venta POS no cobrada');
+            } catch (\Throwable $ignored) {
+            }
+            throw $e;
+        }
+    }
+
+    protected function settle(int $tenantId, int $userId, ?Shift $shift, array $data, $order, OrderService $orders, ?string $nit, ?string $uuid): Sale
+    {
         return Db::transaction(function () use ($tenantId, $userId, $shift, $data, $order, $orders, $nit, $uuid) {
             $sale = Sale::create([
                 'tenant_id' => $tenantId, 'order_id' => $order->id, 'shift_id' => $shift?->id, 'terminal_id' => $shift?->terminal_id,
@@ -87,6 +101,11 @@ class SaleService
                 $applied = min($remaining, round((float) ($p['amount'] ?? $given), 4));
                 if ($applied <= 0) {
                     continue;
+                }
+                // Cobro con QR automático: solo vale si el banco ya lo confirmó y no se usó en otra venta.
+                if (!empty($p['qr_reference'])) {
+                    $this->assertQrPaid($tenantId, (string) $p['qr_reference'], $applied);
+                    $p['reference'] = $p['qr_reference'];
                 }
                 // Solo el efectivo da cambio; otros métodos se cobran exacto.
                 $change = $method->isCash() ? max(0, round($given - $applied, 4)) : 0;
@@ -107,6 +126,22 @@ class SaleService
 
             return $sale;
         });
+    }
+
+    protected function assertQrPaid(int $tenantId, string $reference, float $amount): void
+    {
+        $qr = class_exists(\Aero\Pay\Models\QrCode::class)
+            ? \Aero\Pay\Models\QrCode::where('tenant_id', $tenantId)->where('origin', 'pos')->where('internal_reference', $reference)->first()
+            : null;
+        if (!$qr || $qr->status !== 'paid') {
+            throw new OrderException('El pago con QR todavía no está confirmado.');
+        }
+        if ((float) $qr->amount + 0.009 < $amount) {
+            throw new OrderException('El QR pagado es por un monto menor al de la venta.');
+        }
+        if (Payment::where('tenant_id', $tenantId)->where('reference', $reference)->exists()) {
+            throw new OrderException('Ese pago con QR ya se usó en otra venta.');
+        }
     }
 
     /** Datos del recibo, listos para imprimir o enviar. */

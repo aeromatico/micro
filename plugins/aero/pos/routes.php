@@ -18,6 +18,8 @@ Route::prefix('api/v1/pos')->middleware(['api', ForceJson::class])->group(functi
         Route::post('shift/open', [PosController::class, 'shiftOpen']);
         Route::post('shift/close', [PosController::class, 'shiftClose']);
         Route::post('shift/movement', [PosController::class, 'movement']);
+        Route::post('qr', [PosController::class, 'qrIssue'])->middleware('throttle:30,1');
+        Route::get('qr/{reference}', [PosController::class, 'qrStatus'])->middleware('throttle:60,1');
         Route::post('sales', [PosController::class, 'sale']);
         Route::get('sales/{id}/receipt', [PosController::class, 'receipt'])->whereNumber('id');
     });
