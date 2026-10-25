@@ -55,3 +55,6 @@
 1.16.0:
     - "Videos del servicio como repetidor: cada video lleva título, fuente (YouTube o Medios) y versión horizontal 16:9 y/o vertical 9:16 con póster opcional. El video único anterior pasa a ser el primer ítem. En /plugin/{slug} el visitante cambia de video y de formato; en móvil se muestra por defecto la versión vertical."
     - add_videos_repeater_to_services.php
+
+1.16.1:
+    - "Precios de los servicios: ahora el precio se adapta al tipo de cobro (suscripción con «/ mes», «/ trimestre» o «/ año», pago único aclarado, gratis, créditos o «A cotizar»), y las fichas de rubro muestran «A cotizar» cuando aún no hay planes."

@@ -285,19 +285,42 @@ class Service extends Model
 
         $lines = [];
         $mode = $plan['pricing_mode'] ?? 'money';
+        $cur = ($plan['currency'] ?? 'BOB') === 'BOB' ? 'Bs' : ($plan['currency'] ?? 'BOB');
+
+        // Suscripción: cada precio lleva su cadencia («Bs 100 / mes»); pago único: se aclara aparte.
+        $recurring = ($plan['type'] ?? null) === 'recurring';
+        $every = $recurring ? ([
+            'monthly'   => ' / mes',
+            'quarterly' => ' / trimestre',
+            'yearly'    => ' / año',
+        ][$plan['billing_period'] ?? 'monthly'] ?? '') : '';
 
         if (in_array($mode, ['money', 'both'], true)) {
             if (filled($plan['price'] ?? null)) {
                 $prefix = !empty($plan['price_from']) ? 'Desde ' : '';
-                $lines[] = ['primary' => true, 'text' => $prefix . ($plan['currency'] ?? 'BOB') . ' ' . $plan['price']];
+                $lines[] = ['primary' => true, 'text' => $prefix . $cur . ' ' . $plan['price'] . $every];
 
                 if ((float) ($plan['setup_fee'] ?? 0) > 0) {
-                    $lines[] = ['primary' => false, 'text' => '+ ' . ($plan['currency'] ?? 'BOB') . ' ' . $plan['setup_fee'] . ' de implementación (una vez)'];
+                    $lines[] = ['primary' => false, 'text' => '+ ' . $cur . ' ' . $plan['setup_fee'] . ' de implementación (una vez)'];
                 }
+            }
+            elseif ((float) ($plan['setup_fee'] ?? 0) > 0) {
+                // Solo cobra implementación: ese es el precio.
+                $lines[] = ['primary' => true, 'text' => $cur . ' ' . $plan['setup_fee']];
+                $lines[] = ['primary' => false, 'text' => 'de implementación (una vez)'];
             }
             elseif ($mode === 'money') {
                 $lines[] = ['primary' => true, 'text' => 'A cotizar'];
             }
+        }
+
+        if (in_array($mode, ['credits', 'both'], true) && !filled($plan['credit_price'] ?? null) && (int) ($plan['credit_setup_fee'] ?? 0) > 0) {
+            // Solo cobra implementación en créditos.
+            $type = class_exists(\Aero\Credits\Models\CreditType::class)
+                ? \Aero\Credits\Models\CreditType::findByCode((string) ($plan['credit_type'] ?? ''))
+                : null;
+            $lines[] = ['primary' => empty($lines), 'text' => $plan['credit_setup_fee'] . ' ' . ($type->label ?? 'créditos')];
+            $lines[] = ['primary' => false, 'text' => 'de implementación (una vez)'];
         }
 
         if (in_array($mode, ['credits', 'both'], true) && filled($plan['credit_price'] ?? null)) {
@@ -305,11 +328,11 @@ class Service extends Model
                 ? \Aero\Credits\Models\CreditType::findByCode((string) ($plan['credit_type'] ?? ''))
                 : null;
 
-            $lines[] = ['primary' => empty($lines), 'text' => $plan['credit_price'] . ' ' . ($type->label ?? 'créditos')];
+            $lines[] = ['primary' => empty($lines), 'text' => $plan['credit_price'] . ' ' . ($type->label ?? 'créditos') . $every];
 
             if ($type && $type->price_bob && $mode === 'credits') {
                 $bob = rtrim(rtrim(number_format($plan['credit_price'] * $type->price_bob, 2, '.', ''), '0'), '.');
-                $lines[] = ['primary' => false, 'text' => '≈ Bs ' . $bob];
+                $lines[] = ['primary' => false, 'text' => '≈ Bs ' . $bob . $every];
             }
 
             if ((int) ($plan['credit_setup_fee'] ?? 0) > 0) {
@@ -321,7 +344,15 @@ class Service extends Model
             $lines[] = ['primary' => false, 'text' => $saving];
         }
 
-        return $lines ?: [['primary' => true, 'text' => 'A cotizar']];
+        if (!$lines) {
+            return [['primary' => true, 'text' => 'A cotizar']];
+        }
+
+        if (($plan['type'] ?? 'one_time') === 'one_time' && $lines[0]['text'] !== 'A cotizar') {
+            $lines[] = ['primary' => false, 'text' => 'Pago único'];
+        }
+
+        return $lines;
     }
 
     /**
