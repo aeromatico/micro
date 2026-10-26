@@ -1,0 +1,14 @@
+<?= Form::open(['class' => 'layout']) ?>
+    <div class="layout-row"><?= $this->formRender() ?></div>
+    <div class="form-buttons">
+        <div class="loading-indicator-container">
+            <button type="button" data-request="onSave" data-request-data="redirect:0"
+                data-hotkey="ctrl+s, cmd+s" data-load-indicator="Guardando…" class="btn btn-primary">Guardar</button>
+            <button type="button" class="btn btn-default" data-request="onSave" data-request-data="close:true"
+                data-hotkey="ctrl+enter, cmd+enter" data-load-indicator="Guardando…">Guardar y cerrar</button>
+            <button type="button" class="oc-icon-trash-o btn-icon danger pull-right" data-request="onDelete"
+                data-request-confirm="¿Eliminar este canal?" data-load-indicator="Eliminando…"></button>
+            <span class="btn-text">o <a href="<?= Backend::url('aero/notify/channels') ?>">Cancelar</a></span>
+        </div>
+    </div>
+<?= Form::close() ?>

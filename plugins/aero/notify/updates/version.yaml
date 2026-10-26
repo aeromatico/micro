@@ -218,3 +218,6 @@
 1.5.18:
     - "Avisos internos de Aero.Church: nuevo visitante y nueva petición de oración (sin su contenido), con su regla y plantilla por defecto."
     - seed_church_events.php
+
+1.5.19:
+    - "Arregla las pantallas de Canales, Reglas y Plantillas, que salían en blanco."

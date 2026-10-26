@@ -109,7 +109,7 @@ def check_controllers(base):
         for cfg in re.findall(r"\$(?:list|form|relation|import|export|reorder)Config\s*=\s*'([^']+\.yaml)'", src):
             if not os.path.exists(os.path.join(vdir, cfg)):
                 err(f'Controller {name}: config {cfg} no existe')
-        if 'hasPermission(' in src:
+        if re.search(r'->hasPermission\(', src):
             err(f'Controller {name}: usa hasPermission() — debe ser hasAccess()')
     # config_filter / columns
     for f in glob.glob(os.path.join(base, '**', '*.yaml'), recursive=True):

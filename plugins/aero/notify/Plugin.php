@@ -100,7 +100,7 @@ class Plugin extends PluginBase
                     ],
                     'notify-templates' => [
                         'label'       => 'Plantillas',
-                        'icon'        => 'icon-file-text-o',
+                        'icon'        => 'icon-file-text',
                         'url'         => Backend::url('aero/notify/templates'),
                         'permissions' => ['aero.notify.manage_templates'],
                     ],
