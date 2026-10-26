@@ -506,3 +506,6 @@
 
 1.92.0:
     - "El registro de eventos del sistema ahora se limpia solo: se conservan 30 días."
+
+1.93.0:
+    - "Corrige que, si no se identificaba el espacio de trabajo, algunas pantallas podían mostrar datos de otros espacios; ahora no muestran nada."

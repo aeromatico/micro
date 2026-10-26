@@ -38,6 +38,10 @@ trait ResolvesCurrentTenant
         $tenant = $this->getCurrentTenant();
         if ($tenant) {
             $query->where('tenant_id', $tenant->id);
+        } elseif (!BackendAuth::getUser()?->hasAccess(['aero.sites.superadmin'])) {
+            // Falla cerrado: sin tenant resuelto, un usuario que no es
+            // superadmin no ve nada (antes veía los datos de todos).
+            $query->whereRaw('1 = 0');
         }
         return $query;
     }
