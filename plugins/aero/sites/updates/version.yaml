@@ -515,3 +515,6 @@
 
 1.95.0:
     - "Corrige que no se pudieran crear páginas generadas cuando el menú llegaba vacío."
+
+1.96.0:
+    - "Los registros técnicos de conectores, chatbots y entregas de notificaciones ahora se conservan 30 días."
