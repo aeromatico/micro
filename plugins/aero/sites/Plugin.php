@@ -49,6 +49,11 @@ class Plugin extends PluginBase
 
     public function boot(): void
     {
+        // Al purgar un tenant se borran sus filas en todos los plugins (tablas con tenant_id).
+        Event::listen('aero.sites.tenant.purging', function ($tenant) {
+            \Aero\Sites\Classes\TenantDataPurger::purge((int) $tenant->id);
+        });
+
         $this->registerApiRoutes();
         $this->bootPanelRootRedirect();
         $this->bootSiteContext();

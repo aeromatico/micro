@@ -518,3 +518,6 @@
 
 1.96.0:
     - "Los registros técnicos de conectores, chatbots y entregas de notificaciones ahora se conservan 30 días."
+
+1.97.0:
+    - "Al eliminar un espacio de trabajo ahora se borran también sus datos en todos los módulos (historias clínicas, escuela, iglesia, etc.), que antes quedaban sueltos."
