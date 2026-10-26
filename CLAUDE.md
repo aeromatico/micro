@@ -5,7 +5,7 @@
 OctoberCMS 4 / Laravel 12 / PHP 8.4 / MySQL / Redis / Tailwind 3 + Alpine.js (Pines). Dev server = fuente de verdad: aquí se genera y se hace `git push origin main` (repo `aeromatico/micro`); producción hace pull. Nunca `git pull`.
 
 ## Mapa
-- `plugins/aero/*` — 23 plugins, cada uno un módulo del SaaS. `aero/sites` es el núcleo (Tenant, planes, roles, grants). Los demás son independientes o se acoplan de forma blanda (`class_exists()` + eventos `aero.*`).
+- `plugins/aero/*` — 44 plugins, cada uno un módulo del SaaS. `aero/sites` es el núcleo (Tenant, planes, roles, grants). Los demás son independientes o se acoplan de forma blanda (`class_exists()` + eventos `aero.*`).
 - `themes/demo` (plataforma), `themes/microsites` (sitios de tenants), `themes/master`, `themes/whatsapp`.
 - `.claude/skills/aero-plugin` — **empezar aquí para crear o extender un plugin** (scaffold + gotchas + verificación).
 - `.claude/agents/` — `git-agent` (cron cada 10 min, commits por área), `docs-sync` (docs/guías con `claude -p`, manual), `docs-agent`.
@@ -22,6 +22,7 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 
 ## Herramientas del repo
 - `bin/verify-plugin <plugin>` — compuerta de calidad de un plugin (lint, version.yaml, vistas, filtros, permisos/grants, tenant, tests). Correrla antes de dar por terminado un plugin.
+- `bin/verify-all [--no-tests]` — corre verify-plugin y los tests de TODOS los plugins y resume (el estado de salud de la plataforma).
 - `bin/aero-test <plugin> [filtro]` — tests aislados (SQLite en memoria, como `www`). Nunca `phpunit` pelado: ver `.claude/skills/aero-plugin`.
 - `.claude/hooks/aero-check.sh` — hook PostToolUse (php -l y verify en cada edición); se activa con `.claude/settings.json`.
 
@@ -37,6 +38,14 @@ cd themes/<tema> && npm run build       # Tailwind; luego subir ?v= del asset (C
 - No poner secretos en `SettingsModel` (sin cifrado) ni en el repo.
 - **Sin worktrees ni ramas por tarea**: trabajar y commitear directo sobre `main` en este checkout (una sesión en worktree no puede mergear ni migrar y obliga a interrumpir al usuario). El respaldo a GitHub lo hace el cron de root `bin/git-backup-push` cada 15 min (log en `.git/git-agent/backup-push.log`).
 - No tocar la rama con `reset`/`rebase`: otras sesiones de Claude escriben en el mismo repo. Verificar con `git log` antes de asumir que un commit propio sigue ahí.
+
+## Operación (decisiones 2026-10)
+- **Retención de logs: 30 días.** `aero.sites:purge-event-logs` (registro de eventos del sistema) y `aero.sites:purge-logs` (conectores, chatbots, entregas de notify) corren a diario. Antes `system_event_logs` llegó a 2,9 GB.
+- **Fallar cerrado**: sin tenant resuelto, un no-superadmin no ve nada (`scopeQueryToTenant` y las copias por plugin). `bin/verify-plugin` da error si un controller visible a `tenant_admin` no filtra por tenant.
+- Cobros: `QrCode::markPaid()` es atómico (lock); solo quien lo gana dispara los eventos de pago. No marcar `status='paid'` por otra vía.
+- Purgar un tenant borra sus filas en todas las tablas `aero_*` con `tenant_id` (`TenantDataPurger`), salvo el libro `aero_credits_*`.
+- Llamadas HTTP externas: siempre `->connectTimeout(5)->timeout(25)`. Jobs: `$tries` y `$timeout` explícitos. Tareas frecuentes: `withoutOverlapping()`.
+- **masterads está desactivado** (`plugin:disable`, tablas intactas) hasta que se rehaga. No reactivar sin pedirlo.
 
 ## Reglas de código October (fallan en silencio si se ignoran)
 - Subcarpetas de plugin **siempre en minúsculas** (`classes/`, `models/`, `controllers/`, `jobs/`).
