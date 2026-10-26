@@ -30,6 +30,10 @@ class ProcessOutboundEchoJob implements ShouldQueue
 {
     use Dispatchable, Queueable, InteractsWithQueue, SerializesModels;
 
+    public int $tries = 3;
+
+    public int $timeout = 60;
+
     public function __construct(protected int $webhookEventId)
     {
     }

@@ -14,6 +14,8 @@ class MarkOrderPaidJob implements ShouldQueue
 
     public int $tries = 6;
 
+    public int $timeout = 120;
+
     public function __construct(public int $orderLinkId)
     {
     }

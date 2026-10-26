@@ -12,6 +12,9 @@ class SendAnnouncementJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    // Un solo intento: reintentar reenviaría el aviso a quienes ya lo recibieron.
+    public int $tries = 1;
+
     public int $timeout = 600;
 
     public function __construct(public int $announcementId)
