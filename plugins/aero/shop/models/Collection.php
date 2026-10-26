@@ -5,8 +5,12 @@ use Str;
 
 class Collection extends Model
 {
+    use \October\Rain\Database\Traits\Nullable;
     use \October\Rain\Database\Traits\Validation;
     use \October\Rain\Database\Traits\SoftDelete;
+
+    // El desplegable manda '' si no se elige padre; la columna es entera y admite NULL.
+    public $nullable = ['parent_id'];
 
     public $table = 'aero_shop_collections';
 

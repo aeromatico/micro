@@ -31,6 +31,11 @@ class Commission extends Model
         return self::$statuses;
     }
 
+    public function getModalityOptions(): array
+    {
+        return Offer::$modalities;
+    }
+
     public function getModalityNameAttribute(): string
     {
         return Offer::$modalities[$this->modality] ?? (string) $this->modality;

@@ -39,3 +39,6 @@
 
 1.5.3:
     - "El Embudo ahora permite arrastrar las oportunidades de una etapa a otra."
+
+1.5.4:
+    - "Corrige el listado de Comisiones, que fallaba al mostrar la columna Modalidad."

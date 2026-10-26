@@ -186,3 +186,6 @@
 
 1.13.1:
     - "Restaurantes: ahora puedes mostrar la clave del WiFi y tus promociones o avisos en la página del pedido, mientras el comensal espera."
+
+1.13.2:
+    - "Corrige que guardar una colección sin colección padre diera error."
