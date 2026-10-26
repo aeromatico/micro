@@ -1,0 +1,19 @@
+#!/bin/bash
+# verify-all — corre bin/verify-plugin y bin/aero-test en TODOS los plugins y resume el estado.
+#   bin/verify-all [--no-tests]
+cd "$(dirname "$0")/.." || exit 2
+notests=""; [ "$1" = "--no-tests" ] && notests="--no-tests"
+bad=0
+printf '%-12s %-34s %s\n' PLUGIN VERIFY TESTS
+for d in plugins/aero/*/; do
+  p=$(basename "$d")
+  v=$(python3 bin/verify-plugin "$p" --no-tests 2>&1 | tail -1 | sed 's/^ *//')
+  python3 bin/verify-plugin "$p" --no-tests >/dev/null 2>&1 || bad=1
+  if [ -n "$notests" ]; then t="-"
+  elif [ -f "$d/phpunit.xml" ]; then
+    t=$(timeout 300 bin/aero-test "$p" 2>&1 | grep -E '^(OK|Tests:|FAILURES|ERRORS)' | tail -1); [ -z "$t" ] && { t="sin resultado"; bad=1; }
+    case "$t" in OK*) ;; *) bad=1;; esac
+  else t="SIN phpunit.xml"; fi
+  printf '%-12s %-34s %s\n' "$p" "${v:0:34}" "$t"
+done
+exit $bad
