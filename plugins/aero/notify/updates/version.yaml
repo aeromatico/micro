@@ -224,3 +224,7 @@
 
 1.5.20:
     - "Evita que Telegram o SMS lentos dejen colgadas las notificaciones: ahora tienen tiempo máximo."
+
+1.5.21:
+    - "Las bandejas y suscripciones push ahora cargan más rápido al crecer el número de espacios."
+    - add_tenant_id_indexes.php

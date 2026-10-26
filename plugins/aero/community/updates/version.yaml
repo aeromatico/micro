@@ -1,3 +1,7 @@
 1.0.0:
     - "Primera versión: comunidad (foro simple), sugerencias con compromiso de respuesta y botón de soporte rápido con URL y captura."
     - create_community_tables.php
+
+1.0.1:
+    - "Los comentarios y votos de la comunidad ahora cargan más rápido."
+    - add_tenant_id_indexes.php

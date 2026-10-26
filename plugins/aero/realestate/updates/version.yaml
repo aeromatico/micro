@@ -42,3 +42,7 @@
 
 1.5.4:
     - "Corrige el listado de Comisiones, que fallaba al mostrar la columna Modalidad."
+
+1.5.5:
+    - "El historial de contratos, acuerdos e interacciones ahora carga más rápido."
+    - add_tenant_id_indexes.php

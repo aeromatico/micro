@@ -8,3 +8,7 @@
 1.2.0:
     - "Seguimiento de enlaces públicos de terceros (feeds): el usuario pega la URL de rastreo (hoy PedidosYa; otros proveedores se añaden como drivers) y se registran estado, ETA, mensajes y posición del repartidor como Job + Asset, con eventos aero.tracking.feed.*."
     - create_feeds_tables.php
+
+1.2.1:
+    - "Las posiciones y eventos de seguimiento ahora se consultan más rápido."
+    - add_tenant_id_indexes.php

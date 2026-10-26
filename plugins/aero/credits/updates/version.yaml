@@ -88,3 +88,7 @@
 1.19.0:
     - "Auditoría de cobros para el superadmin (Créditos → Auditoría de cobros): consumo por plugin, funciones sin catálogo o sin tarifa pública y cobros que fallaron. Los cobros fallidos de API, Hub, Chatbots y Workflows ahora quedan registrados en vez de perderse, y todo cobro nuevo guarda su plugin de origen."
     - create_credit_charge_failures_table.php
+
+1.19.1:
+    - "Los cupones canjeados y las retenciones de créditos ahora se consultan más rápido."
+    - add_tenant_id_indexes.php
