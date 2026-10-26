@@ -61,7 +61,7 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        $schedule->command('notify:watch')->everyFifteenMinutes();
+        $schedule->command('notify:watch')->everyFifteenMinutes()->withoutOverlapping(10);
     }
 
     public function registerNavigation(): array

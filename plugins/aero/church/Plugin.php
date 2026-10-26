@@ -92,8 +92,8 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        $schedule->command('church:remind-events')->everyTenMinutes();
-        $schedule->command('church:sync-contributions')->everyTenMinutes();
+        $schedule->command('church:remind-events')->everyTenMinutes()->withoutOverlapping(10);
+        $schedule->command('church:sync-contributions')->everyTenMinutes()->withoutOverlapping(10);
         $schedule->command('church:birthdays')->dailyAt('08:00');
     }
 

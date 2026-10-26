@@ -32,7 +32,7 @@ class Plugin extends PluginBase
     public function registerSchedule($schedule): void
     {
         $schedule->command('realestate:anticretico-alerts')->dailyAt('08:00');
-        $schedule->command('realestate:remind')->everyTenMinutes();
+        $schedule->command('realestate:remind')->everyTenMinutes()->withoutOverlapping(10);
     }
 
     public function registerComponents(): array

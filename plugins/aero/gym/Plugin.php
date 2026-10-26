@@ -85,7 +85,7 @@ class Plugin extends PluginBase
     {
         $schedule->command('gym:generate-sessions')->dailyAt('02:00');
         $schedule->command('gym:daily')->dailyAt('09:00');
-        $schedule->call(fn () => app(\Aero\Gym\Classes\MembershipService::class)->syncPayments())->everyFiveMinutes();
+        $schedule->call(fn () => app(\Aero\Gym\Classes\MembershipService::class)->syncPayments())->everyFiveMinutes()->name('aero-gym-sync-payments')->withoutOverlapping(10);
     }
 
     public function registerPermissions(): array

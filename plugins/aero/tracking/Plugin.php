@@ -170,7 +170,7 @@ class Plugin extends PluginBase
     public function registerSchedule($schedule): void
     {
         $schedule->command('aero.tracking:prune')->dailyAt('03:30');
-        $schedule->command('aero.tracking:feeds')->everyMinute();
+        $schedule->command('aero.tracking:feeds')->everyMinute()->withoutOverlapping(10);
     }
 
     public function registerPermissions(): array

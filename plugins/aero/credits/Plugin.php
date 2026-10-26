@@ -40,9 +40,9 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        $schedule->command('credits:sweep-holds')->everyFiveMinutes();
-        $schedule->command('credits:expire-purchases')->everyMinute();
-        $schedule->command('credits:expire-gifts')->everyFiveMinutes();
+        $schedule->command('credits:sweep-holds')->everyFiveMinutes()->withoutOverlapping(10);
+        $schedule->command('credits:expire-purchases')->everyMinute()->withoutOverlapping(10);
+        $schedule->command('credits:expire-gifts')->everyFiveMinutes()->withoutOverlapping(10);
         $schedule->command('credits:verify')->dailyAt('04:10');
         $schedule->command('credits:expire-plan-grants')->dailyAt('04:05')->withoutOverlapping()->onOneServer();
     }

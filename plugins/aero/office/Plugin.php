@@ -54,7 +54,7 @@ class Plugin extends PluginBase
 
     public function registerSchedule($schedule): void
     {
-        $schedule->command('office:remind')->everyTenMinutes();
+        $schedule->command('office:remind')->everyTenMinutes()->withoutOverlapping(10);
     }
 
     public function registerComponents(): array

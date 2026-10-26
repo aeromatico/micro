@@ -78,7 +78,7 @@ class Plugin extends PluginBase
     public function registerSchedule($schedule): void
     {
         $schedule->command('school:daily')->dailyAt('09:00');
-        $schedule->call(fn () => app(\Aero\School\Classes\Billing::class)->syncQrPayments())->everyFiveMinutes();
+        $schedule->call(fn () => app(\Aero\School\Classes\Billing::class)->syncQrPayments())->everyFiveMinutes()->name('aero-school-sync-qr')->withoutOverlapping(10);
     }
 
     public function registerPermissions(): array
