@@ -36,3 +36,6 @@
 
 1.5.1:
     - "Evita que WhatsApp (wapi) lento deje colgadas las llamadas: ahora tienen tiempo máximo."
+
+1.5.2:
+    - "Evita errores cuando wapi reenvía el mismo aviso dos veces a la vez."

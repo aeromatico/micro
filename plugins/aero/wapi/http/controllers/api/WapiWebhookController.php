@@ -65,11 +65,16 @@ class WapiWebhookController extends Controller
         $alreadyKnown = $event->exists;
 
         if (!$alreadyKnown) {
-            $event->fill([
-                'event_type' => $canonical,
-                'account_id' => $account->id,
-                'payload'    => $payload,
-            ])->save();
+            try {
+                $event->fill([
+                    'event_type' => $canonical,
+                    'account_id' => $account->id,
+                    'payload'    => $payload,
+                ])->save();
+            } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                // Reintento simultáneo del proveedor: ya lo guardó otra petición.
+                return response()->json(['received' => true]);
+            }
 
             ProcessWebhookEventJob::dispatch($event->id);
         }
@@ -88,7 +93,11 @@ class WapiWebhookController extends Controller
         $event = WebhookEvent::firstOrNew(['event_id' => sprintf('wapi:%s:message_create:%s', $instanceId, $data['id'])]);
 
         if (!$event->exists) {
-            $event->fill(['event_type' => 'message.echo', 'account_id' => $account->id, 'payload' => $payload])->save();
+            try {
+                $event->fill(['event_type' => 'message.echo', 'account_id' => $account->id, 'payload' => $payload])->save();
+            } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                return response()->json(['received' => true]);
+            }
 
             // Unos segundos de margen: si lo envió Hello, SendMessageJob debe
             // alcanzar a guardar el id externo antes de que se concilie.
