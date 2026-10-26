@@ -503,3 +503,6 @@
 
 1.91.0:
     - "Las listas del panel ahora se pueden exportar a CSV o PDF eligiendo las columnas (botón Exportar en la barra de la lista)."
+
+1.92.0:
+    - "El registro de eventos del sistema ahora se limpia solo: se conservan 30 días."

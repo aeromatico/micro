@@ -43,6 +43,7 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('aero.sites:refresh-devlog', \Aero\Sites\Console\RefreshDevLog::class);
         $this->registerConsoleCommand('aero.sites:generate-renewals', \Aero\Sites\Console\GenerateRenewals::class);
         $this->registerConsoleCommand('aero.sites:expire-renewals', \Aero\Sites\Console\ExpireRenewals::class);
+        $this->registerConsoleCommand('aero.sites:purge-event-logs', \Aero\Sites\Console\PurgeEventLogs::class);
     }
 
     public function boot(): void
@@ -188,6 +189,11 @@ class Plugin extends PluginBase
             ->onOneServer();
         $schedule->command('aero.sites:expire-renewals')
             ->dailyAt('03:55')
+            ->withoutOverlapping()
+            ->onOneServer();
+        // Retención de 30 días del registro de eventos (llegó a 2,9 GB).
+        $schedule->command('aero.sites:purge-event-logs --days=30')
+            ->dailyAt('04:20')
             ->withoutOverlapping()
             ->onOneServer();
     }
