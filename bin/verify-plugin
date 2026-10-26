@@ -90,7 +90,10 @@ def check_version_yaml(base):
 
 def check_controllers(base):
     for f in sorted(glob.glob(os.path.join(base, 'controllers', '*.php'))):
-        src = read(f); name = os.path.splitext(os.path.basename(f))[0]
+        raw = read(f); name = os.path.splitext(os.path.basename(f))[0]
+        # sin comentarios: «FormController» en un docblock no cuenta como behavior
+        src = re.sub(r'/\*.*?\*/', '', raw, flags=re.S)
+        src = re.sub(r'(?m)^\s*(//|#).*$', '', src)
         vdir = os.path.join(base, 'controllers', name.lower())
         has_list = 'ListController' in src
         has_form = 'FormController' in src

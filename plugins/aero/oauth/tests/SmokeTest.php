@@ -14,8 +14,8 @@ class SmokeTest extends PluginTestCase
         $i->save();
 
         $raw = \DB::table('aero_oauth_identities')->where('id', $i->id)->first();
-        $this->assertStringNotContainsString('RT', $raw->refresh_token);
-        $this->assertStringNotContainsString('AT', $raw->access_token);
+        $this->assertNotSame('RT', $raw->refresh_token); // el base64 aleatorio puede contener «RT»: se compara completo
+        $this->assertNotSame('AT', $raw->access_token);
 
         $i = Identity::find($i->id);
         $i->refresh_token = null; // Google no lo reenvía en logins posteriores
