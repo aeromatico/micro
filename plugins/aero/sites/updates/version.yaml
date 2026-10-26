@@ -512,3 +512,6 @@
 
 1.94.0:
     - "Evita que un servicio de correo lento deje colgado el envío: ahora tiene tiempo máximo."
+
+1.95.0:
+    - "Corrige que no se pudieran crear páginas generadas cuando el menú llegaba vacío."

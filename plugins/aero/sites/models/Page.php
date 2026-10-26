@@ -37,6 +37,13 @@ class Page extends Model
 
     protected $dates = ['deleted_at'];
 
+    /** Un formulario o la IA pueden mandar '' o []: la columna JSON solo admite JSON válido o NULL. */
+    public function setMenuPositionsAttribute($value): void
+    {
+        // Solo se normaliza lo vacío; el resto lo codifica $jsonable al guardar.
+        $this->attributes['menu_positions'] = ($value === '' || $value === []) ? null : $value;
+    }
+
     public $rules = [
         'tenant_id' => 'required|exists:aero_sites_tenants,id',
         'title'     => 'required|min:2|max:200',
