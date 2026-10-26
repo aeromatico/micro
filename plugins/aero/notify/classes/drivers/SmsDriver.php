@@ -20,7 +20,7 @@ class SmsDriver implements ChannelDriverInterface
             throw new \RuntimeException('Canal SMS sin credenciales de Twilio configuradas.');
         }
 
-        $response = Http::withBasicAuth($accountSid, $authToken)
+        $response = Http::connectTimeout(5)->timeout(25)->withBasicAuth($accountSid, $authToken)
             ->asForm()
             ->post("https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json", [
                 'From' => $from,

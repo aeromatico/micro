@@ -509,3 +509,6 @@
 
 1.93.0:
     - "Corrige que, si no se identificaba el espacio de trabajo, algunas pantallas podían mostrar datos de otros espacios; ahora no muestran nada."
+
+1.94.0:
+    - "Evita que un servicio de correo lento deje colgado el envío: ahora tiene tiempo máximo."

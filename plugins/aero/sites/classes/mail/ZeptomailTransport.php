@@ -61,7 +61,7 @@ class ZeptomailTransport extends AbstractTransport
             $payload['textbody'] = $text;
         }
 
-        $response = Http::withHeaders([
+        $response = Http::connectTimeout(5)->timeout(25)->withHeaders([
             'Authorization' => $this->token,
             'Accept' => 'application/json',
         ])->post($this->endpoint, $payload);

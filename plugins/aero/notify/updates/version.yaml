@@ -221,3 +221,6 @@
 
 1.5.19:
     - "Arregla las pantallas de Canales, Reglas y Plantillas, que salían en blanco."
+
+1.5.20:
+    - "Evita que Telegram o SMS lentos dejen colgadas las notificaciones: ahora tienen tiempo máximo."

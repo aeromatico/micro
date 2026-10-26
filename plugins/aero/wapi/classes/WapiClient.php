@@ -69,7 +69,7 @@ class WapiClient
             throw new WapiApiException('La API key de wapi no está configurada (Configuración → wapi).');
         }
 
-        return Http::withHeaders(['X-API-Key' => $this->apiKey])
+        return Http::connectTimeout(5)->timeout(25)->withHeaders(['X-API-Key' => $this->apiKey])
             ->baseUrl($this->baseUrl)
             ->acceptJson()
             ->asJson();

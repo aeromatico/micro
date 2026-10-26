@@ -18,7 +18,7 @@ class TelegramDriver implements ChannelDriverInterface
             throw new \RuntimeException('Canal Telegram sin bot_token configurado.');
         }
 
-        $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+        $response = Http::connectTimeout(5)->timeout(25)->post("https://api.telegram.org/bot{$botToken}/sendMessage", [
             'chat_id' => $address,
             'text'    => strip_tags($body),
         ]);
