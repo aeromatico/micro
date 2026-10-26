@@ -236,6 +236,22 @@ def run_tests(base, code):
     return summary
 
 
+def check_tenant_controllers(base, code):
+    """Pantalla concedida a tenant_admin con lista/form: debe filtrar por tenant (falla cerrado)."""
+    sites = os.path.join(ROOT, 'plugins', 'aero', 'sites', 'updates')
+    grants = ''.join(read(g) for g in glob.glob(os.path.join(sites, 'grant_*.php')))
+    scoping = re.compile(r'listExtendQuery|formExtendQuery|scopeQueryToTenant|ScopesToTenant|TenantScope|CurrentTenant|TenantOwned|getCurrentTenant|TenantGuard')
+    for f in sorted(glob.glob(os.path.join(base, 'controllers', '*.php'))):
+        raw = read(f)
+        src = re.sub(r'(?m)^\s*(//|#|\*|/\*).*$', '', raw)
+        if not re.search(r'ListController|FormController', src): continue
+        m = re.search(r'\$requiredPermissions\s*=\s*\[([^\]]*)\]', src)
+        perms = re.findall(r"'(aero\.[a-z0-9_.]+)'", m.group(1)) if m else []
+        tenant_perms = [p for p in perms if not p.endswith('.superadmin') and p in grants]
+        if tenant_perms and not scoping.search(src):
+            err(f'Controller {os.path.basename(f)[:-4]}: lo ve tenant_admin ({tenant_perms[0]}) pero no filtra por tenant (fuga entre tenants)')
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     if not args:
@@ -247,7 +263,7 @@ def main():
 
     n = check_lint(base)
     check_lowercase_dirs(base); check_version_yaml(base); check_controllers(base)
-    check_code_patterns(base); check_plugin_php(base, code); check_tenant(base); check_mcp(base, code)
+    check_code_patterns(base); check_plugin_php(base, code); check_tenant(base); check_tenant_controllers(base, code); check_mcp(base, code)
     tests = None if '--no-tests' in sys.argv else run_tests(base, code)
 
     print(f'verify-plugin aero/{code}: {n} archivos PHP revisados')
