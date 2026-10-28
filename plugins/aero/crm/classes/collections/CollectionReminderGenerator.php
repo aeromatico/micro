@@ -33,9 +33,6 @@ class CollectionReminderGenerator
 {
     protected const DEFAULT_TEMPLATE = 'Hola {{contacto}}, te recordamos que tienes un pago pendiente de {{monto}} {{moneda}} por "{{concepto}}" con vencimiento el {{vencimiento}}. Por favor regulariza a la brevedad.';
 
-    /** Tope de recordatorios por cobro en el modo de respaldo (sin reglas). */
-    protected const MAX_DEFAULT_REMINDERS = 3;
-
     public function generateForAllTenants(): Collection
     {
         $results = collect();
@@ -79,6 +76,7 @@ class CollectionReminderGenerator
     {
         $query = CollectionItem::forTenant($rule->tenant_id)
             ->pending()
+            ->where('reminders_paused', false)
             ->where('due_date', '>=', now()->toDateString());
 
         if ($rule->contact_list_id) {
@@ -132,39 +130,73 @@ class CollectionReminderGenerator
     }
 
     /**
-     * Comportamiento anterior a las reglas: un único recordatorio repetido
-     * cada `reminder_interval_days` mientras el cobro siga pendiente y
-     * vencido. Solo se usa si el tenant no configuró ninguna regla.
+     * Cascada por defecto (tenants sin reglas): días respecto al vencimiento de
+     * cada recordatorio automático. Máximo 4 envíos por cobro; después se detiene
+     * y el tenant gestiona el cobro a mano.
+     */
+    protected const DEFAULT_CASCADE = [-2, 0, 3, 7];
+
+    /**
+     * Un recordatorio por cobro y por corrida, según DEFAULT_CASCADE (ver
+     * dueDefaultStepDate). Un cobro cargado ya vencido no dispara una ráfaga.
      */
     protected function generateUsingDefaultInterval(int $tenantId, CrmSettings $settings): Collection
     {
-        $intervalDays = max(1, (int) $settings->reminder_interval_days);
+        $max = count(self::DEFAULT_CASCADE);
+        $today = now()->startOfDay();
 
         $items = CollectionItem::forTenant($tenantId)
             ->pending()
-            ->where('due_date', '<=', now()->toDateString())
-            ->where(function ($q) {
-                $q->whereNull('reminder_count')->orWhere('reminder_count', '<', self::MAX_DEFAULT_REMINDERS);
+            ->where('reminders_paused', false)
+            ->where(function ($q) use ($max) {
+                $q->whereNull('reminder_count')->orWhere('reminder_count', '<', $max);
             })
-            ->where(function ($q) use ($intervalDays) {
-                $q->whereNull('last_reminder_at')
-                    ->orWhere('last_reminder_at', '<=', now()->subDays($intervalDays));
+            ->where(function ($q) {
+                $q->whereNull('last_reminder_at')->orWhere('last_reminder_at', '<', now()->startOfDay());
             })
             ->with(['contact', 'recipients'])
             ->get();
 
-        return $items->map(function (CollectionItem $item) use ($settings) {
+        return $items->map(function (CollectionItem $item) use ($settings, $today) {
+            $stepDate = $this->dueDefaultStepDate($item, $today);
+            if (!$stepDate) {
+                return null;
+            }
+
             $sent = $this->sendReminder($item, $settings);
 
-            // Si nadie lo recibió (límite de marketing de Meta, sin WhatsApp, baja),
-            // se espera el intervalo completo antes de reintentar en vez de insistir a diario.
+            // Si nadie lo recibió (límite de Meta, sin WhatsApp, baja) se espera
+            // al siguiente paso en vez de insistir a diario.
             if ($sent === 0) {
                 $item->last_reminder_at = now();
                 $item->save();
             }
 
             return ['item' => $item, 'sent' => $sent];
-        });
+        })->filter();
+    }
+
+    /**
+     * Paso de la cascada que toca hoy, o null. Es el más reciente que ya llegó, no es
+     * anterior a la creación del cobro ni tiene más de 3 días (un servidor caído no
+     * dispara mensajes viejos) y aún no se envió (último envío anterior a esa fecha).
+     */
+    protected function dueDefaultStepDate(CollectionItem $item, Carbon $today): ?Carbon
+    {
+        $due = Carbon::parse($item->due_date)->startOfDay();
+        $created = Carbon::parse($item->created_at)->startOfDay();
+        $oldest = $today->copy()->subDays(3);
+
+        $step = collect(self::DEFAULT_CASCADE)
+            ->map(fn (int $offset) => $due->copy()->addDays($offset))
+            ->filter(fn (Carbon $date) => $date->lte($today) && $date->gte($created) && $date->gte($oldest))
+            ->last();
+
+        if (!$step) {
+            return null;
+        }
+
+        return $item->last_reminder_at && $item->last_reminder_at->startOfDay()->gte($step) ? null : $step;
     }
 
     /**
@@ -222,6 +254,7 @@ class CollectionReminderGenerator
         }
 
         $sent = 0;
+        $lastError = null;
         foreach ($recipients as $contact) {
             $helloContact = $contact->hello_contact_id && class_exists(\Aero\Hello\Models\Contact::class)
                 ? \Aero\Hello\Models\Contact::with('identities')->find($contact->hello_contact_id)
@@ -229,11 +262,13 @@ class CollectionReminderGenerator
 
             $phone = $helloContact?->identities->firstWhere('platform', 'whatsapp')?->external_id ?: $contact->phone;
             if (!$phone) {
+                $lastError = $lastError ?: 'El contacto no tiene número de WhatsApp.';
                 continue;
             }
 
             // Respeta la baja del contacto (lista de bajas de Aero.Sms).
             if (class_exists(\Aero\Sms\Models\OptOut::class) && \Aero\Sms\Models\OptOut::blocks('+' . ltrim($phone, '+'))) {
+                $lastError = $lastError ?: 'El contacto está en la lista de bajas.';
                 continue;
             }
 
@@ -252,6 +287,8 @@ class CollectionReminderGenerator
                 'vencimiento' => optional($item->due_date)->format('d/m/Y'),
                 'mensaje'     => $body,
                 'dias_atraso' => $overdue ? $item->due_date->diffInDays(now()->startOfDay(), true) : 0,
+                // Un cobro es un aviso transaccional: va como utilidad, no como marketing (Meta limita el marketing por destinatario).
+                'category'    => 'utility',
             ] + $media, [
                 'tenant_id' => (int) $item->tenant_id,
                 'actor'     => ['name' => $contact->full_name, 'phone' => $phone],
@@ -260,6 +297,8 @@ class CollectionReminderGenerator
             ]);
 
             if (!collect($deliveries)->contains(fn ($d) => $d->channel === 'whatsapp' && $d->status === 'sent')) {
+                $failure = collect($deliveries)->firstWhere('channel', 'whatsapp')?->error;
+                $lastError = $lastError ?: mb_substr((string) ($failure ?: 'No se pudo enviar por WhatsApp.'), 0, 250);
                 continue;
             }
 
@@ -278,6 +317,9 @@ class CollectionReminderGenerator
         }
 
         if ($sent === 0) {
+            $item->last_reminder_error = $lastError;
+            $item->save();
+
             if ($rule) {
                 CollectionReminderLog::where('collection_item_id', $item->id)
                     ->where('collection_reminder_rule_id', $rule->id)
@@ -288,6 +330,7 @@ class CollectionReminderGenerator
         }
 
         $item->last_reminder_at = now();
+        $item->last_reminder_error = null;
         $item->reminder_count = ($item->reminder_count ?? 0) + 1;
         $item->save();
 

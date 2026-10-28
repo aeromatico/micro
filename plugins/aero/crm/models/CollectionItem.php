@@ -23,7 +23,7 @@ class CollectionItem extends Model
     public $fillable = [
         'tenant_id', 'contact_id', 'contact_list_id', 'owner_id',
         'concept', 'amount', 'currency', 'due_date', 'status', 'notes',
-        'payment_reference',
+        'payment_reference', 'reminders_paused',
     ];
 
     protected $dates = ['due_date', 'paid_at', 'last_reminder_at'];

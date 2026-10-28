@@ -25,7 +25,11 @@ class WhatsAppDriver implements ChannelDriverInterface
         }
 
         $tenantId = $context['tenant_id'] ?? null;
-        $media = array_filter([
+        // `category` (p. ej. 'utility' en cobranzas): viaja en provider_payload y el
+        // driver de Hello lo manda a Meta como mensaje de utilidad, no de marketing.
+        $category = !empty($context['category']) ? ['provider_payload' => ['category' => $context['category']]] : [];
+
+        $media = $category + array_filter([
             'media_url'  => $context['media_url'] ?? null,
             'media_type' => $context['media_type'] ?? null,
         ], fn ($v) => $v !== null);

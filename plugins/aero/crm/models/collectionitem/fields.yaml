@@ -58,6 +58,18 @@ fields:
         size: small
         span: full
 
+    reminders_paused:
+        label: Pausar recordatorios automáticos
+        type: switch
+        span: full
+        comment: Sin recordatorios por WhatsApp para este cobro. Tras 4 envíos automáticos se detienen solos.
+
+    last_reminder_error:
+        label: Último fallo de envío
+        type: text
+        span: full
+        disabled: true
+
     last_reminder_at:
         label: Último recordatorio enviado
         type: datepicker

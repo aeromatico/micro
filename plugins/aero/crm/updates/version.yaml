@@ -168,3 +168,7 @@
 
 1.14.1:
     - "Corrige los recordatorios de cobro sin reglas: ya no se repiten sin fin (máximo 3 por cobro), respetan la lista de bajas y esperan el intervalo completo si nadie pudo recibirlos."
+
+1.15.0:
+    - "Los recordatorios de cobro ahora van como mensaje de utilidad, con una cascada por defecto de 4 envíos (2 días antes, el día, +3 y +7), opción de pausar por cobro y el motivo del último fallo en la ficha."
+    - add_reminder_control_to_collection_items_table.php

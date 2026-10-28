@@ -38,3 +38,13 @@ columns:
         label: Último recordatorio
         type: datetime
         width: 160px
+
+    reminder_count:
+        label: Envíos
+        type: number
+        width: 80px
+
+    reminders_paused:
+        label: Pausado
+        type: switch
+        width: 80px
