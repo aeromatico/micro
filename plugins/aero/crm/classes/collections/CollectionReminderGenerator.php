@@ -33,6 +33,9 @@ class CollectionReminderGenerator
 {
     protected const DEFAULT_TEMPLATE = 'Hola {{contacto}}, te recordamos que tienes un pago pendiente de {{monto}} {{moneda}} por "{{concepto}}" con vencimiento el {{vencimiento}}. Por favor regulariza a la brevedad.';
 
+    /** Tope de recordatorios por cobro en el modo de respaldo (sin reglas). */
+    protected const MAX_DEFAULT_REMINDERS = 3;
+
     public function generateForAllTenants(): Collection
     {
         $results = collect();
@@ -140,6 +143,9 @@ class CollectionReminderGenerator
         $items = CollectionItem::forTenant($tenantId)
             ->pending()
             ->where('due_date', '<=', now()->toDateString())
+            ->where(function ($q) {
+                $q->whereNull('reminder_count')->orWhere('reminder_count', '<', self::MAX_DEFAULT_REMINDERS);
+            })
             ->where(function ($q) use ($intervalDays) {
                 $q->whereNull('last_reminder_at')
                     ->orWhere('last_reminder_at', '<=', now()->subDays($intervalDays));
@@ -147,10 +153,18 @@ class CollectionReminderGenerator
             ->with(['contact', 'recipients'])
             ->get();
 
-        return $items->map(fn (CollectionItem $item) => [
-            'item' => $item,
-            'sent' => $this->sendReminder($item, $settings),
-        ]);
+        return $items->map(function (CollectionItem $item) use ($settings) {
+            $sent = $this->sendReminder($item, $settings);
+
+            // Si nadie lo recibió (límite de marketing de Meta, sin WhatsApp, baja),
+            // se espera el intervalo completo antes de reintentar en vez de insistir a diario.
+            if ($sent === 0) {
+                $item->last_reminder_at = now();
+                $item->save();
+            }
+
+            return ['item' => $item, 'sent' => $sent];
+        });
     }
 
     /**
@@ -215,6 +229,11 @@ class CollectionReminderGenerator
 
             $phone = $helloContact?->identities->firstWhere('platform', 'whatsapp')?->external_id ?: $contact->phone;
             if (!$phone) {
+                continue;
+            }
+
+            // Respeta la baja del contacto (lista de bajas de Aero.Sms).
+            if (class_exists(\Aero\Sms\Models\OptOut::class) && \Aero\Sms\Models\OptOut::blocks('+' . ltrim($phone, '+'))) {
                 continue;
             }
 

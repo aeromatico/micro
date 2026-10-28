@@ -165,3 +165,6 @@
 1.14.0:
     - "Respuestas rapidas con tipo: texto, botones, menu, enlace, pedir ubicacion, llamada, ubicacion, contacto y encuesta. Si la cuenta no admite el tipo se envia el texto de respaldo."
     - add_kind_config_to_quick_replies.php
+
+1.14.1:
+    - "Corrige los recordatorios de cobro sin reglas: ya no se repiten sin fin (máximo 3 por cobro), respetan la lista de bajas y esperan el intervalo completo si nadie pudo recibirlos."
