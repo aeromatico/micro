@@ -1,0 +1,175 @@
+title = "Aplicar"
+url = "/aplicar"
+layout = "main"
+meta_description = "Postula como creador de shorts, lives o edición en tres pasos."
+is_hidden = 0
+
+[viralApply]
+==
+{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=3"></script>{% endput %}
+<script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
+
+<div class="vl-wrap" x-data="viralApply()" x-cloak>
+    <nav class="vl-nav">
+        <a class="vl-logo" href="/" style="color:inherit;text-decoration:none">viral<span>.</span></a>
+        <template x-if="step < 4"><span class="vl-step" aria-live="polite">Paso <span x-text="step"></span> / 3 · <span x-text="stepName"></span></span></template>
+    </nav>
+
+    <template x-if="step < 4">
+        <div class="vl-bars" aria-hidden="true">
+            <template x-for="n in 3" :key="n"><i :class="{on: step >= n}"></i></template>
+        </div>
+    </template>
+
+    <main class="vl-flow" id="flujo">
+
+        <!-- PASO 1 -->
+        <section x-show="step === 1" aria-labelledby="h1">
+            <h1 id="h1" class="vl-h">¿Qué haces?</h1>
+            <div class="vl-choices" role="group" aria-label="Camino">
+                <template x-for="t in catalog.tracks" :key="t.k">
+                    <button type="button" class="vl-choice" :class="{on: track === t.k}" :aria-pressed="track === t.k" @click="track = t.k">
+                        <span class="card-kicker" x-text="t.kicker"></span>
+                        <strong x-text="t.title"></strong>
+                        <span x-text="t.sub"></span>
+                    </button>
+                </template>
+            </div>
+
+            <div x-show="track" x-transition.opacity>
+                <h2 class="vl-h2">¿En qué nivel estás?</h2>
+                <div class="vl-choices vl-levels" role="group" aria-label="Nivel">
+                    <template x-for="l in catalog.levels" :key="l.n">
+                        <button type="button" class="vl-choice" :class="{on: level === l.n}" :aria-pressed="level === l.n" @click="pickLevel(l.n)">
+                            <span class="card-kicker" x-text="l.nick"></span>
+                            <strong x-text="l.title"></strong>
+                            <span x-text="'→ ' + l.sub"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+            <p class="vl-err" role="alert" x-show="tried1 && (!track || !level)">Elige tu camino y tu nivel para seguir.</p>
+            <div class="vl-actions"><button type="button" class="btn btn-primary vl-big" @click="next1()">Siguiente</button></div>
+        </section>
+
+        <!-- PASO 2 -->
+        <section x-show="step === 2" aria-labelledby="h2">
+            <h1 id="h2" class="vl-h">Enséñanos lo tuyo.</h1>
+
+            <fieldset class="vl-fs">
+                <legend>Pega links de tu trabajo</legend>
+                <p class="text-muted" x-text="linkHelp"></p>
+                <template x-for="(l, i) in links" :key="i">
+                    <div class="vl-linkrow">
+                        <label class="vl-sr" :for="'link'+i">Link <span x-text="i+1"></span></label>
+                        <input class="input vl-in" :id="'link'+i" type="url" inputmode="url" autocomplete="off" :placeholder="linkPh" x-model="links[i]">
+                        <span class="tag" :class="platformTag(links[i]).cls" x-show="links[i].trim()" x-text="platformTag(links[i]).label"></span>
+                        <button type="button" class="btn btn-secondary" x-show="links.length > 1" @click="links.splice(i,1)" :aria-label="'Quitar link ' + (i+1)">Quitar</button>
+                    </div>
+                </template>
+                <button type="button" class="btn btn-ghost" x-show="links.length < 5" @click="links.push('')">+ Otro link</button>
+                <p class="text-muted vl-note">Acepta TikTok, Instagram, YouTube y Facebook. Nuestro equipo revisa cada link.</p>
+                <p class="vl-err" role="alert" x-show="tried2 && !hasLink()">Pega al menos un link válido.</p>
+            </fieldset>
+
+            <fieldset class="vl-fs">
+                <legend>¿Qué se te da bien? <span class="text-muted" x-text="tags.length ? tags.length + ' elegidas' : 'Elige todas las que quieras'"></span></legend>
+                <div class="vl-tags">
+                    <template x-for="t in trackTags" :key="t">
+                        <button type="button" class="vl-tag" :class="{on: tags.includes(t)}" :aria-pressed="tags.includes(t)" @click="toggleTag(t)" x-text="t"></button>
+                    </template>
+                </div>
+            </fieldset>
+
+            <div class="field">
+                <label for="desc">En tus palabras, ¿qué haces? <span class="text-muted" x-text="desc.length + ' / 600'"></span></label>
+                <textarea id="desc" class="input vl-in" maxlength="600" rows="4" x-model="desc" :placeholder="descPh"></textarea>
+            </div>
+
+            <div class="vl-actions">
+                <button type="button" class="btn btn-secondary vl-big" @click="step = 1">← Atrás</button>
+                <button type="button" class="btn btn-primary vl-big" @click="next2()">Siguiente</button>
+            </div>
+        </section>
+
+        <!-- PASO 3 -->
+        <section x-show="step === 3" aria-labelledby="h3">
+            <h1 id="h3" class="vl-h">Crea tu cuenta.</h1>
+            <p class="vl-err" role="alert" x-show="formError" x-text="formError"></p>
+
+            <template x-if="user"><p class="vl-who">Continúas como <strong x-text="user.name"></strong> (<span x-text="user.email"></span>).</p></template>
+
+            <form class="vl-form" @submit.prevent="submit()" novalidate>
+                <input type="text" name="website" x-model="website" tabindex="-1" autocomplete="off" class="vl-hp" aria-hidden="true">
+
+                <template x-if="!user">
+                    <div class="vl-grid">
+                        <div class="field"><label for="f-name">Nombre</label>
+                            <input id="f-name" class="input vl-in" autocomplete="name" placeholder="Tú o tu canal" x-model="name" :aria-invalid="!!err('name')">
+                            <p class="vl-err" x-text="err('name')"></p></div>
+                        <div class="field"><label for="f-email">Correo</label>
+                            <input id="f-email" class="input vl-in" type="email" autocomplete="email" placeholder="tu@correo.com" x-model="email" :aria-invalid="!!err('email')">
+                            <p class="vl-err" x-text="err('email')"></p></div>
+                    </div>
+                </template>
+
+                <div class="vl-grid">
+                    <div class="field"><label for="f-phone">Celular</label>
+                        <div class="vl-phone"><span class="vl-cc">+591</span>
+                            <input id="f-phone" class="input vl-in" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="7XXXXXXX" maxlength="12" x-model="phone" :aria-invalid="!!err('phone')"></div>
+                        <p class="vl-err" x-text="err('phone')"></p></div>
+                    <div class="field"><label for="f-dep">Departamento</label>
+                        <select id="f-dep" class="input vl-in" x-model="department" @change="city=''" :aria-invalid="!!err('department')">
+                            <option value="">Elige…</option>
+                            <template x-for="d in Object.keys(catalog.departments)" :key="d"><option :value="d" x-text="d"></option></template>
+                        </select>
+                        <p class="vl-err" x-text="err('department')"></p></div>
+                    <div class="field"><label for="f-city">Ciudad</label>
+                        <input id="f-city" class="input vl-in" list="cities" autocomplete="off" placeholder="Ej. La Paz" x-model="city" :aria-invalid="!!err('city')">
+                        <datalist id="cities"><template x-for="c in (catalog.departments[department] || [])" :key="c"><option :value="c"></option></template></datalist>
+                        <p class="vl-err" x-text="err('city')"></p></div>
+                </div>
+
+                <template x-if="!user">
+                    <div class="field"><label for="f-pass">Contraseña</label>
+                        <div class="vl-pw">
+                            <input id="f-pass" class="input vl-in" :type="showPw ? 'text' : 'password'" autocomplete="new-password" placeholder="Mínimo 8 caracteres" x-model="password" :aria-invalid="!!err('password')">
+                            <button type="button" class="btn btn-secondary" @click="showPw = !showPw" x-text="showPw ? 'Ocultar' : 'Ver'" :aria-pressed="showPw"></button>
+                        </div>
+                        <p class="vl-err" x-text="err('password')"></p>
+                        <p class="text-muted vl-note">Si ya tienes cuenta con este correo, escribe su contraseña.</p></div>
+                </template>
+
+                <label class="vl-check"><input type="checkbox" x-model="offer"><span><strong>Ofrece mi perfil a +2,000 clientes activos</strong> <em class="text-muted">Opcional</em><br>
+                    <span class="text-muted">Apareces en el directorio de Viral y las marcas te contratan directo para shorts, lives o edición, como freelance.</span></span></label>
+
+                <label class="vl-check"><input type="checkbox" x-model="adult" :aria-invalid="!!err('adult')"><span>Confirmo que soy mayor de 18 años.</span></label>
+                <p class="vl-err" x-text="err('adult')"></p>
+                <label class="vl-check"><input type="checkbox" x-model="terms" :aria-invalid="!!err('terms')"><span>Acepto los <a href="/terminos" target="_blank" rel="noopener">términos</a> y la <a href="/privacidad" target="_blank" rel="noopener">política de privacidad</a>.</span></label>
+                <p class="vl-err" x-text="err('terms')"></p>
+
+                <div class="vl-actions">
+                    <button type="button" class="btn btn-secondary vl-big" @click="step = 2">← Atrás</button>
+                    <button type="submit" class="btn btn-primary vl-big" :disabled="busy" x-text="busy ? 'Enviando…' : 'Crear cuenta y enviar'"></button>
+                </div>
+                <p class="text-muted vl-note">Solo usamos tus datos para evaluar tu perfil y contactarte con oportunidades.</p>
+            </form>
+        </section>
+
+        <!-- PASO 4: estado real (lo responde el servidor) -->
+        <section x-show="step === 4" class="vl-done" aria-labelledby="h4" aria-live="polite">
+            <p class="card-kicker" style="color:inherit">✓ Perfil enviado</p>
+            <h1 id="h4" class="vl-h">Listo, <span x-text="firstName"></span>.</h1>
+            <p x-text="doneText"></p>
+            <ol class="vl-stages">
+                <template x-for="s in (app ? app.stages : [])" :key="s.label">
+                    <li :class="{done: s.done}"><span class="vl-mark" aria-hidden="true" x-text="s.done ? '✓' : ''"></span><span x-text="s.label"></span><em x-text="stageState(s)"></em></li>
+                </template>
+            </ol>
+            <p x-show="app && app.notes" class="vl-notes"><strong>Mensaje del equipo:</strong> <span x-text="app && app.notes"></span></p>
+        </section>
+    </main>
+
+    <footer class="vl-foot"><a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a></footer>
+</div>
+

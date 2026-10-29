@@ -1,0 +1,23 @@
+description = "Estructura base de viral."
+==
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ this.page.title ? this.page.title ~ ' · ' : '' }}viral.</title>
+    <meta name="description" content="{{ this.page.meta_description ?: 'Marcas buscan creadores de video vertical, vendedores en vivo y editores. Postula en minutos.' }}">
+    <meta name="theme-color" content="#ec3013">
+    <link rel="icon" href="{{ 'assets/img/favicon.svg' | theme }}?v=1" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap">
+    <link rel="stylesheet" href="{{ 'assets/css/viral.css' | theme }}?v=2">
+    {% placeholder head_scripts %}
+    <script defer src="{{ 'assets/js/alpine.min.js' | theme }}?v=3.14.1"></script>
+    <style>[x-cloak]{display:none!important}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style>
+</head>
+<body>
+{% page %}
+</body>
+</html>
