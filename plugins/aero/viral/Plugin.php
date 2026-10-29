@@ -22,6 +22,11 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('viral.s3check', \Aero\Viral\Console\S3Check::class);
+    }
+
     public function registerComponents(): array
     {
         return [\Aero\Viral\Components\ViralApply::class => 'viralApply'];

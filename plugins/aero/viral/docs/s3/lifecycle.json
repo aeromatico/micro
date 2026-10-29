@@ -1,0 +1,22 @@
+{
+  "Rules": [
+    {
+      "ID": "viral-abortar-subidas-incompletas",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "viral/" },
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 2 }
+    },
+    {
+      "ID": "viral-kyc-red-de-seguridad",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "viral/kyc/" },
+      "Expiration": { "Days": 60 }
+    },
+    {
+      "ID": "viral-pruebas",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "viral/selfcheck/" },
+      "Expiration": { "Days": 1 }
+    }
+  ]
+}

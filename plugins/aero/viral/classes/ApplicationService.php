@@ -163,6 +163,7 @@ class ApplicationService
             'status' => $app->status,
             'status_label' => $app->status_label,
             'kyc_status' => $kyc,
+            'kyc_available' => \Aero\Viral\Classes\Kyc\KycService::isAvailable(),
             'track' => $app->track,
             'notes' => $app->status === 'changes_requested' ? $app->review_notes : null,
             'stages' => [

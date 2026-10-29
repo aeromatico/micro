@@ -2,6 +2,8 @@
 
 use Aero\Viral\Classes\ApplicationService;
 use Aero\Viral\Classes\Catalog;
+use Aero\Viral\Classes\Kyc\KycException;
+use Aero\Viral\Classes\Kyc\KycService;
 use Aero\Viral\Models\Application;
 use Auth;
 use Cms\Classes\ComponentBase;
@@ -29,6 +31,28 @@ class ViralApply extends ComponentBase
     public function onStatus(): array
     {
         return ['application' => ApplicationService::summary($this->currentApplication())];
+    }
+
+    /** Inicia o continúa la verificación de identidad y devuelve la URL de Didit. */
+    public function onStartKyc(): array
+    {
+        $app = $this->currentApplication();
+        if (!$app) {
+            throw new \October\Rain\Exception\ApplicationException('Primero envía tu postulación.');
+        }
+        $key = 'viral-kyc:' . $app->id;
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 6)) {
+            throw new \October\Rain\Exception\ApplicationException('Demasiados intentos. Prueba de nuevo en unos minutos.');
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 600);
+
+        try {
+            $url = (new KycService)->start($app, url('/aplicar') . '?kyc=1');
+        } catch (KycException $e) {
+            throw new \October\Rain\Exception\ApplicationException($e->getMessage());
+        }
+
+        return ['url' => $url];
     }
 
     protected function currentApplication(): ?Application
