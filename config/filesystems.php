@@ -87,6 +87,22 @@ return [
             'report' => false,
         ],
 
+
+        // Aero.Viral: muestras de video y documentos KYC. Bucket PRIVADO; acceso solo con URLs firmadas.
+        // Sirve S3 o compatibles (Cloudflare R2, MinIO). Si VIRAL_S3_* está vacío usa AWS_*.
+        'viral' => [
+            'driver' => 's3',
+            'key' => env('VIRAL_S3_KEY', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('VIRAL_S3_SECRET', env('AWS_SECRET_ACCESS_KEY')),
+            'region' => env('VIRAL_S3_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
+            'bucket' => env('VIRAL_S3_BUCKET', env('AWS_BUCKET')),
+            'endpoint' => env('VIRAL_S3_ENDPOINT', env('AWS_ENDPOINT')),
+            'use_path_style_endpoint' => (bool) env('VIRAL_S3_PATH_STYLE', env('AWS_USE_PATH_STYLE_ENDPOINT', false)),
+            'root' => env('VIRAL_S3_PREFIX', 'viral'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
     ],
 
     /*
