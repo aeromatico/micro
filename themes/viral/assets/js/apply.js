@@ -14,7 +14,7 @@ document.addEventListener('alpine:init', () => {
     links: [''], tags: [], desc: '',
     name: '', email: '', phone: '', department: '', city: '', password: '', showPw: false,
     offer: false, adult: false, terms: false, website: '',
-    busy: false, errors: {}, formError: '', poll: null,
+    busy: false, errors: {}, formError: '', poll: null, kycError: '',
 
     init() {
       this.catalog = this.boot.catalog;
@@ -35,6 +35,13 @@ document.addEventListener('alpine:init', () => {
       if (!this.app) return '';
       return { approved: '¡Tu perfil fue aprobado!', rejected: 'Por ahora tu perfil no continúa. Gracias por postular.', changes_requested: 'Necesitamos que corrijas algo de tu perfil.' }[this.app.status]
         || 'Tu cuenta Viral ya existe. Revisamos tu perfil y te escribimos pronto.';
+    },
+
+    get kycLabel() { return { pending: 'Continuar verificación', rejected: 'Intentar de nuevo' }[this.app && this.app.kyc_status] || 'Verificar mi identidad'; },
+    async startKyc() {
+      this.busy = true; this.kycError = '';
+      try { const r = await this.call('viralApply::onStartKyc', {}); window.location.href = r.url; }
+      catch (e) { this.kycError = e.message; this.busy = false; }
     },
 
     err(f) { return (this.errors[f] || [])[0] || ''; },
@@ -102,7 +109,7 @@ document.addEventListener('alpine:init', () => {
       clearInterval(this.poll);
       this.poll = setInterval(async () => {
         try { const r = await this.call('viralApply::onStatus', {}); if (r.application) this.app = r.application; } catch (e) {}
-      }, 30000);
+      }, new URLSearchParams(location.search).has('kyc') ? 5000 : 30000);
     },
   }));
 });

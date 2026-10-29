@@ -113,3 +113,7 @@ textarea.vl-in{min-height:120px}
 .vl-legal{max-width:760px;padding-bottom:var(--space-8)}
 .vl-legal h1{font-size:clamp(34px,6vw,56px);letter-spacing:-.03em}
 .vl-legal h2{font-size:22px;margin-top:var(--space-6)}
+
+.vl-kyc{margin-top:var(--space-6);padding-top:var(--space-4);border-top:2px solid color-mix(in srgb,var(--color-bg) 50%,transparent)}
+.vl-btn-light{background:var(--color-bg);color:var(--color-accent)}
+.vl-btn-light:hover{background:var(--color-neutral-100)}

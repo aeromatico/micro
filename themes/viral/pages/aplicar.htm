@@ -6,7 +6,7 @@ is_hidden = 0
 
 [viralApply]
 ==
-{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=3"></script>{% endput %}
+{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=4"></script>{% endput %}
 <script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
 
 <div class="vl-wrap" x-data="viralApply()" x-cloak>
@@ -166,6 +166,16 @@ is_hidden = 0
                     <li :class="{done: s.done}"><span class="vl-mark" aria-hidden="true" x-text="s.done ? '✓' : ''"></span><span x-text="s.label"></span><em x-text="stageState(s)"></em></li>
                 </template>
             </ol>
+            <div class="vl-kyc" x-show="app && app.kyc_status !== 'verified'">
+                <template x-if="app && app.kyc_available">
+                    <div>
+                        <p><strong>Siguiente paso: verifica tu identidad.</strong> Te pediremos una foto de tu carnet y una selfie. Toma un par de minutos y es obligatorio para aprobar tu perfil.</p>
+                        <p class="vl-err" role="alert" x-show="kycError" x-text="kycError"></p>
+                        <button type="button" class="btn vl-big vl-btn-light" @click="startKyc()" :disabled="busy" x-text="busy ? 'Abriendo…' : kycLabel"></button>
+                    </div>
+                </template>
+                <template x-if="app && !app.kyc_available"><p>La verificación de identidad se activará muy pronto. Te avisaremos por correo.</p></template>
+            </div>
             <p x-show="app && app.notes" class="vl-notes"><strong>Mensaje del equipo:</strong> <span x-text="app && app.notes"></span></p>
         </section>
     </main>
