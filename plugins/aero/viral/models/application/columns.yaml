@@ -1,0 +1,9 @@
+columns:
+    id: {label: '#', searchable: false}
+    user[name]: {label: Persona, relation: user, select: name, searchable: true, sortable: false}
+    track_label: {label: Camino, sortable: false}
+    level_label: {label: Nivel, sortable: false}
+    city: {label: Ciudad, searchable: true}
+    status_label: {label: Estado, sortable: false}
+    kyc_label: {label: Identidad, sortable: false}
+    created_at: {label: Recibida, type: datetime}

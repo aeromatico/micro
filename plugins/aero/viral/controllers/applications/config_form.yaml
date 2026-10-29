@@ -1,0 +1,7 @@
+name: Postulación
+form: $/aero/viral/models/application/fields.yaml
+modelClass: Aero\Viral\Models\Application
+defaultRedirect: aero/viral/applications
+update:
+    redirect: aero/viral/applications
+    redirectClose: aero/viral/applications

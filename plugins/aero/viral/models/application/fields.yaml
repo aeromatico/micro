@@ -1,0 +1,36 @@
+fields:
+    user:
+        label: Persona
+        type: relation
+        select: name
+        disabled: true
+        span: left
+    status:
+        label: Estado
+        type: dropdown
+        options: getStatusOptions
+        disabled: true
+        span: right
+    track:
+        label: Camino
+        type: dropdown
+        options: getTrackOptions
+        span: left
+    level:
+        label: Nivel (1 a 4)
+        type: number
+        span: right
+    phone:
+        label: Celular
+        span: left
+    city:
+        label: Ciudad
+        span: right
+    description:
+        label: Lo que hace
+        type: textarea
+        size: small
+    review_notes:
+        label: Notas de revisión (se envían a la persona al pedir cambios)
+        type: textarea
+        size: small

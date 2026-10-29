@@ -1,0 +1,14 @@
+title: Postulaciones
+list: $/aero/viral/models/application/columns.yaml
+modelClass: Aero\Viral\Models\Application
+recordUrl: aero/viral/applications/update/:id
+noRecordsMessage: Aún no hay postulaciones.
+recordsPerPage: 30
+showSorting: true
+defaultSort:
+    column: created_at
+    direction: desc
+toolbar:
+    search:
+        prompt: Buscar
+filter: $/aero/viral/models/application/filters.yaml

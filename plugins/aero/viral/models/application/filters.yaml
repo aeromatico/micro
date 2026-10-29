@@ -1,0 +1,19 @@
+scopes:
+    track:
+        label: Camino
+        type: dropdown
+        modelClass: Aero\Viral\Models\Application
+        options: getTrackOptions
+        conditions: track = ':value'
+    status:
+        label: Estado
+        type: dropdown
+        modelClass: Aero\Viral\Models\Application
+        options: getStatusOptions
+        conditions: status = ':value'
+    kyc_status:
+        label: Identidad
+        type: dropdown
+        modelClass: Aero\Viral\Models\Application
+        options: getKycStatusOptions
+        conditions: kyc_status = ':value'
