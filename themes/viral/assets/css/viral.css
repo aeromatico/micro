@@ -147,3 +147,9 @@ textarea.vl-in{min-height:120px}
 .vl-link:disabled{color:var(--color-text-muted,#777);cursor:default;text-decoration:none}
 .vl-otp{display:flex;gap:var(--space-2);align-items:stretch;flex-wrap:wrap}
 .vl-in-otp{max-width:160px;letter-spacing:.3em;text-align:center}
+.vl-rules{margin:var(--space-6) 0 0;padding:var(--space-4);border:2px solid var(--color-text);font-size:15px}
+.vl-rules p{margin:0 0 var(--space-2)}
+.vl-rules p:last-child{margin:0}
+.vl-rules-h{font-family:var(--font-heading);font-size:20px;margin:var(--space-4) 0 var(--space-2)}
+.vl-steps{margin:0;padding-left:var(--space-6)}
+.vl-steps li{margin-bottom:var(--space-3)}
