@@ -45,6 +45,8 @@ class ApplicationService
                 'user_id' => $user->id,
                 'track' => $data['track'],
                 'level' => $data['level'],
+                'rate_model' => $data['rate']['model'],
+                'rate_amount' => $data['rate']['amount'],
                 'tags' => $data['tags'],
                 'description' => $data['description'] ?? null,
                 'phone' => $data['phone'],
@@ -112,6 +114,12 @@ class ApplicationService
             throw new ValidationException($v);
         }
 
+        $rate = Catalog::resolveRate($in['track'], (int) $in['level'], $in['rate_model'] ?? null, $in['rate_amount'] ?? null);
+        if (isset($rate['errors'])) {
+            throw ValidationException::withMessages($rate['errors']);
+        }
+        $in['rate'] = $rate;
+
         // Solo los tags del camino y de la lista (descarta basura enviada a mano).
         $allowed = array_merge(...array_values(Catalog::TAGS));
         $in['tags'] = array_values(array_intersect($in['tags'], $allowed));
@@ -165,6 +173,7 @@ class ApplicationService
             'kyc_status' => $kyc,
             'kyc_available' => \Aero\Viral\Classes\Kyc\KycService::isAvailable(),
             'track' => $app->track,
+            'rate_label' => $app->rate_label,
             'notes' => $app->status === 'changes_requested' ? $app->review_notes : null,
             'stages' => [
                 ['label' => 'Muestra recibida', 'done' => true],

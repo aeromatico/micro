@@ -20,6 +20,17 @@ fields:
         label: Nivel (1 a 4)
         type: number
         span: right
+    rate_model:
+        label: Modelo de tarifa
+        type: dropdown
+        options: getRateModelOptions
+        span: left
+    rate_amount:
+        label: Tarifa (Bs, o % si es comisión porcentual)
+        comment: En Shorts «Casual» se fija aquí entre Bs 3 y 10 por segundo. En Edición la tarifa se define por proyecto.
+        type: number
+        step: 0.01
+        span: right
     phone:
         label: Celular
         span: left

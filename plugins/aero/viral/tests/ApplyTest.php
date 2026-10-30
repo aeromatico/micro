@@ -12,7 +12,7 @@ class ApplyTest extends PluginTestCase
     protected function valid(array $over = []): array
     {
         return $over + [
-            'track' => 'live', 'level' => 3, 'links' => ['tiktok.com/@qa/video/1'], 'tags' => ['Live shopping', 'Inventada'],
+            'track' => 'live', 'level' => 3, 'rate_model' => 'commission_percent', 'rate_amount' => '12.5', 'links' => ['tiktok.com/@qa/video/1'], 'tags' => ['Live shopping', 'Inventada'],
             'description' => 'qa', 'name' => 'QA Viral', 'email' => 'qa@example.com', 'phone' => '7 123 4567',
             'department' => 'La Paz', 'city' => 'El Alto', 'password' => 'claveSegura123', 'offer' => 1, 'adult' => 1, 'terms' => 1,
         ];

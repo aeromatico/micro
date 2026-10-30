@@ -1,3 +1,6 @@
 1.0.0:
     - "Primera versión: postulaciones de creadores con muestra y verificación de identidad."
     - create_viral_tables.php
+1.1.0:
+    - "Las postulaciones ahora incluyen la tarifa según el camino y el nivel."
+    - add_rate_columns.php

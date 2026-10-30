@@ -1,5 +1,6 @@
 <?php namespace Aero\Viral\Models;
 
+use Aero\Viral\Classes\Catalog;
 use Event;
 use Illuminate\Support\Str;
 use Model;
@@ -15,10 +16,10 @@ class Application extends Model
         'received' => 'Recibida', 'in_review' => 'En revisión', 'changes_requested' => 'Con cambios pedidos',
         'approved' => 'Aprobada', 'rejected' => 'Rechazada',
     ];
-    const LEVELS = [1 => 'Rookie', 2 => 'En racha', 3 => 'Pro', 4 => 'Leyenda'];
+    const LEVELS = [1 => 'Noob', 2 => 'Casual', 3 => 'Pro', 4 => 'Viral'];
     const KYC = ['none' => 'Sin verificar', 'pending' => 'Pendiente', 'verified' => 'Verificada', 'rejected' => 'Rechazada'];
 
-    public $fillable = ['user_id', 'track', 'level', 'tags', 'description', 'phone', 'department', 'city',
+    public $fillable = ['user_id', 'track', 'level', 'rate_model', 'rate_amount', 'tags', 'description', 'phone', 'department', 'city',
         'offer_to_clients', 'terms_accepted_at', 'adult_confirmed_at'];
 
     public $jsonable = ['tags'];
@@ -27,6 +28,7 @@ class Application extends Model
         'user_id' => 'required|integer',
         'track'   => 'required|in:shorts,live,edit',
         'level'   => 'required|integer|between:1,4',
+        'rate_amount' => 'nullable|numeric|min:0',
         'description' => 'nullable|max:600',
     ];
 
@@ -49,7 +51,14 @@ class Application extends Model
     public function getTrackLabelAttribute(): string { return self::TRACKS[$this->track] ?? (string) $this->track; }
     public function getStatusLabelAttribute(): string { return self::STATUSES[$this->status] ?? (string) $this->status; }
     public function getLevelLabelAttribute(): string { return self::LEVELS[$this->level] ?? (string) $this->level; }
+    public function getRateLabelAttribute(): string { return Catalog::rateLabel($this->rate_model, $this->rate_amount, (string) $this->track, (int) $this->level); }
     public function getKycLabelAttribute(): string { return self::KYC[$this->kyc_status] ?? (string) $this->kyc_status; }
+
+    public function getRateModelOptions(): array
+    {
+        return ['per_second' => 'Por segundo', 'per_hour' => 'Por hora', 'commission_fixed' => 'Comisión fija por venta',
+            'commission_percent' => 'Comisión % por venta', 'per_project' => 'Por proyecto'];
+    }
 
     public function getTrackOptions(): array { return self::TRACKS; }
     public function getStatusOptions(): array { return self::STATUSES; }
