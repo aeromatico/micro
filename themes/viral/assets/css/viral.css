@@ -124,3 +124,26 @@ textarea.vl-in{min-height:120px}
 .vl-flabel{display:block;font-weight:700;margin:var(--space-3) 0 var(--space-2)}
 .vl-in-rate{max-width:220px}
 .vl-choice.on .vl-rate{color:inherit}
+.vl-honest{margin:var(--space-2) 0 var(--space-3)}
+.vl-career{margin:0 0 var(--space-4);padding-left:var(--space-5);font-size:13px}
+.vl-career li{margin-bottom:var(--space-1)}
+
+.vl-methods{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-bottom:var(--space-4)}
+.vl-method{min-height:44px;padding:8px 14px;font:inherit;font-weight:700;background:var(--color-bg);border:2px solid var(--color-text);color:var(--color-text);cursor:pointer}
+.vl-method.on{background:var(--color-accent);border-color:var(--color-accent);color:#fff}
+.vl-pick{display:inline-flex;align-items:center;cursor:pointer;margin:var(--space-2) 0}
+.vl-live{display:block;width:100%;max-width:280px;aspect-ratio:9/16;object-fit:cover;background:#000;margin:var(--space-3) 0;transform:scaleX(-1)}
+.vl-rec{font-weight:700;color:var(--color-accent)}
+.vl-uploads{list-style:none;margin:var(--space-4) 0 0;padding:0}
+.vl-upload{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);padding:var(--space-2) 0;border-bottom:1px solid var(--color-divider)}
+.vl-up-name{flex:1 1 140px;word-break:break-all;font-weight:700;font-size:14px}
+.vl-up-state{font-size:13px}
+.vl-upload progress{flex:1 1 100%;height:8px}
+.vl-photo{margin:var(--space-3) 0 var(--space-4) var(--space-8)}
+.vl-photo-row{display:flex;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap}
+.vl-photo-img{width:96px;height:96px;object-fit:cover;border:2px solid var(--color-text)}
+.vl-verify{margin-top:var(--space-2)}
+.vl-link{background:none;border:0;padding:6px 0;font:inherit;font-size:13px;font-weight:700;color:var(--color-accent);text-decoration:underline;cursor:pointer;min-height:32px}
+.vl-link:disabled{color:var(--color-text-muted,#777);cursor:default;text-decoration:none}
+.vl-otp{display:flex;gap:var(--space-2);align-items:stretch;flex-wrap:wrap}
+.vl-in-otp{max-width:160px;letter-spacing:.3em;text-align:center}

@@ -11,6 +11,9 @@ document.addEventListener('alpine:init', () => {
     boot: JSON.parse(document.getElementById('viral-boot').textContent),
     catalog: {}, user: null, app: null,
     step: 1, track: null, level: null, rateModel: '', rateAmount: '', tried1: false, tried2: false,
+    phoneOk: false, otpSent: false, otp: '', otpBusy: false, otpErr: '', cooldown: 0, _cd: null, _phoneChecked: '',
+    photoId: '', photoUrl: '', photoBusy: false, photoErr: '',
+    method: 'link', uploads: [], recording: false, recFallback: false, recError: '', secs: 0, _rec: null, _timer: null, _n: 0,
     links: [''], tags: [], desc: '',
     name: '', email: '', phone: '', department: '', city: '', password: '', showPw: false,
     offer: false, adult: false, terms: false, website: '',
@@ -59,6 +62,118 @@ document.addEventListener('alpine:init', () => {
       const hit = PLATFORMS.find(([re]) => re.test(host));
       return { cls: hit ? 'tag-neutral' : 'tag-neutral', label: (hit ? hit[1] : 'Otra plataforma') + ' ✓' };
     },
+    // Foto de perfil: se reduce en el navegador (respeta la orientación del teléfono) y se sube por el servidor.
+    async pickPhoto(ev) {
+      const f = ev.target.files[0]; ev.target.value = '';
+      if (!f) return;
+      this.photoErr = '';
+      if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { this.photoErr = 'Sube una foto JPG, PNG o WebP.'; return; }
+      this.photoBusy = true;
+      try {
+        const bmp = await createImageBitmap(f, { imageOrientation: 'from-image' });
+        const k = Math.min(1, 800 / Math.max(bmp.width, bmp.height));
+        const c = document.createElement('canvas'); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(bmp, 0, 0, c.width, c.height);
+        const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+        const fd = new FormData(); fd.append('photo', blob, 'perfil.jpg');
+        const r = await fetch(location.pathname, { method: 'POST', credentials: 'same-origin', body: fd,
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-AJAX-HANDLER': 'viralApply::onPhoto', 'X-CSRF-TOKEN': this.boot.csrf, Accept: 'application/json' } });
+        const j = await r.json().catch(() => ({})); const meta = j.__ajax || {};
+        if (!r.ok || meta.ok === false || !j.id) throw new Error(meta.message || 'No pudimos subir la foto. Prueba con otra.');
+        if (this.photoUrl) URL.revokeObjectURL(this.photoUrl);
+        this.photoId = j.id; this.photoUrl = URL.createObjectURL(blob);
+      } catch (e) { this.photoErr = e.message || 'No pudimos leer esa foto.'; }
+      finally { this.photoBusy = false; }
+    },
+    removePhoto() { if (this.photoUrl) URL.revokeObjectURL(this.photoUrl); this.photoId = ''; this.photoUrl = ''; },
+    phoneDigits() { return this.phone.replace(/\D+/g, '').replace(/^(00)?591/, ''); },
+    phoneValid() { return /^[67]\d{7}$/.test(this.phoneDigits()); },
+    phoneChanged() { if (this.phoneDigits() !== this._phoneChecked) { this.phoneOk = false; this.otpSent = false; this.otp = ''; this.otpErr = ''; } },
+    async sendOtp() {
+      this.otpBusy = true; this.otpErr = '';
+      try {
+        const r = await this.call('viralApply::onPhoneSend', { phone: this.phone });
+        this._phoneChecked = this.phoneDigits(); this.otpSent = true; this.otp = '';
+        this.cooldown = r.cooldown || 60; clearInterval(this._cd);
+        this._cd = setInterval(() => { if (--this.cooldown <= 0) clearInterval(this._cd); }, 1000);
+        this.$nextTick(() => document.getElementById('f-otp')?.focus());
+      } catch (e) { this.otpErr = e.message; } finally { this.otpBusy = false; }
+    },
+    async checkOtp() {
+      if (this.otp.length !== 6) return;
+      this.otpBusy = true; this.otpErr = '';
+      try {
+        await this.call('viralApply::onPhoneVerify', { phone: this.phone, code: this.otp });
+        this.phoneOk = true; this.otpSent = false; clearInterval(this._cd);
+      } catch (e) { this.otpErr = e.message; } finally { this.otpBusy = false; }
+    },
+    hasSample() { return this.hasLink() || this.uploads.some(u => u.status === 'done'); },
+    uploading() { return this.uploads.some(u => u.status === 'uploading'); },
+    baseMime(t) { return (t || '').split(';')[0].trim().toLowerCase(); },
+    pickFiles(ev, kind) {
+      [...ev.target.files].forEach(f => this.addFile(f, kind || 'file', 0));
+      ev.target.value = '';
+    },
+    addFile(file, kind, duration) {
+      const mime = this.baseMime(file.type) || (/\.mov$/i.test(file.name) ? 'video/quicktime' : '');
+      const OK = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'image/jpeg', 'image/png', 'image/webp'];
+      const u = { key: ++this._n, name: file.name || 'grabación', file, mime, kind, duration, status: 'uploading', pct: 0, err: '', uid: null, xhr: null };
+      if (this.uploads.length >= 3) { u.status = 'error'; u.err = 'Máximo 3 archivos.'; }
+      else if (!OK.includes(mime)) { u.status = 'error'; u.err = 'Formato no admitido (usa MP4, MOV o WebM).'; }
+      else if (file.size > 100 * 1024 * 1024) { u.status = 'error'; u.err = 'Pesa más de 100 MB.'; }
+      else if (file.size < 1) { u.status = 'error'; u.err = 'El archivo está vacío.'; }
+      this.uploads.push(u);
+      if (u.status === 'uploading') this.startUpload(this.uploads[this.uploads.length - 1]);
+    },
+    async startUpload(u) {
+      u.status = 'uploading'; u.pct = 0; u.err = '';
+      try {
+        const init = await this.call('viralApply::onUploadInit', { mime: u.mime, size: u.file.size, kind: u.kind });
+        u.uid = init.id;
+        const fd = new FormData();
+        Object.entries(init.fields).forEach(([k, v]) => fd.append(k, v));
+        fd.append('file', u.file);
+        await new Promise((resolve, reject) => {
+          const x = new XMLHttpRequest(); u.xhr = x;
+          x.open('POST', init.url);
+          x.upload.onprogress = e => { if (e.lengthComputable) u.pct = Math.round(e.loaded * 100 / e.total); };
+          x.onload = () => (x.status >= 200 && x.status < 300) ? resolve() : reject(new Error('rechazado'));
+          x.onerror = () => reject(new Error('red'));
+          x.onabort = () => reject(new Error('cancelado'));
+          x.send(fd);
+        });
+        u.pct = 100; u.status = 'done';
+      } catch (e) {
+        if (!this.uploads.includes(u)) return;
+        u.status = 'error'; u.err = e.message === 'red' ? 'Se cortó la conexión.' : (e.message === 'rechazado' ? 'No se pudo subir.' : e.message);
+      }
+    },
+    removeUpload(u) { if (u.xhr) u.xhr.abort(); this.uploads = this.uploads.filter(x => x !== u); },
+    async startRecord() {
+      this.recError = ''; this.recFallback = false;
+      if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { this.recFallback = true; this.recError = 'Tu navegador no graba desde aquí. Usa la cámara del teléfono.'; return; }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } }, audio: true });
+        const type = ['video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+        const rec = new MediaRecorder(stream, type ? { mimeType: type } : {});
+        const chunks = [];
+        rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+        rec.onstop = () => {
+          clearInterval(this._timer); stream.getTracks().forEach(t => t.stop());
+          this.recording = false; this.$refs.live.srcObject = null;
+          const mime = this.baseMime(rec.mimeType) || 'video/webm';
+          const ext = mime === 'video/mp4' ? 'mp4' : 'webm';
+          if (chunks.length) this.addFile(new File([new Blob(chunks, { type: mime })], 'grabacion.' + ext, { type: mime }), 'recording', this.secs);
+        };
+        this.$refs.live.srcObject = stream; this.$refs.live.play();
+        this._rec = rec; this.secs = 0; this.recording = true; rec.start(1000);
+        this._timer = setInterval(() => { this.secs++; if (this.secs >= 60) this.stopRecord(); }, 1000);
+      } catch (e) {
+        this.recFallback = true;
+        this.recError = (e && e.name === 'NotAllowedError') ? 'Necesitamos permiso para usar la cámara y el micrófono. También puedes abrir la cámara del teléfono.' : 'No pudimos acceder a la cámara. Prueba con la cámara del teléfono.';
+      }
+    },
+    stopRecord() { if (this._rec && this._rec.state !== 'inactive') this._rec.stop(); },
     hasLink() { return this.links.some(l => URL_RE.test(l.trim().toLowerCase())); },
 
     pickTrack(k) { if (this.track !== k) { this.track = k; this.rateModel = ''; this.rateAmount = ''; if (this.level) this.tried1 = false; } },
@@ -83,7 +198,7 @@ document.addEventListener('alpine:init', () => {
     toggleTag(t) { this.tags = this.tags.includes(t) ? this.tags.filter(x => x !== t) : [...this.tags, t]; },
     go(step) { this.step = step; this.$nextTick(() => document.getElementById('flujo').scrollIntoView({ behavior: 'smooth', block: 'start' })); },
     next1() { this.tried1 = true; if (this.track && this.level && !this.rateErr()) this.go(2); },
-    next2() { if (this.hasLink()) this.go(3); else this.tried2 = true; },
+    next2() { this.tried2 = true; if (this.hasSample() && !this.uploading()) this.go(3); },
 
     async call(handler, data) {
       const body = new URLSearchParams();
@@ -109,9 +224,10 @@ document.addEventListener('alpine:init', () => {
       try {
         const res = await this.call('viralApply::onSubmit', {
           track: this.track, level: this.level, rate_model: this.rateModel, rate_amount: this.rateAmount, links: this.links.map(l => l.trim()).filter(Boolean),
+          uploads: this.uploads.filter(u => u.status === 'done').map(u => ({ id: u.uid, duration: u.duration || 0 })),
           tags: this.tags, description: this.desc.trim(), name: this.name.trim(), email: this.email.trim(),
           phone: this.phone, department: this.department, city: this.city.trim(), password: this.password,
-          offer: this.offer ? 1 : 0, adult: this.adult ? 1 : 0, terms: this.terms ? 1 : 0, website: this.website,
+          offer: this.offer ? 1 : 0, photo_id: this.offer ? this.photoId : '', adult: this.adult ? 1 : 0, terms: this.terms ? 1 : 0, website: this.website,
         });
         this.app = res.application; this.user = res.user || this.user; this.password = '';
         this.showDone();

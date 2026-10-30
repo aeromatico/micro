@@ -6,7 +6,7 @@ is_hidden = 0
 
 [viralApply]
 ==
-{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=7"></script>{% endput %}
+{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=12"></script>{% endput %}
 <script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
 
 <div class="vl-wrap" x-data="viralApply()" x-cloak>
@@ -38,6 +38,12 @@ is_hidden = 0
 
             <div x-show="track" x-transition.opacity>
                 <h2 class="vl-h2">¿En qué nivel estás?</h2>
+                <p class="vl-note vl-honest">Revisamos que tu nivel corresponda al trabajo que nos muestras en el siguiente paso. <strong>Te sugerimos ser honesto: así logras mejores resultados.</strong> Si consideramos que no correspondes al nivel que elegiste, no te preocupes: aquí puedes hacer carrera.</p>
+                <ul class="vl-career">
+                    <li><strong>Noob</strong> pasa a <strong>Casual</strong> con 3 feedbacks positivos.</li>
+                    <li><strong>Casual</strong> pasa a <strong>Pro</strong> con 10 feedbacks positivos.</li>
+                    <li><strong>Viral</strong> queda fuera de este sistema. Reconocemos a creadores con trayectoria y lo decidimos nosotros.</li>
+                </ul>
                 <div class="vl-choices vl-levels" role="group" aria-label="Nivel">
                     <template x-for="l in catalog.levels" :key="l.n">
                         <button type="button" class="vl-choice" :class="{on: level === l.n}" :aria-pressed="level === l.n" @click="pickLevel(l.n)">
@@ -101,19 +107,59 @@ is_hidden = 0
             <h1 id="h2" class="vl-h">Enséñanos lo tuyo.</h1>
 
             <fieldset class="vl-fs">
-                <legend>Pega links de tu trabajo</legend>
-                <p class="text-muted" x-text="linkHelp"></p>
-                <template x-for="(l, i) in links" :key="i">
-                    <div class="vl-linkrow">
-                        <label class="vl-sr" :for="'link'+i">Link <span x-text="i+1"></span></label>
-                        <input class="input vl-in" :id="'link'+i" type="url" inputmode="url" autocomplete="off" :placeholder="linkPh" x-model="links[i]">
-                        <span class="tag" :class="platformTag(links[i]).cls" x-show="links[i].trim()" x-text="platformTag(links[i]).label"></span>
-                        <button type="button" class="btn btn-secondary" x-show="links.length > 1" @click="links.splice(i,1)" :aria-label="'Quitar link ' + (i+1)">Quitar</button>
+                <legend>Muéstranos tu trabajo</legend>
+                <div class="vl-methods" role="tablist" aria-label="Cómo quieres mostrarlo" x-show="boot.storage">
+                    <button type="button" role="tab" class="vl-method" :class="{on: method === 'link'}" :aria-selected="method === 'link'" @click="method = 'link'">Pega un link</button>
+                    <button type="button" role="tab" class="vl-method" :class="{on: method === 'upload'}" :aria-selected="method === 'upload'" @click="method = 'upload'">Sube un archivo</button>
+                    <button type="button" role="tab" class="vl-method" :class="{on: method === 'record'}" :aria-selected="method === 'record'" @click="method = 'record'">Graba ahora</button>
+                </div>
+
+                <div x-show="method === 'link'">
+                    <p class="text-muted" x-text="linkHelp"></p>
+                    <template x-for="(l, i) in links" :key="i">
+                        <div class="vl-linkrow">
+                            <label class="vl-sr" :for="'link'+i">Link <span x-text="i+1"></span></label>
+                            <input class="input vl-in" :id="'link'+i" type="url" inputmode="url" autocomplete="off" :placeholder="linkPh" x-model="links[i]">
+                            <span class="tag" :class="platformTag(links[i]).cls" x-show="links[i].trim()" x-text="platformTag(links[i]).label"></span>
+                            <button type="button" class="btn btn-secondary" x-show="links.length > 1" @click="links.splice(i,1)" :aria-label="'Quitar link ' + (i+1)">Quitar</button>
+                        </div>
+                    </template>
+                    <button type="button" class="btn btn-ghost" x-show="links.length < 5" @click="links.push('')">+ Otro link</button>
+                    <p class="text-muted vl-note">Acepta TikTok, Instagram, YouTube y Facebook. Nuestro equipo revisa cada link.</p>
+                </div>
+
+                <div x-show="boot.storage && method === 'upload'">
+                    <p class="text-muted">Si no tienes redes, sube un video tuyo: MP4, MOV o WebM, hasta 100 MB (o una foto JPG, PNG o WebP). Máximo 3 archivos.</p>
+                    <label class="btn btn-secondary vl-pick" for="vl-file">Elegir archivo</label>
+                    <input id="vl-file" class="vl-sr" type="file" multiple accept="video/mp4,video/quicktime,video/webm,video/x-m4v,image/jpeg,image/png,image/webp" @change="pickFiles($event)">
+                </div>
+
+                <div x-show="boot.storage && method === 'record'">
+                    <p class="text-muted">Grábate ahora mismo: preséntate y muestra qué haces. Hasta 60 segundos.</p>
+                    <video class="vl-live" x-ref="live" muted playsinline x-show="recording"></video>
+                    <p class="vl-rec" x-show="recording" role="status"><span aria-hidden="true">●</span> Grabando <span x-text="secs"></span> s</p>
+                    <div class="vl-actions">
+                        <button type="button" class="btn btn-primary" x-show="!recording" @click="startRecord()">Empezar a grabar</button>
+                        <button type="button" class="btn btn-primary" x-show="recording" @click="stopRecord()">Terminar</button>
                     </div>
-                </template>
-                <button type="button" class="btn btn-ghost" x-show="links.length < 5" @click="links.push('')">+ Otro link</button>
-                <p class="text-muted vl-note">Acepta TikTok, Instagram, YouTube y Facebook. Nuestro equipo revisa cada link.</p>
-                <p class="vl-err" role="alert" x-show="tried2 && !hasLink()">Pega al menos un link válido.</p>
+                    <label class="btn btn-secondary vl-pick" x-show="recFallback" for="vl-cam">Abrir cámara del teléfono</label>
+                    <input id="vl-cam" class="vl-sr" type="file" accept="video/*" capture="user" @change="pickFiles($event, 'recording')">
+                    <p class="vl-err" role="alert" x-show="recError" x-text="recError"></p>
+                </div>
+
+                <ul class="vl-uploads" x-show="uploads.length" aria-live="polite">
+                    <template x-for="u in uploads" :key="u.key">
+                        <li class="vl-upload">
+                            <span class="vl-up-name" x-text="u.name"></span>
+                            <span class="vl-up-state" x-text="u.status === 'done' ? 'Listo ✓' : (u.status === 'error' ? u.err : u.pct + '%')"></span>
+                            <progress max="100" :value="u.pct" x-show="u.status === 'uploading'"></progress>
+                            <button type="button" class="btn btn-ghost" x-show="u.status === 'error'" @click="startUpload(u)">Reintentar</button>
+                            <button type="button" class="btn btn-secondary" @click="removeUpload(u)" :aria-label="'Quitar ' + u.name">Quitar</button>
+                        </li>
+                    </template>
+                </ul>
+                <p class="vl-err" role="alert" x-show="tried2 && !hasSample()">Pega un link, sube un archivo o graba un video.</p>
+                <p class="vl-err" role="alert" x-show="tried2 && hasSample() && uploading()">Espera a que termine la subida.</p>
             </fieldset>
 
             <fieldset class="vl-fs">
@@ -160,8 +206,21 @@ is_hidden = 0
                 <div class="vl-grid">
                     <div class="field"><label for="f-phone">Celular</label>
                         <div class="vl-phone"><span class="vl-cc">+591</span>
-                            <input id="f-phone" class="input vl-in" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="7XXXXXXX" maxlength="12" x-model="phone" :aria-invalid="!!err('phone')"></div>
-                        <p class="vl-err" x-text="err('phone')"></p></div>
+                            <input id="f-phone" class="input vl-in" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="7XXXXXXX" maxlength="12" x-model="phone" @input="phoneChanged()" :aria-invalid="!!err('phone')"></div>
+                        <p class="vl-err" x-text="err('phone')"></p>
+                        <div class="vl-verify" x-show="boot.phone_verify">
+                            <p class="vl-note" x-show="phoneOk"><strong>✓ Celular verificado</strong></p>
+                            <button type="button" class="vl-link" x-show="!phoneOk && !otpSent && phoneValid()" :disabled="otpBusy" @click="sendOtp()">Verificar mi celular por WhatsApp</button>
+                            <div x-show="!phoneOk && otpSent">
+                                <label class="vl-flabel" for="f-otp">Código que te enviamos por WhatsApp</label>
+                                <div class="vl-otp">
+                                    <input id="f-otp" class="input vl-in vl-in-otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" x-model="otp" @keydown.enter.prevent="checkOtp()">
+                                    <button type="button" class="btn btn-secondary" :disabled="otpBusy || otp.length !== 6" @click="checkOtp()">Confirmar</button>
+                                </div>
+                                <button type="button" class="vl-link" :disabled="otpBusy || cooldown > 0" @click="sendOtp()" x-text="cooldown > 0 ? 'Reenviar en ' + cooldown + ' s' : 'Reenviar código'"></button>
+                            </div>
+                            <p class="vl-err" role="alert" x-show="otpErr" x-text="otpErr"></p>
+                        </div></div>
                     <div class="field"><label for="f-dep">Departamento</label>
                         <select id="f-dep" class="input vl-in" x-model="department" @change="city=''" :aria-invalid="!!err('department')">
                             <option value="">Elige…</option>
@@ -186,6 +245,21 @@ is_hidden = 0
 
                 <label class="vl-check"><input type="checkbox" x-model="offer"><span><strong>Ofrece mi perfil a +2,000 clientes activos</strong> <em class="text-muted">Opcional</em><br>
                     <span class="text-muted">Apareces en el directorio de Viral y las marcas te contratan directo para shorts, lives o edición, como freelance.</span></span></label>
+
+                <div class="vl-photo" x-show="offer" x-transition.opacity>
+                    <p class="vl-flabel" id="photo-l">Tu foto de perfil <em class="text-muted">Opcional</em></p>
+                    <p class="text-muted vl-note">Es la que verán las marcas. Usa una foto clara de tu cara. JPG, PNG o WebP.</p>
+                    <div class="vl-photo-row">
+                        <img class="vl-photo-img" x-show="photoUrl" :src="photoUrl" alt="Vista previa de tu foto">
+                        <div>
+                            <label class="btn btn-secondary vl-pick" for="vl-photo" x-text="photoUrl ? 'Cambiar foto' : 'Elegir foto'"></label>
+                            <input id="vl-photo" class="vl-sr" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-l" @change="pickPhoto($event)">
+                            <button type="button" class="btn btn-ghost" x-show="photoUrl" @click="removePhoto()">Quitar</button>
+                            <p class="vl-note" role="status" x-show="photoBusy">Subiendo foto…</p>
+                            <p class="vl-err" role="alert" x-show="photoErr" x-text="photoErr"></p>
+                        </div>
+                    </div>
+                </div>
 
                 <label class="vl-check"><input type="checkbox" x-model="adult" :aria-invalid="!!err('adult')"><span>Confirmo que soy mayor de 18 años.</span></label>
                 <p class="vl-err" x-text="err('adult')"></p>
