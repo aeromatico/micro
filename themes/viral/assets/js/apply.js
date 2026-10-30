@@ -10,7 +10,7 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('viralApply', () => ({
     boot: JSON.parse(document.getElementById('viral-boot').textContent),
     catalog: {}, user: null, app: null,
-    step: 1, track: null, level: null, tried1: false, tried2: false,
+    step: 1, track: null, level: null, rateModel: '', rateAmount: '', tried1: false, tried2: false,
     links: [''], tags: [], desc: '',
     name: '', email: '', phone: '', department: '', city: '', password: '', showPw: false,
     offer: false, adult: false, terms: false, website: '',
@@ -61,10 +61,28 @@ document.addEventListener('alpine:init', () => {
     },
     hasLink() { return this.links.some(l => URL_RE.test(l.trim().toLowerCase())); },
 
-    pickLevel(n) { this.level = n; setTimeout(() => this.next1(), 450); },
+    pickTrack(k) { if (this.track !== k) { this.track = k; this.rateModel = ''; this.rateAmount = ''; if (this.level) this.tried1 = false; } },
+    levelRate(n) {
+      if (this.track === 'live') return 'Tú fijas: por hora o comisión por venta';
+      if (this.track === 'edit') return 'Tú fijas tu tarifa por proyecto';
+      const r = this.catalog.rates;
+      if (n === 1) return 'Bs ' + r.shorts_fixed + ' por segundo';
+      if (n === 2) return 'Bs ' + r.shorts_range[0] + ' a ' + r.shorts_range[1] + ' por segundo';
+      return 'Elige tu tarifa';
+    },
+    needsRate() { return (this.track === 'shorts' && this.level >= 3) || this.track === 'live'; },
+    rateErr() {
+      if (!this.tried1 || !this.needsRate()) return this.errors.rate_amount || this.errors.rate_model || '';
+      if (this.track === 'live' && !this.rateModel) return 'Elige cómo quieres cobrar.';
+      const v = parseFloat(this.rateAmount);
+      if (!(v > 0)) return this.track === 'live' && this.rateModel === 'commission_percent' ? 'Escribe un porcentaje entre 1 y 100.' : 'Escribe tu tarifa.';
+      if (this.rateModel === 'commission_percent' && v > 100) return 'Escribe un porcentaje entre 1 y 100.';
+      return this.errors.rate_amount || this.errors.rate_model || '';
+    },
+    pickLevel(n) { this.level = n; this.tried1 = false; this.$nextTick(() => document.getElementById("tarifa")?.scrollIntoView({ behavior: "smooth", block: "nearest" })); },
     toggleTag(t) { this.tags = this.tags.includes(t) ? this.tags.filter(x => x !== t) : [...this.tags, t]; },
     go(step) { this.step = step; this.$nextTick(() => document.getElementById('flujo').scrollIntoView({ behavior: 'smooth', block: 'start' })); },
-    next1() { if (this.track && this.level) this.go(2); else this.tried1 = true; },
+    next1() { this.tried1 = true; if (this.track && this.level && !this.rateErr()) this.go(2); },
     next2() { if (this.hasLink()) this.go(3); else this.tried2 = true; },
 
     async call(handler, data) {
@@ -90,7 +108,7 @@ document.addEventListener('alpine:init', () => {
       this.busy = true; this.errors = {}; this.formError = '';
       try {
         const res = await this.call('viralApply::onSubmit', {
-          track: this.track, level: this.level, links: this.links.map(l => l.trim()).filter(Boolean),
+          track: this.track, level: this.level, rate_model: this.rateModel, rate_amount: this.rateAmount, links: this.links.map(l => l.trim()).filter(Boolean),
           tags: this.tags, description: this.desc.trim(), name: this.name.trim(), email: this.email.trim(),
           phone: this.phone, department: this.department, city: this.city.trim(), password: this.password,
           offer: this.offer ? 1 : 0, adult: this.adult ? 1 : 0, terms: this.terms ? 1 : 0, website: this.website,
@@ -101,6 +119,7 @@ document.addEventListener('alpine:init', () => {
         this.errors = e.fields || {};
         this.formError = Object.keys(this.errors).length ? 'Revisa los datos marcados.' : e.message;
         if (this.errors.links) { this.go(2); }
+        if (this.errors.rate_amount || this.errors.rate_model) { this.go(1); }
       } finally { this.busy = false; }
     },
 

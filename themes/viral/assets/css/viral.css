@@ -117,3 +117,10 @@ textarea.vl-in{min-height:120px}
 .vl-kyc{margin-top:var(--space-6);padding-top:var(--space-4);border-top:2px solid color-mix(in srgb,var(--color-bg) 50%,transparent)}
 .vl-btn-light{background:var(--color-bg);color:var(--color-accent)}
 .vl-btn-light:hover{background:var(--color-neutral-100)}
+
+.vl-rate{display:block;margin-top:var(--space-2);font-weight:700;color:var(--color-accent)}
+.vl-rate-box{margin-top:var(--space-6)}
+.vl-rate-models{margin:var(--space-3) 0}
+.vl-flabel{display:block;font-weight:700;margin:var(--space-3) 0 var(--space-2)}
+.vl-in-rate{max-width:220px}
+.vl-choice.on .vl-rate{color:inherit}

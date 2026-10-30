@@ -6,7 +6,7 @@ is_hidden = 0
 
 [viralApply]
 ==
-{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=4"></script>{% endput %}
+{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=7"></script>{% endput %}
 <script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
 
 <div class="vl-wrap" x-data="viralApply()" x-cloak>
@@ -28,7 +28,7 @@ is_hidden = 0
             <h1 id="h1" class="vl-h">¿Qué haces?</h1>
             <div class="vl-choices" role="group" aria-label="Camino">
                 <template x-for="t in catalog.tracks" :key="t.k">
-                    <button type="button" class="vl-choice" :class="{on: track === t.k}" :aria-pressed="track === t.k" @click="track = t.k">
+                    <button type="button" class="vl-choice" :class="{on: track === t.k}" :aria-pressed="track === t.k" @click="pickTrack(t.k)">
                         <span class="card-kicker" x-text="t.kicker"></span>
                         <strong x-text="t.title"></strong>
                         <span x-text="t.sub"></span>
@@ -44,8 +44,52 @@ is_hidden = 0
                             <span class="card-kicker" x-text="l.nick"></span>
                             <strong x-text="l.title"></strong>
                             <span x-text="'→ ' + l.sub"></span>
+                            <span class="vl-rate" x-show="levelRate(l.n)" x-text="levelRate(l.n)"></span>
                         </button>
                     </template>
+                </div>
+
+                <!-- Tarifa -->
+                <div id="tarifa" class="vl-rate-box" x-show="track && level" x-transition.opacity>
+                    <h2 class="vl-h2">Tu tarifa</h2>
+
+                    <template x-if="track === 'shorts' && level === 1">
+                        <p class="vl-note">Como <strong>Noob</strong> la tarifa es de <strong>Bs 3 por segundo</strong> de video aprobado.</p>
+                    </template>
+                    <template x-if="track === 'shorts' && level === 2">
+                        <p class="vl-note">Como <strong>Casual</strong> tu tarifa va de <strong>Bs 3 a Bs 10 por segundo</strong>. La definimos al revisar tu muestra.</p>
+                    </template>
+                    <template x-if="track === 'shorts' && level >= 3">
+                        <div>
+                            <label class="vl-flabel" for="rate_amount">Elige tu tarifa (Bs por segundo)</label>
+                            <input id="rate_amount" class="input vl-in vl-in-rate" type="number" inputmode="decimal" min="0.01" step="0.01" x-model="rateAmount" :aria-invalid="!!rateErr()" aria-describedby="rate_err">
+                        </div>
+                    </template>
+
+                    <template x-if="track === 'live'">
+                        <div>
+                            <p class="vl-note">En Live <strong>tú defines tu tarifa</strong>, en cualquier nivel. Elige una de estas formas de cobrar:</p>
+                            <div class="vl-choices vl-rate-models" role="group" aria-label="Cómo quieres cobrar">
+                                <template x-for="m in catalog.rates.live_models" :key="m.k">
+                                    <button type="button" class="vl-choice" :class="{on: rateModel === m.k}" :aria-pressed="rateModel === m.k" @click="rateModel = m.k">
+                                        <strong x-text="m.label"></strong>
+                                    </button>
+                                </template>
+                            </div>
+                            <template x-if="rateModel">
+                                <div>
+                                    <label class="vl-flabel" for="rate_amount_live" x-text="rateModel === 'per_hour' ? 'Tu tarifa (Bs por hora)' : (rateModel === 'commission_fixed' ? 'Tu comisión (Bs por venta)' : 'Tu comisión (% de cada venta)')"></label>
+                                    <input id="rate_amount_live" class="input vl-in vl-in-rate" type="number" inputmode="decimal" min="0.01" :max="rateModel === 'commission_percent' ? 100 : null" step="0.01" x-model="rateAmount" :aria-invalid="!!rateErr()" aria-describedby="rate_err">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="track === 'edit'">
+                        <p class="vl-note">En Edición <strong>tú fijas tu tarifa en cada proyecto</strong>, en cualquier nivel, después de leer los requerimientos. No necesitas poner un monto ahora.</p>
+                    </template>
+
+                    <p id="rate_err" class="vl-err" role="alert" x-show="rateErr()" x-text="rateErr()"></p>
                 </div>
             </div>
             <p class="vl-err" role="alert" x-show="tried1 && (!track || !level)">Elige tu camino y tu nivel para seguir.</p>
