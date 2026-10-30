@@ -67,4 +67,27 @@ class RateTest extends PluginTestCase
         $this->assertSame('Bs 90 por hora', ApplicationService::summary($app)['rate_label']);
         $this->assertInstanceOf(Application::class, $app);
     }
+
+    public function testCareerPromotionAndViralStaysManual(): void
+    {
+        $app = Application::create(['user_id' => 1, 'track' => 'shorts', 'level' => 1, 'rate_model' => 'per_second', 'rate_amount' => 3]);
+        $this->assertFalse($app->addPositiveFeedback());
+        $this->assertFalse($app->addPositiveFeedback());
+        $this->assertTrue($app->addPositiveFeedback());          // 3.º → Casual
+        $this->assertSame(2, (int) $app->level);
+        $this->assertSame(0, (int) $app->positive_feedbacks);
+        $this->assertNull($app->rate_amount);                    // la fija la revisión
+
+        for ($i = 0; $i < 9; $i++) {
+            $this->assertFalse($app->addPositiveFeedback());
+        }
+        $this->assertTrue($app->addPositiveFeedback());          // 10.º → Pro
+        $this->assertSame(3, (int) $app->fresh()->level);
+
+        for ($i = 0; $i < 30; $i++) {
+            $app->addPositiveFeedback();
+        }
+        $this->assertSame(3, (int) $app->fresh()->level);        // Pro no sube solo; Viral lo decide el equipo
+        $this->assertSame(30, (int) $app->fresh()->positive_feedbacks);
+    }
 }

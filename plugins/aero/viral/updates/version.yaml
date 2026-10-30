@@ -4,3 +4,6 @@
 1.1.0:
     - "Las postulaciones ahora incluyen la tarifa según el camino y el nivel."
     - add_rate_columns.php
+1.2.0:
+    - "Los creadores suben de nivel con feedbacks positivos: Noob a Casual con 3 y Casual a Pro con 10."
+    - add_level_progress.php

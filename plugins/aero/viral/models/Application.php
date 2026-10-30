@@ -17,9 +17,11 @@ class Application extends Model
         'approved' => 'Aprobada', 'rejected' => 'Rechazada',
     ];
     const LEVELS = [1 => 'Noob', 2 => 'Casual', 3 => 'Pro', 4 => 'Viral'];
+    /** Feedbacks positivos para subir desde el nivel indicado. Pro y Viral no suben solos: Viral lo decide el equipo. */
+    const PROMOTE_AFTER = [1 => 3, 2 => 10];
     const KYC = ['none' => 'Sin verificar', 'pending' => 'Pendiente', 'verified' => 'Verificada', 'rejected' => 'Rechazada'];
 
-    public $fillable = ['user_id', 'track', 'level', 'rate_model', 'rate_amount', 'tags', 'description', 'phone', 'department', 'city',
+    public $fillable = ['user_id', 'track', 'level', 'rate_model', 'rate_amount', 'positive_feedbacks', 'tags', 'description', 'phone', 'department', 'city',
         'offer_to_clients', 'terms_accepted_at', 'adult_confirmed_at'];
 
     public $jsonable = ['tags'];
@@ -58,6 +60,38 @@ class Application extends Model
     {
         return ['per_second' => 'Por segundo', 'per_hour' => 'Por hora', 'commission_fixed' => 'Comisión fija por venta',
             'commission_percent' => 'Comisión % por venta', 'per_project' => 'Por proyecto'];
+    }
+
+    /**
+     * Suma un feedback positivo. Al llegar al umbral sube un nivel (Noob→Casual con 3, Casual→Pro con 10)
+     * y el contador vuelve a 0. Devuelve true si cambió de nivel.
+     */
+    public function addPositiveFeedback(): bool
+    {
+        return \DB::transaction(function () {
+            $row = static::lockForUpdate()->find($this->id);
+            $row->positive_feedbacks++;
+            $from = (int) $row->level;
+            $need = self::PROMOTE_AFTER[$from] ?? null;
+            $promoted = $need !== null && $row->positive_feedbacks >= $need;
+
+            if ($promoted) {
+                $row->level = $from + 1;
+                $row->positive_feedbacks = 0;
+                $row->level_changed_at = now();
+                if ($row->track === 'shorts' && $row->level === 2) {
+                    $row->rate_amount = null; // En Casual la tarifa (Bs 3 a 10) la fija la revisión
+                }
+            }
+            $row->forceSave();
+            $this->setRawAttributes($row->getAttributes(), true);
+
+            if ($promoted) {
+                Event::fire('aero.viral.levelChanged', [$this, $from, (int) $this->level]);
+            }
+
+            return $promoted;
+        });
     }
 
     public function getTrackOptions(): array { return self::TRACKS; }
