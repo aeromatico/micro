@@ -3,46 +3,76 @@ url = "/"
 layout = "main"
 is_hidden = 0
 ==
-<div class="vl-wrap">
-    <nav class="vl-nav">
-        <span class="vl-logo">viral<span>.</span></span>
-        <a class="btn btn-primary" href="/aplicar">Aplicar</a>
-    </nav>
+<div class="vl-home">
+    <div class="vl-band">
+        <div class="vl-wrap">
+            <nav class="vl-nav">
+                <span class="vl-logo">viral<span>.</span></span>
+                <a class="btn vl-btn-light" href="/aplicar">Aplicar</a>
+            </nav>
 
-    <header class="vl-hero">
-        <h1>Graba.<br>Transmite.<br>Edita.</h1>
-        <p>🇧🇴 Cientos de marcas y negocios están buscando creadores de video vertical, vendedores en vivo y editores. Sin CV ni llamadas.</p>
-    </header>
+            <header class="vl-hero">
+                <h1>
+                    <span class="vl-w vl-w1">Graba.</span><br>
+                    <span class="vl-w vl-w2"><mark>Transmite.</mark></span><br>
+                    <span class="vl-w vl-w3">Edita.</span>
+                </h1>
+                <p class="vl-lead">🇧🇴 Cientos de marcas y negocios están buscando creadores de video vertical, vendedores en vivo y editores. Sin CV ni llamadas.</p>
+                <a class="btn vl-cta" href="#caminos">Elige tu camino <span aria-hidden="true">↓</span></a>
+                <ul class="vl-stickers" aria-label="Lo que ofrecemos">
+                    <li class="vl-st vl-st1">Sin CV</li>
+                    <li class="vl-st vl-st2">Sin llamadas</li>
+                    <li class="vl-st vl-st3">Respuesta en menos de 30 min</li>
+                    <li class="vl-st vl-st4">100 % comercial</li>
+                </ul>
+            </header>
+        </div>
+    </div>
 
-    <section id="caminos" class="vl-tracks" aria-label="Elige tu camino">
-        <article class="card vl-track">
-            <span class="card-kicker">01 · Formato corto</span>
-            <h2 class="card-title">Shorts</h2>
-            <p class="card-body">UGC, actuación, modelaje e IA en 15-30 segundos</p>
-            <a class="btn btn-primary" href="/aplicar?camino=shorts">Soy de shorts</a>
-        </article>
-        <article class="card vl-track">
-            <span class="card-kicker">02 · En vivo</span>
-            <h2 class="card-title">Live</h2>
-            <p class="card-body">Miles de comercios están apostando a vender por lives</p>
-            <a class="btn btn-primary" href="/aplicar?camino=live">Soy de lives</a>
-        </article>
-        <article class="card vl-track">
-            <span class="card-kicker">03 · Posproducción</span>
-            <h2 class="card-title">Edición</h2>
-            <p class="card-body">Clipmakers, motion graphics y productoras de video vertical</p>
-            <a class="btn btn-primary" href="/aplicar?camino=edit">Soy editor</a>
-        </article>
-    </section>
+    <div class="vl-marquee" aria-hidden="true">
+        <div class="vl-marquee-track">
+            <span>TikTok</span><span>UGC</span><span>Instagram</span><span>Live shopping</span><span>YouTube</span><span>Motion graphics</span><span>Facebook</span><span>Clipmakers</span><span>TikTok Shop</span><span>Reels</span>
+            <span>TikTok</span><span>UGC</span><span>Instagram</span><span>Live shopping</span><span>YouTube</span><span>Motion graphics</span><span>Facebook</span><span>Clipmakers</span><span>TikTok Shop</span><span>Reels</span>
+        </div>
+    </div>
 
-    <aside class="vl-rules" aria-label="Requisitos y verificación">
-        <p><strong>Solo para mayores de 18 años.</strong> Trabajamos únicamente contenido comercial: no se permite contenido erótico ni desnudos.</p>
-        <h2 class="vl-rules-h">Cómo verificamos</h2>
-        <ol class="vl-steps">
-            <li><strong>Identidad y edad: automático.</strong> Un servicio de verificación compara tu rostro con tu documento, confirma que seas mayor de 18 años y responde en minutos. No requiere que nadie te llame.</li>
-            <li><strong>Tu trabajo: lo revisa una persona de nuestro equipo.</strong> Mira el contenido y las redes que nos compartes y valida el nivel que eliges. Te avisamos el resultado en menos de 30 minutos.</li>
-        </ol>
-    </aside>
+    <div class="vl-wrap">
+        <section id="caminos" class="vl-tracks" aria-label="Elige tu camino">
+            <article class="card vl-track vl-t1">
+                <span class="vl-num" aria-hidden="true">01</span>
+                <span class="card-kicker">Formato corto</span>
+                <h2 class="card-title">Shorts</h2>
+                <p class="card-body">UGC, actuación, modelaje e IA en 15-30 segundos</p>
+                <a class="btn vl-tbtn" href="/aplicar?camino=shorts">Soy de shorts →</a>
+            </article>
+            <article class="card vl-track vl-t2">
+                <span class="vl-num" aria-hidden="true">02</span>
+                <span class="card-kicker">En vivo</span>
+                <h2 class="card-title">Live</h2>
+                <p class="card-body">Miles de comercios están apostando a vender por lives</p>
+                <a class="btn vl-tbtn" href="/aplicar?camino=live">Soy de lives →</a>
+            </article>
+            <article class="card vl-track vl-t3">
+                <span class="vl-num" aria-hidden="true">03</span>
+                <span class="card-kicker">Posproducción</span>
+                <h2 class="card-title">Edición</h2>
+                <p class="card-body">Clipmakers, motion graphics y productoras de video vertical</p>
+                <a class="btn vl-tbtn" href="/aplicar?camino=edit">Soy editor →</a>
+            </article>
+        </section>
 
-    <footer class="vl-foot">TikTok · TikTok Shop · Instagram · YouTube · Facebook</footer>
+        <aside class="vl-rules" aria-label="Requisitos y verificación">
+            <div class="vl-age" aria-hidden="true">18+</div>
+            <div>
+                <p><strong>Solo para mayores de 18 años.</strong> Trabajamos únicamente contenido comercial: no se permite contenido erótico ni desnudos.</p>
+                <h2 class="vl-rules-h">Cómo verificamos</h2>
+                <ol class="vl-steps">
+                    <li><strong>Identidad y edad: automático.</strong> Un servicio de verificación compara tu rostro con tu documento, confirma que seas mayor de 18 años y responde en minutos. No requiere que nadie te llame.</li>
+                    <li><strong>Tu trabajo: lo revisa una persona de nuestro equipo.</strong> Mira el contenido y las redes que nos compartes y valida el nivel que eliges. Te avisamos el resultado en menos de 30 minutos.</li>
+                </ol>
+            </div>
+        </aside>
+
+        <footer class="vl-foot">TikTok · TikTok Shop · Instagram · YouTube · Facebook</footer>
+    </div>
 </div>
