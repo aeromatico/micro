@@ -41,7 +41,9 @@ class ApplicationService
                 return $existing;
             }
 
+            $uuid = (string) \Illuminate\Support\Str::uuid();
             $app = Application::create([
+                'uuid' => $uuid,
                 'user_id' => $user->id,
                 'track' => $data['track'],
                 'level' => $data['level'],
@@ -53,6 +55,8 @@ class ApplicationService
                 'department' => $data['department'],
                 'city' => $data['city'],
                 'offer_to_clients' => $data['offer'],
+                'phone_verified_at' => PhoneVerifier::verifiedPhone() === $data['phone'] ? now() : null,
+                'photo_path' => $data['offer'] && $data['photo_draft'] ? PhotoService::adopt($data['photo_draft'], $uuid) : null,
                 'terms_accepted_at' => now(),
                 'adult_confirmed_at' => now(),
             ]);
@@ -63,6 +67,8 @@ class ApplicationService
                     'url' => $url, 'platform' => Sample::detectPlatform($url), 'status' => 'ready',
                 ]);
             }
+
+            UploadService::adopt($app, $data['uploads']);
 
             $app = $app->fresh();
             Event::fire('aero.viral.applicationSubmitted', [$app]);
@@ -82,7 +88,7 @@ class ApplicationService
         $rules = [
             'track' => 'required|in:shorts,live,edit',
             'level' => 'required|integer|between:1,4',
-            'links' => 'required|array|min:1|max:' . self::MAX_LINKS,
+            'links' => 'array|max:' . self::MAX_LINKS,
             'links.*' => ['required', 'url', 'max:500', 'regex:#^https?://([\w-]+\.)+[a-z]{2,}(/\S*)?$#i'],
             'tags' => 'array|max:30',
             'tags.*' => 'string|max:60',
@@ -97,10 +103,11 @@ class ApplicationService
             $rules += ['name' => 'required|string|min:2|max:120', 'email' => 'required|email|max:255', 'password' => 'required|string|min:8|max:200'];
         }
 
+        // Muestra: al menos un link, un archivo subido o una grabación (se comprueban en S3 antes de validar).
+        $in['uploads'] = UploadService::verify(array_values(array_filter((array) ($in['uploads'] ?? []), 'is_array')));
+
         $v = Validator::make($in, $rules, [
             'required' => 'Este dato es obligatorio.',
-            'links.required' => 'Pega al menos un link.',
-            'links.min' => 'Pega al menos un link.',
             'links.*.url' => 'Eso no parece un link.',
             'links.*.regex' => 'Eso no parece un link.',
             'phone.required' => 'Escribe un celular boliviano de 8 dígitos (empieza en 6 o 7).',
@@ -110,9 +117,16 @@ class ApplicationService
             'terms.accepted' => 'Debes aceptar los términos y la privacidad.',
             'adult.accepted' => 'Debes confirmar que eres mayor de edad.',
         ]);
+        $v->after(function ($v) use ($in) {
+            if (!$in['links'] && !$in['uploads']) {
+                $v->errors()->add('links', 'Pega un link, sube un archivo o graba un video.');
+            }
+        });
         if ($v->fails()) {
             throw new ValidationException($v);
         }
+
+        $in['photo_draft'] = PhotoService::draftPath($in['photo_id'] ?? null);
 
         $rate = Catalog::resolveRate($in['track'], (int) $in['level'], $in['rate_model'] ?? null, $in['rate_amount'] ?? null);
         if (isset($rate['errors'])) {

@@ -68,8 +68,12 @@ class KycService
         }
 
         if ($mapped === 'verified') {
-            $this->storeIdentity($check, $p);
-            $check->verify();
+            $age = $this->storeIdentity($check, $p);
+            if ($age !== null && $age < 18) {
+                $check->reject(null, 'Menor de 18 años: la plataforma es solo para mayores de edad.');
+            } else {
+                $check->verify();
+            }
         } elseif ($mapped === 'rejected') {
             $check->reject(null, $this->reason($p) ?: 'Didit no pudo verificar la identidad.');
         } else {
@@ -82,7 +86,8 @@ class KycService
     }
 
     /** Guarda lo mínimo del documento (cifrado) para el revisor. No guardamos fotos: quedan en Didit. */
-    protected function storeIdentity(KycCheck $check, array $p): void
+    /** @return int|null edad según el documento, si Didit la entrega (no se guarda la fecha de nacimiento) */
+    protected function storeIdentity(KycCheck $check, array $p): ?int
     {
         $decision = (array) ($p['decision'] ?? []);
         $doc = $decision['id_verifications'][0] ?? null;
@@ -96,6 +101,8 @@ class KycService
         if (is_array($doc) && !empty($doc['document_number'])) {
             $check->doc_number = (string) $doc['document_number'];
         }
+
+        return is_array($doc) && isset($doc['age']) && is_numeric($doc['age']) ? (int) $doc['age'] : null;
     }
 
     protected function reason(array $p): ?string

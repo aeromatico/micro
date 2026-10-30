@@ -17,7 +17,7 @@ Pegar `docs/s3/cors.json` en *Permissions → CORS*. Debe exponer `ETag` (sin es
     aws s3api put-bucket-cors --bucket NOMBRE --cors-configuration file://plugins/aero/viral/docs/s3/cors.json
 
 ## 3. Ciclo de vida (recomendado)
-`docs/s3/lifecycle.json`: cancela subidas incompletas a los 2 días, red de seguridad que borra `viral/kyc/` a los 60 días
+`docs/s3/lifecycle.json`: cancela subidas incompletas a los 2 días, red de seguridad que borra `viral/kyc/` a los 60 días Además borra `viral/drafts/` (subidas sin enviar) a los 2 días. CORS permite POST, PUT, GET y HEAD (las subidas son POST prefirmado directo del navegador).
 (la app ya borra a los 30 tras decidir) y limpia los objetos de prueba.
 
     aws s3api put-bucket-lifecycle-configuration --bucket NOMBRE --lifecycle-configuration file://plugins/aero/viral/docs/s3/lifecycle.json

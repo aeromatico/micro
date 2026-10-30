@@ -21,7 +21,7 @@ class Application extends Model
     const PROMOTE_AFTER = [1 => 3, 2 => 10];
     const KYC = ['none' => 'Sin verificar', 'pending' => 'Pendiente', 'verified' => 'Verificada', 'rejected' => 'Rechazada'];
 
-    public $fillable = ['user_id', 'track', 'level', 'rate_model', 'rate_amount', 'positive_feedbacks', 'tags', 'description', 'phone', 'department', 'city',
+    public $fillable = ['uuid', 'user_id', 'track', 'level', 'rate_model', 'rate_amount', 'positive_feedbacks', 'photo_path', 'phone_verified_at', 'tags', 'description', 'phone', 'department', 'city',
         'offer_to_clients', 'terms_accepted_at', 'adult_confirmed_at'];
 
     public $jsonable = ['tags'];
@@ -43,7 +43,14 @@ class Application extends Model
         'kyc_checks' => [KycCheck::class, 'key' => 'application_id'],
     ];
 
-    public $dates = ['terms_accepted_at', 'adult_confirmed_at', 'reviewed_at'];
+    public function afterDelete(): void
+    {
+        if ($this->photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($this->photo_path);
+        }
+    }
+
+    public $dates = ['phone_verified_at', 'terms_accepted_at', 'adult_confirmed_at', 'reviewed_at'];
 
     public function beforeCreate(): void
     {

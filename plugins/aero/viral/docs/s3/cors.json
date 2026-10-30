@@ -1,10 +1,22 @@
 {
   "CORSRules": [
     {
-      "AllowedOrigins": ["https://viral.market.com.bo", "https://panel.market.com.bo"],
-      "AllowedMethods": ["PUT", "GET", "HEAD"],
-      "AllowedHeaders": ["*"],
-      "ExposeHeaders": ["ETag"],
+      "AllowedOrigins": [
+        "https://viral.market.com.bo",
+        "https://panel.market.com.bo"
+      ],
+      "AllowedMethods": [
+        "POST",
+        "PUT",
+        "GET",
+        "HEAD"
+      ],
+      "AllowedHeaders": [
+        "*"
+      ],
+      "ExposeHeaders": [
+        "ETag"
+      ],
       "MaxAgeSeconds": 3000
     }
   ]

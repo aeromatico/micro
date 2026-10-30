@@ -134,4 +134,18 @@ class KycTest extends PluginTestCase
         $this->expectException(\RuntimeException::class);
         $app->fresh()->approve(1);
     }
+
+    public function testApprovedByDiditButUnder18IsRejected(): void
+    {
+        Http::fake(['verification.didit.me/v3/session/' => Http::response(['session_id' => 'sess-3', 'url' => 'https://v/x', 'status' => 'Not Started'], 201)]);
+        $app = $this->app1();
+        $svc = new KycService;
+        $svc->start($app, 'x');
+
+        $svc->handleWebhook(['event_id' => 'm1', 'webhook_type' => 'status.updated', 'session_id' => 'sess-3', 'status' => 'Approved',
+            'decision' => ['id_verifications' => [['document_number' => '7654321', 'age' => 17]]]]);
+
+        $this->assertSame('rejected', $app->fresh()->kyc_status);
+        $this->assertStringContainsString('18', (string) KycCheck::first()->reject_reason);
+    }
 }

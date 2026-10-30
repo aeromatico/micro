@@ -4,6 +4,10 @@ use Aero\Viral\Classes\ApplicationService;
 use Aero\Viral\Classes\Catalog;
 use Aero\Viral\Classes\Kyc\KycException;
 use Aero\Viral\Classes\Kyc\KycService;
+use Aero\Viral\Classes\PhoneVerifier;
+use Aero\Viral\Classes\PhotoService;
+use Aero\Viral\Classes\UploadService;
+use Aero\Viral\Classes\ViralStorage;
 use Aero\Viral\Models\Application;
 use Auth;
 use Cms\Classes\ComponentBase;
@@ -26,6 +30,29 @@ class ViralApply extends ComponentBase
         $app = (new ApplicationService)->submit(post(), request()->ip());
 
         return ['application' => ApplicationService::summary($app), 'user' => $this->userData()];
+    }
+
+    /** Autoriza una subida directa a S3 (archivo o grabación) y devuelve el POST prefirmado. */
+    public function onUploadInit(): array
+    {
+        return UploadService::init((string) post('mime'), (int) post('size'), (string) post('kind'), request()->ip());
+    }
+
+    /** Foto de perfil (subida común). Devuelve el id del borrador. */
+    public function onPhoto(): array
+    {
+        return ['id' => PhotoService::stage(request()->file('photo'), request()->ip())];
+    }
+
+    /** Envía el código de verificación del celular por WhatsApp. */
+    public function onPhoneSend(): array
+    {
+        return PhoneVerifier::send((string) post('phone'), request()->ip());
+    }
+
+    public function onPhoneVerify(): array
+    {
+        return ['verified' => PhoneVerifier::check((string) post('phone'), (string) post('code'))];
     }
 
     public function onStatus(): array
@@ -73,6 +100,8 @@ class ViralApply extends ComponentBase
     {
         return [
             'csrf' => csrf_token(),
+            'storage' => ViralStorage::isConfigured(),
+            'phone_verify' => PhoneVerifier::available(),
             'catalog' => Catalog::forFrontend(),
             'user' => $this->userData(),
             'application' => ApplicationService::summary($this->currentApplication()),

@@ -45,3 +45,7 @@ fields:
         label: Notas de revisión (se envían a la persona al pedir cambios)
         type: textarea
         size: small
+    samples_view:
+        type: partial
+        path: field_samples
+        context: update

@@ -4,6 +4,7 @@ columns:
     track_label: {label: Camino, sortable: false}
     level_label: {label: Nivel, sortable: false}
     rate_label: {label: Tarifa, sortable: false}
+    phone_verified_at: {label: Celular verificado, type: datetime}
     city: {label: Ciudad, searchable: true}
     status_label: {label: Estado, sortable: false}
     kyc_label: {label: Identidad, sortable: false}

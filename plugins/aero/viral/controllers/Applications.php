@@ -64,4 +64,16 @@ class Applications extends Controller
     {
         return Application::findOrFail((int) $id);
     }
+
+    /** Foto de perfil privada: solo para quien revisa. */
+    public function photo($id = null)
+    {
+        $app = \Aero\Viral\Models\Application::find((int) $id);
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+        if (!$app || !$app->photo_path || !$disk->exists($app->photo_path)) {
+            abort(404);
+        }
+
+        return response($disk->get($app->photo_path), 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=300', 'X-Content-Type-Options' => 'nosniff']);
+    }
 }

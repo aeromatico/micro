@@ -7,3 +7,9 @@
 1.2.0:
     - "Los creadores suben de nivel con feedbacks positivos: Noob a Casual con 3 y Casual a Pro con 10."
     - add_level_progress.php
+1.3.0:
+    - "Quien ofrece su perfil a clientes ahora puede subir su foto de perfil."
+    - add_photo_path.php
+1.4.0:
+    - "Ahora se puede verificar el celular con un código por WhatsApp."
+    - add_phone_verified.php
