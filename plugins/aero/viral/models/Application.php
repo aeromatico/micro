@@ -11,7 +11,7 @@ class Application extends Model
 
     public $table = 'aero_viral_applications';
 
-    const TRACKS = ['shorts' => 'Shorts', 'live' => 'Live', 'edit' => 'Edición'];
+    const TRACKS = ['shorts' => 'Shorts', 'long' => 'Largos (+8 min)', 'live' => 'Live', 'edit' => 'Edición'];
     const STATUSES = [
         'received' => 'Recibida', 'in_review' => 'En revisión', 'changes_requested' => 'Con cambios pedidos',
         'approved' => 'Aprobada', 'rejected' => 'Rechazada',
@@ -28,7 +28,7 @@ class Application extends Model
 
     public $rules = [
         'user_id' => 'required|integer',
-        'track'   => 'required|in:shorts,live,edit',
+        'track'   => 'required|in:shorts,long,live,edit',
         'level'   => 'required|integer|between:1,4',
         'rate_amount' => 'nullable|numeric|min:0',
         'description' => 'nullable|max:600',
@@ -59,13 +59,13 @@ class Application extends Model
 
     public function getTrackLabelAttribute(): string { return self::TRACKS[$this->track] ?? (string) $this->track; }
     public function getStatusLabelAttribute(): string { return self::STATUSES[$this->status] ?? (string) $this->status; }
-    public function getLevelLabelAttribute(): string { return self::LEVELS[$this->level] ?? (string) $this->level; }
+    public function getLevelLabelAttribute(): string { return $this->track === 'long' ? 'Sin niveles' : (self::LEVELS[$this->level] ?? (string) $this->level); }
     public function getRateLabelAttribute(): string { return Catalog::rateLabel($this->rate_model, $this->rate_amount, (string) $this->track, (int) $this->level); }
     public function getKycLabelAttribute(): string { return self::KYC[$this->kyc_status] ?? (string) $this->kyc_status; }
 
     public function getRateModelOptions(): array
     {
-        return ['per_second' => 'Por segundo', 'per_hour' => 'Por hora', 'commission_fixed' => 'Comisión fija por venta',
+        return ['per_second' => 'Por segundo', 'per_minute' => 'Por minuto', 'per_hour' => 'Por hora', 'commission_fixed' => 'Comisión fija por venta',
             'commission_percent' => 'Comisión % por venta', 'per_project' => 'Por proyecto'];
     }
 
@@ -79,7 +79,7 @@ class Application extends Model
             $row = static::lockForUpdate()->find($this->id);
             $row->positive_feedbacks++;
             $from = (int) $row->level;
-            $need = self::PROMOTE_AFTER[$from] ?? null;
+            $need = $row->track === 'long' ? null : (self::PROMOTE_AFTER[$from] ?? null);  // Largos no tiene niveles
             $promoted = $need !== null && $row->positive_feedbacks >= $need;
 
             if ($promoted) {

@@ -90,4 +90,33 @@ class RateTest extends PluginTestCase
         $this->assertSame(3, (int) $app->fresh()->level);        // Pro no sube solo; Viral lo decide el equipo
         $this->assertSame(30, (int) $app->fresh()->positive_feedbacks);
     }
+
+    public function testLongFormHasNoLevelsAndCreatorSetsPerMinuteRate(): void
+    {
+        $this->assertSame(['model' => 'per_minute', 'amount' => 25.0], Catalog::resolveRate('long', 1, 'per_minute', '25'));
+        $this->assertSame(['model' => 'per_project', 'amount' => null], Catalog::resolveRate('long', 1, 'per_project', '999'));
+        $this->assertArrayHasKey('errors', Catalog::resolveRate('long', 1, null, '25'));
+        $this->assertArrayHasKey('errors', Catalog::resolveRate('long', 1, 'per_hour', '25'));
+        $this->assertArrayHasKey('errors', Catalog::resolveRate('long', 1, 'per_minute', ''));
+        $this->assertArrayHasKey('errors', Catalog::resolveRate('long', 1, 'per_minute', '0'));
+        $this->assertSame('Bs 25 por minuto', Catalog::rateLabel('per_minute', 25.0));
+
+        $base = ['track' => 'long', 'links' => ['youtube.com/watch?v=abc123'], 'tags' => ['YouTube'], 'name' => 'QA Largo',
+            'email' => 'largo@example.com', 'phone' => '71234567', 'department' => 'La Paz', 'city' => 'El Alto',
+            'password' => 'claveSegura123', 'adult' => 1, 'terms' => 1];
+        try {
+            (new ApplicationService)->submit($base, null);
+            $this->fail('Debió pedir la tarifa');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('rate_model', $e->errors());
+        }
+        $app = (new ApplicationService)->submit($base + ['rate_model' => 'per_minute', 'rate_amount' => '30'], null);   // sin nivel
+        $this->assertSame('long', $app->track);
+        $this->assertSame('per_minute', $app->rate_model);
+        $this->assertSame('Sin niveles', $app->level_label);
+        for ($i = 0; $i < 12; $i++) {
+            $this->assertFalse($app->addPositiveFeedback());   // nunca sube de nivel
+        }
+        $this->assertSame(1, (int) $app->level);
+    }
 }

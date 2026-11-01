@@ -18,6 +18,7 @@ fields:
         span: left
     level:
         label: Nivel (1 a 4)
+        comment: Largos no tiene niveles.
         type: number
         span: right
     rate_model:

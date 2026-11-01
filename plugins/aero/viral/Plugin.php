@@ -4,7 +4,7 @@ use Backend;
 use System\Classes\PluginBase;
 
 /**
- * Viral: postulaciones de creadores de video vertical (shorts, lives y edición).
+ * Viral: postulaciones de creadores de video vertical (shorts, videos largos, lives y edición).
  * Solo de la plataforma (sin tenants). Los postulantes son usuarios de RainLab.User;
  * la identidad se verifica con KYC (driver manual por ahora).
  */
@@ -16,7 +16,7 @@ class Plugin extends PluginBase
     {
         return [
             'name'        => 'Viral',
-            'description' => 'Postulaciones de creadores de shorts, lives y edición, con revisión de muestra y verificación de identidad.',
+            'description' => 'Postulaciones de creadores de shorts, videos largos, lives y edición, con revisión de muestra y verificación de identidad.',
             'author'      => 'Aero',
             'icon'        => 'icon-star',
         ];

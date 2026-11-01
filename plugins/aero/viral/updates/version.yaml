@@ -13,3 +13,5 @@
 1.4.0:
     - "Ahora se puede verificar el celular con un código por WhatsApp."
     - add_phone_verified.php
+1.5.0:
+    - "Ahora se puede postular a videos largos de más de 8 minutos, con tarifa por minuto y sin niveles."

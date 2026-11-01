@@ -13,7 +13,7 @@ return new class extends Migration
                 $t->id();
                 $t->uuid('uuid')->unique();
                 $t->unsignedBigInteger('user_id')->index();            // RainLab.User
-                $t->string('track', 16);                               // shorts | live | edit
+                $t->string('track', 16);                               // shorts | long | live | edit
                 $t->unsignedTinyInteger('level')->default(1);          // 1..4
                 $t->json('tags')->nullable();
                 $t->text('description')->nullable();

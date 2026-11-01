@@ -85,8 +85,13 @@ class ApplicationService
         $in['tags'] = array_values(array_unique(array_filter((array) ($in['tags'] ?? []), 'is_string')));
         $in['offer'] = filter_var($in['offer'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
+        // Videos largos no tienen niveles: se guarda el 1 por defecto y no sube de nivel.
+        if (($in['track'] ?? null) === 'long') {
+            $in['level'] = 1;
+        }
+
         $rules = [
-            'track' => 'required|in:shorts,live,edit',
+            'track' => 'required|in:shorts,long,live,edit',
             'level' => 'required|integer|between:1,4',
             'links' => 'array|max:' . self::MAX_LINKS,
             'links.*' => ['required', 'url', 'max:500', 'regex:#^https?://([\w-]+\.)+[a-z]{2,}(/\S*)?$#i'],

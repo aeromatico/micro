@@ -5,6 +5,7 @@ class Catalog
 {
     public const TAGS = [
         'shorts' => ['UGC', 'Spokesperson', 'Reseñas técnicas', 'Tutoriales', 'Unboxing', 'Sketches cómicos', 'Tendencias', 'Retos virales', 'Storytelling', 'Hook en 3 s', 'Guion publicitario', 'Actuación', 'Modelo de producto', 'Lifestyle', 'Moda', 'Maquillaje', 'Faceless', 'Voz en off', 'Avatares IA', 'Video con IA', 'Stock + IA', 'Marketing de afiliados'],
+        'long' => ['YouTube', 'Reseñas largas', 'Tutoriales y cursos', 'Podcast en video', 'Entrevistas', 'Documentales', 'Videos corporativos', 'Spots y comerciales', 'Explainers', 'Vlogs', 'Storytelling', 'Guion y locución', 'Faceless', 'Video con IA'],
         'live' => ['Live shopping', 'TikTok Shop', 'Cierre de venta', 'Manejo de chat', 'Demostración en vivo', 'Improvisación', 'Flash sales', 'Subastas en vivo', 'Lives de +2 horas', 'Co-host', 'Moderación de chat', 'OBS / multicámara', 'Moda en vivo', 'Belleza en vivo', 'Tecnología en vivo', 'Hogar y cocina', 'Suplementos y fitness', 'Joyería y accesorios'],
         'edit' => ['Clipmaker', 'Podcast a vertical', 'Highlights de stream', 'Subtítulos dinámicos', 'Ritmo y cortes', 'Motion graphics', 'Tipografía cinética', 'Infografías animadas', 'Color grading', 'Sonido y mezcla', 'Guion y storyboard', 'Dirección de video vertical', 'Iluminación', 'Anuncios cinematográficos', 'Edición con IA', 'Voces en off IA', 'Edición de replays de live', 'CapCut', 'Premiere Pro', 'After Effects', 'DaVinci Resolve', 'Final Cut', 'Blender / 3D', 'Entrega en 24 h'],
     ];
@@ -23,6 +24,8 @@ class Catalog
 
     /** Modelos de tarifa que el creador puede elegir en Live. */
     const LIVE_MODELS = ['per_hour' => 'Por hora', 'commission_fixed' => 'Comisión fija por venta', 'commission_percent' => 'Comisión % por venta'];
+    /** Cómo cobra quien hace videos largos: por minuto (con monto) o por proyecto (se fija en cada proyecto). */
+    const LONG_MODELS = ['per_minute' => 'Por minuto', 'per_project' => 'Por proyecto'];
     const SHORTS_FIXED = 3.0;       // Noob: Bs por segundo
     const SHORTS_RANGE = [3.0, 10.0]; // Casual: la tarifa final la fija la revisión dentro de este rango
     const MAX_RATE = 100000;
@@ -37,6 +40,19 @@ class Catalog
 
         if ($track === 'edit') {
             return ['model' => 'per_project', 'amount' => null];
+        }
+        if ($track === 'long') {
+            if (!isset(self::LONG_MODELS[$model])) {
+                return ['errors' => ['rate_model' => 'Elige cómo quieres cobrar.']];
+            }
+            if ($model === 'per_project') {
+                return ['model' => 'per_project', 'amount' => null];
+            }
+            if ($amount === null || $amount <= 0 || $amount > self::MAX_RATE) {
+                return ['errors' => ['rate_amount' => 'Escribe tu tarifa en Bs por minuto.']];
+            }
+
+            return ['model' => 'per_minute', 'amount' => $amount];
         }
         if ($track === 'shorts') {
             if ($level === 1) {
@@ -72,6 +88,7 @@ class Catalog
                     return 'Bs ' . $n(self::SHORTS_RANGE[0]) . ' a ' . $n(self::SHORTS_RANGE[1]) . ' por segundo (se define al revisar)';
                 }
                 return 'Bs ' . $n($amount) . ' por segundo';
+            case 'per_minute': return 'Bs ' . $n($amount) . ' por minuto';
             case 'per_hour': return 'Bs ' . $n($amount) . ' por hora';
             case 'commission_fixed': return 'Bs ' . $n($amount) . ' por venta';
             case 'commission_percent': return $n($amount) . '% por venta';
@@ -86,6 +103,7 @@ class Catalog
         return [
             'tracks' => [
                 ['k' => 'shorts', 'kicker' => 'Formato corto', 'title' => 'Shorts', 'sub' => 'Creo, actúo o modelo en video vertical'],
+                ['k' => 'long', 'kicker' => 'Más de 8 minutos', 'title' => 'Largos', 'sub' => 'Hago videos largos: reseñas, cursos, podcasts, documentales', 'levels' => false],
                 ['k' => 'live', 'kicker' => 'En vivo', 'title' => 'Live', 'sub' => 'Vendo en transmisiones en vivo'],
                 ['k' => 'edit', 'kicker' => 'Posproducción', 'title' => 'Edición', 'sub' => 'Edito, animo o produzco video para marcas'],
             ],
@@ -97,6 +115,7 @@ class Catalog
             ],
             'rates' => [
                 'shorts_fixed' => self::SHORTS_FIXED, 'shorts_range' => self::SHORTS_RANGE,
+                'long_models' => array_map(fn ($k, $v) => ['k' => $k, 'label' => $v], array_keys(self::LONG_MODELS), self::LONG_MODELS),
                 'live_models' => array_map(fn ($k, $v) => ['k' => $k, 'label' => $v], array_keys(self::LIVE_MODELS), self::LIVE_MODELS),
             ],
             'tags' => self::TAGS,
