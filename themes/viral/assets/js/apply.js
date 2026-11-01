@@ -24,16 +24,16 @@ document.addEventListener('alpine:init', () => {
       this.user = this.boot.user;
       this.app = this.boot.application;
       const q = new URLSearchParams(location.search).get('camino');
-      if (this.catalog.tracks.some(t => t.k === q)) this.track = q;
+      if (this.catalog.tracks.some(t => t.k === q)) { this.track = q; if (q === 'long') this.level = 1; }
       if (this.app) this.showDone();
     },
 
     get stepName() { return NAMES[this.step - 1] || ''; },
     get trackTags() { return this.catalog.tags[this.track || 'shorts'] || []; },
     get firstName() { const n = (this.user && this.user.name) || this.name; return (n || '').trim().split(/\s+/)[0] || 'crack'; },
-    get linkPh() { return { live: 'Pega un live, un replay o tu perfil de TikTok Shop', edit: 'Pega tu portafolio, reel o un video que hayas editado' }[this.track] || 'Pega aquí tu TikTok, Reel, Short o canal'; },
-    get linkHelp() { return { live: 'Un live, un replay o tu perfil de ventas.', edit: 'Tu portafolio, tu reel o un video que hayas editado.' }[this.track] || 'Tus videos, tu perfil o tu canal.'; },
-    get descPh() { return { live: 'Ej. Vendo moda en TikTok Shop tres veces por semana, lives de 2 horas, y sé manejar el chat y los cupones.', edit: 'Ej. Edito podcasts a clips verticales con subtítulos animados. Premiere y CapCut, entrega en 24 h.' }[this.track] || 'Ej. Convierto podcasts en clips verticales con subtítulos que no te dejan scrollear.'; },
+    get linkPh() { return { long: 'Pega un video largo tuyo: YouTube, Facebook o tu canal', live: 'Pega un live, un replay o tu perfil de TikTok Shop', edit: 'Pega tu portafolio, reel o un video que hayas editado' }[this.track] || 'Pega aquí tu TikTok, Reel, Short o canal'; },
+    get linkHelp() { return { long: 'Un video de más de 8 minutos o tu canal.', live: 'Un live, un replay o tu perfil de ventas.', edit: 'Tu portafolio, tu reel o un video que hayas editado.' }[this.track] || 'Tus videos, tu perfil o tu canal.'; },
+    get descPh() { return { long: 'Ej. Hago reseñas y tutoriales de 10 a 20 minutos para YouTube, con guion, edición y locución propios.', live: 'Ej. Vendo moda en TikTok Shop tres veces por semana, lives de 2 horas, y sé manejar el chat y los cupones.', edit: 'Ej. Edito podcasts a clips verticales con subtítulos animados. Premiere y CapCut, entrega en 24 h.' }[this.track] || 'Ej. Convierto podcasts en clips verticales con subtítulos que no te dejan scrollear.'; },
     get doneText() {
       if (!this.app) return '';
       return { approved: '¡Tu perfil fue aprobado!', rejected: 'Por ahora tu perfil no continúa. Gracias por postular.', changes_requested: 'Necesitamos que corrijas algo de tu perfil.' }[this.app.status]
@@ -176,7 +176,7 @@ document.addEventListener('alpine:init', () => {
     stopRecord() { if (this._rec && this._rec.state !== 'inactive') this._rec.stop(); },
     hasLink() { return this.links.some(l => URL_RE.test(l.trim().toLowerCase())); },
 
-    pickTrack(k) { if (this.track !== k) { this.track = k; this.rateModel = ''; this.rateAmount = ''; if (this.level) this.tried1 = false; } },
+    pickTrack(k) { if (this.track !== k) { const was = this.track; this.track = k; this.rateModel = ''; this.rateAmount = ''; if (k === 'long') this.level = 1; else if (was === 'long') this.level = null; if (this.level) this.tried1 = false; } },
     levelRate(n) {
       if (this.track === 'live') return 'Tú fijas: por hora o comisión por venta';
       if (this.track === 'edit') return 'Tú fijas tu tarifa por proyecto';
@@ -185,12 +185,14 @@ document.addEventListener('alpine:init', () => {
       if (n === 2) return 'Bs ' + r.shorts_range[0] + ' a ' + r.shorts_range[1] + ' por segundo';
       return 'Elige tu tarifa';
     },
-    needsRate() { return (this.track === 'shorts' && this.level >= 3) || this.track === 'live'; },
+    needsRate() { return (this.track === 'shorts' && this.level >= 3) || this.track === 'live' || this.track === 'long'; },
+    needsAmount() { return this.track === 'long' ? this.rateModel === 'per_minute' : this.needsRate(); },
     rateErr() {
       if (!this.tried1 || !this.needsRate()) return this.errors.rate_amount || this.errors.rate_model || '';
-      if (this.track === 'live' && !this.rateModel) return 'Elige cómo quieres cobrar.';
+      if ((this.track === 'live' || this.track === 'long') && !this.rateModel) return 'Elige cómo quieres cobrar.';
+      if (!this.needsAmount()) return this.errors.rate_amount || this.errors.rate_model || '';
       const v = parseFloat(this.rateAmount);
-      if (!(v > 0)) return this.track === 'live' && this.rateModel === 'commission_percent' ? 'Escribe un porcentaje entre 1 y 100.' : 'Escribe tu tarifa.';
+      if (!(v > 0)) return this.track === 'live' && this.rateModel === 'commission_percent' ? 'Escribe un porcentaje entre 1 y 100.' : (this.track === 'long' ? 'Escribe tu tarifa en Bs por minuto.' : 'Escribe tu tarifa.');
       if (this.rateModel === 'commission_percent' && v > 100) return 'Escribe un porcentaje entre 1 y 100.';
       return this.errors.rate_amount || this.errors.rate_model || '';
     },

@@ -6,7 +6,7 @@ is_hidden = 0
 
 [viralApply]
 ==
-{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=12"></script>{% endput %}
+{% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=14"></script>{% endput %}
 <script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
 
 <div class="vl-ap" x-data="viralApply()" x-cloak>
@@ -41,6 +41,7 @@ is_hidden = 0
             </div>
 
             <div x-show="track" x-transition.opacity>
+                <div x-show="track !== 'long'">
                 <h2 class="vl-h2">¿En qué nivel estás?</h2>
                 <p class="vl-note vl-honest">Revisamos que tu nivel corresponda al trabajo que nos muestras en el siguiente paso. <strong>Te sugerimos ser honesto: así logras mejores resultados.</strong> Si consideramos que no correspondes al nivel que elegiste, no te preocupes: aquí puedes hacer carrera.</p>
                 <ul class="vl-career">
@@ -59,9 +60,30 @@ is_hidden = 0
                     </template>
                 </div>
 
+                </div>
+
                 <!-- Tarifa -->
                 <div id="tarifa" class="vl-rate-box" x-show="track && level" x-transition.opacity>
                     <h2 class="vl-h2">Tu tarifa</h2>
+                    <p class="vl-keep"><strong>Te llevas el 100 % de tu tarifa.</strong></p>
+
+                    <template x-if="track === 'long'">
+                        <div>
+                            <p class="vl-note">En videos de más de 8 minutos <strong>no hay niveles: tú defines tu tarifa</strong>. Elige cómo quieres cobrar:</p>
+                            <div class="vl-choices vl-rate-models" role="group" aria-label="Cómo quieres cobrar">
+                                <template x-for="m in catalog.rates.long_models" :key="m.k">
+                                    <button type="button" class="vl-choice" :class="{on: rateModel === m.k}" :aria-pressed="rateModel === m.k" @click="rateModel = m.k">
+                                        <strong x-text="m.label"></strong>
+                                        <span x-text="m.k === 'per_minute' ? 'Pones cuánto cobras por cada minuto de video.' : 'Fijas el precio en cada proyecto, según su complejidad.'"></span>
+                                    </button>
+                                </template>
+                            </div>
+                            <div x-show="rateModel === 'per_minute'">
+                                <label class="vl-flabel" for="rate_amount_long">Tu tarifa (Bs por minuto)</label>
+                                <input id="rate_amount_long" class="input vl-in vl-in-rate" type="number" inputmode="decimal" min="0.01" step="0.01" x-model="rateAmount" :aria-invalid="!!rateErr()" aria-describedby="rate_err">
+                            </div>
+                        </div>
+                    </template>
 
                     <template x-if="track === 'shorts' && level === 1">
                         <p class="vl-note">Como <strong>Noob</strong> la tarifa es de <strong>Bs 3 por segundo</strong> de video aprobado.</p>

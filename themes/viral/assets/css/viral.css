@@ -50,7 +50,7 @@ textarea.input{min-height:90px;resize:vertical}
 /* sitio */
 .vl-wrap{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,56px)}
 .vl-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
-.vl-logo{font-family:var(--font-heading);font-weight:800;font-size:28px;letter-spacing:-.045em}
+.vl-logo{font-family:Fascinate,var(--font-heading);font-weight:400;font-size:40px;letter-spacing:0}
 .vl-logo span{color:var(--color-accent)}
 .vl-hero{padding:clamp(32px,8vw,96px) 0 clamp(24px,5vw,56px)}
 .vl-hero h1{font-size:clamp(56px,13vw,168px);line-height:.9;letter-spacing:-.05em;margin-bottom:var(--space-6)}
@@ -247,3 +247,8 @@ textarea.vl-in{min-height:120px}
 .vl-ap .vl-foot{margin-top:var(--space-6)}
 @media (max-width:560px){.vl-ap .vl-choice{box-shadow:4px 4px 0 var(--color-text)}.vl-ap .vl-done{box-shadow:6px 6px 0 var(--color-text)}}
 @media (prefers-reduced-motion:reduce){.vl-ap .vl-h{animation:none}.vl-ap .vl-choice,.vl-ap .vl-choice.on{transition:none;transform:none}}
+
+/* videos largos y 100 % */
+.vl-t4{background:#fff;color:var(--color-text)}.vl-t4 .vl-tbtn{background:var(--hot);color:#fff}
+.vl-st5{transform:rotate(-2deg);animation-delay:-4s;background:#fff7d6;color:var(--hot)}
+.vl-keep{display:inline-block;margin:0 0 var(--space-3);background:var(--pop);border:2px solid var(--color-text);box-shadow:3px 3px 0 var(--color-text);padding:4px 12px;font-size:15px}
