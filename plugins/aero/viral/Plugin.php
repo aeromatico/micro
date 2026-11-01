@@ -27,6 +27,11 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('viral.s3check', \Aero\Viral\Console\S3Check::class);
     }
 
+    public function boot(): void
+    {
+        \Aero\Viral\Classes\Notifier::subscribe();
+    }
+
     public function registerComponents(): array
     {
         return [\Aero\Viral\Components\ViralApply::class => 'viralApply'];
