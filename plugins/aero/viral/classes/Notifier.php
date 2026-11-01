@@ -6,7 +6,8 @@ use Aero\Viral\Models\KycCheck;
 /**
  * Avisos transaccionales de Viral por correo y WhatsApp, vía el gateway Aero.Notify (eventos viral.*).
  * Nunca rompe el flujo que lo dispara: si Notify no está o falla, se registra y se sigue.
- * WhatsApp sale como mensaje de utilidad (category=utility) desde la cuenta de plataforma.
+ * WhatsApp sale desde la cuenta de plataforma con la plantilla por defecto de Hello. No usar category=utility: exige Direct Send,
+ * que esta cuenta no tiene habilitado (Meta rechaza con «Direct Send is not enabled»).
  */
 class Notifier
 {
@@ -57,7 +58,6 @@ class Notifier
             'notes' => $app->status === 'changes_requested' ? (string) $app->review_notes : '',  // las notas del rechazo son internas
             'level' => Application::LEVELS[(int) $app->level] ?? '',
             'url' => 'https://viral.market.com.bo/aplicar',
-            'category' => 'utility',
         ];
     }
 

@@ -39,7 +39,7 @@ class NotifierTest extends PluginTestCase
         $this->assertSame(['viral.application.approved', 'viral.application.rejected'], array_column($this->sent, 0));
         $actor = $this->sent[0][2]['actor'];
         $this->assertSame(['name' => 'Ana', 'email' => 'ana@example.com', 'phone' => '+59171234567'], $actor);
-        $this->assertSame('utility', $this->sent[0][1]['category']);
+        $this->assertArrayNotHasKey('category', $this->sent[0][1], 'category=utility exige Direct Send, que la cuenta no tiene');
         $this->assertSame('', $this->sent[1][1]['notes'], 'Las notas de un rechazo son internas y no se envían');
     }
 
