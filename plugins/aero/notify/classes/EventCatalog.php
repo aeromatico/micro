@@ -28,6 +28,7 @@ class EventCatalog
             static::realestate(),
             static::medical(),
             static::church(),
+            static::viral(),
             static::community(),
             static::support(),
             static::plan(),
@@ -790,6 +791,44 @@ class EventCatalog
             'variables_schema' => $prayer + self::TENANT_VARS,
             'sample_context' => ['wants_contact' => 'sí', 'url' => 'https://panel.market.com.bo/backend/aero/church/prayers', 'tenant_name' => 'Iglesia Demo'],
         ]];
+    }
+
+    /**
+     * Aero.Viral: avisos transaccionales a quien postula como creador (recibida, identidad, resultado, nivel) y alerta al equipo.
+     * Los dispara Aero\Viral\Classes\Notifier. Salen por correo y WhatsApp (categoría utilidad).
+     */
+    protected static function viral(): array
+    {
+        $vars = [
+            'name'       => ['type' => 'string', 'required' => true,  'label' => 'Nombre de quien postula'],
+            'track_label' => ['type' => 'string', 'required' => false, 'label' => 'Camino (Shorts, Largos, Live, Edición)'],
+            'rate_label' => ['type' => 'string', 'required' => false, 'label' => 'Tarifa'],
+            'notes'      => ['type' => 'string', 'required' => false, 'label' => 'Mensaje del equipo'],
+            'reason'     => ['type' => 'string', 'required' => false, 'label' => 'Motivo'],
+            'level'      => ['type' => 'string', 'required' => false, 'label' => 'Nivel nuevo'],
+            'url'        => ['type' => 'string', 'required' => false, 'label' => 'Enlace'],
+        ];
+        $sample = [
+            'name' => 'Ana', 'track_label' => 'Shorts', 'rate_label' => 'Bs 3 por segundo', 'notes' => 'Sube un video con mejor luz.',
+            'reason' => 'El documento no se leyó bien.', 'level' => 'Casual', 'url' => 'https://viral.market.com.bo/aplicar',
+        ];
+        $mk = fn (string $code, string $name, string $desc, array $aud, array $ch, int $prio = 2) => [
+            'code' => $code, 'source_plugin' => 'Aero.Viral', 'category' => 'support', 'name' => $name, 'description' => $desc,
+            'priority' => $prio, 'default_audiences' => $aud, 'default_channels' => $ch,
+            'variables_schema' => $vars, 'sample_context' => $sample,
+        ];
+        $me = ['email', 'whatsapp'];
+
+        return [
+            $mk('viral.application.received', 'Recibimos tu postulación', 'Confirmación a quien postula, con el siguiente paso.', ['actor'], $me),
+            $mk('viral.kyc.verified', 'Identidad verificada', 'La verificación de identidad quedó aprobada.', ['actor'], $me),
+            $mk('viral.kyc.rejected', 'No pudimos verificar tu identidad', 'La verificación de identidad no pasó (incluye menores de 18).', ['actor'], $me),
+            $mk('viral.application.approved', 'Postulación aprobada', 'El equipo aprobó la postulación.', ['actor'], $me),
+            $mk('viral.application.changes_requested', 'Pedimos cambios en tu postulación', 'El equipo pidió ajustes, con su mensaje.', ['actor'], $me),
+            $mk('viral.application.rejected', 'Resultado de tu postulación', 'El equipo no continúa con la postulación.', ['actor'], $me),
+            $mk('viral.level.changed', 'Subiste de nivel', 'El creador subió de nivel por feedbacks positivos.', ['actor'], $me),
+            $mk('viral.application.new', 'Nueva postulación', 'Llegó una postulación para revisar (aviso al equipo).', ['superadmin'], ['email', 'inapp', 'push']),
+        ];
     }
 
     /** Aero.Medical: avisos al cliente (persona o tutor). Los dispara Aero\Medical\Classes\Notifier; nunca llevan contenido de notas clínicas. */

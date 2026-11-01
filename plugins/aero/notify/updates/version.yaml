@@ -228,3 +228,7 @@
 1.5.21:
     - "Las bandejas y suscripciones push ahora cargan más rápido al crecer el número de espacios."
     - add_tenant_id_indexes.php
+
+1.5.22:
+    - "Avisos por correo y WhatsApp para Aero.Viral: postulación recibida, identidad, resultado y nivel, y alerta al equipo, con sus reglas y plantillas por defecto."
+    - seed_viral_events.php
