@@ -203,3 +203,47 @@ textarea.vl-in{min-height:120px}
 .vl-t3{background:var(--color-text);color:#fff}.vl-t3 .vl-tbtn{background:var(--pop);color:var(--color-text);border-color:var(--pop)}
 .vl-home .vl-tbtn:hover{filter:brightness(1.08);transform:translateX(3px)}
 @media (max-width:700px){.vl-home .vl-tracks{margin-top:var(--space-6)}.vl-home .vl-track{min-height:0}.vl-num{font-size:110px}}
+
+/* aplicar con vida */
+.vl-ap{--pop:#ffd23f;--hot:var(--color-accent-600)}
+.vl-apband{background:var(--hot);color:#fff;padding-bottom:var(--space-4)}
+.vl-apband .vl-logo{color:#fff}.vl-apband .vl-logo span{color:var(--pop)}
+.vl-apband .vl-nav{padding-bottom:var(--space-3)}
+.vl-apband .vl-step{background:var(--color-text);color:var(--pop);padding:6px 12px;transform:rotate(1.5deg)}
+.vl-apband .vl-bars{margin:0}
+.vl-apband .vl-bars i{height:10px;background:rgba(255,255,255,.35);border:2px solid var(--color-text);transition:background .25s}
+.vl-apband .vl-bars i.on{background:var(--pop)}
+.vl-ap .vl-flow{padding-top:var(--space-6)}
+.vl-ap .vl-h{font-size:clamp(44px,9vw,96px);color:var(--color-text);animation:vl-up .5s cubic-bezier(.2,.8,.2,1) both}
+.vl-ap .vl-h::after{content:"";display:block;width:clamp(72px,12vw,140px);height:12px;background:var(--pop);border:2px solid var(--color-text);margin-top:var(--space-3);transform:rotate(-1deg)}
+.vl-ap .vl-h2{display:inline-block;background:var(--color-text);color:var(--pop);padding:4px 12px;transform:rotate(-.8deg)}
+.vl-ap .vl-choice{border-width:2px;box-shadow:5px 5px 0 var(--color-text);transition:transform .15s,box-shadow .15s,background .15s}
+.vl-ap .vl-choice:nth-child(3n+1):hover{background:var(--pop)}
+.vl-ap .vl-choice:nth-child(3n+2):hover{background:#ffe9e4}
+.vl-ap .vl-choice:nth-child(3n):hover{background:#e8e8e8}
+.vl-ap .vl-choice:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 var(--color-text)}
+.vl-ap .vl-choice.on{background:var(--pop);color:var(--color-text);box-shadow:8px 8px 0 var(--color-text);transform:translate(-3px,-3px) rotate(-1deg)}
+.vl-ap .vl-choice.on .card-kicker,.vl-ap .vl-choice.on .vl-rate{color:var(--color-text)}
+.vl-ap .vl-choice{position:relative}
+.vl-ap .vl-choice.on{padding-right:calc(var(--space-4) + 22px)}
+.vl-ap .vl-choice.on::after{content:"✓";position:absolute;top:10px;right:10px;font-weight:800;font-size:18px;background:var(--color-text);color:var(--pop);width:26px;height:26px;display:grid;place-items:center}
+.vl-ap .vl-honest{background:#fff7d6;border:2px solid var(--color-text);padding:var(--space-3);box-shadow:4px 4px 0 var(--color-text)}
+.vl-ap .vl-tag.on,.vl-ap .vl-method.on{background:var(--pop);color:var(--color-text);border-color:var(--color-text);box-shadow:3px 3px 0 var(--color-text)}
+.vl-ap .vl-tag,.vl-ap .vl-method{transition:transform .12s}
+.vl-ap .vl-tag:hover,.vl-ap .vl-method:hover{transform:translateY(-2px)}
+.vl-ap .vl-in:focus{outline:3px solid var(--pop);outline-offset:0;border-color:var(--color-text);box-shadow:4px 4px 0 var(--color-text)}
+.vl-ap .btn-primary.vl-big{background:var(--hot);color:#fff;border:2px solid var(--color-text);box-shadow:6px 6px 0 var(--color-text);transition:transform .15s,box-shadow .15s}
+.vl-ap .btn-primary.vl-big:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--color-text)}
+.vl-ap .btn-primary.vl-big:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--color-text)}
+.vl-ap .vl-done{background:var(--pop);color:var(--color-text);border:2px solid var(--color-text);box-shadow:10px 10px 0 var(--color-text)}
+.vl-ap .vl-done .vl-h{color:var(--color-text)}
+.vl-ap .vl-stages li.done .vl-mark{background:var(--color-text);color:var(--pop)}
+.vl-ap .vl-mark{border-color:var(--color-text)}
+.vl-ap .vl-kyc{border-top-color:var(--color-text)}
+.vl-ap .vl-btn-light{background:var(--color-text);color:#fff;box-shadow:5px 5px 0 var(--hot)}
+.vl-ap .vl-btn-light:hover{background:var(--color-text);color:var(--pop)}
+.vl-ap .vl-err{background:var(--color-text);color:var(--pop);padding:6px 10px;display:inline-block}
+.vl-ap .vl-err:empty{display:none}
+.vl-ap .vl-foot{margin-top:var(--space-6)}
+@media (max-width:560px){.vl-ap .vl-choice{box-shadow:4px 4px 0 var(--color-text)}.vl-ap .vl-done{box-shadow:6px 6px 0 var(--color-text)}}
+@media (prefers-reduced-motion:reduce){.vl-ap .vl-h{animation:none}.vl-ap .vl-choice,.vl-ap .vl-choice.on{transition:none;transform:none}}

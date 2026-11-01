@@ -9,17 +9,21 @@ is_hidden = 0
 {% put head_scripts %}<script defer src="{{ 'assets/js/apply.js'|theme }}?v=12"></script>{% endput %}
 <script type="application/json" id="viral-boot">{{ viralBoot|json_encode|raw }}</script>
 
-<div class="vl-wrap" x-data="viralApply()" x-cloak>
-    <nav class="vl-nav">
-        <a class="vl-logo" href="/" style="color:inherit;text-decoration:none">viral<span>.</span></a>
-        <template x-if="step < 4"><span class="vl-step" aria-live="polite">Paso <span x-text="step"></span> / 3 · <span x-text="stepName"></span></span></template>
-    </nav>
-
-    <template x-if="step < 4">
-        <div class="vl-bars" aria-hidden="true">
-            <template x-for="n in 3" :key="n"><i :class="{on: step >= n}"></i></template>
-        </div>
-    </template>
+<div class="vl-ap" x-data="viralApply()" x-cloak>
+  <div class="vl-apband">
+    <div class="vl-wrap">
+        <nav class="vl-nav">
+            <a class="vl-logo" href="/" style="color:inherit;text-decoration:none">viral<span>.</span></a>
+            <template x-if="step < 4"><span class="vl-step" aria-live="polite">Paso <span x-text="step"></span> / 3 · <span x-text="stepName"></span></span></template>
+        </nav>
+        <template x-if="step < 4">
+            <div class="vl-bars" aria-hidden="true">
+                <template x-for="n in 3" :key="n"><i :class="{on: step >= n}"></i></template>
+            </div>
+        </template>
+    </div>
+  </div>
+  <div class="vl-wrap">
 
     <main class="vl-flow" id="flujo">
 
@@ -299,5 +303,6 @@ is_hidden = 0
     </main>
 
     <footer class="vl-foot"><a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a></footer>
+  </div>
 </div>
 
