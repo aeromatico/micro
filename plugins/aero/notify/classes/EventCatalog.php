@@ -795,7 +795,7 @@ class EventCatalog
 
     /**
      * Aero.Viral: avisos transaccionales a quien postula como creador (recibida, identidad, resultado, nivel) y alerta al equipo.
-     * Los dispara Aero\Viral\Classes\Notifier. Salen por correo y WhatsApp (categoría utilidad).
+     * Los dispara Aero\Viral\Classes\Notifier. Salen por correo y WhatsApp.
      */
     protected static function viral(): array
     {
