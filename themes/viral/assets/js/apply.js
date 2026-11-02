@@ -232,6 +232,7 @@ document.addEventListener('alpine:init', () => {
           offer: this.offer ? 1 : 0, photo_id: this.offer ? this.photoId : '', adult: this.adult ? 1 : 0, terms: this.terms ? 1 : 0, website: this.website,
         });
         this.app = res.application; this.user = res.user || this.user; this.password = '';
+        if (window.metaTrack && res.meta_event) window.metaTrack('Lead', { content_category: this.track }, res.meta_event);
         this.showDone();
       } catch (e) {
         this.errors = e.fields || {};

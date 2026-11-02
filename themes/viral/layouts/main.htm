@@ -1,5 +1,13 @@
 description = "Estructura base de viral."
 ==
+<?php
+function onInit()
+{
+    // Mismo Pixel que el tema master (el ID no es secreto; el token de la CAPI nunca sale del backend).
+    $this['metaPixelId'] = config('services.meta_pixel.pixel_id');
+}
+?>
+==
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,6 +20,21 @@ description = "Estructura base de viral."
     <link rel="preload" href="{{ 'assets/fonts/archivo-latin.woff2' | theme }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ 'assets/fonts/fascinate-latin.woff2' | theme }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ 'assets/css/viral.css' | theme }}?v=26">
+    {% if metaPixelId %}
+    <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+        document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '{{ metaPixelId }}');
+        fbq('track', 'PageView');
+        window.metaTrack = function (eventName, params, eventId) {
+            try { fbq('track', eventName, params || {}, eventId ? { eventID: eventId } : undefined); } catch (e) {}
+        };
+    </script>
+    <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id={{ metaPixelId }}&ev=PageView&noscript=1"></noscript>
+    {% endif %}
     {% placeholder head_scripts %}
     <style>[x-cloak]{display:none!important}@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}</style>
 </head>
