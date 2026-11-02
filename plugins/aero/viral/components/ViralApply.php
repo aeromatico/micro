@@ -29,7 +29,7 @@ class ViralApply extends ComponentBase
     {
         $app = (new ApplicationService)->submit(post(), request()->ip());
 
-        return ['application' => ApplicationService::summary($app), 'user' => $this->userData()];
+        return ['application' => ApplicationService::summary($app), 'user' => $this->userData(), 'meta_event' => \Aero\Viral\Classes\MetaEvents::leadId($app)];
     }
 
     /** Autoriza una subida directa a S3 (archivo o grabación) y devuelve el POST prefirmado. */

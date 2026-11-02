@@ -30,6 +30,7 @@ class Plugin extends PluginBase
     public function boot(): void
     {
         \Aero\Viral\Classes\Notifier::subscribe();
+        \Aero\Viral\Classes\MetaEvents::subscribe();
     }
 
     public function registerComponents(): array
