@@ -1,6 +1,6 @@
 columns:
     id: {label: '#', searchable: false}
-    user[name]: {label: Persona, relation: user, select: name, searchable: true, sortable: false}
+    user[first_name]: {label: Persona, relation: user, select: "concat_ws(' ', first_name, last_name)", searchable: true, sortable: false}
     track_label: {label: Camino, sortable: false}
     level_label: {label: Nivel, sortable: false}
     rate_label: {label: Tarifa, sortable: false}

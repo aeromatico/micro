@@ -2,7 +2,7 @@ fields:
     user:
         label: Persona
         type: relation
-        select: name
+        select: "concat_ws(' ', first_name, last_name)"
         disabled: true
         span: left
     status:
