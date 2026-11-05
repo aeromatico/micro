@@ -27,7 +27,7 @@ class TemplateDefaults
                 'name' => 'Pago rechazado',
                 'subject' => 'No pudimos verificar tu pago: {{event_name}}',
                 'body' => $wrap('<p>Hola {{buyer_name}},</p><p>No pudimos verificar tu pago para «{{event_name}}».</p><p><strong>Motivo:</strong> {{reason}}</p>{{retry_html}}<p><a href="{{order_url}}">Ver mi orden</a></p>'),
-                'sample' => ['buyer_name' => 'Ana', 'event_name' => 'Concierto de prueba', 'reason' => 'No aparece en la cuenta', 'retry_html' => '<p>Tus entradas siguen reservadas un tiempo para que lo intentes de nuevo.</p>', 'order_url' => 'https://ejemplo.bo/orden/XXXX', 'support_html' => ''],
+                'sample' => ['buyer_name' => 'Ana', 'event_name' => 'Concierto de prueba', 'reason' => 'No aparece en la cuenta', 'retry_html' => '<p>Puedes volver a intentarlo desde tu orden.</p>', 'order_url' => 'https://ejemplo.bo/orden/XXXX', 'support_html' => ''],
             ],
             'refund_pending' => [
                 'name' => 'Pago a devolver',

@@ -1,5 +1,5 @@
 <?php Block::put('breadcrumb') ?>
-    <ul><li><a href="<?= Backend::url('aero/tickets/attendees') ?>">Asistentes y ventas</a></li><li><?= e($this->pageTitle) ?></li></ul>
+    <ul><li><a href="<?= Backend::url('aero/tickets/attendees') ?>">Asistentes</a></li><li><?= e($this->pageTitle) ?></li></ul>
 <?php Block::endPut() ?>
 <?php if (!$this->fatalError): ?>
 <?= Form::open(['class' => 'layout']) ?>

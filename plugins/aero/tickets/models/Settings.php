@@ -34,7 +34,6 @@ class Settings extends Model
     public static function maxTicketTypesPerEvent(): int { return max(0, (int) self::get('max_ticket_types_per_event', 0)); }
     public static function maxScannersPerTenant(): int { return max(0, (int) self::get('max_scanners_per_tenant', 0)); }
     public static function maxTicketsPerOrder(): int { $v = (int) self::get('max_tickets_per_order', 50); return $v > 0 ? min($v, 500) : 50; }
-    public static function defaultReservationMinutes(): int { return max(5, min(1440, (int) self::get('default_reservation_minutes', 30))); }
     public static function reopenLatePayments(): bool { return (bool) self::get('reopen_late_payments', true); }
 
     /** Cada cambio de parámetros queda en la auditoría. */

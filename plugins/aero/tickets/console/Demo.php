@@ -11,7 +11,6 @@ use Aero\Tickets\Models\Buyer;
 use Aero\Tickets\Models\Category;
 use Aero\Tickets\Models\CommissionRule;
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\Organizer;
 use Aero\Tickets\Models\PaymentSetting;
@@ -86,7 +85,7 @@ class Demo extends Command
             'tenant_id' => $tenant, 'name' => self::P . $name, 'category_id' => Category::where('name', $cat)->value('id'),
             'description' => "Evento de demostración «{$name}». Sirve para probar el flujo completo: compra, pago, entrada con QR e ingreso.",
             'organizer_name' => self::P . 'Market Eventos', 'organizer_description' => 'Organizador de ejemplo.', 'contact_name' => 'Equipo de eventos',
-            'contact_email' => 'eventos@demo.invalid', 'reservation_minutes' => 1440, 'department' => 'La Paz', 'city' => 'La Paz',
+            'contact_email' => 'eventos@demo.invalid', 'department' => 'La Paz', 'city' => 'La Paz',
             'venue_name' => 'Centro de Convenciones Demo', 'address' => 'Av. Arce 1234', 'address_reference' => 'Frente a la plaza principal',
             'lat' => -16.5, 'lng' => -68.15, 'min_age' => null, 'requirements' => 'Presentar el QR de la entrada (celular o impreso).',
         ]);
@@ -172,31 +171,23 @@ class Demo extends Command
         $g = $this->order($c, [[$gen, 1]], 'Rosa Cussi');        PaymentService::reject($this->pay($g, 'FALSO-77'), 'No aparece en la cuenta del organizador');
         $h = $this->order($c, [[$vip, 1]], 'Diego Torrico');     PaymentService::reportInconsistency($this->pay($h, 'TRF-DEMO-4004', true), 'El monto del comprobante no coincide con el de la orden');
         $i = $this->order($c, [[$est, 1]], 'Elena Paz');         $pi = PaymentService::start($i, 'transfer');
-        Order::where('id', $i->id)->update(['expires_at' => now()->subMinute()]); Ticket::where('order_id', $i->id)->update(['expires_at' => now()->subMinute()]);
-        Order::expireLapsed();                                                                              // la reserva venció...
-        PaymentService::submit($pi->fresh(), 'TRF-TARDE-5005');                                              // ...y paga tarde
+        Order::where('id', $i->id)->update(['expires_at' => now()->subMinute()]);
+        Order::expireLapsed();                                                                              // nadie la pagó a tiempo: se da por abandonada...
+        PaymentService::submit($pi->fresh(), 'TRF-TARDE-5005');                                              // ...y el comprador paga tarde
         $j = $this->order($c, [[$gen, 1]], 'Mario Rojas');       $j->cancel(self::P . 'El comprador se arrepintió');
-        TicketIssuer::issue($c->fresh(), $cor, ['name' => self::P . 'Prensa — Radio Demo', 'email' => 'prensa@demo.invalid'], 2, 'manual');
+        TicketIssuer::issue($c->fresh(), $cor, ['name' => self::P . 'Prensa — Radio Demo', 'email' => 'prensa@demo.invalid'], 2);
         $sp = Buyer::noteOrder('spam.demo@demo.invalid', 'Comprador sospechoso', null);
         $sp->block(self::P . 'Intentos de compra con comprobantes falsos');
         $this->out['concierto'] = $c;
-        $this->line('· concierto público (' . Order::where('event_id', $c->id)->count() . ' órdenes en todos los estados)');
+        $this->line('· concierto público (' . Order::where('event_id', $c->id)->count() . ' órdenes en distintos estados)');
 
-        // ---- 2. Cumpleaños por invitación ----
-        $k = $this->event($T, 'Cumpleaños de Sofía (15 años)', 'Cumpleaños', ['visibility' => 'invite', 'capacity' => 60, 'department' => 'Cochabamba', 'city' => 'Cochabamba', 'starts_at' => now()->addDays(10)->setTime(19, 0), 'ends_at' => now()->addDays(10)->setTime(23, 59), 'requirements' => 'Vestimenta formal. Solo con invitación.'], [236, 72, 153]);
+        // ---- 2. Fiesta privada por enlace (gratuita) ----
+        $k = $this->event($T, 'Cumpleaños de Sofía (15 años)', 'Cumpleaños', ['visibility' => 'link', 'capacity' => 60, 'department' => 'Cochabamba', 'city' => 'Cochabamba', 'starts_at' => now()->addDays(10)->setTime(19, 0), 'ends_at' => now()->addDays(10)->setTime(23, 59), 'requirements' => 'Vestimenta formal. Solo con el enlace de la invitación.'], [236, 72, 153]);
         $ki = $this->type($k, 'Invitado', 'free');
-        $kc = $this->type($k, 'Familia (cortesía)', 'courtesy');
         $k->publish();
-        $mk = fn (string $n, string $kind, int $comp, ?TicketType $t = null) => Guest::create(['event_id' => $k->id, 'name' => $n, 'email' => \Str::slug($n, '.') . '@demo.invalid', 'invitation_kind' => $kind, 'companions_allowed' => $comp, 'ticket_type_id' => $t?->id, 'notes' => self::P]);
-        $g1 = $mk('Tía Marta', 'single', 0);                         TicketIssuer::rsvp($g1, true, 1);
-        $g2 = $mk('Juan y Paola', 'couple', 1);                      TicketIssuer::rsvp($g2, true, 2, ['Juan Pérez', 'Paola Rivas']);
-        $g3 = $mk('Familia Gutiérrez', 'family', 4, $kc);            TicketIssuer::rsvp($g3, true, 3, ['Raúl Gutiérrez', 'Elsa de Gutiérrez', 'Mateo Gutiérrez']);
-        $g4 = $mk('Primos de Santa Cruz', 'group', 5);               // sin respuesta, aún sin enviar
-        $g5 = $mk('Amiga Daniela', 'single', 0);                     TicketIssuer::rsvp($g5, false);
-        $g6 = $mk('Don Ramiro', 'single', 0);                        TicketIssuer::rsvp($g6, true, 1); $g6->fresh()->revoke(self::P . 'Ya no está invitado');
-        foreach ([$g1, $g2, $g3, $g5] as $x) { Guest::whereKey($x->id)->update(['invited_at' => now()->subDay()]); }
-        $this->out['cumple'] = [$k, $g2, $g4];
-        $this->line('· cumpleaños privado (6 invitados: individual, pareja, familia, grupo, rechazó, revocado)');
+        foreach (['Tía Marta', 'Juan Pérez', 'Familia Gutiérrez'] as $n) { $this->order($k, [[$ki, $n === 'Familia Gutiérrez' ? 4 : 1]], $n); }
+        $this->out['cumple'] = $k->fresh();
+        $this->line('· cumpleaños privado por enlace (3 confirmaciones gratuitas)');
 
         // ---- 3. Taller por enlace con aprobación ----
         $w = $this->event($T, 'Taller de Fotografía de Producto', 'Talleres', ['visibility' => 'link', 'registration' => 'approval', 'capacity' => 25, 'department' => 'Santa Cruz', 'city' => 'Santa Cruz de la Sierra', 'starts_at' => now()->addDays(7)->setTime(9, 0), 'ends_at' => now()->addDays(7)->setTime(13, 0)], [14, 165, 233]);
@@ -283,7 +274,7 @@ class Demo extends Command
         $T = $this->tenant;
         $host = \Aero\Sites\Models\Tenant::find($T)?->primary_domain ?: 'master.market.com.bo';
         $c = $this->out['concierto'];
-        [$k, $pareja, $primos] = $this->out['cumple'];
+        $k = $this->out['cumple'];
         [$fr, $porIngresar, $door] = $this->out['feria'];
         $w = $this->out['taller'];
         $this->newLine();
@@ -298,8 +289,7 @@ class Demo extends Command
         $this->line("Catálogo público ........ https://{$host}/eventos");
         $this->line('Concierto ............... ' . $c->share_url);
         $this->line('Taller (solo enlace) .... ' . $w->share_url);
-        $this->line('Invitación (pareja) ..... ' . $pareja->fresh()->invite_url);
-        $this->line('Invitación (sin responder) ' . $primos->fresh()->invite_url);
+        $this->line('Cumpleaños (solo enlace)  ' . $k->share_url);
         $this->line('Escáner móvil ........... https://' . $host . '/escaner/' . $door->plainToken . '   (secreto: solo se muestra ahora; se regenera en Escáneres)');
         $this->line('QR válidos en la feria (para probar el escáner):');
         foreach ($porIngresar as $tk) {
@@ -325,7 +315,6 @@ class Demo extends Command
             $n['entradas'] = DB::table('aero_tickets_tickets')->whereIn('event_id', $ids)->delete();
             $n['líneas de orden'] = DB::table('aero_tickets_order_items')->whereIn('order_id', $orders)->delete();
             $n['órdenes'] = DB::table('aero_tickets_orders')->whereIn('id', $orders)->delete();
-            $n['invitados'] = DB::table('aero_tickets_guests')->whereIn('event_id', $ids)->delete();
             $n['tipos de entrada'] = DB::table('aero_tickets_ticket_types')->whereIn('event_id', $ids)->delete();
             $sc = DB::table('aero_tickets_scanners')->where('name', 'like', self::P . '%')->pluck('id')->all();
             DB::table('aero_tickets_scanner_events')->whereIn('scanner_id', $sc)->delete();

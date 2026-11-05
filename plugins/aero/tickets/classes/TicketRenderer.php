@@ -1,7 +1,6 @@
 <?php namespace Aero\Tickets\Classes;
 
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\Ticket;
 use Aero\Tickets\Models\TicketType;
@@ -46,7 +45,7 @@ class TicketRenderer
         return [
             'ticket' => $t, 'event' => $e, 'type' => $type, 'session' => $session, 'order' => $order,
             'holder' => $t->holder_name,
-            'origin' => $t->guest_id ? 'Invitación' : ($order ? 'Orden ' . $order->code : null),
+            'origin' => $order ? 'Orden ' . $order->code : null,
             'serial' => $t->seq && $total ? "Entrada {$t->seq} de " . max($total, $t->seq) : null,
             'when' => $e->starts_at?->translatedFormat('l d \d\e F \d\e Y, H:i') . ($e->ends_at ? ' a ' . $e->ends_at->format('H:i') : ''),
             'where' => trim(implode(', ', array_filter([$e->venue_name, $e->address, $e->zone, $e->city]))),

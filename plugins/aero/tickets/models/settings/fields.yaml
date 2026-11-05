@@ -50,15 +50,6 @@ tabs:
         label: Teléfono / WhatsApp de soporte
         span: right
         tab: Políticas
-    default_reservation_minutes:
-        label: Minutos de reserva por defecto
-        type: number
-        min: 5
-        max: 1440
-        default: 30
-        span: left
-        comment: "Se usa en los eventos nuevos."
-        tab: Límites
     max_tickets_per_order:
         label: Máximo de entradas por orden
         type: number

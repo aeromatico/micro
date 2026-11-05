@@ -35,3 +35,7 @@
     - "Administración global de la plataforma: panel con indicadores, aprobación y suspensión de organizadores, moderación de eventos, usuarios y compradores, comisiones por entrada, organizador o evento con registro por orden, ubicaciones, plantillas de aviso, parámetros y auditoría."
     - create_admin_tables.php
     - seed_admin_defaults.php
+
+1.9.0:
+    - "Sin reservas: la compra ya no retiene lugares y las entradas de pago se emiten al confirmarse el cobro. Se retira el evento privado por invitación."
+    - simplify_reservations_and_invitations.php

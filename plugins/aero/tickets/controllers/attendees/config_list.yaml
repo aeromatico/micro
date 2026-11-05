@@ -1,4 +1,4 @@
-title: Asistentes y ventas
+title: Asistentes (entradas emitidas)
 list: $/aero/tickets/models/ticket/columns.yaml
 modelClass: Aero\Tickets\Models\Ticket
 recordUrl: aero/tickets/attendees/update/:id

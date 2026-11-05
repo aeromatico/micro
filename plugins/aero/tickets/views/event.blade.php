@@ -72,7 +72,7 @@
         <label>Teléfono / WhatsApp</label><input name="phone" value="{{ old('phone') }}" required maxlength="30">
         <label>Documento (opcional)</label><input name="document" value="{{ old('document') }}" maxlength="30">
         @if($e->buyer_extra_label)<label>{{ $e->buyer_extra_label }}{{ $e->buyer_extra_required ? '' : ' (opcional)' }}</label><input name="extra" value="{{ old('extra') }}" maxlength="500" {{ $e->buyer_extra_required ? 'required' : '' }}>@endif
-        <p class="mut">No necesitas crear una cuenta. Si hay entradas de pago, se reservan {{ $e->reservation_minutes }} minutos para que completes el pago.</p>
+        <p class="mut">No necesitas crear una cuenta. Las entradas de pago se emiten cuando se confirma tu pago; la compra no reserva lugares.</p>
         <p><button class="btn" style="width:100%">{{ $e->registration === 'approval' ? 'Enviar solicitud' : 'Continuar' }}</button></p>
       </form>
       <script>

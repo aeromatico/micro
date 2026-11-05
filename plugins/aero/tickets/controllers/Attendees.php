@@ -33,7 +33,7 @@ class Attendees extends Controller
             'phone' => $d['holder_phone'] ?? null, 'document' => $d['holder_document'] ?? null,
         ], max(1, min(50, (int) ($d['quantity'] ?? 1))), 'manual');
 
-        \Flash::success(count($tickets) . ' entrada(s) emitida(s).');
+        \Flash::success($tickets ? count($tickets) . ' entrada(s) emitida(s).' : 'Orden creada y pendiente de pago: las entradas se emiten cuando confirmes el cobro en «Órdenes de compra».');
 
         return \Backend::redirect('aero/tickets/attendees');
     }

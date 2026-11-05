@@ -329,21 +329,15 @@ class PaymentService
                 $reason = 'La orden ya estaba confirmada con otro pago (duplicado)';
             } elseif ($late && !\Aero\Tickets\Models\Settings::reopenLatePayments()) {
                 $outcome = 'refund_pending';
-                $reason = 'Pago tardío: la plataforma no reabre órdenes vencidas';
-            } elseif ($late) {
-                try {
-                    OrderService::$paymentAuthorized = true;
-                    OrderService::reopen($o);
-                } catch (ApplicationException $e) {
-                    $outcome = 'refund_pending';
-                    $reason = 'Pago tardío y ' . lcfirst($e->getMessage());
-                } finally {
-                    OrderService::$paymentAuthorized = false;
-                }
+                $reason = 'Pago tardío: la plataforma no acepta pagos de órdenes vencidas';
             } else {
+                // Aquí se asignan los lugares: si mientras tanto se agotaron, el dinero ya está recibido y queda para devolución.
                 try {
                     OrderService::$paymentAuthorized = true;
                     OrderService::confirm($o);
+                } catch (ApplicationException $e) {
+                    $outcome = 'refund_pending';
+                    $reason = ($late ? 'Pago tardío y ' : 'Se agotó el cupo antes de confirmar: ') . lcfirst($e->getMessage());
                 } finally {
                     OrderService::$paymentAuthorized = false;
                 }
@@ -356,7 +350,7 @@ class PaymentService
             self::setStatus($p, $outcome, $attrs);
             self::log($p, $o, $gateway ? 'auto_confirmed' : 'approved', $actor, $from, $outcome, $received, $note, $meta);
             if ($late) {
-                self::log($p, $o, 'late', $actor, null, null, $received, $outcome === 'approved' ? 'Pago tardío: la orden se reabrió y las entradas se emitieron' : $reason);
+                self::log($p, $o, 'late', $actor, null, null, $received, $outcome === 'approved' ? 'Pago tardío: se aceptó y las entradas se emitieron' : $reason);
             }
             if ($outcome === 'refund_pending') {
                 self::flag($p, $o, $reason, $actor);
@@ -480,9 +474,14 @@ class PaymentService
      * Atajo de «confirmar cobro» del panel: aprueba el pago que el comprador informó (si lo hay) o registra
      * uno manual con la nota del administrador. Siempre deja el pago y el historial.
      */
-    public static function confirmOrder(Order $order, ?string $note = null, ?array $actor = null): Payment
+    public static function confirmOrder(Order $order, ?string $note = null, ?array $actor = null): ?Payment
     {
         $actor ??= self::adminActor();
+        if ((float) $order->total <= 0) {                       // inscripción gratuita en espera de aprobación: no hay pago que registrar
+            OrderService::confirm($order);
+
+            return null;
+        }
         $open = Payment::where('order_id', $order->id)->where('status', 'submitted')->orderByDesc('id')->first();
         if ($open) {
             return self::approveCore($open, (float) $open->amount, $actor, $note);

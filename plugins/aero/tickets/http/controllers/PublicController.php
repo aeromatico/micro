@@ -10,7 +10,6 @@ use Aero\Tickets\Classes\TicketIssuer;
 use Aero\Tickets\Classes\TicketRenderer;
 use Aero\Tickets\Models\Category;
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\OrderItem;
 use Aero\Tickets\Models\Payment;
@@ -50,7 +49,7 @@ class PublicController extends Controller
         $ok = match ($e->visibility) {
             'public' => true,
             'link'   => $token && $e->access_token && hash_equals($e->access_token, $token),
-            default  => false, // por invitación: solo vía /invitacion/{token}
+            default  => false,
         };
         abort_unless($ok, 404);
 
@@ -130,7 +129,7 @@ class PublicController extends Controller
             $order = OrderService::place($e, $lines, [
                 'name' => $data['name'], 'email' => $data['email'], 'phone' => $data['phone'],
                 'document' => $data['document'] ?? null, 'extra' => $data['extra'] ?? null,
-            ], 'public', null, ['idempotency_key' => !empty($data['nonce']) ? sha1($e->id . '|' . $data['nonce']) : null]);
+            ], 'public', ['idempotency_key' => !empty($data['nonce']) ? sha1($e->id . '|' . $data['nonce']) : null]);
         } catch (DuplicateOrderException $ex) {
             return redirect('orden/' . $ex->existing->code)->with('notice', $ex->getMessage() . ' Termínala o cancélala antes de hacer otra.');
         } catch (\ApplicationException $ex) {
@@ -219,44 +218,6 @@ class PublicController extends Controller
         }
 
         return back()->with('notice', 'Orden cancelada; el cupo fue liberado.');
-    }
-
-    protected function findGuest(string $token): Guest
-    {
-        $g = Guest::forTenant($this->tenantId())->where('token', $token)->first();
-        abort_unless($g, 404);
-        $g->setRelation('event', Event::findOrFail($g->event_id));
-        abort_unless(in_array($g->event->status, ['published', 'ongoing', 'finished', 'cancelled'], true), 404);
-
-        return $g;
-    }
-
-    public function invitation(string $token)
-    {
-        $g = $this->findGuest($token);
-
-        return view('aerotickets::invitation', [
-            'g' => $g, 'e' => $g->event,
-            'tickets' => $g->tickets()->whereNotIn('status', ['cancelled', 'expired'])->orderBy('id')->get(),
-            'lapsed' => $g->rsvp === 'confirmed' && $g->tickets()->holding()->doesntExist() && $g->tickets()->where('status', 'expired')->exists(),
-        ]);
-    }
-
-    public function respond(Request $r, string $token)
-    {
-        $g = $this->findGuest($token);
-        $data = $r->validate([
-            'attend' => 'required|in:yes,no', 'count' => 'nullable|integer|min:1|max:50',
-            'names' => 'nullable|array|max:50', 'names.*' => 'nullable|string|max:255',
-        ]);
-
-        try {
-            TicketIssuer::rsvp($g, $data['attend'] === 'yes', (int) ($data['count'] ?? 1), array_values($data['names'] ?? []));
-        } catch (\ApplicationException $ex) {
-            return back()->withErrors(['general' => $ex->getMessage()]);
-        }
-
-        return redirect('invitacion/' . $token)->with('ok', $data['attend'] === 'yes' ? '¡Asistencia confirmada!' : 'Gracias por avisar.');
     }
 
     protected function findTicket(string $token): Ticket

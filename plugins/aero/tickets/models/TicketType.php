@@ -32,7 +32,7 @@ class TicketType extends Model
 
     public static array $kinds = ['free' => 'Gratuita', 'paid' => 'De pago', 'courtesy' => 'Cortesía'];
 
-    public function getKindOptions(): array { return self::$kinds; }
+    public function getKindOptions(): array { return ['free' => 'Gratuita (no se cobra)', 'paid' => 'De pago', 'courtesy' => 'Cortesía (la entregas tú; no se vende en línea)']; }
     public function getCurrencyOptions(): array { return \Aero\Tickets\Classes\Currency::options(); }
     public function getFeePayerOptions(): array { return ['buyer' => 'El comprador (se suma al precio)', 'organizer' => 'El organizador (se descuenta)']; }
 
@@ -42,7 +42,7 @@ class TicketType extends Model
         if (!$this->exists) return '';
         $i = \Aero\Tickets\Classes\Inventory::type($this);
 
-        return $i['sold_out'] ? 'AGOTADA (' . $i['issued'] . ' emitidas)' : "{$i['issued']} emitidas · {$i['reserved']} reservadas · " . ($i['available'] === null ? 'sin tope' : $i['available'] . ' disponibles');
+        return $i['sold_out'] ? 'AGOTADA (' . $i['issued'] . ' emitidas)' : "{$i['issued']} emitidas · " . ($i['available'] === null ? 'sin tope' : $i['available'] . ' disponibles');
     }
 
     public function getPriceSummaryAttribute(): string

@@ -13,7 +13,7 @@ class Plugin extends PluginBase
     {
         return [
             'name'        => 'Entradas y eventos',
-            'description' => 'Crea y administra eventos públicos, privados y mixtos, con venta de entradas e invitaciones.',
+            'description' => 'Crea y administra eventos públicos o privados por enlace, con venta de entradas, pagos, QR e ingreso.',
             'author'      => 'Aero',
             'icon'        => 'icon-ticket',
         ];
@@ -44,7 +44,7 @@ class Plugin extends PluginBase
         \Event::listen('aero.tickets.paymentApproved', fn ($p, $o) => \Aero\Tickets\Classes\CommissionLedger::accrue($o, $p));
         \Event::listen('aero.tickets.paymentRefundPending', fn ($p, $o) => \Aero\Tickets\Classes\CommissionLedger::void($o, 'Pago a devolver'));
 
-        // Entradas confirmadas (gratis, invitación o pago aprobado) → correo con enlaces y PDF, una sola vez por orden.
+        // Entradas confirmadas (gratis o pago aprobado) → correo con enlaces y PDF, una sola vez por orden.
         \Event::listen('aero.tickets.orderConfirmed', fn ($o) => \Aero\Tickets\Classes\TicketDelivery::auto($o));
         \Event::listen('aero.tickets.paymentRejected', fn ($p, $o) => \Aero\Tickets\Classes\BuyerNotifier::paymentRejected($p, $o));
         \Event::listen('aero.tickets.paymentRefundPending', fn ($p, $o) => \Aero\Tickets\Classes\BuyerNotifier::refundPending($p, $o));
@@ -120,13 +120,12 @@ class Plugin extends PluginBase
                 'order'       => 533,
                 'sideMenu'    => [
                     'events'     => ['label' => 'Eventos', 'icon' => 'icon-calendar', 'url' => Backend::url('aero/tickets/events'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
-                    'ticket_types' => ['label' => 'Entradas', 'icon' => 'icon-ticket', 'url' => Backend::url('aero/tickets/tickettypes'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
+                    'ticket_types' => ['label' => 'Tipos de entrada', 'icon' => 'icon-ticket', 'url' => Backend::url('aero/tickets/tickettypes'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
                     'my_organizer' => ['label' => 'Mi organización', 'icon' => 'icon-briefcase', 'url' => Backend::url('aero/tickets/myorganizer'), 'permissions' => ['aero.tickets.use']],
-                    'orders'     => ['label' => 'Órdenes', 'icon' => 'icon-shopping-cart', 'url' => Backend::url('aero/tickets/orders'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
-                    'guests'     => ['label' => 'Invitados', 'icon' => 'icon-envelope', 'url' => Backend::url('aero/tickets/guests'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
+                    'orders'     => ['label' => 'Órdenes de compra', 'icon' => 'icon-shopping-cart', 'url' => Backend::url('aero/tickets/orders'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
                     'payments'   => ['label' => 'Pagos', 'icon' => 'icon-money', 'url' => Backend::url('aero/tickets/payments'), 'permissions' => ['aero.tickets.payments', 'aero.tickets.superadmin']],
                     'payment_settings' => ['label' => 'Cobros', 'icon' => 'icon-cog', 'url' => Backend::url('aero/tickets/paymentsettings'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
-                    'attendees'  => ['label' => 'Asistentes y ventas', 'icon' => 'icon-users', 'url' => Backend::url('aero/tickets/attendees'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
+                    'attendees'  => ['label' => 'Asistentes', 'icon' => 'icon-users', 'url' => Backend::url('aero/tickets/attendees'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
                     'scanners'   => ['label' => 'Escáneres', 'icon' => 'icon-qrcode', 'url' => Backend::url('aero/tickets/scanners'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
                     'scans'      => ['label' => 'Accesos', 'icon' => 'icon-list', 'url' => Backend::url('aero/tickets/scans'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],
                     'checkin'    => ['label' => 'Control de ingreso', 'icon' => 'icon-check', 'url' => Backend::url('aero/tickets/checkin'), 'permissions' => ['aero.tickets.use', 'aero.tickets.superadmin']],

@@ -7,7 +7,6 @@ use Aero\Tickets\Classes\TicketIssuer;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\OrderItem;
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Ticket;
 use Aero\Tickets\Models\TicketType;
 use PluginTestCase;
@@ -108,36 +107,43 @@ class SmokeTest extends PluginTestCase
         TicketIssuer::issue($e, $t, ['name' => 'Ana']);
     }
 
-    public function testApprovalRegistrationMakesPendingAndCourtesyIsNotPublic(): void
+    public function testApprovalRegistrationWaitsForApprovalWithoutTicketsAndCourtesyIsNotPublic(): void
     {
         $e = $this->liveEvent(['registration' => 'approval']);
-        [$tk] = TicketIssuer::issue($e, $this->type($e), ['name' => 'Ana'], 1, 'registration');
-        $this->assertSame('pending', $tk->status);
+        $o = OrderService::place($e, [[$this->type($e), 1]], ['name' => 'Ana', 'email' => 'a@x.com', 'phone' => '7000000'], 'public');
+        $this->assertSame('verifying', $o->status);
+        $this->assertSame(0, $o->tickets()->count());                     // aún no hay entradas: se emiten al aprobar
+        $this->assertSame(0, Order::expireLapsed());                      // y esperar aprobación no vence
+
+        $o->confirm();                                                    // gratis: se aprueba sin pago
+        $this->assertSame(['valid'], $o->tickets()->pluck('status')->all());
 
         $court = $this->type($e, ['kind' => 'courtesy']);
         $this->expectException(\ApplicationException::class);
-        TicketIssuer::issue($e, $court, ['name' => 'Ana'], 1, 'registration');
+        OrderService::place($e, [[$court, 1]], ['name' => 'Ana', 'email' => 'b@x.com', 'phone' => '7000000'], 'public');
     }
 
-    public function testPublicPaidIsATemporaryReservationThatExpiresAndFreesCapacity(): void
+    public function testPaidOrdersDoNotHoldSeatsAndTheFirstConfirmedPaymentKeepsTheLastOne(): void
     {
-        $e = $this->liveEvent(['capacity' => 1, 'reservation_minutes' => 10]);
+        $e = $this->liveEvent(['capacity' => 1]);
         $paid = $this->type($e, ['kind' => 'paid', 'price' => 50]);
-        [$tk] = TicketIssuer::issue($e, $paid, ['name' => 'Ana'], 1, 'registration');
+        $a = OrderService::place($e, [[$paid, 1]], ['name' => 'Ana', 'email' => 'a@x.com', 'phone' => '7000000'], 'public');
+        $b = OrderService::place($e, [[$paid, 1]], ['name' => 'Beto', 'email' => 'b@x.com', 'phone' => '7000000'], 'public');
 
-        $this->assertSame('reserved', $tk->status);
-        $this->assertNotNull($tk->expires_at);
+        $this->assertSame(0, Ticket::where('event_id', $e->id)->count());   // nada reservado
+        $this->assertSame(1, $e->available());                                // el lugar sigue libre para los dos
+
+        // Beto paga y se confirma primero: se queda el lugar.
+        $pb = PaymentService::registerManual($b, 50.0, 'Efectivo, recibo 2', null, $this->admin());
+        $this->assertSame('approved', $pb->status);
         $this->assertSame(0, $e->available());
-        $this->assertSame(1, \Aero\Tickets\Classes\Inventory::event($e)['reserved']);
 
-        // vence: libera el cupo al instante, aun antes de que corra el cron
-        Ticket::whereKey($tk->id)->update(['expires_at' => now()->subMinute()]);
-        $this->assertSame(1, $e->available());
-        $this->assertSame(1, Ticket::expireLapsed());
-        $this->assertSame('expired', $tk->fresh()->status);
-
-        TicketIssuer::issue($e, $paid, ['name' => 'Beto'], 1, 'registration'); // ahora sí hay cupo
-        $this->assertSame(0, $e->available());
+        // Ana también pagó, pero ya no queda cupo: su dinero queda para devolución y no se emite nada.
+        $pa = PaymentService::registerManual($a, 50.0, 'Transferencia verificada', null, $this->admin());
+        $this->assertSame('refund_pending', $pa->status);
+        $this->assertStringContainsString('cupo', mb_strtolower($pa->flag_reason));
+        $this->assertSame(0, $a->tickets()->count());
+        $this->assertSame('pending_payment', $a->fresh()->status);
     }
 
     public function testPricingBasePlusFeeAndWhoPays(): void
@@ -153,7 +159,9 @@ class SmokeTest extends PluginTestCase
         $this->assertEquals([100, 6, 100, 94], [$q['base'], $q['fee'], $q['total'], $q['net']]);
         $this->assertEquals(0, \Aero\Tickets\Classes\Pricing::quote($free)['fee']);
 
-        [$tk] = TicketIssuer::issue($e, $buyer, ['name' => 'Ana']);
+        $o = OrderService::place($e, [[$buyer, 1]], ['name' => 'Ana', 'email' => 'a@x.com', 'phone' => '7000000'], 'manual');
+        PaymentService::registerManual($o, 106.0, 'Efectivo, recibo 3', null, $this->admin());
+        $tk = $o->tickets()->first();
         $this->assertEquals([100, 6, 106], [$tk->base_amount, $tk->fee_amount, $tk->amount]);
     }
 
@@ -221,39 +229,25 @@ class SmokeTest extends PluginTestCase
     {
         $e = $this->liveEvent();
         $t = $this->type($e, ['max_per_order' => 3]);
-        $tks = TicketIssuer::issue($e, $t, ['name' => 'Ana'], 3, 'registration');
+        $tks = OrderService::place($e, [[$t, 3]], ['name' => 'Ana', 'email' => 'a@x.com', 'phone' => '7000000'], 'public')->tickets()->orderBy('seq')->get();
         $this->assertCount(3, $tks);
-        $this->assertSame(1, collect($tks)->pluck('order_code')->unique()->count());
+        $this->assertSame(1, $tks->pluck('order_code')->unique()->count());
         $this->assertSame('Ana (2/3)', $tks[1]->holder_name);
 
         $this->expectException(\ApplicationException::class); // más del máximo por compra
-        TicketIssuer::issue($e, $t, ['name' => 'Ana'], 4, 'registration');
+        OrderService::place($e, [[$t, 4]], ['name' => 'Ana', 'email' => 'b@x.com', 'phone' => '7000000'], 'public');
     }
 
-    public function testPaidManualTicketIsPendingWithAmount(): void
+    public function testPaidManualOrderHasNoTicketsUntilPaid(): void
     {
         $e = $this->liveEvent();
         $paid = $this->type($e, ['kind' => 'paid', 'price' => 80]);
-        [$tk] = TicketIssuer::issue($e, $paid, ['name' => 'Ana']);
+        $this->assertSame([], TicketIssuer::issue($e, $paid, ['name' => 'Ana']));      // el registro manual de una entrada de pago deja la orden por cobrar
 
-        $this->assertSame('pending', $tk->status);
-        $this->assertEquals(80, $tk->amount);
+        $o = Order::first();
+        $this->assertSame(['pending_payment', 'manual'], [$o->status, $o->source]);
+        $this->assertEquals(80, $o->total);
         $this->assertSame([], $e->revenue());
-    }
-
-    public function testGroupGuestRsvpIssuesTicketsAndCanBeChanged(): void
-    {
-        $e = $this->liveEvent();
-        $this->type($e);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Familia Pérez', 'invitation_kind' => 'family', 'companions_allowed' => 3]);
-
-        TicketIssuer::rsvp($g, true, 9); // más que el grupo → se limita a 4
-        $this->assertSame(4, $g->fresh()->confirmed_count);
-        $this->assertSame(4, $e->tickets()->holding()->count());
-
-        TicketIssuer::rsvp($g, false);
-        $this->assertSame('declined', $g->fresh()->rsvp);
-        $this->assertSame(0, $e->tickets()->holding()->count());
     }
 
     public function testCheckInIsSingleUse(): void
@@ -271,7 +265,6 @@ class SmokeTest extends PluginTestCase
     {
         $pub = $this->liveEvent(['visibility' => 'public']);
         $this->liveEvent(['visibility' => 'link']);
-        $this->liveEvent(['visibility' => 'invite']);
         $this->liveEvent(['visibility' => 'public', 'tenant_id' => 2]);
         Event::create(['tenant_id' => 1, 'name' => 'Borrador']);
 
@@ -298,148 +291,6 @@ class SmokeTest extends PluginTestCase
         $this->assertSame('published', $fut->fresh()->status);
     }
 
-    public function testInvitationKindsFixCompanionsAndPartySize(): void
-    {
-        $e = $this->liveEvent();
-        $mk = fn ($kind, $c, $n) => Guest::create(['event_id' => $e->id, 'name' => $n, 'invitation_kind' => $kind, 'companions_allowed' => $c]);
-
-        $single = $mk('single', 5, 'A');
-        $this->assertSame([0, 1], [$single->companions_allowed, $single->party_size]);
-        $couple = $mk('couple', 9, 'C');
-        $this->assertSame([1, 2], [$couple->companions_allowed, $couple->party_size]);
-        $group = $mk('group', 6, 'D');
-        $this->assertSame([6, 7], [$group->companions_allowed, $group->party_size]);
-        $this->assertSame(2, $mk('family', 0, 'E')->party_size); // un grupo/familia tiene al menos 1 acompañante
-    }
-
-    public function testDuplicateGuestEmailOrWhatsappIsRejected(): void
-    {
-        $e = $this->liveEvent();
-        Guest::create(['event_id' => $e->id, 'name' => 'Ana', 'email' => 'Ana@Mail.com', 'phone' => '70012345']);
-
-        foreach ([['email' => 'ana@mail.com'], ['phone' => '+591 70012345']] as $dup) {
-            try {
-                Guest::create(['event_id' => $e->id, 'name' => 'Otra'] + $dup);
-                $this->fail('debía rechazar el duplicado');
-            } catch (\ApplicationException $x) {
-                $this->assertStringContainsString('Ya hay un invitado', $x->getMessage());
-            }
-        }
-    }
-
-    public function testRsvpIsIdempotentAndEachCompanionGetsOwnTicketWithName(): void
-    {
-        $e = $this->liveEvent();
-        $this->type($e);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Juan', 'invitation_kind' => 'couple']);
-
-        TicketIssuer::rsvp($g, true, 2, ['Juan Pérez', 'María']);
-        $codes = $g->tickets()->pluck('code')->sort()->values()->all();
-        $this->assertCount(2, $codes);
-        $this->assertContains('María', $g->tickets()->pluck('holder_name')->all());
-        $this->assertSame(1, $g->tickets()->pluck('order_code')->unique()->count());
-
-        TicketIssuer::rsvp($g, true, 2, ['Juan Pérez', 'María']); // doble envío
-        TicketIssuer::rsvp($g, true, 2);
-        $this->assertSame($codes, $g->tickets()->pluck('code')->sort()->values()->all());
-        $this->assertSame(2, $e->tickets()->count());
-    }
-
-    public function testPaidInvitationCreatesReservedOrderAndPaymentConfirmsIt(): void
-    {
-        $e = $this->liveEvent();
-        $paid = $this->type($e, ['kind' => 'paid', 'price' => 40, 'fee_percent' => 0]);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Luis', 'invitation_kind' => 'couple', 'ticket_type_id' => $paid->id]);
-
-        TicketIssuer::rsvp($g, true, 2);
-        $ts = $g->tickets()->get();
-        $this->assertSame(['reserved', 'reserved'], $ts->pluck('status')->all());
-        $this->assertSame(80.0, (float) $ts->sum('amount'));
-        $this->assertSame(1, $ts->pluck('order_code')->unique()->count());
-        $this->assertSame(2, $e->holdingCount());   // la reserva ocupa cupo
-        $this->assertSame([], $e->revenue());        // aún no hay cobro
-    }
-
-    public function testCourtesyInvitationIssuesValidTicketsWithoutPayment(): void
-    {
-        $e = $this->liveEvent();
-        $c = $this->type($e, ['kind' => 'courtesy']);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'VIP', 'ticket_type_id' => $c->id]);
-        TicketIssuer::rsvp($g, true);
-
-        $this->assertSame(['valid'], $g->tickets()->pluck('status')->all());
-        $this->assertEquals(0, $g->tickets()->first()->amount);
-    }
-
-    public function testRevokeInvalidatesUnusedTicketsKeepsUsedAndFlagsRefunds(): void
-    {
-        $e = $this->liveEvent();
-        $paid = $this->type($e, ['kind' => 'paid', 'price' => 40]);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Grupo', 'invitation_kind' => 'group', 'companions_allowed' => 2, 'ticket_type_id' => $paid->id]);
-        TicketIssuer::rsvp($g, true, 3);
-        [$a, $b, $c] = $g->tickets()->orderBy('id')->get()->all();
-        Ticket::whereKey($a->id)->update(['status' => 'valid', 'paid_at' => now()]);   // cobrada
-        Ticket::whereKey($b->id)->update(['status' => 'used']);                         // ya ingresó
-        // $c sigue reservada sin pagar
-
-        $this->assertSame(2, $g->revoke('Ya no viene'));
-
-        $this->assertSame('revoked', $g->fresh()->status);
-        $this->assertSame('cancelled', $a->fresh()->status);
-        $this->assertTrue((bool) $a->fresh()->refund_pending);
-        $this->assertSame('used', $b->fresh()->status);
-        $this->assertSame('cancelled', $c->fresh()->status);
-        $this->assertFalse((bool) $c->fresh()->refund_pending);
-        $this->assertSame(1, $e->holdingCount());       // el cupo de las anuladas se libera
-        $this->assertSame('revoked', $g->invitation_status);
-
-        $this->expectException(\ApplicationException::class);
-        TicketIssuer::rsvp($g->fresh(), true, 1);
-    }
-
-    public function testRestoreReopensInvitationWithoutResurrectingTickets(): void
-    {
-        $e = $this->liveEvent();
-        $this->type($e);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Ana']);
-        TicketIssuer::rsvp($g, true);
-        $g->revoke();
-        $g->fresh()->restore();
-
-        $g = $g->fresh();
-        $this->assertSame(['active', 'pending'], [$g->status, $g->rsvp]);
-        $this->assertSame(0, $g->tickets()->holding()->count());
-        TicketIssuer::rsvp($g, true);
-        $this->assertSame(1, $g->tickets()->holding()->count());
-    }
-
-    public function testWhatsappLinkNormalizesBolivianNumbersAndGuestWithTicketsCannotBeDeleted(): void
-    {
-        $e = $this->liveEvent();
-        $this->type($e);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Ana', 'phone' => '7001-2345']);
-        $this->assertSame('59170012345', $g->phoneDigits());
-        $this->assertStringStartsWith('https://wa.me/59170012345?text=', $g->whatsapp_url);
-        $this->assertStringContainsString('/invitacion/' . $g->token, urldecode($g->whatsapp_url));
-
-        TicketIssuer::rsvp($g, true);
-        $this->expectException(\ApplicationException::class);
-        $g->delete();
-    }
-
-    public function testCannotShrinkInvitationBelowConfirmed(): void
-    {
-        $e = $this->liveEvent();
-        $this->type($e);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Fam', 'invitation_kind' => 'group', 'companions_allowed' => 4]);
-        TicketIssuer::rsvp($g, true, 4);
-
-        $g = $g->fresh();
-        $g->companions_allowed = 1;
-        $this->expectException(\ApplicationException::class);
-        $g->save();
-    }
-
     protected function admin(): array
     {
         return ['type' => 'admin', 'id' => 1, 'name' => 'Admin de prueba'];
@@ -450,9 +301,9 @@ class SmokeTest extends PluginTestCase
         return $o + ['name' => 'Ana Comprador', 'email' => 'ana@mail.com', 'phone' => '70011122'];
     }
 
-    public function testMultiTypeOrderFreezesPricesAndReservesCapacity(): void
+    public function testMultiTypeOrderFreezesPricesAndHoldsNothingUntilPaid(): void
     {
-        $e = $this->liveEvent(['capacity' => 10, 'reservation_minutes' => 15]);
+        $e = $this->liveEvent(['capacity' => 10]);
         $gen = $this->type($e, ['name' => 'General', 'kind' => 'paid', 'price' => 100, 'fee_percent' => 5, 'fee_fixed' => 0, 'fee_payer' => 'buyer']);
         $free = $this->type($e, ['name' => 'Niño']);
 
@@ -463,14 +314,19 @@ class SmokeTest extends PluginTestCase
         $this->assertEquals([200, 10, 210], [$o->subtotal, $o->fees, $o->total]);
         $this->assertNotNull($o->expires_at);
         $this->assertCount(2, OrderItem::where('order_id', $o->id)->get());
-        $this->assertSame(3, $o->tickets()->count());
-        $this->assertSame(7, $e->available());
+        $this->assertSame(0, $o->tickets()->count());                  // sin reservas: todavía no hay entradas
+        $this->assertSame(10, $e->available());
 
         // El precio queda congelado aunque el organizador lo cambie después.
         $gen->price = 500;
         $gen->save();
         $this->assertEquals(210, $o->fresh()->total);
         $this->assertEquals(100, OrderItem::where('order_id', $o->id)->where('name', 'General')->first()->unit_price);
+
+        // Al confirmarse el cobro se emiten las 3 entradas y recién ahí se descuenta el cupo.
+        PaymentService::registerManual($o->fresh(), 210.0, 'Efectivo, recibo 4', null, $this->admin());
+        $this->assertSame(3, $o->tickets()->where('status', 'valid')->count());
+        $this->assertSame(7, $e->available());
     }
 
     public function testFreeOrderConfirmsImmediately(): void
@@ -487,13 +343,13 @@ class SmokeTest extends PluginTestCase
     {
         $e = $this->liveEvent();
         $o = OrderService::place($e, [[$this->type($e, ['kind' => 'paid', 'price' => 30]), 1]], $this->buyer());
-        $this->assertSame('reserved', $o->tickets()->first()->status);
+        $this->assertSame(0, $o->tickets()->count());
 
         $o->markVerifying('Transf. 123');
         $o = $o->fresh();
         $this->assertSame('verifying', $o->status);
-        $this->assertSame('pending', $o->tickets()->first()->status);   // ya no vence mientras se verifica
-        $this->assertNull($o->tickets()->first()->expires_at);
+        $this->assertNull($o->expires_at);                              // mientras se verifica no se abandona
+        $this->assertSame(0, $o->tickets()->count());
 
         PaymentService::registerManual($o->fresh(), 30, 'Depósito verificado en el banco', null, $this->admin());
         $this->assertSame('confirmed', $o->fresh()->status);
@@ -502,43 +358,43 @@ class SmokeTest extends PluginTestCase
         $this->assertEquals(30, $e->revenue()['BOB']);
     }
 
-    public function testExpiredOrderReleasesCapacityAndCannotBeConfirmed(): void
+    public function testAbandonedOrderExpiresButNeverHeldSeatsAndCanStillBePaidLate(): void
     {
         $e = $this->liveEvent(['capacity' => 1]);
         $paid = $this->type($e, ['kind' => 'paid', 'price' => 30]);
         $o = OrderService::place($e, [[$paid, 1]], $this->buyer());
-        $this->assertSame(0, $e->available());
+        $this->assertSame(1, $e->available());                  // una orden no retiene lugares
 
         Order::where('id', $o->id)->update(['expires_at' => now()->subMinute()]);
-        Ticket::where('order_id', $o->id)->update(['expires_at' => now()->subMinute()]);
-        $this->assertSame(1, $e->available());                  // libera al instante
         $this->assertSame(1, Order::expireLapsed());
         $this->assertSame('expired', $o->fresh()->status);
-        $this->assertSame('expired', $o->tickets()->first()->status);
 
-        try { $o->fresh()->confirm(); $this->fail('no debía confirmarse'); } catch (\ApplicationException $x) { $this->assertStringContainsString('venció', $x->getMessage()); }
+        try { $o->fresh()->confirm(); $this->fail('no debía confirmarse sin pago'); } catch (\ApplicationException $x) { $this->assertStringContainsString('venció', $x->getMessage()); }
         try { $o->fresh()->markVerifying('x'); $this->fail(); } catch (\ApplicationException $x) { $this->assertStringContainsString('venció', $x->getMessage()); }
 
-        OrderService::place($e, [[$paid, 1]], $this->buyer(['email' => 'otro@mail.com']));   // el cupo se puede volver a vender
+        // Si igual pagó (tarde) y todavía hay lugar, se acepta y se emiten sus entradas.
+        $p = PaymentService::registerManual($o->fresh(), 30.0, 'Pagó tarde, recibo 9', null, $this->admin());
+        $this->assertSame(['approved', true], [$p->status, (bool) $p->is_late]);
+        $this->assertSame(['confirmed', 1], [$o->fresh()->status, $o->tickets()->where('status', 'valid')->count()]);
     }
 
     public function testDuplicateLiveOrderIsRejectedAndDoubleSubmitReturnsSameOrder(): void
     {
         $e = $this->liveEvent();
         $paid = $this->type($e, ['kind' => 'paid', 'price' => 30]);
-        $first = OrderService::place($e, [[$paid, 1]], $this->buyer(), 'public', null, ['idempotency_key' => 'k1']);
+        $first = OrderService::place($e, [[$paid, 1]], $this->buyer(), 'public', ['idempotency_key' => 'k1']);
 
-        $again = OrderService::place($e, [[$paid, 1]], $this->buyer(), 'public', null, ['idempotency_key' => 'k1']);
+        $again = OrderService::place($e, [[$paid, 1]], $this->buyer(), 'public', ['idempotency_key' => 'k1']);
         $this->assertSame($first->id, $again->id);
         $this->assertSame(1, Order::count());
 
         try {
-            OrderService::place($e, [[$paid, 1]], $this->buyer(['email' => 'ANA@mail.com']), 'public', null, ['idempotency_key' => 'k2']);
+            OrderService::place($e, [[$paid, 1]], $this->buyer(['email' => 'ANA@mail.com']), 'public', ['idempotency_key' => 'k2']);
             $this->fail('debía rechazar la orden duplicada');
         } catch (DuplicateOrderException $x) {
             $this->assertSame($first->id, $x->existing->id);
         }
-        $this->assertSame(1, $e->tickets()->count());
+        $this->assertSame(1, Order::count());
     }
 
     public function testPerTypeMaxAndAllOrNothingOnShortage(): void
@@ -555,11 +411,10 @@ class SmokeTest extends PluginTestCase
         $this->assertSame(3, $e->available());
     }
 
-    public function testCancelledOrderFreesCapacityAndKeepsHistory(): void
+    public function testCancelledOrderKeepsHistoryAndCannotBeDeleted(): void
     {
         $e = $this->liveEvent(['capacity' => 2]);
         $o = OrderService::place($e, [[$this->type($e, ['kind' => 'paid', 'price' => 30]), 2]], $this->buyer());
-        $this->assertSame(0, $e->available());
 
         $o->cancel('Se arrepintió');
         $this->assertSame('cancelled', $o->fresh()->status);
@@ -585,7 +440,7 @@ class SmokeTest extends PluginTestCase
         $this->assertSame([true, true], $o->tickets()->pluck('refund_pending')->map(fn ($v) => (bool) $v)->all());
     }
 
-    public function testIncidentKeepsHoldAndCanBeResolved(): void
+    public function testIncidentDoesNotAbandonAndCanBeResolved(): void
     {
         $e = $this->liveEvent(['capacity' => 1]);
         $o = OrderService::place($e, [[$this->type($e, ['kind' => 'paid', 'price' => 30]), 1]], $this->buyer());
@@ -593,7 +448,6 @@ class SmokeTest extends PluginTestCase
 
         $o = $o->fresh();
         $this->assertSame('incident', $o->status);
-        $this->assertSame(0, $e->available());                  // sigue reteniendo cupo
         $this->assertNull($o->expires_at);
         $this->assertSame(0, Order::expireLapsed());
 
@@ -634,16 +488,4 @@ class SmokeTest extends PluginTestCase
         $this->assertSame('valid', $o->tickets()->first()->status);
     }
 
-    public function testRevokingGuestCancelsTheirOrder(): void
-    {
-        $e = $this->liveEvent();
-        $paid = $this->type($e, ['kind' => 'paid', 'price' => 40]);
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Luis', 'ticket_type_id' => $paid->id]);
-        TicketIssuer::rsvp($g, true);
-        $order = Order::where('guest_id', $g->id)->first();
-        $this->assertSame('pending_payment', $order->status);
-
-        $g->revoke();
-        $this->assertSame('cancelled', $order->fresh()->status);
-    }
 }

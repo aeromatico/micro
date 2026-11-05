@@ -6,7 +6,6 @@ use Aero\Tickets\Classes\PaymentService;
 use Aero\Tickets\Classes\TicketIssuer;
 use Aero\Tickets\Classes\TicketRenderer;
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\Ticket;
 use Aero\Tickets\Models\TicketType;
@@ -81,11 +80,14 @@ class TicketsQrTest extends PluginTestCase
         $this->assertSame('pending', $tk->fresh()->state);
     }
 
-    public function testSerialNumbersAreUniquePerOrderAtDatabaseLevelAndReopenContinuesThem(): void
+    public function testSerialNumbersAreUniquePerOrderAtDatabaseLevel(): void
     {
         [$e, $t] = $this->live(['capacity' => 10]);
         $paid = TicketType::create(['event_id' => $e->id, 'name' => 'Pago', 'kind' => 'paid', 'price' => 25]);
         $o = OrderService::place($e, [[$paid, 2]], $this->buyer());
+        $this->assertSame(0, $o->tickets()->count());                                       // de pago: se emiten al confirmar
+
+        PaymentService::registerManual($o->fresh(), 50.0, 'Efectivo, recibo 6', null, ['type' => 'admin', 'id' => 1, 'name' => 'Admin']);
         $this->assertSame([1, 2], $o->tickets()->orderBy('seq')->pluck('seq')->all());
 
         // un número repetido en la misma orden lo rechaza la base, no solo el código
@@ -95,15 +97,7 @@ class TicketsQrTest extends PluginTestCase
         } catch (\Illuminate\Database\QueryException $x) {
             $this->assertStringContainsString('UNIQUE', strtoupper($x->getMessage()));
         }
-
-        // vence y el pago llega tarde: las nuevas entradas continúan la numeración (no repiten 1 y 2)
-        Order::where('id', $o->id)->update(['expires_at' => now()->subMinute()]);
-        Ticket::where('order_id', $o->id)->update(['expires_at' => now()->subMinute()]);
-        Order::expireLapsed();
-        PaymentService::registerManual($o->fresh(), 50.0, 'Pago tardío en efectivo', null, ['type' => 'admin', 'id' => 1, 'name' => 'Admin']);
-
-        $this->assertSame([3, 4], Ticket::where('order_id', $o->id)->where('status', 'valid')->orderBy('seq')->pluck('seq')->all());
-        $this->assertSame(4, Ticket::where('order_id', $o->id)->count());
+        $this->assertSame('Orden ' . $o->code, TicketRenderer::details($o->tickets()->first())['origin']);
     }
 
     public function testRepeatedPaymentConfirmationNeverIssuesAgain(): void
@@ -118,19 +112,6 @@ class TicketsQrTest extends PluginTestCase
         $o->fresh()->tickets()->count();
         $this->assertSame($codes, Ticket::where('order_id', $o->id)->pluck('code')->sort()->values()->all());
         $this->assertSame(2, Ticket::where('order_id', $o->id)->count());
-    }
-
-    public function testGuestTicketsKeepInvitationOriginAndOneTicketPerAttendee(): void
-    {
-        [$e, $t] = $this->live();
-        $g = Guest::create(['event_id' => $e->id, 'name' => 'Familia', 'invitation_kind' => 'family', 'companions_allowed' => 2]);
-        TicketIssuer::rsvp($g, true, 3, ['Papá', 'Mamá', 'Hijo']);
-
-        $tks = $g->tickets()->orderBy('seq')->get();
-        $this->assertSame(['Papá', 'Mamá', 'Hijo'], $tks->pluck('holder_name')->all());
-        $this->assertCount(3, $tks->pluck('code')->unique());
-        $this->assertSame('Invitación', TicketRenderer::details($tks[0])['origin']);
-        $this->assertSame('Entrada 2 de 3', TicketRenderer::details($tks[1])['serial']);
     }
 
     public function testPdfHasOnePagePerTicketAndHidesQrForNonIssuedOnes(): void

@@ -19,7 +19,7 @@ class Event extends Model
     public $table = 'aero_tickets_events';
 
     public $fillable = [
-        'tenant_id', 'category_id', 'name', 'slug', 'description', 'visibility', 'registration', 'reservation_minutes', 'buyer_extra_label', 'buyer_extra_required', 'status',
+        'tenant_id', 'category_id', 'name', 'slug', 'description', 'visibility', 'registration', 'buyer_extra_label', 'buyer_extra_required', 'status',
         'starts_at', 'ends_at', 'department', 'city', 'zone', 'venue_name', 'address', 'address_reference',
         'lat', 'lng', 'capacity', 'min_age', 'requirements', 'organizer_name', 'organizer_description',
         'contact_name', 'contact_phone', 'contact_whatsapp', 'contact_email',
@@ -27,13 +27,12 @@ class Event extends Model
 
     public $rules = [
         'name'        => 'required|string|max:255',
-        'visibility'  => 'required|in:public,link,invite',
+        'visibility'  => 'required|in:public,link',
         'registration' => 'required|in:open,approval',
         'status'      => 'required|in:draft,published,ongoing,finished,cancelled',
         'starts_at'   => 'nullable|date',
         'ends_at'     => 'nullable|date|after:starts_at',
         'capacity'    => 'nullable|integer|min:1|max:1000000',
-        'reservation_minutes' => 'nullable|integer|min:5|max:1440',
         'min_age'     => 'nullable|integer|min:0|max:99',
         'lat'         => 'nullable|numeric|between:-90,90',
         'lng'         => 'nullable|numeric|between:-180,180',
@@ -48,7 +47,6 @@ class Event extends Model
 
     public $hasMany = [
         'ticket_types' => [TicketType::class, 'key' => 'event_id'],
-        'guests'       => [Guest::class, 'key' => 'event_id'],
         'orders'       => [Order::class, 'key' => 'event_id'],
         'tickets'      => [Ticket::class, 'key' => 'event_id'],
         'sessions'     => [Session::class, 'key' => 'event_id'],
@@ -60,7 +58,6 @@ class Event extends Model
     public static array $visibilities = [
         'public' => 'Público (catálogo y página propia)',
         'link' => 'Privado por enlace (no aparece en el catálogo)',
-        'invite' => 'Privado por invitación (solo invitados)',
     ];
 
     public static array $registrations = [
@@ -192,7 +189,7 @@ class Event extends Model
 
     public function afterUpdate(): void
     {
-        $tracked = ['name', 'description', 'starts_at', 'ends_at', 'venue_name', 'address', 'department', 'city', 'capacity', 'visibility', 'registration', 'status', 'moderation', 'reservation_minutes', 'min_age', 'organizer_name', 'contact_phone', 'contact_email', 'category_id'];
+        $tracked = ['name', 'description', 'starts_at', 'ends_at', 'venue_name', 'address', 'department', 'city', 'capacity', 'visibility', 'registration', 'status', 'moderation', 'min_age', 'organizer_name', 'contact_phone', 'contact_email', 'category_id'];
         $changes = AuditLog::diff($this->getOriginal(), $this->getAttributes(), $tracked);
         if ($changes) {
             $actor = \BackendAuth::getUser() ? AuditLog::actor() : ['type' => 'system', 'id' => null, 'name' => 'Sistema'];
@@ -219,9 +216,6 @@ class Event extends Model
             if ($this->capacity < $committed) {
                 throw new ApplicationException("No puedes bajar la capacidad a {$this->capacity}: hay {$committed} entradas emitidas, reservadas o pendientes.");
             }
-        }
-        if (empty($this->reservation_minutes)) {
-            $this->reservation_minutes = Settings::defaultReservationMinutes();
         }
         $this->guardPlatformLimits();
 
@@ -423,7 +417,7 @@ class Event extends Model
         return rtrim(url('/'), '/');
     }
 
-    /** Enlace para compartir: público; privado por enlace con token; por invitación no tiene (cada invitado tiene el suyo). */
+    /** Enlace para compartir: el de la página (público) o el de la página con su token (privado por enlace). */
     public function getShareUrlAttribute(): ?string
     {
         return match ($this->visibility) {

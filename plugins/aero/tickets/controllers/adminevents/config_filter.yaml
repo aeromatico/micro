@@ -36,5 +36,4 @@ scopes:
     options:
       public: Público
       link: Privado por enlace
-      invite: Privado por invitación
     conditions: visibility = ':value'

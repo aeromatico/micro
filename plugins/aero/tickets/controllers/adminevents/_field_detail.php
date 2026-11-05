@@ -23,7 +23,7 @@ $cls = ['ok' => 'info', 'pending' => 'warning', 'rejected' => 'danger', 'suspend
     </table>
 
     <h5>Capacidad y entradas</h5>
-    <p>Capacidad: <strong><?= $inv['capacity'] ?? 'sin tope' ?></strong> · Emitidas: <strong><?= $inv['issued'] ?></strong> · Reservadas: <strong><?= $inv['reserved'] ?></strong> · Pendientes: <strong><?= $inv['pending'] ?></strong>
+    <p>Capacidad: <strong><?= $inv['capacity'] ?? 'sin tope' ?></strong> · Emitidas: <strong><?= $inv['issued'] ?></strong>
        · Disponibles: <strong><?= $inv['available'] ?? 'sin tope' ?></strong> · Ingresaron: <strong><?= $inv['used'] ?></strong></p>
     <table class="table"><thead><tr><th>Entrada</th><th>Tipo</th><th>Precio final</th><th>Disponibilidad</th></tr></thead><tbody>
     <?php foreach ($types as $t): ?><tr><td><?= e($t->name) ?></td><td><?= e(TicketType::$kinds[$t->kind] ?? '') ?></td><td><?= e($t->price_summary) ?></td><td><?= e($t->stock_summary) ?></td></tr><?php endforeach ?>

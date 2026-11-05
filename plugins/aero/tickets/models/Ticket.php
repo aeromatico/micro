@@ -9,7 +9,7 @@ class Ticket extends Model
     use \Aero\Tickets\Classes\BelongsToEvent;
 
     public $table = 'aero_tickets_tickets';
-    public $fillable = ['event_id', 'session_id', 'ticket_type_id', 'guest_id', 'holder_name', 'holder_email', 'holder_phone', 'holder_document', 'status', 'source', 'amount', 'base_amount', 'fee_amount', 'currency', 'order_code', 'order_id', 'expires_at', 'notes'];
+    public $fillable = ['event_id', 'session_id', 'ticket_type_id', 'holder_name', 'holder_email', 'holder_phone', 'holder_document', 'status', 'source', 'amount', 'base_amount', 'fee_amount', 'currency', 'order_code', 'order_id', 'expires_at', 'paid_at', 'notes'];
 
     public $rules = [
         'holder_name'  => 'required|string|max:255',
@@ -26,7 +26,6 @@ class Ticket extends Model
     public $belongsTo = [
         'event' => [Event::class, 'key' => 'event_id'],
         'ticket_type' => [TicketType::class, 'key' => 'ticket_type_id'],
-        'guest' => [Guest::class, 'key' => 'guest_id'],
         'order' => [Order::class, 'key' => 'order_id'],
     ];
 
@@ -34,7 +33,7 @@ class Ticket extends Model
 
     /** Lo que ve el asistente: emitido / utilizado / anulado / vencido (o pendiente si aún no se emite). */
     public static array $states = ['issued' => 'Emitida', 'used' => 'Utilizada', 'cancelled' => 'Anulada', 'expired' => 'Vencida', 'pending' => 'Pendiente de pago'];
-    public static array $sources = ['registration' => 'Inscripción pública', 'guest' => 'Invitación', 'manual' => 'Manual (organizador)'];
+    public static array $sources = ['registration' => 'Compra pública', 'manual' => 'Registrada por el organizador'];
 
     public function getStatusOptions(): array { return self::$statuses; }
     public function getSourceOptions(): array { return self::$sources; }
@@ -96,10 +95,10 @@ class Ticket extends Model
             }
         }
 
-        foreach (['session_id', 'ticket_type_id', 'guest_id'] as $f) {
+        foreach (['session_id', 'ticket_type_id'] as $f) {
             if ($this->{$f} === '') $this->{$f} = null;
         }
-        foreach (['ticket_type_id' => TicketType::class, 'guest_id' => Guest::class] as $f => $class) {
+        foreach (['ticket_type_id' => TicketType::class] as $f => $class) {
             if ($this->{$f} && !$this->refBelongsToEvent($class, $this->{$f})) {
                 throw new \ApplicationException('Referencia inválida para este evento.');
             }

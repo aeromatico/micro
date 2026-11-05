@@ -5,16 +5,17 @@ fields:
     emptyOption: — Elegir —
     required: true
     span: left
-  name:
-    label: Nombre de la entrada
-    required: true
-    span: right
-    placeholder: General, VIP, Estudiantes…
   kind:
-    label: Tipo
+    label: ¿Qué clase de entrada es?
     type: dropdown
+    span: right
+    comment: 'Esto define cómo funciona. Gratuita: no se cobra, se emite al inscribirse. De pago: se cobra y se emite cuando confirmas el pago. Cortesía: la entregas tú (prensa, invitados especiales); no se vende en línea.'
+  name:
+    label: Nombre que verá el cliente
+    required: true
     span: left
-    comment: 'Gratuita y cortesía se emiten sin cobro. De pago queda pendiente hasta confirmar el pago.'
+    placeholder: General, VIP, Preventa, Estudiante…
+    comment: 'Solo es el nombre comercial: no cambia cómo funciona la entrada (eso lo define la clase). Puedes tener varias del mismo tipo con distinto nombre y precio.'
   price:
     label: Precio
     type: number
@@ -83,7 +84,7 @@ fields:
     mode: datetime
     span: right
   description:
-    label: Descripción
+    label: Qué incluye (opcional, lo ve el cliente)
     type: textarea
     size: small
   is_active:
@@ -92,7 +93,8 @@ fields:
     span: left
     default: true
   sort_order:
-    label: Orden
+    label: Posición en la lista
     type: number
     span: right
     default: 0
+    comment: 'Solo ordena cómo se muestran las entradas (menor número, primero). No afecta precios ni cupos.'

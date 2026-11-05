@@ -1,4 +1,4 @@
-title: Entradas
+title: Tipos de entrada
 list: $/aero/tickets/models/tickettype/columns.yaml
 modelClass: Aero\Tickets\Models\TicketType
 recordUrl: aero/tickets/tickettypes/update/:id

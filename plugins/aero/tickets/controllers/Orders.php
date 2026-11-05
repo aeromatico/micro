@@ -48,7 +48,7 @@ class Orders extends Controller
     {
         $this->requirePayments();
         $p = PaymentService::confirmOrder($this->order(), post('note'));
-        Flash::success($p->status === 'approved' ? 'Pago registrado y orden confirmada: las entradas ya son válidas.' : 'Pago registrado, pero la orden no se pudo reabrir: queda para reembolso.');
+        Flash::success(!$p ? 'Inscripción aprobada: las entradas ya fueron emitidas.' : ($p->status === 'approved' ? 'Pago registrado y orden confirmada: las entradas ya son válidas.' : 'Pago registrado, pero ya no había lugares: queda para devolución.'));
 
         return \Redirect::refresh();
     }

@@ -1,7 +1,7 @@
 columns:
-  name: {label: Entrada, searchable: true, sortable: true}
   event: {label: Evento, relation: event, select: name}
-  kind: {label: Tipo, type: selectable, options: getKindOptions}
+  name: {label: Nombre que ve el cliente, searchable: true, sortable: true}
+  kind: {label: Clase, type: selectable, options: getKindOptions}
   price: {label: Precio, type: number, sortable: true}
   currency: {label: Moneda}
   price_summary: {label: Precio final}

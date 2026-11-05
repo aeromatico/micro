@@ -1,7 +1,6 @@
 <?php namespace Aero\Tickets\Classes;
 
 use Aero\Tickets\Models\Event;
-use Aero\Tickets\Models\Guest;
 use Aero\Tickets\Models\Order;
 use Aero\Tickets\Models\OrderItem;
 use Aero\Tickets\Models\Ticket;
@@ -45,15 +44,19 @@ class OrderService
         return $c;
     }
 
+    /** Una orden de pago que nadie paga ni avisa se da por abandonada pasado este tiempo (no retiene lugares: es solo orden). */
+    public const ABANDON_HOURS = 72;
+
     /**
-     * Crea la orden y reserva los cupos.
+     * Crea la orden. NO reserva lugares: las entradas se emiten cuando la orden se confirma (compra gratuita al instante;
+     * de pago, al aprobarse el cobro). Aquí solo se comprueba que haya disponibilidad en este momento.
      *
      * @param array $lines [[TicketType|int, cantidad], …]
      * @param array $buyer name, email?, phone?, document?, extra?
-     * @param string $source public | guest | manual
-     * @param array $opts names[] (nombres de asistentes), idempotency_key
+     * @param string $source public | manual (organizador)
+     * @param array $opts idempotency_key
      */
-    public static function place(Event $event, array $lines, array $buyer, string $source = 'public', ?Guest $guest = null, array $opts = []): Order
+    public static function place(Event $event, array $lines, array $buyer, string $source = 'public', array $opts = []): Order
     {
         $wanted = [];
         foreach ($lines as [$type, $qty]) {
@@ -70,7 +73,7 @@ class OrderService
             throw new ApplicationException('Falta el nombre del comprador.');
         }
 
-        return DB::transaction(function () use ($event, $wanted, $buyer, $source, $guest, $opts) {
+        return DB::transaction(function () use ($event, $wanted, $buyer, $source, $opts) {
             $e = Event::lockForUpdate()->findOrFail($event->id);
 
             // Doble envío del mismo formulario → la misma orden, no otra.
@@ -154,19 +157,16 @@ class OrderService
             $paid = $grand > 0;
             $approval = $source === 'public' && $e->registration === 'approval';
             if ($approval) {
-                $orderStatus = 'verifying'; $ticketStatus = 'pending'; $expires = null;
-            } elseif ($paid && $source === 'manual') {
-                $orderStatus = 'pending_payment'; $ticketStatus = 'pending'; $expires = null;
+                $orderStatus = 'verifying'; $expires = null;                       // espera la aprobación del organizador
             } elseif ($paid) {
-                $orderStatus = 'pending_payment'; $ticketStatus = 'reserved';
-                $expires = now()->addMinutes(max(5, (int) $e->reservation_minutes ?: 30));
+                $orderStatus = 'pending_payment'; $expires = now()->addHours(self::ABANDON_HOURS);
             } else {
-                $orderStatus = 'confirmed'; $ticketStatus = 'valid'; $expires = null;
+                $orderStatus = 'confirmed'; $expires = null;                       // gratis: sus entradas se emiten ya
             }
 
-            $order = self::write(function () use ($e, $buyer, $email, $source, $guest, $opts, $orderStatus, $expires, $subtotal, $fees, $grand, $total, $items, $commission, $terms) {
+            $order = self::write(function () use ($e, $buyer, $email, $source, $opts, $orderStatus, $expires, $subtotal, $fees, $grand, $total, $items, $commission, $terms) {
                 $o = new Order([
-                    'event_id' => $e->id, 'guest_id' => $guest?->id, 'buyer_name' => trim($buyer['name']),
+                    'event_id' => $e->id, 'buyer_name' => trim($buyer['name']),
                     'buyer_email' => $email, 'buyer_phone' => $buyer['phone'] ?? null, 'buyer_document' => $buyer['document'] ?? null,
                     'buyer_extra' => $buyer['extra'] ?? null,
                 ]);
@@ -188,32 +188,15 @@ class OrderService
                 return $o;
             });
 
-            $names = array_values($opts['names'] ?? []);
-            $n = 0;
-            Ticket::$viaIssuer = true;
-            try {
-                foreach ($items as [$t, $qty, $q, $buyerFee]) {
-                    OrderItem::create([
-                        'tenant_id' => $e->tenant_id, 'order_id' => $order->id, 'ticket_type_id' => $t->id, 'name' => $t->name, 'kind' => $t->kind,
-                        'quantity' => $qty, 'unit_price' => $q['base'], 'unit_fee' => $buyerFee,
-                        'subtotal' => round($q['base'] * $qty, 2), 'fees' => round($buyerFee * $qty, 2), 'total' => round($q['total'] * $qty, 2),
-                    ]);
-                    for ($i = 0; $i < $qty; $i++, $n++) {
-                        $holder = trim((string) ($names[$n] ?? '')) ?: (trim($buyer['name']) . ($total > 1 && $n > 0 ? ' (' . ($n + 1) . '/' . $total . ')' : ''));
-                        $tk = new Ticket([
-                            'event_id' => $e->id, 'ticket_type_id' => $t->id, 'session_id' => $t->session_id, 'guest_id' => $guest?->id,
-                            'holder_name' => mb_substr($holder, 0, 255),
-                            'holder_email' => $n === 0 ? $email : null, 'holder_phone' => $n === 0 ? ($buyer['phone'] ?? null) : null,
-                            'holder_document' => $n === 0 ? ($buyer['document'] ?? null) : null,
-                            'status' => $ticketStatus, 'source' => $source === 'public' ? 'registration' : $source,
-                            'order_id' => $order->id, 'order_code' => $order->code, 'expires_at' => $expires,
-                            'base_amount' => $q['base'], 'fee_amount' => $q['fee'], 'amount' => $q['total'], 'currency' => $q['currency'],
-                        ]);
-                        $tk->save();
-                    }
-                }
-            } finally {
-                Ticket::$viaIssuer = false;
+            foreach ($items as [$t, $qty, $q, $buyerFee]) {
+                OrderItem::create([
+                    'tenant_id' => $e->tenant_id, 'order_id' => $order->id, 'ticket_type_id' => $t->id, 'name' => $t->name, 'kind' => $t->kind,
+                    'quantity' => $qty, 'unit_price' => $q['base'], 'unit_fee' => $buyerFee,
+                    'subtotal' => round($q['base'] * $qty, 2), 'fees' => round($buyerFee * $qty, 2), 'total' => round($q['total'] * $qty, 2),
+                ]);
+            }
+            if ($orderStatus === 'confirmed') {
+                self::issueTickets($order);
             }
 
             if ($email) {
@@ -241,7 +224,7 @@ class OrderService
         });
     }
 
-    /** El comprador avisa que pagó (con referencia): la reserva deja de vencer mientras se verifica. */
+    /** El comprador avisa que pagó (con referencia): la orden deja de poder abandonarse mientras se verifica. */
     public static function markVerifying(Order $order, ?string $reference = null): void
     {
         self::locked($order, function (Order $o) use ($reference) {
@@ -249,34 +232,40 @@ class OrderService
                 return; // idempotente
             }
             if ($o->status !== 'pending_payment' || $o->isLapsed()) {
-                throw new ApplicationException($o->isLapsed() || $o->status === 'expired' ? 'La reserva venció. Haz una nueva compra.' : 'Esta orden ya no admite aviso de pago.');
+                throw new ApplicationException($o->isLapsed() || $o->status === 'expired' ? 'La orden venció. Haz una nueva compra.' : 'Esta orden ya no admite aviso de pago.');
             }
             self::write(function () use ($o, $reference) {
                 $o->status = 'verifying';
+                $o->expires_at = null;
                 $o->verifying_at = now();
                 $o->payment_reference = $reference ? mb_substr($reference, 0, 255) : null;
                 $o->save();
             });
-            $o->tickets()->where('status', 'reserved')->update(['status' => 'pending', 'expires_at' => null]);
             \Event::fire('aero.tickets.orderVerifying', [$o]);
         });
     }
 
-    /** El organizador verificó el cobro (o aprobó la inscripción): las entradas valen. */
+    /**
+     * El organizador verificó el cobro (o aprobó la inscripción): se EMITEN las entradas. Es el único momento en que se
+     * asignan lugares, así que si mientras tanto se agotó el cupo lanza excepción y el pago queda para devolución.
+     * Una orden vencida (abandonada) también se confirma si su pago llega tarde y todavía hay lugares.
+     */
     public static function confirm(Order $order): void
     {
         self::locked($order, function (Order $o) {
             if ($o->status === 'confirmed') {
                 return;
             }
-            if ($o->isLapsed() || !in_array($o->status, ['pending_payment', 'verifying', 'incident'], true)) {
-                throw new ApplicationException($o->isLapsed() || $o->status === 'expired'
-                    ? 'La reserva venció y su cupo pudo ser tomado. Emite una nueva orden.'
-                    : 'Una orden ' . mb_strtolower(Order::$statuses[$o->status]) . ' no se puede confirmar.');
+            $allowed = ['pending_payment', 'verifying', 'incident'] + (self::$paymentAuthorized ? [3 => 'expired'] : []);
+            if (!in_array($o->status, $allowed, true)) {
+                throw new ApplicationException($o->status === 'expired' ? 'La orden venció. Emite una nueva.' : 'Una orden ' . mb_strtolower(Order::$statuses[$o->status]) . ' no se puede confirmar.');
             }
             if ((float) $o->total > 0 && !self::$paymentAuthorized) {
                 throw new ApplicationException('Una orden de pago se confirma aprobando o registrando su pago.');
             }
+
+            self::issueTickets($o);
+
             self::write(function () use ($o) {
                 $o->status = 'confirmed';
                 $o->confirmed_at = now();
@@ -284,94 +273,84 @@ class OrderService
                 $o->incident_note = null;
                 $o->save();
             });
-            $o->tickets()->whereIn('status', ['reserved', 'pending'])->update([
-                'status' => 'valid', 'expires_at' => null, 'paid_at' => (float) $o->total > 0 ? now() : null,
-            ]);
             \Event::fire('aero.tickets.orderConfirmed', [$o]);
         });
     }
 
     /**
-     * Reabre una orden vencida cuyo pago llegó tarde: si todavía hay cupo vuelve a emitir las entradas
-     * (valen de inmediato); si no, lanza excepción y el pago queda para reembolso. Nunca emite dos veces:
-     * solo actúa sobre órdenes vencidas (o con reserva ya vencida).
+     * Emite las entradas de la orden (una por persona) bajo el bloqueo del evento, comprobando el aforo y el cupo de cada
+     * tipo en ese instante. Nunca emite dos veces. Las órdenes anteriores a «sin reservas» que aún tienen entradas
+     * retenidas simplemente se activan.
+     *
+     * @throws ApplicationException si el evento no vende o ya no hay lugares
      */
-    public static function reopen(Order $order): void
+    protected static function issueTickets(Order $o): void
     {
-        DB::transaction(function () use ($order) {
-            $e = Event::lockForUpdate()->findOrFail($order->event_id);
-            $o = Order::lockForUpdate()->findOrFail($order->id);
+        $e = Event::lockForUpdate()->findOrFail($o->event_id);
 
-            if (!($o->status === 'expired' || $o->isLapsed())) {
-                throw new ApplicationException('Solo se reabre una orden vencida.');
-            }
-            if (!$e->acceptsSales()) {
-                throw new ApplicationException('El evento ya no acepta ventas.');
-            }
+        if ($held = $o->tickets()->whereIn('status', ['reserved', 'pending'])->get()) {
+            if ($held->isNotEmpty()) {
+                $o->tickets()->whereIn('status', ['reserved', 'pending'])->update(['status' => 'valid', 'expires_at' => null, 'paid_at' => (float) $o->total > 0 ? now() : null]);
 
-            $names = $o->tickets()->orderBy('id')->pluck('holder_name')->all();
-            $o->tickets()->where('status', 'reserved')->update(['status' => 'expired']);   // las vencidas no vuelven
-            $items = OrderItem::where('order_id', $o->id)->get();
-            $need = (int) $items->sum('quantity');
-
-            $left = $e->available();
-            if ($left !== null && $need > $left) {
-                throw new ApplicationException('Ya no hay lugares en el evento para reabrir la orden.');
+                return;
             }
+        }
+        if ($o->tickets()->whereIn('status', ['valid', 'used'])->exists()) {
+            return;
+        }
+        if (!$e->acceptsSales()) {
+            throw new ApplicationException($e->platformBlocked() ?: 'El evento ya no acepta ventas.');
+        }
+
+        $items = OrderItem::where('order_id', $o->id)->orderBy('id')->get();
+        $need = (int) $items->sum('quantity');
+        $left = $e->available();
+        if ($left !== null && $need > $left) {
+            throw new ApplicationException($left > 0 ? "Solo quedan {$left} lugares en el evento." : 'El evento se agotó.');
+        }
+        foreach ($items as $it) {
+            $t = TicketType::find($it->ticket_type_id);
+            $tl = $t?->available();
+            if (!$t || !$t->is_active || ($tl !== null && $it->quantity > $tl)) {
+                throw new ApplicationException("Ya no hay «{$it->name}» disponibles.");
+            }
+        }
+
+        $commission = collect((array) $o->commission_terms)->keyBy('ticket_type_id');
+        $total = max(1, $need);
+        $n = 0;
+        Ticket::$viaIssuer = true;
+        try {
             foreach ($items as $it) {
                 $t = TicketType::find($it->ticket_type_id);
-                $tl = $t?->available();
-                if (!$t || !$t->is_active || ($tl !== null && $it->quantity > $tl)) {
-                    throw new ApplicationException("Ya no hay «{$it->name}» disponibles para reabrir la orden.");
+                for ($i = 0; $i < $it->quantity; $i++, $n++) {
+                    $tk = new Ticket([
+                        'event_id' => $e->id, 'ticket_type_id' => $it->ticket_type_id, 'session_id' => $t?->session_id,
+                        'holder_name' => mb_substr(trim($o->buyer_name) . ($total > 1 && $n > 0 ? ' (' . ($n + 1) . '/' . $total . ')' : ''), 0, 255),
+                        'holder_email' => $n === 0 ? $o->buyer_email : null, 'holder_phone' => $n === 0 ? $o->buyer_phone : null, 'holder_document' => $n === 0 ? $o->buyer_document : null,
+                        'status' => 'valid', 'source' => $o->source === 'public' ? 'registration' : $o->source,
+                        'order_id' => $o->id, 'order_code' => $o->code,
+                        'base_amount' => $it->unit_price, 'fee_amount' => $commission[$it->ticket_type_id]['commission_unit'] ?? $it->unit_fee,
+                        'amount' => round($it->unit_price + $it->unit_fee, 2), 'currency' => $o->currency, 'paid_at' => (float) $o->total > 0 ? now() : null,
+                    ]);
+                    $tk->save();
                 }
             }
-
-            $n = 0;
-            Ticket::$viaIssuer = true;
-            try {
-                foreach ($items as $it) {
-                    for ($i = 0; $i < $it->quantity; $i++, $n++) {
-                        $tk = new Ticket([
-                            'event_id' => $e->id, 'ticket_type_id' => $it->ticket_type_id, 'guest_id' => $o->guest_id,
-                            'holder_name' => mb_substr($names[$n] ?? $o->buyer_name, 0, 255),
-                            'holder_email' => $n === 0 ? $o->buyer_email : null, 'holder_phone' => $n === 0 ? $o->buyer_phone : null,
-                            'status' => 'valid', 'source' => $o->source === 'public' ? 'registration' : $o->source,
-                            'order_id' => $o->id, 'order_code' => $o->code,
-                            'base_amount' => $it->unit_price, 'fee_amount' => $it->unit_fee, 'amount' => round($it->unit_price + $it->unit_fee, 2),
-                            'currency' => $o->currency, 'paid_at' => now(),
-                        ]);
-                        $tk->save();
-                    }
-                }
-            } finally {
-                Ticket::$viaIssuer = false;
-            }
-
-            self::write(function () use ($o) {
-                $o->status = 'confirmed';
-                $o->confirmed_at = now();
-                $o->expires_at = null;
-                $o->save();
-            });
-            $order->setRawAttributes($o->getAttributes(), true);
-            \Event::fire('aero.tickets.orderReopened', [$o]);
-            \Event::fire('aero.tickets.orderConfirmed', [$o]);
-        });
+        } finally {
+            Ticket::$viaIssuer = false;
+        }
     }
 
-    /** Pago rechazado: la orden vuelve a esperar pago con una ventana nueva para reintentar. */
+    /** Pago rechazado: la orden vuelve a esperar pago (nuevo plazo para reintentar). */
     public static function resumePayment(Order $order): void
     {
         self::locked($order, function (Order $o) {
             if (!in_array($o->status, ['verifying', 'incident'], true) || (float) $o->total <= 0) {
                 return;
             }
-            $e = Event::find($o->event_id);
-            $until = now()->addMinutes(max(5, (int) ($e->reservation_minutes ?? 30)));
-            $o->tickets()->where('status', 'pending')->update(['status' => 'reserved', 'expires_at' => $until]);
-            self::write(function () use ($o, $until) {
+            self::write(function () use ($o) {
                 $o->status = 'pending_payment';
-                $o->expires_at = $until;
+                $o->expires_at = now()->addHours(self::ABANDON_HOURS);
                 $o->save();
             });
         });

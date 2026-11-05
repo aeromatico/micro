@@ -105,8 +105,8 @@ class AccessControlTest extends PluginTestCase
         [$e2, $t2] = $this->live();
         $s = $this->scanner([$e, $e2]);
         [$ok, $toCancel, $other] = array_merge($this->tickets($e, $t, 2), $this->tickets($e2, $t2));
-        $paid = TicketType::create(['event_id' => $e->id, 'name' => 'Pago', 'kind' => 'paid', 'price' => 10]);
-        $pend = OrderService::place($e, [[$paid, 1]], ['name' => 'P', 'email' => 'p@mail.com', 'phone' => '7000000'])->tickets()->first();
+        [$pend] = $this->tickets($e, $t, 1);
+        Ticket::whereKey($pend->id)->update(['status' => 'pending']);                       // una entrada que aún no fue emitida
         Ticket::whereKey($toCancel->id)->update(['status' => 'cancelled']);
 
         $cases = [
@@ -179,7 +179,7 @@ class AccessControlTest extends PluginTestCase
         $this->assertStringNotContainsString($plain, json_encode(\DB::table('aero_tickets_scanners')->where('id', $s->id)->first()));   // nunca en claro
         $this->assertSame($s->id, Scanner::findByToken($plain, 1)->id);
         $this->assertNull(Scanner::findByToken($plain, 2));                               // atado al tenant
-        $this->assertNull(Scanner::findByToken(substr($plain, 0, 39) . 'x', 1));
+        $this->assertNull(Scanner::findByToken(substr($plain, 0, 39) . (substr($plain, -1) === 'x' ? 'y' : 'x'), 1));   // un carácter distinto
 
         $s->issueToken();
         $s->save();

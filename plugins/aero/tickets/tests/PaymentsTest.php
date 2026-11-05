@@ -28,7 +28,7 @@ class PaymentsTest extends PluginTestCase
 
     protected function paidOrder(array $ev = [], int $qty = 1, array $buyer = []): array
     {
-        $e = Event::create($ev + ['tenant_id' => 1, 'name' => 'Evento ' . uniqid(), 'starts_at' => now()->addDay(), 'reservation_minutes' => 30]);
+        $e = Event::create($ev + ['tenant_id' => 1, 'name' => 'Evento ' . uniqid(), 'starts_at' => now()->addDay()]);
         $e->status = 'published';
         $e->save();
         $t = TicketType::create(['event_id' => $e->id, 'name' => 'General', 'kind' => 'paid', 'price' => 50]);
@@ -67,8 +67,8 @@ class PaymentsTest extends PluginTestCase
         $p = PaymentService::submit($p, 'TRF-0001', 'Beto C.', ['content' => $this->png(), 'name' => 'comp.png']);
 
         $this->assertSame('submitted', $p->status);
-        $this->assertSame('verifying', $o->fresh()->status);                       // retiene cupo, NO confirma
-        $this->assertSame('pending', $o->tickets()->first()->status);              // la entrada NO vale
+        $this->assertSame('verifying', $o->fresh()->status);                       // en verificación, NO se confirma
+        $this->assertSame(0, $o->tickets()->count());                              // y todavía no hay entrada
         $this->assertSame([], $e->revenue());
         $this->assertSame(1, PaymentProof::where('payment_id', $p->id)->count());
         $this->assertSame(['created', 'submitted', 'proof_uploaded'], PaymentEvent::where('payment_id', $p->id)->orderBy('id')->pluck('action')->all());
@@ -129,7 +129,7 @@ class PaymentsTest extends PluginTestCase
         $o = $o->fresh();
         $this->assertSame('pending_payment', $o->status);
         $this->assertNotNull($o->expires_at);
-        $this->assertSame('reserved', $o->tickets()->first()->status);
+        $this->assertSame(0, $o->tickets()->count());
 
         for ($i = 0; $i < 4; $i++) {                   // 4 intentos más, todos rechazados
             $q = PaymentService::submit(PaymentService::start($o->fresh(), 'transfer'), 'F-' . $i);
@@ -139,12 +139,11 @@ class PaymentsTest extends PluginTestCase
         PaymentService::start($o->fresh(), 'transfer');
     }
 
-    public function testLatePaymentReopensOrderWhenCapacityRemainsOtherwiseGoesToRefund(): void
+    public function testLatePaymentIsAcceptedWhenThereIsRoomOtherwiseGoesToRefund(): void
     {
         [$e, $t, $o] = $this->paidOrder(['capacity' => 1]);
         $p = PaymentService::start($o, 'transfer');
         Order::where('id', $o->id)->update(['expires_at' => now()->subMinute()]);
-        Ticket::where('order_id', $o->id)->update(['expires_at' => now()->subMinute()]);
         Order::expireLapsed();
         $this->assertSame('expired', $o->fresh()->status);
         $this->assertSame('expired', $p->fresh()->status);
@@ -154,27 +153,27 @@ class PaymentsTest extends PluginTestCase
         $this->assertTrue((bool) $p->is_late);
         $this->assertSame('expired', $o->fresh()->status);
 
-        // Hay cupo: se reabre y se emite una sola vez.
+        // Hay cupo: se acepta y se emiten las entradas, una sola vez.
         $p = PaymentService::approve($p, 50.00, null, $this->admin());
         $this->assertSame('approved', $p->status);
         $this->assertTrue((bool) $p->is_late);
         $this->assertSame('confirmed', $o->fresh()->status);
         $this->assertSame(1, $o->tickets()->where('status', 'valid')->count());
-        $this->assertSame(1, PaymentEvent::where('payment_id', $p->id)->where('action', 'late')->count() >= 1 ? 1 : 0);
+        $this->assertGreaterThanOrEqual(1, PaymentEvent::where('payment_id', $p->id)->where('action', 'late')->count());
 
-        // Segundo caso: el cupo ya lo tomó otro.
+        // Segundo caso: antes de aprobar su pago tardío, otro compradó confirmó y se llevó el único lugar.
         [$e2, $t2, $o2] = $this->paidOrder(['capacity' => 1]);
         $p2 = PaymentService::start($o2, 'transfer');
         Order::where('id', $o2->id)->update(['expires_at' => now()->subMinute()]);
-        Ticket::where('order_id', $o2->id)->update(['expires_at' => now()->subMinute()]);
         Order::expireLapsed();
-        OrderService::place($e2, [[$t2, 1]], ['name' => 'Otra', 'email' => 'otra@mail.com', 'phone' => '7000000']);   // toma el único lugar
+        $other = OrderService::place($e2, [[$t2, 1]], ['name' => 'Otra', 'email' => 'otra@mail.com', 'phone' => '7000000'], 'public');
+        PaymentService::registerManual($other, 50.0, 'Efectivo, recibo 5', null, $this->admin());          // toma el único lugar
 
         $p2 = PaymentService::approve(PaymentService::submit($p2->fresh(), 'TRF-2'), 50.00, null, $this->admin());
         $this->assertSame('refund_pending', $p2->status);
         $this->assertTrue((bool) $p2->is_suspicious);
         $this->assertSame('expired', $o2->fresh()->status);
-        $this->assertSame(0, $o2->tickets()->where('status', 'valid')->count());          // no se emitió nada
+        $this->assertSame(0, $o2->tickets()->count());                                         // no se emitió nada
 
         $p2 = PaymentService::markRefunded($p2, 'DEV-55', 'Devuelto por transferencia', $this->admin());
         $this->assertSame(['refunded', 'DEV-55'], [$p2->status, $p2->refund_reference]);

@@ -18,7 +18,7 @@ class BuyerNotifier
     public static function paymentRejected(Payment $p, Order $o): void
     {
         $e = Event::withTrashed()->find($o->event_id);
-        $retry = $o->fresh()->status === 'pending_payment' ? '<p>Tus entradas siguen reservadas un tiempo para que lo intentes de nuevo.</p>' : '';
+        $retry = $o->fresh()->status === 'pending_payment' ? '<p>Puedes volver a intentarlo desde tu orden.</p>' : '';
         self::mail($o, 'payment_rejected', ['buyer_name' => $o->buyer_name, 'event_name' => $e->name, 'reason' => (string) $p->reject_reason, 'retry_html' => $retry, 'order_url' => self::url($o, $e)]);
     }
 

@@ -3,7 +3,7 @@
 use Aero\Tickets\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
-// Páginas públicas del tenant del host (catálogo, evento, invitación, entrada).
+// Páginas públicas del tenant del host (catálogo, evento, orden, entrada).
 // Escáner de puerta: se autentica con el secreto del enlace (no con sesión), por eso las lecturas no usan CSRF.
 Route::middleware(['web', 'throttle:240,1'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
     ->prefix('escaner/{token}')->group(function () {
@@ -21,8 +21,6 @@ Route::middleware(['web'])->group(function () {
     Route::post('orden/{code}/pagar', [PublicController::class, 'pay'])->middleware('throttle:10,1');
     Route::post('orden/{code}/informar', [PublicController::class, 'inform'])->middleware('throttle:10,1');
     Route::post('orden/{code}/cancelar', [PublicController::class, 'cancelOrder'])->middleware('throttle:10,1');
-    Route::get('invitacion/{token}', [PublicController::class, 'invitation']);
-    Route::post('invitacion/{token}', [PublicController::class, 'respond'])->middleware('throttle:10,1');
     Route::get('pedido/{code}', fn (string $code) => redirect('orden/' . $code));
     Route::get('entrada/{token}', [PublicController::class, 'ticket']);
     Route::get('entrada/{token}/pdf', [PublicController::class, 'ticketPdf'])->middleware('throttle:30,1');

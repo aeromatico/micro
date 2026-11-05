@@ -23,7 +23,7 @@ fields:
     type: dropdown
     span: left
     default: public
-    comment: 'Público: en el catálogo. Por enlace: oculto, se comparte el enlace. Por invitación: solo invitados con su enlace.'
+    comment: 'Público: sale en el catálogo y en buscadores. Por enlace: no sale en ningún lado; solo entra quien recibe tu enlace (se comparte desde el resumen del evento).'
     tab: Datos
   registration:
     label: Inscripción
@@ -129,16 +129,7 @@ fields:
     type: number
     min: 1
     span: left
-    comment: 'No puede ser menor que las entradas ya emitidas, reservadas o pendientes. Incluye cortesías.'
-    tab: Acceso
-  reservation_minutes:
-    label: Minutos de una reserva sin pagar
-    type: number
-    min: 5
-    max: 1440
-    default: 30
-    span: left
-    comment: 'Pasado ese tiempo la reserva vence y el cupo se libera.'
+    comment: 'No puede ser menor que las entradas ya emitidas. Incluye cortesías.'
     tab: Acceso
   buyer_extra_label:
     label: Información adicional que pides al comprador

@@ -1,4 +1,9 @@
 fields:
+  intro:
+    type: partial
+    path: field_intro
+    span: full
+    context: create
   event_id:
     label: Evento
     type: dropdown
@@ -15,13 +20,14 @@ fields:
     context: create
     comment: 'Se emite respetando la capacidad del evento y el cupo del tipo. Las cortesías también ocupan cupo.'
   quantity:
-    label: Cantidad de entradas
+    label: ¿Cuántas entradas?
     type: number
     min: 1
     max: 50
     default: 1
     span: left
     context: create
+    comment: 'Cuántas personas entran con esta misma compra. Se emite UNA entrada por persona, todas a nombre del comprador.'
   event[name]:
     label: Evento
     disabled: true
@@ -33,7 +39,7 @@ fields:
     span: right
     context: update
   holder_name:
-    label: Nombre del asistente
+    label: Nombre del comprador
     required: true
     span: left
   holder_document:
@@ -68,13 +74,6 @@ fields:
     type: number
     disabled: true
     span: right
-    context: update
-  expires_at:
-    label: La reserva vence
-    type: datepicker
-    mode: datetime
-    disabled: true
-    span: left
     context: update
   code:
     label: Código de ingreso

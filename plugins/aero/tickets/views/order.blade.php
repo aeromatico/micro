@@ -11,13 +11,13 @@
 
 @switch($o->status)
   @case('pending_payment')
-    @if($o->isLapsed())<div class="alert bad">La reserva venció y los cupos se liberaron. Haz una nueva compra.</div>
-    @else<div class="alert">Tus entradas están <strong>reservadas hasta las {{ $o->expires_at?->format('H:i') }}</strong>. Paga {{ $m($o->total) }} al organizador{{ $e->contact_phone ? ' ('.$e->contact_phone.')' : '' }} y avísanos aquí abajo.</div>@endif
+    @if($o->isLapsed())<div class="alert bad">Esta orden venció sin pago. Si ya pagaste, avísanos abajo; si no, haz una nueva compra.</div>
+    @else<div class="alert">Todavía <strong>no tienes entradas</strong>: se emiten cuando se confirma tu pago de {{ $m($o->total) }}. Esta orden <strong>no reserva lugares</strong> (se entregan a quien confirme su pago primero). Paga y avísanos aquí abajo.</div>@endif
     @break
-  @case('verifying')<div class="alert">{{ $o->payment_reference ? 'Recibimos tu aviso de pago' : 'Tu solicitud está en revisión' }}. El organizador la verificará; tus entradas valdrán al confirmarse.</div>@break
+  @case('verifying')<div class="alert">{{ $o->payment_reference ? 'Recibimos tu aviso de pago' : 'Tu solicitud está en revisión' }}. El organizador la verificará; tus entradas se emitirán al confirmarse.</div>@break
   @case('confirmed')<div class="alert ok">Orden confirmada. Presenta el código QR de cada entrada al ingresar.</div>@break
-  @case('incident')<div class="alert bad">Hay una incidencia con tu orden. El organizador se pondrá en contacto contigo{{ $e->contact_phone ? ' ('.$e->contact_phone.')' : '' }}. Tu cupo sigue retenido.</div>@break
-  @case('expired')<div class="alert bad">La reserva venció. Haz una nueva compra.</div>@break
+  @case('incident')<div class="alert bad">Hay una incidencia con tu orden. El organizador se pondrá en contacto contigo{{ $e->contact_phone ? ' ('.$e->contact_phone.')' : '' }}.</div>@break
+  @case('expired')<div class="alert bad">La orden venció sin pago. Haz una nueva compra.</div>@break
   @case('cancelled')<div class="alert bad">Orden cancelada.</div>@break
 @endswitch
 
@@ -83,7 +83,7 @@
   @if($payment && in_array($payment->status, ['pending','expired'], true))
     <div class="card" style="margin-top:16px"><div class="b">
       <h3 style="margin-top:0">¿Ya pagaste?</h3>
-      <p class="mut">La reserva venció, pero si ya hiciste el pago avísanos: el organizador lo verificará y, si todavía hay lugares, reabrirá tu orden. Si no los hay, te devolverá el dinero.</p>
+      <p class="mut">Esta orden venció, pero si ya hiciste el pago avísanos: el organizador lo verificará y, si todavía hay lugares, emitirá tus entradas. Si no los hay, te devolverá el dinero.</p>
       <form method="post" action="{{ url('orden/'.$o->code.'/informar') }}" enctype="multipart/form-data">@csrf
         <label>Número / referencia de la operación</label><input name="reference" required minlength="3" maxlength="255">
         <label>Comprobante (opcional)</label><input type="file" name="proof" accept="image/jpeg,image/png,image/webp,application/pdf">
