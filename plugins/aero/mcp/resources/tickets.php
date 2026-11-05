@@ -4,7 +4,7 @@
 return [
     'tickets_events' => [
         'plugin' => 'Aero.Tickets', 'label' => 'eventos (públicos, privados y mixtos)', 'model' => \Aero\Tickets\Models\Event::class,
-        'fields' => 'id,category_id,name,slug,description,visibility,status,starts_at,ends_at,department,city,zone,venue_name,address,address_reference,lat,lng,capacity,reservation_minutes,moderation,buyer_extra_label,buyer_extra_required,min_age,requirements,organizer_name,contact_name,contact_phone,contact_whatsapp,contact_email,published_at,created_at',
+        'fields' => 'id,category_id,name,slug,description,visibility,status,starts_at,ends_at,department,city,zone,venue_name,address,address_reference,lat,lng,capacity,moderation,buyer_extra_label,buyer_extra_required,min_age,requirements,organizer_name,contact_name,contact_phone,contact_whatsapp,contact_email,published_at,created_at',
         'search' => 'name,city,zone,venue_name', 'filters' => 'category_id,visibility,status,city,department',
         'order' => ['starts_at', 'desc'],
     ],
@@ -13,20 +13,15 @@ return [
         'fields' => 'id,event_id,session_id,name,description,kind,price,currency,fee_percent,fee_fixed,fee_payer,quantity,sales_start,sales_end,max_per_order,is_active,created_at',
         'filters' => 'event_id,kind,is_active', 'search' => 'name',
     ],
-    'tickets_guests' => [
-        'plugin' => 'Aero.Tickets', 'label' => 'invitados de eventos (sin enlace de invitación)', 'model' => \Aero\Tickets\Models\Guest::class,
-        'fields' => 'id,event_id,ticket_type_id,name,email,phone,party_size,companions_allowed,invitation_kind,status,rsvp,confirmed_count,invited_at,responded_at,revoked_at,revoke_reason,created_at',
-        'filters' => 'event_id,rsvp,status,invitation_kind', 'search' => 'name,email,phone',
-    ],
     'tickets_attendees' => [
         'plugin' => 'Aero.Tickets', 'label' => 'entradas emitidas y asistentes', 'model' => \Aero\Tickets\Models\Ticket::class,
-        'fields' => 'id,event_id,ticket_type_id,guest_id,seq,code,holder_name,holder_email,holder_phone,status,source,base_amount,fee_amount,amount,currency,order_code,order_id,expires_at,refund_pending,paid_at,checked_in_at,created_at',
+        'fields' => 'id,event_id,ticket_type_id,seq,code,holder_name,holder_email,holder_phone,status,source,base_amount,fee_amount,amount,currency,order_code,order_id,expires_at,refund_pending,paid_at,checked_in_at,created_at',
         'filters' => 'event_id,ticket_type_id,status,source', 'search' => 'code,holder_name,holder_email,holder_phone',
         'order' => ['id', 'desc'],
     ],
     'tickets_orders' => [
         'plugin' => 'Aero.Tickets', 'label' => 'órdenes de compra de entradas', 'model' => \Aero\Tickets\Models\Order::class,
-        'fields' => 'id,event_id,guest_id,code,status,source,buyer_name,buyer_email,buyer_phone,buyer_document,buyer_extra,currency,subtotal,fees,total,quantity,expires_at,commission_total,payment_reference,verifying_at,confirmed_at,cancelled_at,cancel_reason,incident_note,created_at',
+        'fields' => 'id,event_id,code,status,source,buyer_name,buyer_email,buyer_phone,buyer_document,buyer_extra,currency,subtotal,fees,total,quantity,expires_at,commission_total,payment_reference,verifying_at,confirmed_at,cancelled_at,cancel_reason,incident_note,created_at',
         'search' => 'code,buyer_name,buyer_email,buyer_phone', 'filters' => 'event_id,status,source', 'order' => ['id', 'desc'],
     ],
     'tickets_order_items' => [
