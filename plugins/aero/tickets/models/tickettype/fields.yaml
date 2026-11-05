@@ -1,0 +1,98 @@
+fields:
+  event_id:
+    label: Evento
+    type: dropdown
+    emptyOption: — Elegir —
+    required: true
+    span: left
+  name:
+    label: Nombre de la entrada
+    required: true
+    span: right
+    placeholder: General, VIP, Estudiantes…
+  kind:
+    label: Tipo
+    type: dropdown
+    span: left
+    comment: 'Gratuita y cortesía se emiten sin cobro. De pago queda pendiente hasta confirmar el pago.'
+  price:
+    label: Precio
+    type: number
+    step: any
+    min: 0
+    span: left
+    trigger: {action: show, field: kind, condition: value[paid]}
+  currency:
+    label: Moneda
+    type: dropdown
+    span: right
+    default: BOB
+    comment: 'Hoy solo bolivianos; USD llegará en una versión futura.'
+    trigger: {action: show, field: kind, condition: value[paid]}
+  fee_percent:
+    label: Comisión por servicio (%)
+    type: number
+    step: any
+    min: 0
+    span: left
+    comment: 'Vacío = comisión por defecto de la plataforma.'
+    trigger: {action: show, field: kind, condition: value[paid]}
+  fee_fixed:
+    label: Comisión fija (Bs)
+    type: number
+    step: any
+    min: 0
+    span: right
+    trigger: {action: show, field: kind, condition: value[paid]}
+  fee_payer:
+    label: Quién paga la comisión
+    type: dropdown
+    emptyOption: — Según la plataforma —
+    span: left
+    trigger: {action: show, field: kind, condition: value[paid]}
+  price_breakdown:
+    type: partial
+    path: field_breakdown
+    span: full
+    context: update
+  stock:
+    type: partial
+    path: field_stock
+    span: full
+    context: update
+  quantity:
+    label: Cantidad disponible
+    type: number
+    min: 1
+    span: left
+    comment: 'Vacío = sin límite propio (rige la capacidad del evento).'
+  max_per_order:
+    label: Máximo por pedido
+    type: number
+    min: 1
+    max: 50
+    span: right
+  sales_start:
+    label: Venta desde
+    type: datepicker
+    mode: datetime
+    span: left
+  sales_end:
+    label: Venta hasta
+    type: datepicker
+    mode: datetime
+    span: right
+  description:
+    label: Descripción
+    type: textarea
+    size: small
+  is_active:
+    label: Activa
+    type: switch
+    span: left
+    default: true
+  sort_order:
+    label: Orden
+    type: number
+    span: right
+    default: 0

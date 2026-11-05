@@ -1,0 +1,8 @@
+columns:
+  name: {label: Escáner, searchable: true, sortable: true}
+  is_active: {label: Activo, type: switch}
+  events: {label: Eventos asignados, relation: events, select: name}
+  token_hint: {label: Enlace, sortable: false}
+  last_seen_at: {label: Último uso, type: datetime, sortable: true}
+  last_seen_agent: {label: Dispositivo}
+  created_by: {label: Creó}

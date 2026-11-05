@@ -1,0 +1,7 @@
+name: Usuario
+form: $/aero/tickets/models/platformuser/fields.yaml
+modelClass: Aero\Tickets\Models\PlatformUser
+defaultRedirect: aero/tickets/platformusers
+update:
+  redirect: aero/tickets/platformusers
+  redirectClose: aero/tickets/platformusers

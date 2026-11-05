@@ -1,0 +1,99 @@
+fields:
+  event_id:
+    label: Evento
+    type: dropdown
+    emptyOption: — Elegir —
+    required: true
+    span: left
+    context: create
+  ticket_type_id:
+    label: Entrada
+    type: dropdown
+    emptyOption: — Elegir —
+    required: true
+    span: right
+    context: create
+    comment: 'Se emite respetando la capacidad del evento y el cupo del tipo. Las cortesías también ocupan cupo.'
+  quantity:
+    label: Cantidad de entradas
+    type: number
+    min: 1
+    max: 50
+    default: 1
+    span: left
+    context: create
+  event[name]:
+    label: Evento
+    disabled: true
+    span: left
+    context: update
+  ticket_type[name]:
+    label: Entrada
+    disabled: true
+    span: right
+    context: update
+  holder_name:
+    label: Nombre del asistente
+    required: true
+    span: left
+  holder_document:
+    label: Documento (CI)
+    span: right
+  holder_email:
+    label: Correo
+    span: left
+  holder_phone:
+    label: Teléfono
+    span: right
+  status:
+    label: Estado
+    type: dropdown
+    span: left
+    context: update
+    comment: 'Una entrada anulada o vencida no se reactiva.'
+  amount:
+    label: Total cobrado
+    type: number
+    disabled: true
+    span: right
+    context: update
+  base_amount:
+    label: Precio base
+    type: number
+    disabled: true
+    span: left
+    context: update
+  fee_amount:
+    label: Comisión
+    type: number
+    disabled: true
+    span: right
+    context: update
+  expires_at:
+    label: La reserva vence
+    type: datepicker
+    mode: datetime
+    disabled: true
+    span: left
+    context: update
+  code:
+    label: Código de ingreso
+    disabled: true
+    context: update
+    span: right
+  checked_in_at:
+    label: Ingresó
+    type: datepicker
+    mode: datetime
+    disabled: true
+    context: update
+    span: left
+  delivery:
+    type: partial
+    path: field_delivery
+    span: full
+    context: update
+  notes:
+    label: Notas
+    type: textarea
+    size: small

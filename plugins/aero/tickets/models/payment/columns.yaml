@@ -1,0 +1,15 @@
+columns:
+  id: {label: '#', sortable: true}
+  order: {label: Orden, relation: order, select: code}
+  event: {label: Evento, relation: event, select: name}
+  method: {label: Método, type: selectable, options: getMethodOptions}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  amount: {label: Esperado, type: number}
+  amount_received: {label: Verificado, type: number}
+  reference: {label: Referencia, searchable: true}
+  sender_name: {label: Titular, searchable: true}
+  is_late: {label: Tardío, type: switch}
+  is_suspicious: {label: Sospechoso, type: switch}
+  submitted_at: {label: Informado, type: datetime, sortable: true}
+  verified_by_name: {label: Verificó}
+  verified_at: {label: Verificado el, type: datetime}

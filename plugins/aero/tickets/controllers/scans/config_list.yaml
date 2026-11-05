@@ -1,0 +1,14 @@
+title: Registro de accesos
+list: $/aero/tickets/models/scan/columns.yaml
+modelClass: Aero\Tickets\Models\Scan
+noRecordsMessage: Aún no hay lecturas.
+recordsPerPage: 50
+showSetup: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por asistente, código u operador
+filter: config_filter.yaml

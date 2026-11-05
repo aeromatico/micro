@@ -1,0 +1,7 @@
+name: Organizador
+form: $/aero/tickets/models/organizer/fields_mine.yaml
+modelClass: Aero\Tickets\Models\Organizer
+defaultRedirect: aero/tickets/myorganizer
+update:
+  redirect: aero/tickets/myorganizer
+  redirectClose: aero/tickets/events

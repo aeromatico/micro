@@ -1,0 +1,7 @@
+name: Evento
+form: $/aero/tickets/models/event/fields_admin.yaml
+modelClass: Aero\Tickets\Models\Event
+defaultRedirect: aero/tickets/adminevents
+update:
+  redirect: aero/tickets/adminevents
+  redirectClose: aero/tickets/adminevents

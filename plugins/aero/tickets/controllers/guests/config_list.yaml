@@ -1,0 +1,12 @@
+title: Invitados
+list: $/aero/tickets/models/guest/columns.yaml
+modelClass: Aero\Tickets\Models\Guest
+recordUrl: aero/tickets/guests/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: config_filter.yaml

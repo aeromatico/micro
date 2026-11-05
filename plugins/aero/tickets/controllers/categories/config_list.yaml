@@ -1,0 +1,10 @@
+title: Categorías
+list: $/aero/tickets/models/category/columns.yaml
+modelClass: Aero\Tickets\Models\Category
+recordUrl: aero/tickets/categories/update/:id
+noRecordsMessage: No hay categorías.
+recordsPerPage: 50
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

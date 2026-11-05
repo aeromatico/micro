@@ -1,0 +1,15 @@
+title: Pagos
+list: $/aero/tickets/models/payment/columns.yaml
+modelClass: Aero\Tickets\Models\Payment
+recordUrl: aero/tickets/payments/update/:id
+noRecordsMessage: Aún no hay pagos.
+recordsPerPage: 30
+showSetup: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por referencia o nombre
+filter: config_filter.yaml

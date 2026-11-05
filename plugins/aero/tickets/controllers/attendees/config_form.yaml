@@ -1,0 +1,10 @@
+name: Asistente
+form: $/aero/tickets/models/ticket/fields.yaml
+modelClass: Aero\Tickets\Models\Ticket
+defaultRedirect: aero/tickets/attendees
+create:
+  redirect: aero/tickets/attendees
+  redirectClose: aero/tickets/attendees
+update:
+  redirect: aero/tickets/attendees
+  redirectClose: aero/tickets/attendees

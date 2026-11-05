@@ -1,0 +1,14 @@
+scopes:
+  role_id:
+    label: Rol
+    type: dropdown
+    modelClass: Aero\Tickets\Models\PlatformUser
+    options: getRoleFilterOptions
+    conditions: role_id = :value
+  is_activated:
+    label: Cuenta
+    type: dropdown
+    options:
+      '1': Activadas
+      '0': Sin activar
+    conditions: is_activated = :value

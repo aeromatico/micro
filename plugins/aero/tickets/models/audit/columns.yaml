@@ -1,0 +1,9 @@
+columns:
+  created_at: {label: Fecha y hora, type: datetime, sortable: true}
+  subject_label: {label: Sobre, sortable: false}
+  subject_id: {label: '#'}
+  action: {label: Acción, searchable: true, sortable: true}
+  actor_name: {label: Responsable, searchable: true}
+  actor_type: {label: Rol}
+  changes_summary: {label: Cambios, sortable: false}
+  note: {label: Nota, searchable: true}

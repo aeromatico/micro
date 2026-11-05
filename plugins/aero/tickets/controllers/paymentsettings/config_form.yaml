@@ -1,0 +1,7 @@
+name: Cobros
+form: $/aero/tickets/models/paymentsetting/fields.yaml
+modelClass: Aero\Tickets\Models\PaymentSetting
+defaultRedirect: aero/tickets/paymentsettings
+update:
+  redirect: aero/tickets/paymentsettings
+  redirectClose: aero/tickets/events

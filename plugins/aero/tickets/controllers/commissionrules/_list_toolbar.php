@@ -1,0 +1,2 @@
+<div data-control="toolbar"><a href="<?= Backend::url('aero/tickets/commissionrules/create') ?>" class="btn btn-primary oc-icon-plus">Nueva regla</a>
+<span class="text-muted" style="margin-left:12px">Orden de prioridad: tipo de entrada → regla del evento → regla del organizador → comisión base (<a href="<?= Backend::url('system/settings/update/aero/tickets/settings') ?>">Parámetros</a>). Cada orden guarda las condiciones con las que se hizo.</span></div>

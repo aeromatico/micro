@@ -1,0 +1,9 @@
+columns:
+  full_name_label: {label: Nombre, sortable: false}
+  login: {label: Usuario, searchable: true, sortable: true}
+  email: {label: Correo, searchable: true, sortable: true}
+  role_label: {label: Rol, sortable: false}
+  tenants_label: {label: Organizador (espacio)}
+  is_suspended_label: {label: Estado, sortable: false}
+  last_login: {label: Último acceso, type: datetime, sortable: true}
+  created_at: {label: Registrado, type: datetime, sortable: true}

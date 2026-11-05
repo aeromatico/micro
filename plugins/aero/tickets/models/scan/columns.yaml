@@ -1,0 +1,9 @@
+columns:
+  scanned_at: {label: Fecha y hora, type: datetime, sortable: true}
+  event: {label: Evento, relation: event, select: name}
+  result: {label: Resultado, type: selectable, options: getResultOptions, sortable: true}
+  holder_name: {label: Asistente, searchable: true}
+  code: {label: Código, searchable: true}
+  method: {label: Vía, type: selectable, options: getMethodOptions}
+  operator_name: {label: Operador, searchable: true}
+  message: {label: Detalle}

@@ -1,0 +1,11 @@
+columns:
+  name:
+    label: Nombre
+    searchable: true
+    sortable: true
+  sort_order:
+    label: Orden
+    sortable: true
+  is_active:
+    label: Activa
+    type: switch

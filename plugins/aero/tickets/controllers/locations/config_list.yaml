@@ -1,0 +1,14 @@
+title: Departamentos y ciudades
+list: $/aero/tickets/models/location/columns.yaml
+modelClass: Aero\Tickets\Models\Location
+recordUrl: aero/tickets/locations/update/:id
+noRecordsMessage: Sin ubicaciones.
+recordsPerPage: 60
+defaultSort:
+  column: sort_order
+  direction: asc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: config_filter.yaml

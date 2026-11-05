@@ -1,0 +1,12 @@
+scopes:
+  type:
+    label: Tipo
+    type: dropdown
+    options:
+      department: Departamentos
+      city: Ciudades
+    conditions: type = ':value'
+  is_active:
+    label: Solo activas
+    type: switch
+    conditions: is_active = 1

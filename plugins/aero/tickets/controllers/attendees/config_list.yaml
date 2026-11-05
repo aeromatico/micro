@@ -1,0 +1,12 @@
+title: Asistentes y ventas
+list: $/aero/tickets/models/ticket/columns.yaml
+modelClass: Aero\Tickets\Models\Ticket
+recordUrl: aero/tickets/attendees/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: config_filter.yaml

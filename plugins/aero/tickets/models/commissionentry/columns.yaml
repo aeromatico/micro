@@ -1,0 +1,10 @@
+columns:
+  accrued_at: {label: Devengada, type: datetime, sortable: true}
+  tenant_name: {label: Organizador, sortable: false}
+  event: {label: Evento, relation: event, select: name}
+  order_id: {label: Orden}
+  base_amount: {label: Ventas base, type: number}
+  commission_amount: {label: Comisión, type: number, sortable: true}
+  payer: {label: Paga}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  settlement_id: {label: Liquidación}

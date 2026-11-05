@@ -1,0 +1,23 @@
+fields:
+  legal_name:
+    label: Razón social o nombre del organizador
+    span: left
+  document:
+    label: NIT / CI
+    span: right
+  contact_name:
+    label: Persona de contacto
+    span: left
+  contact_phone:
+    label: Teléfono / WhatsApp
+    span: right
+  contact_email:
+    label: Correo de contacto (recibirás aquí los avisos de la plataforma)
+    span: left
+  city:
+    label: Ciudad
+    span: right
+  description:
+    label: Cuéntanos qué eventos organizas
+    type: textarea
+    size: small

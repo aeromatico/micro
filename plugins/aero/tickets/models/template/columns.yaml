@@ -1,0 +1,6 @@
+columns:
+  name: {label: Aviso, searchable: true, sortable: true}
+  code: {label: Código}
+  subject: {label: Asunto, searchable: true}
+  is_active: {label: Activa, type: switch}
+  updated_at: {label: Modificada, type: datetime, sortable: true}

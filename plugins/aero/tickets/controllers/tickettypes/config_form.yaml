@@ -1,0 +1,10 @@
+name: Tipo de entrada
+form: $/aero/tickets/models/tickettype/fields.yaml
+modelClass: Aero\Tickets\Models\TicketType
+defaultRedirect: aero/tickets/tickettypes
+create:
+  redirect: aero/tickets/tickettypes
+  redirectClose: aero/tickets/tickettypes
+update:
+  redirect: aero/tickets/tickettypes
+  redirectClose: aero/tickets/tickettypes

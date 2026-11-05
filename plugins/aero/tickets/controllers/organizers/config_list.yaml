@@ -1,0 +1,15 @@
+title: Organizadores
+list: $/aero/tickets/models/organizer/columns.yaml
+modelClass: Aero\Tickets\Models\Organizer
+recordUrl: aero/tickets/organizers/update/:id
+noRecordsMessage: Aún no hay organizadores.
+recordsPerPage: 30
+showSetup: true
+defaultSort:
+  column: requested_at
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por razón social, documento o contacto
+filter: config_filter.yaml

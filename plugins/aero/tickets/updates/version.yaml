@@ -1,0 +1,37 @@
+1.0.0:
+    - "Primera versión: eventos públicos, privados y mixtos con categorías, portada, galería, ubicación en mapa, organizador y condiciones de ingreso."
+    - create_tickets_tables.php
+    - seed_categories.php
+
+1.1.0:
+    - "Modalidades público, privado por enlace y privado por invitación; estados En curso y Finalizado; tipos de entrada, invitados, asistentes y base para varias funciones por evento."
+    - add_modalities_and_sales_tables.php
+
+1.2.0:
+    - "Precio base, comisión y precio final por entrada; reservas temporales que vencen y liberan su cupo; compra de varias entradas por pedido y control estricto del aforo."
+    - add_pricing_and_reservations.php
+
+1.3.0:
+    - "Invitaciones con acompañantes y tipo (individual, pareja, familia o grupo), envío por WhatsApp, revocación que invalida las entradas y confirmación de asistencia sin duplicados."
+    - add_guest_invitations.php
+
+1.4.0:
+    - "Órdenes de compra con reserva temporal: varias entradas por pedido, comprador sin cuenta, estados de la orden (pendiente de pago, en verificación, confirmada, cancelada, vencida, en incidencia) e historial conservado."
+    - create_orders_tables.php
+
+1.5.0:
+    - "Pagos de las órdenes: QR bancario, transferencias y pagos manuales con verificación administrativa, historial auditable y manejo de pagos tardíos, rechazados o sospechosos."
+    - create_payments_tables.php
+
+1.6.0:
+    - "Entradas digitales: código QR firmado, enlace privado por entrada, PDF descargable, envío y reenvío por correo, consulta de «Mis entradas» sin cuenta y numeración única dentro de cada orden."
+    - add_ticket_delivery.php
+
+1.7.0:
+    - "Escáner de entradas desde el celular con cámara: personal con acceso por evento, validación atómica sin ingresos duplicados y registro de cada lectura."
+    - create_scanners_and_scans.php
+
+1.8.0:
+    - "Administración global de la plataforma: panel con indicadores, aprobación y suspensión de organizadores, moderación de eventos, usuarios y compradores, comisiones por entrada, organizador o evento con registro por orden, ubicaciones, plantillas de aviso, parámetros y auditoría."
+    - create_admin_tables.php
+    - seed_admin_defaults.php

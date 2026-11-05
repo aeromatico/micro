@@ -1,0 +1,10 @@
+name: Categoría
+form: $/aero/tickets/models/category/fields.yaml
+modelClass: Aero\Tickets\Models\Category
+defaultRedirect: aero/tickets/categories
+create:
+  redirect: aero/tickets/categories
+  redirectClose: aero/tickets/categories
+update:
+  redirect: aero/tickets/categories
+  redirectClose: aero/tickets/categories

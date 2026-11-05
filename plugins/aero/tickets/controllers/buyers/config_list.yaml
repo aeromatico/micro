@@ -1,0 +1,14 @@
+title: Compradores
+list: $/aero/tickets/models/buyer/columns.yaml
+modelClass: Aero\Tickets\Models\Buyer
+recordUrl: aero/tickets/buyers/update/:id
+noRecordsMessage: Aún no hay compradores.
+recordsPerPage: 40
+showSetup: true
+defaultSort:
+  column: last_order_at
+  direction: desc
+toolbar:
+  search:
+    prompt: Buscar por nombre, correo o teléfono
+filter: config_filter.yaml

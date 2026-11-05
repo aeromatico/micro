@@ -1,0 +1,7 @@
+name: Orden
+form: $/aero/tickets/models/order/fields.yaml
+modelClass: Aero\Tickets\Models\Order
+defaultRedirect: aero/tickets/orders
+update:
+  redirect: aero/tickets/orders
+  redirectClose: aero/tickets/orders

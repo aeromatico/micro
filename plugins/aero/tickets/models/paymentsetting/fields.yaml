@@ -1,0 +1,34 @@
+fields:
+  qr_enabled:
+    label: Cobrar con QR bancario
+    type: switch
+    span: left
+    comment: 'Usa una cuenta conectada en Bolivia Pay. Con API bancaria el pago se confirma solo; con QR fijo lo verificas tú.'
+  qr_bank_account_id:
+    label: Cuenta para el QR
+    type: dropdown
+    emptyOption: — Elegir —
+    span: right
+    trigger: {action: show, field: qr_enabled, condition: checked}
+  transfer_enabled:
+    label: Aceptar transferencias bancarias
+    type: switch
+    span: left
+    comment: 'Si no activas ningún canal, el comprador verá un aviso para coordinar el pago contigo.'
+  proof_policy:
+    label: Comprobante de transferencia
+    type: dropdown
+    span: right
+    default: optional
+    trigger: {action: show, field: transfer_enabled, condition: checked}
+  transfer_instructions:
+    label: Datos para transferir
+    type: textarea
+    size: small
+    comment: 'Banco, número de cuenta, titular, CI/NIT… Se muestra al comprador junto al importe.'
+    trigger: {action: show, field: transfer_enabled, condition: checked}
+  general_instructions:
+    label: Instrucciones generales de pago
+    type: textarea
+    size: small
+    comment: 'Opcional: plazos, a quién avisar, qué hacer si algo falla.'

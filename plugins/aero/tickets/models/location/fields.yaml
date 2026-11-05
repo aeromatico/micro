@@ -1,0 +1,26 @@
+fields:
+  type:
+    label: Tipo
+    type: dropdown
+    span: left
+    default: city
+  name:
+    label: Nombre
+    required: true
+    span: right
+  parent_id:
+    label: Departamento
+    type: dropdown
+    emptyOption: — Elegir —
+    span: left
+    trigger: {action: show, field: type, condition: value[city]}
+  sort_order:
+    label: Orden
+    type: number
+    default: 0
+    span: right
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+    comment: 'Una ubicación desactivada deja de ofrecerse; los eventos que ya la usan no se tocan.'

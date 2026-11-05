@@ -1,0 +1,16 @@
+scopes:
+  event_id:
+    label: Evento
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Ticket
+    options: getEventIdOptions
+    conditions: event_id = :value
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      valid: Emitidas (por ingresar)
+      used: Utilizadas (ya ingresaron)
+      pending: Pendientes
+      cancelled: Anuladas
+    conditions: status = ':value'

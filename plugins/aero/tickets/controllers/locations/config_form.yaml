@@ -1,0 +1,10 @@
+name: Ubicación
+form: $/aero/tickets/models/location/fields.yaml
+modelClass: Aero\Tickets\Models\Location
+defaultRedirect: aero/tickets/locations
+create:
+  redirect: aero/tickets/locations
+  redirectClose: aero/tickets/locations
+update:
+  redirect: aero/tickets/locations
+  redirectClose: aero/tickets/locations

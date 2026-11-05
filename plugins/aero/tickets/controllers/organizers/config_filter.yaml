@@ -1,0 +1,10 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      pending: Por aprobar
+      approved: Aprobados
+      rejected: Rechazados
+      suspended: Suspendidos
+    conditions: status = ':value'

@@ -1,0 +1,14 @@
+title: Auditoría
+list: $/aero/tickets/models/audit/columns.yaml
+modelClass: Aero\Tickets\Models\Audit
+noRecordsMessage: Sin registros.
+recordsPerPage: 50
+showSetup: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por responsable, acción o nota
+filter: config_filter.yaml

@@ -1,0 +1,10 @@
+title: Reglas de comisión
+list: $/aero/tickets/models/commissionrule/columns.yaml
+modelClass: Aero\Tickets\Models\CommissionRule
+recordUrl: aero/tickets/commissionrules/update/:id
+noRecordsMessage: "Aún no hay reglas; rige la comisión base de la plataforma."
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

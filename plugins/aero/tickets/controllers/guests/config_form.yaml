@@ -1,0 +1,10 @@
+name: Invitado
+form: $/aero/tickets/models/guest/fields.yaml
+modelClass: Aero\Tickets\Models\Guest
+defaultRedirect: aero/tickets/guests
+create:
+  redirect: aero/tickets/guests
+  redirectClose: aero/tickets/guests
+update:
+  redirect: aero/tickets/guests
+  redirectClose: aero/tickets/guests

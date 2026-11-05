@@ -1,0 +1,12 @@
+title: Entradas
+list: $/aero/tickets/models/tickettype/columns.yaml
+modelClass: Aero\Tickets\Models\TicketType
+recordUrl: aero/tickets/tickettypes/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar
+filter: config_filter.yaml

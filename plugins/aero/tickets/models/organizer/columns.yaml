@@ -1,0 +1,11 @@
+columns:
+  tenant_name: {label: Organizador (espacio), sortable: false}
+  legal_name: {label: Razón social, searchable: true, sortable: true}
+  document: {label: NIT / CI, searchable: true}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  contact_name: {label: Contacto, searchable: true}
+  contact_email: {label: Correo, searchable: true}
+  city: {label: Ciudad}
+  requested_at: {label: Solicitado, type: datetime, sortable: true}
+  decided_at: {label: Decidido, type: datetime}
+  decided_by_name: {label: Decidió}

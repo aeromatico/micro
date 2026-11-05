@@ -1,0 +1,12 @@
+title: Usuarios
+list: $/aero/tickets/models/platformuser/columns.yaml
+modelClass: Aero\Tickets\Models\PlatformUser
+recordUrl: aero/tickets/platformusers/update/:id
+noRecordsMessage: Sin usuarios.
+recordsPerPage: 40
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por nombre, usuario o correo
+filter: config_filter.yaml

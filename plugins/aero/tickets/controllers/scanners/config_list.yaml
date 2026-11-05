@@ -1,0 +1,10 @@
+title: Escáneres
+list: $/aero/tickets/models/scanner/columns.yaml
+modelClass: Aero\Tickets\Models\Scanner
+recordUrl: aero/tickets/scanners/update/:id
+noRecordsMessage: Aún no hay escáneres.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

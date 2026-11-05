@@ -1,0 +1,6 @@
+columns:
+  name: {label: Nombre, searchable: true, sortable: true}
+  type: {label: Tipo, type: selectable, options: getTypeOptions, sortable: true}
+  department: {label: Departamento, relation: department, select: name}
+  sort_order: {label: Orden, sortable: true}
+  is_active: {label: Activa, type: switch}

@@ -1,0 +1,7 @@
+name: Pago
+form: $/aero/tickets/models/payment/fields.yaml
+modelClass: Aero\Tickets\Models\Payment
+defaultRedirect: aero/tickets/payments
+update:
+  redirect: aero/tickets/payments
+  redirectClose: aero/tickets/payments

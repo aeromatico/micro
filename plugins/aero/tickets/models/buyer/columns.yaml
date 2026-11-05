@@ -1,0 +1,8 @@
+columns:
+  email: {label: Correo, searchable: true, sortable: true}
+  name: {label: Nombre, searchable: true}
+  phone: {label: Teléfono, searchable: true}
+  orders_count: {label: Órdenes, sortable: true}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  first_order_at: {label: Primera compra, type: datetime}
+  last_order_at: {label: Última compra, type: datetime, sortable: true}

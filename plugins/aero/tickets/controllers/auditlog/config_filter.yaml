@@ -1,0 +1,22 @@
+scopes:
+  subject_type:
+    label: Sobre
+    type: dropdown
+    options:
+      event: Evento
+      organizer: Organizador
+      user: Usuario
+      buyer: Comprador
+      commission_rule: Regla de comisión
+      setting: Parámetros
+      location: Ubicación
+      template: Plantilla
+    conditions: subject_type = ':value'
+  actor_type:
+    label: Quién
+    type: dropdown
+    options:
+      admin: Administrador
+      organizer: Organizador
+      system: Sistema
+    conditions: actor_type = ':value'

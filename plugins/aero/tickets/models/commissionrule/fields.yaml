@@ -1,0 +1,56 @@
+fields:
+  scope:
+    label: Se aplica a
+    type: dropdown
+    default: tenant
+    span: left
+  tenant_id:
+    label: Organizador
+    type: dropdown
+    emptyOption: — Elegir —
+    span: right
+    trigger: {action: show, field: scope, condition: value[tenant]}
+  event_id:
+    label: Evento
+    type: dropdown
+    emptyOption: — Elegir —
+    span: right
+    trigger: {action: show, field: scope, condition: value[event]}
+  percent:
+    label: Comisión (%)
+    type: number
+    step: any
+    min: 0
+    max: 50
+    span: left
+    comment: 'Vacío = hereda del siguiente nivel.'
+  fixed:
+    label: Comisión fija por entrada (Bs)
+    type: number
+    step: any
+    min: 0
+    span: right
+  payer:
+    label: Quién paga
+    type: dropdown
+    emptyOption: — Heredar —
+    span: left
+  is_active:
+    label: Activa
+    type: switch
+    default: true
+    span: right
+  valid_from:
+    label: Vigente desde
+    type: datepicker
+    mode: date
+    span: left
+  valid_until:
+    label: Vigente hasta
+    type: datepicker
+    mode: date
+    span: right
+  note:
+    label: Motivo / acuerdo comercial
+    type: textarea
+    size: small

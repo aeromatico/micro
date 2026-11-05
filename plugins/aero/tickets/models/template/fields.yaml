@@ -1,0 +1,26 @@
+fields:
+  name:
+    label: Aviso
+    disabled: true
+    span: left
+  code:
+    label: Código
+    disabled: true
+    span: right
+  is_active:
+    label: Activa
+    type: switch
+    comment: 'Desactivada, ese aviso no se envía. Las entradas del comprador y «Mis entradas» no se pueden desactivar.'
+  subject:
+    label: Asunto
+    required: true
+  body:
+    label: Mensaje (HTML)
+    type: textarea
+    size: giant
+    required: true
+    comment: 'Usa {{variable}} (escapada) o {{variable_html}} (tal cual la arma el sistema). Variables disponibles abajo.'
+  help:
+    type: partial
+    path: field_help
+    span: full

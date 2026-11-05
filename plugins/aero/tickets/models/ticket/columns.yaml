@@ -1,0 +1,14 @@
+columns:
+  code: {label: Código, searchable: true}
+  holder_name: {label: Asistente, searchable: true, sortable: true}
+  event: {label: Evento, relation: event, select: name}
+  ticket_type: {label: Entrada, relation: ticket_type, select: name}
+  seq: {label: N.º, sortable: true}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  amount: {label: Total, type: number, sortable: true}
+  fee_amount: {label: Comisión, type: number}
+  expires_at: {label: Vence, type: datetime}
+  holder_phone: {label: Teléfono, searchable: true}
+  holder_email: {label: Correo, searchable: true}
+  source: {label: Origen, type: selectable, options: getSourceOptions}
+  checked_in_at: {label: Ingresó, type: datetime}

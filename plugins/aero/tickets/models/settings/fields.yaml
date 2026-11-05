@@ -1,0 +1,101 @@
+tabs:
+  fields:
+    default_fee_percent:
+        label: Comisión por servicio (%)
+        type: number
+        step: any
+        span: left
+        default: 0
+        comment: "Base de la plataforma para entradas de pago. Una regla del organizador o del evento, o el tipo de entrada, la sobrescriben."
+        tab: Comisión
+    default_fee_fixed:
+        label: Comisión fija por entrada (Bs)
+        type: number
+        step: any
+        span: right
+        default: 0
+        tab: Comisión
+    default_fee_payer:
+        label: Quién paga la comisión
+        type: dropdown
+        default: buyer
+        options:
+            buyer: "El comprador (se suma al precio base)"
+            organizer: "El organizador (se descuenta de lo que recibe)"
+        tab: Comisión
+    require_organizer_approval:
+        label: Exigir aprobación de organizadores
+        type: switch
+        span: left
+        comment: "Si está activo, un organizador nuevo no puede publicar hasta que lo apruebes en «Organizadores»."
+        tab: Políticas
+    require_event_review:
+        label: Revisar cada evento antes de mostrarlo
+        type: switch
+        span: right
+        comment: "Al publicar, el evento queda «en revisión» (oculto y sin ventas) hasta que lo apruebes en «Moderación»."
+        tab: Políticas
+    reopen_late_payments:
+        label: Reabrir órdenes vencidas cuyo pago llegó tarde
+        type: switch
+        default: true
+        comment: "Si hay cupo, el pago tardío se acepta y se emiten las entradas; si no, queda para devolución. Sin esto, todo pago tardío se devuelve."
+        tab: Políticas
+    support_email:
+        label: Correo de soporte
+        span: left
+        comment: "Aparece al pie de los avisos al comprador."
+        tab: Políticas
+    support_phone:
+        label: Teléfono / WhatsApp de soporte
+        span: right
+        tab: Políticas
+    default_reservation_minutes:
+        label: Minutos de reserva por defecto
+        type: number
+        min: 5
+        max: 1440
+        default: 30
+        span: left
+        comment: "Se usa en los eventos nuevos."
+        tab: Límites
+    max_tickets_per_order:
+        label: Máximo de entradas por orden
+        type: number
+        min: 1
+        max: 500
+        default: 50
+        span: right
+        tab: Límites
+    max_active_events:
+        label: Eventos activos por organizador
+        type: number
+        min: 0
+        default: 0
+        span: left
+        comment: "0 = sin límite. Cuenta los publicados y en curso."
+        tab: Límites
+    max_capacity_per_event:
+        label: Capacidad máxima por evento
+        type: number
+        min: 0
+        default: 0
+        span: right
+        comment: "0 = sin límite."
+        tab: Límites
+    max_ticket_types_per_event:
+        label: Tipos de entrada por evento
+        type: number
+        min: 0
+        default: 0
+        span: left
+        comment: "0 = sin límite."
+        tab: Límites
+    max_scanners_per_tenant:
+        label: Escáneres por organizador
+        type: number
+        min: 0
+        default: 0
+        span: right
+        comment: "0 = sin límite."
+        tab: Límites

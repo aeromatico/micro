@@ -1,0 +1,16 @@
+title: Órdenes
+list: $/aero/tickets/models/order/columns.yaml
+modelClass: Aero\Tickets\Models\Order
+recordUrl: aero/tickets/orders/update/:id
+noRecordsMessage: Aún no hay órdenes.
+recordsPerPage: 30
+showSetup: true
+showCheckboxes: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por código, nombre o correo
+filter: config_filter.yaml

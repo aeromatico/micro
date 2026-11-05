@@ -1,0 +1,9 @@
+title: Plantillas de aviso
+list: $/aero/tickets/models/template/columns.yaml
+modelClass: Aero\Tickets\Models\Template
+recordUrl: aero/tickets/templates/update/:id
+noRecordsMessage: Sin plantillas.
+recordsPerPage: 30
+toolbar:
+  search:
+    prompt: Buscar

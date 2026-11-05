@@ -1,0 +1,15 @@
+title: Eventos de la plataforma
+list: $/aero/tickets/models/event/columns_admin.yaml
+modelClass: Aero\Tickets\Models\Event
+recordUrl: aero/tickets/adminevents/update/:id
+noRecordsMessage: Aún no hay eventos.
+recordsPerPage: 30
+showSetup: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por evento, lugar o ciudad
+filter: config_filter.yaml

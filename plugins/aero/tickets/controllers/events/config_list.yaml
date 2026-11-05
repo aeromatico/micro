@@ -1,0 +1,11 @@
+title: Eventos
+list: $/aero/tickets/models/event/columns.yaml
+modelClass: Aero\Tickets\Models\Event
+recordUrl: aero/tickets/events/update/:id
+noRecordsMessage: Aún no hay eventos.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

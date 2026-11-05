@@ -1,0 +1,40 @@
+scopes:
+  tenant_id:
+    label: Organizador
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Event
+    options: getTenantIdOptions
+    conditions: tenant_id = :value
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      draft: Borrador
+      published: Publicado
+      ongoing: En curso
+      finished: Finalizado
+      cancelled: Cancelado
+    conditions: status = ':value'
+  moderation:
+    label: Moderación
+    type: dropdown
+    options:
+      pending: En revisión
+      ok: Aprobado
+      rejected: Rechazado
+      suspended: Suspendido
+    conditions: moderation = ':value'
+  city:
+    label: Ciudad
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Event
+    options: getCityFilterOptions
+    conditions: city = ':value'
+  visibility:
+    label: Modalidad
+    type: dropdown
+    options:
+      public: Público
+      link: Privado por enlace
+      invite: Privado por invitación
+    conditions: visibility = ':value'

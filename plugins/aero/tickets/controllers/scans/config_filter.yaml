@@ -1,0 +1,28 @@
+scopes:
+  event_id:
+    label: Evento
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Scan
+    options: getEventIdOptions
+    conditions: event_id = :value
+  result:
+    label: Resultado
+    type: dropdown
+    options:
+      ok: Ingreso permitido
+      already_used: Ya utilizada
+      invalid: Inválida
+      wrong_event: De otro evento
+      cancelled: Anulada
+      expired: Vencida
+      not_issued: No emitida
+      event_cancelled: Evento cancelado
+      not_allowed: Operador sin permiso
+    conditions: result = ':value'
+  operator_type:
+    label: Operador
+    type: dropdown
+    options:
+      scanner: Escáner móvil
+      admin: Usuario del panel
+    conditions: operator_type = ':value'

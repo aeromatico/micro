@@ -1,0 +1,17 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      accrued: Por liquidar
+      settled: Liquidadas
+      void: Anuladas
+    conditions: status = ':value'
+  payer:
+    label: Quién la asumió
+    type: dropdown
+    options:
+      buyer: Comprador
+      organizer: Organizador
+      mixed: Mixta
+    conditions: payer = ':value'

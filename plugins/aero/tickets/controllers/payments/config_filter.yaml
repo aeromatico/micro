@@ -1,0 +1,36 @@
+scopes:
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      submitted: Pendiente de verificación
+      pending: Pendiente (sin informar)
+      approved: Aprobado
+      rejected: Rechazado
+      expired: Vencido
+      cancelled: Cancelado
+      refund_pending: Reembolso pendiente
+      refunded: Reembolsado
+    conditions: status = ':value'
+  method:
+    label: Método
+    type: dropdown
+    options:
+      qr: QR bancario
+      transfer: Transferencia
+      manual: Pago manual
+    conditions: method = ':value'
+  flag:
+    label: Alertas
+    type: dropdown
+    options:
+      late: Pagos tardíos
+      suspicious: Sospechosos
+    conditions: "(':value' = 'late' and is_late = 1) or (':value' = 'suspicious' and is_suspicious = 1)"
+  tenant_id:
+    label: Organizador
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Event
+    options: getTenantIdOptions
+    conditions: tenant_id = :value
+    permissions: [aero.tickets.superadmin, aero.tickets.admin.finance]

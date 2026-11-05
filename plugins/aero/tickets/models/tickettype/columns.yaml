@@ -1,0 +1,10 @@
+columns:
+  name: {label: Entrada, searchable: true, sortable: true}
+  event: {label: Evento, relation: event, select: name}
+  kind: {label: Tipo, type: selectable, options: getKindOptions}
+  price: {label: Precio, type: number, sortable: true}
+  currency: {label: Moneda}
+  price_summary: {label: Precio final}
+  quantity: {label: Cupo}
+  stock_summary: {label: Disponibilidad, sortable: false}
+  is_active: {label: Activa, type: switch}

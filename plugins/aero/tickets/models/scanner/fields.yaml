@@ -1,0 +1,26 @@
+fields:
+  tenant_id:
+    label: Espacio de trabajo (tenant)
+    type: dropdown
+    emptyOption: — Elegir —
+    permissions: [aero.tickets.superadmin]
+    context: create
+  name:
+    label: Nombre (persona o puerta)
+    required: true
+    span: left
+    placeholder: Puerta principal — Juan
+  is_active:
+    label: Activo
+    type: switch
+    span: right
+    default: true
+  events:
+    label: Eventos que puede validar
+    type: checkboxlist
+    comment: 'Solo verá y validará estos eventos. Puedes asignarle varios.'
+  link:
+    type: partial
+    path: field_link
+    context: update
+    span: full

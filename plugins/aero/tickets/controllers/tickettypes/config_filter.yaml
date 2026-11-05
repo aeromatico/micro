@@ -1,0 +1,7 @@
+scopes:
+  event_id:
+    label: Evento
+    type: dropdown
+    modelClass: Aero\Tickets\Models\TicketType
+    options: getEventIdOptions
+    conditions: event_id = :value

@@ -1,0 +1,5 @@
+fields:
+  detail:
+    type: partial
+    path: field_detail
+    span: full

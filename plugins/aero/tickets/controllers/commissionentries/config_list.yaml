@@ -1,0 +1,13 @@
+title: Comisiones generadas
+list: $/aero/tickets/models/commissionentry/columns.yaml
+modelClass: Aero\Tickets\Models\CommissionEntry
+recordUrl: aero/tickets/orders/update/:order_id
+noRecordsMessage: Aún no hay comisiones.
+recordsPerPage: 40
+showSetup: true
+defaultSort:
+  column: id
+  direction: desc
+toolbar:
+  buttons: list_toolbar
+filter: config_filter.yaml

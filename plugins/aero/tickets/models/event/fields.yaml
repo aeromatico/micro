@@ -1,0 +1,192 @@
+fields:
+  tenant_id:
+    label: Espacio de trabajo (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions: [aero.tickets.superadmin]
+    tab: Datos
+  name:
+    label: Nombre del evento
+    required: true
+    span: left
+    tab: Datos
+  category:
+    label: Categoría
+    type: relation
+    nameFrom: name
+    emptyOption: — Elegir —
+    span: right
+    tab: Datos
+  visibility:
+    label: Modalidad
+    type: dropdown
+    span: left
+    default: public
+    comment: 'Público: en el catálogo. Por enlace: oculto, se comparte el enlace. Por invitación: solo invitados con su enlace.'
+    tab: Datos
+  registration:
+    label: Inscripción
+    type: dropdown
+    span: left
+    default: open
+    tab: Datos
+  status:
+    label: Estado
+    type: dropdown
+    span: right
+    disabled: true
+    comment: 'Se cambia con los botones Publicar / Cancelar evento.'
+    tab: Datos
+  description:
+    label: Descripción general
+    type: textarea
+    size: large
+    tab: Datos
+  summary:
+    type: partial
+    path: field_summary
+    context: update
+    span: full
+    tab: Datos
+  cover:
+    label: Imagen principal (portada)
+    type: fileupload
+    mode: image
+    imageWidth: 400
+    imageHeight: 220
+    fileTypes: jpg,jpeg,png,webp
+    span: left
+    tab: Imágenes
+  gallery:
+    label: Imágenes adicionales
+    type: fileupload
+    mode: image
+    imageWidth: 150
+    imageHeight: 100
+    fileTypes: jpg,jpeg,png,webp
+    span: right
+    tab: Imágenes
+  starts_at:
+    label: Inicio (fecha y hora)
+    type: datepicker
+    mode: datetime
+    span: left
+    tab: Fecha y lugar
+  ends_at:
+    label: Fin (fecha y hora)
+    type: datepicker
+    mode: datetime
+    span: right
+    tab: Fecha y lugar
+  department:
+    label: Departamento
+    type: dropdown
+    emptyOption: — Elegir —
+    span: left
+    tab: Fecha y lugar
+  city:
+    label: Ciudad
+    type: dropdown
+    emptyOption: — Elegir —
+    dependsOn: department
+    span: right
+    comment: 'Si falta tu ciudad, pídele a la plataforma que la agregue.'
+    tab: Fecha y lugar
+  zone:
+    label: Zona
+    span: left
+    tab: Fecha y lugar
+  venue_name:
+    label: Nombre del lugar o establecimiento
+    span: right
+    tab: Fecha y lugar
+  address:
+    label: Dirección
+    tab: Fecha y lugar
+  address_reference:
+    label: Referencias
+    type: textarea
+    size: small
+    comment: 'Ej.: «a media cuadra de la plaza, portón negro».'
+    tab: Fecha y lugar
+  lat:
+    label: Latitud
+    span: left
+    tab: Fecha y lugar
+  lng:
+    label: Longitud
+    span: right
+    tab: Fecha y lugar
+  map:
+    label: Ubicación en el mapa
+    type: partial
+    path: field_map
+    comment: 'Toca el mapa o arrastra el pin: guarda la latitud y la longitud.'
+    tab: Fecha y lugar
+  capacity:
+    label: Capacidad máxima de asistentes
+    type: number
+    min: 1
+    span: left
+    comment: 'No puede ser menor que las entradas ya emitidas, reservadas o pendientes. Incluye cortesías.'
+    tab: Acceso
+  reservation_minutes:
+    label: Minutos de una reserva sin pagar
+    type: number
+    min: 5
+    max: 1440
+    default: 30
+    span: left
+    comment: 'Pasado ese tiempo la reserva vence y el cupo se libera.'
+    tab: Acceso
+  buyer_extra_label:
+    label: Información adicional que pides al comprador
+    span: left
+    placeholder: 'Ej.: Colegio, Empresa, Alergias…'
+    comment: 'Vacío = no se pide.'
+    tab: Acceso
+  buyer_extra_required:
+    label: Es obligatoria
+    type: switch
+    span: right
+    tab: Acceso
+  min_age:
+    label: Edad mínima
+    type: number
+    min: 0
+    max: 99
+    span: right
+    comment: 'Déjalo vacío si no hay restricción.'
+    tab: Acceso
+  requirements:
+    label: Requisitos, condiciones o restricciones de ingreso
+    type: textarea
+    size: large
+    tab: Acceso
+  organizer_name:
+    label: Organizador responsable
+    span: left
+    tab: Organizador
+  organizer_description:
+    label: Sobre el organizador
+    type: textarea
+    size: small
+    span: right
+    tab: Organizador
+  contact_name:
+    label: Contacto para consultas
+    span: left
+    tab: Organizador
+  contact_phone:
+    label: Teléfono
+    span: right
+    tab: Organizador
+  contact_whatsapp:
+    label: WhatsApp
+    span: left
+    tab: Organizador
+  contact_email:
+    label: Correo
+    span: right
+    tab: Organizador

@@ -1,0 +1,10 @@
+name: Escáner
+form: $/aero/tickets/models/scanner/fields.yaml
+modelClass: Aero\Tickets\Models\Scanner
+defaultRedirect: aero/tickets/scanners
+create:
+  redirect: aero/tickets/scanners/update/:id
+  redirectClose: aero/tickets/scanners/update/:id
+update:
+  redirect: aero/tickets/scanners
+  redirectClose: aero/tickets/scanners

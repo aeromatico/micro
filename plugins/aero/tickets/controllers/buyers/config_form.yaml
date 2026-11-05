@@ -1,0 +1,7 @@
+name: Comprador
+form: $/aero/tickets/models/buyer/fields.yaml
+modelClass: Aero\Tickets\Models\Buyer
+defaultRedirect: aero/tickets/buyers
+update:
+  redirect: aero/tickets/buyers
+  redirectClose: aero/tickets/buyers

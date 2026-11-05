@@ -1,0 +1,25 @@
+scopes:
+  event_id:
+    label: Evento
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Order
+    options: getEventIdOptions
+    conditions: event_id = :value
+  status:
+    label: Estado
+    type: dropdown
+    options:
+      pending_payment: Pendiente de pago
+      verifying: En verificación
+      confirmed: Confirmada
+      cancelled: Cancelada
+      expired: Vencida
+      incident: En incidencia
+    conditions: status = ':value'
+  tenant_id:
+    label: Organizador
+    type: dropdown
+    modelClass: Aero\Tickets\Models\Event
+    options: getTenantIdOptions
+    conditions: tenant_id = :value
+    permissions: [aero.tickets.superadmin, aero.tickets.admin.finance]

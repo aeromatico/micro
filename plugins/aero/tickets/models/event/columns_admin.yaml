@@ -1,0 +1,12 @@
+columns:
+  id: {label: '#', sortable: true}
+  name: {label: Evento, searchable: true, sortable: true}
+  organizer_name_label: {label: Organizador, sortable: false}
+  city: {label: Ciudad, searchable: true, sortable: true}
+  venue_name: {label: Lugar, searchable: true}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  moderation_label: {label: Moderación, sortable: false}
+  visibility: {label: Modalidad, type: selectable, options: getVisibilityOptions}
+  starts_at: {label: Inicio, type: datetime, sortable: true}
+  capacity: {label: Capacidad, sortable: true}
+  published_at: {label: Publicado, type: datetime}

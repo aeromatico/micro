@@ -1,0 +1,11 @@
+columns:
+  code: {label: Orden, searchable: true, sortable: true}
+  event: {label: Evento, relation: event, select: name}
+  buyer_name: {label: Comprador, searchable: true, sortable: true}
+  buyer_email: {label: Correo, searchable: true}
+  status: {label: Estado, type: selectable, options: getStatusOptions, sortable: true}
+  quantity: {label: Entradas}
+  fees: {label: Comisión, type: number}
+  total: {label: Total, type: number, sortable: true}
+  expires_at: {label: Vence, type: datetime}
+  created_at: {label: Creada, type: datetime, sortable: true}

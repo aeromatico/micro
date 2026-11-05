@@ -1,0 +1,11 @@
+columns:
+  scope: {label: Aplica a, type: selectable, options: getScopeOptions}
+  tenant_id: {label: Organizador, type: selectable, options: getTenantIdOptions}
+  event: {label: Evento, relation: event, select: name}
+  percent: {label: '%', type: number}
+  fixed: {label: Fijo (Bs), type: number}
+  payer: {label: Paga, type: selectable, options: getPayerOptions}
+  is_active: {label: Activa, type: switch}
+  valid_from: {label: Desde, type: date}
+  valid_until: {label: Hasta, type: date}
+  created_by: {label: Creó}

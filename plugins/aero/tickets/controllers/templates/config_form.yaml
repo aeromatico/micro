@@ -1,0 +1,7 @@
+name: Plantilla
+form: $/aero/tickets/models/template/fields.yaml
+modelClass: Aero\Tickets\Models\Template
+defaultRedirect: aero/tickets/templates
+update:
+  redirect: aero/tickets/templates
+  redirectClose: aero/tickets/templates

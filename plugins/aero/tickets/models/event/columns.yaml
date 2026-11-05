@@ -1,0 +1,34 @@
+columns:
+  name:
+    label: Evento
+    searchable: true
+    sortable: true
+  category:
+    label: Categoría
+    relation: category
+    select: name
+  visibility:
+    label: Modalidad
+    type: selectable
+    options: getVisibilityOptions
+  status:
+    label: Estado
+    type: selectable
+    options: getStatusOptions
+    sortable: true
+  starts_at:
+    label: Inicio
+    type: datetime
+    sortable: true
+  city:
+    label: Ciudad
+    searchable: true
+  venue_name:
+    label: Lugar
+    searchable: true
+  capacity:
+    label: Capacidad
+    sortable: true
+  tenant_id:
+    label: Organizador (tenant)
+    invisible: true
