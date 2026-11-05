@@ -525,3 +525,7 @@
 1.98.0:
     - "Los espacios de trabajo ahora pueden usar Entradas y eventos desde el panel."
     - grant_tickets_to_tenant_admin.php
+
+1.99.0:
+    - "Los espacios de trabajo ahora pueden verificar los pagos de sus entradas."
+    - grant_tickets_payments_to_tenant_admin.php
