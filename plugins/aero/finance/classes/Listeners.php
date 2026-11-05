@@ -23,7 +23,33 @@ class Listeners
         \Event::listen('aero.church.contributionConfirmed', fn ($c) => self::safely(fn () => self::churchConfirmed($c)));
         \Event::listen('aero.church.contributionCancelled', fn ($c) => self::safely(fn () => self::voidBySource('church_contribution', $c->id, $c->tenant_id, 'Aporte anulado')));
 
+        // Entradas: pago aprobado = ingreso; devuelto = se anula el asiento.
+        \Event::listen('aero.tickets.paymentApproved', fn ($p, $o) => self::safely(fn () => self::ticketsPaid($p, $o)));
+        \Event::listen('aero.tickets.paymentRefunded', fn ($p) => self::safely(fn () => self::voidBySource('tickets_payment', $p->id, $p->tenant_id, 'Pago de entradas devuelto')));
+
         self::registerPortalSources();
+    }
+
+    protected static function ticketsPaid($p, $o): void
+    {
+        $tenantId = (int) $p->tenant_id;
+        $amount = (float) ($p->amount_received ?? $p->amount);
+        if (!FinanceSettings::allows($tenantId, 'tickets') || $amount <= 0 || self::exists($tenantId, 'tickets_payment', $p->id)) {
+            return;
+        }
+
+        AccountSeeder::ensure($tenantId);
+        app(MovementService::class)->record($tenantId, [
+            'kind'                => 'income',
+            'date'                => ($p->verified_at ?: now())->toDateString(),
+            'amount'              => round($amount, 2),
+            'currency'            => $p->currency ?: 'BOB',
+            'category_account_id' => AccountSeeder::system($tenantId, 'sales')->id,
+            'cash_account_id'     => AccountSeeder::system($tenantId, $p->method === 'manual' ? 'cash' : 'bank')->id,
+            'description'         => 'Entradas · orden ' . $o->code,
+            'document_no'         => $o->code,
+            'counterparty'        => $o->buyer_name,
+        ], ['type' => 'tickets_payment', 'id' => $p->id]);
     }
 
     /**

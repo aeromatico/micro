@@ -41,3 +41,9 @@ fields:
     type: switch
     span: left
     default: true
+  post_tickets:
+    label: Cobros de entradas y eventos
+    type: switch
+    span: right
+    default: true
+    comment: Asienta cada pago de entradas aprobado (QR, transferencia o manual) y anula el asiento si se devuelve. El asiento lleva solo «Orden #código».

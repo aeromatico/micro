@@ -21,3 +21,7 @@
 1.5.0:
     - "Finanzas registra de forma automática los aportes de la iglesia (diezmos, ofrendas y donaciones) con cuentas propias, sin datos pastorales en el asiento."
     - add_church_switch_to_settings.php
+
+1.6.0:
+    - "Finanzas registra de forma automática los pagos aprobados de entradas y eventos, y anula el asiento si se devuelven."
+    - add_tickets_switch_to_settings.php
