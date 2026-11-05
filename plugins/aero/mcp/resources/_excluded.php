@@ -9,6 +9,9 @@
  * la plataforma, o "pendiente" (a revisar cuando se necesite).
  */
 return [
+    \Aero\Tickets\Models\PaymentProof::class => 'comprobantes de pago: evidencia cifrada, solo se sirve por el panel con permiso',
+    \Aero\Tickets\Models\PaymentSetting::class => 'configuración de cobros del tenant (datos bancarios)',
+    \Aero\Tickets\Models\Session::class => 'funciones de un evento: estructura preparada, aún sin pantalla',
     // catálogos mixtos (global + propio): el motor MCP filtra por tenant y ocultaría el catálogo global
     \Aero\Realestate\Models\Location::class => 'ubicaciones: catálogo global de Bolivia (tenant_id null) mezclado con las propias',
     \Aero\Realestate\Models\Feature::class => 'características: catálogo global mezclado con las propias',
