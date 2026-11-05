@@ -19,6 +19,11 @@ class Plugin extends PluginBase
         ];
     }
 
+    public function register(): void
+    {
+        $this->registerConsoleCommand('tickets.demo', \Aero\Tickets\Console\Demo::class);
+    }
+
     public function boot(): void
     {
         $this->bootPaymentBridges();
