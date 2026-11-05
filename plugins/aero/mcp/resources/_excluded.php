@@ -9,6 +9,7 @@
  * la plataforma, o "pendiente" (a revisar cuando se necesite).
  */
 return [
+    \Aero\Tickets\Models\CommissionRule::class => 'reglas de comisión: condiciones comerciales internas de la plataforma',
     \Aero\Tickets\Models\PaymentProof::class => 'comprobantes de pago: evidencia cifrada, solo se sirve por el panel con permiso',
     \Aero\Tickets\Models\PaymentSetting::class => 'configuración de cobros del tenant (datos bancarios)',
     \Aero\Tickets\Models\Session::class => 'funciones de un evento: estructura preparada, aún sin pantalla',

@@ -4,7 +4,7 @@
 return [
     'tickets_events' => [
         'plugin' => 'Aero.Tickets', 'label' => 'eventos (públicos, privados y mixtos)', 'model' => \Aero\Tickets\Models\Event::class,
-        'fields' => 'id,category_id,name,slug,description,visibility,status,starts_at,ends_at,department,city,zone,venue_name,address,address_reference,lat,lng,capacity,reservation_minutes,buyer_extra_label,buyer_extra_required,min_age,requirements,organizer_name,contact_name,contact_phone,contact_whatsapp,contact_email,published_at,created_at',
+        'fields' => 'id,category_id,name,slug,description,visibility,status,starts_at,ends_at,department,city,zone,venue_name,address,address_reference,lat,lng,capacity,reservation_minutes,moderation,buyer_extra_label,buyer_extra_required,min_age,requirements,organizer_name,contact_name,contact_phone,contact_whatsapp,contact_email,published_at,created_at',
         'search' => 'name,city,zone,venue_name', 'filters' => 'category_id,visibility,status,city,department',
         'order' => ['starts_at', 'desc'],
     ],
@@ -26,7 +26,7 @@ return [
     ],
     'tickets_orders' => [
         'plugin' => 'Aero.Tickets', 'label' => 'órdenes de compra de entradas', 'model' => \Aero\Tickets\Models\Order::class,
-        'fields' => 'id,event_id,guest_id,code,status,source,buyer_name,buyer_email,buyer_phone,buyer_document,buyer_extra,currency,subtotal,fees,total,quantity,expires_at,payment_reference,verifying_at,confirmed_at,cancelled_at,cancel_reason,incident_note,created_at',
+        'fields' => 'id,event_id,guest_id,code,status,source,buyer_name,buyer_email,buyer_phone,buyer_document,buyer_extra,currency,subtotal,fees,total,quantity,expires_at,commission_total,payment_reference,verifying_at,confirmed_at,cancelled_at,cancel_reason,incident_note,created_at',
         'search' => 'code,buyer_name,buyer_email,buyer_phone', 'filters' => 'event_id,status,source', 'order' => ['id', 'desc'],
     ],
     'tickets_order_items' => [
@@ -52,5 +52,15 @@ return [
     'tickets_scanners' => [
         'plugin' => 'Aero.Tickets', 'label' => 'escáneres (personal y dispositivos de puerta; sin el enlace secreto)', 'model' => \Aero\Tickets\Models\Scanner::class,
         'fields' => 'id,name,is_active,last_seen_at,created_by,created_at', 'filters' => 'is_active', 'search' => 'name',
+    ],
+    'tickets_organizer_profile' => [
+        'plugin' => 'Aero.Tickets', 'label' => 'estado del organizador (aprobación) de entradas', 'model' => \Aero\Tickets\Models\Organizer::class,
+        'fields' => 'id,status,legal_name,contact_name,contact_email,contact_phone,city,requested_at,decided_at,decision_note',
+        'filters' => 'status',
+    ],
+    'tickets_commissions' => [
+        'plugin' => 'Aero.Tickets', 'label' => 'comisiones de la plataforma por orden cobrada', 'model' => \Aero\Tickets\Models\CommissionEntry::class,
+        'fields' => 'id,event_id,order_id,currency,base_amount,commission_amount,payer,status,accrued_at,voided_at',
+        'filters' => 'event_id,status,payer', 'order' => ['id', 'desc'],
     ],
 ];
