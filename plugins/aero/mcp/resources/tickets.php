@@ -20,7 +20,7 @@ return [
     ],
     'tickets_attendees' => [
         'plugin' => 'Aero.Tickets', 'label' => 'entradas emitidas y asistentes', 'model' => \Aero\Tickets\Models\Ticket::class,
-        'fields' => 'id,event_id,ticket_type_id,guest_id,code,holder_name,holder_email,holder_phone,status,source,base_amount,fee_amount,amount,currency,order_code,order_id,expires_at,refund_pending,paid_at,checked_in_at,created_at',
+        'fields' => 'id,event_id,ticket_type_id,guest_id,seq,code,holder_name,holder_email,holder_phone,status,source,base_amount,fee_amount,amount,currency,order_code,order_id,expires_at,refund_pending,paid_at,checked_in_at,created_at',
         'filters' => 'event_id,ticket_type_id,status,source', 'search' => 'code,holder_name,holder_email,holder_phone',
         'order' => ['id', 'desc'],
     ],
@@ -43,5 +43,14 @@ return [
         'plugin' => 'Aero.Tickets', 'label' => 'historial financiero de pagos (quién hizo qué)', 'model' => \Aero\Tickets\Models\PaymentEvent::class,
         'fields' => 'id,payment_id,order_id,action,actor_type,actor_name,from_status,to_status,amount,note,created_at',
         'filters' => 'payment_id,order_id,action,actor_type', 'order' => ['id', 'desc'],
+    ],
+    'tickets_scans' => [
+        'plugin' => 'Aero.Tickets', 'label' => 'registro de accesos (lecturas en puerta, resultado y operador)', 'model' => \Aero\Tickets\Models\Scan::class,
+        'fields' => 'id,event_id,ticket_id,code,holder_name,result,method,operator_type,operator_name,message,scanned_at',
+        'search' => 'holder_name,code,operator_name', 'filters' => 'event_id,result,method,operator_type', 'order' => ['id', 'desc'],
+    ],
+    'tickets_scanners' => [
+        'plugin' => 'Aero.Tickets', 'label' => 'escáneres (personal y dispositivos de puerta; sin el enlace secreto)', 'model' => \Aero\Tickets\Models\Scanner::class,
+        'fields' => 'id,name,is_active,last_seen_at,created_by,created_at', 'filters' => 'is_active', 'search' => 'name',
     ],
 ];
