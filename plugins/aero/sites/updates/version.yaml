@@ -534,3 +534,7 @@
     - "Los espacios de trabajo ahora pueden usar Clínica (historia clínica de medicina humana) desde el panel, con roles de administrador, recepción y profesional."
     - create_clinica_roles.php
     - grant_clinica_to_tenant_admin.php
+
+1.101.0:
+    - "El plan PRO ahora incluye Clínica (historia clínica de medicina humana)."
+    - add_clinica_to_pro_plan.php
