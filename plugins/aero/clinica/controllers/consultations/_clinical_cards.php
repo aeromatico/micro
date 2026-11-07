@@ -1,4 +1,4 @@
-<?php /* Diagnósticos, receta, órdenes y cuestionarios de la nota (se actualizan por AJAX sin recargar). */ ?>
+<?php /* Diagnósticos, receta y órdenes de la nota (se actualizan por AJAX sin recargar). */ ?>
 <div class="mc-card">
     <h5>Diagnósticos </h5>
     <div id="mc-dx"><?= $this->makePartial('dx') ?></div>
@@ -22,11 +22,9 @@
     <div id="mc-rx"><?= $this->makePartial('rx') ?></div>
     <?php if ($editable): ?>
         <input type="text" class="form-control" name="med_q" id="mc-med-q" autocomplete="off" data-request="onSearchMed" data-track-input="300"
-               placeholder="'Buscar en LINAME o en los medicamentos del negocio…'">
+               placeholder="Buscar entre los medicamentos que esta clínica ya recetó… (o escriba abajo)">
         <div id="mc-med-results" style="margin:6px 0"><?= $this->makePartial('medresults') ?></div>
         <?= Form::open(['data-request' => 'onAddRx', 'class' => 'mc-reset', 'id' => 'mc-rx-form']) ?>
-            <input type="hidden" name="rx_source" id="rx-source" value="free">
-            <input type="hidden" name="rx_ref" id="rx-ref" value="">
             <div class="mc-vitals">
                 <div style="grid-column:1/-1"><label>Medicamento</label><input type="text" class="form-control" name="medication" id="rx-medication" required maxlength="2000"></div>
                 <div><label>Principio activo</label><input type="text" class="form-control" name="active_ingredient" id="rx-ingredient" maxlength="2000"></div>
@@ -63,33 +61,13 @@
     <?php endif ?>
 </div>
 
-<div class="mc-card">
-    <h5>Cuestionarios y mediciones</h5>
-    <div id="mc-quest"><?= $this->makePartial('quest') ?></div>
-    <?php if ($editable): ?>
-        <?php if (!count($questionnaires)): ?>
-            <p class="text-muted" style="margin:0;font-size:12px">El negocio aún no definió cuestionarios (Historia clínica → Cuestionarios).</p>
-        <?php else: ?>
-        <?= Form::open(['data-request' => 'onOpenQuest', 'style' => 'display:flex;gap:6px']) ?>
-            <select name="questionnaire_id" class="form-control" required>
-                <?php foreach ($questionnaires as $qn): ?><option value="<?= (int) $qn->id ?>"><?= e($qn->name) ?></option><?php endforeach ?>
-            </select>
-            <button type="submit" class="btn btn-default">Responder</button>
-        <?= Form::close() ?>
-        <div id="mc-quest-form"><?= $this->makePartial('questform') ?></div>
-        <?php endif ?>
-    <?php endif ?>
-</div>
-
 <script>
 (function () {
-    // Limpia los mini-formularios tras agregar y deja elegir un medicamento del catálogo.
+    // Limpia los mini-formularios tras agregar y deja elegir un medicamento ya recetado.
     document.addEventListener('ajax:done', function (e) {
         var f = e.target;
         if (f && f.classList && f.classList.contains('mc-reset')) {
             f.reset();
-            var s = document.getElementById('rx-source'), r = document.getElementById('rx-ref');
-            if (f.id === 'mc-rx-form' && s && r) { s.value = 'free'; r.value = ''; }
         }
     });
     // Tras agregar un diagnóstico o medicamento del buscador, se vacía el buscador.
@@ -103,16 +81,9 @@
         var b = e.target.closest && e.target.closest('.mc-pick');
         if (!b) return;
         document.getElementById('rx-medication').value = b.dataset.text;
-        document.getElementById('rx-source').value = b.dataset.source;
-        document.getElementById('rx-ref').value = b.dataset.ref;
         document.getElementById('rx-ingredient').value = b.dataset.ingredient || '';
         document.getElementById('rx-strength').value = b.dataset.strength || '';
         document.getElementById('rx-presentation').value = b.dataset.presentation || '';
-    });
-    // Si el nombre se edita a mano deja de ser del catálogo.
-    var med = document.getElementById('rx-medication');
-    if (med) med.addEventListener('input', function () {
-        document.getElementById('rx-source').value = 'free'; document.getElementById('rx-ref').value = '';
     });
 })();
 </script>

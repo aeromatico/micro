@@ -173,7 +173,6 @@ class ConsultationService
         $this->assertAuthorDraft($c, $user);
         Vitals::where('consultation_id', $c->id)->delete();
         \Aero\Clinica\Models\Diagnosis::where('consultation_id', $c->id)->delete();
-        \Aero\Clinica\Models\QuestionnaireAnswer::where('consultation_id', $c->id)->delete();
         if ($rx = \Aero\Clinica\Models\Prescription::where('consultation_id', $c->id)->first()) {
             \Aero\Clinica\Models\PrescriptionItem::where('prescription_id', $rx->id)->delete();
             $rx->delete();

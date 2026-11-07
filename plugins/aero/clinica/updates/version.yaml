@@ -8,3 +8,11 @@
     - add_source_to_ranges.php
     - create_charges_table.php
     - add_tenant_id_indexes.php
+
+1.1.0:
+    - "Ahora la receta y las vacunas se escriben libremente con sugerencias de lo que la clínica ya usó, sin depender de una lista única de medicamentos ni de vacunas."
+    - drop_medication_and_vaccine_catalogs.php
+
+1.2.0:
+    - "Ya no existen los cuestionarios con puntaje: la consulta se centra en la nota, los diagnósticos, la receta y las órdenes."
+    - drop_questionnaires.php

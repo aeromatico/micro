@@ -10,6 +10,11 @@ $ready = in_array($b->status, ['confirmed', 'in_service'], true);
         <?= $note->isSigned() ? 'Ver nota firmada' : 'Continuar consulta' ?></a>
 <?php elseif ($ready): ?>
     <a class="btn btn-primary btn-sm" href="<?= Backend::url('aero/clinica/today/booking/' . $b->id) ?>">Iniciar consulta</a>
+<?php elseif ($b->status === 'pending'): ?>
+    <?= Form::open(['style' => 'display:inline']) ?>
+        <button type="button" class="btn btn-default btn-sm" data-request="onConfirm" data-request-data="booking_id: <?= (int) $b->id ?>"
+            data-request-confirm="¿Confirmar la reserva <?= e($b->code) ?>?">Confirmar reserva</button>
+    <?= Form::close() ?>
 <?php else: ?>
-    <span class="text-muted">Confirme la reserva</span>
+    <span class="text-muted"><?= e($b->status_label) ?></span>
 <?php endif ?>

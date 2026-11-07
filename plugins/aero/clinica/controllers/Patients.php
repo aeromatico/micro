@@ -101,7 +101,7 @@ class Patients extends Controller
     {
         $p = $this->clinicalPatient($recordId);
         $this->orFail(fn () => app(\Aero\Clinica\Classes\VaccineService::class)->apply($p, [
-            'vaccine_id' => post('vaccine_id'), 'vaccine_name' => post('vaccine_name'), 'dose_label' => post('dose_label'), 'applied_on' => post('applied_on'),
+            'vaccine_name' => post('vaccine_name'), 'dose_label' => post('dose_label'), 'applied_on' => post('applied_on'),
             'lot' => post('lot'), 'manufacturer' => post('manufacturer'), 'route_site' => post('route_site'), 'next_due_on' => post('next_due_on'), 'notes' => post('notes'),
         ], \BackendAuth::getUser()));
 

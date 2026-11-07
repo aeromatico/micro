@@ -1,6 +1,7 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/settings') ?>"><?= e("Configuración") ?></a></li><li><?= e($this->pageTitle) ?></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('settings') ?>
 <?php if (!$this->fatalError): ?>
 <?= Form::open(['class' => 'layout']) ?>
     <div class="layout-row"><?= $this->formRender() ?></div>

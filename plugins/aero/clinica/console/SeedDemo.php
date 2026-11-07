@@ -16,12 +16,9 @@ use Aero\Clinica\Models\DiagnosisCatalog;
 use Aero\Clinica\Models\ExamCatalog;
 use Aero\Clinica\Models\ClinicSettings;
 use Aero\Clinica\Models\DocumentTemplate;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\NoteTemplate;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Professional;
-use Aero\Clinica\Models\Questionnaire;
-use Aero\Clinica\Models\Vaccine;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -92,25 +89,12 @@ class SeedDemo extends Command
 
     protected function catalogs(int $tenant): void
     {
-        foreach ([['Losartán', '50 mg', 'tabletas'], ['Metformina', '850 mg', 'tabletas'], ['Amoxicilina', '500 mg', 'cápsulas'], ['Paracetamol', '500 mg', 'tabletas'], ['Salbutamol', '100 mcg/dosis', 'inhalador']] as [$n, $c, $f]) {
-            Medication::firstOrCreate(['tenant_id' => $tenant, 'name' => $n, 'concentration' => $c], ['form' => $f, 'is_active' => true]);
-        }
         foreach (['Hemograma completo' => 'lab', 'Perfil lipídico' => 'lab', 'Creatinina sérica' => 'lab', 'Glucosa en ayunas' => 'lab', 'Examen general de orina' => 'lab',
                   'Radiografía de tórax' => 'imaging', 'Radiografía de columna lumbosacra' => 'imaging', 'Ecografía abdominal' => 'imaging', 'Electrocardiograma' => 'other'] as $n => $cat) {
             ExamCatalog::firstOrCreate(['tenant_id' => $tenant, 'name' => $n], ['category' => $cat, 'is_active' => true]);
         }
         foreach ([['Lumbalgia mecánica', 'M54.5'], ['Rinofaringitis aguda', 'J00'], ['Control de enfermedad crónica', null]] as [$l, $code]) {
             DiagnosisCatalog::firstOrCreate(['tenant_id' => $tenant, 'source' => 'custom', 'entry_key' => $code ?: md5(mb_strtolower($l))], ['code' => $code, 'label' => $l, 'pinned' => false]);
-        }
-        Questionnaire::firstOrCreate(['tenant_id' => $tenant, 'name' => 'Tamizaje de ansiedad (ejemplo de demostración)'], [
-            'description' => 'Cuestionario de EJEMPLO para la demo: puntajes e interpretación no son oficiales; cada clínica define los suyos.',
-            'is_active' => true,
-            'questions' => array_map(fn ($t) => ['text' => $t, 'options' => [['label' => 'Nunca', 'score' => 0], ['label' => 'Varios días', 'score' => 1], ['label' => 'Más de la mitad de los días', 'score' => 2], ['label' => 'Casi todos los días', 'score' => 3]]],
-                ['Sentirse nervioso/a o con los nervios de punta', 'No poder dejar de preocuparse', 'Dificultad para relajarse', 'Irritabilidad frecuente']),
-            'ranges' => [['min' => 0, 'max' => 3, 'label' => 'Sin indicios (ejemplo)'], ['min' => 4, 'max' => 7, 'label' => 'Leve (ejemplo)'], ['min' => 8, 'max' => 12, 'label' => 'Moderado a alto (ejemplo)']],
-        ]);
-        foreach ([['Influenza (estacional)', 365], ['Tétanos y difteria (dT)', 3650], ['Hepatitis B', null]] as [$n, $b]) {
-            Vaccine::firstOrCreate(['tenant_id' => $tenant, 'name' => $n], ['booster_every_days' => $b, 'is_active' => true, 'schedule' => []]);
         }
     }
 
@@ -326,16 +310,12 @@ class SeedDemo extends Command
     {
         $p = $this->patient($t, 7, ['name' => 'Elena Torrez Rojas', 'birth_date' => now()->subYears(45)->subMonths(7)->toDateString(), 'sex' => 'female', 'blood_type' => 'AB+', 'occupation' => 'Enfermera', 'marital_status' => 'divorced', 'city' => 'La Paz',
             'emergency_name' => 'Camila Torrez', 'emergency_phone' => '00000000', 'emergency_relation' => 'Hija', 'habits' => 'Duerme 5 horas. Café en exceso. Sin actividad física.', 'family_history' => 'Madre con depresión.']);
-        $q = Questionnaire::where('tenant_id', $t)->where('name', 'like', 'Tamizaje de ansiedad%')->first();
         $c = $this->note($p, 'consultation', 14, ['reason' => 'Nerviosismo, insomnio y palpitaciones hace 2 meses', 'current_illness' => 'Estrés laboral. Dificultad para conciliar el sueño y palpitaciones sin dolor torácico.', 'systems_review' => 'Sin pérdida de peso. Sin temblor.',
-            'physical_exam' => 'Ansiosa, colaboradora. Tiroides no palpable. Ruidos cardíacos rítmicos.', 'impression' => 'Trastorno de ansiedad, probable.', 'treatment' => 'Medidas de higiene del sueño. Psicoeducación.', 'plan' => 'Tamizaje y control en 4 semanas. Valorar derivación a psicología.'],
+            'physical_exam' => 'Ansiosa, colaboradora. Tiroides no palpable. Ruidos cardíacos rítmicos.', 'impression' => 'Trastorno de ansiedad, probable.', 'treatment' => 'Medidas de higiene del sueño. Psicoeducación.', 'plan' => 'Control en 4 semanas. Valorar derivación a psicología.'],
             ['systolic' => '126', 'diastolic' => '82', 'heart_rate' => '94', 'resp_rate' => '18', 'temperature_c' => '36.5', 'spo2' => '98', 'weight_kg' => '64', 'height_cm' => '160'],
-            function ($c, $items, $user) use ($q) {
+            function ($c, $items, $user) {
                 $items->addDiagnosis($c, ['source' => 'cie10', 'code' => 'F41.9', 'certainty' => 'presumptive', 'primary' => true], $user);
                 $items->addOrderItem($c, ['exam_name' => 'Electrocardiograma'], $user);
-                if ($q) {
-                    $items->answerQuestionnaire($c, $q, ['q1' => 2, 'q2' => 3, 'q3' => 2, 'q4' => 1], $user);
-                }
             });
         (new ConsultationService())->addendum($c, 'La paciente llamó para informar que el ECG fue normal. Se mantiene el plan.', $u);
         $this->charge($p, $c, 'Consulta', '180', 'cash', 14);
@@ -378,7 +358,7 @@ class SeedDemo extends Command
         }
 
         $byPatient = ['aero_clinica_consultations', 'aero_clinica_vitals', 'aero_clinica_diagnoses', 'aero_clinica_prescriptions', 'aero_clinica_orders',
-            'aero_clinica_lab_results', 'aero_clinica_vaccinations', 'aero_clinica_documents', 'aero_clinica_questionnaire_answers'];
+            'aero_clinica_lab_results', 'aero_clinica_vaccinations', 'aero_clinica_documents'];
         DB::transaction(function () use ($ids, $tenant, $byPatient) {
             $cons = DB::table('aero_clinica_consultations')->whereIn('patient_id', $ids)->pluck('id')->all();
             $rx = DB::table('aero_clinica_prescriptions')->whereIn('patient_id', $ids)->pluck('id')->all();

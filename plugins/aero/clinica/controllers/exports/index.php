@@ -1,9 +1,10 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/exports') ?>">Exportar datos</a></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('exports') ?>
 <div class="form-preview" style="max-width:760px">
     <p>Los datos de pacientes y del negocio son <strong>siempre del negocio</strong>. La exportación es un ZIP con todo en JSON (notas, signos vitales,
-        diagnósticos, recetas, órdenes, cuestionarios, vacunas, laboratorio y documentos, ya descifrados) y los archivos originales.</p>
+        diagnósticos, recetas, órdenes, vacunas, laboratorio y documentos, ya descifrados) y los archivos originales.</p>
     <p>La exportación de <strong>un paciente</strong> está en su ficha.</p>
     <?php if ($canBusiness): ?>
         <p><a class="btn btn-primary" href="<?= Backend::url('aero/clinica/exports/business') ?>">Descargar exportación completa del negocio</a></p>

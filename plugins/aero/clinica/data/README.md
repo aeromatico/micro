@@ -1,6 +1,6 @@
 # Catálogos globales de Aero.Clinica
 
-Se cargan con `php artisan clinica:import-cie10` / `clinica:import-liname`, nunca desde migraciones,
+Se cargan con `php artisan clinica:import-cie10`, nunca desde migraciones,
 y no llevan `tenant_id`: son los mismos para todos los negocios.
 
 ## CIE-10 (`cie10_es.tsv`)
@@ -21,11 +21,5 @@ y no llevan `tenant_id`: son los mismos para todos los negocios.
   (p. ej. duplicados con asterisco †/*) no están en la 2019. Es una diferencia de edición, no de extracción.
 - Los códigos con `*` en el título (p. ej. `(G01*)`) son las manifestaciones de la notación daga/asterisco de la propia OPS.
 
-## LINAME (Bolivia)
-- **Fuente oficial:** AGEMED, LINAME 2022-2024 (RM 0132, 6-abr-2022):
-  <https://www.agemed.gob.bo/reg-far/doc_reg_far/liname.pdf>.
-- **No se carga por defecto:** el PDF solo trae una capa de texto de OCR con errores sistemáticos (`mg`→`my`, `ml`→`mI`,
-  `0`↔`O`, `5`↔`S` en códigos ATC…). Importarlo tal cual dejaría concentraciones y nombres erróneos en recetas.
-- El comando `clinica:import-liname <archivo.csv>` acepta un CSV **verificado** (columnas: `code,name,form,concentration,atc,restricted`)
-  y NO acepta nada que no tenga ese formato. Hasta entonces el catálogo queda vacío y la receta usa texto libre
-  y el catálogo propio del negocio.
+## LINAME
+Ya no se usa: la receta no depende de una lista única de medicamentos.

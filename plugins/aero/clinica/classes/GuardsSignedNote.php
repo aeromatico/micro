@@ -1,7 +1,7 @@
 <?php namespace Aero\Clinica\Classes;
 
 /**
- * Lo que cuelga de una nota (diagnósticos, receta, órdenes, cuestionarios)
+ * Lo que cuelga de una nota (diagnósticos, receta, órdenes)
  * se bloquea cuando la nota se firma: no se crea, edita ni borra nada.
  */
 trait GuardsSignedNote

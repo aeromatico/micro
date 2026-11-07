@@ -49,13 +49,6 @@ $v = $c->vitals;
     <?php endforeach ?>
 <?php endif ?>
 
-<?php if (count($answers)): ?>
-    <h2>Cuestionarios</h2>
-    <?php foreach ($answers as $a): ?>
-        <div><strong><?= e($a->questionnaire_name) ?>:</strong> puntaje <?= e(rtrim(rtrim(number_format((float) $a->score, 2, '.', ''), '0'), '.')) ?><?= $a->interpretation ? ' — ' . e($a->interpretation) : '' ?></div>
-    <?php endforeach ?>
-<?php endif ?>
-
 <?php if (count($c->addenda)): ?>
     <h2>Adendas</h2>
     <?php foreach ($c->addenda as $a): ?>

@@ -41,6 +41,24 @@ class Today extends Controller
         $this->vars['rows'] = $bookings->map(fn ($b) => $this->row($b))->all();
     }
 
+    /** Confirma una reserva pendiente con el servicio de Office (queda en su historial); no cambia nada por su cuenta. */
+    public function index_onConfirm()
+    {
+        $booking = $this->bookingOrFail((int) post('booking_id'));
+        if ($booking->status !== 'pending') {
+            throw new \ApplicationException('La reserva ya no está pendiente.');
+        }
+
+        try {
+            app(\Aero\Office\Classes\BookingService::class)->confirm($booking, BackendAuth::getUser()?->id);
+        } catch (\Aero\Office\Classes\OfficeException $e) {
+            throw new \ApplicationException($e->getMessage());
+        }
+        \Flash::success('Reserva ' . $booking->code . ' confirmada.');
+
+        return \Redirect::refresh();
+    }
+
     public function booking($id = null): void
     {
         $b = $this->bookingOrFail($id);

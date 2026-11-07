@@ -20,7 +20,6 @@ use Aero\Clinica\Models\ClinicaDocument;
 use Aero\Clinica\Models\ClinicaFile;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Vaccination;
-use Aero\Clinica\Models\Vaccine;
 use Illuminate\Http\UploadedFile;
 use PluginTestCase;
 
@@ -125,7 +124,7 @@ class ComplementsTest extends PluginTestCase
 
     public function testMigrationsCreateTables(): void
     {
-        foreach (['files', 'imports', 'vaccines', 'vaccinations', 'document_templates', 'documents'] as $t) {
+        foreach (['files', 'imports', 'vaccinations', 'document_templates', 'documents'] as $t) {
             $this->assertTrue(\Schema::hasTable('aero_clinica_' . $t), "Falta aero_clinica_{$t}");
         }
         $this->assertTrue(\Schema::hasColumn('aero_clinica_lab_results', 'file_id'));
@@ -248,53 +247,15 @@ class ComplementsTest extends PluginTestCase
 
     // ---- Vacunación ----
 
-    protected function vaccine(int $tenant = 1, array $over = []): Vaccine
-    {
-        return Vaccine::create($over + [
-            'tenant_id' => $tenant, 'name' => 'Vacuna de prueba', 'is_active' => true, 'booster_every_days' => 365,
-            'schedule' => [['label' => '1.ª dosis'], ['label' => '2.ª dosis', 'after_days' => 21], ['label' => '3.ª dosis', 'after_days' => 30]],
-        ]);
-    }
-
-    public function testVaccineScheduleValidation(): void
-    {
-        $this->expectException(\ApplicationException::class);
-        Vaccine::create(['tenant_id' => 1, 'name' => 'Mala', 'schedule' => [['label' => 'A'], ['label' => 'B']]]);
-    }
-
-    public function testDosesFollowTheBusinessScheduleAndComputeTheNextDue(): void
-    {
-        $p = $this->patient();
-        $v = $this->vaccine();
-        $svc = new VaccineService();
-        $day = now()->subDays(40)->startOfDay();
-
-        $d1 = $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => $day->toDateString(), 'lot' => 'L1'], $this->user());
-        $this->assertSame('1.ª dosis', $d1->dose_label);
-        $this->assertSame($day->copy()->addDays(21)->toDateString(), $d1->next_due_on->toDateString(), 'La 2.ª sale a los días del esquema');
-
-        $d2 = $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => $day->copy()->addDays(21)->toDateString()], $this->user());
-        $this->assertSame('2.ª dosis', $d2->dose_label);
-        $this->assertSame($day->copy()->addDays(51)->toDateString(), $d2->next_due_on->toDateString());
-
-        $d3 = $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => now()->toDateString()], $this->user());
-        $this->assertSame('3.ª dosis', $d3->dose_label);
-        $this->assertSame(now()->addDays(365)->toDateString(), $d3->next_due_on->toDateString(), 'Terminado el esquema, sigue el refuerzo periódico');
-
-        $d4 = $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => now()->toDateString()], $this->user());
-        $this->assertSame('Refuerzo', $d4->dose_label);
-    }
-
-    public function testManualNextDueOverridesAndFreeNameWorksWithoutCatalog(): void
+    public function testManualNextDueIsKeptAndNothingIsInvented(): void
     {
         $p = $this->patient();
         $d = (new VaccineService())->apply($p, ['vaccine_name' => 'Antitetánica', 'applied_on' => now()->toDateString(), 'next_due_on' => now()->addDays(10)->toDateString()], $this->user());
 
-        $this->assertNull($d->vaccine_id);
         $this->assertSame(now()->addDays(10)->toDateString(), $d->next_due_on->toDateString());
 
         $none = (new VaccineService())->apply($p, ['vaccine_name' => 'Otra', 'applied_on' => now()->toDateString()], $this->user());
-        $this->assertNull($none->next_due_on, 'Sin catálogo ni fecha no se inventa próxima dosis');
+        $this->assertNull($none->next_due_on, 'Sin fecha no se inventa próxima dosis');
     }
 
     public function testVaccineValidationRules(): void
@@ -306,7 +267,6 @@ class ComplementsTest extends PluginTestCase
             ['vaccine_name' => 'X', 'applied_on' => now()->addDay()->toDateString()],
             ['vaccine_name' => 'X', 'applied_on' => now()->toDateString(), 'next_due_on' => now()->subDays(3)->toDateString()],
             ['vaccine_name' => 'X', 'applied_on' => 'no es fecha'],
-            ['vaccine_id' => $this->vaccine(2)->id],
         ] as $bad) {
             try {
                 $svc->apply($p, $bad, $this->user());
@@ -317,11 +277,9 @@ class ComplementsTest extends PluginTestCase
         }
     }
 
-    public function testCalendarShowsOverdueUpcomingAndNotStarted(): void
+    public function testCalendarShowsOverdueAndUpcoming(): void
     {
         $p = $this->patient(1, 'linked');
-        $dog = $this->vaccine(1, ['name' => 'Triple viral']);
-        $this->vaccine(1, ['name' => 'Hepatitis B']);
 
         $svc = new VaccineService();
         $svc->apply($p, ['vaccine_name' => 'Vencida', 'applied_on' => now()->subDays(40)->toDateString(), 'next_due_on' => now()->subDays(5)->toDateString()], $this->user());
@@ -332,10 +290,6 @@ class ComplementsTest extends PluginTestCase
         $this->assertTrue($due->firstWhere(fn ($d) => $d['vaccination']->vaccine_name === 'Vencida')['overdue']);
         $this->assertFalse($due->firstWhere(fn ($d) => $d['vaccination']->vaccine_name === 'Próxima')['overdue']);
         $this->assertSame('Vencida', $due->first()['vaccination']->vaccine_name, 'Ordenadas por fecha');
-        $this->assertEqualsCanonicalizing(['Triple viral', 'Hepatitis B'], $cal['not_started']->pluck('name')->all(), 'Sin iniciar: lo del catálogo aún sin dosis');
-
-        $svc->apply($p, ['vaccine_id' => $dog->id, 'applied_on' => now()->toDateString()], $this->user());
-        $this->assertNotContains('Triple viral', $svc->calendar($p)['not_started']->pluck('name')->all());
     }
 
     // ---- Recordatorios ----
@@ -366,13 +320,12 @@ class ComplementsTest extends PluginTestCase
     {
         $p = $this->patient();
         $svc = new VaccineService();
-        $v = $this->vaccine();
         ClinicSettings::where('tenant_id', 1)->update(['vaccine_reminders' => true, 'reminder_days_before' => 7]);
-        $due = $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => now()->subDays(18)->toDateString()], $this->user());
+        $due = $svc->apply($p, ['vaccine_name' => 'Hepatitis B', 'applied_on' => now()->subDays(18)->toDateString(), 'next_due_on' => now()->addDays(3)->toDateString()], $this->user());
 
         $this->assertFalse(Reminders::alreadyApplied($due));
         // Se aplicó la siguiente dosis antes de que corriera el recordatorio: el aviso quedó sin objeto.
-        $svc->apply($p, ['vaccine_id' => $v->id, 'applied_on' => now()->toDateString()], $this->user());
+        $svc->apply($p, ['vaccine_name' => 'Hepatitis B', 'applied_on' => now()->toDateString()], $this->user());
         $this->assertTrue(Reminders::alreadyApplied($due->fresh()));
     }
 

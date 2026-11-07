@@ -39,12 +39,12 @@ class Reminders
     }
 
 
-    /** ¿Ya hay una dosis posterior de la misma vacuna? Entonces el aviso quedó sin objeto. */
+    /** ¿Ya hay una dosis posterior de la misma vacuna (mismo nombre)? Entonces el aviso quedó sin objeto. */
     public static function alreadyApplied(Vaccination $v): bool
     {
         return Vaccination::where('tenant_id', $v->tenant_id)->where('patient_id', $v->patient_id)
             ->where('id', '!=', $v->id)
-            ->where(fn ($q) => $v->vaccine_id ? $q->where('vaccine_id', $v->vaccine_id) : $q->where('vaccine_name', $v->vaccine_name))
+            ->where('vaccine_name', $v->vaccine_name)
             ->where('applied_on', '>', $v->applied_on)->exists();
     }
 }

@@ -7,18 +7,14 @@ use Aero\Clinica\Models\Diagnosis;
 use Aero\Clinica\Models\DiagnosisCatalog;
 use Aero\Clinica\Models\ExamCatalog;
 use Aero\Clinica\Models\LabResult;
-use Aero\Clinica\Models\Liname;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\Order;
 use Aero\Clinica\Models\OrderItem;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Prescription;
 use Aero\Clinica\Models\PrescriptionItem;
-use Aero\Clinica\Models\Questionnaire;
-use Aero\Clinica\Models\QuestionnaireAnswer;
 
 /**
- * Diagnósticos, receta, órdenes y cuestionarios de una nota, más el laboratorio
+ * Diagnósticos, receta y órdenes de una nota, más el laboratorio
  * manual del paciente. Solo el autor de un borrador toca la nota; lo firmado no
  * se modifica (además lo impone cada modelo con GuardsSignedNote).
  */
@@ -146,20 +142,10 @@ class ClinicalItems
     {
         $this->assertOpen($c, $user);
 
-        $source = (string) ($in['source'] ?? 'free');
         $name = trim((string) ($in['medication'] ?? ''));
         $ingredient = $in['active_ingredient'] ?? null;
         $strength = $in['strength'] ?? null;
         $presentation = $in['presentation'] ?? null;
-        if ($source === 'liname' && ($ref = Liname::find((int) ($in['ref_id'] ?? 0)))) {
-            $name = trim($ref->name . ' ' . $ref->concentration . ($ref->form ? ' (' . $ref->form . ')' : ''));
-            [$ingredient, $strength, $presentation] = [$ingredient ?: $ref->name, $strength ?: $ref->concentration, $presentation ?: $ref->form];
-        } elseif ($source === 'custom' && ($ref = Medication::forTenant((int) $c->tenant_id)->find((int) ($in['ref_id'] ?? 0)))) {
-            $name = trim($ref->name . ' ' . $ref->concentration . ($ref->form ? ' (' . $ref->form . ')' : ''));
-            [$ingredient, $strength, $presentation] = [$ingredient ?: $ref->name, $strength ?: $ref->concentration, $presentation ?: $ref->form];
-        } else {
-            $source = 'free';
-        }
         if ($name === '') {
             throw new ClinicaException('Indique el medicamento.');
         }
@@ -167,13 +153,37 @@ class ClinicalItems
         $rx = Prescription::firstOrCreate(['consultation_id' => $c->id], ['tenant_id' => $c->tenant_id, 'patient_id' => $c->patient_id]);
 
         return PrescriptionItem::create([
-            'tenant_id' => $c->tenant_id, 'prescription_id' => $rx->id, 'source' => $source,
+            'tenant_id' => $c->tenant_id, 'prescription_id' => $rx->id, 'source' => 'free',
             'position' => (int) PrescriptionItem::where('prescription_id', $rx->id)->max('position') + 1,
             'medication' => $this->t($name),
             'active_ingredient' => $this->t($ingredient), 'strength' => $this->t($strength), 'presentation' => $this->t($presentation),
             'dose' => $this->t($in['dose'] ?? null), 'route' => $this->t($in['route'] ?? null), 'frequency' => $this->t($in['frequency'] ?? null),
             'duration' => $this->t($in['duration'] ?? null), 'quantity' => $this->t($in['quantity'] ?? null), 'instructions' => $this->t($in['instructions'] ?? null),
         ]);
+    }
+
+    /**
+     * Sugerencias para la receta: medicamentos que ESTA clínica ya recetó (no hay lista oficial única ni catálogo).
+     * Los textos van cifrados, por eso se buscan en memoria sobre las recetas más recientes.
+     * @return array<int,array{text:string,ingredient:?string,strength:?string,presentation:?string}>
+     */
+    public function recentMedications(int $tenantId, string $q, int $limit = 10): array
+    {
+        $q = mb_strtolower(trim($q));
+        $out = [];
+        foreach (PrescriptionItem::where('tenant_id', $tenantId)->orderByDesc('id')->limit(400)->get() as $i) {
+            $text = trim((string) $i->medication);
+            $key = mb_strtolower($text);
+            if ($text === '' || isset($out[$key]) || ($q !== '' && !str_contains($key, $q) && !str_contains(mb_strtolower((string) $i->active_ingredient), $q))) {
+                continue;
+            }
+            $out[$key] = ['text' => $text, 'ingredient' => $i->active_ingredient, 'strength' => $i->strength, 'presentation' => $i->presentation];
+            if (count($out) >= $limit) {
+                break;
+            }
+        }
+
+        return array_values($out);
     }
 
     public function removePrescriptionItem(Consultation $c, int $itemId, $user): void
@@ -221,43 +231,6 @@ class ClinicalItems
             throw new ClinicaException('Examen no encontrado en la orden.');
         }
         $item->delete();
-    }
-
-    // ---- Cuestionarios ----
-
-    /** Guarda (o reemplaza) la respuesta de un cuestionario en la nota; el puntaje lo calcula el código. */
-    public function answerQuestionnaire(Consultation $c, Questionnaire $q, array $answers, $user): QuestionnaireAnswer
-    {
-        $this->assertOpen($c, $user);
-        if ((int) $q->tenant_id !== (int) $c->tenant_id || !$q->is_active) {
-            throw new ClinicaException('Cuestionario no disponible.');
-        }
-
-        $definition = ['questions' => $q->questions, 'ranges' => $q->ranges];
-        try {
-            $r = Questionnaire::evaluate($definition, $answers);
-        } catch (\ApplicationException $e) {
-            throw new ClinicaException($e->getMessage());
-        }
-
-        $row = QuestionnaireAnswer::firstOrNew(['consultation_id' => $c->id, 'questionnaire_id' => $q->id]);
-        $row->fill([
-            'tenant_id' => $c->tenant_id, 'patient_id' => $c->patient_id, 'questionnaire_name' => $q->name, 'definition' => $definition,
-            'answers' => $r['answers'], 'score' => $r['score'], 'interpretation' => $r['interpretation'], 'user_id' => $user->id, 'answered_at' => now(),
-        ]);
-        $row->save();
-
-        return $row;
-    }
-
-    public function removeAnswer(Consultation $c, int $answerId, $user): void
-    {
-        $this->assertOpen($c, $user);
-        $row = QuestionnaireAnswer::where('consultation_id', $c->id)->find($answerId);
-        if (!$row) {
-            throw new ClinicaException('Respuesta no encontrada.');
-        }
-        $row->delete();
     }
 
     // ---- Laboratorio manual (por paciente) ----

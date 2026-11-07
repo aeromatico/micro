@@ -5,7 +5,6 @@ Medicina humana para consultorios, centros de salud y clínicas. Datos de salud:
 ## Diseño
 - Pensado solo para pacientes humanos.
 - `Classes\VitalsSchema`: signos vitales (PA, FC, FR, temperatura, SpO2, peso, talla, IMC calculado).
-- Plantillas de nota por negocio (`NoteTemplate`), cuestionarios, analitos, exámenes, medicamentos y rangos: tablas por negocio.
 
 ## Diagnósticos: CIE-10
 - Búsqueda por código o nombre sobre el catálogo global CIE-10 (`aero_clinica_cie10`, OPS/OMS en español; ver `data/README.md`).
@@ -13,13 +12,12 @@ Medicina humana para consultorios, centros de salud y clínicas. Datos de salud:
 - Cada diagnóstico es principal/secundario (uno solo principal) y presuntivo/confirmado. Se bloquean al firmar y entran en la huella de la nota.
 
 ## Receta
-- LINAME (Bolivia) si está cargada + medicamentos del negocio + texto libre. La LINAME **no viene cargada** (el PDF oficial
-  solo trae OCR con errores; ver `data/README.md`): hasta entonces, medicamentos del negocio o texto libre.
-- Dosis, vía, frecuencia, duración, cantidad e indicaciones las escribe siempre el profesional. Todo va cifrado.
+- Texto libre con sugerencias de los medicamentos que la propia clínica ya recetó: **no hay catálogo ni lista única** (en Bolivia no se limita a la LINAME).
+- Principio activo, concentración, presentación, dosis, vía, frecuencia, duración, cantidad e indicaciones las escribe siempre el profesional. Todo va cifrado.
 
 ## Fase 4: vacunas, archivos, documentos, importación y exportación
-- **Vacunación:** catálogo y esquema (dosis y días entre una y otra, refuerzo periódico) definidos por el negocio; el sistema no trae cifras.
-  La próxima dosis sale del esquema o se indica a mano. Calendario del paciente con vencidas/próximas y «Agendar» (Office, `BookingService`).
+- **Vacunación:** registro de dosis (nombre libre con sugerencias, dosis, lote, fabricante, vía/sitio, próxima dosis). Sin catálogo ni esquema de fábrica.
+  Calendario del paciente con vencidas/próximas y «Agendar» (Office, `BookingService`).
 - **Recordatorios:** `clinica:remind` (diario 09:00). Apagado por defecto, por negocio (`vaccine_reminders`). Notify `clinica.vaccine.due`;
   en personas el aviso no nombra la vacuna. El evento `aero.clinica.vaccineDue` lleva solo ids.
 - **Archivos clínicos:** cifrados en disco (`storage/app/clinica-private`, nombre aleatorio), tipo decidido por el contenido (PDF, PNG, JPG, WebP, Word, texto),
@@ -44,11 +42,9 @@ Medicina humana para consultorios, centros de salud y clínicas. Datos de salud:
 
 ## Seguridad
 - Texto clínico cifrado en la BD (`encrypted`). Firma y sello cifrados en la BD (nginx publica `storage/`, ni el disco «protegido» es privado).
-- Nota firmada = inmutable (modelo + huella SHA-256 con contenido, signos vitales, diagnósticos, receta, órdenes y cuestionarios). Cambios = adendas.
 - Bitácora inmutable de accesos y cambios (solo nombres de campos). Eventos `aero.clinica.*` llevan solo ids (Aero.Api reenvía a webhooks lo que viaja en eventos).
 - Recepción no ve contenido clínico (campos con `permissions`, pantallas con `requiredPermissions`).
 
 ## Qué NO hay (a propósito)
-- Rangos «alto/bajo» y cuestionarios clínicos de fábrica: los define el negocio. Sin rango no se marca nada en rojo.
 - Quintos caracteres opcionales de la CIE-10 (sitio en M, fracturas abiertas/cerradas).
 - Firma electrónica certificada: la firma es una imagen para impresión; la integridad la da la huella.

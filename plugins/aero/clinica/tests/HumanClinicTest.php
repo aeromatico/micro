@@ -9,7 +9,6 @@ use Aero\Clinica\Classes\VaccineService;
 use Aero\Clinica\Models\ClinicSettings;
 use Aero\Clinica\Models\DocumentTemplate;
 use Aero\Clinica\Models\LabResult;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\OrderItem;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\PrescriptionItem;
@@ -56,9 +55,8 @@ class HumanClinicTest extends PluginTestCase
     public function testPrescriptionKeepsActiveIngredientStrengthAndPresentation(): void
     {
         $c = $this->note($this->patient());
-        $med = Medication::create(['tenant_id' => 1, 'name' => 'Amoxicilina', 'concentration' => '500 mg', 'form' => 'cápsulas']);
 
-        $it = (new ClinicalItems())->addPrescriptionItem($c, ['source' => 'custom', 'ref_id' => $med->id, 'dose' => '1 cápsula', 'route' => 'oral', 'frequency' => 'cada 8 h', 'duration' => '7 días', 'quantity' => '21'], $this->user());
+        $it = (new ClinicalItems())->addPrescriptionItem($c, ['medication' => 'Amoxicilina 500 mg', 'active_ingredient' => 'Amoxicilina', 'strength' => '500 mg', 'presentation' => 'cápsulas', 'dose' => '1 cápsula', 'route' => 'oral', 'frequency' => 'cada 8 h', 'duration' => '7 días', 'quantity' => '21'], $this->user());
         $this->assertSame('Amoxicilina', $it->active_ingredient);
         $this->assertSame('500 mg', $it->strength);
         $this->assertSame('cápsulas', $it->presentation);
@@ -67,6 +65,29 @@ class HumanClinicTest extends PluginTestCase
         $raw = \DB::table('aero_clinica_prescription_items')->where('id', $free->id)->first();
         $this->assertStringNotContainsString('Paracetamol', (string) $raw->active_ingredient, 'Cifrado en reposo');
         $this->assertSame('1 g', PrescriptionItem::find($free->id)->strength);
+    }
+
+    public function testRecentMedicationsSuggestOnlyWhatThisClinicAlreadyPrescribed(): void
+    {
+        $items = new ClinicalItems();
+        $c = $this->note($this->patient());
+        $items->addPrescriptionItem($c, ['medication' => 'Amoxicilina 500 mg', 'active_ingredient' => 'Amoxicilina', 'strength' => '500 mg', 'presentation' => 'cápsulas'], $this->user());
+        $items->addPrescriptionItem($c, ['medication' => 'Paracetamol 500 mg', 'active_ingredient' => 'Paracetamol'], $this->user());
+        $items->addPrescriptionItem($c, ['medication' => 'Amoxicilina 500 mg'], $this->user());
+
+        $this->assertSame(['Amoxicilina 500 mg', 'Paracetamol 500 mg'], array_column($items->recentMedications(1, ''), 'text'), 'Sin repetir, lo más reciente primero');
+        $hit = $items->recentMedications(1, 'paracetamol');
+        $this->assertCount(1, $hit);
+        $this->assertSame('Paracetamol', $hit[0]['ingredient']);
+        $this->assertSame([], $items->recentMedications(2, ''), 'Cada clínica ve solo lo suyo');
+    }
+
+    public function testNoMedicationOrVaccineCatalogsExist(): void
+    {
+        foreach (['liname', 'medications', 'vaccines'] as $t) {
+            $this->assertFalse(\Schema::hasTable('aero_clinica_' . $t), "No debe existir aero_clinica_{$t}");
+        }
+        $this->assertFalse(\Schema::hasColumn('aero_clinica_vaccinations', 'vaccine_id'));
     }
 
     public function testLabResultUsesItsOwnReferenceAndFlagsOutOfRange(): void
@@ -150,6 +171,18 @@ class HumanClinicTest extends PluginTestCase
         $this->assertStringNotContainsString('{{', $text);
     }
 
+    public function testEveryHintBelongsToAMenuScreenAndStartIsFirst(): void
+    {
+        $menu = (new \Aero\Clinica\Plugin($this->app))->registerNavigation()['clinica']['sideMenu'];
+        $this->assertSame('start', array_key_first($menu), 'Primeros pasos va primero');
+        foreach (array_keys(\Aero\Clinica\Classes\Hints::TEXT) as $screen) {
+            $this->assertArrayHasKey($screen, $menu, "La ayuda «{$screen}» no corresponde a un ítem del menú");
+            $this->assertStringContainsString('cl-hint', \Aero\Clinica\Classes\Hints::render($screen));
+        }
+        $this->assertSame('', \Aero\Clinica\Classes\Hints::render('no-existe'));
+        $this->assertStringNotContainsString('<script', \Aero\Clinica\Classes\Hints::render('ranges'));
+    }
+
     public function testNoVeterinaryLeftovers(): void
     {
         $this->assertFalse(\Schema::hasColumn('aero_clinica_patients', 'species'));
@@ -158,6 +191,8 @@ class HumanClinicTest extends PluginTestCase
         $this->assertFalse(\Schema::hasColumn('aero_clinica_settings', 'mode'));
         $this->assertFalse(\Schema::hasTable('aero_clinica_dewormings'));
         $this->assertFalse(\Schema::hasTable('aero_clinica_grooming_visits'));
+        $this->assertFalse(\Schema::hasTable('aero_clinica_questionnaires'));
+        $this->assertFalse(\Schema::hasTable('aero_clinica_questionnaire_answers'));
         $this->assertFalse(class_exists(\Aero\Clinica\Classes\Mode::class));
     }
 }

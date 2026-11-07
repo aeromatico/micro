@@ -11,16 +11,12 @@ use Aero\Clinica\Models\ExamCatalog;
 use Aero\Clinica\Models\LabResult;
 use Aero\Clinica\Models\ClinicaDocument;
 use Aero\Clinica\Models\ClinicaFile;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\NoteTemplate;
 use Aero\Clinica\Models\Order;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Prescription;
-use Aero\Clinica\Models\Questionnaire;
-use Aero\Clinica\Models\QuestionnaireAnswer;
 use Aero\Clinica\Models\Range;
 use Aero\Clinica\Models\Vaccination;
-use Aero\Clinica\Models\Vaccine;
 use Aero\Clinica\Models\Vitals;
 
 /**
@@ -102,14 +98,11 @@ class Exporter
                     'diagnosticos' => Diagnosis::where('consultation_id', $c->id)->orderBy('position')->get()->map(fn ($d) => static::model($d, ['id', 'tenant_id', 'patient_id', 'consultation_id', 'created_at', 'updated_at']))->all(),
                     'receta' => $rx ? ['notas' => $rx->notes, 'medicamentos' => $rx->items->map(fn ($i) => static::model($i, ['id', 'tenant_id', 'prescription_id', 'created_at', 'updated_at']))->all()] : null,
                     'ordenes' => $ord ? ['notas' => $ord->notes, 'examenes' => $ord->items->map(fn ($i) => static::model($i, ['id', 'tenant_id', 'order_id', 'created_at', 'updated_at']))->all()] : null,
-                    'cuestionarios' => QuestionnaireAnswer::where('consultation_id', $c->id)->get()->map(fn ($a) => [
-                        'cuestionario' => $a->questionnaire_name, 'puntaje' => $a->score, 'interpretacion' => $a->interpretation, 'respuestas' => $a->readable(), 'fecha' => $a->answered_at?->toIso8601String(),
-                    ])->all(),
                     'adendas' => Addendum::where('consultation_id', $c->id)->orderBy('id')->get()->map(fn ($a) => ['autor' => $a->user_name, 'fecha' => $a->created_at?->toIso8601String(), 'texto' => $a->body])->all(),
                 ];
             })->all(),
-            'vacunas' => Vaccination::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('applied_on')->get()->map(fn ($v) => static::model($v, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
             'laboratorio' => LabResult::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('measured_on')->get()->map(fn ($l) => static::model($l, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
+            'vacunas' => Vaccination::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('applied_on')->get()->map(fn ($v) => static::model($v, ['id', 'tenant_id', 'patient_id', 'created_at', 'updated_at']))->all(),
             'documentos' => ClinicaDocument::withTrashed()->where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderBy('id')->get()->map(fn ($d) => [
                 'tipo' => $d->kind, 'titulo' => $d->title, 'estado' => $d->status, 'emitido' => $d->issued_at?->toIso8601String(), 'profesional' => $d->professional_name, 'texto' => $d->body, 'huella' => $d->content_hash,
             ])->all(),
@@ -145,11 +138,8 @@ class Exporter
             'plantillas_de_nota' => $plain(NoteTemplate::where('tenant_id', $tenantId)),
             'formatos_de_documento' => $plain(DocumentTemplate::where('tenant_id', $tenantId)),
             'diagnosticos_del_negocio' => $plain(DiagnosisCatalog::where('tenant_id', $tenantId)),
-            'medicamentos' => $plain(Medication::where('tenant_id', $tenantId)),
             'examenes' => $plain(ExamCatalog::where('tenant_id', $tenantId)),
             'analitos' => $plain(Analyte::where('tenant_id', $tenantId)),
-            'cuestionarios' => $plain(Questionnaire::where('tenant_id', $tenantId)),
-            'vacunas' => $plain(Vaccine::where('tenant_id', $tenantId)),
             'rangos' => $plain(Range::where('tenant_id', $tenantId)),
         ];
     }

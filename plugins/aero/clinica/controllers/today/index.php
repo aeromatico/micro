@@ -1,6 +1,7 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/today') ?>">Agenda de hoy</a></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('today') ?>
 <?php if (!$office): ?>
     <p class="flash-message static warning">La agenda usa Aero.Office (Reservas), que no está instalado. Puede abrir pacientes y escribir notas desde Pacientes.</p>
 <?php elseif (!$rows): ?>

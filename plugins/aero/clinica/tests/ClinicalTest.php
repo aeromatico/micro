@@ -12,12 +12,9 @@ use Aero\Clinica\Models\Consultation;
 use Aero\Clinica\Models\Diagnosis;
 use Aero\Clinica\Models\DiagnosisCatalog;
 use Aero\Clinica\Models\LabResult;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Prescription;
 use Aero\Clinica\Models\PrescriptionItem;
-use Aero\Clinica\Models\Questionnaire;
-use Aero\Clinica\Models\QuestionnaireAnswer;
 use Aero\Clinica\Models\Range;
 use PluginTestCase;
 
@@ -80,8 +77,8 @@ class ClinicalTest extends PluginTestCase
 
     public function testMigrationsCreateTables(): void
     {
-        foreach (['cie10', 'liname', 'diagnosis_catalog', 'diagnoses', 'medications', 'prescriptions', 'prescription_items', 'exam_catalog', 'orders', 'order_items',
-                  'questionnaires', 'questionnaire_answers', 'analytes', 'lab_results', 'ranges'] as $t) {
+        foreach (['cie10', 'diagnosis_catalog', 'diagnoses', 'prescriptions', 'prescription_items', 'exam_catalog', 'orders', 'order_items',
+                  'analytes', 'lab_results', 'ranges'] as $t) {
             $this->assertTrue(\Schema::hasTable('aero_clinica_' . $t), "Falta aero_clinica_{$t}");
         }
     }
@@ -103,19 +100,6 @@ class ClinicalTest extends PluginTestCase
 
         $this->assertSame(0, \Artisan::call('clinica:import-cie10'));
         $this->assertSame(1, Cie10::where('code', 'A00.0')->count(), 'La importación es idempotente');
-    }
-
-    public function testLinameImportRejectsUnexpectedFiles(): void
-    {
-        $f = tempnam(sys_get_temp_dir(), 'lin');
-        file_put_contents($f, "nombre,forma\nParacetamol,Comprimido\n");
-        $this->assertSame(1, \Artisan::call('clinica:import-liname', ['file' => $f]));
-        $this->assertSame(0, \Aero\Clinica\Models\Liname::count());
-
-        file_put_contents($f, "code,name,form,concentration,atc,restricted\nN02 01 01,Paracetamol,Comprimido,500 mg,N02BE01,\n");
-        $this->assertSame(0, \Artisan::call('clinica:import-liname', ['file' => $f]));
-        $this->assertSame(1, \Aero\Clinica\Models\Liname::count());
-        unlink($f);
     }
 
     // ---- Diagnósticos ----
@@ -192,11 +176,10 @@ class ClinicalTest extends PluginTestCase
 
     public function testPrescriptionItemsAreEncryptedAndLockedWhenSigned(): void
     {
-        $med = Medication::create(['tenant_id' => 1, 'name' => 'Amoxicilina', 'form' => 'Cápsula', 'concentration' => '500 mg']);
         $c = $this->note();
-        $i = $this->items()->addPrescriptionItem($c, ['source' => 'custom', 'ref_id' => $med->id, 'dose' => '1 cápsula', 'frequency' => 'cada 8 h', 'duration' => '7 días'], $this->user());
+        $i = $this->items()->addPrescriptionItem($c, ['medication' => 'Amoxicilina 500 mg (Cápsula)', 'dose' => '1 cápsula', 'frequency' => 'cada 8 h', 'duration' => '7 días'], $this->user());
 
-        $this->assertSame('Amoxicilina 500 mg (Cápsula)', $i->medication, 'El nombre sale del catálogo');
+        $this->assertSame('Amoxicilina 500 mg (Cápsula)', $i->medication);
         $this->assertStringNotContainsString('Amoxicilina', (string) \DB::table('aero_clinica_prescription_items')->where('id', $i->id)->value('medication'));
 
         $this->items()->addPrescriptionItem($c, ['medication' => 'Suero oral', 'instructions' => 'Tomar en pequeños sorbos'], $this->user());
@@ -250,7 +233,7 @@ class ClinicalTest extends PluginTestCase
         // Es lo que hacen las pantallas y la impresión: cargar las relaciones con with().
         $this->assertSame(['Primero', 'Segundo'], Prescription::with('items')->first()->items->pluck('medication')->all());
         $this->assertSame(['Uno', 'Dos'], \Aero\Clinica\Models\Order::with('items')->first()->items->pluck('exam_name')->all());
-        $n = Consultation::with(['diagnoses', 'addenda', 'answers'])->find($c->id);
+        $n = Consultation::with(['diagnoses', 'addenda'])->find($c->id);
         $this->assertSame(['I10', 'E11'], $n->diagnoses->pluck('code')->all());
         $this->assertCount(0, $n->addenda);
     }
@@ -263,7 +246,7 @@ class ClinicalTest extends PluginTestCase
         $this->items()->addPrescriptionItem($c, ['medication' => 'X'], $this->user(8));
     }
 
-    public function testSignatureHashCoversDiagnosesRxAndQuestionnaires(): void
+    public function testSignatureHashCoversDiagnosesAndRx(): void
     {
         $this->cie();
         $c = $this->note();
@@ -275,79 +258,6 @@ class ClinicalTest extends PluginTestCase
         // Alguien con acceso a la BD cambia el diagnóstico saltándose el modelo.
         \DB::table('aero_clinica_diagnoses')->where('consultation_id', $c->id)->update(['label' => 'Otra cosa']);
         $this->assertFalse(Consultation::find($c->id)->integrityOk(), 'Cambiar un diagnóstico firmado rompe la huella');
-    }
-
-    // ---- Cuestionarios ----
-
-    protected function ipssLike(): Questionnaire
-    {
-        $opts = [['label' => 'Nunca', 'score' => 0], ['label' => 'A veces', 'score' => 1], ['label' => 'Siempre', 'score' => 2]];
-
-        return Questionnaire::create([
-            'tenant_id' => 1, 'name' => 'Cuestionario de prueba', 'is_active' => true,
-            'questions' => [['text' => 'Pregunta uno', 'options' => $opts], ['text' => 'Pregunta dos', 'options' => $opts], ['text' => 'Pregunta tres', 'options' => $opts]],
-            'ranges' => [['min' => 0, 'max' => 2, 'label' => 'Leve'], ['min' => 3, 'max' => 4, 'label' => 'Moderado'], ['min' => 5, 'max' => 6, 'label' => 'Severo']],
-        ]);
-    }
-
-    public function testQuestionnaireScoreIsSummedByCodeWithInclusiveRanges(): void
-    {
-        $q = $this->ipssLike();
-        $def = ['questions' => $q->questions, 'ranges' => $q->ranges];
-
-        $r = Questionnaire::evaluate($def, ['q1' => 0, 'q2' => 1, 'q3' => 1]);
-        $this->assertSame(2.0, $r['score']);
-        $this->assertSame('Leve', $r['interpretation'], 'El límite superior del rango es inclusivo');
-
-        $this->assertSame('Moderado', Questionnaire::evaluate($def, ['q1' => 2, 'q2' => 1, 'q3' => 0])['interpretation']);
-        $this->assertSame('Severo', Questionnaire::evaluate($def, ['q1' => 2, 'q2' => 2, 'q3' => 2])['interpretation']);
-    }
-
-    public function testQuestionnaireRejectsMissingAnswersAndBadDefinitions(): void
-    {
-        $q = $this->ipssLike();
-        try {
-            Questionnaire::evaluate(['questions' => $q->questions, 'ranges' => $q->ranges], ['q1' => 0, 'q2' => 9, 'q3' => 1]);
-            $this->fail('Una opción inexistente debe rechazarse');
-        } catch (\ApplicationException $e) {
-            $this->assertStringContainsString('Pregunta dos', $e->getMessage());
-        }
-
-        $this->expectException(\ApplicationException::class);
-        Questionnaire::create(['tenant_id' => 1, 'name' => 'Mal', 'questions' => [['text' => 'Una', 'options' => [['label' => 'Solo', 'score' => 1]]]]]);
-    }
-
-    public function testQuestionnaireAnswersAreStoredEncryptedReplacedAndLocked(): void
-    {
-        $q = $this->ipssLike();
-        $c = $this->note();
-
-        $a = $this->items()->answerQuestionnaire($c, $q, ['q1' => 1, 'q2' => 1, 'q3' => 1], $this->user());
-        $this->assertSame(3.0, (float) $a->score);
-        $this->assertSame('Moderado', $a->interpretation);
-        $this->assertStringNotContainsString('q1', (string) \DB::table('aero_clinica_questionnaire_answers')->value('answers'));
-
-        $this->items()->answerQuestionnaire($c, $q, ['q1' => 0, 'q2' => 0, 'q3' => 0], $this->user());
-        $this->assertSame(1, QuestionnaireAnswer::where('consultation_id', $c->id)->count(), 'Responder de nuevo reemplaza');
-        $this->assertSame('Leve', QuestionnaireAnswer::first()->interpretation);
-
-        // Cambiar la definición después no altera lo respondido (tiene su foto).
-        $q->ranges = [['min' => 0, 'max' => 10, 'label' => 'Otro']];
-        $q->save();
-        $this->assertSame('Leve', QuestionnaireAnswer::first()->interpretation);
-
-        $this->sign($c);
-        $this->expectException(\ApplicationException::class);
-        QuestionnaireAnswer::first()->update(['score' => 99]);
-    }
-
-    public function testAnotherTenantsQuestionnaireIsNotUsable(): void
-    {
-        $q = $this->ipssLike();
-        $c = $this->note(2);
-
-        $this->expectException(ClinicaException::class);
-        $this->items()->answerQuestionnaire($c, $q, ['q1' => 0, 'q2' => 0, 'q3' => 0], $this->user());
     }
 
     // ---- Rangos ----

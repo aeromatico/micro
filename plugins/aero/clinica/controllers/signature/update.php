@@ -1,6 +1,7 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/signature') ?>">Mi firma</a></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('signature') ?>
 <?php if (!$this->fatalError): ?>
 <?= Form::open(['class' => 'layout']) ?>
     <div class="layout-row"><?= $this->formRender() ?></div>

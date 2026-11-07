@@ -2,6 +2,7 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/charges') ?>">Cobros</a></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('charges') ?>
 <div class="form-preview" style="max-width:960px;margin-bottom:22px">
     <h4 style="margin-top:0">Registrar un cobro</h4>
     <?= Form::open(['data-request' => 'onCreate', 'style' => 'display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;align-items:end']) ?>

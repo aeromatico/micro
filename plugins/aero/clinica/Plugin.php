@@ -24,7 +24,6 @@ class Plugin extends PluginBase
     public function register(): void
     {
         $this->registerConsoleCommand('clinica:import-cie10', \Aero\Clinica\Console\ImportCie10::class);
-        $this->registerConsoleCommand('clinica:import-liname', \Aero\Clinica\Console\ImportLiname::class);
         $this->registerConsoleCommand('clinica:remind', \Aero\Clinica\Console\RemindCommand::class);
         $this->registerConsoleCommand('clinica:seed-demo', \Aero\Clinica\Console\SeedDemo::class);
     }
@@ -133,18 +132,16 @@ class Plugin extends PluginBase
                 'permissions' => $all,
                 'order'       => 526,
                 'sideMenu'    => [
+                    'start'     => $item('Primeros pasos', 'icon-list', 'start', $all),
                     'today'     => $item('Agenda de hoy', 'icon-calendar', 'today', $clinical),
                     'patients'  => $item('Pacientes', 'icon-users', 'patients', $all),
                     'consultations' => $item('Consultas', 'icon-heartbeat', 'consultations', $clinical),
                     'signature' => $item('Mi firma', 'icon-pencil', 'signature', $clinical),
                     'notetemplates' => $item('Plantillas de nota', 'icon-file-text', 'notetemplates', $owner),
                     'diagnosiscatalogs' => $item('Diagnósticos del negocio', 'icon-tags', 'diagnosiscatalogs', $catalog),
-                    'medications' => $item('Medicamentos', 'icon-tags', 'medications', $catalog),
                     'examcatalogs' => $item('Exámenes', 'icon-tags', 'examcatalogs', $catalog),
                     'analytes' => $item('Analitos', 'icon-tags', 'analytes', $catalog),
-                    'questionnaires' => $item('Cuestionarios', 'icon-file-text', 'questionnaires', $catalog),
                     'ranges' => $item('Rangos alto/bajo', 'icon-bar-chart', 'ranges', $catalog),
-                    'vaccines' => $item('Vacunas', 'icon-tags', 'vaccines', $catalog),
                     'documenttemplates' => $item('Formatos de documentos', 'icon-file-text', 'documenttemplates', $catalog),
                     'charges' => $item('Cobros', 'icon-list', 'charges', $billing),
                     'imports' => $item('Importar historias', 'icon-list', 'imports', $catalog),

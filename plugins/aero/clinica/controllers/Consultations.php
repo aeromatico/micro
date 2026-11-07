@@ -10,13 +10,9 @@ use Aero\Clinica\Classes\VitalsSchema;
 use Aero\Clinica\Models\Consultation;
 use Aero\Clinica\Models\Diagnosis;
 use Aero\Clinica\Models\ExamCatalog;
-use Aero\Clinica\Models\Liname;
-use Aero\Clinica\Models\Medication;
 use Aero\Clinica\Models\Order;
 use Aero\Clinica\Models\Prescription;
 use Aero\Clinica\Models\Professional;
-use Aero\Clinica\Models\Questionnaire;
-use Aero\Clinica\Models\QuestionnaireAnswer;
 use Backend\Classes\Controller;
 use BackendAuth;
 use BackendMenu;
@@ -67,18 +63,15 @@ class Consultations extends Controller
         $this->vars['dxList'] = Diagnosis::where('consultation_id', $c->id)->orderBy('position')->orderBy('id')->get();
         $this->vars['rx'] = Prescription::with('items')->where('consultation_id', $c->id)->first();
         $this->vars['order'] = Order::with('items')->where('consultation_id', $c->id)->first();
-        $this->vars['answers'] = QuestionnaireAnswer::where('consultation_id', $c->id)->orderBy('id')->get();
-        $this->vars['questionnaires'] = Questionnaire::forTenant((int) $c->tenant_id)->where('is_active', true)->orderBy('name')->get();
         $this->vars['exams'] = $this->examOptions((int) $c->tenant_id);
         $this->vars['dxResults'] = ['frequent' => collect(), 'cie' => collect(), 'custom' => collect()];
         $this->vars['medResults'] = collect();
-        $this->vars['openQuestionnaire'] = null;
     }
 
     /** Parciales de la página por nombre → selector que actualizan. */
     protected const PARTIALS = [
         'dx' => '#mc-dx', 'dxresults' => '#mc-dx-results', 'medresults' => '#mc-med-results', 'rx' => '#mc-rx',
-        'orders' => '#mc-orders', 'quest' => '#mc-quest', 'questform' => '#mc-quest-form',
+        'orders' => '#mc-orders',
     ];
 
     protected function refresh(Consultation $c, array $parts, array $vars = []): array
@@ -122,7 +115,6 @@ class Consultations extends Controller
             'business'   => $this->businessName((int) $c->tenant_id),
             'integrity'  => $c->integrityOk(),
             'dxList'     => Diagnosis::where('consultation_id', $c->id)->orderBy('position')->orderBy('id')->get(),
-            'answers'    => QuestionnaireAnswer::where('consultation_id', $c->id)->orderBy('id')->get(),
         ]));
     }
 
@@ -158,7 +150,7 @@ class Consultations extends Controller
         return \Backend::redirect('aero/clinica/consultations/update/' . $c->id);
     }
 
-    // ---- Diagnósticos, receta, órdenes y cuestionarios (cada handler refresca su parcial) ----
+    // ---- Diagnósticos, receta y órdenes (cada handler refresca su parcial) ----
 
     public function update_onSearchDx($id = null)
     {
@@ -205,8 +197,7 @@ class Consultations extends Controller
     {
         $c = $this->noteOrFail($id);
         $q = (string) post('med_q');
-        $fmt = fn ($src) => fn ($m) => ['source' => $src, 'id' => $m->id, 'text' => trim($m->name . ' ' . $m->concentration . ($m->form ? ' (' . $m->form . ')' : '')), 'ingredient' => $m->name, 'strength' => $m->concentration, 'presentation' => $m->form];
-        $res = Liname::search($q)->map($fmt('liname'))->concat(Medication::search((int) $c->tenant_id, $q, 8)->map($fmt('custom')));
+        $res = collect(app(ClinicalItems::class)->recentMedications((int) $c->tenant_id, $q));
 
         return $this->refresh($c, ['medresults'], ['medResults' => $res]);
     }
@@ -215,7 +206,7 @@ class Consultations extends Controller
     {
         $c = $this->noteOrFail($id);
         $this->guard(fn () => app(ClinicalItems::class)->addPrescriptionItem($c, [
-            'source' => post('rx_source'), 'ref_id' => post('rx_ref'), 'medication' => post('medication'), 'active_ingredient' => post('active_ingredient'), 'strength' => post('strength'), 'presentation' => post('presentation'), 'dose' => post('dose'), 'route' => post('route'),
+            'medication' => post('medication'), 'active_ingredient' => post('active_ingredient'), 'strength' => post('strength'), 'presentation' => post('presentation'), 'dose' => post('dose'), 'route' => post('route'),
             'frequency' => post('frequency'), 'duration' => post('duration'), 'quantity' => post('quantity'), 'instructions' => post('instructions'),
         ], BackendAuth::getUser()));
         return $this->refresh($c, ['rx', 'medresults']);
@@ -244,28 +235,6 @@ class Consultations extends Controller
         return $this->refresh($c, ['orders']);
     }
 
-    public function update_onOpenQuest($id = null)
-    {
-        $c = $this->noteOrFail($id);
-        $q = Questionnaire::forTenant((int) $c->tenant_id)->where('is_active', true)->findOrFail((int) post('questionnaire_id'));
-
-        return $this->refresh($c, ['questform'], ['openQuestionnaire' => $q]);
-    }
-
-    public function update_onAnswerQuest($id = null)
-    {
-        $c = $this->noteOrFail($id);
-        $q = Questionnaire::forTenant((int) $c->tenant_id)->where('is_active', true)->findOrFail((int) post('questionnaire_id'));
-        $this->guard(fn () => app(ClinicalItems::class)->answerQuestionnaire($c, $q, (array) post('a', []), BackendAuth::getUser()));
-        return $this->refresh($c, ['quest', 'questform']);
-    }
-
-    public function update_onRemoveQuest($id = null)
-    {
-        $c = $this->noteOrFail($id);
-        $this->guard(fn () => app(ClinicalItems::class)->removeAnswer($c, (int) post('answer_id'), BackendAuth::getUser()));
-        return $this->refresh($c, ['quest', 'questform']);
-    }
 
     // ---- Impresión de receta y órdenes ----
 

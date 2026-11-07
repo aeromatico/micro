@@ -1,6 +1,7 @@
 <?php Block::put('breadcrumb') ?>
     <ul><li><a href="<?= Backend::url('aero/clinica/imports') ?>">Importar historias anteriores</a></li></ul>
 <?php Block::endPut() ?>
+<?= \Aero\Clinica\Classes\Hints::render('imports') ?>
 <div class="form-preview" style="max-width:820px">
     <p>Suba historias anteriores (PDF, imágenes, Word o texto). Cada archivo se guarda <strong>cifrado y conserva el original</strong>.
         El sistema sugiere a qué paciente corresponde cada uno (por nombre o documento) y <strong>usted lo confirma</strong>: hasta entonces el archivo no está en ninguna ficha.</p>

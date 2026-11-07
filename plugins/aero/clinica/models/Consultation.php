@@ -39,7 +39,6 @@ class Consultation extends Model
     public $hasMany = [
         'addenda'   => [Addendum::class, 'key' => 'consultation_id', 'order' => 'id asc'],
         'diagnoses' => [Diagnosis::class, 'key' => 'consultation_id', 'order' => 'position asc'],
-        'answers'   => [QuestionnaireAnswer::class, 'key' => 'consultation_id', 'order' => 'id asc'],
     ];
 
     public function isSigned(): bool
@@ -105,11 +104,6 @@ class Consultation extends Model
             if ($items || $ord->notes) {
                 $extra['orders'] = ['notes' => $ord->notes, 'items' => $items];
             }
-        }
-        $qa = QuestionnaireAnswer::where('consultation_id', $this->id)->orderBy('id')->get()
-            ->map(fn ($a) => [(int) $a->questionnaire_id, $a->questionnaire_name, (string) (float) $a->score, (string) $a->interpretation, (array) $a->answers])->all();
-        if ($qa) {
-            $extra['questionnaires'] = $qa;
         }
 
         return hash('sha256', json_encode([

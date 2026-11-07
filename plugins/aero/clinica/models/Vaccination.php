@@ -11,7 +11,7 @@ class Vaccination extends Model
 
     public $table = 'aero_clinica_vaccinations';
 
-    public $fillable = ['tenant_id', 'patient_id', 'vaccine_id', 'vaccine_name', 'dose_label', 'applied_on', 'lot', 'manufacturer', 'route_site', 'next_due_on', 'applied_by', 'consultation_id', 'notes'];
+    public $fillable = ['tenant_id', 'patient_id', 'vaccine_name', 'dose_label', 'applied_on', 'lot', 'manufacturer', 'route_site', 'next_due_on', 'applied_by', 'consultation_id', 'notes'];
 
     public $casts = ['notes' => 'encrypted', 'applied_on' => 'date', 'next_due_on' => 'date'];
 
@@ -19,7 +19,6 @@ class Vaccination extends Model
 
     public $belongsTo = [
         'patient' => [Patient::class, 'key' => 'patient_id'],
-        'vaccine' => [Vaccine::class, 'key' => 'vaccine_id'],
     ];
 
     public function isOverdue(): bool

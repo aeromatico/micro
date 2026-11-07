@@ -2,28 +2,22 @@
 
 use Aero\Clinica\Models\Patient;
 use Aero\Clinica\Models\Vaccination;
-use Aero\Clinica\Models\Vaccine;
 use Carbon\Carbon;
 
-/** Dosis aplicadas, próxima dosis calculada desde el esquema del negocio y calendario del paciente. */
+/**
+ * Registro de dosis aplicadas y calendario del paciente. Sin catálogo ni esquema de fábrica: en Bolivia el esquema
+ * depende del programa, del proveedor y del criterio médico, así que el nombre, la dosis y la próxima fecha los
+ * indica el profesional. Sí sugiere nombres de vacunas que la clínica ya registró.
+ */
 class VaccineService
 {
     /**
-     * @param array{vaccine_id?:mixed,vaccine_name?:string,dose_label?:string,applied_on?:string,lot?:string,next_due_on?:string,notes?:string} $in
+     * @param array{vaccine_name?:string,dose_label?:string,applied_on?:string,lot?:string,manufacturer?:string,route_site?:string,next_due_on?:string,notes?:string} $in
      */
     public function apply(Patient $p, array $in, $user): Vaccination
     {
         $tenantId = (int) $p->tenant_id;
-        $vaccine = null;
         $name = trim((string) ($in['vaccine_name'] ?? ''));
-
-        if (!empty($in['vaccine_id'])) {
-            $vaccine = Vaccine::forTenant($tenantId)->find((int) $in['vaccine_id']);
-            if (!$vaccine) {
-                throw new ClinicaException('Vacuna no encontrada en el catálogo del negocio.');
-            }
-            $name = $vaccine->name;
-        }
         if ($name === '') {
             throw new ClinicaException('Indique la vacuna.');
         }
@@ -33,39 +27,33 @@ class VaccineService
             throw new ClinicaException('La fecha de aplicación no puede ser futura.');
         }
 
-        // Dosis que corresponde: la siguiente del esquema según las ya aplicadas de esta vacuna.
-        $done = $vaccine ? Vaccination::where('tenant_id', $tenantId)->where('patient_id', $p->id)->where('vaccine_id', $vaccine->id)->count() : 0;
         $dose = trim((string) ($in['dose_label'] ?? ''));
-        if ($dose === '' && $vaccine && ($d = $vaccine->doseAt($done))) {
-            $dose = $d['label'];
-        } elseif ($dose === '' && $vaccine && $done > 0) {
-            $dose = 'Refuerzo';
-        }
-
-        // Próxima dosis: la indicada a mano, o la que sale del esquema (dosis siguiente o refuerzo).
         $next = $this->date($in['next_due_on'] ?? null, 'Próxima dosis');
-        if (!$next && $vaccine && ($days = $vaccine->daysAfterDose($done)) !== null) {
-            $next = $appliedOn->copy()->addDays($days);
-        }
         if ($next && $next->lt($appliedOn)) {
             throw new ClinicaException('La próxima dosis no puede ser anterior a la aplicación.');
         }
 
+        $clean = fn (string $k, int $max) => trim((string) ($in[$k] ?? '')) !== '' ? mb_substr(trim((string) $in[$k]), 0, $max) : null;
+
         return Vaccination::create([
-            'tenant_id' => $tenantId, 'patient_id' => $p->id, 'vaccine_id' => $vaccine?->id, 'vaccine_name' => mb_substr($name, 0, 255),
+            'tenant_id' => $tenantId, 'patient_id' => $p->id, 'vaccine_name' => mb_substr($name, 0, 255),
             'dose_label' => $dose !== '' ? mb_substr($dose, 0, 255) : null, 'applied_on' => $appliedOn->toDateString(),
-            'lot' => trim((string) ($in['lot'] ?? '')) !== '' ? mb_substr(trim((string) $in['lot']), 0, 64) : null,
-            'manufacturer' => trim((string) ($in['manufacturer'] ?? '')) !== '' ? mb_substr(trim((string) $in['manufacturer']), 0, 128) : null,
-            'route_site' => trim((string) ($in['route_site'] ?? '')) !== '' ? mb_substr(trim((string) $in['route_site']), 0, 64) : null,
+            'lot' => $clean('lot', 64), 'manufacturer' => $clean('manufacturer', 128), 'route_site' => $clean('route_site', 64),
             'next_due_on' => $next?->toDateString(), 'applied_by' => $user->id,
-            'notes' => trim((string) ($in['notes'] ?? '')) !== '' ? mb_substr(trim((string) $in['notes']), 0, 2000) : null,
+            'notes' => $clean('notes', 2000),
         ]);
     }
 
+    /** Nombres de vacunas que la clínica ya registró (para sugerir al escribir). @return string[] */
+    public static function knownNames(int $tenantId, int $limit = 50): array
+    {
+        return Vaccination::where('tenant_id', $tenantId)->select('vaccine_name')->groupBy('vaccine_name')
+            ->orderByRaw('max(id) desc')->limit($limit)->pluck('vaccine_name')->all();
+    }
+
     /**
-     * Calendario del paciente: dosis aplicadas y lo pendiente. Lo pendiente es la próxima dosis de cada vacuna
-     * (solo la última aplicación de cada una cuenta) y las vacunas del catálogo aplicables aún sin iniciar.
-     * @return array{applied:\Illuminate\Support\Collection, due:array, not_started:\Illuminate\Support\Collection}
+     * Calendario del paciente: dosis aplicadas y lo pendiente (la próxima dosis de la última aplicación de cada vacuna).
+     * @return array{applied:\Illuminate\Support\Collection, due:array}
      */
     public function calendar(Patient $p): array
     {
@@ -73,7 +61,7 @@ class VaccineService
         $applied = Vaccination::where('tenant_id', $tenantId)->where('patient_id', $p->id)->orderByDesc('applied_on')->orderByDesc('id')->get();
 
         $due = [];
-        foreach ($applied->groupBy(fn ($v) => $v->vaccine_id ?: 'n:' . mb_strtolower($v->vaccine_name)) as $group) {
+        foreach ($applied->groupBy(fn ($v) => mb_strtolower($v->vaccine_name)) as $group) {
             $last = $group->first();
             if ($last->next_due_on) {
                 $due[] = ['vaccination' => $last, 'overdue' => $last->isOverdue(), 'due_on' => $last->next_due_on];
@@ -81,11 +69,7 @@ class VaccineService
         }
         usort($due, fn ($a, $b) => $a['due_on']->timestamp <=> $b['due_on']->timestamp);
 
-        $startedIds = $applied->pluck('vaccine_id')->filter()->unique()->all();
-        $notStarted = Vaccine::forTenant($tenantId)->where('is_active', true)->orderBy('name')->get()
-            ->filter(fn ($v) => !in_array($v->id, $startedIds, true));
-
-        return ['applied' => $applied, 'due' => $due, 'not_started' => $notStarted->values()];
+        return ['applied' => $applied, 'due' => $due];
     }
 
     protected function date($v, string $label): ?Carbon
