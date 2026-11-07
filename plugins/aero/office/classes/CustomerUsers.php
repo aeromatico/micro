@@ -15,7 +15,7 @@ class CustomerUsers
      * NUEVO recibe la invitación de RainLab para crear su contraseña (nunca se inicia sesión
      * por él: quien reservó no demostró ser dueño del correo).
      */
-    public function ensureUser(Customer $customer, ?string $resetUrl = null): User
+    public function ensureUser(Customer $customer, ?string $resetUrl = null, ?\Aero\Office\Models\Booking $booking = null): User
     {
         $this->created = false;
 
@@ -50,14 +50,42 @@ class CustomerUsers
         $customer->save();
 
         if ($this->created && $resetUrl) {
-            try {
-                $user->setUrlForPasswordReset($resetUrl);
-                $user->sendConfirmRegistrationNotification();
-            } catch (\Throwable $e) {
-                \Log::warning('[office] No se pudo enviar la invitación de cuenta: ' . $e->getMessage());
-            }
+            $this->sendAccountEmail($customer, $user, $resetUrl, $booking);
         }
 
         return $user;
+    }
+
+    /**
+     * Correo al email de la reserva con el usuario y el enlace para crear la contraseña. Va por el gateway de Notify
+     * (plantilla en español, con el nombre del negocio); solo si Notify no está se usa la invitación genérica de RainLab.
+     */
+    protected function sendAccountEmail(Customer $customer, User $user, string $resetUrl, ?\Aero\Office\Models\Booking $booking): void
+    {
+        if (Notifier::$muted) {
+            return;
+        }
+
+        // 1) Por el gateway de Notify (plantilla en español con el nombre del negocio).
+        try {
+            if (Notifier::available()) {
+                $token = \Illuminate\Support\Facades\Password::createToken($user);
+                $url = $resetUrl . (str_contains($resetUrl, '?') ? '&' : '?') . http_build_query(['reset' => $token, 'email' => $user->email, 'new' => true]);
+                if (Notifier::accountCreated($customer, $url, (int) \Config::get('auth.passwords.users.expire'), $booking)) {
+                    return;
+                }
+                \Log::error('[office] El correo de cuenta no salió por Notify (cliente ' . $customer->id . '); se usa el respaldo directo.');
+            }
+        } catch (\Throwable $e) {
+            \Log::error('[office] Falló el correo de cuenta por Notify (cliente ' . $customer->id . '): ' . $e->getMessage());
+        }
+
+        // 2) Respaldo: nunca dejar al cliente sin correo. Invitación de RainLab con el mismo enlace.
+        try {
+            $user->setUrlForPasswordReset($resetUrl);
+            $user->sendConfirmRegistrationNotification();
+        } catch (\Throwable $e) {
+            \Log::error('[office] No se pudo enviar ningún correo de cuenta al cliente ' . $customer->id . ': ' . $e->getMessage());
+        }
     }
 }

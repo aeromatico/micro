@@ -55,6 +55,44 @@ class Notifier
         }
     }
 
+    /**
+     * Correo de «cuenta creada al reservar»: el usuario es el correo de la reserva y el enlace permite fijar la contraseña
+     * (la contraseña nunca viaja por correo). Es transaccional: no depende de «Avisar al cliente», pero sí respeta $muted.
+     * @return bool true si se entregó al gateway; false si Notify no está o falló (el llamador decide el respaldo)
+     */
+    public static function accountCreated(\Aero\Office\Models\Customer $customer, string $setPasswordUrl, int $minutes, ?Booking $b = null): bool
+    {
+        if (self::$muted || !self::available() || !$customer->email) {
+            return false;
+        }
+
+        try {
+            $tenant = self::tenant($customer->tenant_id);
+            $settings = OfficeSettings::forTenant($customer->tenant_id);
+
+            \Aero\Notify\Classes\Notify::fire('office.account.created', [
+                'customer_name' => (string) $customer->name,
+                'email'         => (string) $customer->email,
+                'url'           => $setPasswordUrl,
+                'account_url'   => $tenant ? 'https://' . $tenant->primary_domain . '/cuenta' : '',
+                'minutes'       => (string) $minutes,
+                'code'          => (string) ($b?->code ?? ''),
+                'business_name' => (string) ($settings->business_name ?: $tenant?->name),
+                'tenant_name'   => $tenant?->name,
+            ], [
+                'tenant_id' => (int) $customer->tenant_id,
+                'actor'     => ['name' => $customer->name, 'email' => $customer->email, 'phone' => null],
+                'dedup_key' => 'office:account:' . $customer->id . ':' . ($customer->user_id ?: 0),
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            \Log::error('Aero.Office: no se pudo enviar el correo de cuenta del cliente ' . $customer->id . ': ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
     public static function context(Booking $b, ?OfficeSettings $settings = null): array
     {
         $b->loadMissing(['customer', 'branch', 'worker']);

@@ -242,4 +242,45 @@ class BookingTest extends PluginTestCase
         $this->assertSame($user->id, $again->id);
         $this->assertSame(1, \RainLab\User\Models\User::where('email', 'ana.cuenta@example.test')->count());
     }
+
+    public function testAccountEmailGoesThroughNotifyWithUserAndSetPasswordLink(): void
+    {
+        // Evento y plantilla registrados en Notify, y la plantilla solo usa variables declaradas.
+        $event = collect(\Aero\Notify\Classes\EventCatalog::all())->firstWhere('code', 'office.account.created');
+        $this->assertNotNull($event, 'office.account.created debe estar en el catálogo de Notify');
+        $this->assertSame(['email'], $event['default_channels']);
+        $tpl = \Aero\Notify\Classes\DefaultTemplates::TEXTS['office.account.created'] ?? null;
+        $this->assertNotNull($tpl, 'Falta la plantilla por defecto');
+        preg_match_all('/\{\{\s*([a-z_]+)/', $tpl[0] . ' ' . $tpl[1], $m);
+        foreach (array_unique($m[1]) as $var) {
+            $this->assertArrayHasKey($var, $event['variables_schema'], "La plantilla usa {{ {$var} }} sin declararla");
+        }
+        $this->assertStringContainsString('{{ email }}', $tpl[1], 'Debe decir cuál es el usuario');
+        $this->assertStringContainsString('{{ url }}', $tpl[1], 'Debe traer el enlace para crear la contraseña');
+        $this->assertStringNotContainsString('password', mb_strtolower($event['description'] . $tpl[1]), 'La contraseña nunca viaja por correo');
+
+        // La clínica también tiene su evento de vacuna registrado.
+        $this->assertNotNull(collect(\Aero\Notify\Classes\EventCatalog::all())->firstWhere('code', 'clinica.vaccine.due'));
+        $this->assertArrayHasKey('clinica.vaccine.due', \Aero\Notify\Classes\DefaultTemplates::TEXTS);
+    }
+
+    public function testAccountEmailIsSilencedWhenMutedAndNeverBreaksTheBooking(): void
+    {
+        $customer = Customer::create(['tenant_id' => 1, 'name' => 'Luz Cliente', 'email' => 'luz.cuenta@example.test']);
+
+        \Aero\Office\Classes\Notifier::$muted = true;
+        $this->assertFalse(\Aero\Office\Classes\Notifier::accountCreated($customer, 'https://x.test/cuenta/restablecer?reset=a', 60));
+
+        // Sin correo no hay a quién escribir; y un fallo del gateway no debe lanzar excepción.
+        \Aero\Office\Classes\Notifier::$muted = false;
+        $noMail = Customer::create(['tenant_id' => 1, 'name' => 'Sin Correo']);
+        $this->assertFalse(\Aero\Office\Classes\Notifier::accountCreated($noMail, 'https://x.test/r', 60));
+        \Aero\Office\Classes\Notifier::accountCreated($customer, 'https://x.test/r', 60); // sin tablas de Notify en la prueba: se traga el error
+
+        // Crear el usuario con URL de invitación no rompe aunque el envío falle.
+        $users = app(\Aero\Office\Classes\CustomerUsers::class);
+        $user = $users->ensureUser($customer, 'https://x.test/cuenta/restablecer');
+        $this->assertTrue($users->created);
+        $this->assertSame($user->id, $customer->fresh()->user_id);
+    }
 }

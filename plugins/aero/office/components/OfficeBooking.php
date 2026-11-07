@@ -247,7 +247,7 @@ class OfficeBooking extends ComponentBase
         if (!$this->user) {
             try {
                 $users = app(\Aero\Office\Classes\CustomerUsers::class);
-                $users->ensureUser($customer, request()->getSchemeAndHttpHost() . '/cuenta/restablecer');
+                $users->ensureUser($customer, request()->getSchemeAndHttpHost() . '/cuenta/restablecer', $booking);
                 $message = $users->created
                     ? 'Creamos tu cuenta. Te enviamos un correo para que definas tu contraseña y veas todas tus reservas en «Mi cuenta».'
                     : 'Ya tienes una cuenta con este correo: ingresa a «Mi cuenta» para ver tus reservas.';

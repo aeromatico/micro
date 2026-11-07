@@ -5,3 +5,6 @@
 1.1.0:
     - "Notificaciones de reservas por Aero.Notify (WhatsApp vía Hello y correo): acuse, confirmación, rechazo, cancelación, reprogramación y recordatorio al cliente; aviso al negocio de reservas nuevas y cambios del cliente. Interruptor y horas de recordatorio por negocio."
     - add_notifications.php
+
+1.1.1:
+    - "Al reservar por primera vez en el portal, el correo de la reserva ahora recibe un mensaje con su usuario y el enlace para crear su contraseña, con el nombre del negocio."
