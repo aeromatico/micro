@@ -232,3 +232,7 @@
 1.5.22:
     - "Avisos por correo y WhatsApp para Aero.Viral: postulación recibida, identidad, resultado y nivel, y alerta al equipo, con sus reglas y plantillas por defecto."
     - seed_viral_events.php
+
+1.5.23:
+    - "Al reservar en el portal por primera vez, el cliente ahora recibe un correo con su usuario y el enlace para crear su contraseña; y el recordatorio de vacunas de Clínica ya tiene su evento y plantilla."
+    - seed_clinica_and_office_account_events.php

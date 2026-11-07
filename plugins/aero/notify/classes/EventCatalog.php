@@ -626,6 +626,21 @@ class EventCatalog
             $mk('office.booking.rescheduled', 'Reserva reprogramada por el negocio', 'El negocio movió o reasignó la cita: se avisa al cliente.', ['actor'], ['whatsapp', 'email']),
             $mk('office.booking.rescheduled_by_customer', 'Reserva reprogramada por el cliente', 'El cliente movió su cita desde el portal.', ['tenant_admin'], ['inapp', 'push', 'email']),
             $mk('office.booking.reminder', 'Recordatorio de cita', 'Recordatorio al cliente antes de su cita (horas configurables por negocio).', ['actor'], ['whatsapp', 'email'], 4),
+            [
+                'code' => 'office.account.created', 'source_plugin' => 'Aero.Office', 'category' => 'bookings', 'name' => 'Cuenta creada al reservar',
+                'description' => 'Al reservar en el portal por primera vez se crea la cuenta del cliente: este correo le dice su usuario y le da el enlace para crear su contraseña.',
+                'priority' => 2, 'default_audiences' => ['actor'], 'default_channels' => ['email'],
+                'variables_schema' => [
+                    'customer_name' => ['type' => 'string', 'required' => true,  'label' => 'Cliente'],
+                    'email'         => ['type' => 'string', 'required' => true,  'label' => 'Usuario (el correo de la reserva)'],
+                    'url'           => ['type' => 'string', 'required' => true,  'label' => 'Enlace para crear la contraseña'],
+                    'account_url'   => ['type' => 'string', 'required' => false, 'label' => 'Enlace a Mi cuenta'],
+                    'minutes'       => ['type' => 'string', 'required' => false, 'label' => 'Minutos de vigencia del enlace'],
+                    'code'          => ['type' => 'string', 'required' => false, 'label' => 'Código de la reserva'],
+                    'business_name' => ['type' => 'string', 'required' => false, 'label' => 'Negocio'],
+                ] + self::TENANT_VARS,
+                'sample_context' => ['customer_name' => 'María Quispe', 'email' => 'maria@ejemplo.bo', 'url' => 'https://ejemplo.bo/cuenta/restablecer?reset=abc', 'account_url' => 'https://ejemplo.bo/cuenta', 'minutes' => '60', 'code' => 'K7M2QA', 'business_name' => 'Clínica Demo', 'tenant_name' => 'Demo'],
+            ],
         ];
     }
 
@@ -858,6 +873,12 @@ class EventCatalog
             'description' => 'Recordatorio al cliente o tutor de una dosis de vacuna que se acerca (se activa por negocio; apagado por defecto).',
             'priority' => 3, 'default_audiences' => ['actor'], 'default_channels' => ['whatsapp', 'email'],
             'variables_schema' => $vars + self::TENANT_VARS, 'sample_context' => $sample,
+        ], [
+            'code' => 'clinica.vaccine.due', 'source_plugin' => 'Aero.Clinica', 'category' => 'health', 'name' => 'Vacuna próxima (Clínica)',
+            'description' => 'Recordatorio al paciente de una dosis de vacuna que se acerca (se activa por negocio; apagado por defecto). No nombra la vacuna.',
+            'priority' => 3, 'default_audiences' => ['actor'], 'default_channels' => ['whatsapp', 'email'],
+            'variables_schema' => $vars + self::TENANT_VARS,
+            'sample_context' => ['customer_name' => 'María Quispe', 'patient_name' => 'Luis Rojas', 'vaccine_text' => 'una dosis de su esquema de vacunación', 'due_date' => 'martes 13/10', 'business_name' => 'Clínica Demo', 'tenant_name' => 'Demo'],
         ], [
             'code' => 'medical.deworming.due', 'source_plugin' => 'Aero.Medical', 'category' => 'health', 'name' => 'Desparasitación próxima',
             'description' => 'Recordatorio al tutor de una desparasitación que se acerca (se activa por negocio; apagado por defecto).',
