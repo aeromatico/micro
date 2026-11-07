@@ -81,8 +81,9 @@ class SeedDemo extends Command
         $this->andres($tenant, $u);
         $this->elena($tenant, $u);
         $this->pedro($tenant, $u);
+        $agenda = $this->agenda($tenant);
 
-        $this->info('Demo sembrada: ' . Patient::where('tenant_id', $tenant)->where('document', 'like', 'DEMO-%')->count() . ' pacientes ficticios.');
+        $this->info('Demo sembrada: ' . Patient::where('tenant_id', $tenant)->where('document', 'like', 'DEMO-%')->count() . ' pacientes ficticios' . ($agenda ? ' y ' . $agenda . ' reservas de ejemplo' : '') . '.');
 
         return 0;
     }
@@ -348,6 +349,67 @@ class SeedDemo extends Command
         $this->issue(new DocumentService(), $p, 'report', $c, ["Resumen clínico y evolución:\n__________" => "Resumen clínico y evolución:\nLumbalgia mecánica sin signos de alarma.", "Tratamiento y recomendaciones:\n__________" => "Tratamiento y recomendaciones:\nAnalgesia, reposo relativo y control de la presión arterial."]);
     }
 
+    /**
+     * Reservas de ejemplo en Office para que la Agenda de hoy tenga contenido. Solo si Office tiene sucursal, servicios y
+     * profesionales (configuración inicial). Los clientes llevan la nota «DEMO-AGENDA» (así --purge los borra a ellos y a
+     * sus reservas, y a nada más), sin teléfono ni correo, y los avisos al cliente quedan silenciados.
+     * @return int reservas creadas
+     */
+    protected function agenda(int $tenant): int
+    {
+        if (!class_exists(\Aero\Office\Models\Booking::class) || !\Schema::hasTable('aero_office_bookings')) {
+            return 0;
+        }
+        $branch = \Aero\Office\Models\Branch::where('tenant_id', $tenant)->where('is_active', true)->first();
+        if (!$branch || !\Aero\Office\Models\Service::where('tenant_id', $tenant)->exists()) {
+            $this->warn('Sin sucursal/servicios en Office: no se cargan reservas de ejemplo.');
+
+            return 0;
+        }
+
+        \Aero\Office\Classes\Notifier::$muted = true;
+        $svc = app(\Aero\Office\Classes\BookingService::class);
+        $service = fn (string $name) => \Aero\Office\Models\Service::where('tenant_id', $tenant)->where('name', $name)->first();
+        $worker = fn (string $like) => \Aero\Office\Models\Worker::where('tenant_id', $tenant)->where('name', 'like', $like . '%')->value('id');
+        $monday = now()->next(\Carbon\Carbon::MONDAY);
+
+        // [n del paciente DEMO-n, cliente que reserva, servicio, fecha-hora, estado, profesional]
+        $plan = [
+            [1, 'Marta Quispe Flores', 'Control médico', now()->setTime(8, 0), 'completed', null],
+            [4, 'Jorge Villca Condori', 'Consulta médica general', now()->setTime(9, 0), 'confirmed', null],
+            [3, 'Patricia Vargas (madre de Lucía)', 'Control de niño sano', now()->setTime(9, 45), 'confirmed', null],
+            [7, 'Elena Torrez Rojas', 'Consulta médica general', now()->setTime(10, 30), 'pending', null],
+            [6, 'Gladys Lima (madre de Andrés)', 'Vacunación', now()->setTime(11, 15), 'pending', null],
+            [5, 'Rosa Mendoza Pinto', 'Control médico', $monday->copy()->setTime(8, 30), 'confirmed', null],
+            [8, 'Pedro Ticona Aliaga', 'Consulta médica general', $monday->copy()->setTime(9, 0), 'pending', null],
+            [6, 'Gladys Lima (madre de Andrés)', 'Control de niño sano', $monday->copy()->setTime(15, 0), 'confirmed', 'Dr. Marcos'],
+        ];
+
+        $customers = [];
+        $made = 0;
+        foreach ($plan as [$n, $who, $svcName, $at, $status, $doc]) {
+            try {
+                $customers[$who] ??= \Aero\Office\Models\Customer::create(['tenant_id' => $tenant, 'name' => $who, 'notes' => 'DEMO-AGENDA']);
+                DB::table('aero_clinica_patients')->where('tenant_id', $tenant)->where('document', 'DEMO-' . $n)->update(['customer_id' => $customers[$who]->id]);
+
+                $b = $svc->create($customers[$who], [
+                    'branch_id' => $branch->id, 'service_id' => $service($svcName)->id, 'worker_id' => $doc ? $worker($doc) : null,
+                    'starts_at' => $at, 'status' => $status === 'completed' ? 'confirmed' : $status,
+                    'customer_notes' => 'Reserva de ejemplo (demostración).',
+                ], 'manual', null);
+                if ($status === 'completed') {
+                    $svc->complete($b);
+                }
+                $made++;
+            } catch (\Throwable $e) {
+                $this->warn('Reserva omitida (' . $who . ', ' . $svcName . '): ' . $e->getMessage());
+            }
+        }
+        \Aero\Office\Classes\Notifier::$muted = false;
+
+        return $made;
+    }
+
     protected function purge(int $tenant): int
     {
         $ids = Patient::withTrashed()->where('tenant_id', $tenant)->where('document', 'like', 'DEMO-%')->pluck('id')->all();
@@ -360,6 +422,13 @@ class SeedDemo extends Command
         $byPatient = ['aero_clinica_consultations', 'aero_clinica_vitals', 'aero_clinica_diagnoses', 'aero_clinica_prescriptions', 'aero_clinica_orders',
             'aero_clinica_lab_results', 'aero_clinica_vaccinations', 'aero_clinica_documents'];
         DB::transaction(function () use ($ids, $tenant, $byPatient) {
+            if (\Schema::hasTable('aero_office_customers')) {
+                $custIds = DB::table('aero_office_customers')->where('tenant_id', $tenant)->where('notes', 'DEMO-AGENDA')->pluck('id')->all();
+                $bookIds = DB::table('aero_office_bookings')->where('tenant_id', $tenant)->whereIn('customer_id', $custIds)->pluck('id')->all();
+                DB::table('aero_office_booking_logs')->whereIn('booking_id', $bookIds)->delete();
+                DB::table('aero_office_bookings')->whereIn('id', $bookIds)->delete();
+                DB::table('aero_office_customers')->whereIn('id', $custIds)->delete();
+            }
             $cons = DB::table('aero_clinica_consultations')->whereIn('patient_id', $ids)->pluck('id')->all();
             $rx = DB::table('aero_clinica_prescriptions')->whereIn('patient_id', $ids)->pluck('id')->all();
             $ord = DB::table('aero_clinica_orders')->whereIn('patient_id', $ids)->pluck('id')->all();
