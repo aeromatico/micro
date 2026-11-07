@@ -14,7 +14,7 @@ class Plugin extends PluginBase
     public function pluginDetails(): array
     {
         return [
-            'name'        => 'Historia clínica',
+            'name'        => 'Clínica',
             'description' => 'Historia clínica electrónica para consultorios, centros de salud y clínicas: pacientes, consultas, recetas y seguimiento.',
             'author'      => 'Aero',
             'icon'        => 'icon-heartbeat',
@@ -40,10 +40,10 @@ class Plugin extends PluginBase
                 require __DIR__ . '/routes.php';
             });
 
-            \Event::listen('aero.api.registerScopes', fn () => ['clinica' => ['label' => 'Historia clínica', 'scopes' => \Aero\Clinica\Classes\Api\Scopes::all()]]);
+            \Event::listen('aero.api.registerScopes', fn () => ['clinica' => ['label' => 'Clínica', 'scopes' => \Aero\Clinica\Classes\Api\Scopes::all()]]);
 
             \Event::listen('aero.api.registerEndpoints', fn () => ['clinica' => [
-                'label' => 'Historia clínica',
+                'label' => 'Clínica',
                 'endpoints' => [
                     [
                         'method' => 'GET', 'path' => '/api/v1/clinica/patients', 'scope' => \Aero\Clinica\Classes\Api\Scopes::PATIENTS_READ,
@@ -91,24 +91,24 @@ class Plugin extends PluginBase
     {
         return [
             'aero.clinica.use' => [
-                'tab'   => 'Historia clínica',
+                'tab'   => 'Clínica',
                 'label' => 'Administrar el módulo: pacientes (datos administrativos) y bitácora',
             ],
             'aero.clinica.settings' => [
-                'tab'   => 'Historia clínica',
+                'tab'   => 'Clínica',
                 'label' => 'Configuración del módulo (plantillas, recordatorios) y bitácora (propietario)',
             ],
             'aero.clinica.professional' => [
-                'tab'   => 'Historia clínica',
+                'tab'   => 'Clínica',
                 'label' => 'Profesional: ver el contenido clínico, escribir y firmar notas',
             ],
             'aero.clinica.reception' => [
-                'tab'   => 'Historia clínica',
+                'tab'   => 'Clínica',
                 'label' => 'Recepción: datos administrativos de pacientes, sin contenido clínico',
             ],
             'aero.clinica.superadmin' => [
-                'tab'   => 'Historia clínica',
-                'label' => 'Administrar Historia clínica: datos de todos los negocios',
+                'tab'   => 'Clínica',
+                'label' => 'Administrar Clínica: datos de todos los negocios',
             ],
         ];
     }
@@ -126,7 +126,7 @@ class Plugin extends PluginBase
 
         $menu = [
             'clinica' => [
-                'label'       => 'Historia clínica',
+                'label'       => 'Clínica',
                 'url'         => Backend::url('aero/clinica/patients'),
                 'icon'        => 'icon-heartbeat',
                 'iconSvg'     => null,

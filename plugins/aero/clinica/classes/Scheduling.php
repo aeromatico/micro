@@ -49,7 +49,7 @@ class Scheduling
                 'branch_id' => (int) ($in['branch_id'] ?? 0), 'service_id' => (int) ($in['service_id'] ?? 0),
                 'worker_id' => !empty($in['worker_id']) ? (int) $in['worker_id'] : null, 'starts_at' => $in['starts_at'],
                 'customer_notes' => trim((string) ($in['reason'] ?? '')) !== '' ? mb_substr(trim((string) $in['reason']), 0, 500) : 'Control',
-                'internal_notes' => 'Agendado desde Historia clínica', 'status' => 'confirmed',
+                'internal_notes' => 'Agendado desde Clínica', 'status' => 'confirmed',
             ], 'manual', $user->id);
         } catch (\Aero\Office\Classes\OfficeException $e) {
             throw new ClinicaException($e->getMessage());

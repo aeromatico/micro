@@ -8,7 +8,7 @@ class ImportCie10 extends Command
 {
     protected $signature = 'clinica:import-cie10 {file? : TSV (code, level, parent, chapter, title); por defecto data/cie10_es.tsv}';
 
-    protected $description = 'Importa el catálogo CIE-10 (OPS/OMS, español) a la tabla global de Historia clínica';
+    protected $description = 'Importa el catálogo CIE-10 (OPS/OMS, español) a la tabla global de Clínica';
 
     public function handle(): int
     {

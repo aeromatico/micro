@@ -71,7 +71,7 @@ class Exporter
         $warnings = [];
         try {
             $fill($zip, $tmp, $warnings);
-            $zip->addFromString('LEEME.txt', "Exportación de Historia clínica ({$name}) generada el " . now()->format('d/m/Y H:i') . ".\n"
+            $zip->addFromString('LEEME.txt', "Exportación de Clínica ({$name}) generada el " . now()->format('d/m/Y H:i') . ".\n"
                 . "Los datos están en JSON (UTF-8); los archivos originales en las carpetas «archivos».\n"
                 . "Estos datos pertenecen al negocio.\n" . ($warnings ? "\nAvisos:\n- " . implode("\n- ", $warnings) . "\n" : ''));
             $zip->close();
