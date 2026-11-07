@@ -529,3 +529,8 @@
 1.99.0:
     - "Los espacios de trabajo ahora pueden verificar los pagos de sus entradas."
     - grant_tickets_payments_to_tenant_admin.php
+
+1.100.0:
+    - "Los espacios de trabajo ahora pueden usar Clínica (historia clínica de medicina humana) desde el panel, con roles de administrador, recepción y profesional."
+    - create_clinica_roles.php
+    - grant_clinica_to_tenant_admin.php

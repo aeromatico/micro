@@ -49,6 +49,7 @@ class DevLog
         'masterads' => 'Optimización de campañas publicitarias con IA.',
         'mcp' => 'Conecta tu negocio con asistentes de IA.',
         'medical' => 'Historia clínica para consultorios y veterinarias.',
+        'clinica' => 'Historia clínica de medicina humana para consultorios, centros de salud y clínicas.',
         'notify' => 'Notificaciones automáticas por varios canales.',
         'oauth' => 'Acceso con Google y otros proveedores.',
         'office' => 'Reservas de citas y servicios.',
