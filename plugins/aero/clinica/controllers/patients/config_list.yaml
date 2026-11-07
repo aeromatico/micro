@@ -1,0 +1,11 @@
+title: Pacientes
+list: $/aero/clinica/models/patient/columns.yaml
+modelClass: Aero\Clinica\Models\Patient
+recordUrl: aero/clinica/patients/update/:id
+noRecordsMessage: No hay pacientes.
+recordsPerPage: 30
+showSetup: true
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar por nombre, documento o cliente

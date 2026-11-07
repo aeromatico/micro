@@ -1,0 +1,10 @@
+name: Cuestionario
+form: $/aero/clinica/models/questionnaire/fields.yaml
+modelClass: Aero\Clinica\Models\Questionnaire
+defaultRedirect: aero/clinica/questionnaires
+create:
+  redirect: aero/clinica/questionnaires
+  redirectClose: aero/clinica/questionnaires
+update:
+  redirect: aero/clinica/questionnaires
+  redirectClose: aero/clinica/questionnaires

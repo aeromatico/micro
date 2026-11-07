@@ -1,0 +1,28 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.clinica.superadmin
+  sex:
+    label: Sexo
+    type: dropdown
+    span: full
+    comment: «Ambos» aplica si no hay un rango para el sexo del paciente.
+  metric:
+    label: Medición
+    type: dropdown
+    span: full
+    required: true
+  low:
+    label: Límite bajo (se marca si el valor es menor)
+    type: number
+    step: 0.001
+    span: left
+  high:
+    label: Límite alto (se marca si el valor es mayor)
+    type: number
+    step: 0.001
+    span: right

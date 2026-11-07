@@ -1,0 +1,11 @@
+columns:
+  name:
+    label: Medicamento
+    searchable: true
+  form:
+    label: Forma
+  concentration:
+    label: Concentración
+  is_active:
+    label: Activo
+    type: switch

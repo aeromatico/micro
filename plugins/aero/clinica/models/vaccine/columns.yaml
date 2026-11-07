@@ -1,0 +1,9 @@
+columns:
+  name:
+    label: Vacuna
+    searchable: true
+  booster_every_days:
+    label: Refuerzo cada (días)
+  is_active:
+    label: Activa
+    type: switch

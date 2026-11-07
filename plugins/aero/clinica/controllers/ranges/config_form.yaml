@@ -1,0 +1,10 @@
+name: Rango
+form: $/aero/clinica/models/range/fields.yaml
+modelClass: Aero\Clinica\Models\Range
+defaultRedirect: aero/clinica/ranges
+create:
+  redirect: aero/clinica/ranges
+  redirectClose: aero/clinica/ranges
+update:
+  redirect: aero/clinica/ranges
+  redirectClose: aero/clinica/ranges

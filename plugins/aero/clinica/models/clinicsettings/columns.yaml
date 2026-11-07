@@ -1,0 +1,6 @@
+columns:
+  tenant_id:
+    label: Negocio
+  enabled:
+    label: Activo
+    type: switch

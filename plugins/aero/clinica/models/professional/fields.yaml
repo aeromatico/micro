@@ -1,0 +1,19 @@
+fields:
+  title:
+    label: Tratamiento
+    span: left
+    placeholder: Dr., Dra., MV…
+  display_name:
+    label: Nombre que firma
+    span: right
+    required: true
+  license:
+    label: Matrícula profesional
+    span: left
+  specialty:
+    label: Especialidad
+    span: right
+  images:
+    type: partial
+    path: field_images
+    span: full

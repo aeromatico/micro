@@ -1,0 +1,10 @@
+name: Formato
+form: $/aero/clinica/models/documenttemplate/fields.yaml
+modelClass: Aero\Clinica\Models\DocumentTemplate
+defaultRedirect: aero/clinica/documenttemplates
+create:
+  redirect: aero/clinica/documenttemplates
+  redirectClose: aero/clinica/documenttemplates
+update:
+  redirect: aero/clinica/documenttemplates
+  redirectClose: aero/clinica/documenttemplates

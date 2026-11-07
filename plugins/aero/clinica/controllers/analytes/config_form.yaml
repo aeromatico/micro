@@ -1,0 +1,10 @@
+name: Analito
+form: $/aero/clinica/models/analyte/fields.yaml
+modelClass: Aero\Clinica\Models\Analyte
+defaultRedirect: aero/clinica/analytes
+create:
+  redirect: aero/clinica/analytes
+  redirectClose: aero/clinica/analytes
+update:
+  redirect: aero/clinica/analytes
+  redirectClose: aero/clinica/analytes

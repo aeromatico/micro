@@ -1,0 +1,20 @@
+columns:
+  created_at:
+    label: Fecha
+    type: datetime
+    sortable: true
+  user_name:
+    label: Usuario
+    searchable: true
+  action_label:
+    label: Acción
+  subject_type:
+    label: Sobre
+  patient:
+    label: Paciente
+    relation: patient
+    select: name
+  fields_list:
+    label: Campos cambiados
+  ip:
+    label: IP

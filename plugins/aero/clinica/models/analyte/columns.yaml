@@ -1,0 +1,11 @@
+columns:
+  name:
+    label: Analito
+    searchable: true
+  unit:
+    label: Unidad
+  sort:
+    label: Orden
+  is_active:
+    label: Activo
+    type: switch

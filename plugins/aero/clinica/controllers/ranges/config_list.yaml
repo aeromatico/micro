@@ -1,0 +1,10 @@
+title: Rangos alto/bajo
+list: $/aero/clinica/models/range/columns.yaml
+modelClass: Aero\Clinica\Models\Range
+recordUrl: aero/clinica/ranges/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

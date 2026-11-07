@@ -1,0 +1,10 @@
+title: Analitos de laboratorio
+list: $/aero/clinica/models/analyte/columns.yaml
+modelClass: Aero\Clinica\Models\Analyte
+recordUrl: aero/clinica/analytes/update/:id
+noRecordsMessage: No hay registros.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

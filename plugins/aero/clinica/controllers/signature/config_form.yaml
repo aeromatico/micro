@@ -1,0 +1,7 @@
+name: Mi firma
+form: $/aero/clinica/models/professional/fields.yaml
+modelClass: Aero\Clinica\Models\Professional
+defaultRedirect: aero/clinica/signature
+update:
+  redirect: aero/clinica/signature
+  redirectClose: aero/clinica/patients

@@ -1,0 +1,13 @@
+columns:
+  name:
+    label: Examen
+    searchable: true
+  category:
+    label: Tipo
+    type: selectable
+    options: getCategoryOptions
+  sort:
+    label: Orden
+  is_active:
+    label: Activo
+    type: switch

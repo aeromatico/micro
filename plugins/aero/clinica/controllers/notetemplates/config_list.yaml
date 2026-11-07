@@ -1,0 +1,8 @@
+title: Plantillas de nota
+list: $/aero/clinica/models/notetemplate/columns.yaml
+modelClass: Aero\Clinica\Models\NoteTemplate
+recordUrl: aero/clinica/notetemplates/update/:id
+noRecordsMessage: Aún no hay plantillas; se crean las de Consulta y Control al abrir esta pantalla.
+recordsPerPage: 30
+toolbar:
+  buttons: list_toolbar

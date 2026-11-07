@@ -1,0 +1,133 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.clinica.superadmin
+    tab: Identificación
+  name:
+    label: Nombre
+    span: left
+    required: true
+    tab: Identificación
+  document:
+    label: Documento
+    span: right
+    tab: Identificación
+  birth_date:
+    label: Fecha de nacimiento
+    type: datepicker
+    mode: date
+    span: left
+    tab: Identificación
+  marital_status:
+    label: Estado civil
+    type: dropdown
+    emptyOption: — Sin indicar —
+    span: right
+    tab: Identificación
+  sex:
+    label: Sexo
+    type: dropdown
+    emptyOption: — Sin indicar —
+    span: left
+    tab: Identificación
+  occupation:
+    label: Ocupación
+    span: right
+    tab: Identificación
+  address:
+    label: Dirección
+    span: left
+    tab: Contacto
+  city:
+    label: Ciudad
+    span: right
+    tab: Contacto
+  is_active:
+    label: Activo
+    type: switch
+    default: true
+    span: left
+    tab: Identificación
+  customer_id:
+    label: Cliente de Reservas
+    type: dropdown
+    span: full
+    comment: La persona (o su responsable). Sus datos de contacto salen de Reservas; no se duplican aquí.
+    tab: Contacto
+  contact_phone:
+    comment: Solo si aún no existe como cliente; se crea o se reutiliza.
+    label: Teléfono
+    span: left
+    tab: Contacto
+  contact_email:
+    label: Correo
+    span: right
+    tab: Contacto
+  emergency_name:
+    label: Contacto de emergencia
+    span: left
+    tab: Contacto
+  emergency_phone:
+    label: Teléfono de emergencia
+    span: right
+    tab: Contacto
+  emergency_relation:
+    label: Parentesco
+    span: left
+    tab: Contacto
+  blood_type:
+    label: Grupo sanguíneo
+    type: dropdown
+    emptyOption: — Sin dato —
+    span: left
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  allergies:
+    label: Alergias
+    type: textarea
+    size: small
+    comment: Se muestran siempre arriba de cada nota.
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  chronic_conditions:
+    label: Enfermedades crónicas
+    type: textarea
+    size: small
+    comment: Diabetes, hipertensión, asma… una por línea.
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  habits:
+    label: Hábitos
+    type: textarea
+    size: small
+    comment: Tabaco, alcohol, actividad física, alimentación, sueño.
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  medications:
+    label: Medicación actual
+    type: textarea
+    size: small
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  personal_history:
+    label: Antecedentes personales
+    type: textarea
+    size: large
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  family_history:
+    label: Antecedentes familiares
+    type: textarea
+    size: large
+    permissions: [aero.clinica.professional]
+    tab: Clínico
+  clinical_notes:
+    label: Observaciones clínicas
+    type: textarea
+    size: large
+    permissions: [aero.clinica.professional]
+    tab: Clínico

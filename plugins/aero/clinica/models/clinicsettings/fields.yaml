@@ -1,0 +1,32 @@
+fields:
+  tenant_id:
+    label: Negocio (tenant)
+    type: dropdown
+    span: full
+    emptyOption: — Elegir —
+    permissions:
+    - aero.clinica.superadmin
+  consultation_template_id:
+    label: Plantilla con la que abre cada Consulta
+    type: dropdown
+    span: left
+    comment: Se edita en Plantillas de nota.
+  control_template_id:
+    label: Plantilla con la que abre cada Control
+    type: dropdown
+    span: right
+  vaccine_reminders:
+    label: Avisar al paciente las vacunas próximas
+    type: switch
+    span: left
+    comment: Apagado por defecto. Al activarlo, cada día se avisa por WhatsApp o correo (Aero.Notify) al paciente. El aviso no nombra la vacuna.
+  reminder_days_before:
+    label: Días de anticipación
+    type: number
+    default: 7
+    span: right
+  enabled:
+    label: Módulo activo
+    type: switch
+    default: true
+    span: full

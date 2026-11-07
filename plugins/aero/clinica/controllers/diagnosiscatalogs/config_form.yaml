@@ -1,0 +1,10 @@
+name: Diagnóstico
+form: $/aero/clinica/models/diagnosiscatalog/fields.yaml
+modelClass: Aero\Clinica\Models\DiagnosisCatalog
+defaultRedirect: aero/clinica/diagnosiscatalogs
+create:
+  redirect: aero/clinica/diagnosiscatalogs
+  redirectClose: aero/clinica/diagnosiscatalogs
+update:
+  redirect: aero/clinica/diagnosiscatalogs
+  redirectClose: aero/clinica/diagnosiscatalogs

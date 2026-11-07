@@ -1,0 +1,17 @@
+columns:
+  sex:
+    label: Sexo
+    type: selectable
+    options: getSexOptions
+  metric:
+    label: Medición
+    type: selectable
+    options: getMetricOptions
+  low:
+    label: Bajo (menor a)
+  high:
+    label: Alto (mayor a)
+  source:
+    label: Origen
+    type: selectable
+    options: getSourceOptions

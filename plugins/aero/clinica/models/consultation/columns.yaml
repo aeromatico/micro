@@ -1,0 +1,20 @@
+columns:
+  consulted_at:
+    label: Fecha
+    type: datetime
+    sortable: true
+  patient:
+    label: Paciente
+    relation: patient
+    select: name
+    searchable: true
+  kind_label:
+    label: Tipo
+  professional_name:
+    label: Profesional
+    searchable: true
+  status_label:
+    label: Estado
+  signed_at:
+    label: Firmada
+    type: datetime

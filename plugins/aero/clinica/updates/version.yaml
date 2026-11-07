@@ -1,0 +1,10 @@
+1.0.0:
+    - "Primera versión: historia clínica de medicina humana para consultorios, centros de salud y clínicas, con pacientes, consultas, recetas, laboratorio, vacunación y documentos médicos."
+    - create_clinica_tables.php
+    - create_consultation_tables.php
+    - add_signature_images_to_professionals.php
+    - create_clinical_tables.php
+    - create_complement_tables.php
+    - add_source_to_ranges.php
+    - create_charges_table.php
+    - add_tenant_id_indexes.php
