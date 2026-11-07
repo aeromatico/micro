@@ -18,6 +18,9 @@ class Listeners
         // Historia clínica (solo ids en el evento; el asiento no lleva nada clínico).
         \Event::listen('aero.medical.chargePaid', fn ($p) => self::safely(fn () => self::medicalPaid($p)));
         \Event::listen('aero.medical.chargeVoided', fn ($p) => self::safely(fn () => self::voidBySource('medical_charge', $p['charge_id'] ?? 0, $p['tenant_id'] ?? 0, 'Cobro anulado')));
+        // Aero.Clinica (medicina humana): mismo interruptor «post_medical», asiento propio.
+        \Event::listen('aero.clinica.chargePaid', fn ($p) => self::safely(fn () => self::medicalPaid($p, 'clinica')));
+        \Event::listen('aero.clinica.chargeVoided', fn ($p) => self::safely(fn () => self::voidBySource('clinica_charge', $p['charge_id'] ?? 0, $p['tenant_id'] ?? 0, 'Cobro anulado')));
 
         // Aportes de la iglesia (diezmos, ofrendas, donaciones). Solo ids y montos; nada pastoral.
         \Event::listen('aero.church.contributionConfirmed', fn ($c) => self::safely(fn () => self::churchConfirmed($c)));
@@ -219,17 +222,19 @@ class Listeners
         ], ['type' => 'church_contribution', 'id' => $c->id]);
     }
 
-    protected static function medicalPaid($payload): void
+    protected static function medicalPaid($payload, string $plugin = 'medical'): void
     {
-        if (!class_exists(\Aero\Medical\Models\Charge::class)) {
+        $model = $plugin === 'clinica' ? '\\Aero\\Clinica\\Models\\Charge' : '\\Aero\\Medical\\Models\\Charge';
+        $source = $plugin . '_charge';
+        if (!class_exists($model)) {
             return;
         }
-        $c = \Aero\Medical\Models\Charge::find((int) ($payload['charge_id'] ?? 0));
+        $c = $model::find((int) ($payload['charge_id'] ?? 0));
         if (!$c || $c->status !== 'paid' || (float) $c->amount <= 0) {
             return;
         }
         $tenantId = (int) $c->tenant_id;
-        if (!FinanceSettings::allows($tenantId, 'medical') || self::exists($tenantId, 'medical_charge', $c->id)) {
+        if (!FinanceSettings::allows($tenantId, 'medical') || self::exists($tenantId, $source, $c->id)) {
             return;
         }
 
@@ -246,7 +251,7 @@ class Listeners
             'cash_account_id'     => AccountSeeder::system($tenantId, in_array($c->method, ['qr', 'transfer'], true) ? 'bank' : 'cash')->id,
             'description'         => 'Atención #' . $c->id,                                  // genérico: sin concepto ni diagnóstico
             'counterparty'        => $customer,
-        ], ['type' => 'medical_charge', 'id' => $c->id]);
+        ], ['type' => $source, 'id' => $c->id]);
     }
 
     protected static function voidBySource(string $type, $id, $tenantId, string $reason): void
