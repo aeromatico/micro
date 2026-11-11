@@ -56,5 +56,12 @@ class Pages extends Controller
             // textarea outside of getSaveData(), so we capture it from POST.
             $model->content = $data['content'];
         }
+
+        // El HTML del editor visual se genera en el navegador al EDITAR: si se abre y se guarda sin tocar nada
+        // llega vacío y la página dejaría de verse en el sitio. Se regenera desde el JSON.
+        if ($mode === 'puck' && trim((string) $model->content) === '' && !empty($model->puck_data)) {
+            $puck = is_string($model->puck_data) ? json_decode($model->puck_data, true) : $model->puck_data;
+            $model->content = is_array($puck) ? (string) (new \Aero\Sites\Classes\Ai\HeadlessRenderer())->render($puck) : '';
+        }
     }
 }
