@@ -260,7 +260,7 @@ class WebTools
                 return ['error' => 'No existe esa página en este cliente.'];
             }
 
-            $blocks = array_values((array) ($page->puck_data['content'] ?? []));
+            $blocks = array_values((array) (static::puckOf($page->puck_data)['content'] ?? []));
 
             if (isset($args['block'])) {
                 $i = (int) $args['block'];
@@ -385,7 +385,14 @@ class WebTools
 
         if (array_key_exists('blocks', $args)) {
             [$puck, $blockErrors] = static::buildPuck((array) $args['blocks']);
-            $blockErrors ? $errors = array_merge($errors, $blockErrors) : $data['puck_data'] = $puck;
+            if ($blockErrors) {
+                $errors = array_merge($errors, $blockErrors);
+            }
+            else {
+                // El sitio publica `content` (HTML), no el JSON: igual que hace el editor visual, se genera aquí.
+                $data['puck_data'] = $puck;
+                $data['content'] = static::puckHtml($puck);
+            }
         }
         elseif (!$page) {
             $errors[] = 'Falta `blocks`: la lista de bloques de la página.';
@@ -429,7 +436,7 @@ class WebTools
             return ['saved' => false, 'errors' => ['No se pudo guardar: ' . $e->getMessage()]];
         }
 
-        return ['saved' => true, 'id' => $page->id, 'slug' => $page->slug, 'published' => (bool) $page->is_published, 'blocks' => count((array) ($page->puck_data['content'] ?? [])),
+        return ['saved' => true, 'id' => $page->id, 'slug' => $page->slug, 'published' => (bool) $page->is_published, 'blocks' => count((array) (static::puckOf($page->puck_data)['content'] ?? [])),
             'edit_url' => static::tenantUrl($tenantId, \Backend::url('aero/sites/pages/update/' . $page->id)),
             'note' => $page->is_published ? 'Cambio aplicado en una página publicada.' : 'Queda como BORRADOR: no se ve en el sitio hasta publicarla.'];
     }
@@ -448,7 +455,7 @@ class WebTools
 
         $publish = (bool) ($args['published'] ?? false);
 
-        if ($publish && empty($page->puck_data['content'])) {
+        if ($publish && empty(static::puckOf($page->puck_data)['content'])) {
             return ['error' => 'La página no tiene bloques: no se puede publicar vacía.'];
         }
 
@@ -693,7 +700,13 @@ class WebTools
                     $model->delete();
                 }
                 else {
-                    $model->forceFill((array) $revision->before)->save();
+                    $model->forceFill((array) $revision->before);
+
+                    if ($model instanceof \Aero\Sites\Models\Page && array_key_exists('puck_data', (array) $revision->before)) {
+                        $model->content = static::puckHtml($model->puck_data);
+                    }
+
+                    $model->save();
                 }
             }
         }
@@ -707,6 +720,28 @@ class WebTools
     }
 
     // ------------------------------------------------------------- internals
+
+    /** El editor visual guarda `puck_data` como texto JSON; las herramientas lo guardan como arreglo: se acepta cualquiera. */
+    public static function puckOf($value): array
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+
+        return is_array($value) ? $value : [];
+    }
+
+    /** HTML de una página de bloques (lo que realmente se publica). Vacío si no hay renderizador o bloques. */
+    public static function puckHtml($puck): string
+    {
+        $puck = static::puckOf($puck);
+
+        if (!class_exists(\Aero\Sites\Classes\Ai\HeadlessRenderer::class) || empty($puck['content'])) {
+            return '';
+        }
+
+        return (string) (new \Aero\Sites\Classes\Ai\HeadlessRenderer())->render($puck);
+    }
 
     /** Plan acordado obligatorio para guardar. */
     protected static function needPlan(array $args): ?array
@@ -992,7 +1027,7 @@ class WebTools
     protected static function pageBrief(\Aero\Sites\Models\Page $page): array
     {
         return ['id' => $page->id, 'title' => $page->title, 'slug' => $page->slug, 'published' => (bool) $page->is_published,
-            'in_menu' => (bool) $page->show_in_menu, 'blocks' => count((array) ($page->puck_data['content'] ?? []))];
+            'in_menu' => (bool) $page->show_in_menu, 'blocks' => count((array) (static::puckOf($page->puck_data)['content'] ?? []))];
     }
 
     protected static function productPayload(\Aero\Shop\Models\Product $p, bool $full = false): array

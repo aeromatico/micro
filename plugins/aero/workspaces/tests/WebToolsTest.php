@@ -157,6 +157,16 @@ class WebToolsTest extends PluginTestCase
         $this->assertArrayHasKey('error', WebTools::pages([], 99));
     }
 
+    public function testSavedPageHasPublishableHtmlNotOnlyTheJson(): void
+    {
+        $this->assertTrue($this->savePage()['saved']);
+
+        $row = DB::table('aero_sites_pages')->first();
+        $this->assertNotEmpty($row->puck_data);
+        $this->assertStringStartsWith('{', (string) $row->puck_data, 'el JSON se guarda una sola vez, no como texto dentro de texto');
+        $this->assertNotSame('', trim((string) $row->content), 'el sitio publica `content`: debe tener el HTML de los bloques');
+    }
+
     public function testInvalidAndUnsafeBlocksAreRejected(): void
     {
         $bad = $this->savePage(['blocks' => [['type' => 'NoExiste', 'props' => []]]]);

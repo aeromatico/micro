@@ -98,3 +98,11 @@
 
 1.23.6:
     - "Mejora el aspecto de la oficina animada: pared con ventanas y haz de luz, reloj con segundero, piso de madera, escritorios y sillas con más detalle, zonas de descanso, cafetería y reuniones, y etiquetas con indicador de estado."
+
+1.23.7:
+    - "Arregla que las páginas creadas por un agente no mostraran su contenido en el sitio: ahora se genera su HTML al guardarlas, y se repararon las que quedaron vacías."
+    - materialize_agent_page_content.php
+
+1.23.8:
+    - "Arregla que al abrir y guardar en el editor una página sin cambios su contenido dejara de verse en el sitio; también reparó las que ya estaban vacías."
+    - repair_string_page_content.php
