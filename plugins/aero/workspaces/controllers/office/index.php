@@ -16,13 +16,21 @@
     </div>
   </header>
 
-  <section class="card stage" aria-label="Oficina">
-    <div class="stage-head">
-      <h2>Estudio</h2>
-      <span class="chip" id="phase">En espera</span>
-    </div>
-    <div class="stage-body"><canvas id="office" aria-label="Vista aérea de la oficina con tu equipo" role="img"></canvas></div>
-    <p class="stage-foot">Toca un agente en la oficina o en la lista para seguirlo. Los escritorios vacíos se llenan al contratar más personal en el Mercado.</p>
+  <section class="card chat" aria-label="Chat con el equipo">
+    <div class="chat-tabs" id="chat-tabs" role="tablist" aria-label="Con quién hablar"></div>
+    <ul id="log"></ul>
+    <ul id="log-live" hidden aria-live="polite"></ul>
+    <form class="compose" id="form">
+      <div class="ideas" id="ideas"></div>
+      <div class="compose-box">
+        <textarea id="prompt" maxlength="4000" rows="2" placeholder="Cuéntale qué quieres lograr" aria-label="Mensaje para el equipo"></textarea>
+        <button class="send" id="send" type="submit">Enviar</button>
+      </div>
+      <div class="compose-row">
+        <span class="est" id="est">Estimado: —</span>
+        <span class="hint">Enter envía · Shift+Enter salto de línea</span>
+      </div>
+    </form>
   </section>
 
   <aside class="side">
@@ -30,19 +38,11 @@
       <h2>Equipo</h2>
       <ul id="team"></ul>
     </section>
-    <section class="card chat">
-      <div class="chat-tabs" id="chat-tabs" role="tablist" aria-label="Con quién hablar"></div>
-      <ul id="log"></ul>
-      <ul id="log-live" hidden aria-live="polite"></ul>
-      <form class="compose" id="form">
-        <div class="ideas" id="ideas"></div>
-        <textarea id="prompt" maxlength="2000" placeholder="Cuéntale qué quieres lograr" aria-label="Encargo para el orquestador"></textarea>
-        <div class="compose-row">
-          <span class="est" id="est">Estimado: —</span>
-          <button class="send" id="send" type="submit">Enviar encargo</button>
-        </div>
-      </form>
-    </section>
+    <details class="card stage" id="stage-box" open>
+      <summary><span>Oficina</span><span class="chip" id="phase">En espera</span><button type="button" class="fs-btn" id="stage-fs" title="Pantalla completa" aria-label="Ver la oficina en pantalla completa">⛶</button></summary>
+      <div class="stage-body"><canvas id="office" aria-label="Vista aérea de la oficina con tu equipo" role="img"></canvas></div>
+      <p class="stage-foot">Toca un agente para seguirlo. Los escritorios vacíos se llenan al contratar más personal en el Mercado.</p>
+    </details>
     <section class="card history">
       <h2>Encargos recientes</h2>
       <ul id="history"></ul>

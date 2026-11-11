@@ -156,8 +156,21 @@ class AgentRunnerTest extends PluginTestCase
         $this->assertStringContainsString('demasiadas vueltas', $loop->fresh()->error);
 
         $empty = $this->pending($staff);
-        AgentRunner::run($empty, new FakeLlm([['text' => '   ']]));
-        $this->assertSame('error', $empty->fresh()->status);
+        AgentRunner::run($empty, new FakeLlm([['text' => '   '], ['text' => '']]));
+        $this->assertSame('error', $empty->fresh()->status, 'dos turnos vacíos seguidos sí fallan');
+    }
+
+    public function testOneEmptyTurnIsRetriedOnceInsteadOfFailing(): void
+    {
+        $staff = $this->liveAgent();
+        $reply = $this->pending($staff);
+        $llm = new FakeLlm([['text' => ''], ['text' => 'Aquí está el resultado.']]);
+
+        AgentRunner::run($reply, $llm);
+
+        $this->assertSame('done', $reply->fresh()->status);
+        $this->assertSame('Aquí está el resultado.', $reply->fresh()->content);
+        $this->assertCount(2, $llm->seen, 'se le pidió responder una vez más');
     }
 
     public function testHistoryKeepsWhatWasCreatedAndNeverMixesTenants(): void

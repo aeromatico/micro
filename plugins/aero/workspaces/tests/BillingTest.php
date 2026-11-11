@@ -223,7 +223,7 @@ class BillingTest extends PluginTestCase
         $this->assertSame(3, (int) $ok->fresh()->charged_points);
 
         $bad = Message::create(['tenant_id' => 1, 'staff_id' => $ana->id, 'role' => 'assistant', 'status' => 'pending']);
-        AgentRunner::run($bad, new FakeLlm([['text' => '']]));
+        AgentRunner::run($bad, new FakeLlm([['text' => ''], ['text' => '']]));
         $this->assertSame('error', $bad->fresh()->status);
         $this->assertSame(7, $this->ledger->balance(1), 'un turno fallido no se cobra');
 

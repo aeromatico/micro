@@ -86,3 +86,15 @@
 1.23.2:
     - "Completa el perfil de Bruno: etiquetas, guía de uso y gráfico de capacidades, que estaban vacíos, y corrige su nombre en el prompt."
     - fix_bruno_profile.php
+
+1.23.3:
+    - "Mejora el chat de la oficina: ahora es la pieza principal, con enlaces siempre en pestaña nueva, tablas y listas con formato, Enter para enviar y reintento en errores; la oficina animada pasa a un panel plegable."
+
+1.23.4:
+    - "Arregla que un agente fallara con «no devolvió una respuesta» cuando el modelo contestaba vacío: ahora se le pide responder otra vez."
+
+1.23.5:
+    - "Agrega un botón para ver la oficina animada en pantalla completa."
+
+1.23.6:
+    - "Mejora el aspecto de la oficina animada: pared con ventanas y haz de luz, reloj con segundero, piso de madera, escritorios y sillas con más detalle, zonas de descanso, cafetería y reuniones, y etiquetas con indicador de estado."

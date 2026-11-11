@@ -157,6 +157,7 @@ class AgentRunner
             $trace = [];
             $workflows = [];
             $cache = [];
+            $nudged = false;
 
             for ($i = 1; $i <= $maxIterations; $i++) {
                 $turn = $llm->chat($messages, $tools);
@@ -165,6 +166,15 @@ class AgentRunner
                     $text = trim((string) $turn['text']);
 
                     if ($text === '') {
+                        // Los modelos a veces devuelven un turno vacío (sin texto ni herramientas): se les
+                        // pide UNA vez que respondan, en vez de fallarle a la persona.
+                        if (!$nudged) {
+                            $nudged = true;
+                            $messages[] = ['role' => 'user', 'content' => '(Aviso del sistema) Tu última respuesta llegó vacía. Responde ahora a la persona con el resultado, o con la pregunta que necesites hacerle, o continúa con la herramienta que corresponda.'];
+
+                            continue;
+                        }
+
                         throw new \RuntimeException('El agente no devolvió una respuesta.');
                     }
 

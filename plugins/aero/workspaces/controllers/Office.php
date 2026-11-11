@@ -21,8 +21,8 @@ class Office extends Controller
         parent::__construct();
         BackendMenu::setContext('Aero.Workspaces', 'workspaces', 'office');
         $this->pageTitle = 'Oficina de agentes';
-        $this->addCss('/plugins/aero/workspaces/assets/css/office.css?v=6');
-        $this->addJs('/plugins/aero/workspaces/assets/js/office.js?v=7');
+        $this->addCss('/plugins/aero/workspaces/assets/css/office.css?v=8');
+        $this->addJs('/plugins/aero/workspaces/assets/js/office.js?v=10');
     }
 
     public function index(): void
