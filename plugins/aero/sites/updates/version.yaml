@@ -538,3 +538,7 @@
 1.101.0:
     - "El plan PRO ahora incluye Clínica (historia clínica de medicina humana)."
     - add_clinica_to_pro_plan.php
+
+1.102.0:
+    - "Corrige que las personas invitadas al equipo no pudieran iniciar sesión: ya no quedan con la cuenta sin activar y el reenvío de una invitación pendiente trae un enlace de activación nuevo."
+    - activate_invited_backend_users.php

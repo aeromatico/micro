@@ -49,6 +49,17 @@ class TenantInvite extends Model
         ]);
 
         if ($existingUser) {
+            // Si nunca terminó de activar su acceso (sigue una invitación pendiente), se
+            // le reenvía un enlace de activación nuevo en vez del login genérico, que
+            // no le serviría porque aún no tiene contraseña propia.
+            $needsActivation = !$existingUser->last_login
+                && static::where('backend_user_id', $existingUser->id)->where('status', 'pending')->exists();
+
+            if ($needsActivation) {
+                $existingUser->is_activated = true;
+                $existingUser->forceSave();
+            }
+
             $tenant->addUser($existingUser, $role);
 
             $invite->backend_user_id = $existingUser->id;
@@ -56,7 +67,11 @@ class TenantInvite extends Model
             $invite->accepted_at     = now();
             $invite->save();
 
-            static::notify($tenant, $invite, $existingUser->full_name, $tenant->backendUrl('backend'));
+            $url = $needsActivation
+                ? $tenant->backendUrl('backend/auth/reset/' . $existingUser->id . '/' . $existingUser->getResetPasswordCode())
+                : $tenant->backendUrl('backend');
+
+            static::notify($tenant, $invite, $existingUser->full_name, $url);
 
             return $invite;
         }
@@ -88,7 +103,10 @@ class TenantInvite extends Model
         $password = Str::random(32);
         $user->password   = $password;
         $user->password_confirmation = $password;
-        $user->is_activated = false;
+        // Activada desde el inicio: October no deja iniciar sesión a una cuenta sin
+        // activar y el enlace de «reset» solo cambia la contraseña (no activa). La
+        // contraseña aleatoria nadie la conoce; el acceso lo da el enlace de reset.
+        $user->is_activated = true;
         $user->save();
 
         $role = UserRole::where('code', 'tenant_admin')->first();
