@@ -333,7 +333,12 @@ class Bridges
             return null;
         }
 
-        return ['name' => $ticket->requester_name, 'email' => $ticket->requester_email];
+        // user_id (usuario de backend que abrió el ticket) habilita campana y push.
+        return [
+            'name'    => $ticket->requester_name,
+            'email'   => $ticket->requester_email,
+            'user_id' => $ticket->requester_user_id ?: null,
+        ];
     }
 
     /** Aviso al equipo: admins del tenant (+ correo del área) o superadmin si es de la plataforma. */

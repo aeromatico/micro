@@ -236,3 +236,7 @@
 1.5.23:
     - "Al reservar en el portal por primera vez, el cliente ahora recibe un correo con su usuario y el enlace para crear su contraseña; y el recordatorio de vacunas de Clínica ya tiene su evento y plantilla."
     - seed_clinica_and_office_account_events.php
+
+1.5.24:
+    - "Quien abre un ticket de soporte ahora recibe el aviso de respuesta también en la campana del panel y por push, además del correo."
+    - seed_ticket_reply_inapp_push.php

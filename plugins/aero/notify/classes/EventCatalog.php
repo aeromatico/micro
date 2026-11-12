@@ -956,7 +956,7 @@ class EventCatalog
             $mk('support.ticket.received', 'Recibimos tu ticket', 'Confirmación a quien abrió un ticket, con el enlace para seguirlo.', ['actor'], ['email']),
             $mk('support.ticket.opened', 'Nuevo ticket de un cliente', 'Un cliente abrió un ticket en el portal de soporte del tenant (aviso a sus admins y al correo del área).', ['tenant_admin', 'adhoc'], ['email', 'inapp', 'push']),
             $mk('support.ticket.customer_replied', 'El cliente respondió su ticket', 'Un cliente respondió en el portal de soporte del tenant (aviso a sus admins y al correo del área).', ['tenant_admin', 'adhoc'], ['email', 'inapp', 'push']),
-            $mk('support.ticket.agent_replied', 'Respondieron tu ticket', 'El equipo respondió un ticket: aviso a quien lo abrió, con el enlace para verlo.', ['actor'], ['email']),
+            $mk('support.ticket.agent_replied', 'Respondieron tu ticket', 'El equipo respondió un ticket: aviso a quien lo abrió, con el enlace para verlo.', ['actor'], ['email', 'inapp', 'push']),
             $mk('support.ticket.platform_opened', 'Nuevo ticket de un tenant', 'Un tenant abrió un ticket para la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
             $mk('support.ticket.platform_customer_replied', 'Un tenant respondió su ticket', 'Un tenant respondió un ticket de la mesa de la plataforma.', ['superadmin'], ['email', 'inapp', 'push'], 2),
         ];
