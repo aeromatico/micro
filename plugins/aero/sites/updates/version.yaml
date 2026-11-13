@@ -542,3 +542,7 @@
 1.102.0:
     - "Corrige que las personas invitadas al equipo no pudieran iniciar sesión: ya no quedan con la cuenta sin activar y el reenvío de una invitación pendiente trae un enlace de activación nuevo."
     - activate_invited_backend_users.php
+
+1.103.0:
+    - "Nueva pantalla «Mi plan» donde cada cuenta ve cuándo vence su plan y paga la renovación con un QR, más un aviso arriba del panel cuando faltan 7 días o menos."
+    - grant_myplan_to_tenant_admin.php

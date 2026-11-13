@@ -1,24 +1,22 @@
 <?php namespace Aero\Sites\Console;
 
+use Aero\Sites\Classes\PlanStatus;
+use Aero\Sites\Classes\RenewalIssuer;
 use Aero\Sites\Models\PlanRenewal;
-use Aero\Sites\Models\Settings;
 use Aero\Sites\Models\Tenant;
 use Illuminate\Console\Command;
 
 /**
  * Genera el cobro QR de renovación para tenants mensual/anual cuyo
- * plan_expires_at cae dentro de la ventana de generación, reutilizando la
- * misma cuenta bancaria de plataforma que cobra el alta (Settings::
- * getSignupBankAccount()). El pago se confirma después, de forma
- * asíncrona, en Plugin::bootPayRenewalBridge().
+ * plan_expires_at cae dentro de la ventana de generación (RenewalIssuer usa la
+ * cuenta bancaria de plataforma que cobra el alta). El pago se confirma
+ * después, de forma asíncrona, en Plugin::bootPayRenewalBridge(). Al emitirlo
+ * avisa al tenant (sites.tenant.renewal_due) con el enlace a «Mi plan».
  */
 class GenerateRenewals extends Command
 {
     protected $signature = 'aero.sites:generate-renewals';
     protected $description = 'Genera el cobro QR de renovación para tenants mensual/anual próximos a vencer.';
-
-    /** Días antes del vencimiento en que se genera el cobro. */
-    protected const WINDOW_DAYS = 5;
 
     public function handle(): int
     {
@@ -27,77 +25,57 @@ class GenerateRenewals extends Command
             return self::SUCCESS;
         }
 
-        $bankAccount = Settings::getSignupBankAccount();
-        if (!$bankAccount) {
-            $this->warn('No hay cuenta bancaria de alta configurada (Sites → Configuración): no se generó ningún cobro.');
-            return self::SUCCESS;
-        }
-
         $tenants = Tenant::where('status', 'active')
             ->whereIn('billing_period', ['monthly', 'annual'])
             ->whereNotNull('plan_expires_at')
-            ->where('plan_expires_at', '<=', now()->addDays(self::WINDOW_DAYS))
+            ->where('plan_expires_at', '<=', now()->addDays(PlanStatus::WARN_DAYS))
             ->get();
 
         $generated = 0;
 
         foreach ($tenants as $tenant) {
+            // Ya emitido (o ya pagado) este ciclo: el recordatorio se encarga del aviso.
             if (PlanRenewal::where('tenant_id', $tenant->id)->where('cycle_due_at', $tenant->plan_expires_at)->exists()) {
                 continue;
             }
 
-            $plan = $tenant->plan;
-            if (!$plan) {
+            if (!$tenant->plan) {
                 $this->warn("Tenant \"{$tenant->handle}\" sin plan asignado: se omite.");
                 continue;
             }
 
-            $amount = $plan->renewalPrice($tenant->billing_period);
-
-            try {
-                $qrCode = app(\Aero\Pay\Classes\QrIssuer::class)->issue(
-                    bankAccount: $bankAccount,
-                    amount: $amount,
-                    currency: 'BOB',
-                    description: "Renovación Market — {$tenant->handle} (plan {$plan->name})",
-                    origin: 'sites',
-                    dueDate: $tenant->plan_expires_at->toDateString(),
-                    tenantId: $tenant->id,
-                );
-            } catch (\Throwable $e) {
-                \Log::error("Aero\\Sites: fallo emitiendo QR de renovación para el tenant {$tenant->id}: " . $e->getMessage());
+            $renewal = RenewalIssuer::issue($tenant);
+            if (!$renewal) {
+                $this->warn("No se pudo emitir la renovación de \"{$tenant->handle}\" (¿falta la cuenta bancaria de alta en Sites → Configuración?).");
                 continue;
             }
 
-            $renewal = PlanRenewal::create([
-                'tenant_id'         => $tenant->id,
-                'plan_id'           => $plan->id,
-                'period'            => $tenant->billing_period,
-                'cycle_due_at'      => $tenant->plan_expires_at,
-                'status'            => 'pending',
-                'qr_code_id'        => $qrCode->id,
-                'payment_reference' => $qrCode->internal_reference,
-                'amount'            => $amount,
-                'currency'          => 'BOB',
-            ]);
-
-            $this->info("Renovación generada: \"{$tenant->handle}\" — Bs {$amount} (vence " . $tenant->plan_expires_at->toFormattedDateString() . ')');
+            $this->info("Renovación generada: \"{$tenant->handle}\" — Bs {$renewal->amount} (vence " . $tenant->plan_expires_at->toFormattedDateString() . ')');
             $generated++;
 
-            if (class_exists(\Aero\Notify\Classes\Notify::class)) {
-                try {
-                    \Aero\Notify\Classes\Notify::fire('sites.tenant.renewal_due', [
-                        'tenant_name' => $tenant->name,
-                        'amount'      => $amount,
-                        'due_date'    => $tenant->plan_expires_at->toFormattedDateString(),
-                    ], ['tenant_id' => $tenant->id]);
-                } catch (\Throwable $e) {
-                    \Log::error('Aero.Sites: fallo notificando sites.tenant.renewal_due: ' . $e->getMessage());
-                }
-            }
+            static::notify($tenant, $renewal);
         }
 
         $this->info("{$generated} renovación(es) generada(s).");
         return self::SUCCESS;
+    }
+
+    public static function notify(Tenant $tenant, PlanRenewal $renewal): void
+    {
+        if (!class_exists(\Aero\Notify\Classes\Notify::class)) {
+            return;
+        }
+
+        try {
+            \Aero\Notify\Classes\Notify::fire('sites.tenant.renewal_due', [
+                'tenant_name' => $tenant->name,
+                'amount'      => $renewal->amount,
+                'due_date'    => $tenant->plan_expires_at->format('d/m/Y'),
+                'pay_url'     => \Backend::url('aero/sites/myplan'),
+            ], ['tenant_id' => $tenant->id]);
+        }
+        catch (\Throwable $e) {
+            \Log::error('Aero.Sites: fallo notificando sites.tenant.renewal_due: ' . $e->getMessage());
+        }
     }
 }

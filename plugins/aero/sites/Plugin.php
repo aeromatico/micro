@@ -43,6 +43,7 @@ class Plugin extends PluginBase
         $this->registerConsoleCommand('aero.sites:refresh-devlog', \Aero\Sites\Console\RefreshDevLog::class);
         $this->registerConsoleCommand('aero.sites:generate-renewals', \Aero\Sites\Console\GenerateRenewals::class);
         $this->registerConsoleCommand('aero.sites:expire-renewals', \Aero\Sites\Console\ExpireRenewals::class);
+        $this->registerConsoleCommand('aero.sites:remind-renewals', \Aero\Sites\Console\RemindRenewals::class);
         $this->registerConsoleCommand('aero.sites:purge-event-logs', \Aero\Sites\Console\PurgeEventLogs::class);
         $this->registerConsoleCommand('aero.sites:purge-logs', \Aero\Sites\Console\PurgeTechnicalLogs::class);
     }
@@ -68,6 +69,7 @@ class Plugin extends PluginBase
         $this->bootBackendCompactUi();
         $this->bootPaySignupBridge();
         $this->bootPayRenewalBridge();
+        $this->bootPlanExpiryBanner();
         $this->bootZeptomailMailer();
         $this->bootProFeaturesGate();
         $this->bootHideSystemMenuForTenants();
@@ -193,6 +195,11 @@ class Plugin extends PluginBase
             ->dailyAt('03:50')
             ->withoutOverlapping()
             ->onOneServer();
+        // Recordatorios por correo (3 y 1 día antes, el día y 2 días después): a media mañana, hora de Bolivia.
+        $schedule->command('aero.sites:remind-renewals')
+            ->dailyAt('10:00')
+            ->withoutOverlapping()
+            ->onOneServer();
         $schedule->command('aero.sites:expire-renewals')
             ->dailyAt('03:55')
             ->withoutOverlapping()
@@ -289,7 +296,7 @@ class Plugin extends PluginBase
                     try {
                         \Aero\Notify\Classes\Notify::fire('sites.tenant.plan_renewed', [
                             'tenant_name'     => $tenant->name,
-                            'plan_expires_at' => $tenant->plan_expires_at->toFormattedDateString(),
+                            'plan_expires_at' => $tenant->plan_expires_at->format('d/m/Y'),
                         ], ['tenant_id' => $tenant->id]);
                     } catch (\Throwable $e) {
                         \Log::error('Aero.Sites: fallo notificando sites.tenant.plan_renewed: ' . $e->getMessage());
@@ -483,6 +490,57 @@ class Plugin extends PluginBase
                 . 'a.onclick=function(){var u=new URL(location.href);u.searchParams.set("tenant",t.handle);location.href=u.toString()};box.appendChild(a)});'
                 . 'd.addEventListener("click",function(ev){if(ev.target===d)d.close()});d.addEventListener("close",function(){d.remove()});'
                 . 'document.body.appendChild(d);d.showModal()})}'
+                . 'document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})()</script>';
+        });
+    }
+
+    /**
+     * Aviso arriba del panel cuando el plan del tenant vence en 7 días o menos
+     * (o ya venció y corre la gracia): «Tu plan vence en 3 días — Pagar».
+     * Solo para usuarios con `aero.sites.myplan` (no superadmin ni
+     * impersonando), con tenant resuelto y fuera de la propia pantalla.
+     */
+    protected function bootPlanExpiryBanner(): void
+    {
+        Event::listen('backend.layout.extendHead', function ($controller, $context = 'default') {
+            if ($context !== 'default' || $controller instanceof \Aero\Sites\Controllers\MyPlan) {
+                return '';
+            }
+
+            $user = BackendAuth::getUser();
+            if (!$user || $user->is_superuser || BackendAuth::isImpersonator() || !$user->hasAccess('aero.sites.myplan')) {
+                return '';
+            }
+
+            try {
+                $tenant = Tenant::resolveForBackendUser($user);
+                if (!$tenant) {
+                    return '';
+                }
+
+                $status = \Aero\Sites\Classes\PlanStatus::for($tenant);
+            }
+            catch (\Throwable $e) {
+                return '';
+            }
+
+            if (!in_array($status['state'], ['soon', 'overdue'], true)) {
+                return '';
+            }
+
+            $overdue = $status['state'] === 'overdue';
+            $text = 'Tu plan ' . \Aero\Sites\Classes\PlanStatus::phrase($status)
+                . ($overdue ? ': paga antes de que se suspenda tu cuenta.' : '. Renuévalo para no perder el acceso.');
+            $json = json_encode([
+                'text' => $text,
+                'url'  => Backend::url('aero/sites/myplan'),
+                'bg'   => $overdue ? '#b42318' : '#b54708',
+            ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+
+            return '<script>(function(){var o=' . $json . ';function init(){if(document.getElementById("plan-expiry-banner"))return;'
+                . 'var b=document.createElement("a");b.id="plan-expiry-banner";b.href=o.url;'
+                . 'b.style.cssText="position:sticky;top:0;z-index:2000;display:block;padding:8px 16px;text-align:center;color:#fff;font-weight:600;font-size:13px;text-decoration:none;background:"+o.bg;'
+                . 'b.textContent=o.text+" Pagar ahora \u2192";document.body.insertBefore(b,document.body.firstChild)}'
                 . 'document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init()})()</script>';
         });
     }
@@ -960,6 +1018,14 @@ class Plugin extends PluginBase
                 'order'       => 100,
                 'sideMenu'    => $miSitioMenu,
             ],
+            // Vigencia del plan y pago de la renovación (tenant_admin)
+            'mi-plan' => [
+                'label'       => 'Mi plan',
+                'url'         => Backend::url('aero/sites/myplan'),
+                'icon'        => 'icon-credit-card',
+                'permissions' => ['aero.sites.myplan'],
+                'order'       => 101,
+            ],
             // Panel del superadmin — gestión de la plataforma
             'sites' => [
                 'label'       => 'aero.sites::lang.menu.sites',
@@ -1105,6 +1171,10 @@ class Plugin extends PluginBase
             'aero.sites.manage_api_tokens' => [
                 'tab'   => 'Sites',
                 'label' => 'aero.sites::lang.permissions.manage_api_tokens',
+            ],
+            'aero.sites.myplan' => [
+                'tab'   => 'Sites',
+                'label' => 'Ver mi plan y pagar la renovación',
             ],
         ];
     }
