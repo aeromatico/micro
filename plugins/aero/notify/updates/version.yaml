@@ -240,3 +240,7 @@
 1.5.24:
     - "Quien abre un ticket de soporte ahora recibe el aviso de respuesta también en la campana del panel y por push, además del correo."
     - seed_ticket_reply_inapp_push.php
+
+1.5.25:
+    - "Corrige que el aviso de renovación del plan nunca llegara por correo: ahora tiene plantilla, y hay recordatorios si sigue sin pagarse."
+    - seed_sites_renewal_templates.php
