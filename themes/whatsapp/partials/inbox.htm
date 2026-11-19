@@ -121,10 +121,11 @@ description = "Bandeja: cuentas, lista de chats, conversación y hojas"
                 </div>
 
                 <form class="composer" @submit.prevent="send()" :class="{ note: mode === 'note' }">
-                    <div class="modes quick-bar" x-show="!recording && topQuick.length" aria-label="Respuestas rápidas">
+                    <div class="modes quick-bar" x-show="!recording" aria-label="Respuestas rápidas">
                         <template x-for="q in topQuick" :key="q.id">
                             <button type="button" class="chip quick" :title="q.title" @click="pickQuick(q)" x-text="q.shortcut"></button>
                         </template>
+                        <a class="chip ico quick" href="/backend/aero/crm/quickreplies" target="_blank" rel="noopener" title="Gestionar respuestas rápidas" aria-label="Gestionar respuestas rápidas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span x-show="!topQuick.length" style="margin-left:6px;font-size:12px">Crear respuestas rápidas</span></a>
                     </div>
                     <ul class="slash-menu" role="listbox" aria-label="Respuestas rápidas" x-show="slashOpen" x-cloak>
                         <template x-for="(q, i) in slashItems" :key="q.id">

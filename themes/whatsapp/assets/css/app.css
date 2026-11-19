@@ -167,7 +167,8 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 .composer { position: relative; }
 .modes { align-items: center; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
 .modes .chip { scroll-snap-align: start; }
-.composer .quick-bar { padding-bottom: 2px; }
+.composer .quick-bar { padding: 4px 0; align-items: center; }
+.quick-bar .chip { margin: 0; vertical-align: middle; }
 .modes-sep { flex-shrink: 0; width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
 .chip { display: inline-flex; align-items: center; justify-content: center; line-height: 1; white-space: nowrap; text-align: center; }
 .chip.quick { height: 32px; padding: 0 12px; font-size: 12px; background: var(--bg); }
@@ -298,3 +299,5 @@ select { height: 46px; border: 1px solid var(--line); border-radius: 12px; backg
 .ix-row { display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
 .ix-row:last-of-type { border-bottom: 0; }
 .composer .modes.toolbar { padding: 8px 0 0; }
+.chip.ico.quick { width: auto; min-width: 32px; padding: 0 9px; height: 32px; text-decoration: none; color: inherit; }
+.chip.ico.quick svg { width: 15px; height: 15px; }
