@@ -1,0 +1,25 @@
+columns:
+    excerpt:
+        label: Publicación
+        sortable: false
+        searchable: false
+    networks_summary:
+        label: Redes
+        sortable: false
+    status_label:
+        label: Estado
+        sortable: false
+    scheduled_at:
+        label: Programado para
+        type: datetime
+    published_at:
+        label: Publicado
+        type: datetime
+    created_at:
+        label: Creado
+        type: datetime
+        invisible: true
+    content:
+        label: Texto
+        searchable: true
+        invisible: true

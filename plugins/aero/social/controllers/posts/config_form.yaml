@@ -1,0 +1,11 @@
+name: Publicación
+form: $/aero/social/models/post/fields.yaml
+modelClass: Aero\Social\Models\Post
+defaultRedirect: aero/social/posts
+create:
+    title: Nueva publicación
+    redirect: aero/social/posts/update/:id
+update:
+    title: Publicación
+    redirect: aero/social/posts/update/:id
+    redirectClose: aero/social/posts

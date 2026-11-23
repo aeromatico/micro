@@ -1,0 +1,4 @@
+1.0.0:
+    - "Nueva sección Redes sociales: conecta tus páginas de Facebook y cuentas de Instagram con un botón y publica o programa posts en varias a la vez."
+    - create_social_tables.php
+    - seed_social_credit_actions.php

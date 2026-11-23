@@ -1,0 +1,13 @@
+title: Publicaciones
+list: $/aero/social/models/post/columns.yaml
+modelClass: Aero\Social\Models\Post
+recordUrl: aero/social/posts/update/:id
+noRecordsMessage: Aún no hay publicaciones.
+recordsPerPage: 30
+defaultSort:
+    column: created_at
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: Buscar

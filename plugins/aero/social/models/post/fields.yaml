@@ -1,0 +1,35 @@
+fields:
+    _hint:
+        type: partial
+        path: $/aero/social/controllers/posts/_hint.php
+    content:
+        label: Texto
+        type: textarea
+        size: large
+        span: full
+        commentAbove: 'Un solo texto para todas las redes. Instagram admite hasta 2.200 caracteres.'
+    media:
+        label: Fotos o video
+        type: fileupload
+        mode: file
+        fileTypes: 'jpg,jpeg,png,gif,mp4,mov'
+        span: full
+        commentAbove: 'Instagram exige al menos una foto (JPG) o un video. Hasta 10 archivos.'
+    link:
+        label: Enlace (opcional)
+        type: text
+        span: left
+        placeholder: 'https://'
+        comment: 'Solo Facebook lo muestra como vista previa. En Instagram los enlaces no son clicables.'
+    scheduled_at:
+        label: Programar para (opcional)
+        type: datepicker
+        mode: datetime
+        span: right
+        comment: 'Vacío = se publica en cuanto pulses «Publicar».'
+    account_ids:
+        label: Publicar en
+        type: checkboxlist
+        span: full
+        quickselect: true
+        commentAbove: 'Las cuentas que conectaste en «Conexiones».'
