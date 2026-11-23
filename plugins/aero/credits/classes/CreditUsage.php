@@ -27,6 +27,7 @@ class CreditUsage
         'services'   => 'Servicios',
         'workspaces' => 'Servicios',
         'producer'   => 'Video',
+        'social'     => 'Redes sociales',
     ];
 
     /** Prefijo del código → plugin de origen cuando el cobro no lo declara. */
@@ -34,7 +35,7 @@ class CreditUsage
         'hello' => 'Aero.Hello', 'chat' => 'Aero.Chat', 'sms' => 'Aero.Sms', 'aifields' => 'Aero.AiFields',
         'chatbots' => 'Aero.Chatbots', 'hub' => 'Aero.Hub', 'api' => 'Aero.Api', 'workflows' => 'Aero.Workflows',
         'connector' => 'Aero.Connector', 'pay' => 'Aero.Pay', 'services' => 'Aero.Services',
-        'workspaces' => 'Aero.Workspaces', 'producer' => 'Aero.Producer',
+        'workspaces' => 'Aero.Workspaces', 'producer' => 'Aero.Producer', 'social' => 'Aero.Social',
     ];
 
     /** Código exacto o prefijo → unidad de cobro. */
