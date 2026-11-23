@@ -550,3 +550,15 @@
 1.104.0:
     - "Las cuentas ahora pueden usar Redes sociales: conectar sus páginas y publicar o programar posts."
     - grant_social_to_tenant_admin.php
+
+1.105.0:
+    - "Los planes ahora pueden fijar límites por función (por ejemplo, cuántas redes sociales se conectan)."
+    - add_limits_to_plans.php
+
+1.106.0:
+    - "Los planes Negocio y PRO ahora incluyen Redes sociales."
+    - add_social_to_plans.php
+
+1.107.0:
+    - "Las cuentas ahora pueden gestionar sus anuncios de Meta desde Redes sociales."
+    - grant_social_ads_to_tenant_admin.php

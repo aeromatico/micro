@@ -12,6 +12,7 @@ use System\Classes\PluginManager;
  *              usan) — hoy solo se guarda: el motor de renovación que le da efecto aún no existe.
  *  - plugins:  códigos de plugin ('Aero.Hello') accesibles con este plan; null = sin restricción.
  *  - features: [{text, featured, description, tooltip}] — lista libre que se muestra en /alta y en la invitación a mejorar.
+ *  - limits:   {clave: entero} declarados por plugins (ver Classes\PlanLimits); vacío = sin límite.
  *  - is_pro:   el admin del tenant recibe el rol tenant_admin_pro y puede usar dominio propio.
  *  - price_renewal / price_renewal_annual: precio de renovación si difiere del de alta (price /
  *    price_annual); null = mismo precio. Sin efecto todavía (no hay cobro recurrente).
@@ -25,14 +26,14 @@ class Plan extends Model
 
     public $fillable = [
         'code', 'name', 'description', 'price', 'price_renewal', 'price_annual', 'price_renewal_annual',
-        'trial_days', 'is_active', 'is_featured', 'is_pro', 'sort_order', 'credits', 'plugins', 'features',
+        'trial_days', 'is_active', 'is_featured', 'is_pro', 'sort_order', 'credits', 'plugins', 'features', 'limits',
     ];
 
     public $hasMany = [
         'tenants' => [Tenant::class, 'key' => 'plan_id'],
     ];
 
-    public $jsonable = ['credits', 'plugins', 'features'];
+    public $jsonable = ['credits', 'plugins', 'features', 'limits'];
 
     public $rules = [
         'code'  => 'required|alpha_dash|max:40|unique:aero_sites_plans,code',
@@ -173,6 +174,14 @@ class Plan extends Model
         }
 
         return $out;
+    }
+
+    /** Límite numérico del plan para la clave; null = sin límite. */
+    public function limitFor(string $key): ?int
+    {
+        $value = ((array) $this->limits)[$key] ?? null;
+
+        return ($value === null || $value === '') ? null : max(0, (int) $value);
     }
 
     /** ¿Incluye este plan el plugin? (null = sin restricción) */
