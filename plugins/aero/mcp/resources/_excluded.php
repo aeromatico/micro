@@ -35,6 +35,7 @@ return [
     \Aero\Producer\Models\Project::class => 'proyectos de video de la plataforma (guion y archivos internos); sin pantalla de tenant aún',
     \Aero\Youtube\Models\Credential::class => 'credenciales (api_key_enc)',
     \Aero\Youtube\Models\Upload::class => 'cola de subidas de la plataforma (biblioteca de medios propia, solo superadmin)',
+    \Aero\Social\Models\App::class => 'llaves de apps propias del tenant (client_secret cifrado)',
     \Aero\School\Models\Settings::class => 'configuración del colegio (cuenta de cobro y plantillas)',
     \Aero\Hello\Models\ApiKey::class => 'credenciales (key_hash/key_encrypted)',
     \Aero\Hello\Models\Profile::class => 'credenciales de proveedor (zernio/wapi/voice api keys)',
