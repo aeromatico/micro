@@ -1,0 +1,19 @@
+fields:
+    _help:
+        type: partial
+        path: $/aero/social/controllers/apps/_help.php
+    network:
+        label: Red
+        type: dropdown
+        span: left
+        required: true
+    client_id:
+        label: ID de cliente (Client ID / Client key)
+        type: text
+        span: full
+        required: true
+    client_secret:
+        label: Secreto (Client secret)
+        type: sensitive
+        span: full
+        required: true

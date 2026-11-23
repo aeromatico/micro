@@ -22,22 +22,32 @@ class MetaConnect
         'business_management',
     ];
 
+    /** Permisos para Anuncios (se piden aparte: Meta los revisa con más rigor). */
+    public const ADS_SCOPES = [
+        'ads_management',
+        'ads_read',
+        'business_management',
+        'pages_show_list',
+        'pages_read_engagement',
+    ];
+
     public static function redirectUri(): string
     {
         return config('aero.social::meta.redirect_uri') ?: Backend::url('aero/social/connections/callback');
     }
 
-    public static function authorizeUrl(int $tenantId, int $userId): string
+    /** $purpose: 'pages' (publicar) o 'ads' (anuncios). */
+    public static function authorizeUrl(int $tenantId, int $userId, string $purpose = 'pages'): string
     {
         $state = Str::random(40);
-        session()->put(self::SESSION_KEY, ['state' => $state, 'tenant_id' => $tenantId, 'user_id' => $userId]);
+        session()->put(self::SESSION_KEY, ['state' => $state, 'tenant_id' => $tenantId, 'user_id' => $userId, 'purpose' => $purpose]);
 
         return 'https://www.facebook.com/' . MetaClient::version() . '/dialog/oauth?' . http_build_query([
             'client_id'     => MetaClient::appId(),
             'redirect_uri'  => self::redirectUri(),
             'state'         => $state,
             'response_type' => 'code',
-            'scope'         => implode(',', self::SCOPES),
+            'scope'         => implode(',', $purpose === 'ads' ? self::ADS_SCOPES : self::SCOPES),
             // Volver a mostrar la elección de páginas aunque ya haya autorizado antes.
             'auth_type'     => 'rerequest',
         ]);
@@ -46,7 +56,7 @@ class MetaConnect
     /**
      * Procesa el retorno de Meta y sincroniza las cuentas del tenant.
      *
-     * @return array{facebook:int, instagram:int}
+     * @return array{purpose:string, ...}
      * @throws SocialException
      */
     public static function callback(array $query, int $tenantId, int $userId): array
@@ -77,25 +87,36 @@ class MetaConnect
             'fb_exchange_token' => $short['access_token'],
         ]);
 
+        if (($pending['purpose'] ?? 'pages') === 'ads') {
+            return ['purpose' => 'ads'] + MetaAds::connect($long['access_token'], (int) ($long['expires_in'] ?? 0), $tenantId, $userId);
+        }
+
         $pages = MetaClient::get('me/accounts', [
             'fields' => 'id,name,access_token,picture{url},instagram_business_account{id,username,name,profile_picture_url}',
             'limit'  => 100,
         ], $long['access_token']);
 
-        return self::sync($pages['data'] ?? [], $tenantId, $userId);
+        return ['purpose' => 'pages'] + self::sync($pages['data'] ?? [], $tenantId, $userId);
     }
 
     /** Alta/actualización de páginas e Instagram del tenant. Público para tests. */
     public static function sync(array $pages, int $tenantId, int $userId): array
     {
-        $counts = ['facebook' => 0, 'instagram' => 0];
+        $counts = ['facebook' => 0, 'instagram' => 0, 'skipped' => 0];
+        $sync = new AccountSync($tenantId);
 
         foreach ($pages as $page) {
             if (empty($page['id']) || empty($page['access_token'])) {
                 continue;
             }
 
-            $fb = self::upsert($tenantId, 'facebook', (string) $page['id'], [
+            $ig = $page['instagram_business_account'] ?? null;
+            if (!$sync->fits('facebook', (string) $page['id'])) {
+                $sync->skipped += empty($ig['id']) ? 0 : 1;   // su Instagram tampoco entra
+                continue;
+            }
+
+            $fb = $sync->upsert('facebook', (string) $page['id'], [
                 'name'         => $page['name'] ?? null,
                 'avatar_url'   => $page['picture']['data']['url'] ?? null,
                 'access_token' => $page['access_token'],
@@ -103,9 +124,8 @@ class MetaConnect
             ]);
             $counts['facebook']++;
 
-            $ig = $page['instagram_business_account'] ?? null;
-            if ($ig && !empty($ig['id'])) {
-                self::upsert($tenantId, 'instagram', (string) $ig['id'], [
+            if ($ig && !empty($ig['id']) && $sync->fits('instagram', (string) $ig['id'])) {
+                $sync->upsert('instagram', (string) $ig['id'], [
                     'name'         => $ig['name'] ?? $ig['username'] ?? null,
                     'username'     => $ig['username'] ?? null,
                     'avatar_url'   => $ig['profile_picture_url'] ?? null,
@@ -117,16 +137,8 @@ class MetaConnect
             }
         }
 
+        $counts['skipped'] = $sync->skipped;
+
         return $counts;
-    }
-
-    protected static function upsert(int $tenantId, string $network, string $externalId, array $data): Account
-    {
-        $account = Account::firstOrNew(['tenant_id' => $tenantId, 'network' => $network, 'external_id' => $externalId]);
-        $account->fill($data + ['status' => 'active', 'last_error' => null, 'checked_at' => now()]);
-        $account->status = 'active';
-        $account->save();
-
-        return $account;
     }
 }

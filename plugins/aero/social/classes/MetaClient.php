@@ -41,6 +41,23 @@ class MetaClient
         return self::send('post', $path, $params, $token, $timeout);
     }
 
+    /** Recorre la paginación de Graph (`paging.next`) hasta $max filas. */
+    public static function getAll(string $path, array $query, string $token, int $max = 2000): array
+    {
+        $rows = [];
+        $query['limit'] = $query['limit'] ?? 200;
+
+        do {
+            $res = self::get($path, $query, $token, 40);
+            $rows = array_merge($rows, $res['data'] ?? []);
+            $after = $res['paging']['cursors']['after'] ?? null;
+            $more = !empty($res['paging']['next']) && $after && count($rows) < $max;
+            $query['after'] = $after;
+        } while ($more);
+
+        return $rows;
+    }
+
     protected static function send(string $method, string $path, array $params, ?string $token, int $timeout): array
     {
         if ($token) {

@@ -16,7 +16,7 @@ class PublishTarget implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
-    public $timeout = 150;
+    public $timeout = 900;   // subidas de video grandes (YouTube/TikTok/X)
 
     public function __construct(public int $targetId)
     {

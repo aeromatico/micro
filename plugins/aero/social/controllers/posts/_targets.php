@@ -2,6 +2,8 @@
 $targets = $post->targets()->with('account')->get();
 $open = $targets->whereIn('status', ['queued', 'publishing', 'processing'])->isNotEmpty();
 $colors = ['published' => '#047857', 'failed' => '#b91c1c', 'cancelled' => '#6b7280'];
+$user = BackendAuth::getUser();
+$canBoost = $user && ($user->hasAccess('aero.social.ads') || $user->hasAccess('aero.social.superadmin'));
 ?>
 <?php if ($targets->isNotEmpty()): ?>
 <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;margin-bottom:16px">
@@ -20,6 +22,10 @@ $colors = ['published' => '#047857', 'failed' => '#b91c1c', 'cancelled' => '#6b7
                     <?php if ($t->refunded_at && $t->credits_charged): ?><span class="text-muted"> (créditos devueltos)</span><?php endif ?>
                 </td>
                 <td class="text-right">
+                    <?php if ($canBoost && $t->status === 'published' && $t->external_id && in_array($t->network, ['facebook', 'instagram'], true)): ?>
+                        <button type="button" class="btn btn-xs btn-primary" data-control="popup" data-handler="onBoostForm"
+                                data-request-data="target_id: <?= (int) $t->id ?>">Promocionar</button>
+                    <?php endif ?>
                     <?php if ($t->status === 'failed'): ?>
                         <button type="button" class="btn btn-xs btn-default" data-request="onRetryTarget" data-request-data="target_id: <?= (int) $t->id ?>"
                                 data-request-confirm="¿Reintentar? Se vuelve a cobrar esta red.">Reintentar</button>

@@ -2,3 +2,12 @@
     - "Nueva sección Redes sociales: conecta tus páginas de Facebook y cuentas de Instagram con un botón y publica o programa posts en varias a la vez."
     - create_social_tables.php
     - seed_social_credit_actions.php
+
+1.1.0:
+    - "Ahora también puedes conectar YouTube, X y TikTok y publicar en ellos junto con Facebook e Instagram."
+    - add_oauth_networks.php
+    - seed_social_credit_actions_v2.php
+
+1.2.0:
+    - "Nueva sección Anuncios: conecta tu cuenta publicitaria de Meta, mira gasto y resultados, pausa o activa campañas, cambia presupuestos y promociona tus publicaciones."
+    - create_ads_tables.php

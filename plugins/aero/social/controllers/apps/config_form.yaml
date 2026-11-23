@@ -1,0 +1,11 @@
+name: Llaves propias
+form: $/aero/social/models/app/fields.yaml
+modelClass: Aero\Social\Models\App
+defaultRedirect: aero/social/apps
+create:
+    title: Agregar llaves
+    redirect: aero/social/apps
+update:
+    title: Editar llaves
+    redirect: aero/social/apps
+    redirectClose: aero/social/apps

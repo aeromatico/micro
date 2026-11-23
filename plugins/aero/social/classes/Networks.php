@@ -2,16 +2,17 @@
 
 /**
  * Catálogo de redes. Sumar una red = una entrada aquí + un driver en
- * classes/drivers + su acción social.post.{red} en Créditos.
+ * classes/drivers + (si es OAuth2) un proveedor en classes/oauth + su acción
+ * social.post.{red} en Créditos.
  */
 class Networks
 {
     public const ALL = [
         'facebook'  => ['label' => 'Facebook',  'color' => '#1877F2', 'driver' => Drivers\FacebookDriver::class,  'connect' => 'meta', 'available' => true],
         'instagram' => ['label' => 'Instagram', 'color' => '#E4405F', 'driver' => Drivers\InstagramDriver::class, 'connect' => 'meta', 'available' => true],
-        'tiktok'    => ['label' => 'TikTok',    'color' => '#000000', 'driver' => null, 'connect' => null, 'available' => false],
-        'youtube'   => ['label' => 'YouTube',   'color' => '#FF0000', 'driver' => null, 'connect' => null, 'available' => false],
-        'x'         => ['label' => 'X',         'color' => '#000000', 'driver' => null, 'connect' => null, 'available' => false],
+        'youtube'   => ['label' => 'YouTube',   'color' => '#FF0000', 'driver' => Drivers\YoutubeDriver::class, 'connect' => 'oauth', 'available' => true],
+        'tiktok'    => ['label' => 'TikTok',    'color' => '#000000', 'driver' => Drivers\TikTokDriver::class,  'connect' => 'oauth', 'available' => true],
+        'x'         => ['label' => 'X',         'color' => '#000000', 'driver' => Drivers\XDriver::class,       'connect' => 'oauth', 'available' => true],
     ];
 
     public static function label(string $code): string

@@ -13,13 +13,13 @@ class Account extends Model
 
     public $table = 'aero_social_accounts';
 
-    protected $encryptable = ['access_token'];
+    protected $encryptable = ['access_token', 'refresh_token'];
 
-    protected $hidden = ['access_token'];
+    protected $hidden = ['access_token', 'refresh_token'];
 
     protected $fillable = [
         'tenant_id', 'network', 'external_id', 'name', 'username', 'avatar_url',
-        'access_token', 'token_expires_at', 'parent_id', 'status', 'last_error', 'connected_by', 'checked_at',
+        'access_token', 'refresh_token', 'token_expires_at', 'parent_id', 'app_id', 'status', 'last_error', 'connected_by', 'checked_at',
     ];
 
     protected $dates = ['token_expires_at', 'checked_at'];

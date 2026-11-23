@@ -1,0 +1,7 @@
+title: Llaves propias
+list: $/aero/social/models/app/columns.yaml
+modelClass: Aero\Social\Models\App
+recordUrl: aero/social/apps/update/:id
+noRecordsMessage: No usas apps propias; se usa la de Market.
+toolbar:
+    buttons: list_toolbar

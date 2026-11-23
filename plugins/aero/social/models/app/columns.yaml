@@ -1,0 +1,10 @@
+columns:
+    network_label:
+        label: Red
+        sortable: false
+    client_id:
+        label: ID de cliente
+        searchable: true
+    updated_at:
+        label: Actualizado
+        type: datetime

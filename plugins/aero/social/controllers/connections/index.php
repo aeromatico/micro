@@ -26,6 +26,12 @@ $iconFor = fn ($code) => [
     <p class="flash-message static warning">Tu usuario no pertenece a ninguna cuenta: las conexiones son de cada cuenta.</p>
 <?php endif ?>
 
+<?php if ($limit !== null): ?>
+    <p class="<?= $used >= $limit ? 'flash-message static warning' : 'soc-muted' ?>">
+        Cuentas conectadas: <strong><?= (int) $used ?> de <?= (int) $limit ?></strong> que incluye tu plan.
+        <?php if ($used >= $limit): ?><a href="<?= Backend::url('aero/sites/myplan') ?>">Mejorar plan</a><?php endif ?>
+    </p>
+<?php endif ?>
 <p class="soc-muted">Conecta las redes de tu negocio. Las cuentas son tuyas: puedes desconectarlas aquí o desde la propia red cuando quieras.</p>
 
 <div class="soc-grid">
@@ -48,10 +54,10 @@ $iconFor = fn ($code) => [
                 <?php else: ?>
                     <span class="soc-badge bad">Reconectar</span>
                 <?php endif ?>
-                <?php if ($code === 'facebook'): ?>
+                <?php if ($code !== 'instagram'): ?>
                     <a href="javascript:;" class="text-danger" title="Desconectar"
                        data-request="onDisconnect" data-request-data="id: <?= (int) $acc->id ?>"
-                       data-request-confirm="¿Desconectar «<?= e($acc->name) ?>»? También se desconecta su Instagram.">×</a>
+                       data-request-confirm="¿Desconectar «<?= e($acc->name) ?>»?<?= $code === 'facebook' ? ' También se desconecta su Instagram.' : '' ?>">×</a>
                 <?php endif ?>
             </div>
         <?php endforeach ?>
@@ -68,6 +74,19 @@ $iconFor = fn ($code) => [
                 <p class="soc-muted">Se abre Facebook: elige tus páginas y, si tienes, sus cuentas de Instagram.</p>
             <?php else: ?>
                 <p class="soc-muted">La conexión con Meta aún no está habilitada en la plataforma.</p>
+            <?php endif ?>
+        <?php elseif ($net['connect'] === 'oauth'): ?>
+            <?php if (!empty($oauthReady[$code]) && $tenantId): ?>
+                <a href="<?= Backend::url('aero/social/connections/connect/' . $code) ?>" class="btn btn-primary" style="background:<?= e($net['color']) ?>;border-color:<?= e($net['color']) ?>">
+                    <?= $list->isEmpty() ? 'Conectar ' . e($net['label']) : 'Agregar o reconectar' ?>
+                </a>
+                <?php if ($code === 'tiktok' && !config('aero.social::tiktok.audited')): ?>
+                    <p class="soc-muted">Por ahora los videos se publican en privado (solo tú los ves) hasta que TikTok apruebe la app.</p>
+                <?php endif ?>
+            <?php else: ?>
+                <p class="soc-muted">Aún no está habilitada en la plataforma.
+                    <?php if (in_array($code, $byo, true)): ?>Puedes usar tu propia app en <a href="<?= Backend::url('aero/social/apps') ?>">Llaves propias</a>.<?php endif ?>
+                </p>
             <?php endif ?>
         <?php endif ?>
     </div>

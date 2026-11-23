@@ -279,6 +279,13 @@ class Publisher
             }
         }
 
+        // Cuentas publicitarias cuyo token de 60 días ya venció.
+        foreach (\Aero\Social\Models\AdAccount::active()->whereNotNull('token_expires_at')->where('token_expires_at', '<', now())->get() as $ad) {
+            $ad->markExpired('La conexión con Meta Ads venció (dura unos 60 días). Vuelve a conectarla.');
+            Event::dispatch('aero.social.adAccountExpired', [$ad]);
+            $expired++;
+        }
+
         return $expired;
     }
 }

@@ -1,0 +1,17 @@
+<?php Block::put('breadcrumb') ?>
+    <ul><li><a href="<?= Backend::url('aero/social/apps') ?>">Llaves propias</a></li><li><?= e($this->pageTitle) ?></li></ul>
+<?php Block::endPut() ?>
+
+<?php if (!$this->fatalError): ?>
+<?= Form::open(['class' => 'layout']) ?>
+    <div class="layout-row"><?= $this->formRender() ?></div>
+    <div class="form-buttons">
+        <button type="submit" class="btn btn-primary" data-request="onSave" data-request-data="close:1" data-load-indicator="Guardando…">Guardar</button>
+        <button type="button" class="btn btn-danger pull-right" data-request="onDelete"
+                data-request-confirm="¿Borrar estas llaves? Las cuentas conectadas con ellas dejarán de renovarse; reconéctalas con la app de Market.">Borrar</button>
+        <a href="<?= Backend::url('aero/social/apps') ?>" class="btn btn-link">Cancelar</a>
+    </div>
+<?= Form::close() ?>
+<?php else: ?>
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+<?php endif ?>

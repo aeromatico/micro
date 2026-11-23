@@ -7,20 +7,20 @@ fields:
         type: textarea
         size: large
         span: full
-        commentAbove: 'Un solo texto para todas las redes. Instagram admite hasta 2.200 caracteres.'
+        commentAbove: 'Un solo texto para todas las redes. X admite 280 caracteres; Instagram y TikTok 2.200. En YouTube la primera línea es el título.'
     media:
         label: Fotos o video
         type: fileupload
         mode: file
         fileTypes: 'jpg,jpeg,png,gif,mp4,mov'
         span: full
-        commentAbove: 'Instagram exige al menos una foto (JPG) o un video. Hasta 10 archivos.'
+        commentAbove: 'Instagram y TikTok exigen archivo (fotos en JPG); YouTube, exactamente un video; X, hasta 4 fotos o un video. Si algo no encaja, se avisa antes de publicar.'
     link:
         label: Enlace (opcional)
         type: text
         span: left
         placeholder: 'https://'
-        comment: 'Solo Facebook lo muestra como vista previa. En Instagram los enlaces no son clicables.'
+        comment: 'Facebook arma la vista previa; en las demás redes se agrega al final del texto (en Instagram y TikTok no es clicable).'
     scheduled_at:
         label: Programar para (opcional)
         type: datepicker

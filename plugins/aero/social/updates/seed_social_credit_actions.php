@@ -25,7 +25,7 @@ return new class extends Seeder
             return;
         }
 
-        foreach (['facebook' => 'Facebook', 'instagram' => 'Instagram'] as $code => $label) {
+        foreach (['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'x' => 'X', 'tiktok' => 'TikTok'] as $code => $label) {
             \Aero\Credits\Models\CreditAction::firstOrCreate(
                 ['code' => "social.post.{$code}"],
                 [

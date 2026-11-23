@@ -12,6 +12,19 @@ use PluginTestCase;
 
 class SmokeTest extends PluginTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        // Sin tablas de Sites en SQLite: sin límite salvo que el test lo fije.
+        \Aero\Social\Classes\Limits::$resolver = fn () => null;
+    }
+
+    public function tearDown(): void
+    {
+        \Aero\Social\Classes\Limits::$resolver = null;
+        parent::tearDown();
+    }
+
     protected function pages(): array
     {
         return [[
@@ -59,7 +72,7 @@ class SmokeTest extends PluginTestCase
     public function testSyncCreatesPageAndInstagramWithEncryptedToken(): void
     {
         $counts = MetaConnect::sync($this->pages(), 1, 5);
-        $this->assertSame(['facebook' => 1, 'instagram' => 1], $counts);
+        $this->assertSame(['facebook' => 1, 'instagram' => 1, 'skipped' => 0], $counts);
 
         $fb = Account::where('network', 'facebook')->first();
         $ig = Account::where('network', 'instagram')->first();
@@ -70,6 +83,22 @@ class SmokeTest extends PluginTestCase
         // Reconectar no duplica.
         MetaConnect::sync($this->pages(), 1, 5);
         $this->assertSame(2, Account::where('tenant_id', 1)->count());
+    }
+
+    public function testPlanLimitCapsNewAccountsButNotReconnects(): void
+    {
+        \Aero\Social\Classes\Limits::$resolver = fn () => 1;
+        try {
+            $counts = MetaConnect::sync($this->pages(), 1, 5);
+            $this->assertSame(['facebook' => 1, 'instagram' => 0, 'skipped' => 1], $counts);
+
+            // Reconectar la misma página no consume cupo.
+            $again = MetaConnect::sync($this->pages(), 1, 5);
+            $this->assertSame(1, $again['facebook']);
+            $this->assertSame(1, \Aero\Social\Classes\Limits::used(1));
+        } finally {
+            \Aero\Social\Classes\Limits::$resolver = fn () => null;
+        }
     }
 
     public function testTenantIsolation(): void

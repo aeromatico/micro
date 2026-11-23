@@ -121,6 +121,54 @@ class Posts extends Controller
         return Backend::redirect('aero/social/posts/update/' . $post->id);
     }
 
+    /** Popup «Promocionar» de una publicación ya publicada en Facebook/Instagram. */
+    public function update_onBoostForm($recordId = null)
+    {
+        $this->checkAdsAccess();
+        $post = $this->formFindModelObject($recordId);
+        $target = PostTarget::where('post_id', $post->id)->findOrFail((int) post('target_id'));
+
+        return $this->makePartial('boost_form', [
+            'target'     => $target,
+            'adAccounts' => \Aero\Social\Models\AdAccount::forTenant($post->tenant_id)->active()->where('platform', 'meta')->get(),
+        ]);
+    }
+
+    public function update_onBoost($recordId = null)
+    {
+        $this->checkAdsAccess();
+        $post = $this->formFindModelObject($recordId);
+        $target = PostTarget::where('post_id', $post->id)->findOrFail((int) post('target_id'));
+        $adAccount = \Aero\Social\Models\AdAccount::forTenant($post->tenant_id)->findOrFail((int) post('ad_account_id'));
+
+        try {
+            $campaign = \Aero\Social\Classes\MetaAds::boost($adAccount, $target, [
+                'daily_budget' => (float) str_replace(',', '.', (string) post('daily_budget')),
+                'days'         => (int) post('days'),
+                'country'      => (string) post('country', 'BO'),
+                'age_min'      => (int) post('age_min', 18),
+                'age_max'      => (int) post('age_max', 65),
+            ]);
+        } catch (\Aero\Social\Classes\SocialException $e) {
+            if ($e->tokenInvalid) {
+                $adAccount->markExpired($e->getMessage());
+            }
+            throw new ApplicationException($e->getMessage());
+        }
+
+        Flash::success('Promoción creada. Meta la revisa antes de mostrarla (suele tardar minutos).');
+
+        return Backend::redirect('aero/social/ads?account=' . $campaign->ad_account_id);
+    }
+
+    protected function checkAdsAccess(): void
+    {
+        $user = \BackendAuth::getUser();
+        if (!$user || !($user->hasAccess('aero.social.ads') || $user->hasAccess('aero.social.superadmin'))) {
+            throw new ApplicationException('No tienes permiso para crear anuncios.');
+        }
+    }
+
     public function update_onRefreshTargets($recordId = null)
     {
         $post = $this->formFindModelObject($recordId);
