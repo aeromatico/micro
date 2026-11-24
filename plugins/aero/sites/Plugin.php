@@ -100,6 +100,17 @@ class Plugin extends PluginBase
             if (\Aero\Sites\Models\Tenant::resolveForBackendUser($user)) {
                 $manager->removeMainMenuItem('October.System', 'system');
             }
+
+            // Módulos apagados por el tenant o fuera de su plan: fuera del menú.
+            $hidden = \Aero\Sites\Classes\ProFeatures::hiddenPluginsFor($user);
+            if ($hidden) {
+                $nav = \System\Classes\PluginManager::instance()->getRegistrationMethodValues('registerNavigation');
+                foreach ($hidden as $code) {
+                    foreach (array_keys((array) ($nav[$code] ?? [])) as $menuCode) {
+                        $manager->removeMainMenuItem($code, $menuCode);
+                    }
+                }
+            }
         });
     }
 
@@ -116,8 +127,25 @@ class Plugin extends PluginBase
             }
             $key = \Aero\Sites\Classes\ProFeatures::keyForController($controller);
             $user = \BackendAuth::getUser();
+
+            // Primera vez: el tenant_admin elige sus módulos antes de seguir.
+            if (!($controller instanceof \Aero\Sites\Controllers\MyModules)
+                && !request()->ajax() && $user && !$user->is_superuser
+                && !BackendAuth::isImpersonator() && $user->hasAccess('aero.sites.mymodules')
+                && ($tenant = \Aero\Sites\Classes\ProFeatures::toggleTenantFor($user))
+                && $tenant->needsModulesWelcome()) {
+                return \Backend::redirect('aero/sites/mymodules/welcome');
+            }
+
             if (!\Aero\Sites\Classes\ProFeatures::blocks($user, $key)
                 && !\Aero\Sites\Classes\ProFeatures::blocksByPlan($user, $controller)) {
+                // Módulo apagado por el propio tenant → «Mis módulos» para encenderlo.
+                if ($off = \Aero\Sites\Classes\ProFeatures::blockedByTenantToggle($user, $controller)) {
+                    if (request()->ajax()) {
+                        throw new \ApplicationException('Este módulo está apagado. Enciéndelo en Mis módulos.');
+                    }
+                    return \Backend::redirect('aero/sites/mymodules?off=' . urlencode($off));
+                }
                 return;
             }
             if (request()->ajax()) {
@@ -1026,6 +1054,14 @@ class Plugin extends PluginBase
                 'permissions' => ['aero.sites.myplan'],
                 'order'       => 101,
             ],
+            // Encender/apagar módulos del espacio (tenant_admin)
+            'mis-modulos' => [
+                'label'       => 'Mis módulos',
+                'url'         => Backend::url('aero/sites/mymodules'),
+                'icon'        => 'icon-th-large',
+                'permissions' => ['aero.sites.mymodules'],
+                'order'       => 102,
+            ],
             // Panel del superadmin — gestión de la plataforma
             'sites' => [
                 'label'       => 'aero.sites::lang.menu.sites',
@@ -1175,6 +1211,10 @@ class Plugin extends PluginBase
             'aero.sites.myplan' => [
                 'tab'   => 'Sites',
                 'label' => 'Ver mi plan y pagar la renovación',
+            ],
+            'aero.sites.mymodules' => [
+                'tab'   => 'Sites',
+                'label' => 'Encender y apagar los módulos del espacio',
             ],
         ];
     }

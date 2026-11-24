@@ -123,3 +123,22 @@ tabs:
             span: full
             tab: Accesos
             context: update
+
+        disabled_plugins:
+            label: Módulos apagados por la cuenta
+            commentAbove: 'Lo que la cuenta apagó en «Mis módulos». Lo que su plan no incluye queda bloqueado igual, esté o no marcado aquí.'
+            type: checkboxlist
+            options: getDisabledPluginsOptions
+            quickselect: true
+            span: full
+            tab: Módulos
+            context: update
+
+        modules_onboarded_at:
+            label: Eligió sus módulos el
+            comment: 'Vacíalo para que vuelva a ver la bienvenida de módulos al entrar.'
+            type: datepicker
+            mode: datetime
+            span: left
+            tab: Módulos
+            context: update

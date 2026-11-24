@@ -134,6 +134,63 @@ class ProFeatures
             && !$plan->allowsPlugin($plugin);
     }
 
+    /** Tenant cuyos switches de módulos aplican a este usuario (no superadmin). */
+    public static function toggleTenantFor($user): ?\Aero\Sites\Models\Tenant
+    {
+        static $cache = [];
+
+        if (!$user || $user->is_superuser) {
+            return null;
+        }
+
+        $key = $user->id . '@' . request()->getHost();
+        if (!array_key_exists($key, $cache)) {
+            $cache[$key] = \Aero\Sites\Models\Tenant::resolveForBackendUser($user);
+        }
+
+        return $cache[$key];
+    }
+
+    /** Código Aero.X del plugin dueño del controller, o null. */
+    public static function pluginOfController($controller): ?string
+    {
+        return preg_match('/^Aero\\\\(\w+)\\\\Controllers\\\\/', get_class($controller), $m) ? 'Aero.' . $m[1] : null;
+    }
+
+    /**
+     * ¿El tenant apagó el módulo de esta pantalla? Devuelve el código del
+     * plugin apagado, o null si pasa. Aplica a todo usuario no superadmin
+     * del tenant (es una decisión del espacio, no del rol).
+     */
+    public static function blockedByTenantToggle($user, $controller): ?string
+    {
+        $plugin = static::pluginOfController($controller);
+        if (!$plugin || !\Aero\Sites\Classes\ModuleCatalog::isToggleable($plugin)) {
+            return null;
+        }
+
+        $tenant = static::toggleTenantFor($user);
+        if (!$tenant || !$tenant->pluginAllowedByPlan($plugin)) {
+            return null; // fuera del plan lo resuelve blocksByPlan (→ upgrade)
+        }
+
+        return $tenant->pluginEnabled($plugin) ? null : $plugin;
+    }
+
+    /** Plugins cuyo menú se oculta para el usuario: apagados o fuera del plan. */
+    public static function hiddenPluginsFor($user): array
+    {
+        $tenant = static::toggleTenantFor($user);
+        if (!$tenant) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            \Aero\Sites\Classes\ModuleCatalog::codes(),
+            fn ($code) => !$tenant->pluginEnabled($code)
+        ));
+    }
+
     public static function proKeys(): array
     {
         return array_map('strtolower', (array) Settings::get('pro_features', []));

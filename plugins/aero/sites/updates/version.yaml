@@ -562,3 +562,8 @@
 1.107.0:
     - "Las cuentas ahora pueden gestionar sus anuncios de Meta desde Redes sociales."
     - grant_social_ads_to_tenant_admin.php
+
+1.108.0:
+    - "Ahora cada cuenta puede encender y apagar sus módulos, y elegirlos al entrar por primera vez."
+    - add_module_toggles_to_tenants.php
+    - grant_mymodules_to_tenant_admin.php

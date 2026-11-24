@@ -26,9 +26,9 @@ class Tenant extends Model
         'plan_id', 'plan_price', 'billing_period', 'plan_expires_at', 'signup_qr_code_id', 'signup_payment_reference', 'signup_domain', 'signup_domain_source',
     ];
 
-    protected $jsonable = ['theme_overrides'];
+    protected $jsonable = ['theme_overrides', 'disabled_plugins'];
 
-    protected $dates = ['deleted_at', 'plan_expires_at'];
+    protected $dates = ['deleted_at', 'plan_expires_at', 'modules_onboarded_at'];
 
     public $rules = [
         'name'           => 'required|min:2|max:100',
@@ -48,7 +48,7 @@ class Tenant extends Model
     ];
 
     /** El formulario manda '' al elegir «Sin plan»; en columnas numéricas/fecha debe ser NULL. */
-    public $nullable = ['plan_id', 'plan_expires_at', 'signup_qr_code_id'];
+    public $nullable = ['plan_id', 'plan_expires_at', 'signup_qr_code_id', 'modules_onboarded_at'];
 
     public $hasOne = [
         'seoConfig'     => [SeoConfig::class],
@@ -202,6 +202,75 @@ class Tenant extends Model
         } catch (\Throwable $e) {
             \Log::error('Aero.Sites: fallo notificando sites.tenant.suspended: ' . $e->getMessage());
         }
+    }
+
+    // ---- módulos (plugins) encendidos por el tenant ----
+
+    /** ¿El plan del tenant incluye el plugin? Sin plan o sin restricción: sí. */
+    public function pluginAllowedByPlan(string $code): bool
+    {
+        if (in_array($code, Plan::ALWAYS_ALLOWED, true)) {
+            return true;
+        }
+
+        return $this->plan?->allowsPlugin($code) ?? true;
+    }
+
+    /** ¿El tenant puede usar el plugin? = lo incluye su plan y no lo apagó. */
+    public function pluginEnabled(string $code): bool
+    {
+        if (in_array($code, Plan::ALWAYS_ALLOWED, true)) {
+            return true;
+        }
+
+        return $this->pluginAllowedByPlan($code)
+            && !in_array($code, (array) $this->disabled_plugins, true);
+    }
+
+    /**
+     * Guarda la lista de módulos apagados sin pasar por validación ni
+     * afterSave (no debe disparar créditos del plan ni re-aprovisionar).
+     */
+    public function saveDisabledPlugins(array $codes, bool $onboarded = false): void
+    {
+        $codes = array_values(array_unique(array_filter($codes, 'is_string')));
+        sort($codes);
+        $before = (array) $this->disabled_plugins;
+
+        $data = ['disabled_plugins' => json_encode($codes)];
+        if ($onboarded) {
+            $data['modules_onboarded_at'] = now();
+        }
+        static::withTrashed()->where('id', $this->id)->update($data);
+
+        $this->disabled_plugins = $codes;
+        if ($onboarded) {
+            $this->modules_onboarded_at = $data['modules_onboarded_at'];
+        }
+        $this->syncOriginal();
+
+        foreach (array_diff($codes, $before) as $code) {
+            \Event::fire('aero.sites.pluginToggled', [$this, $code, false]);
+        }
+        foreach (array_diff($before, $codes) as $code) {
+            \Event::fire('aero.sites.pluginToggled', [$this, $code, true]);
+        }
+    }
+
+    public function getDisabledPluginsOptions(): array
+    {
+        $out = [];
+        foreach (\Aero\Sites\Classes\ModuleCatalog::codes() as $code) {
+            $out[$code] = \Aero\Sites\Classes\ModuleCatalog::displayName($code)
+                . ($this->pluginAllowedByPlan($code) ? '' : ' (fuera del plan)');
+        }
+
+        return $out;
+    }
+
+    public function needsModulesWelcome(): bool
+    {
+        return $this->modules_onboarded_at === null;
     }
 
     public function getRootDomainIdOptions(): array
