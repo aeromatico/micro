@@ -31,9 +31,28 @@ class MetaConnect
         'pages_read_engagement',
     ];
 
+    /**
+     * URI de retorno ÚNICA (la que se registra en cada red). Se arma con APP_URL,
+     * no con el dominio desde el que se entró al panel: market.com.bo y
+     * panel.market.com.bo darían URIs distintas y una no estaría registrada.
+     */
     public static function redirectUri(): string
     {
-        return config('aero.social::meta.redirect_uri') ?: Backend::url('aero/social/connections/callback');
+        return config('aero.social::meta.redirect_uri') ?: self::canonical('aero/social/connections/callback');
+    }
+
+    public static function canonical(string $backendPath): string
+    {
+        return rtrim((string) config('app.url'), '/') . '/' . trim((string) config('backend.uri', 'backend'), '/') . '/' . ltrim($backendPath, '/');
+    }
+
+    /**
+     * Si se entró por otro dominio, hay que empezar la conexión en el canónico:
+     * la sesión (state) vive en la cookie de ese dominio y el retorno llega allí.
+     */
+    public static function onCanonicalHost(): bool
+    {
+        return strcasecmp(request()->getHost(), (string) parse_url(self::redirectUri(), PHP_URL_HOST)) === 0;
     }
 
     /** $purpose: 'pages' (publicar) o 'ads' (anuncios). */

@@ -85,6 +85,10 @@ class Ads extends Controller
     /** Botón «Conectar Meta Ads». */
     public function connect()
     {
+        if (!\Aero\Social\Classes\MetaConnect::onCanonicalHost()) {
+            return redirect()->away(\Aero\Social\Classes\MetaConnect::canonical('aero/social/ads/connect'));
+        }
+
         $tenantId = CurrentTenant::id();
         if (!$tenantId) {
             Flash::error('Tu usuario no pertenece a ninguna cuenta.');

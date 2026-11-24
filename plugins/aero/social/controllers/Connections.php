@@ -45,6 +45,10 @@ class Connections extends Controller
     /** Botón «Conectar con Meta». */
     public function connect($provider = null)
     {
+        if (!MetaConnect::onCanonicalHost()) {
+            return redirect()->away(MetaConnect::canonical('aero/social/connections/connect/' . $provider));
+        }
+
         $tenantId = CurrentTenant::id();
 
         if (!$tenantId) {
