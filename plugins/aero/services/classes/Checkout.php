@@ -209,5 +209,32 @@ class Checkout
         $purchase->fulfilled_by = $byUserId;
         $purchase->notes = trim(($purchase->notes ? $purchase->notes . "\n" : '') . ($note ?: ''));
         $purchase->save();
+
+        static::enableServiceModules($purchase);
+    }
+
+    /**
+     * Al entregar un servicio se encienden en «Mis módulos» los plugins con
+     * los que está hecho (si el plan los incluye). Nunca rompe la entrega.
+     */
+    protected static function enableServiceModules(ServicePurchase $purchase): void
+    {
+        try {
+            if (!class_exists(\Aero\Sites\Classes\ModuleCatalog::class) || !$purchase->service) {
+                return;
+            }
+            $tenant = \Aero\Sites\Models\Tenant::find($purchase->tenant_id);
+            if (!$tenant) {
+                return;
+            }
+            $plugins = collect((array) $purchase->service->plugin_links)->where('relation', 'built_with')->pluck('plugin')->filter();
+            foreach ($plugins as $code) {
+                if (\Aero\Sites\Classes\ModuleCatalog::isToggleable($code) && $tenant->pluginAllowedByPlan($code) && !$tenant->pluginEnabled($code)) {
+                    \Aero\Sites\Classes\ModuleCatalog::toggle($tenant, $code, true);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Services: no se pudieron encender los módulos del servicio: ' . $e->getMessage());
+        }
     }
 }
