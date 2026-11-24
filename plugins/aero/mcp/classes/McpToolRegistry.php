@@ -123,7 +123,7 @@ class McpToolRegistry
             return [];
         }
 
-        $plan = static::planOf($tenantId);
+        $tenant = static::tenantOf($tenantId);
         $out = [];
 
         foreach (static::catalog($tenantId) as $name => $tool) {
@@ -133,7 +133,8 @@ class McpToolRegistry
             if (empty($tool['handler']) || !is_callable($tool['handler'])) {
                 continue;
             }
-            if ($plan && !empty($tool['plugin']) && !$plan->allowsPlugin($tool['plugin'])) {
+            // Plan del tenant + módulos que el propio tenant apagó.
+            if ($tenant && !empty($tool['plugin']) && !$tenant->pluginEnabled($tool['plugin'])) {
                 continue;
             }
             $out[$name] = $tool;
@@ -156,7 +157,7 @@ class McpToolRegistry
         return $modules;
     }
 
-    protected static function planOf(int $tenantId)
+    protected static function tenantOf(int $tenantId)
     {
         // Sin Sites instalado (o sin su tabla, p. ej. en tests aislados) no hay plan que aplicar.
         if (!class_exists(\Aero\Sites\Models\Tenant::class)
@@ -164,6 +165,8 @@ class McpToolRegistry
             return null;
         }
 
-        return \Aero\Sites\Models\Tenant::find($tenantId)?->plan;
+        $tenant = \Aero\Sites\Models\Tenant::find($tenantId);
+
+        return $tenant && method_exists($tenant, 'pluginEnabled') ? $tenant : null;
     }
 }
