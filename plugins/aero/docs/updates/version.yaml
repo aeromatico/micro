@@ -69,3 +69,12 @@
 1.3.1:
     - "Tarifas: el QR de cobro completado cuesta 8 monedas de bronce."
     - seed_credits_tarifas_docs.php
+
+1.3.2:
+    - "La página de tarifas ahora explica la comisión por cobro con QR: 90 días sin costo y después el 1 % del monto."
+    - seed_credits_tarifas_docs.php
+
+1.3.3:
+    - "Corrige la explicación de la comisión por cobro con QR en la documentación de pagos y tarifas."
+    - seed_pay_qr_fee_docs.php
+    - seed_credits_tarifas_docs.php

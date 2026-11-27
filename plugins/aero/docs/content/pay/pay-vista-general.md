@@ -73,16 +73,23 @@ Si usas **Workflows**, el editor visual incluye nodos de **Cobros** para generar
 > [!IMPORTANT]
 > Estos nodos solo usan **cuentas activas de tu propio sitio**. Los QR y pagos que crean quedan con el origen `workflows`.
 
-## Tarifa por QR completado
+## Comisión por cobro con QR
 
-Cuando un QR de tu sitio pasa a **pagado**, se descuenta de tus monedas de **Créditos** la tarifa de la acción `pay.qr_completed` (se ajusta en Créditos → Acciones; si la acción está desactivada, no se cobra).
+La comisión es la misma para todos los planes:
 
-- Los QR de la propia plataforma (alta de sitio, recargas y regalos de suscripción) no cobran tarifa.
-- El pago ya ocurrió: si el saldo no alcanza, el QR queda pagado igual y solo se registra un aviso.
-- Cada QR se cobra una sola vez.
+| Cuándo | Costo |
+|--------|-------|
+| Primeros 90 días desde la creación de tu cuenta | **Sin costo** |
+| Después de los 90 días | **1 % del monto** de cada cobro, en monedas de bronce |
 
-> [!NOTE]
-> Las notas de versión mencionan 3 monedas de bronce por defecto, pero el código actual aplica 8 y, en el plan PRO, el 1 % del monto del QR en Bs. Consulta el valor vigente en Créditos → Acciones.
+El 1 % se convierte a monedas de bronce (≈ Bs 0.055 cada una), redondeando hacia arriba y con un mínimo de 1 moneda. Por ejemplo: un cobro de Bs 55 cuesta 10 monedas; uno de Bs 100, 19; y uno de Bs 500, 91.
+
+- Se cobra una sola vez por QR y solo cuando queda **pagado**.
+- Los cobros en USD, USDT o USDC se pasan a bolivianos con el tipo de cambio de la plataforma. Los cobros en otras monedas no pagan comisión.
+- Los QR de la propia plataforma (alta de sitio, recargas y regalos de suscripción) no pagan comisión.
+- Si tu saldo de bronce no alcanza, el pago de tu cliente se acredita igual y esa comisión queda sin cobrar.
+
+Consulta el resto de precios en [Tarifas](credits-tarifas).
 
 ## Integración con Shopify
 

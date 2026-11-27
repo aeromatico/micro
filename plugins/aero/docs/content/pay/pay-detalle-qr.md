@@ -49,7 +49,7 @@ la cuenta tiene **webhook saliente** configurado, se notifica a tu sistema.
 Cada cambio de estado del QR también se comunica a los plugins integrados (por ejemplo, Shopify usa este aviso para marcar un pedido como pagado).
 
 > [!NOTE]
-> Al pasar a **pagado**, el QR de tu sitio genera la tarifa por QR completado en Créditos (ver [Vista general](pay-vista-general)).
+> Al pasar a **pagado**, el QR puede generar la comisión por cobro con QR en Créditos: sin costo los primeros 90 días de tu cuenta y después el 1 % del monto, en monedas de bronce (ver [Vista general](pay-vista-general)).
 
 > [!TIP]
 > Para conciliar un pago que no se detectó, usa la pestaña **Transacciones** de
