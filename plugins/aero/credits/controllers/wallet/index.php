@@ -213,7 +213,7 @@ $price = fn ($units) => \Aero\Credits\Classes\Money::price((int) $units);
                     <tr>
                         <td><?= e($r['label']) ?><?php if ($r['description']): ?><div class="wl-note"><?= e($r['description']) ?></div><?php endif ?></td>
                         <td class="wl-note"><?= e($r['unit']) ?></td>
-                        <td style="text-align:right;white-space:nowrap"><strong><?= $r['is_money'] ? 'Bs ' . \Aero\Credits\Classes\Money::format($r['cost'], 2, 'ceil') : $fmt($r['cost']) ?></strong> <span class="wl-dot" style="background:<?= e($r['color']) ?>"></span> <?= e($r['type_label']) ?></td>
+                        <td style="text-align:right;white-space:nowrap"><strong><?= !empty($r['cost_label']) ? e($r['cost_label']) : ($r['is_money'] ? 'Bs ' . \Aero\Credits\Classes\Money::format($r['cost'], 2, 'ceil') : $fmt($r['cost'])) ?></strong> <span class="wl-dot" style="background:<?= e($r['color']) ?>"></span> <?= e($r['type_label']) ?></td>
                     </tr>
                 <?php endforeach ?>
                 </tbody>

@@ -45,7 +45,7 @@ class CreditUsage
         'sms.segment'        => 'por segmento',
         'workflows.run'      => 'por ejecución',
         'services.purchase'  => 'por compra',
-        'pay.qr_completed'   => 'por QR cobrado',
+        'pay.qr_completed'   => 'del monto cobrado',
         'chatbots.ai_reply'  => 'por respuesta',
         'connector.'         => 'por llamada',
         'api.request'        => 'por petición',
@@ -203,6 +203,14 @@ class CreditUsage
         return ['categories' => $categories, 'totals' => $totals, 'days' => $days];
     }
 
+    /** Texto de costo para funciones que se cobran como porcentaje; null = costo del catálogo. */
+    protected static function percentLabel(string $code): ?string
+    {
+        $pay = \Aero\Pay\Classes\QrCompletedCharge::class;
+
+        return class_exists($pay) && $code === $pay::ACTION ? $pay::PERCENT . ' %' : null;
+    }
+
     /** Tarifario público: acciones activas, públicas y con costo, por categoría. */
     public static function tariffs(): array
     {
@@ -218,6 +226,7 @@ class CreditUsage
                 'description' => $a->public_description,
                 'unit'        => $a->unit ?: self::unitFor($a->code),
                 'cost'        => (int) $a->default_cost,
+                'cost_label'  => self::percentLabel($a->code),
                 'type_label'  => $a->creditType->label ?? '',
                 'color'       => $a->creditType->color ?? '#999',
                 'is_money'    => (bool) ($a->creditType->is_money ?? false),

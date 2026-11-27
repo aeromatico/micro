@@ -92,3 +92,7 @@
 1.19.1:
     - "Los cupones canjeados y las retenciones de créditos ahora se consultan más rápido."
     - add_tenant_id_indexes.php
+
+1.19.2:
+    - "El tarifario ahora muestra la comisión por cobro con QR como porcentaje del monto."
+    - update_pay_qr_completed_to_percent.php
