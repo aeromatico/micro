@@ -537,6 +537,22 @@ class Tenant extends Model
     }
 
     /**
+     * URL completa del panel para correos y mensajes al cliente: va sobre el
+     * dominio raíz (la marca pública), no sobre APP_URL, y no depende de que
+     * haya una request HTTP — Backend::baseUrl() es relativa.
+     */
+    public function publicBackendUrl(): string
+    {
+        $root = $this->rootDomain ?: RootDomain::active()->first();
+
+        $url = $root
+            ? 'https://' . $root->domain . '/' . trim(\Backend::uri(), '/')
+            : rtrim((string) config('app.url'), '/') . '/' . trim(\Backend::uri(), '/');
+
+        return $url . '?tenant=' . urlencode((string) $this->handle);
+    }
+
+    /**
      * Los enlaces del backend de un texto apuntan al panel general con
      * ?tenant={handle}: el panel abre directo en el espacio de ese cliente.
      * Los enlaces que ya estén en el subdominio del tenant se dejan igual.

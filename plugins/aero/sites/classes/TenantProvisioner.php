@@ -5,7 +5,6 @@ use Aero\Sites\Models\ApiToken;
 use Aero\Sites\Models\Domain;
 use Aero\Sites\Models\RootDomain;
 use Aero\Sites\Models\Tenant;
-use Backend;
 use BackendAuth;
 use Str;
 use System\Models\SiteDefinition;
@@ -131,7 +130,7 @@ class TenantProvisioner
                 'handle'         => $tenant->handle,
                 'primary_domain' => $tenant->primary_domain,
                 'admin_email'    => $adminEmail,
-                'backend_url'    => Backend::baseUrl(),
+                'backend_url'    => $tenant->publicBackendUrl(),
             ], [
                 'tenant_id' => $tenant->id,
             ]);
@@ -156,7 +155,7 @@ class TenantProvisioner
         $this->provisionAdmin($tenant, $tenant->name, $email, $password);
 
         return [
-            'backend_url'    => Backend::baseUrl(),
+            'backend_url'    => $tenant->publicBackendUrl(),
             'email'          => $email,
             'password'       => $password,
             'api_token'      => $apiToken,
@@ -208,12 +207,14 @@ class TenantProvisioner
         }
 
         try {
+            [$firstName, $lastName] = array_pad(preg_split('/\s+/', trim($name), 2), 2, null);
+
             $user = new \RainLab\User\Models\User;
-            $user->name                  = $name;
+            $user->first_name            = $firstName;
+            $user->last_name             = $lastName;
             $user->email                 = $email;
             $user->password              = $password;
             $user->password_confirmation = $password;
-            $user->is_activated          = true;
             $user->activated_at          = now();
             $user->save();
 

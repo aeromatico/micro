@@ -3,6 +3,7 @@
 use Aero\Sites\Classes\Meta\ConversionsApiClient;
 use Aero\Sites\Classes\Niches\NicheManager;
 use Aero\Sites\Classes\SignupPlans;
+use Aero\Sites\Classes\SignupReservations;
 use Aero\Sites\Classes\TenantProvisioner;
 use Aero\Sites\Models\RootDomain;
 use Aero\Sites\Models\Settings;
@@ -95,8 +96,9 @@ class SignupWizard extends ComponentBase
         }
         RateLimiter::hit($key, 60);
 
-        if (Tenant::withTrashed()->where('handle', $handle)->exists()) {
-            return ['available' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
+        $holder = $this->findHolder($handle);
+        if ($holder && !SignupReservations::ownedByVisitor($holder)) {
+            return ['available' => false, 'message' => $this->takenMessage($holder, $handle)];
         }
 
         return ['available' => true, 'message' => "¡Disponible! {$handle}.market.com.bo"];
@@ -230,8 +232,11 @@ class SignupWizard extends ComponentBase
 
         RateLimiter::hit($key, 3600);
 
-        if (Tenant::withTrashed()->where('handle', $handle)->exists()) {
-            return ['success' => false, 'message' => "\"{$handle}\" ya está en uso, prueba otro nombre"];
+        // Una reserva pendiente de este mismo navegador no cuenta como
+        // ocupada: quien vuelve atrás a cambiar rubro o plan la retoma.
+        $holder = $this->findHolder($handle);
+        if ($holder && !SignupReservations::ownedByVisitor($holder)) {
+            return ['success' => false, 'message' => $this->takenMessage($holder, $handle)];
         }
 
         $rootDomain = RootDomain::active()->first();
@@ -245,6 +250,29 @@ class SignupWizard extends ComponentBase
         $planPrice = (float) $planData['periods'][$period];
         $amount = $planPrice + $domainPrice;
 
+        $signupDomain = $domainMode !== '' ? $domain : null;
+        $signupDomainSource = $domainMode !== '' ? $domainMode : null;
+
+        if ($holder) {
+            // Mismo cobro (solo cambió el rubro): se conserva el QR ya
+            // emitido, sin riesgo de que se pague uno anulado.
+            $qrCode = ($isTrial || $redemption)
+                ? null
+                : $this->reusableQr($holder, (int) $planData['id'], $period, $amount, $signupDomain, $signupDomainSource);
+
+            if ($qrCode) {
+                $holder->niche_type = $niche;
+                $holder->created_at = now();
+                $holder->save();
+
+                return $this->paymentResponse($holder, $qrCode, $rootDomain, $planData, $amount);
+            }
+
+            if (!SignupReservations::release($holder)) {
+                return ['success' => false, 'message' => 'Ya recibimos el pago de esta reserva. No pagues de nuevo: escríbenos por el chat y la activamos.'];
+            }
+        }
+
         try {
             $tenant = Tenant::create([
                 'name'                 => Str::title(str_replace(['-', '_'], ' ', $handle)),
@@ -254,8 +282,8 @@ class SignupWizard extends ComponentBase
                 'plan_id'              => $planData['id'],
                 'plan_price'           => $planPrice,
                 'billing_period'       => $period,
-                'signup_domain'        => $domainMode !== '' ? $domain : null,
-                'signup_domain_source' => $domainMode !== '' ? $domainMode : null,
+                'signup_domain'        => $signupDomain,
+                'signup_domain_source' => $signupDomainSource,
                 'status'               => 'pending_payment',
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
@@ -297,25 +325,64 @@ class SignupWizard extends ComponentBase
         $tenant->signup_payment_reference = $qrCode->internal_reference;
         $tenant->save();
 
+        SignupReservations::remember($tenant);
+
+        return $this->paymentResponse($tenant, $qrCode, $rootDomain, $planData, $amount);
+    }
+
+    /** Respuesta del paso de pago, para un QR recién emitido o retomado. */
+    protected function paymentResponse(Tenant $tenant, $qrCode, RootDomain $rootDomain, array $planData, float $amount): array
+    {
         return [
             'success'      => true,
             'tenant_id'    => $tenant->id,
             'reference'    => $qrCode->internal_reference,
             'domain'       => $tenant->handle . '.' . $rootDomain->domain,
-            'niche_label'  => app(NicheManager::class)->options()[$niche] ?? $niche,
+            'niche_label'  => app(NicheManager::class)->options()[$tenant->niche_type] ?? $tenant->niche_type,
             'plan_label'   => $planData['label'],
-            'period'       => $period,
+            'period'       => $tenant->billing_period,
             'amount'       => $amount,
-            'own_domain'   => $domainMode !== '' ? $domain : null,
+            'own_domain'   => $tenant->signup_domain,
             'due_date'     => $qrCode->due_date?->toFormattedDateString(),
             // Momento exacto (no solo la fecha de due_date, que es de día
             // completo) en que Console\ReleaseExpiredSignups va a anular
             // este QR y liberar el handle — el temporizador de signup.js
             // cuenta regresivo hasta aquí, no hasta due_date.
-            'expires_at'   => $tenant->created_at->addMinutes(Settings::getSignupPaymentTtlMinutes())->toIso8601String(),
+            'expires_at'   => $tenant->created_at->copy()->addMinutes(Settings::getSignupPaymentTtlMinutes())->toIso8601String(),
             'qr_image'     => $qrCode->qr_image ? 'data:image/png;base64,' . $qrCode->qr_image : null,
         ];
     }
+
+    protected function findHolder(string $handle): ?Tenant
+    {
+        return Tenant::withTrashed()->where('handle', $handle)->first();
+    }
+
+    protected function takenMessage(Tenant $holder, string $handle): string
+    {
+        return $holder->status === 'pending_payment'
+            ? "\"{$handle}\" está reservado mientras se completa un pago. Si fuiste tú, intenta de nuevo en unos minutos."
+            : "\"{$handle}\" ya está en uso, prueba otro nombre";
+    }
+
+    /** QR pendiente de la reserva, solo si lo que se va a cobrar no cambió. */
+    protected function reusableQr(Tenant $holder, int $planId, string $period, float $amount, ?string $domain, ?string $source)
+    {
+        $sameOrder = (int) $holder->plan_id === $planId
+            && $holder->billing_period === $period
+            && $holder->signup_domain === $domain
+            && $holder->signup_domain_source === $source;
+
+        if (!$sameOrder || !$holder->signup_qr_code_id || !class_exists(\Aero\Pay\Models\QrCode::class)) {
+            return null;
+        }
+
+        $qrCode = \Aero\Pay\Models\QrCode::find($holder->signup_qr_code_id);
+
+        return $qrCode && $qrCode->status === 'pending' && abs((float) $qrCode->amount - $amount) < 0.01 ? $qrCode : null;
+    }
+
+    // -------------------------------------------------------------------
 
     /**
      * Prueba gratis (sin código) o canje de cupón/invitación de Aero.Credits

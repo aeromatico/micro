@@ -567,3 +567,12 @@
     - "Ahora cada cuenta puede encender y apagar sus módulos, y elegirlos al entrar por primera vez."
     - add_module_toggles_to_tenants.php
     - grant_mymodules_to_tenant_admin.php
+
+1.108.1:
+    - "Corrige el alta: ya no aparece como ocupado el nombre que tú mismo reservaste al volver atrás para cambiar de rubro o plan."
+
+1.108.2:
+    - "Corrige el correo de bienvenida: el enlace al panel ahora llega completo."
+
+1.108.3:
+    - "Corrige la creación del usuario del portal al dar de alta una cuenta nueva."
