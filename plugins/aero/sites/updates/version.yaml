@@ -576,3 +576,7 @@
 
 1.108.3:
     - "Corrige la creación del usuario del portal al dar de alta una cuenta nueva."
+
+1.109.0:
+    - "El plan PRO ahora incluye Gimnasio, Colegio y Aviso de cookies."
+    - add_niche_modules_to_pro_plan.php
