@@ -1,6 +1,9 @@
 /* Sitio público y portal del miembro (themes/microsites: churchSite, churchPublic, churchPortal). */
 const ME = MEMBERS.find((m) => m.first === 'Ana');   // Ana Condori, con la sesión del portal «iniciada»
-let view = 'inicio', openEvent = null, lastReg = null, sent = null;
+let view = 'inicio', openEvent = null, openSermon = null, lastReg = null, sent = null;
+const VIDEO = 'https://www.youtube-nocookie.com/embed/wOZQWmiBHx4';
+const player = (title) => `<div class="video"><iframe src="${VIDEO}" title="${esc(title)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+const WITH_VIDEO = [0, 3];   // índices de SERMONS con video, como en church:demo
 const NAV = [['inicio', 'Inicio'], ['eventos', 'Eventos'], ['predicaciones', 'Predicaciones'], ['noticias', 'Noticias'], ['envivo', 'En vivo'], ['recursos', 'Recursos'], ['oracion', 'Oración'], ['visita', 'Soy nuevo'], ['portal', 'Mi portal']];
 const SERMONS = [['La gracia que nos sostiene', 'Pastor Roberto Salinas', 'Fundamentos de la fe', 0], ['Fe en medio de la prueba', 'Pastor Roberto Salinas', 'Fundamentos de la fe', 1], ['Orar sin cesar', 'Hna. Esther Villca', 'Fundamentos de la fe', 2], ['El hogar como santuario', 'Pastor Roberto Salinas', 'Familias fuertes', 3], ['Perdonar para sanar', 'Hna. Esther Villca', 'Familias fuertes', 4]];
 const NEWS = [['Bienvenidos a nuestra nueva página', 'Noticia', -2, false], ['Horario especial por feriado', 'Aviso', -1, false], ['Campaña para el templo nuevo', 'Noticia', -10, false], ['Reunión de líderes', 'Aviso', -4, true]];
@@ -30,9 +33,14 @@ const VIEWS = {
       <input id="f-name" class="inp" placeholder="Tu nombre" maxlength="120" aria-label="Nombre"><input id="f-phone" class="inp" placeholder="Teléfono / WhatsApp" aria-label="Teléfono">
       <label class="check"><input type="checkbox" id="f-consent"> Autorizo que se guarden mis datos para esta inscripción</label><button class="btn primary" data-act="register">Inscribirme</button>`}</div>`;
   },
-  predicaciones: () => `<h1>Predicaciones</h1><div class="stack">${SERMONS.map(([t, by, serie, w]) => `<div class="card sermon"><span class="play">▶</span><span><strong>${esc(t)}</strong><span class="muted small">${esc(by)} · ${serie} · ${fShort(day(nextSunday - 7 * (w + 1)))}</span></span></div>`).join('')}</div>`,
+  predicaciones: () => {
+    const meta = ([, by, serie, w]) => `${esc(by)} · ${serie} · ${fShort(day(nextSunday - 7 * (w + 1)))}`;
+    const s = SERMONS[openSermon];
+    if (!s) return `<h1>Predicaciones</h1><div class="stack">${SERMONS.map((x, i) => `<button class="card sermon" data-act="sermon" data-id="${i}"><span class="play">▶</span><span><strong>${esc(x[0])}</strong><span class="muted small">${meta(x)}</span></span></button>`).join('')}</div>`;
+    return `<button class="link" data-act="go" data-id="predicaciones">← Predicaciones</button><h1>${esc(s[0])}</h1><p class="muted">${meta(s)}</p>${WITH_VIDEO.includes(openSermon) ? player(s[0]) : ''}<p>Mensaje del domingo sobre «${esc(s[0])}», con los puntos principales de la enseñanza.</p>`;
+  },
   noticias: () => `<h1>Noticias</h1><div class="stack">${NEWS.filter((n) => !n[3]).map(([t, k, d]) => `<div class="card"><span class="tag blue">${k}</span><h3>${t}</h3><p class="muted small">${fDate(day(d))}</p></div>`).join('')}</div>`,
-  envivo: () => `<h1>Culto dominical en vivo</h1><p class="muted">Domingos 10:00 y 18:00</p><div class="video"><span class="play big">▶</span><span>Aquí se muestra tu transmisión de YouTube, Facebook o Vimeo</span></div>`,
+  envivo: () => `<h1>Culto dominical en vivo</h1><p class="muted">Domingos 10:00 y 18:00</p>${player('Culto dominical en vivo')}`,
   recursos: () => `<h1>Recursos</h1><div class="stack">${RESOURCES.filter((r) => !r[1]).map(([t]) => `<div class="card row between"><strong>${t}</strong><button class="btn sm" data-act="download">Descargar PDF</button></div>`).join('')}</div><p class="muted small">Hay material exclusivo para miembros en Mi portal.</p>`,
   oracion: () => `<h1>Petición de oración</h1><p class="muted">Cuéntanos por qué quieres que oremos. Lo trataremos con respeto y reserva.</p><div class="card stack">${sent === 'oracion' ? '<div class="done"><p><strong>Recibimos tu petición.</strong></p><p>Estaremos orando por ti.</p></div>' : `
     <input id="f-name" class="inp" placeholder="Tu nombre (opcional)" aria-label="Nombre"><textarea id="f-req" class="inp" rows="4" placeholder="¿Por qué podemos orar?" aria-label="Petición"></textarea><input class="inp" placeholder="Teléfono / WhatsApp (solo si quieres que te contactemos)" aria-label="Teléfono">
@@ -54,7 +62,8 @@ function render(top) {
 }
 const need = (name) => { if (name && !val('f-name')) { toast('Escribe tu nombre', 'err'); return false; } if (!on('f-consent')) { toast('Marca la autorización de datos', 'err'); return false; } return true; };
 Object.assign(ACT, {
-  go: (v) => { view = v; openEvent = null; lastReg = null; sent = null; render(true); },
+  go: (v) => { view = v; openEvent = null; openSermon = null; lastReg = null; sent = null; render(true); },
+  sermon: (i) => { openSermon = +i; render(true); },
   event: (id) => { view = 'eventos'; openEvent = +id; lastReg = null; render(true); },
   register: () => { if (!need(true)) return; lastReg = enroll(EVENTS.find((e) => e.id === openEvent), val('f-name')); render(); },
   pray: () => { if (!val('f-req')) return toast('Escribe tu petición', 'err'); if (!need(false)) return; sent = 'oracion'; render(true); },
