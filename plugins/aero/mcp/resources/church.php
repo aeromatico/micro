@@ -15,6 +15,10 @@ return [
         'plugin' => 'Aero.Church', 'label' => 'sedes de la iglesia', 'model' => \Aero\Church\Models\Branch::class,
         'fields' => 'id,name,city,address,phone,is_main,is_active', 'search' => 'name,city', 'filters' => 'is_active',
     ],
+    'church_service_times' => [
+        'plugin' => 'Aero.Church', 'label' => 'horario semanal de reuniones (day: 1 = lunes … 7 = domingo)', 'model' => \Aero\Church\Models\ServiceTime::class,
+        'fields' => 'id,title,day,starts_at,ends_at,location,note,branch_id,is_active', 'search' => 'title', 'filters' => 'day,branch_id,is_active',
+    ],
     'church_families' => [
         'plugin' => 'Aero.Church', 'label' => 'familias (solo el nombre)', 'model' => \Aero\Church\Models\Family::class,
         'fields' => 'id,name', 'search' => 'name',
