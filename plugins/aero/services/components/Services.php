@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Response;
  *   mode = "menu"       → $groups: servicios del megamenú agrupados por categoría.
  *   mode = "detail"     → $service: el servicio público de :slug (404 si no existe o es borrador).
  *   mode = "index"      → $groups: todos los servicios activos agrupados por categoría (con slug y url de la categoría).
+ *   mode = "store"      → $groups: tienda /store, cada servicio activo una sola vez (en su categoría principal) con sus precios.
  *   mode = "category"   → $category + $services: la categoría de :slug y sus servicios activos (404 si no existe o está inactiva).
  *   mode = "collection" → $collection: la colección de :slug con sus servicios (404 si no existe, salvo requireCollection=0
  *                          para usarlo como sección embebida en otra página, donde simplemente queda null).
@@ -35,7 +36,7 @@ class Services extends ComponentBase
     {
         return [
             'mode' => ['title' => 'Modo', 'type' => 'dropdown', 'default' => 'menu',
-                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'index' => 'Índice /plugins', 'category' => 'Categoría', 'collection' => 'Colección']],
+                'options' => ['menu' => 'Megamenú', 'detail' => 'Detalle', 'index' => 'Índice /plugins', 'store' => 'Tienda /store', 'category' => 'Categoría', 'collection' => 'Colección']],
             'slug' => ['title' => 'Slug', 'type' => 'string', 'default' => '{{ :slug }}'],
             'requireCollection' => ['title' => 'Exigir colección (404 si falta)', 'type' => 'checkbox', 'default' => true,
                 'description' => 'Desactívalo cuando el componente es una sección embebida en otra página: si la colección no existe, simplemente no se renderiza.'],
@@ -54,6 +55,12 @@ class Services extends ComponentBase
             $this->page['service'] = $this->service;
             $this->page->title = $this->service->name . ' — Market';
             $this->page->description = $this->service->summary;
+
+            return null;
+        }
+
+        if ($this->property('mode') === 'store') {
+            $this->page['groups'] = $this->storeGroups();
 
             return null;
         }
@@ -100,6 +107,36 @@ class Services extends ComponentBase
         if ($this->property('mode') === 'index') {
             $this->page['groups'] = $this->groups;
         }
+    }
+
+    /** Servicios activos por categoría principal, con las líneas de precio de cada plan. */
+    protected function storeGroups(): array
+    {
+        return Service::active()
+            ->with(['categories' => fn ($q) => $q->where('is_active', true)])
+            ->orderBy('sort_order')->orderBy('name')
+            ->get()
+            ->groupBy(fn (Service $s) => $s->category?->id ?? 0)
+            ->map(function ($services) {
+                $category = $services->first()->category;
+
+                return [
+                    'key'   => $category?->slug ?: 'otros',
+                    'name'  => $category?->name ?: 'Otros servicios',
+                    'order' => $category?->sort_order ?? PHP_INT_MAX,
+                    'items' => $services->map(fn (Service $s) => [
+                        'name'     => $s->name,
+                        'summary'  => $s->summary,
+                        'url'      => url('plugin/' . $s->slug),
+                        'icon_svg' => \Aero\Services\Classes\LucideIcon::svg($s->icon ?: null, 'w-5 h-5 shrink-0 text-accent'),
+                        'plans'    => collect((array) $s->plans)->map(fn ($p) => [
+                            'name'  => $p['name'] ?? '',
+                            'lines' => $s->planPriceLines($p),
+                        ])->values()->all(),
+                    ])->values()->all(),
+                ];
+            })
+            ->sortBy('order')->values()->all();
     }
 
     protected function menuGroups(): array

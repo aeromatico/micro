@@ -58,3 +58,6 @@
 
 1.16.1:
     - "Precios de los servicios: ahora el precio se adapta al tipo de cobro (suscripción con «/ mes», «/ trimestre» o «/ año», pago único aclarado, gratis, créditos o «A cotizar»), y las fichas de rubro muestran «A cotizar» cuando aún no hay planes."
+
+1.17.0:
+    - "Nueva tienda de plugins en /store: cada plugin con su descripción y precios, filtrable por categoría."
