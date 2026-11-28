@@ -2,6 +2,7 @@
 {% set navPages = sitesPageList.menuPages('navbar') %}
 {% set sidebarPages = sitesPageList.menuPages('sidebar') %}
 {% set tenant = sitesSeo.tenant %}
+{% set church = church_menu() %}
 
 {% if tenant and tenant.layout and tenant.layout.header_html %}
 {{ tenant.layout.header_html | raw }}
@@ -35,6 +36,26 @@
                 {{ page.title }}
             </a>
             {% endif %}{% endfor %}
+            {% for item in church.main %}
+            <a href="{{ item.url }}"
+               class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all whitespace-nowrap">
+                {{ item.label }}
+            </a>
+            {% endfor %}
+            {% if church.more %}
+            <div class="relative" x-data="{ more: false }" @click.outside="more = false" @keydown.escape.window="more = false">
+                <button type="button" @click="more = !more" :aria-expanded="more"
+                        class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
+                    Más
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div x-show="more" x-cloak class="absolute right-0 top-full mt-2 w-48 bg-surface border border-surface-border rounded-lg shadow-lg py-1">
+                    {% for item in church.more %}
+                    <a href="{{ item.url }}" class="block px-4 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt">{{ item.label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             {% if docs_enabled() %}
             <a href="/docs"
                class="px-3 py-2 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-all">
@@ -145,6 +166,13 @@
             {{ page.title }}
         </a>
         {% endif %}{% endfor %}
+        {% for item in church.main|merge(church.more) %}
+        <a href="{{ item.url }}"
+           @click="$store.nav.close()"
+           class="block px-3 py-2.5 text-sm font-medium text-ink-muted hover:text-ink hover:bg-surface-alt rounded-lg transition-colors">
+            {{ item.label }}
+        </a>
+        {% endfor %}
         {% if docs_enabled() %}
         <a href="/docs"
            @click="$store.nav.close()"

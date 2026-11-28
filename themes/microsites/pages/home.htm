@@ -14,6 +14,8 @@ slug = ""
 [sitesContact]
 
 [shopCart]
+
+[churchHome]
 ==
 {% set tenant = sitesSeo.tenant %}
 {% set sitePage = tenant ? sitesPageDetail.page : null %}
@@ -21,6 +23,9 @@ slug = ""
 {% if sitePage and not sitePage.is_placeholder and sitePage.content %}
 {# Contenido Puck: bloques ya vienen a ancho completo con sus propios fondos/anchos, se renderizan tal cual #}
 {{ sitePage.content | aeroDynamic | raw }}
+{% elseif churchHome.active and (not sitePage or sitePage.is_placeholder) %}
+{# Iglesia con sitio público: portada propia con sus datos al día, hasta que publiquen una a medida #}
+{% component 'churchHome' %}
 {% elseif not sitePage or sitePage.is_placeholder %}
 {# El alta recién provisiona la home con contenido de relleno del nicho —
    se oculta hasta que el admin genere su primer landing con IA o guarde
