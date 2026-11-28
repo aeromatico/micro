@@ -75,6 +75,9 @@ class Plugin extends PluginBase
             ]]);
         }
 
+        // Con el sitio público activo, la iglesia ya tiene portada: el tema muestra menú y pie.
+        \Event::listen('aero.sites.tenantHasHome', fn ($tenant) => \Aero\Church\Models\ChurchSettings::where('tenant_id', $tenant->id)->value('site_enabled') ? true : null);
+
         // Conciliación de aportes por QR. Integración blanda: sin Pay, el evento no existe.
         \Event::listen('aero.church.visitRegistered', fn ($v) => \Aero\Church\Classes\Notifier::visitRegistered($v));
         \Event::listen('aero.church.prayerRequested', fn ($p) => \Aero\Church\Classes\Notifier::prayerRequested($p));
@@ -97,12 +100,25 @@ class Plugin extends PluginBase
         $schedule->command('church:birthdays')->dailyAt('08:00');
     }
 
+    /** Para los temas: church_menu() devuelve los enlaces de las secciones activas en este dominio. */
+    public function registerMarkupTags(): array
+    {
+        return ['functions' => ['church_menu' => function () {
+            $tenant = class_exists(\Aero\Sites\Models\Tenant::class)
+                ? \Aero\Sites\Models\Tenant::resolveFromDomain(request()->getHost())
+                : null;
+
+            return \Aero\Church\Classes\SiteMenu::forTenant($tenant?->id);
+        }]];
+    }
+
     public function registerComponents(): array
     {
         return [
             \Aero\Church\Components\ChurchPublic::class => 'churchPublic',
             \Aero\Church\Components\ChurchSite::class   => 'churchSite',
             \Aero\Church\Components\ChurchPortal::class => 'churchPortal',
+            \Aero\Church\Components\ChurchHome::class   => 'churchHome',
         ];
     }
 
@@ -170,7 +186,8 @@ class Plugin extends PluginBase
                     'reports'  => $item('Reportes', 'icon-table', 'reports', array_merge($care, ['aero.church.treasury'])),
                     'members'  => $item('Miembros', 'icon-users', 'members', $all),
                     'families' => $item('Familias', 'icon-home', 'families', $all),
-                    'events'   => $item('Eventos', 'icon-bullhorn', 'events', $all),
+                    'servicetimes' => $item('Horarios de reuniones', 'icon-clock', 'servicetimes', $care),
+                    'events'   => $item('Eventos especiales', 'icon-bullhorn', 'events', $all),
                     'groups'   => $item('Grupos', 'icon-sitemap', 'groups', $withLeader),
                     'meetings' => $item('Reuniones', 'icon-calendar', 'meetings', $withLeader),
                     'contributions' => $item('Aportes', 'icon-money', 'contributions', $money),

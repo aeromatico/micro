@@ -127,10 +127,10 @@ class ReportService
         [$pf, $pt] = $this->previous($f, $t);
 
         $rows = [];
-        $events = $this->q(ChurchEvent::class)->where('status', 'scheduled')->whereBetween('starts_at', [$f, $t])->orderBy('starts_at')->get();
+        $events = $this->q(ChurchEvent::class)->where('status', 'scheduled')->whereBetween('starts_at', [LocalTime::toUtc($f, 0), LocalTime::toUtc($t, 23, 59)->addSeconds(59)])->orderBy('starts_at')->get();
         foreach ($events as $e) {
             $reg = $e->registrations()->where('status', 'registered');
-            $rows[] = ['Evento', $e->title, $e->starts_at->format('d/m/Y H:i'), (clone $reg)->count(), (clone $reg)->whereNotNull('checked_in_at')->count()];
+            $rows[] = ['Evento', $e->title, $e->starts_local->format('d/m/Y H:i'), (clone $reg)->count(), (clone $reg)->whereNotNull('checked_in_at')->count()];
         }
         $meetings = $this->q(Meeting::class)->with('group')->whereDate('meeting_date', '>=', $f->toDateString())->whereDate('meeting_date', '<=', $t->toDateString())->orderBy('meeting_date')->get();
         foreach ($meetings as $m) {
@@ -300,7 +300,7 @@ class ReportService
     {
         $start = now()->startOfWeek()->subWeeks($weeks - 1);
         $ev = $this->q(EventRegistration::class)->where('status', 'registered')->where('checked_in_at', '>=', $start)->get(['checked_in_at'])
-            ->groupBy(fn ($r) => $r->checked_in_at->copy()->startOfWeek()->toDateString())->map->count();
+            ->groupBy(fn ($r) => $r->checked_in_local->startOfWeek()->toDateString())->map->count();
         $mt = $this->q(Attendance::class)->where('present', true)->whereHas('meeting', fn ($q) => $q->where('meeting_date', '>=', $start->toDateString()))->with('meeting:id,meeting_date')->get()
             ->groupBy(fn ($a) => $a->meeting->meeting_date->copy()->startOfWeek()->toDateString())->map->count();
 

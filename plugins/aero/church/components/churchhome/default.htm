@@ -1,0 +1,210 @@
+{% set c = __SELF__.data %}
+{% set next = c.next %}
+{% set focus = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2' %}
+{% set card = 'group rounded-2xl border border-surface-border bg-surface-alt transition hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg ' ~ focus %}
+
+{# ── Bienvenida + próximo encuentro ── #}
+<section class="bg-brand-primary-dark text-white" aria-labelledby="ih-titulo">
+    <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-5 lg:px-8 lg:py-20">
+        <div class="lg:col-span-3">
+            <p class="text-sm font-semibold uppercase tracking-widest text-white/70">Bienvenido a {{ __SELF__.churchName }}</p>
+            <h1 id="ih-titulo" class="mt-3 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">Un lugar para creer, crecer y servir</h1>
+            <p class="mt-4 max-w-xl text-lg text-white/85">Ven como eres. Aquí encuentras cuándo reunirnos, cómo llegar y cómo acompañarte.</p>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                {% if c.welcome %}<a href="/bienvenida" class="rounded-brand bg-white px-7 py-3.5 text-center font-bold text-brand-primary-dark hover:opacity-90 {{ focus }}">Es mi primera vez</a>{% endif %}
+                <a href="{{ c.schedule ? '#horarios' : '/eventos' }}" class="rounded-brand border-2 border-white/70 px-7 py-3 text-center font-bold text-white hover:bg-white/10 {{ focus }}">{{ c.schedule ? 'Ver horarios' : 'Ver próximos eventos' }}</a>
+            </div>
+            {% if c.live %}
+            <a href="/en-vivo" class="mt-6 inline-flex items-center gap-3 rounded-full bg-white/10 py-2 pl-3 pr-4 text-sm font-semibold hover:bg-white/20 {{ focus }}">
+                <span class="relative flex h-2.5 w-2.5" aria-hidden="true"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500"></span></span>
+                <span>Míranos en línea{% if c.live.schedule %} · {{ c.live.schedule }}{% endif %}</span>
+            </a>
+            {% endif %}
+        </div>
+        {% if next %}
+        <div class="lg:col-span-2">
+            <div class="rounded-2xl bg-surface-alt p-6 text-ink shadow-2xl sm:p-7">
+                <p class="text-xs font-bold uppercase tracking-widest text-ink-muted">{{ next.label }}</p>
+                <div class="mt-4 flex items-start gap-4">
+                    <div class="flex w-16 shrink-0 flex-col items-center rounded-xl bg-brand-primary py-2 text-white" aria-hidden="true">
+                        <span class="text-2xl font-extrabold leading-none">{{ next.day }}</span>
+                        <span class="mt-1 text-xs font-bold uppercase">{{ next.month }}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-xl font-bold leading-snug">{{ next.title }}</h2>
+                        <p class="mt-1 text-sm text-ink-muted">{{ next.when }}</p>
+                        {% if next.place %}<p class="text-sm text-ink-muted">{{ next.place }}</p>{% endif %}
+                    </div>
+                </div>
+                <a href="{{ next.url }}" class="mt-6 block rounded-brand bg-brand-primary px-5 py-3 text-center font-bold text-white hover:opacity-90 {{ focus }}">{{ next.action }}</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ── Horario semanal ── #}
+{% if c.schedule %}
+<section id="horarios" class="scroll-mt-20 border-b border-surface-border bg-surface-alt" aria-labelledby="ih-horarios">
+    <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+        <h2 id="ih-horarios" class="text-center text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Nuestras reuniones</h2>
+        <p class="mt-2 text-center text-ink-muted">La rutina de cada semana. Te esperamos.</p>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+            {% for d in c.schedule %}
+            <div class="w-full rounded-2xl border bg-surface p-5 sm:w-64 {{ d.today ? 'border-brand-primary border-2' : 'border-surface-border' }}">
+                <h3 class="flex items-center justify-between gap-2 text-lg font-bold text-ink">{{ d.label }}{% if d.today %}<span class="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold text-white">Hoy</span>{% endif %}</h3>
+                <ul class="mt-3 divide-y divide-surface-border">
+                    {% for m in d.items %}
+                    <li class="py-3">
+                        <p class="text-sm font-bold text-brand-primary dark:text-ink">{{ m.time }}</p>
+                        <p class="mt-0.5 font-semibold text-ink">{{ m.title }}</p>
+                        {% if m.place %}<p class="text-sm text-ink-muted">{{ m.place }}</p>{% endif %}
+                        {% if m.note %}<p class="text-sm text-ink-muted">{{ m.note }}</p>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── Accesos: lo que la persona viene a hacer ── #}
+{% set actions = [] %}
+{% if c.welcome %}{% set actions = actions|merge([{ url: '/bienvenida', title: 'Soy nuevo', text: 'Preséntate y te acompañamos.', icon: 'M18 20a6 6 0 0 0-12 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M19 8v6M22 11h-6' }]) %}{% endif %}
+{% if c.prayer %}{% set actions = actions|merge([{ url: '/oracion', title: 'Necesito oración', text: 'Envía tu petición, privada si quieres.', icon: 'M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4 3 5.5l7 7Z' }]) %}{% endif %}
+{% set actions = actions|merge([
+    { url: '/eventos', title: 'Ir a un evento', text: 'Actividades especiales: inscríbete.', icon: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z' },
+    { url: '/predicaciones', title: 'Escuchar un mensaje', text: 'Revive las enseñanzas.', icon: 'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3ZM19 10v2a7 7 0 0 1-14 0v-2M12 19v3' }
+]) %}
+{% if c.live %}{% set actions = actions|merge([{ url: '/en-vivo', title: 'Ver en vivo', text: 'Acompáñanos desde donde estés.', icon: 'M6 4l14 8-14 8Z' }]) %}{% endif %}
+{% if c.portal %}{% set actions = actions|merge([{ url: '/miembro', title: 'Soy miembro', text: 'Tus datos, grupos e inscripciones.', icon: 'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3' }]) %}{% endif %}
+<section class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8" aria-labelledby="ih-accesos">
+    <h2 id="ih-accesos" class="text-center text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">¿Qué quieres hacer hoy?</h2>
+    <ul class="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        {% for a in actions %}
+        <li class="flex">
+            <a href="{{ a.url }}" class="flex w-full flex-col items-start gap-3 p-4 sm:flex-row sm:items-center sm:gap-4 sm:p-5 {{ card }}">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white"><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ a.icon }}"/></svg></span>
+                <span class="min-w-0"><span class="block font-bold text-ink">{{ a.title }}</span><span class="mt-0.5 block text-sm text-ink-muted">{{ a.text }}</span></span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+
+{# ── Agenda ── #}
+{% if c.events %}
+<section class="border-t border-surface-border" aria-labelledby="ih-agenda">
+    <div class="mx-auto max-w-4xl px-4 py-14 sm:px-6">
+        <div class="flex items-end justify-between gap-4">
+            <div><h2 id="ih-agenda" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Eventos especiales</h2><p class="mt-1 text-ink-muted">Ocasiones que no querrás perderte.</p></div>
+            <a href="/eventos" class="shrink-0 text-sm font-bold text-brand-primary dark:text-ink hover:underline">Ver todo →</a>
+        </div>
+        <ul class="mt-6 space-y-3">
+            {% for e in c.events %}
+            <li><a href="{{ e.url }}" class="flex items-center gap-4 p-4 {{ card }}">
+                <span class="flex w-14 shrink-0 flex-col items-center rounded-xl border border-surface-border py-2 text-ink" aria-hidden="true"><span class="text-xl font-extrabold leading-none">{{ e.day }}</span><span class="mt-1 text-xs font-bold uppercase text-ink-muted">{{ e.month }}</span></span>
+                <span class="min-w-0 flex-1"><span class="block font-bold text-ink">{{ e.title }}</span><span class="block text-sm text-ink-muted">{{ e.when }} · {{ e.time }}{% if e.place %} · {{ e.place }}{% endif %}</span>{% if e.full %}<span class="mt-1 block text-xs font-bold text-brand-primary dark:text-ink">Cupo lleno · hay lista de espera</span>{% endif %}</span>
+                <span class="hidden shrink-0 text-sm font-bold text-brand-primary dark:text-ink sm:block">{{ e.open ? 'Inscribirme' : 'Ver' }} →</span>
+            </a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+{# ── Primera visita ── #}
+{% if c.welcome %}
+<section class="border-t border-surface-border bg-surface-alt" aria-labelledby="ih-visita">
+    <div class="mx-auto max-w-6xl px-4 py-14 text-center sm:px-6 lg:px-8">
+        <h2 id="ih-visita" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">¿Primera vez? Es muy fácil</h2>
+        <ol class="mt-8 grid gap-6 text-left md:grid-cols-3">
+            {% for step in [
+                ['Elige cuándo venir', c.schedule ? 'Mira los horarios de reunión y escoge el que mejor te quede.' : 'Mira los próximos eventos y escoge el que mejor te quede.'],
+                ['Cuéntanos de ti', 'Deja tu nombre en el formulario de bienvenida. Toma un minuto.'],
+                ['Ven y conócenos', 'Acércate a la sede más cercana. Te esperamos tal como eres.']
+            ] %}
+            <li class="flex gap-4"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-primary font-extrabold text-white" aria-hidden="true">{{ loop.index }}</span><span><span class="block font-bold text-ink">{{ step[0] }}</span><span class="mt-1 block text-sm text-ink-muted">{{ step[1] }}</span></span></li>
+            {% endfor %}
+        </ol>
+        <a href="/bienvenida" class="mt-10 inline-block rounded-brand bg-brand-primary px-7 py-3.5 font-bold text-white hover:opacity-90 {{ focus }}">Presentarme</a>
+    </div>
+</section>
+{% endif %}
+
+{# ── Última enseñanza ── #}
+{% if c.sermons %}
+{% set last = c.sermons|first %}
+<section class="border-t border-surface-border" aria-labelledby="ih-mensaje">
+    <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between gap-4">
+            <h2 id="ih-mensaje" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Último mensaje</h2>
+            <a href="/predicaciones" class="shrink-0 text-sm font-bold text-brand-primary dark:text-ink hover:underline">Ver todos →</a>
+        </div>
+        <div class="mt-6 grid gap-4 lg:grid-cols-5">
+            {# Con video incrustable la portada es el reproductor: va fuera del enlace para poder tocarlo. #}
+            <div class="self-start overflow-hidden lg:col-span-3 {{ card }}">
+                {% if last.embed %}
+                <div class="aspect-video bg-brand-primary-dark">
+                    <iframe src="{{ last.embed }}" class="h-full w-full" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" title="{{ last.title }}"></iframe>
+                </div>
+                {% else %}
+                <a href="{{ last.url }}" class="block" tabindex="-1" aria-hidden="true"><span class="flex aspect-video items-center justify-center bg-brand-primary-dark" aria-hidden="true"><span class="flex h-16 w-16 items-center justify-center rounded-full bg-white text-brand-primary-dark shadow-xl transition group-hover:scale-110"><svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8Z"/></svg></span></span></a>
+                {% endif %}
+                <a href="{{ last.url }}" class="block {{ focus }}"><span class="block p-5"><span class="block text-xs font-semibold text-ink-muted">{{ last.preacher }}{% if last.date %} · {{ last.date }}{% endif %}</span><span class="mt-1 block text-xl font-bold text-ink">{{ last.title }}</span>{% if last.summary %}<span class="mt-2 block text-sm text-ink-muted">{{ str_limit(last.summary, 130) }}</span>{% endif %}<span class="mt-3 block text-sm font-bold text-brand-primary dark:text-ink">{{ last.media ? 'Ver el mensaje' : 'Leer el resumen' }} →</span></span></a>
+            </div>
+            <ul class="flex flex-col gap-4 lg:col-span-2">
+                {% for s in c.sermons|slice(1) %}
+                <li class="flex flex-1"><a href="{{ s.url }}" class="flex w-full flex-col justify-center p-5 {{ card }}"><span class="text-xs font-semibold text-ink-muted">{{ s.preacher }}{% if s.date %} · {{ s.date }}{% endif %}</span><span class="mt-1 font-bold text-ink">{{ s.title }}</span></a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── Sedes ── #}
+{% if c.branches %}
+<section class="border-t border-surface-border bg-surface-alt" aria-labelledby="ih-sedes">
+    <div class="mx-auto max-w-4xl px-4 py-14 sm:px-6">
+        <h2 id="ih-sedes" class="text-center text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Dónde encontrarnos</h2>
+        <ul class="mt-8 grid gap-4 {{ c.branches|length > 1 ? 'sm:grid-cols-2' }}">
+            {% for b in c.branches %}
+            <li class="flex flex-col rounded-2xl border border-surface-border bg-surface p-6">
+                <h3 class="font-bold text-ink">{{ b.name }}</h3>
+                {% if b.address %}<p class="mt-1 flex-1 text-sm text-ink-muted">{{ b.address }}</p>{% endif %}
+                {% if b.map %}<a href="{{ b.map }}" target="_blank" rel="noopener noreferrer" class="mt-4 inline-block self-start rounded-brand border-2 border-brand-primary px-4 py-2 text-sm font-bold text-brand-primary dark:text-ink hover:bg-brand-primary hover:text-white {{ focus }}">Cómo llegar<span class="sr-only"> a {{ b.name }} (se abre en otra pestaña)</span></a>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+{# ── Noticias ── #}
+{% if c.posts %}
+<section class="border-t border-surface-border" aria-labelledby="ih-noticias">
+    <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
+        <div class="flex items-end justify-between gap-4">
+            <h2 id="ih-noticias" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Noticias</h2>
+            <a href="/noticias" class="shrink-0 text-sm font-bold text-brand-primary dark:text-ink hover:underline">Ver todas →</a>
+        </div>
+        <ul class="mt-6 grid gap-4 md:grid-cols-3">
+            {% for p in c.posts %}
+            <li class="flex"><a href="{{ p.url }}" class="flex w-full flex-col p-5 {{ card }}">{% if p.date %}<span class="text-xs font-semibold text-ink-muted">{{ p.date }}</span>{% endif %}<span class="mt-1 font-bold text-ink">{{ p.title }}</span><span class="mt-2 text-sm text-ink-muted">{{ str_limit(p.body|striptags, 90) }}</span></a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+{# ── Cierre ── #}
+{% if c.prayer %}
+<section class="bg-brand-primary-dark px-4 py-16 text-center text-white" aria-labelledby="ih-orar">
+    <h2 id="ih-orar" class="text-2xl font-extrabold tracking-tight sm:text-3xl">No tienes que pasarlo solo</h2>
+    <p class="mx-auto mt-3 max-w-lg text-white/85">Cuéntanos por qué podemos orar. Si prefieres, tu petición será privada.</p>
+    <a href="/oracion" class="mt-7 inline-block rounded-brand bg-white px-7 py-3.5 font-bold text-brand-primary-dark hover:opacity-90 {{ focus }}">Enviar mi petición</a>
+</section>
+{% endif %}

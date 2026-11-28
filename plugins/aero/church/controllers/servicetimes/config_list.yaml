@@ -1,0 +1,14 @@
+title: Horarios de reuniones
+list: $/aero/church/models/servicetimes/columns.yaml
+modelClass: Aero\Church\Models\ServiceTime
+recordUrl: aero/church/servicetimes/update/:id
+noRecordsMessage: Aún no hay horarios. Agrega las reuniones de cada semana para mostrarlas en el sitio.
+recordsPerPage: 50
+showSetup: true
+defaultSort:
+  column: week_position
+  direction: asc
+toolbar:
+  buttons: list_toolbar
+  search:
+    prompt: Buscar

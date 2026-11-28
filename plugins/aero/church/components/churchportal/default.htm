@@ -53,7 +53,7 @@
         {% for e in p.events %}
             {% set mine = p.mine[e.id] %}
             <li class="flex flex-wrap items-center justify-between gap-3 rounded-brand border border-surface-border bg-surface-alt p-4 text-sm text-ink">
-                <span><strong>{{ e.title }}</strong> · {{ e.starts_at|date('d/m H:i') }}{% if e.location %} · {{ e.location }}{% endif %}</span>
+                <span><strong>{{ e.title }}</strong> · {{ e.starts_local|date('d/m H:i', false) }}{% if e.location %} · {{ e.location }}{% endif %}</span>
                 {% if mine %}
                     <span class="flex items-center gap-3"><span class="text-xs text-ink-muted">{{ mine.status == 'registered' ? 'Inscrito' : 'En espera' }}</span>
                     <button type="button" class="text-xs font-semibold underline" data-request="{{ __SELF__ }}::onCancelEvent" data-request-data="event_id: {{ e.id }}" data-request-flash data-request-confirm="¿Cancelar tu inscripción?">Cancelar</button></span>

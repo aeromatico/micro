@@ -13,6 +13,11 @@ class EventRegistration extends Model
 
     public $dates = ['checked_in_at', 'reminder_sent_at'];
 
+    public function getCheckedInLocalAttribute()
+    {
+        return \Aero\Church\Classes\LocalTime::of($this->checked_in_at);
+    }
+
     public $belongsTo = [
         'event'  => [ChurchEvent::class, 'key' => 'event_id'],
         'member' => [Member::class, 'key' => 'member_id'],

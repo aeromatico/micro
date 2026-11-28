@@ -1,4 +1,4 @@
-title: Eventos
+title: Eventos especiales
 list: $/aero/church/models/churchevent/columns.yaml
 modelClass: Aero\Church\Models\ChurchEvent
 recordUrl: aero/church/events/update/:id

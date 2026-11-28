@@ -18,7 +18,7 @@ $channels = \Aero\Church\Models\VisitContact::CHANNELS;
         <tbody>
         <?php foreach ($contacts as $c): ?>
             <tr>
-                <td><?= e($c->created_at->format('d/m/Y H:i')) ?></td>
+                <td><?= e(\Aero\Church\Classes\LocalTime::of($c->created_at)->format('d/m/Y H:i')) ?></td>
                 <td><?= e($channels[$c->channel] ?? $c->channel) ?></td>
                 <td><?= e($c->note) ?></td>
                 <td><?= e($c->next_action) ?><?= $c->next_action_date ? ' (' . e($c->next_action_date->format('d/m/Y')) . ')' : '' ?></td>

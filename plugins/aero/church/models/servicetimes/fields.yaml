@@ -1,0 +1,16 @@
+fields:
+  tenant_id:
+    label: Iglesia (tenant)
+    type: dropdown
+    span: auto
+    permissions:
+    - aero.church.superadmin
+    emptyOption: — Elegir —
+  title: {label: Reunión, span: left, required: true, placeholder: Reunión de jóvenes}
+  day: {label: Día, type: dropdown, span: right, required: true}
+  starts_at: {label: Hora de inicio, span: left, required: true, placeholder: '19:00', comment: 'Ejemplos: 19:00 o 7:00 pm'}
+  ends_at: {label: Hora de fin, span: right, placeholder: '21:00', comment: Opcional.}
+  branch_id: {label: Sede, type: dropdown, span: left, emptyOption: — Todas o sin sede —}
+  location: {label: Lugar, span: right}
+  note: {label: Detalle, comment: 'Opcional. Ejemplo: Primer domingo de cada mes.'}
+  is_active: {label: Mostrar en el horario, type: switch, default: true}

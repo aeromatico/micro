@@ -1,0 +1,10 @@
+name: Horario
+form: $/aero/church/models/servicetimes/fields.yaml
+modelClass: Aero\Church\Models\ServiceTime
+defaultRedirect: aero/church/servicetimes
+create:
+  redirect: aero/church/servicetimes
+  redirectClose: aero/church/servicetimes
+update:
+  redirect: aero/church/servicetimes
+  redirectClose: aero/church/servicetimes

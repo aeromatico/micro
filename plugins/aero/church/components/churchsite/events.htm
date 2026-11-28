@@ -4,7 +4,7 @@
     {% set e = site.item %}
     <a href="/eventos" class="text-sm text-ink-muted hover:text-ink">← Eventos</a>
     <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-ink">{{ e.title }}</h1>
-    <p class="mt-1 text-ink-muted">{{ e.starts_at|date('d/m/Y H:i') }}{% if e.location %} · {{ e.location }}{% endif %}</p>
+    <p class="mt-1 text-ink-muted">{{ e.starts_local|date('d/m/Y H:i', false) }}{% if e.location %} · {{ e.location }}{% endif %}</p>
     {% if e.description %}<div class="mt-5 max-w-2xl whitespace-pre-line text-ink">{{ e.description }}</div>{% endif %}
 
     <div id="church-register" class="mt-8 max-w-md rounded-brand border border-surface-border bg-surface-alt p-5">
@@ -28,15 +28,16 @@
     {% endif %}
     </div>
 {% else %}
-    <h1 class="text-3xl font-extrabold tracking-tight text-ink">Próximos eventos</h1>
+    <h1 class="text-3xl font-extrabold tracking-tight text-ink">Eventos especiales</h1>
+    <p class="mt-2 text-ink-muted">Retiros, conferencias y celebraciones.{% if site.hasSchedule %} Para las reuniones de cada semana, mira los <a href="/horarios" class="font-semibold underline">horarios</a>.{% endif %}</p>
     <div class="mt-6 space-y-4">
         {% for e in site.items %}
             <a href="/eventos/{{ e.id }}" class="block rounded-brand border border-surface-border bg-surface-alt p-5 hover:border-brand-primary">
-                <p class="text-xs text-ink-muted">{{ e.starts_at|date('d/m/Y H:i') }}{% if e.location %} · {{ e.location }}{% endif %}</p>
+                <p class="text-xs text-ink-muted">{{ e.starts_local|date('d/m/Y H:i', false) }}{% if e.location %} · {{ e.location }}{% endif %}</p>
                 <h2 class="mt-1 font-bold text-ink">{{ e.title }}</h2>
             </a>
         {% else %}
-            <p class="text-ink-muted">No hay eventos próximos.</p>
+            <p class="text-ink-muted">Por ahora no hay eventos especiales anunciados.</p>
         {% endfor %}
     </div>
 {% endif %}

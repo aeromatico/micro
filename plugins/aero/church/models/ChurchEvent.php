@@ -6,6 +6,7 @@ use Model;
 class ChurchEvent extends Model
 {
     use \October\Rain\Database\Traits\Validation;
+    use \October\Rain\Database\Traits\Nullable;
     use \Aero\Church\Classes\TenantOwned;
 
     public const TYPES = [
@@ -18,7 +19,7 @@ class ChurchEvent extends Model
     public static $auditLabel = 'evento';
     public static $auditType = 'event';
 
-    public $attributes = ['type' => 'service', 'status' => 'scheduled', 'registration_open' => true, 'is_public' => false];
+    public $attributes = ['type' => 'special', 'status' => 'scheduled', 'registration_open' => true, 'is_public' => false];
 
     public $fillable = [
         'tenant_id', 'branch_id', 'group_id', 'responsible_id', 'title', 'type', 'description', 'starts_at', 'ends_at',
@@ -36,6 +37,9 @@ class ChurchEvent extends Model
 
     public $dates = ['starts_at', 'ends_at'];
 
+    /** Los campos vacíos del formulario llegan como '' y MySQL no los acepta en columnas numéricas. */
+    public $nullable = ['capacity', 'reminder_hours'];
+
     public $belongsTo = [
         'branch'      => [Branch::class, 'key' => 'branch_id'],
         'group'       => [Group::class, 'key' => 'group_id'],
@@ -45,6 +49,17 @@ class ChurchEvent extends Model
     public $hasMany = [
         'registrations' => [EventRegistration::class, 'key' => 'event_id'],
     ];
+
+    /** Inicio y fin en la hora de la iglesia (para mostrar; en la base van en UTC). */
+    public function getStartsLocalAttribute()
+    {
+        return \Aero\Church\Classes\LocalTime::of($this->starts_at);
+    }
+
+    public function getEndsLocalAttribute()
+    {
+        return \Aero\Church\Classes\LocalTime::of($this->ends_at);
+    }
 
     public function beforeValidate(): void
     {

@@ -38,7 +38,7 @@ class Reminders
 
     public function render(ChurchEvent $event, string $name): string
     {
-        $when = $event->starts_at->translatedFormat('l d/m \a \l\a\s H:i');
+        $when = $event->starts_local->translatedFormat('l d/m \a \l\a\s H:i');
 
         return "Hola {$name} 🙏 te recordamos «{$event->title}»: {$when}" . ($event->location ? " en {$event->location}" : '') . '.';
     }

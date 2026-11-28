@@ -37,6 +37,8 @@ class ChurchSite extends ComponentBase
     public array $resourcesByKind = [];
     public ?array $registered = null;
     public bool $membersOnly = false;
+    public array $days = [];
+    public bool $hasSchedule = false;
 
     public function componentDetails(): array
     {
@@ -47,7 +49,7 @@ class ChurchSite extends ComponentBase
     {
         return [
             'mode' => ['title' => 'Sección', 'type' => 'dropdown', 'default' => 'sermons',
-                'options' => ['sermons' => 'Predicaciones', 'news' => 'Noticias', 'live' => 'En vivo', 'events' => 'Eventos', 'resources' => 'Recursos']],
+                'options' => ['sermons' => 'Predicaciones', 'news' => 'Noticias', 'live' => 'En vivo', 'events' => 'Eventos', 'resources' => 'Recursos', 'schedule' => 'Horarios']],
             'slug' => ['title' => 'Slug/ID', 'type' => 'string', 'default' => '{{ :slug }}'],
         ];
     }
@@ -57,6 +59,17 @@ class ChurchSite extends ComponentBase
         $this->mode = (string) $this->property('mode');
         if (!$this->boot()) {
             return $this->fallThrough();
+        }
+
+        // Sin horarios cargados, /horarios sigue siendo la página normal del sitio.
+        if ($this->mode === 'schedule') {
+            $this->days = \Aero\Church\Classes\WeeklySchedule::days($this->tenant->id);
+            if (!$this->days) {
+                return $this->fallThrough();
+            }
+            $this->page['churchSite'] = $this;
+
+            return;
         }
 
         $slug = (string) $this->property('slug');
@@ -174,6 +187,7 @@ class ChurchSite extends ComponentBase
 
     protected function runEvents()
     {
+        $this->hasSchedule = \Aero\Church\Classes\WeeklySchedule::exists($this->tenant->id);
         $this->items = ChurchEvent::forTenant($this->tenant->id)->where('is_public', true)->upcoming()->orderBy('starts_at')->get();
     }
 

@@ -79,6 +79,6 @@ class Announcement extends Model
     public function getAudienceEventIdOptions(): array
     {
         return ChurchEvent::visible()->where('starts_at', '>=', now()->subDays(7))->orderBy('starts_at')->get()
-            ->mapWithKeys(fn ($e) => [$e->id => $e->title . ' (' . $e->starts_at->format('d/m H:i') . ')'])->all();
+            ->mapWithKeys(fn ($e) => [$e->id => $e->title . ' (' . $e->starts_local->format('d/m H:i') . ')'])->all();
     }
 }

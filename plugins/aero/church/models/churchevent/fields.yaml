@@ -6,8 +6,8 @@ fields:
     permissions:
     - aero.church.superadmin
     emptyOption: — Elegir —
-  title: {label: Título, span: left, required: true}
-  type: {label: Tipo, type: dropdown, span: right}
+  title: {label: Título, span: left, required: true, comment: 'Ocasiones especiales: retiros, conferencias, aniversarios, campañas. Las reuniones de cada semana van en «Horarios de reuniones».'}
+  type: {label: Tipo, type: dropdown, span: right, default: special}
   starts_at: {label: Inicio, type: datepicker, mode: datetime, span: left, required: true}
   ends_at: {label: Fin, type: datepicker, mode: datetime, span: right}
   location: {label: Lugar, span: left}

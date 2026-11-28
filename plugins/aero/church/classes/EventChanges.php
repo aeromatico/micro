@@ -23,7 +23,7 @@ class EventChanges
 
             $body = $e->status === 'cancelled'
                 ? "Aviso: «{$e->title}» fue cancelado. Disculpa las molestias."
-                : "Aviso: «{$e->title}» cambió. Nuevo horario: " . $e->starts_at->format('d/m \a \l\a\s H:i') . ($e->location ? " en {$e->location}" : '') . '.';
+                : "Aviso: «{$e->title}» cambió. Nuevo horario: " . $e->starts_local->format('d/m \a \l\a\s H:i') . ($e->location ? " en {$e->location}" : '') . '.';
 
             $a = Announcement::create([
                 'tenant_id' => $e->tenant_id, 'title' => 'Cambio: ' . $e->title, 'body' => $body, 'kind' => 'schedule_change',

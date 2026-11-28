@@ -12,5 +12,5 @@
 {% endif %}
 {% if site.items|length %}
     <h2 class="mt-10 text-lg font-bold text-ink">Próximos eventos</h2>
-    <ul class="mt-2 space-y-1 text-sm">{% for e in site.items %}<li><a class="text-brand-primary underline" href="/eventos/{{ e.id }}">{{ e.title }}</a> — {{ e.starts_at|date('d/m H:i') }}</li>{% endfor %}</ul>
+    <ul class="mt-2 space-y-1 text-sm">{% for e in site.items %}<li><a class="text-brand-primary underline" href="/eventos/{{ e.id }}">{{ e.title }}</a> — {{ e.starts_local|date('d/m H:i', false) }}</li>{% endfor %}</ul>
 {% endif %}

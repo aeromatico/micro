@@ -1,0 +1,20 @@
+{% set site = __SELF__ %}
+<h1 class="text-3xl font-extrabold tracking-tight text-ink">Horarios de reuniones</h1>
+<p class="mt-2 text-ink-muted">Estas son las reuniones de cada semana. Ven a la que quieras.</p>
+<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for d in site.days %}
+    <section class="rounded-2xl border bg-surface-alt p-5 {{ d.today ? 'border-brand-primary border-2' : 'border-surface-border' }}">
+        <h2 class="flex items-center justify-between gap-2 text-lg font-bold text-ink">{{ d.label }}{% if d.today %}<span class="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold text-white">Hoy</span>{% endif %}</h2>
+        <ul class="mt-3 divide-y divide-surface-border">
+            {% for m in d.items %}
+            <li class="py-3">
+                <p class="text-sm font-bold text-brand-primary dark:text-ink">{{ m.time }}</p>
+                <p class="mt-0.5 font-semibold text-ink">{{ m.title }}</p>
+                {% if m.place %}<p class="text-sm text-ink-muted">{{ m.place }}</p>{% endif %}
+                {% if m.note %}<p class="text-sm text-ink-muted">{{ m.note }}</p>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endfor %}
+</div>

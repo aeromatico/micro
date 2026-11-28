@@ -4,7 +4,7 @@
     <h4>Acompañamiento (<?= $notes->count() ?>)</h4>
     <?php foreach ($notes as $n): ?>
         <div style="border-left:3px solid #ccc;padding:4px 10px;margin:8px 0">
-            <small class="text-muted"><?= e($n->created_at->format('d/m/Y H:i')) ?></small><br><?= nl2br(e($n->note)) ?>
+            <small class="text-muted"><?= e(\Aero\Church\Classes\LocalTime::of($n->created_at)->format('d/m/Y H:i')) ?></small><br><?= nl2br(e($n->note)) ?>
         </div>
     <?php endforeach ?>
     <?= Form::open() ?>

@@ -30,3 +30,25 @@
 1.6.0:
     - "Registro de auditoría: historial de operaciones administrativas (altas, cambios, anulaciones, envíos, exportaciones y consultas de peticiones de oración) sin guardar datos sensibles."
     - create_church_audit.php
+
+1.6.1:
+    - "El menú del sitio ahora enlaza las secciones activas de la iglesia: eventos, predicaciones, oración, visitantes, noticias, recursos, en vivo y portal."
+
+1.6.2:
+    - "Las páginas de la iglesia ya no repiten un segundo menú: la navegación queda en el menú principal del sitio."
+
+1.7.0:
+    - "Portada del sitio de la iglesia: accesos rápidos, próximo encuentro, agenda, último mensaje, sedes con cómo llegar y noticias."
+
+1.8.0:
+    - "Horarios de reuniones: registra las reuniones de cada semana y muéstralas en la portada y en la página de horarios del sitio."
+    - create_church_service_times.php
+
+1.8.1:
+    - "Corrige la hora de los eventos: el sitio, los mensajes y los reportes ya no la muestran adelantada, y ahora se puede crear un evento sin cupo ni recordatorio."
+
+1.8.2:
+    - "Los eventos especiales ahora se distinguen de las reuniones de cada semana en el panel y en el sitio."
+
+1.8.3:
+    - "La portada del sitio ahora muestra el video del último mensaje, listo para reproducirlo ahí mismo."

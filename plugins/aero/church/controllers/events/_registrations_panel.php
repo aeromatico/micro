@@ -29,7 +29,7 @@ $statusLabel = ['registered' => 'Inscrito', 'waitlist' => 'En espera'];
             <tr>
                 <td><?= e($r->display_name) ?><?= $r->member ? '' : ' <span class="text-muted">(invitado)</span>' ?></td>
                 <td><?= e($statusLabel[$r->status] ?? $r->status) ?></td>
-                <td><?= $r->checked_in_at ? e($r->checked_in_at->format('H:i')) : '—' ?></td>
+                <td><?= $r->checked_in_at ? e($r->checked_in_local->format('H:i')) : '—' ?></td>
                 <td style="width:90px"><div style="width:72px;height:72px"><?= $r->status === 'registered' ? str_replace('<svg ', '<svg width="72" height="72" ', $r->qrSvg(72)) : '' ?></div></td>
                 <td class="text-right">
                     <?php if ($r->status === 'registered'): ?>

@@ -4,6 +4,7 @@ use Aero\Church\Classes\Audit;
 use Aero\Church\Classes\CareService;
 use Aero\Church\Classes\ContributionService;
 use Aero\Church\Classes\EventService;
+use Aero\Church\Classes\LocalTime;
 use Aero\Church\Classes\Messenger;
 use Aero\Church\Classes\Notifier;
 use Aero\Church\Models\Announcement;
@@ -25,6 +26,7 @@ use Aero\Church\Models\PrayerNote;
 use Aero\Church\Models\Resource;
 use Aero\Church\Models\Sermon;
 use Aero\Church\Models\Series;
+use Aero\Church\Models\ServiceTime;
 use Aero\Church\Models\Visit;
 use Aero\Church\Models\VisitContact;
 use Carbon\Carbon;
@@ -83,6 +85,7 @@ class DemoCommand extends Command
 
         DB::transaction(function () {
             $this->branchesAndFunds();
+            $this->schedule();
             $this->people();
             $this->groups();
             $this->events();
@@ -156,6 +159,17 @@ class DemoCommand extends Command
         }
         $this->fund['missions'] = $this->make(Fund::class, ['name' => 'Misiones', 'kind' => 'offering', 'is_active' => true]);
         $this->fund['building'] = $this->make(Fund::class, ['name' => 'Campaña templo nuevo', 'kind' => 'campaign', 'goal_amount' => 80000, 'starts_on' => $this->today->copy()->subMonths(4)->toDateString(), 'ends_on' => $this->today->copy()->addMonths(8)->toDateString(), 'is_active' => true]);
+    }
+
+    protected function schedule(): void
+    {
+        foreach ([
+            [2, '15:45', '18:00', 'Reunión femenil'], [4, '19:00', '21:00', 'Reunión de oración'],
+            [6, '15:30', '18:00', 'Reunión de adolescentes'], [6, '19:00', '21:00', 'Reunión de jóvenes'],
+            [7, '09:30', '10:30', 'Santa Cena'], [7, '11:00', '12:30', 'Reunión general'],
+        ] as [$day, $from, $to, $title]) {
+            $this->make(ServiceTime::class, ['branch_id' => $this->branch['c']->id, 'title' => $title, 'day' => $day, 'starts_at' => $from, 'ends_at' => $to, 'is_active' => true]);
+        }
     }
 
     // ───────────────────────── personas ─────────────────────────
@@ -308,7 +322,7 @@ class DemoCommand extends Command
 
         // Cultos pasados: inscritos y llegadas
         for ($w = 8; $w >= 1; $w--) {
-            $d = $this->sundayAgo($w)->setTime(10, 0);
+            $d = LocalTime::toUtc($this->sundayAgo($w), 11);
             $e = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['c']->id, 'title' => 'Culto dominical', 'type' => 'service', 'starts_at' => $d, 'ends_at' => $d->copy()->addHours(2), 'location' => 'Templo principal', 'capacity' => 150, 'registration_open' => false, 'status' => 'scheduled', 'is_public' => true, 'description' => 'Culto de adoración y enseñanza.']);
             $take = array_slice($everyone, 0, mt_rand(18, min(32, count($everyone))));
             foreach ($take as $mid) {
@@ -321,24 +335,24 @@ class DemoCommand extends Command
         // Próximos (con el servicio, que aplica cupos y lista de espera)
         $svc = app(EventService::class);
 
-        $culto = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['c']->id, 'title' => 'Culto dominical', 'type' => 'service', 'starts_at' => $this->sundayAgo(0)->setTime(10, 0), 'ends_at' => $this->sundayAgo(0)->setTime(12, 0), 'location' => 'Templo principal', 'capacity' => 150, 'reminder_hours' => 24, 'is_public' => true, 'description' => 'Te esperamos este domingo.']);
+        $culto = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['c']->id, 'title' => 'Aniversario de la iglesia', 'type' => 'special', 'starts_at' => LocalTime::toUtc($this->today->copy()->addDays(15), 10), 'ends_at' => LocalTime::toUtc($this->today->copy()->addDays(15), 13), 'location' => 'Templo principal', 'capacity' => 150, 'reminder_hours' => 24, 'is_public' => true, 'description' => 'Celebramos juntos un año más. Invita a tu familia y amigos.']);
         foreach (array_slice($everyone, 0, 12) as $mid) {
             $svc->register($culto, Member::find($mid));
         }
 
-        $retiro = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['c']->id, 'group_id' => $this->grp['jov']->id, 'responsible_id' => $this->m['s1']->id, 'title' => 'Retiro de jóvenes', 'type' => 'retreat', 'starts_at' => $this->today->copy()->addDays(21)->setTime(8, 0), 'ends_at' => $this->today->copy()->addDays(22)->setTime(18, 0), 'location' => 'Casa de retiros, Coroico', 'capacity' => 12, 'reminder_hours' => 48, 'is_public' => true, 'description' => 'Dos días de comunión, enseñanza y descanso. Cupo limitado.']);
+        $retiro = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['c']->id, 'group_id' => $this->grp['jov']->id, 'responsible_id' => $this->m['s1']->id, 'title' => 'Retiro de jóvenes', 'type' => 'retreat', 'starts_at' => LocalTime::toUtc($this->today->copy()->addDays(21), 8), 'ends_at' => LocalTime::toUtc($this->today->copy()->addDays(22), 18), 'location' => 'Casa de retiros, Coroico', 'capacity' => 12, 'reminder_hours' => 48, 'is_public' => true, 'description' => 'Dos días de comunión, enseñanza y descanso. Cupo limitado.']);
         $youth = array_values(array_unique(array_merge($everyone, array_map(fn ($k) => $this->m[$k]->id, ['s0', 's1', 's2', 's3', 's8']))));
         foreach (array_slice($youth, 0, 15) as $mid) {      // 12 con cupo + 3 en lista de espera
             $svc->register($retiro, Member::find($mid));
         }
         $svc->register($retiro, null, 'Invitado de prueba', null);
 
-        $conf = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['s']->id, 'title' => 'Conferencia de familia', 'type' => 'conference', 'starts_at' => $this->today->copy()->addDays(10)->setTime(18, 30), 'ends_at' => $this->today->copy()->addDays(10)->setTime(21, 0), 'location' => 'Sede Zona Sur', 'capacity' => 100, 'is_public' => false, 'description' => 'Solo para miembros.']);
+        $conf = $this->make(ChurchEvent::class, ['branch_id' => $this->branch['s']->id, 'title' => 'Conferencia de familia', 'type' => 'conference', 'starts_at' => LocalTime::toUtc($this->today->copy()->addDays(10), 18, 30), 'ends_at' => LocalTime::toUtc($this->today->copy()->addDays(10), 21), 'location' => 'Sede Zona Sur', 'capacity' => 100, 'is_public' => false, 'description' => 'Solo para miembros.']);
         foreach (array_slice($everyone, 0, 8) as $mid) {
             $svc->register($conf, Member::find($mid));
         }
 
-        $cancel = $this->make(ChurchEvent::class, ['title' => 'Vigilia de oración', 'type' => 'special', 'starts_at' => $this->today->copy()->addDays(5)->setTime(21, 0), 'location' => 'Sala de oración', 'status' => 'cancelled', 'is_public' => false, 'description' => 'Cancelada por refacción del templo.']);
+        $cancel = $this->make(ChurchEvent::class, ['title' => 'Vigilia de oración', 'type' => 'special', 'starts_at' => LocalTime::toUtc($this->today->copy()->addDays(5), 21), 'location' => 'Sala de oración', 'status' => 'cancelled', 'is_public' => false, 'description' => 'Cancelada por refacción del templo.']);
 
         // Las inscripciones hechas por el servicio (cupos, lista de espera) también se anotan para poder borrarlas.
         $known = $this->made['aero_church_event_registrations'] ?? [];
@@ -471,11 +485,11 @@ class DemoCommand extends Command
     {
         $s1 = $this->make(Series::class, ['name' => 'Fundamentos de la fe', 'description' => 'Las bases de la vida cristiana.']);
         $s2 = $this->make(Series::class, ['name' => 'Familias fuertes', 'description' => 'Principios bíblicos para el hogar.']);
-        $bunny = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ';   // video de muestra de la Fundación Blender (libre)
+        $video = 'https://www.youtube.com/watch?v=wOZQWmiBHx4';   // predicación de muestra
 
         $sermons = [
-            ['La gracia que nos sostiene', 'Pastor Roberto Salinas', 'Gracia', $s1, 'public', $bunny], ['Fe en medio de la prueba', 'Pastor Roberto Salinas', 'Fe', $s1, 'public', null],
-            ['Orar sin cesar', 'Hna. Esther Villca', 'Oración', $s1, 'public', null], ['El hogar como santuario', 'Pastor Roberto Salinas', 'Familia', $s2, 'public', $bunny],
+            ['La gracia que nos sostiene', 'Pastor Roberto Salinas', 'Gracia', $s1, 'public', $video], ['Fe en medio de la prueba', 'Pastor Roberto Salinas', 'Fe', $s1, 'public', null],
+            ['Orar sin cesar', 'Hna. Esther Villca', 'Oración', $s1, 'public', null], ['El hogar como santuario', 'Pastor Roberto Salinas', 'Familia', $s2, 'public', $video],
             ['Padres que bendicen', 'Pastor Carlos Condori', 'Familia', $s2, 'members', null], ['Perdonar para sanar', 'Hna. Esther Villca', 'Perdón', $s2, 'public', null],
             ['Servir con alegría', 'Pastor Carlos Condori', 'Servicio', null, 'members', null], ['Una iglesia unida', 'Pastor Roberto Salinas', 'Comunidad', null, 'public', null],
         ];
@@ -524,8 +538,8 @@ class DemoCommand extends Command
         $s = ChurchSettings::forTenant($this->tid);
         $public = (bool) $this->option('public');
         $s->forceFill([
-            'live_title' => $s->live_title ?: 'Culto dominical en vivo', 'live_schedule' => $s->live_schedule ?: "Domingos 10:00 y 18:00",
-            'live_url' => $s->live_url ?: 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'welcome_text' => $s->welcome_text ?: 'Nos alegra que nos visites. Déjanos tus datos y te saludaremos.',
+            'live_title' => $s->live_title ?: 'Culto dominical en vivo', 'live_schedule' => $s->live_schedule ?: "Domingos 11:00",
+            'live_url' => $s->live_url ?: 'https://www.youtube.com/watch?v=wOZQWmiBHx4', 'welcome_text' => $s->welcome_text ?: 'Nos alegra que nos visites. Déjanos tus datos y te saludaremos.',
             'site_enabled' => $public, 'portal_enabled' => $public, 'welcome_enabled' => $public, 'prayer_enabled' => $public,
             'birthday_enabled' => false, 'notify_event_changes' => false,
         ])->save();
@@ -545,7 +559,7 @@ class DemoCommand extends Command
         $made = json_decode(file_get_contents($this->manifest()), true) ?: [];
         $order = ['aero_church_attendances', 'aero_church_meetings', 'aero_church_event_registrations', 'aero_church_events', 'aero_church_prayer_notes', 'aero_church_prayers',
             'aero_church_visit_contacts', 'aero_church_visits', 'aero_church_announcements', 'aero_church_contributions', 'aero_church_funds', 'aero_church_group_members',
-            'aero_church_groups', 'aero_church_resources', 'aero_church_posts', 'aero_church_sermons', 'aero_church_series', 'aero_church_members', 'aero_church_families', 'aero_church_branches'];
+            'aero_church_groups', 'aero_church_service_times', 'aero_church_resources', 'aero_church_posts', 'aero_church_sermons', 'aero_church_series', 'aero_church_members', 'aero_church_families', 'aero_church_branches'];
         $n = 0;
 
         DB::transaction(function () use ($made, $order, &$n) {
