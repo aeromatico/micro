@@ -580,3 +580,6 @@
 1.109.0:
     - "El plan PRO ahora incluye Gimnasio, Colegio y Aviso de cookies."
     - add_niche_modules_to_pro_plan.php
+
+1.109.1:
+    - "Corrige que el menú y el pie no se mostraran en sitios cuya portada la arma un módulo."

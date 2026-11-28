@@ -105,11 +105,13 @@ class Tenant extends Model
      * true mientras el admin no haya generado su primer landing con IA ni
      * guardado contenido propio — ver Page::is_placeholder y home.htm. El
      * layout base la usa para ocultar navbar/footer del sitio público
-     * mientras dura ese estado inicial.
+     * mientras dura ese estado inicial. Un módulo que ya arma la portada del
+     * negocio (aero.sites.tenantHasHome → true) la da por terminada.
      */
     public function isUnderConstruction(): bool
     {
-        return (bool) $this->pages()->where('slug', '')->value('is_placeholder');
+        return (bool) $this->pages()->where('slug', '')->value('is_placeholder')
+            && \Event::fire('aero.sites.tenantHasHome', [$this], true) !== true;
     }
 
     public function addUser(\Backend\Models\User $user, string $role = 'admin'): void
