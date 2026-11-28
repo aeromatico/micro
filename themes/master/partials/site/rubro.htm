@@ -87,6 +87,11 @@
         {% partial 'site/landing/cocina-demo' %}
     {% endif %}
 
+    {# Demos interactivas de Iglesias: bin/church-demo/build.py #}
+    {% if service.slug starts with 'iglesias' %}
+        {% partial 'site/landing/iglesia-demos' %}
+    {% endif %}
+
     {% if service.features|length %}
     <section aria-labelledby="rubro-incluye">
         <h2 id="rubro-incluye">Qué incluye</h2>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Iglesia — demo del sitio y portal del miembro</title>
+<style>*{box-sizing:border-box}
+html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.5}
+h1,h2,h3,h4,p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:12px}.right{text-align:right}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:7px 14px;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.ok{background:#15803d;border-color:#15803d;color:#fff}
+.btn.danger{background:#fff;border-color:#fca5a5;color:#b91c1c}
+.btn.sm{padding:4px 10px;font-size:12px}
+.link{border:0;background:none;padding:0;color:var(--brand);font-weight:600;text-decoration:underline}
+.inp{width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:8px 11px}
+textarea.inp{resize:vertical}
+.check{display:flex;gap:8px;align-items:flex-start}.check input{margin-top:4px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.card{border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:16px}
+.tag{display:inline-block;border-radius:99px;padding:1px 9px;font-size:11px;font-weight:700;background:#eef0f4;color:#475569;white-space:nowrap}
+.tag.green{background:#dcfce7;color:#166534}.tag.amber{background:#fef3c7;color:#92400e}.tag.blue{background:#dbeafe;color:#1e40af}.tag.red{background:#fee2e2;color:#991b1b}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:flex-start;justify-content:center;padding:6vh 14px;overflow:auto;z-index:50}
+.dialog{position:relative;width:100%;max-width:440px;background:#fff;border-radius:12px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.dialog.wide{max-width:680px}
+.dialog .x{position:absolute;right:10px;top:6px;border:0;background:none;font-size:22px;color:var(--muted)}
+.ask{font-size:15px;margin:6px 18px 18px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#14532d;color:#fff;border-radius:10px;padding:10px 16px;font-weight:600;font-size:13px;z-index:60;width:max-content;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.err{background:#991b1b}
+:root{--brand:#4f46b8;--ink:#17172b;--muted:#64647a;--line:#e5e4ef;--bg:#f7f6fb;--r:12px}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;max-width:720px;margin:0 auto;padding:12px 18px 6px;font-weight:800;font-size:16px}
+.brand i{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--brand);color:#fff;font-style:normal}
+nav{display:flex;gap:4px;max-width:720px;margin:0 auto;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none}
+nav button{border:0;background:none;white-space:nowrap;padding:6px 10px;border-radius:99px;font-size:13px;font-weight:600;color:var(--muted)}
+nav button.on{background:var(--brand);color:#fff}
+main{max-width:720px;margin:0 auto;padding:22px 18px 60px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:26px;line-height:1.2;letter-spacing:-.02em}h2{font-size:17px;margin-top:8px}
+@media (min-width:640px){nav{flex-wrap:wrap;overflow:visible}}
+.kicker{text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700;opacity:.75}
+.hero{background:linear-gradient(135deg,#322a86,#6b5bd6);color:#fff;border-radius:18px;padding:30px 24px;display:flex;flex-direction:column;gap:12px}
+.btn.light{background:#fff;color:#322a86;border-color:#fff}.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+button.card{text-align:left;width:100%}button.card:hover{border-color:var(--brand)}
+.event,.sermon{display:flex;gap:14px;align-items:center}.event>span:last-child,.sermon>span:last-child,.pray{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.date{display:flex;flex-direction:column;align-items:center;min-width:48px;padding:6px 0;border-radius:10px;background:#eeecfb;color:var(--brand);font-size:11px;font-weight:700;text-transform:uppercase}.date b{font-size:19px;line-height:1.1}
+.play{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:99px;background:#eeecfb;color:var(--brand)}
+.play.big{width:64px;height:64px;font-size:22px;background:#fff}
+.video{aspect-ratio:16/9;border-radius:14px;background:#1d1b3a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px}
+.done{background:#dcfce7;border:1px solid #bbf7d0;color:#166534;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.dialog .done{margin-top:14px}
+.qr{background:#fff;padding:8px;border-radius:8px;width:176px;height:176px}
+</style>
+</head>
+<body>
+<header><div class="brand"><i>✝</i> Comunidad Vida Nueva</div><nav id="nav" aria-label="Secciones"></nav></header><main id="main"></main>
+<script>/* Utilidades y datos ficticios compartidos por las tres demos (mismos nombres que `church:demo`). Nada se guarda ni se envía. */
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const val = (id) => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+const on = (id) => { const e = document.getElementById(id); return !!(e && e.checked); };
+const money = (v) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CHURCH = 'Comunidad Vida Nueva';
+const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+const day = (n, h = 0, m = 0) => { const d = new Date(TODAY); d.setDate(d.getDate() + n); d.setHours(h, m); return d; };
+const pad = (n) => String(n).padStart(2, '0');
+const fDate = (d) => d ? `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}` : '—';
+const fShort = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+const fTime = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const nextSunday = ((7 - TODAY.getDay()) % 7) || 7;
+let seed = 25025;
+const rnd = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed % (b - a + 1)); };
+const pick = (a) => a[rnd(0, a.length - 1)];
+let uid = 1000;
+
+/** Dibujo con aspecto de QR. Es decorativo a propósito: no se puede escanear. */
+function qrSvg(text, size = 160) {
+  let h = 7; for (const c of String(text)) h = (h * 31 + c.charCodeAt(0)) % 2147483647;
+  const n = 25; let out = '';
+  const finder = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><path d="M${x + 2} ${y + 2}h3v3h-3z"/>`;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    h = (h * 16807) % 2147483647;
+    if ((x < 8 && (y < 8 || y > n - 9)) || (y < 8 && x > n - 9)) continue;
+    if (h % 100 < 47) out += `M${x} ${y}h1v1h-1z`;
+  }
+  return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" width="${size}" height="${size}" fill="#111" style="background:#fff" role="img" aria-label="Código QR de ejemplo">${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}<path d="${out}"/></svg>`;
+}
+
+function toast(msg, kind = 'ok') {
+  const t = document.createElement('div'); t.className = 'toast ' + kind; t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+function closeModal() { const m = $('#modal'); if (m) m.remove(); }
+function modal(html, wide) {
+  closeModal();
+  const m = document.createElement('div'); m.id = 'modal'; m.className = 'overlay';
+  m.innerHTML = `<div class="dialog${wide ? ' wide' : ''}" role="dialog" aria-modal="true"><button class="x" data-act="close" aria-label="Cerrar">×</button>${html}</div>`;
+  m.addEventListener('click', (e) => { if (e.target === m) closeModal(); });
+  document.body.appendChild(m);
+}
+let pendingYes = null;
+function confirmBox(msg, yes) {
+  pendingYes = yes;
+  modal(`<p class="ask">${esc(msg)}</p><div class="actions"><button class="btn" data-act="close">Volver</button><button class="btn primary" data-act="yes">Confirmar</button></div>`);
+}
+const ACT = { close: closeModal, yes: () => { const f = pendingYes; pendingYes = null; closeModal(); if (f) f(); } };
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
+  if (el.tagName === 'A' || el.tagName === 'BUTTON') e.preventDefault();
+  const f = ACT[el.dataset.act]; if (f) f(el.dataset.id, el);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* ───── personas ───── */
+const BRANCHES = ['Sede Central', 'Sede Zona Sur'];
+const MSTAT = { visitor: 'Visitante', new: 'Nuevo asistente', active: 'Miembro activo', inactive: 'Miembro inactivo' };
+const MEMBERS = [];
+[['Mamani Quispe', 'Juan', 'María', ['Valentina', 'Mateo', 'Camila']], ['Condori Flores', 'Carlos', 'Ana', ['Emanuel', 'Abigail']], ['Choque Gutiérrez', 'Luis', 'Rosa', ['Josué']],
+ ['Vargas Rojas', 'Pedro', 'Lucía', ['Noemí', 'Isaac', 'Lía']], ['Quispe Mendoza', 'José', 'Elena', []], ['Torrez Salazar', 'Marcos', 'Carmen', ['Thiago', 'Sara']],
+ ['Huanca Pérez', 'Daniel', 'Sofía', ['Benjamín']], ['Rodríguez Cruz', 'Samuel', 'Patricia', ['Ruth', 'Gael']]].forEach(([sur, h, w, kids], i) => {
+  const branch = BRANCHES[i % 3 === 2 ? 1 : 0], family = 'Familia ' + sur;
+  const add = (first, role, age) => MEMBERS.push({ id: ++uid, first, last: sur, family, role, age, branch, status: 'active', consent: age >= 18 && uid % 4 !== 0, since: -rnd(40, 330), birth: rnd(20, 330) });
+  add(h, 'Cabeza de familia', rnd(32, 55)); add(w, 'Cónyuge', rnd(29, 52)); kids.forEach((k) => add(k, 'Hijo/a', rnd(3, 16)));
+});
+[['Andrea', 'Lima Torrico', 19, 'active', -210], ['Diego', 'Paco Ticona', 22, 'active', -150], ['Karen', 'Poma Limachi', 24, 'active', -95], ['Eulogia', 'Ticona Mamani', 71, 'active', -300],
+ ['Silvia', 'Mercado Ortiz', 38, 'active', -62], ['Rolando', 'Gómez Vera', 45, 'active', -180], ['Gonzalo', 'Rivero Sandoval', 31, 'new', -12], ['Mariela', 'Cárdenas Ruiz', 27, 'new', -6],
+ ['Teresa', 'Nina Choque', 49, 'inactive', -320]].forEach(([first, last, age, status, since], i) =>
+  MEMBERS.push({ id: ++uid, first, last, family: '', role: '', age, branch: BRANCHES[i % 2], status, consent: status !== 'inactive' && i % 3 !== 2, since, birth: rnd(20, 330) }));
+[[0, 1], [3, 3], [9, 5]].forEach(([i, n]) => { MEMBERS[i].birth = n; });
+const fullName = (m) => m.first + ' ' + m.last;
+const member = (id) => MEMBERS.find((m) => m.id === +id);
+const adults = () => MEMBERS.filter((m) => m.age >= 18);
+
+/* ───── eventos (cupo, lista de espera, llegada) ───── */
+const ETYPE = { service: 'Culto', retreat: 'Retiro', conference: 'Conferencia', special: 'Actividad especial' };
+const EVENTS = [
+  { id: 1, title: 'Culto dominical', type: 'service', at: day(nextSunday, 10), place: 'Templo principal', cap: 150, pub: true, open: true, text: 'Te esperamos este domingo.', n: 12 },
+  { id: 3, title: 'Conferencia de familia', type: 'conference', at: day(10, 18, 30), place: 'Sede Zona Sur', cap: 100, pub: false, open: true, text: 'Solo para miembros.', n: 8 },
+  { id: 2, title: 'Retiro de jóvenes', type: 'retreat', at: day(21, 8), place: 'Casa de retiros, Coroico', cap: 12, pub: true, open: true, text: 'Dos días de comunión, enseñanza y descanso. Cupo limitado.', n: 15 },
+];
+const REGS = [];
+// Ana (la del portal) solo empieza inscrita al culto, para que pueda probar las demás inscripciones.
+EVENTS.forEach((e) => adults().filter((m) => e.id === 1 || m.first !== 'Ana').slice(e.id, e.id + e.n).forEach((m, i) => REGS.push({ id: ++uid, event: e.id, member: m.id, name: fullName(m), status: i < e.cap ? 'registered' : 'waitlist', in: null })));
+const seats = (e) => REGS.filter((r) => r.event === e.id && r.status === 'registered').length;
+const waiting = (e) => REGS.filter((r) => r.event === e.id && r.status === 'waitlist').length;
+function enroll(e, name, memberId) {
+  const r = { id: ++uid, event: e.id, member: memberId || null, name, status: seats(e) < e.cap ? 'registered' : 'waitlist', in: null };
+  REGS.push(r); return r;
+}
+/** Igual que el servicio real: al liberarse un cupo sube el primero de la lista de espera. */
+function unenroll(r) {
+  const seated = r.status === 'registered'; REGS.splice(REGS.indexOf(r), 1);
+  const e = EVENTS.find((x) => x.id === r.event);
+  if (!seated || seats(e) >= e.cap) return null;
+  const next = REGS.find((x) => x.event === e.id && x.status === 'waitlist');
+  if (next) next.status = 'registered';
+  return next || null;
+}
+/* Sitio público y portal del miembro (themes/microsites: churchSite, churchPublic, churchPortal). */
+const ME = MEMBERS.find((m) => m.first === 'Ana');   // Ana Condori, con la sesión del portal «iniciada»
+let view = 'inicio', openEvent = null, lastReg = null, sent = null;
+const NAV = [['inicio', 'Inicio'], ['eventos', 'Eventos'], ['predicaciones', 'Predicaciones'], ['noticias', 'Noticias'], ['envivo', 'En vivo'], ['recursos', 'Recursos'], ['oracion', 'Oración'], ['visita', 'Soy nuevo'], ['portal', 'Mi portal']];
+const SERMONS = [['La gracia que nos sostiene', 'Pastor Roberto Salinas', 'Fundamentos de la fe', 0], ['Fe en medio de la prueba', 'Pastor Roberto Salinas', 'Fundamentos de la fe', 1], ['Orar sin cesar', 'Hna. Esther Villca', 'Fundamentos de la fe', 2], ['El hogar como santuario', 'Pastor Roberto Salinas', 'Familias fuertes', 3], ['Perdonar para sanar', 'Hna. Esther Villca', 'Familias fuertes', 4]];
+const NEWS = [['Bienvenidos a nuestra nueva página', 'Noticia', -2, false], ['Horario especial por feriado', 'Aviso', -1, false], ['Campaña para el templo nuevo', 'Noticia', -10, false], ['Reunión de líderes', 'Aviso', -4, true]];
+const RESOURCES = [['Guía de estudio: Fundamentos', false], ['Cuaderno de trabajo para niños', false], ['Manual de célula', true]];
+const myReg = (e) => REGS.find((r) => r.event === e.id && r.member === ME.id);
+const when = (e) => `${fShort(e.at)} · ${fTime(e.at)} · ${esc(e.place)}`;
+
+function ticket(r) {
+  const e = EVENTS.find((x) => x.id === r.event);
+  return r.status === 'registered'
+    ? `<div class="done"><p><strong>¡Quedaste inscrito en «${esc(e.title)}»!</strong></p><p>Presenta este código al llegar:</p><div class="qr">${qrSvg('reg' + r.id, 160)}</div></div>`
+    : `<div class="done"><p><strong>El cupo está lleno.</strong></p><p>Quedaste en lista de espera para «${esc(e.title)}». Si se libera un lugar, te avisaremos.</p></div>`;
+}
+const eventCard = (e) => `<button class="card event" data-act="event" data-id="${e.id}"><span class="date"><b>${pad(e.at.getDate())}</b>${e.at.toLocaleDateString('es', { month: 'short' }).replace('.', '')}</span><span><strong>${esc(e.title)}</strong><span class="muted small">${when(e)}</span>${seats(e) >= e.cap ? '<span class="tag amber">Lista de espera</span>' : ''}</span></button>`;
+
+const VIEWS = {
+  inicio: () => `<div class="hero"><p class="kicker">La Paz · dos sedes</p><h1>Un lugar para creer, crecer y servir</h1><p>Domingos 10:00 y 18:00. Ven como eres.</p><div class="row"><button class="btn light" data-act="go" data-id="visita">Es mi primera vez</button><button class="btn ghost" data-act="go" data-id="envivo">Ver en vivo</button></div></div>
+    <div class="row between"><h2>Próximos eventos</h2><button class="link" data-act="go" data-id="eventos">Ver todos</button></div>
+    <div class="stack">${EVENTS.filter((e) => e.pub).map(eventCard).join('')}</div>
+    <button class="card pray" data-act="go" data-id="oracion"><strong>¿Podemos orar por ti?</strong><span class="muted small">Envía tu petición, privada si prefieres.</span></button>`,
+  eventos: () => {
+    const e = EVENTS.find((x) => x.id === openEvent);
+    if (!e) return `<h1>Próximos eventos</h1><div class="stack">${EVENTS.filter((x) => x.pub).map(eventCard).join('')}</div>`;
+    const full = seats(e) >= e.cap;
+    return `<button class="link" data-act="go" data-id="eventos">← Eventos</button><h1>${esc(e.title)}</h1><p class="muted">${fDate(e.at)} ${fTime(e.at)} · ${esc(e.place)}</p><p>${esc(e.text)}</p>
+      <div class="card stack">${lastReg ? ticket(lastReg) : `<h3>Inscríbete</h3>${full ? '<p class="muted">El cupo está lleno: te anotaremos en lista de espera.</p>' : `<p class="muted small">Quedan ${e.cap - seats(e)} de ${e.cap} lugares.</p>`}
+      <input id="f-name" class="inp" placeholder="Tu nombre" maxlength="120" aria-label="Nombre"><input id="f-phone" class="inp" placeholder="Teléfono / WhatsApp" aria-label="Teléfono">
+      <label class="check"><input type="checkbox" id="f-consent"> Autorizo que se guarden mis datos para esta inscripción</label><button class="btn primary" data-act="register">Inscribirme</button>`}</div>`;
+  },
+  predicaciones: () => `<h1>Predicaciones</h1><div class="stack">${SERMONS.map(([t, by, serie, w]) => `<div class="card sermon"><span class="play">▶</span><span><strong>${esc(t)}</strong><span class="muted small">${esc(by)} · ${serie} · ${fShort(day(nextSunday - 7 * (w + 1)))}</span></span></div>`).join('')}</div>`,
+  noticias: () => `<h1>Noticias</h1><div class="stack">${NEWS.filter((n) => !n[3]).map(([t, k, d]) => `<div class="card"><span class="tag blue">${k}</span><h3>${t}</h3><p class="muted small">${fDate(day(d))}</p></div>`).join('')}</div>`,
+  envivo: () => `<h1>Culto dominical en vivo</h1><p class="muted">Domingos 10:00 y 18:00</p><div class="video"><span class="play big">▶</span><span>Aquí se muestra tu transmisión de YouTube, Facebook o Vimeo</span></div>`,
+  recursos: () => `<h1>Recursos</h1><div class="stack">${RESOURCES.filter((r) => !r[1]).map(([t]) => `<div class="card row between"><strong>${t}</strong><button class="btn sm" data-act="download">Descargar PDF</button></div>`).join('')}</div><p class="muted small">Hay material exclusivo para miembros en Mi portal.</p>`,
+  oracion: () => `<h1>Petición de oración</h1><p class="muted">Cuéntanos por qué quieres que oremos. Lo trataremos con respeto y reserva.</p><div class="card stack">${sent === 'oracion' ? '<div class="done"><p><strong>Recibimos tu petición.</strong></p><p>Estaremos orando por ti.</p></div>' : `
+    <input id="f-name" class="inp" placeholder="Tu nombre (opcional)" aria-label="Nombre"><textarea id="f-req" class="inp" rows="4" placeholder="¿Por qué podemos orar?" aria-label="Petición"></textarea><input class="inp" placeholder="Teléfono / WhatsApp (solo si quieres que te contactemos)" aria-label="Teléfono">
+    <label class="check"><input type="checkbox" checked> Mantener mi petición privada (solo la verá el equipo pastoral)</label><label class="check"><input type="checkbox"> Quiero que me contacte un pastor</label><label class="check"><input type="checkbox" id="f-consent"> Autorizo que se guarde mi petición y mis datos para acompañarme</label><button class="btn primary" data-act="pray">Enviar petición</button>`}</div>`,
+  visita: () => `<h1>¡Bienvenido a ${CHURCH}!</h1><p class="muted">Nos alegra que nos visites. Déjanos tus datos y te saludaremos.</p><div class="card stack">${sent === 'visita' ? '<div class="done"><p><strong>¡Gracias por visitarnos!</strong></p><p>Pronto alguien de la iglesia se pondrá en contacto contigo.</p></div>' : `
+    <input id="f-name" class="inp" placeholder="Tu nombre" aria-label="Nombre"><input class="inp" placeholder="Teléfono / WhatsApp" aria-label="Teléfono"><input class="inp" placeholder="Correo (opcional)" aria-label="Correo"><input class="inp" placeholder="¿Cómo supiste de nosotros?" aria-label="Cómo supiste de nosotros"><textarea class="inp" rows="3" placeholder="¿Qué te gustaría conocer? (ministerios, grupos, reuniones…)" aria-label="Interés"></textarea>
+    <label class="check"><input type="checkbox"> Acepto recibir mensajes por WhatsApp de la iglesia</label><label class="check"><input type="checkbox" id="f-consent"> Autorizo que se guarden mis datos para contactarme</label><button class="btn primary" data-act="visit">Enviar</button>`}</div>`,
+  portal: () => `<div><p class="kicker">Hola</p><h1>${ME.first}</h1></div>
+    <h2>Mis datos</h2><div class="card stack"><p class="muted">${fullName(ME)} · para cambiar tu nombre u otros datos, habla con la secretaría.</p><input class="inp" placeholder="Teléfono / WhatsApp" aria-label="Teléfono"><input class="inp" value="ana.condori@example.invalid" aria-label="Correo"><input class="inp" value="Zona Sopocachi #214" aria-label="Dirección"><label class="check"><input type="checkbox" checked> Acepto recibir mensajes por WhatsApp de la iglesia</label><div><button class="btn primary" data-act="save">Guardar</button></div></div>
+    <h2>Mis grupos</h2><div class="card"><strong>Célula Norte</strong> · Miembro · miércoles 19:00 · Casa de la familia Mamani</div>
+    <h2>Próximos eventos</h2><div class="stack">${EVENTS.map((e) => { const r = myReg(e); return `<div class="card"><div class="row between"><span><strong>${esc(e.title)}</strong> <span class="muted small">${when(e)}</span></span>${r ? `<span class="row"><span class="tag ${r.status === 'registered' ? 'green' : 'amber'}">${r.status === 'registered' ? 'Inscrito' : 'En espera'}</span>${r.status === 'registered' ? `<button class="link" data-act="myqr" data-id="${r.id}">Mi código</button>` : ''}<button class="link" data-act="cancel" data-id="${r.id}">Cancelar</button></span>` : `<button class="btn primary sm" data-act="join" data-id="${e.id}">Inscribirme</button>`}</div></div>`; }).join('')}</div>
+    <h2>Para miembros</h2><div class="card"><strong>Reunión de líderes</strong> <span class="muted small">${fDate(day(-4))}</span></div>
+    <h2>Recursos</h2><div class="card row between"><strong>Manual de célula</strong><button class="btn sm" data-act="download">Descargar PDF</button></div>`,
+};
+function render(top) {
+  $('#nav').innerHTML = NAV.map(([k, l]) => `<button data-act="go" data-id="${k}" class="${view === k ? 'on' : ''}"${view === k ? ' aria-current="page"' : ''}>${l}</button>`).join('');
+  $('#main').innerHTML = VIEWS[view]();
+  if (top) { window.scrollTo(0, 0); const a = $('#nav .on'); if (a) $('#nav').scrollLeft = a.offsetLeft - 60; }
+}
+const need = (name) => { if (name && !val('f-name')) { toast('Escribe tu nombre', 'err'); return false; } if (!on('f-consent')) { toast('Marca la autorización de datos', 'err'); return false; } return true; };
+Object.assign(ACT, {
+  go: (v) => { view = v; openEvent = null; lastReg = null; sent = null; render(true); },
+  event: (id) => { view = 'eventos'; openEvent = +id; lastReg = null; render(true); },
+  register: () => { if (!need(true)) return; lastReg = enroll(EVENTS.find((e) => e.id === openEvent), val('f-name')); render(); },
+  pray: () => { if (!val('f-req')) return toast('Escribe tu petición', 'err'); if (!need(false)) return; sent = 'oracion'; render(true); },
+  visit: () => { if (!need(true)) return; sent = 'visita'; render(true); },
+  join: (id) => { const r = enroll(EVENTS.find((e) => e.id === +id), fullName(ME), ME.id); render(); modal(ticket(r)); },
+  myqr: (id) => modal(ticket(REGS.find((r) => r.id === +id))),
+  cancel: (id) => confirmBox('¿Cancelar tu inscripción?', () => { unenroll(REGS.find((r) => r.id === +id)); render(); toast('Inscripción cancelada'); }),
+  save: () => toast('Tus datos se guardaron'),
+  download: () => toast('En la demo no se descargan archivos'),
+});
+render(true);
+</script>
+</body>
+</html>

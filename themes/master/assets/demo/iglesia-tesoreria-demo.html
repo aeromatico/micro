@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Iglesia — demo de tesorería</title>
+<style>*{box-sizing:border-box}
+html,body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.5}
+h1,h2,h3,h4,p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.muted{color:var(--muted)}.small{font-size:12px}.right{text-align:right}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:7px 14px;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.ok{background:#15803d;border-color:#15803d;color:#fff}
+.btn.danger{background:#fff;border-color:#fca5a5;color:#b91c1c}
+.btn.sm{padding:4px 10px;font-size:12px}
+.link{border:0;background:none;padding:0;color:var(--brand);font-weight:600;text-decoration:underline}
+.inp{width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:8px 11px}
+textarea.inp{resize:vertical}
+.check{display:flex;gap:8px;align-items:flex-start}.check input{margin-top:4px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.card{border:1px solid var(--line);background:#fff;border-radius:var(--r);padding:16px}
+.tag{display:inline-block;border-radius:99px;padding:1px 9px;font-size:11px;font-weight:700;background:#eef0f4;color:#475569;white-space:nowrap}
+.tag.green{background:#dcfce7;color:#166534}.tag.amber{background:#fef3c7;color:#92400e}.tag.blue{background:#dbeafe;color:#1e40af}.tag.red{background:#fee2e2;color:#991b1b}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:flex-start;justify-content:center;padding:6vh 14px;overflow:auto;z-index:50}
+.dialog{position:relative;width:100%;max-width:440px;background:#fff;border-radius:12px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.dialog.wide{max-width:680px}
+.dialog .x{position:absolute;right:10px;top:6px;border:0;background:none;font-size:22px;color:var(--muted)}
+.ask{font-size:15px;margin:6px 18px 18px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#14532d;color:#fff;border-radius:10px;padding:10px 16px;font-weight:600;font-size:13px;z-index:60;width:max-content;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.err{background:#991b1b}
+:root{--brand:#2563eb;--ink:#1f2937;--muted:#6b7280;--line:#e2e5ea;--bg:#f3f4f6;--r:6px}
+.shell{display:flex;min-height:100vh}
+aside{width:190px;flex:none;background:#1f2a3c;color:#cbd5e1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+aside .who{padding:14px;border-bottom:1px solid rgba(255,255,255,.08);color:#fff;font-weight:700}
+aside .who span{display:block;font-weight:500;font-size:11px;color:#94a3b8}
+aside nav{display:flex;flex-direction:column;padding:8px}
+aside nav button{display:flex;justify-content:space-between;gap:8px;border:0;background:none;color:inherit;text-align:left;padding:8px 10px;border-radius:6px;font-weight:600;font-size:13px;white-space:nowrap}
+aside nav button:hover{background:rgba(255,255,255,.06)}aside nav button.on{background:#2563eb;color:#fff}
+aside nav b{background:#f59e0b;color:#111;border-radius:99px;font-size:10px;padding:0 6px}
+main{flex:1;min-width:0;padding:18px 22px 60px}
+h1{font-size:20px;margin-bottom:14px}h3{font-size:14px;margin-bottom:8px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px}
+.bar h1{margin:0}
+.bar .inp,.row .inp{width:auto;min-width:150px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;margin-bottom:16px}
+.stat b{display:block;font-size:24px;line-height:1.3}.up{color:#15803d}.down{color:#b91c1c}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.hbar{display:flex;align-items:center;gap:8px;font-size:12px;margin:3px 0}.hbar span{width:58px;flex:none;color:var(--muted)}.hbar i{height:11px;border-radius:2px;background:#3b82f6;min-width:2px}.hbar.g i{background:#10b981}
+.table{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f9fafb}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr[data-act]{cursor:pointer}tr[data-act]:hover td{background:#eff6ff}
+td.wrap{white-space:normal;min-width:200px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600}.form .full{grid-column:1/-1}.form label.check{flex-direction:row;font-weight:500;font-size:13px}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;margin:10px 0}.kv dt{color:var(--muted)}.kv dd{margin:0}
+.note{border-left:3px solid #cbd5e1;padding:3px 10px;margin:8px 0}
+dd{margin:0}
+@media (max-width:700px){
+ .shell{flex-direction:column}
+ aside{width:100%;height:auto;z-index:10}
+ aside .who{padding:8px 12px}
+ aside nav{flex-direction:row;overflow-x:auto;padding:6px;scrollbar-width:none}
+ main{padding:14px 12px 60px}
+ .grid{grid-template-columns:1fr 1fr}.form{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell"><aside><div class="who">Comunidad Vida Nueva<span>Tesorería</span></div><nav id="menu" aria-label="Iglesia"></nav></aside><main id="main"></main></div>
+<script>/* Utilidades y datos ficticios compartidos por las tres demos (mismos nombres que `church:demo`). Nada se guarda ni se envía. */
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const val = (id) => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+const on = (id) => { const e = document.getElementById(id); return !!(e && e.checked); };
+const money = (v) => Number(v).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const CHURCH = 'Comunidad Vida Nueva';
+const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+const day = (n, h = 0, m = 0) => { const d = new Date(TODAY); d.setDate(d.getDate() + n); d.setHours(h, m); return d; };
+const pad = (n) => String(n).padStart(2, '0');
+const fDate = (d) => d ? `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}` : '—';
+const fShort = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
+const fTime = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const nextSunday = ((7 - TODAY.getDay()) % 7) || 7;
+let seed = 25025;
+const rnd = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed % (b - a + 1)); };
+const pick = (a) => a[rnd(0, a.length - 1)];
+let uid = 1000;
+
+/** Dibujo con aspecto de QR. Es decorativo a propósito: no se puede escanear. */
+function qrSvg(text, size = 160) {
+  let h = 7; for (const c of String(text)) h = (h * 31 + c.charCodeAt(0)) % 2147483647;
+  const n = 25; let out = '';
+  const finder = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><path d="M${x + 2} ${y + 2}h3v3h-3z"/>`;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    h = (h * 16807) % 2147483647;
+    if ((x < 8 && (y < 8 || y > n - 9)) || (y < 8 && x > n - 9)) continue;
+    if (h % 100 < 47) out += `M${x} ${y}h1v1h-1z`;
+  }
+  return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" width="${size}" height="${size}" fill="#111" style="background:#fff" role="img" aria-label="Código QR de ejemplo">${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}<path d="${out}"/></svg>`;
+}
+
+function toast(msg, kind = 'ok') {
+  const t = document.createElement('div'); t.className = 'toast ' + kind; t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+function closeModal() { const m = $('#modal'); if (m) m.remove(); }
+function modal(html, wide) {
+  closeModal();
+  const m = document.createElement('div'); m.id = 'modal'; m.className = 'overlay';
+  m.innerHTML = `<div class="dialog${wide ? ' wide' : ''}" role="dialog" aria-modal="true"><button class="x" data-act="close" aria-label="Cerrar">×</button>${html}</div>`;
+  m.addEventListener('click', (e) => { if (e.target === m) closeModal(); });
+  document.body.appendChild(m);
+}
+let pendingYes = null;
+function confirmBox(msg, yes) {
+  pendingYes = yes;
+  modal(`<p class="ask">${esc(msg)}</p><div class="actions"><button class="btn" data-act="close">Volver</button><button class="btn primary" data-act="yes">Confirmar</button></div>`);
+}
+const ACT = { close: closeModal, yes: () => { const f = pendingYes; pendingYes = null; closeModal(); if (f) f(); } };
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
+  if (el.tagName === 'A' || el.tagName === 'BUTTON') e.preventDefault();
+  const f = ACT[el.dataset.act]; if (f) f(el.dataset.id, el);
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* ───── personas ───── */
+const BRANCHES = ['Sede Central', 'Sede Zona Sur'];
+const MSTAT = { visitor: 'Visitante', new: 'Nuevo asistente', active: 'Miembro activo', inactive: 'Miembro inactivo' };
+const MEMBERS = [];
+[['Mamani Quispe', 'Juan', 'María', ['Valentina', 'Mateo', 'Camila']], ['Condori Flores', 'Carlos', 'Ana', ['Emanuel', 'Abigail']], ['Choque Gutiérrez', 'Luis', 'Rosa', ['Josué']],
+ ['Vargas Rojas', 'Pedro', 'Lucía', ['Noemí', 'Isaac', 'Lía']], ['Quispe Mendoza', 'José', 'Elena', []], ['Torrez Salazar', 'Marcos', 'Carmen', ['Thiago', 'Sara']],
+ ['Huanca Pérez', 'Daniel', 'Sofía', ['Benjamín']], ['Rodríguez Cruz', 'Samuel', 'Patricia', ['Ruth', 'Gael']]].forEach(([sur, h, w, kids], i) => {
+  const branch = BRANCHES[i % 3 === 2 ? 1 : 0], family = 'Familia ' + sur;
+  const add = (first, role, age) => MEMBERS.push({ id: ++uid, first, last: sur, family, role, age, branch, status: 'active', consent: age >= 18 && uid % 4 !== 0, since: -rnd(40, 330), birth: rnd(20, 330) });
+  add(h, 'Cabeza de familia', rnd(32, 55)); add(w, 'Cónyuge', rnd(29, 52)); kids.forEach((k) => add(k, 'Hijo/a', rnd(3, 16)));
+});
+[['Andrea', 'Lima Torrico', 19, 'active', -210], ['Diego', 'Paco Ticona', 22, 'active', -150], ['Karen', 'Poma Limachi', 24, 'active', -95], ['Eulogia', 'Ticona Mamani', 71, 'active', -300],
+ ['Silvia', 'Mercado Ortiz', 38, 'active', -62], ['Rolando', 'Gómez Vera', 45, 'active', -180], ['Gonzalo', 'Rivero Sandoval', 31, 'new', -12], ['Mariela', 'Cárdenas Ruiz', 27, 'new', -6],
+ ['Teresa', 'Nina Choque', 49, 'inactive', -320]].forEach(([first, last, age, status, since], i) =>
+  MEMBERS.push({ id: ++uid, first, last, family: '', role: '', age, branch: BRANCHES[i % 2], status, consent: status !== 'inactive' && i % 3 !== 2, since, birth: rnd(20, 330) }));
+[[0, 1], [3, 3], [9, 5]].forEach(([i, n]) => { MEMBERS[i].birth = n; });
+const fullName = (m) => m.first + ' ' + m.last;
+const member = (id) => MEMBERS.find((m) => m.id === +id);
+const adults = () => MEMBERS.filter((m) => m.age >= 18);
+
+/* ───── eventos (cupo, lista de espera, llegada) ───── */
+const ETYPE = { service: 'Culto', retreat: 'Retiro', conference: 'Conferencia', special: 'Actividad especial' };
+const EVENTS = [
+  { id: 1, title: 'Culto dominical', type: 'service', at: day(nextSunday, 10), place: 'Templo principal', cap: 150, pub: true, open: true, text: 'Te esperamos este domingo.', n: 12 },
+  { id: 3, title: 'Conferencia de familia', type: 'conference', at: day(10, 18, 30), place: 'Sede Zona Sur', cap: 100, pub: false, open: true, text: 'Solo para miembros.', n: 8 },
+  { id: 2, title: 'Retiro de jóvenes', type: 'retreat', at: day(21, 8), place: 'Casa de retiros, Coroico', cap: 12, pub: true, open: true, text: 'Dos días de comunión, enseñanza y descanso. Cupo limitado.', n: 15 },
+];
+const REGS = [];
+// Ana (la del portal) solo empieza inscrita al culto, para que pueda probar las demás inscripciones.
+EVENTS.forEach((e) => adults().filter((m) => e.id === 1 || m.first !== 'Ana').slice(e.id, e.id + e.n).forEach((m, i) => REGS.push({ id: ++uid, event: e.id, member: m.id, name: fullName(m), status: i < e.cap ? 'registered' : 'waitlist', in: null })));
+const seats = (e) => REGS.filter((r) => r.event === e.id && r.status === 'registered').length;
+const waiting = (e) => REGS.filter((r) => r.event === e.id && r.status === 'waitlist').length;
+function enroll(e, name, memberId) {
+  const r = { id: ++uid, event: e.id, member: memberId || null, name, status: seats(e) < e.cap ? 'registered' : 'waitlist', in: null };
+  REGS.push(r); return r;
+}
+/** Igual que el servicio real: al liberarse un cupo sube el primero de la lista de espera. */
+function unenroll(r) {
+  const seated = r.status === 'registered'; REGS.splice(REGS.indexOf(r), 1);
+  const e = EVENTS.find((x) => x.id === r.event);
+  if (!seated || seats(e) >= e.cap) return null;
+  const next = REGS.find((x) => x.event === e.id && x.status === 'waitlist');
+  if (next) next.status = 'registered';
+  return next || null;
+}
+/* Armazón común de los paneles (menú lateral como en el backend). Cada demo define MENU y VIEWS. */
+let view = '';
+const table = (heads, rows, empty = 'No hay registros.') => `<div class="table"><table><thead><tr>${heads.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('') || `<tr><td colspan="${heads.length}" class="muted">${empty}</td></tr>`}</tbody></table></div>`;
+const tag = (label, color = '') => `<span class="tag ${color}">${esc(label)}</span>`;
+const options = (map, sel, first) => (first ? `<option value="">${first}</option>` : '') + Object.entries(map).map(([k, v]) => `<option value="${esc(k)}"${String(k) === String(sel) ? ' selected' : ''}>${esc(v)}</option>`).join('');
+const stat = (label, big, sub = '', go = '') => `<div class="card stat"><span class="muted small">${label}</span><b>${big}</b><span class="small muted">${sub}${go ? ` <button class="link" data-act="go" data-id="${go}">Ver</button>` : ''}</span></div>`;
+function render() {
+  $('#menu').innerHTML = MENU.map(([k, l, badge]) => { const n = badge ? badge() : 0; return `<button data-act="go" data-id="${k}" class="${view === k ? 'on' : ''}">${l}${n ? `<b>${n}</b>` : ''}</button>`; }).join('');
+  $('#main').innerHTML = VIEWS[view]();
+}
+ACT.go = (v) => { view = v; closeModal(); render(); window.scrollTo(0, 0); };
+function start() {
+  view = MENU[0][0]; render();
+  // Las fechas se aplican al confirmar («change»): redibujar mientras se teclean les quitaría el foco.
+  const apply = (e) => { const t = e.target; if (!t.dataset.filter || (e.type === 'input') === (t.type === 'date')) return; FILTER[t.dataset.filter] = t.value; const id = t.id, p = t.selectionStart; render(); const el = document.getElementById(id); if (el) { el.focus(); if (el.type === 'search') el.setSelectionRange(p, p); } };
+  document.addEventListener('input', apply); document.addEventListener('change', apply);
+}
+const FILTER = {};
+/* Tesorería: resumen de aportes, aportes (QR, comprobante, anulación) y conceptos. */
+const METHODS = { cash: 'Efectivo', transfer: 'Transferencia bancaria', qr: 'QR bancario' };
+const CSTAT = { pending: 'Pendiente', confirmed: 'Confirmado', cancelled: 'Anulado' };
+const CCOL = { pending: 'amber', confirmed: 'green', cancelled: 'red' };
+const FKIND = { tithe: 'Diezmo', offering: 'Ofrenda', donation: 'Donación', campaign: 'Campaña' };
+const FUNDS = [{ id: 1, name: 'Diezmo', kind: 'tithe' }, { id: 2, name: 'Ofrenda', kind: 'offering' }, { id: 3, name: 'Donación', kind: 'donation' }, { id: 4, name: 'Misiones', kind: 'offering' }, { id: 5, name: 'Campaña templo nuevo', kind: 'campaign', goal: 80000, ends: day(240) }];
+const CONTRIB = []; let receipts = 0;
+function add(fund, who, date, amount, method, extra = {}) {
+  const c = { id: ++uid, fund, member: who ? who.id : null, donor: who ? fullName(who) : '', anon: false, amount, cur: 'BOB', date, method, status: method === 'qr' ? 'pending' : 'confirmed', branch: who ? who.branch : BRANCHES[0], receipt: '', qr: false, ...extra };
+  CONTRIB.unshift(c); return c;
+}
+const payers = adults().slice(0, 14);
+for (let w = 40; w >= 1; w--) {
+  const d = day(nextSunday - 7 * w);
+  payers.forEach((p) => { if (rnd(1, 100) <= (w > 12 ? 42 : 55)) add(1, p, d, pick([100, 150, 200, 250, 300, 400, 500, 800]), rnd(1, 100) <= 70 ? 'cash' : 'transfer'); });
+  add(2, null, d, rnd(8, 25) * 10, 'cash', { anon: true });
+  if (rnd(1, 100) <= 60) add(4, pick(payers), d, pick([50, 100, 150]), 'cash');
+  if (w <= 18 && rnd(1, 100) <= 60) add(5, pick(payers), d, pick([500, 1000, 1500, 2000]), 'transfer');
+}
+const receipt = (c) => { if (!c.receipt) c.receipt = 'REC-' + String(++receipts).padStart(6, '0'); return c.receipt; };
+add(3, null, day(-9), 300, 'cash', { cur: 'USD', donor: 'Visitante extranjero' });
+add(1, payers[4], day(-10), 999, 'cash', { status: 'cancelled' });
+add(2, payers[2], day(-2), 120, 'qr', { qr: true });
+add(1, payers[1], day(-1), 250, 'qr');
+add(5, payers[3], TODAY, 3000, 'qr');
+CONTRIB.sort((a, b) => b.date - a.date || b.id - a.id);
+CONTRIB.filter((c) => c.status === 'confirmed' && c.member).slice(0, 6).reverse().forEach(receipt);
+const fund = (id) => FUNDS.find((f) => f.id === +id);
+const who = (c) => c.anon ? 'Anónimo' : c.donor;
+const MENU = [['resumen', 'Resumen de aportes'], ['aportes', 'Aportes', () => CONTRIB.filter((c) => c.status === 'pending').length], ['conceptos', 'Conceptos de aporte']];
+const sum = (rows, key) => { const o = {}; rows.forEach((c) => { const k = key(c) + '|' + c.cur; o[k] = (o[k] || 0) + c.amount; }); return Object.entries(o).map(([k, v]) => [...k.split('|'), v]).sort((a, b) => b[2] - a[2]); };
+let shown = 25;
+const VIEWS = {
+  resumen: () => {
+    const from = FILTER.from || iso(new Date(TODAY.getFullYear(), TODAY.getMonth() - 2, 1)), to = FILTER.to || iso(TODAY), br = FILTER.br || '';
+    const ok = CONTRIB.filter((c) => c.status === 'confirmed' && (!br || c.branch === br));
+    const rows = ok.filter((c) => iso(c.date) >= from && iso(c.date) <= to);
+    const totals = sum(rows, () => 't');
+    const months = Array.from({ length: 9 }, (_, i) => { const d = new Date(TODAY.getFullYear(), TODAY.getMonth() - 8 + i, 1); return [d, ok.filter((c) => c.cur === 'BOB' && c.date.getMonth() === d.getMonth() && c.date.getFullYear() === d.getFullYear()).reduce((s, c) => s + c.amount, 0)]; });
+    const max = Math.max(1, ...months.map((m) => m[1]));
+    const block = (title, data, label) => `<div class="card"><h3>${title}</h3>${data.map(([k, cur, v]) => `<div class="row between"><span>${esc(label(k))}</span><strong>${money(v)} ${cur}</strong></div>`).join('') || '<p class="muted">Sin datos.</p>'}</div>`;
+    return `<div class="bar"><h1>Resumen de aportes</h1><div class="row"><label class="small">Desde <input id="from" data-filter="from" type="date" class="inp" value="${from}"></label><label class="small">Hasta <input id="to" data-filter="to" type="date" class="inp" value="${to}"></label><select id="br" data-filter="br" class="inp" aria-label="Sede">${options(Object.fromEntries(BRANCHES.map((b) => [b, b])), br, 'Todas las sedes')}</select></div></div>
+    <div class="grid">${totals.map(([, cur, v]) => stat('Total del periodo (' + cur + ')', money(v), ((n) => `en ${n} ${n === 1 ? 'aporte' : 'aportes'}`)(rows.filter((c) => c.cur === cur).length))).join('') || stat('Total del periodo', '0,00', 'sin aportes confirmados')}${stat('QR pendientes de pago', CONTRIB.filter((c) => c.status === 'pending').length, '', 'aportes')}</div>
+    <div class="cols">${block('Por concepto', sum(rows, (c) => c.fund), (k) => fund(k).name)}${block('Por sede', sum(rows, (c) => c.branch), (k) => k)}${block('Por forma de pago', sum(rows, (c) => c.method), (k) => METHODS[k])}</div>
+    <div class="card" style="margin-top:12px"><h3>Evolución mensual (BOB)</h3>${months.map(([d, v]) => `<div class="hbar"><span>${d.toLocaleDateString('es', { month: 'short' }).replace('.', '')} ${String(d.getFullYear()).slice(2)}</span><i style="width:${Math.round(v / max * 55)}%"></i>${money(v)}</div>`).join('')}</div>`;
+  },
+  aportes: () => {
+    const s = FILTER.cs || '', f = FILTER.cf || '';
+    const list = CONTRIB.filter((c) => (!s || c.status === s) && (!f || c.fund === +f));
+    return `<div class="bar"><h1>Aportes</h1><div class="row"><select id="cf" data-filter="cf" class="inp" aria-label="Concepto">${options(Object.fromEntries(FUNDS.map((x) => [x.id, x.name])), f, 'Todos los conceptos')}</select><select id="cs" data-filter="cs" class="inp" aria-label="Estado">${options(CSTAT, s, 'Todos los estados')}</select><button class="btn primary" data-act="newC">Nuevo aporte</button></div></div>` +
+      table(['Fecha', 'Concepto', 'Aportante', 'Monto', 'Mon.', 'Forma de pago', 'Estado', 'Comprobante'], list.slice(0, shown).map((c) => `<tr data-act="open" data-id="${c.id}"><td>${fDate(c.date)}</td><td>${fund(c.fund).name}</td><td>${esc(who(c))}</td><td class="right">${money(c.amount)}</td><td>${c.cur}</td><td>${METHODS[c.method]}</td><td>${tag(CSTAT[c.status], CCOL[c.status])}</td><td>${c.receipt || '—'}</td></tr>`)) +
+      (list.length > shown ? `<div class="actions" style="justify-content:center"><button class="btn" data-act="more">Ver más (${list.length - shown})</button></div>` : '');
+  },
+  conceptos: () => `<h1>Conceptos de aporte</h1>` + table(['Concepto', 'Tipo', 'Meta', 'Recaudado', 'Avance', 'Hasta'], FUNDS.map((f) => { const r = CONTRIB.filter((c) => c.fund === f.id && c.status === 'confirmed' && c.cur === 'BOB').reduce((s, c) => s + c.amount, 0); return `<tr><td>${f.name}</td><td>${FKIND[f.kind]}</td><td>${f.goal ? money(f.goal) : '—'}</td><td>${money(r)} BOB</td><td>${f.goal ? `<div class="hbar g"><i style="width:${Math.min(140, Math.round(r / f.goal * 140))}px"></i>${Math.round(r / f.goal * 100)}%</div>` : '—'}</td><td>${f.ends ? fDate(f.ends) : '—'}</td></tr>`; })),
+};
+const get = (id) => CONTRIB.find((c) => c.id === +id);
+function detail(c) {
+  const pend = c.method === 'qr' && c.status === 'pending';
+  modal(`<h3>${money(c.amount)} ${c.cur} · ${fund(c.fund).name}</h3>${tag(CSTAT[c.status], CCOL[c.status])}${c.receipt ? ` <span class="small">Comprobante ${c.receipt}</span>` : ''}
+  <dl class="kv"><dt>Fecha</dt><dd>${fDate(c.date)}</dd><dt>Aportante</dt><dd>${esc(who(c))}</dd><dt>Sede</dt><dd>${c.branch}</dd><dt>Forma de pago</dt><dd>${METHODS[c.method]}</dd></dl>
+  ${pend ? (c.qr ? `<div style="text-align:center">${qrSvg('pago' + c.id, 200)}<p class="muted small">Se confirma solo cuando el banco avisa el pago.</p><button class="btn" data-act="bank" data-id="${c.id}">Demo: simular el aviso del banco</button></div>` : '<p class="muted">Aún no hay QR. Genera el código y envíaselo a quien aporta.</p>') : ''}
+  <div class="actions">${pend ? `<button class="btn" data-act="qr" data-id="${c.id}">${c.qr ? 'Volver a mostrar el QR' : 'Generar QR'}</button><button class="btn ok" data-act="manual" data-id="${c.id}">Confirmar pago manualmente</button>` : ''}${c.status === 'confirmed' && !c.anon ? `<button class="btn primary" data-act="receipt" data-id="${c.id}">${c.receipt ? 'Ver comprobante' : 'Emitir comprobante'}</button>` : ''}${c.status !== 'cancelled' ? `<button class="btn danger" data-act="void" data-id="${c.id}">Anular aporte</button>` : ''}</div>`);
+}
+Object.assign(ACT, {
+  more: () => { shown += 25; render(); },
+  open: (id) => detail(get(id)),
+  qr: (id) => { const c = get(id); c.qr = true; detail(c); },
+  bank: (id) => { const c = get(id); c.status = 'confirmed'; render(); detail(c); toast('Pago recibido: el aporte quedó confirmado'); },
+  manual: (id) => confirmBox('¿Confirmar que este aporte ya se recibió?', () => { const c = get(id); c.status = 'confirmed'; render(); detail(c); toast('Aporte confirmado'); }),
+  receipt: (id) => { const c = get(id); receipt(c); render(); modal(`<div style="border:1px solid #888;padding:18px;margin-top:14px"><h3 style="font-size:18px">${CHURCH}</h3><p>Comprobante de aporte N.º <strong>${c.receipt}</strong></p><dl class="kv"><dt>Fecha</dt><dd>${fDate(c.date)}</dd><dt>Recibido de</dt><dd>${esc(who(c))}</dd><dt>Concepto</dt><dd>${fund(c.fund).name}</dd><dt>Forma de pago</dt><dd>${METHODS[c.method]}</dd><dt>Monto</dt><dd style="font-size:20px;font-weight:700">${money(c.amount)} ${c.cur}</dd></dl><p class="muted small">Gracias por su aporte. Este comprobante acredita la recepción del monto indicado.</p></div>`); },
+  void: (id) => { const c = get(id); confirmBox('¿Anular este aporte?' + (c.status === 'confirmed' ? ' También se anula su asiento en Finanzas.' : ''), () => { c.status = 'cancelled'; render(); toast('Aporte anulado'); }); },
+  newC: () => modal(`<h3>Nuevo aporte</h3><div class="form"><label>Concepto<select id="n-fund" class="inp">${options(Object.fromEntries(FUNDS.map((x) => [x.id, x.name])), 1)}</select></label><label>Sede<select id="n-br" class="inp">${BRANCHES.map((b) => `<option>${b}</option>`).join('')}</select></label><label>Monto<input id="n-amount" type="number" min="1" class="inp" value="200"></label><label>Moneda<select id="n-cur" class="inp"><option>BOB</option><option>USD</option></select></label><label>Forma de pago<select id="n-method" class="inp">${options(METHODS, 'qr')}</select></label><label>Miembro<select id="n-member" class="inp">${options(Object.fromEntries(adults().map((m) => [m.id, fullName(m)])), adults()[0].id, '— Ninguno —')}</select></label><label>Aportante externo<input id="n-donor" class="inp" placeholder="Solo si no es miembro"></label><label class="check full"><input type="checkbox" id="n-anon"> Aporte anónimo (no se guarda quién aportó ni se emite comprobante)</label></div><p class="muted small" style="margin-top:8px">Efectivo y transferencia quedan confirmados al guardar; el QR queda pendiente hasta que se pague.</p><div class="actions"><button class="btn primary" data-act="create">Guardar</button></div>`, true),
+  create: () => {
+    const amount = Math.round(parseFloat(val('n-amount')) * 100) / 100, anon = on('n-anon'), m = anon ? null : member(val('n-member')), donor = anon ? '' : (m ? fullName(m) : val('n-donor'));
+    if (!(amount > 0)) return toast('Escribe un monto válido', 'err');
+    if (!anon && !donor) return toast('Indica quién aporta o márcalo como anónimo', 'err');
+    const c = add(+val('n-fund'), m, TODAY, amount, val('n-method'), { anon, donor, cur: val('n-cur'), branch: val('n-br') });
+    FILTER.cs = ''; FILTER.cf = ''; view = 'aportes'; render(); detail(c); toast('Aporte registrado');
+  },
+});
+start();
+</script>
+</body>
+</html>
