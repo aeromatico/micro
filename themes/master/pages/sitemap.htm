@@ -22,6 +22,7 @@ function onStart()
     }
 
     $urls[] = ['loc' => $host . '/plugins', 'priority' => '0.8'];
+    $urls[] = ['loc' => $host . '/store', 'priority' => '0.8'];
     foreach (\Aero\Services\Models\Category::active()->get(['slug', 'updated_at']) as $c) {
         $urls[] = ['loc' => $host . '/plugins/' . $c->slug, 'lastmod' => optional($c->updated_at)->toAtomString(), 'priority' => '0.6'];
     }
