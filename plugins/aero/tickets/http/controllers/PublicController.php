@@ -56,9 +56,25 @@ class PublicController extends Controller
         return $e;
     }
 
+    /**
+     * `/eventos` es una dirección corriente que otros módulos publican como página del sitio (p. ej. Iglesia).
+     * El catálogo solo la ocupa si el negocio tiene Entradas activo o ya creó eventos aquí.
+     */
+    protected function usesCatalog(int $tid): bool
+    {
+        $tenant = \Aero\Sites\Models\Tenant::find($tid);
+
+        return !$tenant || $tenant->pluginEnabled('Aero.Tickets') || Event::forTenant($tid)->exists();
+    }
+
     public function catalog(Request $r)
     {
         $tid = $this->tenantId();
+
+        if (!$this->usesCatalog($tid)) {
+            return app(\Cms\Classes\CmsController::class)->run('eventos');
+        }
+
         $q = Event::forTenant($tid)->listedPublicly()->with('category')
             ->where(fn ($w) => $w->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
 

@@ -39,3 +39,6 @@
 1.9.0:
     - "Sin reservas: la compra ya no retiene lugares y las entradas de pago se emiten al confirmarse el cobro. Se retira el evento privado por invitación."
     - simplify_reservations_and_invitations.php
+
+1.9.1:
+    - "Corrige la dirección /eventos: el catálogo de entradas ya no tapa la página de eventos del sitio en negocios que no usan Entradas."
