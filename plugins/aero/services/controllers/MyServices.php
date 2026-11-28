@@ -57,6 +57,35 @@ class MyServices extends Controller
         $this->vars['walletBs'] = Money::format($this->vars['walletUnits']);
     }
 
+    /**
+     * Pantalla de compra de un servicio: destino del botón «Comprar» de /store.
+     * Sin sesión, el panel pide iniciarla y vuelve aquí (url.intended).
+     */
+    public function buy($slug = null)
+    {
+        $service = Service::active()->where('slug', (string) $slug)->first();
+
+        if (!$service) {
+            \Flash::error('Ese plugin ya no está disponible.');
+
+            return \Backend::redirect('aero/services/myservices');
+        }
+
+        $this->pageTitle = 'Comprar ' . $service->name;
+
+        $tenantId = Credits::resolveCurrentTenantId();
+
+        $this->vars['service'] = $service;
+        $this->vars['tenantId'] = $tenantId;
+        $this->vars['options'] = $tenantId ? Checkout::options($service, $tenantId) : [];
+        $this->vars['previous'] = $tenantId
+            ? ServicePurchase::forTenant($tenantId)->where('service_id', $service->id)
+                ->where('status', '!=', ServicePurchase::CANCELLED)->orderByDesc('id')->first()
+            : null;
+        $this->vars['wantedPlan'] = is_numeric(get('plan')) ? (int) get('plan') : null;
+        $this->vars['wantedMethod'] = (string) get('method');
+    }
+
     protected function tenantIdOrFail(): int
     {
         $tenantId = Credits::resolveCurrentTenantId();
@@ -83,9 +112,12 @@ class MyServices extends Controller
             throw new ApplicationException($e->getMessage());
         }
 
-        \Flash::success('Compra registrada: ' . $service->name . ' — ' . $purchase->plan_name . '. Nuestro equipo la va a entregar en breve.');
+        $delivered = $purchase->status === ServicePurchase::FULFILLED;
 
-        return ['ok' => true];
+        \Flash::success('Compra registrada: ' . $service->name . ' — ' . $purchase->plan_name . '. '
+            . ($delivered ? 'Ya está activo.' : 'Nuestro equipo la va a entregar en breve.'));
+
+        return ['ok' => true, 'delivered' => $delivered];
     }
 
     /** El tenant puede arrepentirse mientras la compra siga pendiente: reembolso inmediato. */

@@ -78,6 +78,67 @@ class Checkout
     }
 
     /**
+     * Métodos con los que un plan se puede cobrar en línea HOY. Vacío = no se
+     * vende solo («a cotizar» o sin precio válido para ningún método).
+     */
+    public static function buyableMethods(array $plan): array
+    {
+        if (!static::available()) {
+            return [];
+        }
+
+        return array_values(array_filter(static::methodsFor($plan), function (string $method) use ($plan) {
+            if ($method === 'free') {
+                return true;
+            }
+
+            try {
+                return (bool) static::cost($plan, $method)['type'];
+            }
+            catch (\InvalidArgumentException $e) {
+                return false;
+            }
+        }));
+    }
+
+    /**
+     * Combinaciones plan + método para la pantalla de compra, con el costo y si
+     * el saldo del tenant alcanza.
+     *
+     * @return array<int, array{plan_index:int, method:string, plan:array, cost:string, balance:?string, after:?string, missing:?string}>
+     */
+    public static function options(Service $service, int $tenantId): array
+    {
+        $options = [];
+
+        foreach ((array) $service->plans as $index => $plan) {
+            foreach (static::buyableMethods($plan) as $method) {
+                $option = [
+                    'plan_index' => (int) $index, 'method' => $method, 'plan' => $plan,
+                    'cost' => 'Gratis', 'balance' => null, 'after' => null, 'missing' => null,
+                ];
+
+                if ($method !== 'free') {
+                    ['amount' => $amount, 'type' => $type] = static::cost($plan, $method);
+
+                    $balance = $method === 'money' ? Credits::walletUnits($tenantId) : Credits::balance($tenantId, $type->code);
+                    $label = fn (int $n) => $method === 'money'
+                        ? Money::label($n)
+                        : number_format($n, 0, ',', '.') . ' ' . $type->label;
+
+                    $option['cost'] = $label($amount);
+                    $option['balance'] = $label($balance);
+                    $option[$balance >= $amount ? 'after' : 'missing'] = $label(abs($balance - $amount));
+                }
+
+                $options[] = $option;
+            }
+        }
+
+        return $options;
+    }
+
+    /**
      * Cobra el plan y registra la compra. La compra queda `pending`: el
      * equipo la marca `fulfilled` desde el backend una vez entregado el
      * servicio (Checkout no sabe cómo se entrega cada servicio).

@@ -15,6 +15,9 @@ class Plugin extends PluginBase
         // El menú público (GET /api/v1/services/menu) se cachea: se invalida al editar el catálogo.
         $forget = fn () => Cache::forget(\Aero\Services\Http\Controllers\MenuController::CACHE_KEY);
 
+        // Quien llega al login desde «Comprar» ve qué está comprando y cómo crear su cuenta.
+        \Event::listen('backend.auth.extendSigninView', fn () => \Aero\Services\Classes\Storefront::signinNotice());
+
         foreach ([\Aero\Services\Models\Service::class, \Aero\Services\Models\Category::class] as $model) {
             $model::saved($forget);
             $model::deleted($forget);

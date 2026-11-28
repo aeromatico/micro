@@ -61,3 +61,9 @@
 
 1.17.0:
     - "Nueva tienda de plugins en /store: cada plugin con su descripción y precios, filtrable por categoría."
+
+1.18.0:
+    - "La tienda ahora permite comprar cada plugin: pide iniciar sesión si hace falta y muestra planes, costo y saldo antes de confirmar."
+
+1.19.0:
+    - "El botón de compra de la tienda ahora lleva a los planes si no has iniciado sesión y a la App Store del panel si ya la iniciaste."

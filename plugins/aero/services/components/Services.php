@@ -124,11 +124,11 @@ class Services extends ComponentBase
                     'key'   => $category?->slug ?: 'otros',
                     'name'  => $category?->name ?: 'Otros servicios',
                     'order' => $category?->sort_order ?? PHP_INT_MAX,
-                    'items' => $services->map(fn (Service $s) => [
+                    'items' => $services->map(fn (Service $s) => $this->storeBuy($s) + [
                         'name'     => $s->name,
                         'summary'  => $s->summary,
                         'url'      => url('plugin/' . $s->slug),
-                        'icon_svg' => \Aero\Services\Classes\LucideIcon::svg($s->icon ?: null, 'w-5 h-5 shrink-0 text-accent'),
+                        'icon_svg' => \Aero\Services\Classes\LucideIcon::svg(\Aero\Services\Classes\LucideIcon::exists($s->icon) ? $s->icon : 'puzzle', 'w-8 h-8'),
                         'plans'    => collect((array) $s->plans)->map(fn ($p) => [
                             'name'  => $p['name'] ?? '',
                             'lines' => $s->planPriceLines($p),
@@ -137,6 +137,21 @@ class Services extends ComponentBase
                 ];
             })
             ->sortBy('order')->values()->all();
+    }
+
+    /** Botón principal de la tarjeta: comprar (ver ruta store/comprar) o, si no se vende solo, cotizar. */
+    protected function storeBuy(Service $s): array
+    {
+        $methods = collect((array) $s->plans)->flatMap(fn ($p) => \Aero\Services\Classes\Checkout::buyableMethods($p));
+
+        if ($methods->isEmpty()) {
+            return ['buy_url' => null, 'buy_label' => 'Cotizar'];
+        }
+
+        return [
+            'buy_url'   => url('store/comprar'),
+            'buy_label' => $methods->every(fn ($m) => $m === 'free') ? 'Obtener gratis' : 'Comprar',
+        ];
     }
 
     protected function menuGroups(): array
